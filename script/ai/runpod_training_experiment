@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Launch an AlphaZero-lite training pipeline on RunPod."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import shlex
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+from ml.alphazero_lite.runpod_experiment import (  # noqa: E402
+    build_dry_run_plan,
+    orchestrate,
+)
+
+DEFAULT_POD_PROFILE = "cpu3c-16-32"
+DEFAULT_BUNDLE_PATH = str(REPO_ROOT / "tmp" / "runpod_training_bundle.tar.gz")
+
+parser = argparse.ArgumentParser(
+    prog="script/ai/runpod_training_experiment",
+    description="Launch an AlphaZero-lite training pipeline on RunPod.",
+)
+parser.add_argument("--config-path", required=True,
+                    help="Pipeline config to run remotely")
+parser.add_argument("--results-path", default=None,
+                    help="Remote-relative results directory")
+parser.add_argument("--local-results-path", default=None,
+                    help="Where to download remote results locally")
+parser.add_argument("--bundle-path", default=DEFAULT_BUNDLE_PATH,
+                    help="Where to write the generated tarball")
+parser.add_argument("--api-key-env", default="RUNPOD_API_KEY",
+                    help="Env var that contains the Runpod API key")
+parser.add_argument("--name", default="azlite-runpod-training",
+                    help="Runpod pod name")
+parser.add_argument("--pod-profile", default=DEFAULT_POD_PROFILE,
+                    help="Named Runpod pod profile")
+parser.add_argument("--run-timeout-seconds", type=int, default=14400,
+                    help="Timeout for the remote experiment command")
+parser.add_argument("--keep-pod-on-failure", action=argparse.BooleanOptionalAction,
+                    default=True,
+                    help="Keep the pod only when remote execution fails before producing usable results")
+parser.add_argument("--dry-run", action="store_true",
+                    help="Print the bundle/orchestration plan without running it")
+parser.add_argument("--phase2-config", default=None,
+                    help="Optional second pipeline config to chain after the first")
+
+args = parser.parse_args()
+
+config_path = args.config_path
+absolute_config_path = REPO_ROOT / config_path
+if not absolute_config_path.exists():
+    print(f"Missing config path: {config_path}", file=sys.stderr)
+    sys.exit(1)
+
+config = json.loads(absolute_config_path.read_text(encoding="utf-8"))
+
+phase2_config_path = args.phase2_config
+phase2_config = None
+if phase2_config_path:
+    absolute_phase2 = REPO_ROOT / phase2_config_path
+    if not absolute_phase2.exists():
+        print(f"Missing phase2 config path: {phase2_config_path}", file=sys.stderr)
+        sys.exit(1)
+    phase2_config = json.loads(absolute_phase2.read_text(encoding="utf-8"))
+
+if phase2_config:
+    run_id = phase2_config["run_id"]
+    versions_dir = phase2_config["versions_dir"]
+    phase2_start = int(phase2_config.get("start_iteration", 1))
+    phase2_final = phase2_start + int(phase2_config.get("iterations", 1)) - 1
+    candidate_dir_name = f"{run_id}-iter{phase2_final}"
+else:
+    run_id = config["run_id"]
+    iteration = int(config.get("iterations", 1))
+    versions_dir = config["versions_dir"]
+    candidate_dir_name = f"{run_id}-iter{iteration}"
+
+results_path = args.results_path or f"storage/ai/alphazero_lite/versions/{candidate_dir_name}"
+local_results_path = args.local_results_path or str(REPO_ROOT / "tmp" / "runpod_results")
+candidate_path = str(Path(versions_dir) / candidate_dir_name)
+promotion_out = str(Path(results_path) / "local_promotion_gate.json")
+gate_config_path = phase2_config_path or config_path
+
+if phase2_config_path:
+    pipeline_commands = [
+        f".venv/bin/python ml/alphazero_lite/pipeline.py --config {shlex.quote(config_path)} --skip-step rules_parity_fuzz",
+        f".venv/bin/python ml/alphazero_lite/pipeline.py --config {shlex.quote(phase2_config_path)} --skip-step rules_parity_fuzz",
+    ]
+else:
+    pipeline_commands = [
+        f".venv/bin/python ml/alphazero_lite/pipeline.py --config {shlex.quote(config_path)} --skip-step rules_parity_fuzz",
+    ]
+
+command = " && ".join([
+    f"mkdir -p {shlex.quote(results_path)}",
+    *pipeline_commands,
+    f"cp -R {shlex.quote(candidate_path)} {shlex.quote(results_path)}/",
+    f"script/ai/local_promotion_gate --candidate-path {shlex.quote(candidate_path)} --config-path {shlex.quote(gate_config_path)} --out {shlex.quote(promotion_out)}",
+])
+
+include_paths = [
+    "ml/alphazero_lite",
+    "script/ai",
+    config_path,
+    "storage/ai/alphazero_lite/current",
+]
+if phase2_config_path:
+    include_paths.append(phase2_config_path)
+
+if args.dry_run:
+    plan = build_dry_run_plan(
+        name=args.name,
+        command=command,
+        bundle_path=args.bundle_path,
+        results_path=results_path,
+        local_results_path=local_results_path,
+        include_paths=include_paths,
+        api_key_env=args.api_key_env,
+        pod_profile=args.pod_profile,
+        run_timeout_seconds=args.run_timeout_seconds,
+        keep_pod_on_failure=args.keep_pod_on_failure,
+    )
+    print(json.dumps(plan, indent=2))
+    sys.exit(0)
+
+result = orchestrate(
+    name=args.name,
+    command=command,
+    bundle_path=args.bundle_path,
+    results_path=results_path,
+    local_results_path=local_results_path,
+    include_paths=include_paths,
+    api_key_env=args.api_key_env,
+    pod_profile=args.pod_profile,
+    run_timeout_seconds=args.run_timeout_seconds,
+    keep_pod_on_failure=args.keep_pod_on_failure,
+)
+
+print(json.dumps({
+    "pod_id": result["pod_id"],
+    "bundle_path": result["bundle_path"],
+    "delete_command": result["shell_plan"]["delete_command"],
+    "experiment_report_path": result.get("experiment_report_path"),
+    "experiment_passed": result.get("experiment_passed"),
+    "manifest_path": result.get("manifest_path"),
+    "manifest_status": result.get("manifest_status"),
+}, indent=2))
