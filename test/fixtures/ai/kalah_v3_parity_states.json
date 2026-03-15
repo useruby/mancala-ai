@@ -1,0 +1,42 @@
+[
+  {
+    "id": "player_extra_turn_threat",
+    "state": {
+      "player_pits": [0, 0, 0, 0, 1, 1],
+      "opponent_pits": [0, 2, 0, 0, 0, 1],
+      "player_store": 0,
+      "opponent_store": 0,
+      "current_player": 0
+    }
+  },
+  {
+    "id": "player_capture_threat",
+    "state": {
+      "player_pits": [1, 0, 0, 2, 0, 0],
+      "opponent_pits": [0, 0, 0, 0, 5, 1],
+      "player_store": 0,
+      "opponent_store": 0,
+      "current_player": 0
+    }
+  },
+  {
+    "id": "tactical_endgame_pressure",
+    "state": {
+      "player_pits": [0, 0, 7, 0, 0, 1],
+      "opponent_pits": [0, 1, 0, 0, 0, 1],
+      "player_store": 14,
+      "opponent_store": 10,
+      "current_player": 0
+    }
+  },
+  {
+    "id": "opponent_to_move_endgame",
+    "state": {
+      "player_pits": [0, 1, 0, 0, 5, 0],
+      "opponent_pits": [0, 0, 0, 1, 0, 6],
+      "player_store": 22,
+      "opponent_store": 17,
+      "current_player": 1
+    }
+  }
+]

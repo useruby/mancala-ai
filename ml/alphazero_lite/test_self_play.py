@@ -1,0 +1,1610 @@
+import json
+import random
+import subprocess
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+import numpy as np
+
+from ml.alphazero_lite import self_play
+from ml.alphazero_lite.input_encodings import BASE_FEATURE_ORDER, KALAH_V3_EXTRA_FEATURE_ORDER
+from ml.alphazero_lite.kalah_rules import KalahGame
+
+
+VALUE_TARGET_PARITY_FIXTURE = Path(__file__).resolve().parents[2] / "test" / "fixtures" / "ai" / "value_target_parity_cases.json"
+
+
+def kalah_v3_feature_index(name: str) -> int:
+    return len(BASE_FEATURE_ORDER) + KALAH_V3_EXTRA_FEATURE_ORDER.index(name)
+
+
+class SelfPlayScriptTest(unittest.TestCase):
+    def test_canonical_value_target_default_uses_outcome_value(self):
+        target = self_play.canonical_value_target(
+            outcome_value=1.0,
+            search_value=-0.4,
+            move_index=0,
+            mode="default",
+        )
+
+        self.assertEqual(1.0, target)
+
+    def test_canonical_value_target_sharpened_keeps_outcome_sign_on_disagreement(self):
+        target = self_play.canonical_value_target(
+            outcome_value=1.0,
+            search_value=-0.4,
+            move_index=0,
+            mode="sharpened",
+        )
+
+        self.assertAlmostEqual(0.64, target, places=6)
+
+    def test_canonical_value_target_phase_aware_sharpens_by_move_bucket(self):
+        target = self_play.canonical_value_target(
+            outcome_value=1.0,
+            search_value=-0.4,
+            move_index=30,
+            mode="phase_aware_sharpened",
+        )
+
+        self.assertAlmostEqual(0.784, target, places=6)
+
+    def test_canonical_value_target_hybrid_blends_outcome_and_search_magnitudes(self):
+        target = self_play.canonical_value_target(
+            outcome_value=1.0,
+            search_value=-0.4,
+            move_index=0,
+            mode="hybrid",
+        )
+
+        self.assertAlmostEqual(0.55, target, places=6)
+
+    def test_canonical_value_target_matches_shared_parity_fixture(self):
+        parity_cases = json.loads(VALUE_TARGET_PARITY_FIXTURE.read_text(encoding="utf-8"))
+
+        for parity_case in parity_cases:
+            with self.subTest(case=parity_case["name"]):
+                target = self_play.canonical_value_target(
+                    outcome_value=parity_case["outcome_value"],
+                    search_value=parity_case["search_value"],
+                    move_index=parity_case["move_index"],
+                    mode=parity_case["value_target_mode"],
+                )
+
+                self.assertAlmostEqual(parity_case["expected_target"], target, places=9)
+
+    def test_canonical_value_target_returns_zero_for_draws(self):
+        target = self_play.canonical_value_target(
+            outcome_value=0.0,
+            search_value=0.8,
+            move_index=30,
+            mode="hybrid",
+        )
+
+        self.assertEqual(0.0, target)
+
+    def test_parse_args_accepts_hybrid_value_target_mode(self):
+        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "hybrid"]):
+            args = self_play.parse_args()
+
+        self.assertEqual("hybrid", args.value_target_mode)
+
+    def test_parse_args_accepts_phase_aware_value_target_mode(self):
+        with mock.patch(
+            "sys.argv",
+            ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "phase_aware_sharpened"],
+        ):
+            args = self_play.parse_args()
+
+        self.assertEqual("phase_aware_sharpened", args.value_target_mode)
+
+    def test_parse_args_accepts_sharpened_value_target_mode(self):
+        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "sharpened"]):
+            args = self_play.parse_args()
+
+        self.assertEqual("sharpened", args.value_target_mode)
+
+    def test_parse_args_accepts_sharpened_policy_target_mode(self):
+        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--policy-target-mode", "sharpened"]):
+            args = self_play.parse_args()
+
+        self.assertEqual("sharpened", args.policy_target_mode)
+
+    def test_encode_state_kalah_v3_exposes_extra_turn_and_capture_signals(self):
+        extra_turn_state = {
+            "player_pits": [0, 0, 0, 0, 1, 1],
+            "opponent_pits": [0, 2, 0, 0, 0, 1],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        capture_state = {
+            "player_pits": [1, 0, 0, 2, 0, 0],
+            "opponent_pits": [0, 0, 0, 0, 5, 1],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+
+        extra_turn_features = self_play.encode_state(extra_turn_state, input_encoding="kalah_v3")
+        capture_features = self_play.encode_state(capture_state, input_encoding="kalah_v3")
+
+        extra_turn_index = kalah_v3_feature_index("player_extra_turn_available")
+        capture_index = kalah_v3_feature_index("player_capture_available")
+
+        self.assertEqual(1.0, extra_turn_features[extra_turn_index])
+        self.assertEqual(0.0, extra_turn_features[capture_index])
+        self.assertEqual(0.0, capture_features[extra_turn_index])
+        self.assertEqual(1.0, capture_features[capture_index])
+
+    def test_encode_state_kalah_v3_does_not_count_terminal_store_move_as_extra_turn(self):
+        state = {
+            "player_pits": [0, 0, 0, 0, 0, 1],
+            "opponent_pits": [0, 0, 0, 0, 0, 0],
+            "player_store": 10,
+            "opponent_store": 9,
+            "current_player": 0,
+        }
+
+        game = KalahGame.from_state(state)
+        self.assertTrue(game.move(game.pit_index(5)))
+        self.assertTrue(game.over())
+        self.assertFalse(self_play._is_immediate_extra_turn(KalahGame.from_state(state), 5))
+
+        features = self_play.encode_state(state, input_encoding="kalah_v3")
+        extra_turn_index = kalah_v3_feature_index("player_extra_turn_available")
+        self.assertEqual(0.0, features[extra_turn_index])
+
+    def test_encode_state_kalah_v3_exposes_structure_and_endgame_pressure(self):
+        tactical_state = {
+            "player_pits": [0, 0, 7, 0, 0, 1],
+            "opponent_pits": [0, 1, 0, 0, 0, 1],
+            "player_store": 14,
+            "opponent_store": 10,
+            "current_player": 0,
+        }
+        quiet_state = {
+            "player_pits": [2, 2, 2, 2, 2, 2],
+            "opponent_pits": [2, 2, 2, 2, 2, 2],
+            "player_store": 14,
+            "opponent_store": 10,
+            "current_player": 0,
+        }
+
+        tactical_features = self_play.encode_state(tactical_state, input_encoding="kalah_v3")
+        quiet_features = self_play.encode_state(quiet_state, input_encoding="kalah_v3")
+
+        player_empty_index = kalah_v3_feature_index("player_empty_pit_ratio")
+        player_high_seed_index = kalah_v3_feature_index("player_high_seed_ratio")
+        player_one_to_store_index = kalah_v3_feature_index("player_one_to_store_ratio")
+        player_remaining_index = kalah_v3_feature_index("player_remaining_stones")
+        opponent_extra_turn_index = kalah_v3_feature_index("opponent_extra_turn_available")
+        opponent_empty_index = kalah_v3_feature_index("opponent_empty_pit_ratio")
+        opponent_remaining_index = kalah_v3_feature_index("opponent_remaining_stones")
+
+        self.assertAlmostEqual(4.0 / 6.0, tactical_features[player_empty_index])
+        self.assertAlmostEqual(1.0 / 6.0, tactical_features[player_high_seed_index])
+        self.assertAlmostEqual(1.0 / 6.0, tactical_features[player_one_to_store_index])
+        self.assertAlmostEqual(8.0 / 48.0, tactical_features[player_remaining_index])
+        self.assertEqual(1.0, tactical_features[opponent_extra_turn_index])
+        self.assertAlmostEqual(4.0 / 6.0, tactical_features[opponent_empty_index])
+        self.assertAlmostEqual(2.0 / 48.0, tactical_features[opponent_remaining_index])
+        self.assertLess(tactical_features[player_remaining_index], quiet_features[player_remaining_index])
+        self.assertGreater(tactical_features[player_empty_index], quiet_features[player_empty_index])
+
+    def test_checkpoint_evaluator_accepts_kalah_v3_placeholder_encoding(self):
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+
+        checkpoint = {
+            "w_hidden_1": np.zeros((27, 2), dtype=np.float32),
+            "b_hidden_1": np.zeros(2, dtype=np.float32),
+            "w_hidden_2": np.zeros((2, 2), dtype=np.float32),
+            "b_hidden_2": np.zeros(2, dtype=np.float32),
+            "w_policy": np.zeros((2, 6), dtype=np.float32),
+            "b_policy": np.zeros(6, dtype=np.float32),
+            "w_value": np.zeros((2, 1), dtype=np.float32),
+            "b_value": np.zeros(1, dtype=np.float32),
+        }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint)
+
+            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v3")
+
+            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+                policy, value = evaluator.evaluate(game)
+
+            encode_state.assert_called_once()
+            self.assertEqual("kalah_v3", encode_state.call_args.kwargs["input_encoding"])
+            self.assertEqual(6, len(policy))
+            self.assertEqual(0.0, value)
+
+    def test_checkpoint_evaluator_uses_selected_input_encoding(self):
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+
+        checkpoint = {
+            "w_hidden_1": np.zeros((15, 2), dtype=np.float32),
+            "b_hidden_1": np.zeros(2, dtype=np.float32),
+            "w_hidden_2": np.zeros((2, 2), dtype=np.float32),
+            "b_hidden_2": np.zeros(2, dtype=np.float32),
+            "w_policy": np.zeros((2, 6), dtype=np.float32),
+            "b_policy": np.zeros(6, dtype=np.float32),
+            "w_value": np.zeros((2, 1), dtype=np.float32),
+            "b_value": np.zeros(1, dtype=np.float32),
+        }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint)
+
+            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v2")
+
+            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+                evaluator.evaluate(game)
+
+            encode_state.assert_called_once()
+            self.assertEqual("kalah_v2", encode_state.call_args.kwargs["input_encoding"])
+
+    def test_checkpoint_evaluator_applies_residual_v3_specialized_heads(self):
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+
+        checkpoint = {
+            "w_input": np.array(
+                [[1.0, 2.0]] * 12 + [[0.0, 0.0]] * 3,
+                dtype=np.float32,
+            ),
+            "b_input": np.zeros(2, dtype=np.float32),
+            "w_residual_1_1": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_1": np.zeros(2, dtype=np.float32),
+            "w_residual_1_2": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_2": np.zeros(2, dtype=np.float32),
+            "w_policy_hidden": np.array(
+                [
+                    [1.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0],
+                ],
+                dtype=np.float32,
+            ),
+            "b_policy_hidden": np.zeros(3, dtype=np.float32),
+            "w_value_hidden": np.array(
+                [
+                    [1.0],
+                    [1.0],
+                ],
+                dtype=np.float32,
+            ),
+            "b_value_hidden": np.zeros(1, dtype=np.float32),
+            "w_policy": np.array(
+                [
+                    [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                ],
+                dtype=np.float32,
+            ),
+            "b_policy": np.zeros(6, dtype=np.float32),
+            "w_value": np.array([[1.0 / 6.0]], dtype=np.float32),
+            "b_value": np.zeros(1, dtype=np.float32),
+        }
+        expected_policy = self_play.softmax(np.array([1.0, 2.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32))
+        expected_value = float(np.tanh(0.5))
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint)
+
+            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+            policy, value = evaluator.evaluate(game)
+
+        np.testing.assert_allclose(expected_policy, policy)
+        self.assertAlmostEqual(expected_value, value)
+
+    def test_checkpoint_evaluator_rejects_partial_residual_v3_specialized_heads(self):
+        checkpoint = {
+            "w_input": np.zeros((15, 2), dtype=np.float32),
+            "b_input": np.zeros(2, dtype=np.float32),
+            "w_residual_1_1": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_1": np.zeros(2, dtype=np.float32),
+            "w_residual_1_2": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_2": np.zeros(2, dtype=np.float32),
+            "w_policy_hidden": np.zeros((2, 3), dtype=np.float32),
+            "b_policy_hidden": np.zeros(3, dtype=np.float32),
+            "w_policy": np.zeros((3, 6), dtype=np.float32),
+            "b_policy": np.zeros(6, dtype=np.float32),
+            "w_value": np.zeros((1, 1), dtype=np.float32),
+            "b_value": np.zeros(1, dtype=np.float32),
+        }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint)
+
+            with self.assertRaisesRegex(ValueError, "missing specialized head weights"):
+                self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+
+    def test_checkpoint_evaluator_rejects_shape_mismatched_residual_v3_specialized_heads(self):
+        checkpoint = {
+            "w_input": np.zeros((15, 2), dtype=np.float32),
+            "b_input": np.zeros(2, dtype=np.float32),
+            "w_residual_1_1": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_1": np.zeros(2, dtype=np.float32),
+            "w_residual_1_2": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_2": np.zeros(2, dtype=np.float32),
+            "w_policy_hidden": np.zeros((3, 3), dtype=np.float32),
+            "b_policy_hidden": np.zeros(3, dtype=np.float32),
+            "w_value_hidden": np.zeros((2, 1), dtype=np.float32),
+            "b_value_hidden": np.zeros(1, dtype=np.float32),
+            "w_policy": np.zeros((3, 6), dtype=np.float32),
+            "b_policy": np.zeros(6, dtype=np.float32),
+            "w_value": np.zeros((1, 1), dtype=np.float32),
+            "b_value": np.zeros(1, dtype=np.float32),
+        }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint)
+
+            with self.assertRaisesRegex(ValueError, r"w_policy_hidden must have shape"):
+                self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+
+    def test_puct_rejects_unsupported_root_policy_mode(self):
+        with self.assertRaisesRegex(ValueError, "unsupported root_policy_mode"):
+            self_play.PUCT(
+                evaluator=self_play.HeuristicEvaluator(),
+                simulations=1,
+                c_puct=1.25,
+                rng=random.Random(7),
+                root_policy_mode="softmax",
+            )
+
+    def test_self_play_defaults_keep_exploration_oriented_root_settings(self):
+        options = self_play.build_search_options()
+
+        self.assertEqual("visit_count", options["root_policy_mode"])
+        self.assertEqual(0.0, options["tactical_root_bias"])
+
+    def test_build_policy_target_keeps_default_temperature_weighted_behavior(self):
+        visits = np.array([70, 20, 10, 0, 0, 0], dtype=np.float32)
+        legal_moves = [0, 1, 2]
+
+        target = self_play.build_policy_target(visits, legal_moves=legal_moves, temperature=1.0)
+        default_policy = self_play.policy_from_visits(visits, legal_moves=legal_moves, temperature=1.0)
+
+        self.assertEqual(default_policy, target)
+
+    def test_build_policy_target_sharpened_preserves_legality_and_increases_top_move_separation(self):
+        visits = np.array([70, 20, 10, 0, 0, 0], dtype=np.float32)
+        legal_moves = [0, 1, 2]
+
+        default_target = self_play.build_policy_target(visits, legal_moves=legal_moves, temperature=1.0)
+        sharpened_target = self_play.build_policy_target(
+            visits,
+            legal_moves=legal_moves,
+            temperature=1.0,
+            mode="sharpened",
+        )
+
+        self.assertAlmostEqual(1.0, sum(sharpened_target), places=6)
+        self.assertEqual([0.0, 0.0, 0.0], sharpened_target[3:])
+        self.assertGreater(sharpened_target[0], default_target[0])
+        self.assertLess(sharpened_target[1], default_target[1])
+        self.assertLess(sharpened_target[2], default_target[2])
+        self.assertGreater(
+            sharpened_target[0] - sharpened_target[1],
+            default_target[0] - default_target[1],
+        )
+
+    def test_build_policy_target_sharpened_preserves_low_temperature_top_move_separation(self):
+        visits = np.array([70, 20, 10, 0, 0, 0], dtype=np.float32)
+        legal_moves = [0, 1, 2]
+
+        default_target = self_play.build_policy_target(visits, legal_moves=legal_moves, temperature=0.0)
+        sharpened_target = self_play.build_policy_target(
+            visits,
+            legal_moves=legal_moves,
+            temperature=0.0,
+            mode="sharpened",
+        )
+
+        self.assertEqual([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], default_target)
+        self.assertAlmostEqual(1.0, sum(sharpened_target), places=6)
+        self.assertEqual([0.0, 0.0, 0.0], sharpened_target[3:])
+        self.assertGreaterEqual(sharpened_target[0], default_target[0])
+        self.assertGreaterEqual(
+            sharpened_target[0] - sharpened_target[1],
+            default_target[0] - default_target[1],
+        )
+
+    def test_build_value_target_keeps_default_outcome_behavior(self):
+        self.assertEqual(0.4, self_play.build_value_target(0.4))
+        self.assertEqual(-0.4, self_play.build_value_target(-0.4))
+
+    def test_build_value_target_sharpened_is_bounded_and_more_decisive(self):
+        positive_default = self_play.build_value_target(0.4)
+        negative_default = self_play.build_value_target(-0.4)
+
+        positive_sharpened = self_play.build_value_target(0.4, mode="sharpened")
+        negative_sharpened = self_play.build_value_target(-0.4, mode="sharpened")
+
+        self.assertGreater(positive_sharpened, positive_default)
+        self.assertLess(negative_sharpened, negative_default)
+        self.assertGreaterEqual(positive_sharpened, 0.0)
+        self.assertLessEqual(positive_sharpened, 1.0)
+        self.assertGreaterEqual(negative_sharpened, -1.0)
+        self.assertLessEqual(negative_sharpened, 0.0)
+
+    def test_build_value_target_sharpened_preserves_order_and_endpoints(self):
+        targets = [
+            self_play.build_value_target(value, mode="sharpened")
+            for value in (-1.0, -0.4, 0.0, 0.4, 1.0)
+        ]
+
+        self.assertEqual(-1.0, targets[0])
+        self.assertEqual(0.0, targets[2])
+        self.assertEqual(1.0, targets[4])
+        self.assertLess(targets[0], targets[1])
+        self.assertLess(targets[1], targets[2])
+        self.assertLess(targets[2], targets[3])
+        self.assertLess(targets[3], targets[4])
+
+    def test_phase_aware_value_target_bucket_selection_uses_fixed_move_ranges(self):
+        self.assertEqual("early", self_play.value_target_bucket_for_move_index(0))
+        self.assertEqual("early", self_play.value_target_bucket_for_move_index(9))
+        self.assertEqual("mid", self_play.value_target_bucket_for_move_index(10))
+        self.assertEqual("mid", self_play.value_target_bucket_for_move_index(29))
+        self.assertEqual("late", self_play.value_target_bucket_for_move_index(30))
+
+    def test_hybrid_value_target_bucket_selection_uses_fixed_move_ranges(self):
+        self.assertEqual("early", self_play.value_target_bucket_for_move_index(0))
+        self.assertEqual("mid", self_play.value_target_bucket_for_move_index(10))
+        self.assertEqual("late", self_play.value_target_bucket_for_move_index(30))
+
+    def test_phase_aware_value_target_becomes_more_decisive_across_buckets(self):
+        early = self_play.derive_self_play_value_target(
+            outcome_value=1.0,
+            search_value=0.4,
+            move_index=0,
+            mode="phase_aware_sharpened",
+        )
+        mid = self_play.derive_self_play_value_target(
+            outcome_value=1.0,
+            search_value=0.4,
+            move_index=10,
+            mode="phase_aware_sharpened",
+        )
+        late = self_play.derive_self_play_value_target(
+            outcome_value=1.0,
+            search_value=0.4,
+            move_index=30,
+            mode="phase_aware_sharpened",
+        )
+
+        self.assertGreater(early, 0.4)
+        self.assertGreater(mid, early)
+        self.assertGreater(late, mid)
+        self.assertLessEqual(late, 1.0)
+
+    def test_hybrid_value_target_blends_search_more_early_and_outcome_more_late(self):
+        early = self_play.derive_self_play_value_target(
+            outcome_value=1.0,
+            search_value=0.2,
+            move_index=0,
+            mode="hybrid",
+        )
+        mid = self_play.derive_self_play_value_target(
+            outcome_value=1.0,
+            search_value=0.2,
+            move_index=10,
+            mode="hybrid",
+        )
+        late = self_play.derive_self_play_value_target(
+            outcome_value=1.0,
+            search_value=0.2,
+            move_index=30,
+            mode="hybrid",
+        )
+
+        self.assertGreater(early, 0.2)
+        self.assertGreater(mid, early)
+        self.assertGreater(late, mid)
+        self.assertLess(late, 1.0)
+
+    def test_hybrid_value_target_returns_zero_for_draws(self):
+        value = self_play.derive_self_play_value_target(
+            outcome_value=0.0,
+            search_value=0.8,
+            move_index=30,
+            mode="hybrid",
+        )
+
+        self.assertEqual(0.0, value)
+
+    def test_tactical_root_bias_is_root_only_during_live_search(self):
+        seen_states = []
+
+        class FakeGame:
+            def __init__(self, state="root", current_player=0):
+                self.state = state
+                self.current_player = current_player
+                self.winner = None
+
+            def clone(self):
+                return FakeGame(self.state, self.current_player)
+
+            def possible_moves(self):
+                return [0, 1] if self.state in {"root", "child"} else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                if self.state == "root":
+                    self.state = "child"
+                    self.current_player = 1
+                    return True
+                if self.state == "child":
+                    self.state = f"leaf_{absolute_move}"
+                    self.current_player = 0
+                    return True
+                return False
+
+            def over(self):
+                return self.state.startswith("leaf")
+
+            @property
+            def pits(self):
+                return [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+            @property
+            def captured_seeds(self):
+                return [0, 0]
+
+            def to_state(self):
+                return {
+                    "player_pits": [1, 1, 0, 0, 0, 0],
+                    "opponent_pits": [0, 0, 0, 0, 0, 0],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                    "state": self.state,
+                }
+
+        class ScriptedEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                return np.array([0.5, 0.5, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), 0.0
+
+        search = self_play.PUCT(
+            evaluator=ScriptedEvaluator(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+            tactical_root_bias=0.1,
+        )
+
+        original_apply = search.apply_tactical_root_bias
+
+        def tracking_apply(game, priors):
+            seen_states.append(game.state)
+            return original_apply(game, priors)
+
+        search.apply_tactical_root_bias = tracking_apply
+        search.run(FakeGame())
+
+        self.assertEqual(["root"], seen_states)
+
+    def test_cli_generates_trajectory_rows_with_valid_contract(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "self_play.jsonl"
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/self_play.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "3",
+                    "--seed",
+                    "7",
+                    "--simulations",
+                    "24",
+                    "--temperature-threshold",
+                    "6",
+                    "--dirichlet-alpha",
+                    "0.3",
+                    "--workers",
+                    "2",
+                    "--seed-sweep",
+                    "7,8,9",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertTrue(out_path.exists())
+
+            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            self.assertGreater(len(rows), 3)
+
+            unique_states = set()
+            for row in rows:
+                self.assertEqual("default", row["policy_target_mode"])
+                self.assertEqual(15, len(row["state"]))
+                self.assertEqual(6, len(row["policy"]))
+                self.assertAlmostEqual(1.0, sum(row["policy"]), places=4)
+                self.assertTrue(all(prob >= 0.0 for prob in row["policy"]))
+                self.assertGreaterEqual(row["value"], -1.0)
+                self.assertLessEqual(row["value"], 1.0)
+                unique_states.add(tuple(row["state"]))
+
+            self.assertGreater(len(unique_states), 2)
+
+    def test_cli_emits_requested_value_target_mode_in_rows(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "self_play_value_target.jsonl"
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/self_play.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "1",
+                    "--seed",
+                    "7",
+                    "--simulations",
+                    "8",
+                    "--workers",
+                    "1",
+                    "--value-target-mode",
+                    "sharpened",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertTrue(out_path.exists())
+
+            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+            self.assertGreater(len(rows), 0)
+            self.assertTrue(all(row["value_target_mode"] == "sharpened" for row in rows))
+
+    def test_cli_uses_indexed_hidden_layers_when_checkpoint_has_aliases(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-ckpt-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "self_play.jsonl"
+            checkpoint_path = tmp_path / "checkpoint.npz"
+
+            # Valid deep path uses w_hidden_1..3 and projects to 64 before heads.
+            # Legacy aliases w1/w2 are intentionally mismatched and must be ignored.
+            import numpy as np
+
+            np.savez(
+                checkpoint_path,
+                w_hidden_1=np.zeros((15, 128), dtype=np.float32),
+                b_hidden_1=np.zeros((128,), dtype=np.float32),
+                w_hidden_2=np.zeros((128, 128), dtype=np.float32),
+                b_hidden_2=np.zeros((128,), dtype=np.float32),
+                w_hidden_3=np.zeros((128, 64), dtype=np.float32),
+                b_hidden_3=np.zeros((64,), dtype=np.float32),
+                w1=np.zeros((15, 128), dtype=np.float32),
+                b1=np.zeros((128,), dtype=np.float32),
+                w2=np.zeros((128, 128), dtype=np.float32),
+                b2=np.zeros((128,), dtype=np.float32),
+                w_policy=np.zeros((64, 6), dtype=np.float32),
+                b_policy=np.zeros((6,), dtype=np.float32),
+                w_value=np.zeros((64, 1), dtype=np.float32),
+                b_value=np.zeros((1,), dtype=np.float32),
+            )
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/self_play.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "1",
+                    "--seed",
+                    "11",
+                    "--simulations",
+                    "8",
+                    "--workers",
+                    "1",
+                    "--checkpoint",
+                    str(checkpoint_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertTrue(out_path.exists())
+            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            self.assertGreater(len(rows), 0)
+            self.assertTrue(all(row["policy_target_mode"] == "default" for row in rows))
+
+    def test_run_self_play_worker_reuses_tree_root_between_plies_when_enabled(self):
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 2
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                self.current_player = self.moves_played % 2
+                return absolute_move == 0
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": self.moves_played,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeRoot:
+            def __init__(self, child=None, q_value=0.0):
+                self.child = child
+                self.q_value = q_value
+
+            def child_for_action(self, action):
+                if action != 0:
+                    raise AssertionError(f"unexpected action {action}")
+                return self.child
+
+        created_roots = []
+        second_root = FakeRoot()
+        first_root = FakeRoot(child=second_root)
+        roots_to_return = [first_root, second_root]
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng
+                del search_options
+                created_roots.append(root)
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                del game, dirichlet_alpha, dirichlet_epsilon
+                root = roots_to_return[len(created_roots) - 1]
+                visits = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                return visits, root
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "PUCT", FakePUCT):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=4,
+                        shard_path=str(shard_path),
+                        tree_reuse_enabled=True,
+                    )
+
+            self.assertEqual(2, result["rows_written"])
+            self.assertEqual([None, second_root], created_roots)
+
+    def test_run_self_play_worker_actually_reuses_subtree_when_tree_reuse_path_enabled(self):
+        created_roots = []
+        reused_roots = []
+        real_puct = self_play.PUCT
+
+        class TrackingPUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                created_roots.append(root)
+                self._root = root
+                self._delegate = real_puct(
+                    evaluator=evaluator,
+                    simulations=simulations,
+                    c_puct=c_puct,
+                    rng=rng,
+                    root=root,
+                    **search_options,
+                )
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                visits, root = self._delegate.run(
+                    game,
+                    dirichlet_alpha=dirichlet_alpha,
+                    dirichlet_epsilon=dirichlet_epsilon,
+                )
+                reused_roots.append(root is self._root and self._root is not None)
+                return visits, root
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play, "PUCT", TrackingPUCT):
+                result = self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=1,
+                    seed=42,
+                    seed_pool=[42],
+                    checkpoint=None,
+                    input_encoding="kalah_v1",
+                    simulations=8,
+                    c_puct=1.25,
+                    temperature_threshold=10,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=2,
+                    shard_path=str(shard_path),
+                    tree_reuse_enabled=True,
+                )
+
+        self.assertEqual(2, result["rows_written"])
+        self.assertEqual(2, len(created_roots))
+        self.assertIsNone(created_roots[0])
+        self.assertIsNotNone(created_roots[1])
+        self.assertEqual([False, True], reused_roots)
+
+    def test_run_self_play_worker_persists_and_reuses_subtree_when_reuse_subtree_enabled(self):
+        created_roots = []
+        reused_roots = []
+        real_puct = self_play.PUCT
+
+        class TrackingPUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                created_roots.append(root)
+                self._root = root
+                self._delegate = real_puct(
+                    evaluator=evaluator,
+                    simulations=simulations,
+                    c_puct=c_puct,
+                    rng=rng,
+                    root=root,
+                    **search_options,
+                )
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                visits, root = self._delegate.run(
+                    game,
+                    dirichlet_alpha=dirichlet_alpha,
+                    dirichlet_epsilon=dirichlet_epsilon,
+                )
+                reused_roots.append(root is self._root and self._root is not None)
+                return visits, root
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play, "PUCT", TrackingPUCT):
+                result = self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=1,
+                    seed=42,
+                    seed_pool=[42],
+                    checkpoint=None,
+                    input_encoding="kalah_v1",
+                    simulations=8,
+                    c_puct=1.25,
+                    temperature_threshold=10,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=2,
+                    shard_path=str(shard_path),
+                    reuse_subtree=True,
+                )
+
+        self.assertEqual(2, result["rows_written"])
+        self.assertEqual(2, len(created_roots))
+        self.assertIsNone(created_roots[0])
+        self.assertIsNotNone(created_roots[1])
+        self.assertEqual([False, True], reused_roots)
+
+    def test_search_preserves_value_sign_when_child_keeps_turn(self):
+        class FakeGame:
+            def __init__(self, current_player):
+                self.current_player = current_player
+
+        parent = self_play.Node(game=FakeGame(0), expanded=True)
+        child = self_play.Node(game=FakeGame(0), expanded=False)
+        parent.children = {0: child}
+        puct = self_play.PUCT(evaluator=mock.Mock(), simulations=8, c_puct=1.25, rng=random.Random(42))
+
+        with mock.patch.object(self_play, "terminal_value", return_value=None):
+            with mock.patch.object(puct, "_select_child", return_value=child):
+                with mock.patch.object(puct, "_expand", return_value=(np.zeros(6, dtype=np.float32), 0.5)):
+                    value = puct._search(parent)
+
+        self.assertEqual(0.5, value)
+        self.assertEqual(1, child.visit_count)
+        self.assertEqual(0.5, child.value_sum)
+
+    def test_run_self_play_worker_sharpened_row_preserves_winner_sign_when_search_disagrees(self):
+        default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=-0.4, winner=0)
+
+        self.assertEqual(1.0, default_row["value"])
+        self.assertAlmostEqual(0.64, sharpened_row["value"], places=6)
+        self.assertGreater(sharpened_row["value"], 0.0)
+        self.assertLess(sharpened_row["value"], default_row["value"])
+
+    def test_run_self_play_worker_sharpened_row_preserves_loser_sign_when_search_disagrees(self):
+        default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=0.4, winner=1)
+
+        self.assertEqual(-1.0, default_row["value"])
+        self.assertAlmostEqual(-0.64, sharpened_row["value"], places=6)
+        self.assertLess(sharpened_row["value"], 0.0)
+        self.assertGreater(sharpened_row["value"], default_row["value"])
+
+    def test_run_self_play_worker_phase_aware_rows_preserve_move_index_and_mode(self):
+        rows = self._emit_rows_for_value_target_mode(
+            search_values=[0.4, 0.4],
+            winner=0,
+            value_target_mode="phase_aware_sharpened",
+        )
+
+        self.assertEqual([0, 1], [row["move_index"] for row in rows])
+        self.assertTrue(all(row["value_target_mode"] == "phase_aware_sharpened" for row in rows))
+
+    def test_run_self_play_worker_hybrid_rows_preserve_move_index_and_mode(self):
+        rows = self._emit_rows_for_value_target_mode(
+            search_values=[0.4, 0.4],
+            winner=0,
+            value_target_mode="hybrid",
+        )
+
+        self.assertEqual([0, 1], [row["move_index"] for row in rows])
+        self.assertTrue(all(row["value_target_mode"] == "hybrid" for row in rows))
+
+    def test_run_self_play_worker_phase_aware_rows_preserve_winner_sign_with_bucket_strength(self):
+        rows = self._emit_rows_for_value_target_mode(
+            search_values=[-0.4],
+            winner=0,
+            value_target_mode="phase_aware_sharpened",
+        )
+
+        self.assertEqual(0, rows[0]["winner"])
+        self.assertGreater(rows[0]["value"], 0.0)
+        self.assertLess(rows[0]["value"], 1.0)
+
+    def test_run_self_play_worker_hybrid_rows_stay_bounded_and_deterministic_when_signals_disagree(self):
+        first_rows = self._emit_rows_for_value_target_mode(
+            search_values=[-0.8, -0.8, -0.8],
+            winner=0,
+            value_target_mode="hybrid",
+        )
+        second_rows = self._emit_rows_for_value_target_mode(
+            search_values=[-0.8, -0.8, -0.8],
+            winner=0,
+            value_target_mode="hybrid",
+        )
+
+        self.assertEqual([row["value"] for row in first_rows], [row["value"] for row in second_rows])
+        self.assertTrue(all(-1.0 <= row["value"] <= 1.0 for row in first_rows))
+        self.assertGreater(first_rows[0]["value"], 0.0)
+        self.assertLess(first_rows[0]["value"], 1.0)
+
+    def _emit_value_target_rows_for_search_value(self, *, search_value: float, winner: int):
+        default_row = self._emit_rows_for_value_target_mode(
+            search_values=[search_value],
+            winner=winner,
+            value_target_mode="default",
+        )[0]
+        sharpened_row = self._emit_rows_for_value_target_mode(
+            search_values=[search_value],
+            winner=winner,
+            value_target_mode="sharpened",
+        )[0]
+
+        return default_row, sharpened_row
+
+    def _emit_rows_for_value_target_mode(self, *, search_values: list[float], winner: int, value_target_mode: str):
+        run_state = {"run_count": 0}
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = winner
+
+            def over(self):
+                return self.moves_played >= len(search_values)
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                self.current_player = self.moves_played % 2
+                return absolute_move == 0
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                }
+
+        class FakeRoot:
+            def __init__(self, q_value):
+                self.q_value = q_value
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                del game, dirichlet_alpha, dirichlet_epsilon
+                visits = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                root = FakeRoot(q_value=search_values[run_state["run_count"]])
+                run_state["run_count"] += 1
+                return visits, root
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-row-") as tmp:
+            out_path = Path(tmp) / f"{value_target_mode}.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "PUCT", FakePUCT):
+                    self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=len(search_values) + 1,
+                        shard_path=str(out_path),
+                        value_target_mode=value_target_mode,
+                    )
+
+            return [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    def test_main_merges_worker_shards_without_read_text(self):
+        class FakeFuture:
+            def __init__(self, result):
+                self._result = result
+
+            def result(self):
+                return self._result
+
+        class FakeExecutor:
+            def __init__(self, max_workers):
+                self.max_workers = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return False
+
+            def submit(self, fn, **kwargs):
+                del fn
+                shard_path = Path(kwargs["shard_path"])
+                shard_path.write_text(
+                    json.dumps({"worker_id": kwargs["worker_id"]}) + "\n",
+                    encoding="utf-8",
+                )
+                return FakeFuture(
+                    {
+                        "worker_id": kwargs["worker_id"],
+                        "rows_written": 1,
+                        "shard_path": str(shard_path),
+                    }
+                )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-merge-") as tmp:
+            out_path = Path(tmp) / "self_play.jsonl"
+            argv = [
+                "self_play.py",
+                "--out",
+                str(out_path),
+                "--games",
+                "2",
+                "--workers",
+                "2",
+                "--seed",
+                "7",
+                "--simulations",
+                "8",
+            ]
+
+            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+                with mock.patch.object(Path, "read_text", side_effect=AssertionError("merge should stream shard lines")):
+                    with mock.patch("sys.argv", argv):
+                        self_play.main()
+
+            merged_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            self.assertEqual([{"worker_id": 0}, {"worker_id": 1}], merged_rows)
+
+    def test_main_passes_search_options_to_worker_submissions(self):
+        submitted_kwargs = []
+
+        class FakeFuture:
+            def __init__(self, result):
+                self._result = result
+
+            def result(self):
+                return self._result
+
+        class FakeExecutor:
+            def __init__(self, max_workers):
+                self.max_workers = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return False
+
+            def submit(self, fn, **kwargs):
+                del fn
+                submitted_kwargs.append(kwargs)
+                shard_path = Path(kwargs["shard_path"])
+                shard_path.write_text("", encoding="utf-8")
+                return FakeFuture(
+                    {
+                        "worker_id": kwargs["worker_id"],
+                        "rows_written": 0,
+                        "shard_path": str(shard_path),
+                    }
+                )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-options-") as tmp:
+            out_path = Path(tmp) / "self_play.jsonl"
+            argv = [
+                "self_play.py",
+                "--out",
+                str(out_path),
+                "--games",
+                "1",
+                "--workers",
+                "1",
+                "--seed",
+                "7",
+                "--simulations",
+                "8",
+                "--fpu-mode",
+                "parent_q",
+                "--reuse-subtree",
+                "--normalize-values",
+                "--root-policy-mode",
+                "deterministic",
+                "--tactical-root-bias",
+                "0.2",
+            ]
+
+            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+                with mock.patch("sys.argv", argv):
+                    self_play.main()
+
+        self.assertEqual(1, len(submitted_kwargs))
+        self.assertEqual("parent_q", submitted_kwargs[0]["fpu_mode"])
+        self.assertTrue(submitted_kwargs[0]["reuse_subtree"])
+        self.assertTrue(submitted_kwargs[0]["normalize_values"])
+        self.assertEqual("deterministic", submitted_kwargs[0]["root_policy_mode"])
+        self.assertEqual(0.2, submitted_kwargs[0]["tactical_root_bias"])
+
+    def test_main_passes_exploration_defaults_to_worker_submissions(self):
+        submitted_kwargs = []
+
+        class FakeFuture:
+            def __init__(self, result):
+                self._result = result
+
+            def result(self):
+                return self._result
+
+        class FakeExecutor:
+            def __init__(self, max_workers):
+                self.max_workers = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return False
+
+            def submit(self, fn, **kwargs):
+                del fn
+                submitted_kwargs.append(kwargs)
+                shard_path = Path(kwargs["shard_path"])
+                shard_path.write_text("", encoding="utf-8")
+                return FakeFuture(
+                    {
+                        "worker_id": kwargs["worker_id"],
+                        "rows_written": 0,
+                        "shard_path": str(shard_path),
+                    }
+                )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-default-options-") as tmp:
+            out_path = Path(tmp) / "self_play.jsonl"
+            argv = [
+                "self_play.py",
+                "--out",
+                str(out_path),
+                "--games",
+                "1",
+                "--workers",
+                "1",
+                "--seed",
+                "7",
+                "--simulations",
+                "8",
+            ]
+
+            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+                with mock.patch("sys.argv", argv):
+                    self_play.main()
+
+        self.assertEqual(1, len(submitted_kwargs))
+        self.assertEqual("visit_count", submitted_kwargs[0]["root_policy_mode"])
+        self.assertEqual(0.0, submitted_kwargs[0]["tactical_root_bias"])
+        self.assertEqual("default", submitted_kwargs[0]["policy_target_mode"])
+
+    def test_main_passes_policy_target_mode_to_worker_submissions(self):
+        submitted_kwargs = []
+
+        class FakeFuture:
+            def __init__(self, result):
+                self._result = result
+
+            def result(self):
+                return self._result
+
+        class FakeExecutor:
+            def __init__(self, max_workers):
+                self.max_workers = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return False
+
+            def submit(self, fn, **kwargs):
+                del fn
+                submitted_kwargs.append(kwargs)
+                shard_path = Path(kwargs["shard_path"])
+                shard_path.write_text("", encoding="utf-8")
+                return FakeFuture(
+                    {
+                        "worker_id": kwargs["worker_id"],
+                        "rows_written": 0,
+                        "shard_path": str(shard_path),
+                    }
+                )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-policy-target-") as tmp:
+            out_path = Path(tmp) / "self_play.jsonl"
+            argv = [
+                "self_play.py",
+                "--out",
+                str(out_path),
+                "--games",
+                "1",
+                "--workers",
+                "1",
+                "--seed",
+                "7",
+                "--simulations",
+                "8",
+                "--policy-target-mode",
+                "sharpened",
+            ]
+
+            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+                with mock.patch("sys.argv", argv):
+                    self_play.main()
+
+        self.assertEqual(1, len(submitted_kwargs))
+        self.assertEqual("sharpened", submitted_kwargs[0]["policy_target_mode"])
+
+    def test_main_passes_value_target_mode_to_worker_submissions(self):
+        submitted_kwargs = []
+
+        class FakeFuture:
+            def __init__(self, result):
+                self._result = result
+
+            def result(self):
+                return self._result
+
+        class FakeExecutor:
+            def __init__(self, max_workers):
+                self.max_workers = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return False
+
+            def submit(self, fn, **kwargs):
+                del fn
+                submitted_kwargs.append(kwargs)
+                shard_path = Path(kwargs["shard_path"])
+                shard_path.write_text("", encoding="utf-8")
+                return FakeFuture(
+                    {
+                        "worker_id": kwargs["worker_id"],
+                        "rows_written": 0,
+                        "shard_path": str(shard_path),
+                    }
+                )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-target-") as tmp:
+            out_path = Path(tmp) / "self_play.jsonl"
+            argv = [
+                "self_play.py",
+                "--out",
+                str(out_path),
+                "--games",
+                "1",
+                "--workers",
+                "1",
+                "--seed",
+                "7",
+                "--simulations",
+                "8",
+                "--value-target-mode",
+                "sharpened",
+            ]
+
+            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+                with mock.patch("sys.argv", argv):
+                    self_play.main()
+
+        self.assertEqual(1, len(submitted_kwargs))
+        self.assertEqual("sharpened", submitted_kwargs[0]["value_target_mode"])
+
+
+class ClassicMCTSHelpersInSelfPlayTest(unittest.TestCase):
+    def test_visits_from_classic_mcts_root_extracts_child_visit_counts(self):
+        """visits_from_classic_mcts_root should return a list[float] of length 6."""
+        from ml.alphazero_lite.self_play import visits_from_classic_mcts_root
+        from unittest.mock import MagicMock
+        child0 = MagicMock(); child0.visits = 50
+        child2 = MagicMock(); child2.visits = 30
+        root = MagicMock()
+        root.children = {0: child0, 2: child2}
+        result = visits_from_classic_mcts_root(root)
+        self.assertEqual([50.0, 0.0, 30.0, 0.0, 0.0, 0.0], result)
+
+    def test_value_from_classic_mcts_root_converts_win_rate_to_pm1(self):
+        """value_from_classic_mcts_root should map [0,1] win rate to [-1,1]."""
+        from ml.alphazero_lite.self_play import value_from_classic_mcts_root
+        from unittest.mock import MagicMock
+        root = MagicMock()
+        root.visits = 100
+        root.wins = 75.0
+        result = value_from_classic_mcts_root(root)
+        self.assertAlmostEqual(0.5, result, places=6)
+
+    def test_value_from_classic_mcts_root_returns_zero_for_unvisited(self):
+        from ml.alphazero_lite.self_play import value_from_classic_mcts_root
+        from unittest.mock import MagicMock
+        root = MagicMock()
+        root.visits = 0
+        self.assertEqual(0.0, value_from_classic_mcts_root(root))
+
+
+class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
+    def test_classic_mcts_player_mode_produces_valid_rows(self):
+        """run_self_play_worker with player_mode=classic_mcts should write valid JSONL rows."""
+        import tempfile, json
+        from ml.alphazero_lite.self_play import run_self_play_worker
+        with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as f:
+            shard_path = f.name
+        result = run_self_play_worker(
+            worker_id=0,
+            start_index=0,
+            games=2,
+            seed=42,
+            seed_pool=[42],
+            checkpoint=None,
+            input_encoding="kalah_v3",
+            simulations=50,
+            c_puct=1.25,
+            temperature_threshold=5,
+            temperature=1.0,
+            temperature_late=0.1,
+            dirichlet_alpha=0.3,
+            dirichlet_epsilon=0.25,
+            max_moves=200,
+            shard_path=shard_path,
+            player_mode="classic_mcts",
+            policy_target_mode="sharpened",
+            value_target_mode="sharpened",
+        )
+        self.assertGreater(result["rows_written"], 0)
+        import pathlib
+        rows = [json.loads(line) for line in pathlib.Path(shard_path).read_text().splitlines() if line.strip()]
+        for row in rows:
+            self.assertEqual(6, len(row["policy"]))
+            self.assertAlmostEqual(1.0, sum(row["policy"]), places=5)
+            self.assertGreaterEqual(row["value"], -1.0)
+            self.assertLessEqual(row["value"], 1.0)
+
+    def test_classic_mcts_player_mode_ignores_checkpoint(self):
+        """classic_mcts player mode should produce output even when checkpoint is None."""
+        import tempfile
+        from ml.alphazero_lite.self_play import run_self_play_worker
+        with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as f:
+            shard_path = f.name
+        # Should not raise even though checkpoint=None
+        result = run_self_play_worker(
+            worker_id=0,
+            start_index=0,
+            games=1,
+            seed=7,
+            seed_pool=[7],
+            checkpoint=None,
+            input_encoding="kalah_v3",
+            simulations=30,
+            c_puct=1.25,
+            temperature_threshold=5,
+            temperature=1.0,
+            temperature_late=0.1,
+            dirichlet_alpha=0.3,
+            dirichlet_epsilon=0.25,
+            max_moves=200,
+            shard_path=shard_path,
+            player_mode="classic_mcts",
+            policy_target_mode="default",
+            value_target_mode="default",
+        )
+        self.assertGreater(result["rows_written"], 0)
+
+    def test_puct_player_mode_still_works_as_default(self):
+        """run_self_play_worker without player_mode (default puct) should still work."""
+        import tempfile
+        from ml.alphazero_lite.self_play import run_self_play_worker
+        with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as f:
+            shard_path = f.name
+        result = run_self_play_worker(
+            worker_id=0,
+            start_index=0,
+            games=1,
+            seed=1,
+            seed_pool=[1],
+            checkpoint=None,
+            input_encoding="kalah_v3",
+            simulations=10,
+            c_puct=1.25,
+            temperature_threshold=5,
+            temperature=1.0,
+            temperature_late=0.1,
+            dirichlet_alpha=0.3,
+            dirichlet_epsilon=0.25,
+            max_moves=200,
+            shard_path=shard_path,
+            # player_mode not passed → default "puct"
+            policy_target_mode="default",
+            value_target_mode="default",
+        )
+        self.assertGreater(result["rows_written"], 0)
+
+
+class CanonicalValueTargetZeroSearchValueTest(unittest.TestCase):
+    """Regression test: zero search_value with sharpened mode must not produce zero when outcome is non-zero."""
+
+    def test_zero_search_value_sharpened_returns_outcome_for_winner(self):
+        """When search_value=0.0 (e.g. classic MCTS at 50/50), sharpened mode should return outcome_value directly."""
+        from ml.alphazero_lite.self_play import canonical_value_target
+        # Player wins (outcome=+1), but MCTS had 50/50 → search_value=0.0
+        result = canonical_value_target(outcome_value=1.0, search_value=0.0, mode="sharpened")
+        self.assertEqual(1.0, result)
+
+    def test_zero_search_value_sharpened_returns_outcome_for_loser(self):
+        from ml.alphazero_lite.self_play import canonical_value_target
+        result = canonical_value_target(outcome_value=-1.0, search_value=0.0, mode="sharpened")
+        self.assertEqual(-1.0, result)
+
+    def test_negative_zero_search_value_sharpened_returns_outcome(self):
+        from ml.alphazero_lite.self_play import canonical_value_target
+        # -0.0 is also a zero — should still fall back to outcome
+        result = canonical_value_target(outcome_value=1.0, search_value=-0.0, mode="sharpened")
+        self.assertEqual(1.0, result)
+
+    def test_nonzero_search_value_still_sharpens(self):
+        from ml.alphazero_lite.self_play import canonical_value_target
+        # Non-zero search value: sharpening should still happen (result != raw outcome)
+        result_sharpened = canonical_value_target(outcome_value=1.0, search_value=0.5, mode="sharpened")
+        result_default = canonical_value_target(outcome_value=1.0, search_value=0.5, mode="default")
+        # Both should be positive, but sharpened != default
+        self.assertGreater(result_sharpened, 0.0)
+        self.assertGreater(result_default, 0.0)
+
+    def test_draw_outcome_with_zero_search_value_returns_zero(self):
+        from ml.alphazero_lite.self_play import canonical_value_target
+        # Draw (outcome=0.0) with zero search_value → should still be 0.0
+        result = canonical_value_target(outcome_value=0.0, search_value=0.0, mode="sharpened")
+        self.assertEqual(0.0, result)
+
+
+if __name__ == "__main__":
+    unittest.main()

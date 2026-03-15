@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+
+CONFIG_PATH=""
+RUN_ID=""
+SELF_PLAY_GAMES=400
+BOOTSTRAP_SCALE=0.2
+DRY_RUN=0
+STAGE2_PRESET="selfplay_only"
+MODEL_PRESET="base"
+STAGE2_OPTIMIZATION_PRESET="default"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --config)
+      CONFIG_PATH="$2"
+      shift 2
+      ;;
+    --run-id)
+      RUN_ID="$2"
+      shift 2
+      ;;
+    --self-play-games)
+      SELF_PLAY_GAMES="$2"
+      shift 2
+      ;;
+    --bootstrap-scale)
+      BOOTSTRAP_SCALE="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --stage2-preset)
+      STAGE2_PRESET="$2"
+      shift 2
+      ;;
+    --model-preset)
+      MODEL_PRESET="$2"
+      shift 2
+      ;;
+    --stage2-optimization-preset)
+      STAGE2_OPTIMIZATION_PRESET="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$CONFIG_PATH" || -z "$RUN_ID" ]]; then
+  echo "Usage: script/ai/run_local_staged_ablation --config PATH --run-id VALUE [--self-play-games N] [--bootstrap-scale F] [--stage2-preset PRESET] [--model-preset PRESET] [--stage2-optimization-preset PRESET] [--dry-run]" >&2
+  exit 1
+fi
+
+BASE_DIR="$ROOT_DIR/tmp/local_staged_ablations/$RUN_ID"
+STAGE1_CONFIG_PATH="$BASE_DIR/stage1_config.json"
+STAGE2_CONFIG_PATH="$BASE_DIR/stage2_config.json"
+mkdir -p "$BASE_DIR"
+
+"$PYTHON_BIN" - "$CONFIG_PATH" "$STAGE1_CONFIG_PATH" "$STAGE2_CONFIG_PATH" "$RUN_ID" "$SELF_PLAY_GAMES" "$BOOTSTRAP_SCALE" "$STAGE2_PRESET" "$MODEL_PRESET" "$STAGE2_OPTIMIZATION_PRESET" <<'PY'
+import json
+import math
+import sys
+from pathlib import Path
+
+config_path = Path(sys.argv[1])
+stage1_config_path = Path(sys.argv[2])
+stage2_config_path = Path(sys.argv[3])
+run_id = sys.argv[4]
+self_play_games = str(int(sys.argv[5]))
+bootstrap_scale = float(sys.argv[6])
+stage2_preset = sys.argv[7]
+model_preset = sys.argv[8]
+stage2_optimization_preset = sys.argv[9]
+
+config = json.loads(config_path.read_text(encoding="utf-8"))
+
+evaluation_steps = {
+    "arena_prefilter_report",
+    "arena_prefilter_validate",
+    "arena_confirm_report",
+    "mcts1200_baseline_report",
+    "current_mcts1200_baseline_report",
+    "benchmark_contract",
+    "arena_validate",
+}
+
+def scaled_bootstrap_games(command: list[str]) -> list[str]:
+    if "--games" not in command:
+        return command
+    original_games_index = command.index("--games") + 1
+    original_games = int(command[original_games_index])
+    scaled_games = max(40, int(math.ceil(original_games * bootstrap_scale)))
+    updated = list(command)
+    updated[original_games_index] = str(scaled_games)
+    return updated
+
+def clone_base_steps():
+    steps = []
+    for step in config.get("steps", []):
+        if step["name"] in evaluation_steps:
+            continue
+        step = dict(step)
+        step["command"] = list(step["command"])
+        steps.append(step)
+    return steps
+
+def apply_model_preset(command: list[str]) -> None:
+    hidden_sizes_index = command.index("--hidden-sizes") + 1
+    if model_preset == "base":
+        return
+    if model_preset == "wider":
+        command[hidden_sizes_index] = "256,256,128"
+        return
+    raise SystemExit(f"unknown model preset: {model_preset}")
+
+stage1_steps = clone_base_steps()
+for step in stage1_steps:
+    if step["name"] == "self_play":
+        games_index = step["command"].index("--games") + 1
+        step["command"][games_index] = self_play_games
+    elif step["name"] == "mcts_bootstrap_dataset":
+        step["command"] = scaled_bootstrap_games(step["command"])
+    elif step["name"] == "train":
+        apply_model_preset(step["command"])
+        replay_weight_index = step["command"].index("--replay-weights") + 1
+        step["command"][replay_weight_index] = "{replay_weights},8"
+
+stage1_config = dict(config)
+stage1_config["run_id"] = f"{run_id}-stage1"
+stage1_config["steps"] = stage1_steps
+stage1_config["gates"] = {
+    key: value
+    for key, value in config.get("gates", {}).items()
+    if key in {"rules_parity_report", "perspective_audit_report", "max_runtime_parity_delta"}
+}
+
+stage2_steps = clone_base_steps()
+for step in stage2_steps:
+    if step["name"] == "self_play":
+        games_index = step["command"].index("--games") + 1
+        step["command"][games_index] = self_play_games
+    elif step["name"] == "mcts_bootstrap_dataset":
+        step["command"] = ["bash", "-lc", "printf '' > '{iter_dir}/mcts_bootstrap.jsonl'"]
+    elif step["name"] == "train":
+        apply_model_preset(step["command"])
+        if stage2_preset == "selfplay_only":
+            if "--data-files" in step["command"]:
+                data_files_index = step["command"].index("--data-files")
+                del step["command"][data_files_index:data_files_index + 2]
+            if "--replay-weights" in step["command"]:
+                replay_weight_index = step["command"].index("--replay-weights")
+                del step["command"][replay_weight_index:replay_weight_index + 2]
+        else:
+            data_files_index = step["command"].index("--data-files") + 1
+            step["command"][data_files_index] = (
+                "{replay_data},storage/ai/alphazero_lite/versions/%s-stage1-iter1/mcts_bootstrap.jsonl" % run_id
+            )
+            replay_weight_index = step["command"].index("--replay-weights") + 1
+            if stage2_preset == "blend_light":
+                step["command"][replay_weight_index] = "{replay_weights},1"
+            elif stage2_preset == "blend_medium":
+                step["command"][replay_weight_index] = "{replay_weights},2"
+            elif stage2_preset == "blend_selfplay_bias":
+                step["command"][replay_weight_index] = "{replay_weights},4"
+            else:
+                raise SystemExit(f"unknown stage2 preset: {stage2_preset}")
+
+        epochs_index = step["command"].index("--epochs") + 1
+        if stage2_optimization_preset == "default":
+            pass
+        elif stage2_optimization_preset == "short_ft":
+            step["command"][epochs_index] = "6"
+        elif stage2_optimization_preset == "low_lr":
+            step["command"].extend(["--lr", "0.0003"])
+        elif stage2_optimization_preset == "short_ft_low_lr":
+            step["command"][epochs_index] = "6"
+            step["command"].extend(["--lr", "0.0003"])
+        else:
+            raise SystemExit(f"unknown stage2 optimization preset: {stage2_optimization_preset}")
+        step["command"].extend(["--init-checkpoint", "storage/ai/alphazero_lite/versions/%s-stage1-iter1/checkpoint.npz" % run_id])
+
+stage2_config = dict(config)
+stage2_config["run_id"] = f"{run_id}-stage2"
+stage2_config["steps"] = stage2_steps
+stage2_config["gates"] = {
+    key: value
+    for key, value in config.get("gates", {}).items()
+    if key in {"rules_parity_report", "perspective_audit_report", "max_runtime_parity_delta"}
+}
+
+stage1_config_path.write_text(json.dumps(stage1_config, indent=2), encoding="utf-8")
+stage2_config_path.write_text(json.dumps(stage2_config, indent=2), encoding="utf-8")
+PY
+
+if [[ "$DRY_RUN" == "1" ]]; then
+  "$PYTHON_BIN" - "$RUN_ID" "$STAGE1_CONFIG_PATH" "$STAGE2_CONFIG_PATH" <<'PY'
+import json
+import sys
+
+print(json.dumps({
+    "run_id": sys.argv[1],
+    "stage1_config_path": sys.argv[2],
+    "stage2_config_path": sys.argv[3],
+}, indent=2))
+PY
+  exit 0
+fi
+
+cd "$ROOT_DIR"
+"$PYTHON_BIN" ml/alphazero_lite/pipeline.py --config "$STAGE1_CONFIG_PATH" --iterations 1
+exec "$PYTHON_BIN" ml/alphazero_lite/pipeline.py --config "$STAGE2_CONFIG_PATH" --iterations 1

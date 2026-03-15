@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+
+CONFIG_PATH=""
+RUN_ID=""
+SELF_PLAY_GAMES=400
+BOOTSTRAP_SCALE=0.2
+DRY_RUN=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --config)
+      CONFIG_PATH="$2"
+      shift 2
+      ;;
+    --run-id)
+      RUN_ID="$2"
+      shift 2
+      ;;
+    --self-play-games)
+      SELF_PLAY_GAMES="$2"
+      shift 2
+      ;;
+    --bootstrap-scale)
+      BOOTSTRAP_SCALE="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$CONFIG_PATH" || -z "$RUN_ID" ]]; then
+  echo "Usage: script/ai/run_local_mix_ablation --config PATH --run-id VALUE [--self-play-games N] [--bootstrap-scale F] [--dry-run]" >&2
+  exit 1
+fi
+
+GENERATED_CONFIG_PATH="$ROOT_DIR/tmp/local_mix_ablations/${RUN_ID}.json"
+mkdir -p "$(dirname "$GENERATED_CONFIG_PATH")"
+
+"$PYTHON_BIN" - "$CONFIG_PATH" "$GENERATED_CONFIG_PATH" "$RUN_ID" "$SELF_PLAY_GAMES" "$BOOTSTRAP_SCALE" <<'PY'
+import json
+import math
+import sys
+from pathlib import Path
+
+config_path = Path(sys.argv[1])
+generated_config_path = Path(sys.argv[2])
+run_id = sys.argv[3]
+self_play_games = str(int(sys.argv[4]))
+bootstrap_scale = float(sys.argv[5])
+
+config = json.loads(config_path.read_text(encoding="utf-8"))
+config["run_id"] = run_id
+
+evaluation_steps = {
+    "arena_prefilter_report",
+    "arena_prefilter_validate",
+    "arena_confirm_report",
+    "mcts1200_baseline_report",
+    "current_mcts1200_baseline_report",
+    "benchmark_contract",
+    "arena_validate",
+}
+
+def scaled_bootstrap_games(command: list[str]) -> list[str]:
+    if "--games" not in command:
+      return command
+    original_games_index = command.index("--games") + 1
+    original_games = int(command[original_games_index])
+    scaled_games = max(40, int(math.ceil(original_games * bootstrap_scale)))
+    updated = list(command)
+    updated[original_games_index] = str(scaled_games)
+    return updated
+
+steps = []
+for step in config.get("steps", []):
+    if step["name"] in evaluation_steps:
+        continue
+
+    step = dict(step)
+    step["command"] = list(step["command"])
+
+    if step["name"] == "self_play":
+        games_index = step["command"].index("--games") + 1
+        step["command"][games_index] = self_play_games
+    elif step["name"] == "mcts_bootstrap_dataset":
+        step["command"] = scaled_bootstrap_games(step["command"])
+
+    steps.append(step)
+
+config["steps"] = steps
+
+gates = config.get("gates", {})
+config["gates"] = {
+    key: value
+    for key, value in gates.items()
+    if key in {"rules_parity_report", "perspective_audit_report", "max_runtime_parity_delta"}
+}
+
+generated_config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+PY
+
+if [[ "$DRY_RUN" == "1" ]]; then
+  "$PYTHON_BIN" - "$GENERATED_CONFIG_PATH" "$RUN_ID" <<'PY'
+import json
+import sys
+
+print(json.dumps({
+    "run_id": sys.argv[2],
+    "generated_config_path": sys.argv[1],
+    "pipeline_command": [".venv/bin/python", "ml/alphazero_lite/pipeline.py", "--config", sys.argv[1], "--iterations", "1"],
+}, indent=2))
+PY
+  exit 0
+fi
+
+cd "$ROOT_DIR"
+exec "$PYTHON_BIN" ml/alphazero_lite/pipeline.py --config "$GENERATED_CONFIG_PATH" --iterations 1

@@ -1,0 +1,200 @@
+{
+  "run_id": "exp1-fast-s42",
+  "seed": 42,
+  "iterations": 1,
+  "versions_dir": "storage/ai/alphazero_lite/versions",
+  "current_path": "storage/ai/alphazero_lite/current",
+  "steps": [
+    {
+      "name": "self_play",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/self_play.py",
+        "--out",
+        "{iter_dir}/self_play.jsonl",
+        "--games",
+        "2000",
+        "--workers",
+        "6",
+        "--seed",
+        "42",
+        "--seed-sweep",
+        "41,42",
+        "--simulations",
+        "192",
+        "--checkpoint",
+        "{parent_checkpoint}"
+      ]
+    },
+    {
+      "name": "perspective_audit",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/perspective_audit.py",
+        "--data",
+        "{iter_dir}/self_play.jsonl",
+        "--out",
+        "{iter_dir}/perspective_audit.json"
+      ]
+    },
+    {
+      "name": "train",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/train.py",
+        "--data",
+        "{iter_dir}/self_play.jsonl",
+        "--out",
+        "{iter_dir}/checkpoint.npz",
+        "--epochs",
+        "12",
+        "--batch-size",
+        "512",
+        "--device",
+        "auto",
+        "--hidden-sizes",
+        "128,128",
+        "--value-loss",
+        "huber",
+        "--huber-delta",
+        "1.0",
+        "--value-loss-weight",
+        "0.3",
+        "--val-split",
+        "0.1",
+        "--grad-clip",
+        "1.0",
+        "--save-top-k",
+        "3"
+      ]
+    },
+    {
+      "name": "export_artifact",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/export_artifact.py",
+        "--checkpoint",
+        "{iter_dir}/checkpoint.npz",
+        "--out-dir",
+        "{iter_dir}",
+        "--version",
+        "{run_id}-iter{iteration}"
+      ]
+    },
+    {
+      "name": "rules_parity_fuzz",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/parity_fuzz.py",
+        "--games",
+        "20",
+        "--seed",
+        "42",
+        "--max-moves",
+        "120",
+        "--out",
+        "{iter_dir}/parity_report.json"
+      ]
+    },
+    {
+      "name": "arena_prefilter_report",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/arena.py",
+        "--challenger",
+        "{iter_dir}",
+        "--current",
+        "storage/ai/alphazero_lite/current",
+        "--games",
+        "30",
+        "--challenger-simulations",
+        "384",
+        "--current-simulations",
+        "256",
+        "--workers",
+        "6",
+        "--out",
+        "{iter_dir}/arena_prefilter_report.json",
+        "--min-score",
+        "0.55"
+      ]
+    },
+    {
+      "name": "arena_prefilter_validate",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/validate_arena_report.py",
+        "--report",
+        "{iter_dir}/arena_prefilter_report.json",
+        "--min-score",
+        "0.55",
+        "--require-pass"
+      ]
+    },
+    {
+      "name": "arena_confirm_report",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/arena.py",
+        "--challenger",
+        "{iter_dir}",
+        "--current",
+        "storage/ai/alphazero_lite/current",
+        "--games",
+        "120",
+        "--challenger-simulations",
+        "384",
+        "--current-simulations",
+        "256",
+        "--workers",
+        "6",
+        "--out",
+        "{iter_dir}/arena_report.json",
+        "--min-score",
+        "0.55"
+      ]
+    },
+    {
+      "name": "benchmark_contract",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/benchmark.py",
+        "--mode",
+        "promotion",
+        "--games",
+        "60",
+        "--seed",
+        "42",
+        "--challenger-path",
+        "{iter_dir}",
+        "--current-path",
+        "storage/ai/alphazero_lite/current",
+        "--arena-report",
+        "{iter_dir}/arena_report.json",
+        "--min-score",
+        "0.55",
+        "--out",
+        "{iter_dir}/benchmark_report.json"
+      ]
+    },
+    {
+      "name": "arena_validate",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/validate_arena_report.py",
+        "--report",
+        "{iter_dir}/arena_report.json",
+        "--min-score",
+        "0.55"
+      ]
+    }
+  ],
+  "gates": {
+    "rules_parity_report": "{iter_dir}/parity_report.json",
+    "perspective_audit_report": "{iter_dir}/perspective_audit.json",
+    "arena_report": "{iter_dir}/arena_report.json",
+    "benchmark_report": "{iter_dir}/benchmark_report.json",
+    "min_arena_score": 0.55,
+    "max_runtime_parity_delta": 0.1
+  }
+}

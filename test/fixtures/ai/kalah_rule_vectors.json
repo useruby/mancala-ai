@@ -1,0 +1,155 @@
+{
+  "rules_version": "kalah_v1",
+  "vectors": [
+    {
+      "id": "opening_move",
+      "initial_state": {
+        "player_pits": [4, 4, 4, 4, 4, 4],
+        "opponent_pits": [4, 4, 4, 4, 4, 4],
+        "player_store": 0,
+        "opponent_store": 0,
+        "current_player": 0
+      },
+      "steps": [
+        {
+          "relative_move": 0,
+          "absolute_move": 0,
+          "ok": true,
+          "state": {
+            "player_pits": [0, 5, 5, 5, 5, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 1
+          },
+          "winner": null,
+          "over": false,
+          "possible_moves": [0, 1, 2, 3, 4, 5]
+        }
+      ]
+    },
+    {
+      "id": "two_ply_exchange",
+      "initial_state": {
+        "player_pits": [4, 4, 4, 4, 4, 4],
+        "opponent_pits": [4, 4, 4, 4, 4, 4],
+        "player_store": 0,
+        "opponent_store": 0,
+        "current_player": 0
+      },
+      "steps": [
+        {
+          "relative_move": 0,
+          "absolute_move": 0,
+          "ok": true,
+          "state": {
+            "player_pits": [0, 5, 5, 5, 5, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 1
+          },
+          "winner": null,
+          "over": false,
+          "possible_moves": [0, 1, 2, 3, 4, 5]
+        },
+        {
+          "relative_move": 5,
+          "absolute_move": 11,
+          "ok": true,
+          "state": {
+            "player_pits": [1, 6, 6, 5, 5, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 0],
+            "player_store": 0,
+            "opponent_store": 1,
+            "current_player": 0
+          },
+          "winner": null,
+          "over": false,
+          "possible_moves": [0, 1, 2, 3, 4, 5]
+        }
+      ]
+    },
+    {
+      "id": "extra_turn_store",
+      "initial_state": {
+        "player_pits": [0, 0, 0, 0, 0, 1],
+        "opponent_pits": [0, 0, 0, 0, 0, 0],
+        "player_store": 0,
+        "opponent_store": 0,
+        "current_player": 0
+      },
+      "steps": [
+        {
+          "relative_move": 5,
+          "absolute_move": 5,
+          "ok": true,
+          "state": {
+            "player_pits": [0, 0, 0, 0, 0, 0],
+            "opponent_pits": [0, 0, 0, 0, 0, 0],
+            "player_store": 1,
+            "opponent_store": 0,
+            "current_player": 0
+          },
+          "winner": 0,
+          "over": true,
+          "possible_moves": []
+        }
+      ]
+    },
+    {
+      "id": "capture_endgame",
+      "initial_state": {
+        "player_pits": [1, 0, 0, 0, 0, 0],
+        "opponent_pits": [0, 0, 0, 0, 3, 0],
+        "player_store": 20,
+        "opponent_store": 20,
+        "current_player": 0
+      },
+      "steps": [
+        {
+          "relative_move": 0,
+          "absolute_move": 0,
+          "ok": true,
+          "state": {
+            "player_pits": [0, 0, 0, 0, 0, 0],
+            "opponent_pits": [0, 0, 0, 0, 0, 0],
+            "player_store": 24,
+            "opponent_store": 20,
+            "current_player": 1
+          },
+          "winner": 0,
+          "over": true,
+          "possible_moves": []
+        }
+      ]
+    },
+    {
+      "id": "draw_sweep",
+      "initial_state": {
+        "player_pits": [0, 0, 0, 0, 0, 1],
+        "opponent_pits": [0, 0, 0, 0, 0, 1],
+        "player_store": 23,
+        "opponent_store": 23,
+        "current_player": 0
+      },
+      "steps": [
+        {
+          "relative_move": 5,
+          "absolute_move": 5,
+          "ok": true,
+          "state": {
+            "player_pits": [0, 0, 0, 0, 0, 0],
+            "opponent_pits": [0, 0, 0, 0, 0, 0],
+            "player_store": 24,
+            "opponent_store": 24,
+            "current_player": 0
+          },
+          "winner": null,
+          "over": true,
+          "possible_moves": []
+        }
+      ]
+    }
+  ]
+}

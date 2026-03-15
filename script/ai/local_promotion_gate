@@ -1,0 +1,355 @@
+#!/usr/bin/env python3
+import argparse
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+
+def positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
+
+
+def existing_path(value: str) -> Path:
+    path = Path(value)
+    if not path.exists():
+        raise argparse.ArgumentTypeError(f"path does not exist: {value}")
+    return path
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Write a local AlphaZero-lite promotion gate dry-run plan."
+    )
+    parser.add_argument("--candidate-path", required=True, type=existing_path)
+    parser.add_argument(
+        "--config-path",
+        help="optional pipeline config path to record in the report for local ablation runs",
+    )
+    parser.add_argument(
+        "--current-path",
+        default="storage/ai/alphazero_lite/current",
+    )
+    parser.add_argument("--arena-games", default=120, type=positive_int)
+    parser.add_argument("--mcts-games", default=40, type=positive_int)
+    parser.add_argument("--min-arena-score", default=0.55, type=float)
+    parser.add_argument("--min-arena-games", default=120, type=positive_int)
+    parser.add_argument("--min-mcts-games", default=40, type=positive_int)
+    parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--stub-arena-report", type=Path)
+    parser.add_argument("--stub-candidate-mcts-report", type=Path)
+    parser.add_argument("--stub-current-mcts-report", type=Path)
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args()
+
+
+def build_evaluation(*, evaluation_id: str, subject: str, opponent: str, games: int, report_dir: Path, mode: str) -> dict:
+    return {
+        "id": evaluation_id,
+        "subject": subject,
+        "opponent": opponent,
+        "games": games,
+        "mode": mode,
+        "report_path": str(report_dir / f"{evaluation_id}.json"),
+    }
+
+
+def load_json(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"invalid JSON in stub report: {path}") from exc
+
+
+def resolve_optional_config_path(config_path: str | None) -> Path | None:
+    if not config_path:
+        return None
+    path = Path(config_path)
+    if not path.is_absolute():
+        path = repo_root() / path
+    if not path.exists():
+        raise SystemExit(f"config path does not exist: {config_path}")
+    return path
+
+
+def search_flags_for_step(config: dict, step_name: str) -> list[str]:
+    step = next((candidate for candidate in config.get("steps", []) if candidate.get("name") == step_name), None)
+    if step is None:
+        return []
+
+    command = step.get("command", [])
+    rendered_flags: list[str] = []
+    option_flags = ("--fpu-mode", "--root-policy-mode", "--tactical-root-bias")
+    boolean_flags = ("--reuse-subtree", "--normalize-values")
+
+    for flag in option_flags:
+        if flag in command:
+            rendered_flags.extend([flag, command[command.index(flag) + 1]])
+
+    for flag in boolean_flags:
+        if flag in command:
+            rendered_flags.append(flag)
+
+    return rendered_flags
+
+
+def load_search_flag_map(config_path: str | None) -> dict[str, list[str]]:
+    resolved_path = resolve_optional_config_path(config_path)
+    if resolved_path is None:
+        return {}
+
+    config = load_json(resolved_path)
+    return {
+        "arena": search_flags_for_step(config, "arena_confirm_report"),
+        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report"),
+        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report"),
+    }
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def python_executable() -> str:
+    repo_python = repo_root() / ".venv/bin/python"
+    if repo_python.exists():
+        return str(repo_python)
+    return sys.executable
+
+
+def arena_score(report: dict) -> float:
+    games_played = int(report.get("games_played", 0))
+    if games_played <= 0:
+        return 0.0
+    wins = int(report.get("wins", 0))
+    draws = int(report.get("draws", 0))
+    return (wins + (0.5 * draws)) / games_played
+
+
+def mcts_score(report: dict) -> float:
+    games = int(report.get("games", 0))
+    if games <= 0:
+        return 0.0
+    az_wins = int(report.get("az_wins", 0))
+    draws = int(report.get("draws", 0))
+    return (az_wins + (0.5 * draws)) / games
+
+
+def build_decision_report(
+    args: argparse.Namespace,
+    report: dict,
+    *,
+    arena_report: dict,
+    candidate_mcts_report: dict,
+    current_mcts_report: dict,
+    arena_report_path: Path,
+    candidate_mcts_report_path: Path,
+    current_mcts_report_path: Path,
+) -> dict:
+    arena_games_played = int(arena_report.get("games_played", 0))
+    candidate_mcts_games = int(candidate_mcts_report.get("games", 0))
+    current_mcts_games = int(current_mcts_report.get("games", 0))
+
+    raw_arena_score = arena_score(arena_report)
+    raw_candidate_mcts_score = mcts_score(candidate_mcts_report)
+    raw_current_mcts_score = mcts_score(current_mcts_report)
+
+    computed_arena_score = round(raw_arena_score, 4)
+    computed_candidate_mcts_score = round(raw_candidate_mcts_score, 4)
+    computed_current_mcts_score = round(raw_current_mcts_score, 4)
+
+    failure_reasons = []
+    if arena_games_played < args.min_arena_games:
+        failure_reasons.append({"code": "arena_games_below_minimum"})
+    if candidate_mcts_games < args.min_mcts_games:
+        failure_reasons.append({"code": "candidate_mcts_games_below_minimum"})
+    if current_mcts_games < args.min_mcts_games:
+        failure_reasons.append({"code": "current_mcts_games_below_minimum"})
+    if raw_arena_score < args.min_arena_score:
+        failure_reasons.append({"code": "arena_score_below_threshold"})
+    if raw_candidate_mcts_score < raw_current_mcts_score:
+        failure_reasons.append({"code": "candidate_mcts_below_current"})
+
+    report.update(
+        {
+            "arena_report_path": str(arena_report_path),
+            "candidate_mcts_report_path": str(candidate_mcts_report_path),
+            "current_mcts_report_path": str(current_mcts_report_path),
+            "arena_score": computed_arena_score,
+            "candidate_mcts_score": computed_candidate_mcts_score,
+            "current_mcts_score": computed_current_mcts_score,
+            "passed": not failure_reasons,
+            "failure_reasons": failure_reasons,
+        }
+    )
+    return report
+
+
+def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
+    return build_decision_report(
+        args,
+        report,
+        arena_report=load_json(args.stub_arena_report),
+        candidate_mcts_report=load_json(args.stub_candidate_mcts_report),
+        current_mcts_report=load_json(args.stub_current_mcts_report),
+        arena_report_path=args.stub_arena_report,
+        candidate_mcts_report_path=args.stub_candidate_mcts_report,
+        current_mcts_report_path=args.stub_current_mcts_report,
+    )
+
+
+def run_command(command: list[str]) -> None:
+    result = subprocess.run(
+        command,
+        cwd=repo_root(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        details = (result.stderr or result.stdout).strip()
+        command_label = Path(command[1]).name if len(command) > 1 else command[0]
+        if details:
+            raise SystemExit(f"{command_label} failed: {details}")
+        raise SystemExit(f"{command_label} failed: {' '.join(command)}")
+
+
+def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
+    evaluations = {evaluation["id"]: evaluation for evaluation in report["evaluations"]}
+    arena_report_path = Path(evaluations["candidate_vs_current_arena"]["report_path"])
+    candidate_mcts_report_path = Path(evaluations["candidate_vs_mcts1200"]["report_path"])
+    current_mcts_report_path = Path(evaluations["current_vs_mcts1200"]["report_path"])
+    search_flag_map = load_search_flag_map(args.config_path)
+
+    run_command(
+        [
+            python_executable(),
+            "ml/alphazero_lite/arena.py",
+            "--challenger",
+            str(args.candidate_path),
+            "--current",
+            str(args.current_path),
+            "--games",
+            str(args.arena_games),
+            *search_flag_map.get("arena", []),
+            "--out",
+            str(arena_report_path),
+        ]
+    )
+    run_command(
+        [
+            python_executable(),
+            "ml/alphazero_lite/mcts1200_baseline.py",
+            "--challenger-path",
+            str(args.candidate_path),
+            "--games",
+            str(args.mcts_games),
+            *search_flag_map.get("candidate_mcts", []),
+            "--out",
+            str(candidate_mcts_report_path),
+        ]
+    )
+    run_command(
+        [
+            python_executable(),
+            "ml/alphazero_lite/mcts1200_baseline.py",
+            "--challenger-path",
+            str(args.current_path),
+            "--games",
+            str(args.mcts_games),
+            *search_flag_map.get("current_mcts", []),
+            "--out",
+            str(current_mcts_report_path),
+        ]
+    )
+
+    for evaluation in report["evaluations"]:
+        evaluation["mode"] = "executed"
+
+    return build_decision_report(
+        args,
+        report,
+        arena_report=load_json(arena_report_path),
+        candidate_mcts_report=load_json(candidate_mcts_report_path),
+        current_mcts_report=load_json(current_mcts_report_path),
+        arena_report_path=arena_report_path,
+        candidate_mcts_report_path=candidate_mcts_report_path,
+        current_mcts_report_path=current_mcts_report_path,
+    )
+
+
+def main() -> int:
+    args = parse_args()
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+
+    stub_paths = (
+        args.stub_arena_report,
+        args.stub_candidate_mcts_report,
+        args.stub_current_mcts_report,
+    )
+    if any(path is not None for path in stub_paths) and not all(path is not None for path in stub_paths):
+        raise SystemExit("provide all three stub report paths or none")
+
+    candidate_path = str(args.candidate_path)
+    current_path = args.current_path
+    mode = "dry_run" if args.dry_run else "planned"
+
+    report = {
+        "schema": "azlite_local_promotion_gate_v1",
+        "candidate_path": candidate_path,
+        "config_path": args.config_path,
+        "current_path": current_path,
+        "report_path": str(args.out),
+        "arena_games": args.arena_games,
+        "mcts_games": args.mcts_games,
+        "min_arena_score": args.min_arena_score,
+        "min_arena_games": args.min_arena_games,
+        "min_mcts_games": args.min_mcts_games,
+        "dry_run": args.dry_run,
+        "evaluations": [
+            build_evaluation(
+                evaluation_id="candidate_vs_current_arena",
+                subject=candidate_path,
+                opponent=current_path,
+                games=args.arena_games,
+                report_dir=args.out.parent,
+                mode=mode,
+            ),
+            build_evaluation(
+                evaluation_id="candidate_vs_mcts1200",
+                subject=candidate_path,
+                opponent="mcts1200",
+                games=args.mcts_games,
+                report_dir=args.out.parent,
+                mode=mode,
+            ),
+            build_evaluation(
+                evaluation_id="current_vs_mcts1200",
+                subject=current_path,
+                opponent="mcts1200",
+                games=args.mcts_games,
+                report_dir=args.out.parent,
+                mode=mode,
+            ),
+        ],
+    }
+
+    stub_reports_provided = all(path is not None for path in stub_paths)
+
+    if stub_reports_provided:
+        report = build_stub_decision_report(args, report)
+    elif not args.dry_run:
+        report = build_real_decision_report(args, report)
+
+    args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(json.dumps({"report_path": str(args.out), "dry_run": args.dry_run}))
+    if not args.dry_run and not report.get("passed", True):
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

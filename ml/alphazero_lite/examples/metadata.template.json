@@ -1,0 +1,41 @@
+{
+  "schema_version": "azlite_model_v1",
+  "version": "azlite-YYYY-MM-DD-001",
+  "game": "kalah",
+  "input_encoding": "kalah_v1",
+  "feature_count": 15,
+  "policy_size": 6,
+  "feature_order": [
+    "player_pits_0", "player_pits_1", "player_pits_2", "player_pits_3", "player_pits_4", "player_pits_5",
+    "opponent_pits_0", "opponent_pits_1", "opponent_pits_2", "opponent_pits_3", "opponent_pits_4", "opponent_pits_5",
+    "player_store", "opponent_store", "current_player"
+  ],
+  "architecture": {
+    "type": "mlp_policy_value",
+    "hidden_sizes": [64, 64],
+    "activation": "relu",
+    "policy_size": 6,
+    "value_size": 1
+  },
+  "normalization": {
+    "pits_divisor": 48.0,
+    "stores_divisor": 48.0,
+    "current_player_encoding": "binary_0_1"
+  },
+  "training": {
+    "self_play_games": 50000
+  },
+  "metrics": {
+    "policy_loss": 0.0,
+    "value_loss": 0.0,
+    "arena_vs_medium_winrate": 0.0,
+    "arena_vs_prev_winrate": 0.0
+  },
+  "artifacts": {
+    "weights_file": "weights.json",
+    "weights_fallback_file": "model.npz",
+    "weights_sha256": "REPLACE_WITH_SHA256"
+  },
+  "framework": "numpy",
+  "created_at": "2026-02-28T00:00:00Z"
+}

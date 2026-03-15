@@ -1,0 +1,130 @@
+{
+  "run_id": "aggressive-v1x",
+  "seed": 42,
+  "iterations": 2,
+  "replay_window": 3,
+  "versions_dir": "storage/ai/alphazero_lite/versions",
+  "current_path": "storage/ai/alphazero_lite/current",
+  "steps": [
+    {
+      "name": "self_play",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/self_play.py",
+        "--out",
+        "{iter_dir}/self_play.jsonl",
+        "--games",
+        "4000",
+        "--workers",
+        "6",
+        "--seed",
+        "42",
+        "--seed-sweep",
+        "41,42,43",
+        "--simulations",
+        "256",
+        "--temperature-threshold",
+        "12",
+        "--temperature",
+        "1.1",
+        "--temperature-late",
+        "0.15",
+        "--dirichlet-alpha",
+        "0.3",
+        "--dirichlet-epsilon",
+        "0.3",
+        "--schedule-progress-mode",
+        "linear",
+        "--iteration",
+        "{iteration}",
+        "--total-iterations",
+        "2",
+        "--checkpoint",
+        "{parent_checkpoint}"
+      ]
+    },
+    {
+      "name": "perspective_audit",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/perspective_audit.py",
+        "--data",
+        "{iter_dir}/self_play.jsonl",
+        "--out",
+        "{iter_dir}/perspective_audit.json"
+      ]
+    },
+    {
+      "name": "mcts_bootstrap_dataset",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/generate_bootstrap_dataset.py",
+        "--out",
+        "{iter_dir}/mcts_bootstrap.jsonl",
+        "--games",
+        "600",
+        "--simulations",
+        "1200",
+        "--seed",
+        "42",
+        "--max-positions-per-game",
+        "16",
+        "--workers",
+        "5"
+      ]
+    },
+    {
+      "name": "train",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/train.py",
+        "--data",
+        "{iter_dir}/self_play.jsonl",
+        "--data-files",
+        "{replay_data},{iter_dir}/mcts_bootstrap.jsonl",
+        "--replay-weights",
+        "{replay_weights},3",
+        "--out",
+        "{iter_dir}/checkpoint.npz",
+        "--epochs",
+        "14",
+        "--batch-size",
+        "512",
+        "--device",
+        "auto",
+        "--hidden-sizes",
+        "192,192,96",
+        "--model-type",
+        "mlp_deep",
+        "--value-loss",
+        "huber",
+        "--huber-delta",
+        "1.0",
+        "--value-loss-weight",
+        "0.3",
+        "--val-split",
+        "0.1",
+        "--grad-clip",
+        "1.0",
+        "--save-top-k",
+        "3"
+      ]
+    },
+    {
+      "name": "export_artifact",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/export_artifact.py",
+        "--checkpoint",
+        "{iter_dir}/checkpoint.npz",
+        "--out-dir",
+        "{iter_dir}",
+        "--version",
+        "{run_id}-iter{iteration}"
+      ]
+    }
+  ],
+  "gates": {
+    "perspective_audit_report": "{iter_dir}/perspective_audit.json"
+  }
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "name": "sharpened_winner_disagreement",
+    "outcome_value": 1.0,
+    "search_value": -0.4,
+    "move_index": 0,
+    "value_target_mode": "sharpened",
+    "expected_target": 0.64
+  },
+  {
+    "name": "sharpened_loser_disagreement",
+    "outcome_value": -1.0,
+    "search_value": 0.4,
+    "move_index": 0,
+    "value_target_mode": "sharpened",
+    "expected_target": -0.64
+  },
+  {
+    "name": "phase_aware_late_disagreement",
+    "outcome_value": 1.0,
+    "search_value": -0.4,
+    "move_index": 30,
+    "value_target_mode": "phase_aware_sharpened",
+    "expected_target": 0.784
+  },
+  {
+    "name": "phase_aware_early_disagreement",
+    "outcome_value": 1.0,
+    "search_value": -0.4,
+    "move_index": 0,
+    "value_target_mode": "phase_aware_sharpened",
+    "expected_target": 0.53524199845511
+  },
+  {
+    "name": "phase_aware_mid_disagreement",
+    "outcome_value": 1.0,
+    "search_value": -0.4,
+    "move_index": 10,
+    "value_target_mode": "phase_aware_sharpened",
+    "expected_target": 0.64
+  },
+  {
+    "name": "hybrid_early_disagreement",
+    "outcome_value": 1.0,
+    "search_value": -0.4,
+    "move_index": 0,
+    "value_target_mode": "hybrid",
+    "expected_target": 0.55
+  },
+  {
+    "name": "hybrid_mid_disagreement",
+    "outcome_value": 1.0,
+    "search_value": -0.4,
+    "move_index": 10,
+    "value_target_mode": "hybrid",
+    "expected_target": 0.7
+  },
+  {
+    "name": "hybrid_late_disagreement",
+    "outcome_value": 1.0,
+    "search_value": -0.4,
+    "move_index": 30,
+    "value_target_mode": "hybrid",
+    "expected_target": 0.85
+  },
+  {
+    "name": "hybrid_early_agreement",
+    "outcome_value": 1.0,
+    "search_value": 0.8,
+    "move_index": 0,
+    "value_target_mode": "hybrid",
+    "expected_target": 0.85
+  },
+  {
+    "name": "hybrid_draw",
+    "outcome_value": 0.0,
+    "search_value": 0.8,
+    "move_index": 30,
+    "value_target_mode": "hybrid",
+    "expected_target": 0.0
+  },
+  {
+    "name": "sharpened_endpoint_saturation",
+    "outcome_value": 1.0,
+    "search_value": -1.0,
+    "move_index": 0,
+    "value_target_mode": "sharpened",
+    "expected_target": 1.0
+  }
+]
