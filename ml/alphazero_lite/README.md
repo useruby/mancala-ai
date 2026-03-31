@@ -127,13 +127,13 @@ script/ai/promote_superhuman_candidate \
 Deploy the runtime model set to production storage (`current` + `superhuman_current`):
 
 ```bash
-bin/kamal model:deploy
+bin/kamal model_deploy
 ```
 
 Rollback to the previous deployed runtime model set (`current` + `superhuman_current`):
 
 ```bash
-bin/kamal model:rollback
+bin/kamal model_rollback
 ```
 
 ## Local promotion gate

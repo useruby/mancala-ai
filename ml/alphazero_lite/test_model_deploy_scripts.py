@@ -17,8 +17,10 @@ class ModelDeployScriptsTest(unittest.TestCase):
         self.assertIn("storage/ai/alphazero_lite/current/weights.json:/artifacts/current/weights.json:ro", deploy_text)
         self.assertIn("storage/ai/alphazero_lite/current/arena_report.json:/artifacts/current/arena_report.json:ro", deploy_text)
         self.assertIn("- src_storage:/storage", deploy_text)
-        self.assertIn("accessory reboot model_artifact", deploy_text)
-        self.assertIn("accessory exec model_artifact --reuse", deploy_text)
+        model_deploy_text = deploy_text.split("model_deploy: >-", 1)[1].split("model_rollback:", 1)[0]
+        self.assertIn("accessory exec model_artifact", model_deploy_text)
+        self.assertNotIn("accessory exec model_artifact --reuse", model_deploy_text)
+        self.assertNotIn("accessory reboot model_artifact &&", model_deploy_text)
         self.assertIn("/storage/ai/alphazero_lite/current_previous", deploy_text)
         self.assertIn("/storage/ai/alphazero_lite/superhuman_previous", deploy_text)
 
