@@ -105,6 +105,37 @@ The wrapper:
 
 By default it uses the `cpu3c-16-32` pod profile so heavier training and evaluation runs stop monopolizing the local laptop while still leaving room to scale up later if needed.
 
+### Superhuman quick commands
+
+Launch a superhuman training/evaluation run on RunPod with the lossless gate
+(400 arena games, 0 losses required):
+
+```bash
+script/ai/runpod_superhuman_experiment \
+  --config-path ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase1.json \
+  --phase2-config ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase2.json
+```
+
+After results download and gate pass, publish the candidate into the runtime
+superhuman artifact path:
+
+```bash
+script/ai/promote_superhuman_candidate \
+  tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2
+```
+
+Deploy the runtime model set to production storage (`current` + `superhuman_current`):
+
+```bash
+bin/kamal model:deploy
+```
+
+Rollback to the previous deployed runtime model set (`current` + `superhuman_current`):
+
+```bash
+bin/kamal model:rollback
+```
+
 ## Local promotion gate
 
 After exporting a local candidate artifact, run the local promotion gate before any stricter RunPod validation:

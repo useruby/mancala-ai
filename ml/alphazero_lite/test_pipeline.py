@@ -323,6 +323,7 @@ class PipelineScriptTest(unittest.TestCase):
         min_arena_score: float = 0.55,
         min_arena_games: int = 120,
         min_mcts_games: int = 40,
+        extra_args: list[str] | None = None,
     ):
         repo_root = Path(__file__).resolve().parents[2]
 
@@ -358,6 +359,7 @@ class PipelineScriptTest(unittest.TestCase):
                     str(candidate_mcts_report_path),
                     "--stub-current-mcts-report",
                     str(current_mcts_report_path),
+                    *(extra_args or []),
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -2593,6 +2595,40 @@ class PipelineScriptTest(unittest.TestCase):
         self.assertEqual(0.5, report["current_mcts_score"])
         self.assertFalse(report["passed"])
         self.assertEqual([{"code": "candidate_mcts_below_current"}], report["failure_reasons"])
+
+    def test_local_promotion_gate_passes_in_lossless_mode_with_zero_losses(self):
+        result, report = self.run_local_promotion_gate_with_stub_reports(
+            arena_report={"wins": 0, "losses": 0, "draws": 400, "games_played": 400},
+            candidate_mcts_report={"az_wins": 10, "mcts_wins": 20, "draws": 10, "games": 40},
+            current_mcts_report={"az_wins": 30, "mcts_wins": 5, "draws": 5, "games": 40},
+            min_arena_score=0.0,
+            min_arena_games=400,
+            extra_args=["--require-lossless", "--skip-mcts-relative-check"],
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        self.assertIsNotNone(report)
+        assert report is not None
+        self.assertTrue(report["passed"])
+        self.assertTrue(report["lossless_passed"])
+        self.assertEqual([], report["failure_reasons"])
+
+    def test_local_promotion_gate_fails_in_lossless_mode_when_any_loss_occurs(self):
+        result, report = self.run_local_promotion_gate_with_stub_reports(
+            arena_report={"wins": 399, "losses": 1, "draws": 0, "games_played": 400},
+            candidate_mcts_report={"az_wins": 20, "mcts_wins": 10, "draws": 10, "games": 40},
+            current_mcts_report={"az_wins": 20, "mcts_wins": 10, "draws": 10, "games": 40},
+            min_arena_score=0.0,
+            min_arena_games=400,
+            extra_args=["--require-lossless", "--skip-mcts-relative-check"],
+        )
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIsNotNone(report)
+        assert report is not None
+        self.assertFalse(report["passed"])
+        self.assertFalse(report["lossless_passed"])
+        self.assertEqual([{"code": "arena_losses_above_threshold"}], report["failure_reasons"])
 
     def test_local_promotion_gate_runs_real_evaluations_and_writes_decision_report(self):
         module = self.load_local_promotion_gate_module()

@@ -41,11 +41,17 @@ cd "$ROOT_DIR"
 if [ -n "$RESULTS_PATH" ]; then
   mkdir -p "$ROOT_DIR/$RESULTS_PATH"
   LOG_PATH="$ROOT_DIR/$RESULTS_PATH/remote_run.log"
-  printf 'command=%s\n' "$COMMAND" > "$LOG_PATH"
+  {
+    printf 'command=%s\n' "$COMMAND"
+    printf 'started_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  } > "$LOG_PATH"
   set +e
-  bash -c "$COMMAND" >> "$LOG_PATH" 2>&1
+  bash -euo pipefail -c "$COMMAND" >> "$LOG_PATH" 2>&1
   STATUS=$?
-  printf 'exit_status=%s\n' "$STATUS" >> "$LOG_PATH"
+  {
+    printf 'exit_status=%s\n' "$STATUS"
+    printf 'finished_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  } >> "$LOG_PATH"
   set -e
   exit "$STATUS"
 else

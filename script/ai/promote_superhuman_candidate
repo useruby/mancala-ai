@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: script/ai/promote_superhuman_candidate CANDIDATE_DIR" >&2
+  exit 1
+fi
+
+exec "$ROOT_DIR/.venv/bin/python" "$ROOT_DIR/ml/alphazero_lite/promote_checkpoint.py" \
+  "$1" \
+  --min-score 0.0 \
+  --require-lossless \
+  --max-losses 0 \
+  --target storage/ai/alphazero_lite/superhuman_current

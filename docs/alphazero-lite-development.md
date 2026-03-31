@@ -154,9 +154,16 @@ current vs MCTS1200
 3. Arena score >= minimum (default: 0.55)
 4. Candidate MCTS1200 score >= current MCTS1200 score
 
-**Failure codes:** `arena_below_min`, `arena_games_below_minimum`,
+**Lossless mode (for superhuman track):**
+- `--require-lossless --max-losses 0` enforces zero arena losses
+- combine with `--arena-games 400 --min-arena-games 400` for the
+  superhuman contract
+- optional `--skip-mcts-relative-check` disables candidate-vs-current MCTS
+  comparison when the gate is strictly "never lose"
+
+**Failure codes:** `arena_score_below_threshold`, `arena_games_below_minimum`,
 `candidate_mcts_games_below_minimum`, `current_mcts_games_below_minimum`,
-`candidate_not_above_current_mcts`, `missing_report`
+`candidate_mcts_below_current`, `arena_losses_above_threshold`, `missing_report`
 
 ---
 
@@ -226,6 +233,10 @@ exact engine the model must beat.
 - Named `--pod-profile` CLI option
 - Experiment runner handles pod lifecycle, config upload, execution, artifact
   retrieval
+- `script/ai/runpod_superhuman_experiment` wraps
+  `runpod_training_experiment` with 400-game lossless gate defaults
+- Use `script/ai/promote_superhuman_candidate <candidate_dir>` to publish a
+  downloaded candidate to `storage/ai/alphazero_lite/superhuman_current`
 
 ---
 

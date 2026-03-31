@@ -17,11 +17,20 @@ from ml.alphazero_lite.report_validation import ArenaReportValidationError, vali
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def non_negative_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("must be a non-negative integer")
+    return parsed
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("checkpoint_path")
     parser.add_argument("--min-score", type=float, default=0.55)
     parser.add_argument("--target", default="storage/ai/alphazero_lite/current")
+    parser.add_argument("--require-lossless", action="store_true")
+    parser.add_argument("--max-losses", type=non_negative_int, default=0)
     return parser.parse_args()
 
 
@@ -42,6 +51,13 @@ def main() -> None:
         raise SystemExit(
             f"Checkpoint did not meet threshold score={result['score']} min_score={result['min_score']}"
         )
+
+    if args.require_lossless:
+        losses = int(report.get("losses", 0))
+        if losses > args.max_losses:
+            raise SystemExit(
+                f"lossless requirement failed: losses={losses} max_losses={args.max_losses}"
+            )
 
     target = Path(args.target)
     if not target.is_absolute():
