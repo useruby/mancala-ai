@@ -31,7 +31,7 @@ class RunpodWrappersTest(unittest.TestCase):
         plan = json.loads(result.stdout)
         command = plan["command"]
 
-        self.assertIn("--current-path storage/ai/alphazero_lite/superhuman_current", command)
+        self.assertIn("--current-path storage/ai/alphazero_lite/current", command)
         self.assertIn("--arena-games 400", command)
         self.assertIn("--min-arena-games 400", command)
         self.assertIn("--min-arena-score 0.55", command)

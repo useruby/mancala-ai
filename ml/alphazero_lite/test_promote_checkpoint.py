@@ -165,7 +165,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
             checkpoint_dir = Path(tmp) / "checkpoint"
-            target_dir = Path(tmp) / "superhuman_current"
+            target_dir = Path(tmp) / "current"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
             (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
@@ -347,7 +347,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
             checkpoint_dir = Path(tmp) / "checkpoint"
-            target_dir = Path(tmp) / "superhuman_current"
+            target_dir = Path(tmp) / "current"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
             metadata = {"schema_version": 1, "version": "candidate"}
@@ -392,7 +392,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
             checkpoint_dir = Path(tmp) / "checkpoint"
             target_a = Path(tmp) / "current"
-            target_b = Path(tmp) / "superhuman_current"
+            target_b = Path(tmp) / "current_b"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
             metadata = {"schema_version": 1, "version": "multi-target-test"}
