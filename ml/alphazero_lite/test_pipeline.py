@@ -8,8 +8,6 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-import numpy as np
-
 from ml.alphazero_lite.pipeline import load_config, render_command
 
 
@@ -30,6 +28,8 @@ class PipelineScriptTest(unittest.TestCase):
     V3_STRONGER_BOOTSTRAP_CONFIRM_B_LOCAL_CONFIG = "aggressive_v3_stronger_bootstrap_confirm_b_local.json"
     V3_STRONGER_BOOTSTRAP_CONFIRM_C_LOCAL_CONFIG = "aggressive_v3_stronger_bootstrap_confirm_c_local.json"
     V3_STRONGER_BOOTSTRAP_MORE_DATA_LOCAL_CONFIG = "aggressive_v3_stronger_bootstrap_more_data_local.json"
+    V3_SUPERHUMAN_PHASE1_CONFIG = "aggressive_v3_superhuman_phase1.json"
+    V3_SUPERHUMAN_PHASE2_CONFIG = "aggressive_v3_superhuman_phase2.json"
     HYBRID_VALUE_TARGET_LOCAL_CONFIG = "aggressive_v3_hybrid_value_target_local.json"
     PHASE_AWARE_VALUE_TARGET_LOCAL_CONFIG = "aggressive_v3_phase_aware_value_target_local.json"
     V2_LOCAL_CONFIG_EXPECTATIONS = {
@@ -188,6 +188,47 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual("completed", manifest["status"])
             self.assertEqual([], manifest["gate_failures"])
 
+    def test_superhuman_configs_use_superhuman_current_baseline(self):
+        phase1 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE1_CONFIG)
+        phase2 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_CONFIG)
+
+        self.assertEqual("aggressive-v3-superhuman", phase1["run_id"])
+        self.assertEqual("aggressive-v3-superhuman", phase2["run_id"])
+        self.assertEqual("storage/ai/alphazero_lite/superhuman_current", phase1["current_path"])
+        self.assertEqual("/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1", phase2["current_path"])
+
+        phase2_steps = self.config_steps_by_name(phase2)
+        self.assertIn("arena_vs_hard_report", phase2_steps)
+        self.assertIn("storage/ai/alphazero_lite/superhuman_current", " ".join(phase2_steps["benchmark_contract"]["command"]))
+        self.assertIn("storage/ai/alphazero_lite/superhuman_current", " ".join(phase2_steps["arena_confirm_report"]["command"]))
+
+    def test_superhuman_configs_tighten_training_recipe(self):
+        phase1 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE1_CONFIG)
+        phase2 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_CONFIG)
+
+        phase1_steps = self.config_steps_by_name(phase1)
+        phase2_steps = self.config_steps_by_name(phase2)
+
+        phase1_self_play = int(self.command_flag_value(phase1_steps["self_play"]["command"], "--games"))
+        phase1_bootstrap = int(self.command_flag_value(phase1_steps["mcts_bootstrap_dataset"]["command"], "--games"))
+        phase1_epochs = int(self.command_flag_value(phase1_steps["train"]["command"], "--epochs"))
+
+        phase2_self_play = int(self.command_flag_value(phase2_steps["self_play"]["command"], "--games"))
+        phase2_epochs = int(self.command_flag_value(phase2_steps["train"]["command"], "--epochs"))
+        phase2_bootstrap = int(self.command_flag_value(phase2_steps["mcts_bootstrap_dataset"]["command"], "--games"))
+
+        self.assertGreater(phase1_bootstrap, phase1_self_play)
+        self.assertGreater(phase2_bootstrap, phase2_self_play)
+        self.assertGreater(phase2_bootstrap, phase1_bootstrap)
+        self.assertLessEqual(phase2_self_play, phase1_self_play)
+        self.assertGreater(phase2_epochs, phase1_epochs)
+        self.assertEqual("kalah_v3", self.command_flag_value(phase1_steps["self_play"]["command"], "--input-encoding"))
+        self.assertEqual("kalah_v3", self.command_flag_value(phase1_steps["train"]["command"], "--input-encoding"))
+        self.assertEqual("residual_v3", self.command_flag_value(phase1_steps["train"]["command"], "--model-type"))
+        self.assertEqual("sharpened", self.command_flag_value(phase1_steps["train"]["command"], "--policy-target-mode"))
+        self.assertEqual("sharpened", self.command_flag_value(phase1_steps["train"]["command"], "--value-target-mode"))
+        self.assertIn("mcts_bootstrap_dataset", phase2_steps)
+
     def command_flag_value(self, command: list[str], flag: str) -> str:
         return command[command.index(flag) + 1]
 
@@ -318,10 +359,13 @@ class PipelineScriptTest(unittest.TestCase):
         self,
         *,
         arena_report: dict,
+        hard_report: dict | None = None,
         candidate_mcts_report: dict,
         current_mcts_report: dict,
         min_arena_score: float = 0.55,
+        hard_min_score: float = 0.55,
         min_arena_games: int = 120,
+        hard_arena_games: int = 120,
         min_mcts_games: int = 40,
         extra_args: list[str] | None = None,
     ):
@@ -332,11 +376,14 @@ class PipelineScriptTest(unittest.TestCase):
             candidate_path = tmp_path / "candidate.npz"
             report_path = tmp_path / "promotion_report.json"
             arena_report_path = tmp_path / "arena_report.json"
+            hard_report_path = tmp_path / "hard_report.json"
             candidate_mcts_report_path = tmp_path / "candidate_mcts_report.json"
             current_mcts_report_path = tmp_path / "current_mcts_report.json"
 
             candidate_path.write_text("stub", encoding="utf-8")
             arena_report_path.write_text(json.dumps(arena_report), encoding="utf-8")
+            hard_payload = hard_report or {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
+            hard_report_path.write_text(json.dumps(hard_payload), encoding="utf-8")
             candidate_mcts_report_path.write_text(json.dumps(candidate_mcts_report), encoding="utf-8")
             current_mcts_report_path.write_text(json.dumps(current_mcts_report), encoding="utf-8")
 
@@ -349,12 +396,18 @@ class PipelineScriptTest(unittest.TestCase):
                     str(report_path),
                     "--min-arena-score",
                     str(min_arena_score),
+                    "--hard-min-score",
+                    str(hard_min_score),
                     "--min-arena-games",
                     str(min_arena_games),
+                    "--hard-arena-games",
+                    str(hard_arena_games),
                     "--min-mcts-games",
                     str(min_mcts_games),
                     "--stub-arena-report",
                     str(arena_report_path),
+                    "--stub-hard-report",
+                    str(hard_report_path),
                     "--stub-candidate-mcts-report",
                     str(candidate_mcts_report_path),
                     "--stub-current-mcts-report",
@@ -402,7 +455,7 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             self.assertNotEqual(0, result.returncode)
-            self.assertIn("provide all three stub report paths or none", result.stderr)
+            self.assertIn("provide all stub report paths or none", result.stderr)
             self.assertFalse(report_path.exists())
 
     def test_local_promotion_gate_fails_when_stub_report_json_is_malformed(self):
@@ -413,11 +466,13 @@ class PipelineScriptTest(unittest.TestCase):
             candidate_path = tmp_path / "candidate.npz"
             report_path = tmp_path / "promotion_report.json"
             arena_report_path = tmp_path / "arena_report.json"
+            hard_report_path = tmp_path / "hard_report.json"
             candidate_mcts_report_path = tmp_path / "candidate_mcts_report.json"
             current_mcts_report_path = tmp_path / "current_mcts_report.json"
 
             candidate_path.write_text("stub", encoding="utf-8")
             arena_report_path.write_text("{not-json", encoding="utf-8")
+            hard_report_path.write_text(json.dumps({"wins": 57, "losses": 34, "draws": 29, "games_played": 120}), encoding="utf-8")
             candidate_mcts_report_path.write_text(
                 json.dumps({"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}),
                 encoding="utf-8",
@@ -436,6 +491,8 @@ class PipelineScriptTest(unittest.TestCase):
                     str(report_path),
                     "--stub-arena-report",
                     str(arena_report_path),
+                    "--stub-hard-report",
+                    str(hard_report_path),
                     "--stub-candidate-mcts-report",
                     str(candidate_mcts_report_path),
                     "--stub-current-mcts-report",
@@ -1345,25 +1402,21 @@ class PipelineScriptTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory(prefix="pipeline-parent-checkpoint-") as tmp:
             parent_checkpoint = Path(tmp) / "model.npz"
-            np.savez(
-                parent_checkpoint,
-                w_input=np.zeros((15, 64)),
-                w_policy=np.zeros((64, 6)),
-                w_value=np.zeros((64, 1)),
-            )
+            parent_checkpoint.write_bytes(b"stub")
 
-            rendered = render_command(
-                self_play_command,
-                iteration=1,
-                iter_dir=iter_dir,
-                run_id=variant_config["run_id"],
-                versions_dir=Path(variant_config["versions_dir"]),
-                current_path=variant_config["current_path"],
-                parent_model_dir=repo_root / "storage" / "ai" / "alphazero_lite" / "current",
-                parent_checkpoint=parent_checkpoint,
-                replay_data="",
-                replay_weights="",
-            )
+            with mock.patch("ml.alphazero_lite.pipeline.checkpoint_feature_count", return_value=10):
+                rendered = render_command(
+                    self_play_command,
+                    iteration=1,
+                    iter_dir=iter_dir,
+                    run_id=variant_config["run_id"],
+                    versions_dir=Path(variant_config["versions_dir"]),
+                    current_path=variant_config["current_path"],
+                    parent_model_dir=repo_root / "storage" / "ai" / "alphazero_lite" / "current",
+                    parent_checkpoint=parent_checkpoint,
+                    replay_data="",
+                    replay_weights="",
+                )
 
         self.assertIn("--input-encoding", rendered)
         self.assertEqual("kalah_v3", self.command_flag_value(rendered, "--input-encoding"))
@@ -2438,10 +2491,11 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual(str(candidate_path), report["candidate_path"])
             self.assertEqual("storage/ai/alphazero_lite/current", report["current_path"])
             self.assertEqual(str(report_path), report["report_path"])
-            self.assertEqual(3, len(report["evaluations"]))
+            self.assertEqual(4, len(report["evaluations"]))
             self.assertEqual(
                 [
                     "candidate_vs_current_arena",
+                    "candidate_vs_hard_arena",
                     "candidate_vs_mcts1200",
                     "current_vs_mcts1200",
                 ],
@@ -2455,6 +2509,13 @@ class PipelineScriptTest(unittest.TestCase):
                         "opponent": "storage/ai/alphazero_lite/current",
                         "games": 120,
                         "report_path": str(tmp_path / "candidate_vs_current_arena.json"),
+                    },
+                    {
+                        "id": "candidate_vs_hard_arena",
+                        "subject": str(candidate_path),
+                        "opponent": "storage/ai/alphazero_lite/current",
+                        "games": 120,
+                        "report_path": str(tmp_path / "candidate_vs_hard_arena.json"),
                     },
                     {
                         "id": "candidate_vs_mcts1200",
@@ -2670,10 +2731,11 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(3, len(calls))
+            self.assertEqual(4, len(calls))
             self.assertEqual(
                 [
                     str(tmp_path / "candidate_vs_current_arena.json"),
+                    str(tmp_path / "candidate_vs_hard_arena.json"),
                     str(tmp_path / "candidate_vs_mcts1200.json"),
                     str(tmp_path / "current_vs_mcts1200.json"),
                 ],
@@ -2729,10 +2791,10 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(3, len(calls))
+            self.assertEqual(4, len(calls))
 
             for command in calls:
-                if command[1].endswith("arena.py") or command[1].endswith("mcts1200_baseline.py"):
+                if command[1].endswith("arena.py") and "candidate_vs_hard_arena" not in command:
                     self.assertIn("--fpu-mode", command)
                     self.assertIn("parent_q", command)
                     self.assertIn("--reuse-subtree", command)
@@ -2779,14 +2841,14 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual(1, exit_code)
             report = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertFalse(report["passed"])
-            self.assertEqual([{"code": "arena_score_below_threshold"}], report["failure_reasons"])
+            self.assertEqual([{"code": "arena_score_below_threshold"}, {"code": "candidate_not_stronger_than_hard"}], report["failure_reasons"])
 
     def test_local_promotion_gate_surfaces_real_subprocess_failures_with_command_context(self):
         module = self.load_local_promotion_gate_module()
 
         cases = [
             ("arena", 1, "arena.py", "arena exploded"),
-            ("candidate_mcts", 2, "mcts1200_baseline.py", "mcts exploded"),
+            ("candidate_mcts", 3, "mcts1200_baseline.py", "mcts exploded"),
         ]
 
         for label, expected_calls, failing_script, stderr_text in cases:

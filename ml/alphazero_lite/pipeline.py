@@ -4,11 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import math
+import struct
 import subprocess
 import sys
 import time
+import zipfile
 from pathlib import Path
 
 if __package__ in (None, ""):
@@ -38,14 +41,25 @@ def checkpoint_feature_count(checkpoint_path: Path) -> int | None:
     if not checkpoint_path.exists():
         return None
 
-    import numpy as np
-
     try:
-        with np.load(checkpoint_path) as npz:
-            for key in ("w_input", "w_hidden_1", "w1"):
-                if key in npz:
-                    return int(npz[key].shape[0])
-    except (OSError, ValueError):
+        with zipfile.ZipFile(checkpoint_path) as archive:
+            for key in ("w_input.npy", "w_hidden_1.npy", "w1.npy"):
+                if key in archive.namelist():
+                    with archive.open(key) as handle:
+                        if handle.read(6) != b"\x93NUMPY":
+                            continue
+                        major = handle.read(1)[0]
+                        minor = handle.read(1)[0]
+                        if major == 1:
+                            header_len = struct.unpack("<H", handle.read(2))[0]
+                        else:
+                            header_len = struct.unpack("<I", handle.read(4))[0]
+                        header = handle.read(header_len).decode("latin1")
+                        metadata = ast.literal_eval(header.strip())
+                        shape = metadata.get("shape")
+                        if shape:
+                            return int(shape[0])
+    except (OSError, ValueError, zipfile.BadZipFile, SyntaxError, struct.error):
         return None
 
     return None

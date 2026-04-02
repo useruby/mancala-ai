@@ -10,6 +10,7 @@ fi
 
 exec "$ROOT_DIR/.venv/bin/python" "$ROOT_DIR/ml/alphazero_lite/promote_checkpoint.py" \
   "$1" \
+  --gate-report "$(dirname "$1")/local_promotion_gate.json" \
   --min-score 0.0 \
   --require-lossless \
   --max-losses 0 \

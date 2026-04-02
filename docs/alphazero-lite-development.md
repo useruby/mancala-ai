@@ -145,25 +145,32 @@ check.
 
 **Script:** `script/ai/local_promotion_gate`
 
-**Three evaluations:** candidate vs current arena, candidate vs MCTS1200,
-current vs MCTS1200
+**Four evaluations:** candidate vs current superhuman arena, candidate vs hard
+arena, candidate vs MCTS1200, current vs MCTS1200
 
 **Gate criteria (all must pass):**
-1. Arena report uses >= configured game count (default: 30)
-2. MCTS1200 reports use >= configured game count (default: 30)
-3. Arena score >= minimum (default: 0.55)
-4. Candidate MCTS1200 score >= current MCTS1200 score
+1. Arena report uses >= configured game count (default: 120)
+2. Hard arena report uses >= configured game count (default: 120)
+3. MCTS1200 reports use >= configured game count (default: 40)
+4. Candidate current-superhuman arena score >= minimum (default: 0.55)
+5. Candidate hard arena score >= minimum (default: 0.55)
+6. Candidate MCTS1200 score >= current MCTS1200 score
 
 **Lossless mode (for superhuman track):**
 - `--require-lossless --max-losses 0` enforces zero arena losses
 - combine with `--arena-games 400 --min-arena-games 400` for the
   superhuman contract
+- compare against `storage/ai/alphazero_lite/current` as the hard baseline
+  and `storage/ai/alphazero_lite/superhuman_current` as the promoted baseline
 - optional `--skip-mcts-relative-check` disables candidate-vs-current MCTS
   comparison when the gate is strictly "never lose"
 
 **Failure codes:** `arena_score_below_threshold`, `arena_games_below_minimum`,
+`hard_games_below_minimum`, `candidate_not_stronger_than_hard`,
 `candidate_mcts_games_below_minimum`, `current_mcts_games_below_minimum`,
-`candidate_mcts_below_current`, `arena_losses_above_threshold`, `missing_report`
+`candidate_mcts_below_current`, `arena_losses_above_threshold`,
+`arena_move_time_mean_above_threshold`, `arena_move_time_p95_above_threshold`,
+`arena_move_time_mean_missing`, `arena_move_time_p95_missing`
 
 ---
 
@@ -234,9 +241,11 @@ exact engine the model must beat.
 - Experiment runner handles pod lifecycle, config upload, execution, artifact
   retrieval
 - `script/ai/runpod_superhuman_experiment` wraps
-  `runpod_training_experiment` with 400-game lossless gate defaults
+  `runpod_training_experiment` with 400-game lossless gate defaults and a
+  strict `superhuman_current` promotion target
 - Use `script/ai/promote_superhuman_candidate <candidate_dir>` to publish a
-  downloaded candidate to `storage/ai/alphazero_lite/superhuman_current`
+  downloaded candidate to `storage/ai/alphazero_lite/superhuman_current` after
+  the gate report passes
 
 ---
 

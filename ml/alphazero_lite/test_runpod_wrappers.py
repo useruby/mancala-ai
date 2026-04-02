@@ -18,9 +18,7 @@ class RunpodWrappersTest(unittest.TestCase):
             [
                 "script/ai/runpod_superhuman_experiment",
                 "--config-path",
-                "ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase1.json",
-                "--phase2-config",
-                "ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase2.json",
+                "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase1.json",
                 "--dry-run",
             ],
             cwd=repo_root,
@@ -36,7 +34,7 @@ class RunpodWrappersTest(unittest.TestCase):
         self.assertIn("--current-path storage/ai/alphazero_lite/superhuman_current", command)
         self.assertIn("--arena-games 400", command)
         self.assertIn("--min-arena-games 400", command)
-        self.assertIn("--min-arena-score 0.0", command)
+        self.assertIn("--min-arena-score 0.55", command)
         self.assertIn("--require-lossless", command)
         self.assertIn("--max-losses 0", command)
         self.assertIn("--skip-mcts-relative-check", command)

@@ -7,8 +7,9 @@ exec "$ROOT_DIR/script/ai/runpod_training_experiment" \
   --promotion-current-path storage/ai/alphazero_lite/superhuman_current \
   --promotion-arena-games 400 \
   --promotion-min-arena-games 400 \
-  --promotion-min-arena-score 0.0 \
+  --promotion-min-arena-score 0.55 \
   --promotion-require-lossless \
   --promotion-max-losses 0 \
   --promotion-skip-mcts-relative-check \
+  --phase2-config ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json \
   "$@"

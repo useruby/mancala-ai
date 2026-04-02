@@ -40,16 +40,25 @@ def parse_args() -> argparse.Namespace:
         "--current-path",
         default="storage/ai/alphazero_lite/current",
     )
+    parser.add_argument(
+        "--hard-path",
+        default=None,
+    )
     parser.add_argument("--arena-games", default=120, type=positive_int)
     parser.add_argument("--mcts-games", default=40, type=positive_int)
     parser.add_argument("--min-arena-score", default=0.55, type=float)
     parser.add_argument("--min-arena-games", default=120, type=positive_int)
     parser.add_argument("--min-mcts-games", default=40, type=positive_int)
+    parser.add_argument("--hard-arena-games", default=120, type=positive_int)
+    parser.add_argument("--hard-min-score", default=0.55, type=float)
+    parser.add_argument("--max-arena-move-time-mean-ms", default=None, type=float)
+    parser.add_argument("--max-arena-move-time-p95-ms", default=None, type=float)
     parser.add_argument("--require-lossless", action="store_true")
     parser.add_argument("--max-losses", default=0, type=non_negative_int)
     parser.add_argument("--skip-mcts-relative-check", action="store_true")
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--stub-arena-report", type=Path)
+    parser.add_argument("--stub-hard-report", type=Path)
     parser.add_argument("--stub-candidate-mcts-report", type=Path)
     parser.add_argument("--stub-current-mcts-report", type=Path)
     parser.add_argument("--dry-run", action="store_true")
@@ -153,9 +162,11 @@ def build_decision_report(
     report: dict,
     *,
     arena_report: dict,
+    hard_report: dict | None,
     candidate_mcts_report: dict,
     current_mcts_report: dict,
     arena_report_path: Path,
+    hard_report_path: Path | None,
     candidate_mcts_report_path: Path,
     current_mcts_report_path: Path,
 ) -> dict:
@@ -186,12 +197,38 @@ def build_decision_report(
     if not args.skip_mcts_relative_check and raw_candidate_mcts_score < raw_current_mcts_score:
         failure_reasons.append({"code": "candidate_mcts_below_current"})
 
+    notes = arena_report.get("notes", {}) if isinstance(arena_report.get("notes", {}), dict) else {}
+    move_time_mean_ms = notes.get("move_time_mean_ms", arena_report.get("move_time_mean_ms"))
+    move_time_p95_ms = notes.get("move_time_p95_ms", arena_report.get("move_time_p95_ms"))
+    if args.max_arena_move_time_mean_ms is not None:
+        if move_time_mean_ms is None:
+            failure_reasons.append({"code": "arena_move_time_mean_missing"})
+        elif float(move_time_mean_ms) > args.max_arena_move_time_mean_ms:
+            failure_reasons.append({"code": "arena_move_time_mean_above_threshold"})
+    if args.max_arena_move_time_p95_ms is not None:
+        if move_time_p95_ms is None:
+            failure_reasons.append({"code": "arena_move_time_p95_missing"})
+        elif float(move_time_p95_ms) > args.max_arena_move_time_p95_ms:
+            failure_reasons.append({"code": "arena_move_time_p95_above_threshold"})
+
+    computed_hard_score: float | None = None
+    if hard_report is not None:
+        hard_games_played = int(hard_report.get("games_played", 0))
+        raw_hard_score = arena_score(hard_report)
+        computed_hard_score = round(raw_hard_score, 4)
+        if hard_games_played < args.hard_arena_games:
+            failure_reasons.append({"code": "hard_games_below_minimum"})
+        if raw_hard_score < args.hard_min_score:
+            failure_reasons.append({"code": "candidate_not_stronger_than_hard"})
+
     report.update(
         {
             "arena_report_path": str(arena_report_path),
+            "hard_report_path": str(hard_report_path) if hard_report_path is not None else None,
             "candidate_mcts_report_path": str(candidate_mcts_report_path),
             "current_mcts_report_path": str(current_mcts_report_path),
             "arena_score": computed_arena_score,
+            "hard_score": computed_hard_score,
             "arena_losses": arena_losses,
             "candidate_mcts_score": computed_candidate_mcts_score,
             "current_mcts_score": computed_current_mcts_score,
@@ -204,13 +241,16 @@ def build_decision_report(
 
 
 def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
+    hard_report = load_json(args.stub_hard_report) if args.stub_hard_report is not None else None
     return build_decision_report(
         args,
         report,
         arena_report=load_json(args.stub_arena_report),
+        hard_report=hard_report,
         candidate_mcts_report=load_json(args.stub_candidate_mcts_report),
         current_mcts_report=load_json(args.stub_current_mcts_report),
         arena_report_path=args.stub_arena_report,
+        hard_report_path=args.stub_hard_report,
         candidate_mcts_report_path=args.stub_candidate_mcts_report,
         current_mcts_report_path=args.stub_current_mcts_report,
     )
@@ -237,6 +277,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     arena_report_path = Path(evaluations["candidate_vs_current_arena"]["report_path"])
     candidate_mcts_report_path = Path(evaluations["candidate_vs_mcts1200"]["report_path"])
     current_mcts_report_path = Path(evaluations["current_vs_mcts1200"]["report_path"])
+    hard_report_path = Path(evaluations["candidate_vs_hard_arena"]["report_path"]) if "candidate_vs_hard_arena" in evaluations else None
     search_flag_map = load_search_flag_map(args.config_path)
 
     run_command(
@@ -250,10 +291,30 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             "--games",
             str(args.arena_games),
             *search_flag_map.get("arena", []),
+            "--min-score",
+            str(args.min_arena_score),
             "--out",
             str(arena_report_path),
         ]
     )
+    if args.hard_path is not None:
+        run_command(
+            [
+                python_executable(),
+                "ml/alphazero_lite/arena.py",
+                "--challenger",
+                str(args.candidate_path),
+                "--current",
+                str(args.hard_path),
+                "--games",
+                str(args.hard_arena_games),
+                *search_flag_map.get("arena", []),
+                "--min-score",
+                str(args.hard_min_score),
+                "--out",
+                str(hard_report_path),
+            ]
+        )
     run_command(
         [
             python_executable(),
@@ -284,13 +345,16 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     for evaluation in report["evaluations"]:
         evaluation["mode"] = "executed"
 
+    hard_report = load_json(hard_report_path) if hard_report_path is not None else None
     return build_decision_report(
         args,
         report,
         arena_report=load_json(arena_report_path),
+        hard_report=hard_report,
         candidate_mcts_report=load_json(candidate_mcts_report_path),
         current_mcts_report=load_json(current_mcts_report_path),
         arena_report_path=arena_report_path,
+        hard_report_path=hard_report_path,
         candidate_mcts_report_path=candidate_mcts_report_path,
         current_mcts_report_path=current_mcts_report_path,
     )
@@ -300,42 +364,43 @@ def main() -> int:
     args = parse_args()
     args.out.parent.mkdir(parents=True, exist_ok=True)
 
-    stub_paths = (
+    non_hard_stub_paths = (
         args.stub_arena_report,
         args.stub_candidate_mcts_report,
         args.stub_current_mcts_report,
     )
-    if any(path is not None for path in stub_paths) and not all(path is not None for path in stub_paths):
-        raise SystemExit("provide all three stub report paths or none")
+    if any(path is not None for path in non_hard_stub_paths) and not all(path is not None for path in non_hard_stub_paths):
+        raise SystemExit("provide all stub report paths or none")
+    if args.stub_hard_report is not None and args.hard_path is None:
+        raise SystemExit("--stub-hard-report requires --hard-path")
 
     candidate_path = str(args.candidate_path)
     current_path = args.current_path
     mode = "dry_run" if args.dry_run else "planned"
 
-    report = {
-        "schema": "azlite_local_promotion_gate_v1",
-        "candidate_path": candidate_path,
-        "config_path": args.config_path,
-        "current_path": current_path,
-        "report_path": str(args.out),
-        "arena_games": args.arena_games,
-        "mcts_games": args.mcts_games,
-        "min_arena_score": args.min_arena_score,
-        "min_arena_games": args.min_arena_games,
-        "min_mcts_games": args.min_mcts_games,
-        "require_lossless": args.require_lossless,
-        "max_losses": args.max_losses,
-        "skip_mcts_relative_check": args.skip_mcts_relative_check,
-        "dry_run": args.dry_run,
-        "evaluations": [
+    evaluations = [
+        build_evaluation(
+            evaluation_id="candidate_vs_current_arena",
+            subject=candidate_path,
+            opponent=current_path,
+            games=args.arena_games,
+            report_dir=args.out.parent,
+            mode=mode,
+        ),
+    ]
+    if args.hard_path is not None:
+        evaluations.append(
             build_evaluation(
-                evaluation_id="candidate_vs_current_arena",
+                evaluation_id="candidate_vs_hard_arena",
                 subject=candidate_path,
-                opponent=current_path,
-                games=args.arena_games,
+                opponent=args.hard_path,
+                games=args.hard_arena_games,
                 report_dir=args.out.parent,
                 mode=mode,
-            ),
+            )
+        )
+    evaluations.extend(
+        [
             build_evaluation(
                 evaluation_id="candidate_vs_mcts1200",
                 subject=candidate_path,
@@ -352,10 +417,33 @@ def main() -> int:
                 report_dir=args.out.parent,
                 mode=mode,
             ),
-        ],
+        ]
+    )
+
+    report = {
+        "schema": "azlite_local_promotion_gate_v1",
+        "candidate_path": candidate_path,
+        "config_path": args.config_path,
+        "current_path": current_path,
+        "hard_path": args.hard_path,
+        "report_path": str(args.out),
+        "arena_games": args.arena_games,
+        "mcts_games": args.mcts_games,
+        "hard_arena_games": args.hard_arena_games,
+        "min_arena_score": args.min_arena_score,
+        "hard_min_score": args.hard_min_score,
+        "min_arena_games": args.min_arena_games,
+        "min_mcts_games": args.min_mcts_games,
+        "require_lossless": args.require_lossless,
+        "max_losses": args.max_losses,
+        "max_arena_move_time_mean_ms": args.max_arena_move_time_mean_ms,
+        "max_arena_move_time_p95_ms": args.max_arena_move_time_p95_ms,
+        "skip_mcts_relative_check": args.skip_mcts_relative_check,
+        "dry_run": args.dry_run,
+        "evaluations": evaluations,
     }
 
-    stub_reports_provided = all(path is not None for path in stub_paths)
+    stub_reports_provided = all(path is not None for path in non_hard_stub_paths)
 
     if stub_reports_provided:
         report = build_stub_decision_report(args, report)
