@@ -14,4 +14,4 @@ exec "$ROOT_DIR/.venv/bin/python" "$ROOT_DIR/ml/alphazero_lite/promote_checkpoin
   --min-score 0.0 \
   --require-lossless \
   --max-losses 0 \
-  --target storage/ai/alphazero_lite/current
+  --target storage/ai/alphazero_lite/superhuman_current

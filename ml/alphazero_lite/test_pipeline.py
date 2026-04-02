@@ -188,19 +188,19 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual("completed", manifest["status"])
             self.assertEqual([], manifest["gate_failures"])
 
-    def test_superhuman_configs_use_current_baseline(self):
+    def test_superhuman_configs_use_superhuman_current_baseline(self):
         phase1 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE1_CONFIG)
         phase2 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_CONFIG)
 
         self.assertEqual("aggressive-v3-superhuman", phase1["run_id"])
         self.assertEqual("aggressive-v3-superhuman", phase2["run_id"])
-        self.assertEqual("storage/ai/alphazero_lite/current", phase1["current_path"])
+        self.assertEqual("storage/ai/alphazero_lite/superhuman_current", phase1["current_path"])
         self.assertEqual("/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1", phase2["current_path"])
 
         phase2_steps = self.config_steps_by_name(phase2)
         self.assertIn("arena_vs_hard_report", phase2_steps)
-        self.assertIn("storage/ai/alphazero_lite/current", " ".join(phase2_steps["benchmark_contract"]["command"]))
-        self.assertIn("storage/ai/alphazero_lite/current", " ".join(phase2_steps["arena_confirm_report"]["command"]))
+        self.assertIn("storage/ai/alphazero_lite/superhuman_current", " ".join(phase2_steps["benchmark_contract"]["command"]))
+        self.assertIn("storage/ai/alphazero_lite/superhuman_current", " ".join(phase2_steps["arena_confirm_report"]["command"]))
 
     def test_superhuman_configs_tighten_training_recipe(self):
         phase1 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE1_CONFIG)

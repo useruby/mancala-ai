@@ -124,13 +124,13 @@ script/ai/promote_superhuman_candidate \
   tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2
 ```
 
-Deploy the runtime model set to production storage (`current`):
+Deploy the runtime model set to production storage (`current` + `superhuman_current`):
 
 ```bash
 bin/kamal model_deploy
 ```
 
-Rollback to the previous deployed runtime model set (`current`):
+Rollback to the previous deployed runtime model set (`current` + `superhuman_current`):
 
 ```bash
 bin/kamal model_rollback
