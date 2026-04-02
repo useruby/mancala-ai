@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+MODEL_DIR="$ROOT_DIR/storage/ai/alphazero_lite/current"
+DOCKERFILE="$ROOT_DIR/model-artifact/Dockerfile"
+IMAGE_REPO="${MODEL_ARTIFACT_REPO:-ghcr.io/useruby/mancala-model-artifact}"
+
+for file in metadata.json weights.json arena_report.json; do
+  if [[ ! -f "$MODEL_DIR/$file" ]]; then
+    echo "missing model artifact file: $MODEL_DIR/$file" >&2
+    exit 1
+  fi
+done
+
+MODEL_VERSION="$(python - <<'PY'
+import json
+from pathlib import Path
+meta = json.loads(Path('storage/ai/alphazero_lite/current/metadata.json').read_text())
+print(meta['version'])
+PY
+)"
+
+BUILD_DIR="$(mktemp -d)"
+trap 'rm -rf "$BUILD_DIR"' EXIT
+
+mkdir -p "$BUILD_DIR/artifacts/current"
+cp "$MODEL_DIR/metadata.json" "$BUILD_DIR/artifacts/current/metadata.json"
+cp "$MODEL_DIR/weights.json" "$BUILD_DIR/artifacts/current/weights.json"
+cp "$MODEL_DIR/arena_report.json" "$BUILD_DIR/artifacts/current/arena_report.json"
+cp "$DOCKERFILE" "$BUILD_DIR/Dockerfile"
+
+VERSION_TAG="${MODEL_ARTIFACT_TAG:-$MODEL_VERSION}"
+IMAGE_VERSION="$IMAGE_REPO:$VERSION_TAG"
+IMAGE_LATEST="$IMAGE_REPO:latest"
+
+echo "Building $IMAGE_VERSION"
+docker build -t "$IMAGE_VERSION" -t "$IMAGE_LATEST" "$BUILD_DIR"
+
+echo "Pushing $IMAGE_VERSION"
+docker push "$IMAGE_VERSION"
+
+echo "Pushing $IMAGE_LATEST"
+docker push "$IMAGE_LATEST"
+
+echo
+echo "Published model artifact image:"
+echo "  $IMAGE_VERSION"
+echo "Set MODEL_ARTIFACT_TAG=$VERSION_TAG when running kamal model_deploy."

@@ -117,18 +117,27 @@ script/ai/runpod_superhuman_experiment \
 ```
 
 After results download and gate pass, publish the candidate into the runtime
-superhuman artifact path:
+`current` artifact path:
 
 ```bash
 script/ai/promote_superhuman_candidate \
   tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2
 ```
 
-Deploy the runtime model set to production storage (`current`):
+Build and publish the model artifact image (no manual `scp`):
 
 ```bash
-bin/kamal model_deploy
+script/ai/build_model_artifact_image
 ```
+
+Deploy the runtime model set to production storage (`current`) from that image:
+
+```bash
+MODEL_ARTIFACT_TAG=<model-version> bin/kamal model_deploy
+```
+
+`MODEL_ARTIFACT_TAG` should match the image tag printed by
+`script/ai/build_model_artifact_image`.
 
 Rollback to the previous deployed runtime model set (`current`):
 
