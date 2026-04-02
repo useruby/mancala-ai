@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--target", action="append", default=None,
                         metavar="TARGET",
                         help="Destination directory (repeatable). Defaults to "
-                             "storage/ai/alphazero_lite/current")
+                             "model-artifact/current")
     parser.add_argument("--gate-report")
     parser.add_argument("--require-lossless", action="store_true")
     parser.add_argument("--max-losses", type=non_negative_int, default=0)
@@ -84,7 +84,7 @@ def main() -> None:
                 f"lossless requirement failed: losses={losses} max_losses={args.max_losses}"
             )
 
-    targets_raw = args.target if args.target else ["storage/ai/alphazero_lite/current"]
+    targets_raw = args.target if args.target else ["model-artifact/current"]
     targets = []
     for raw in targets_raw:
         t = resolve_repo_path(raw)

@@ -341,7 +341,7 @@ def main() -> None:
     start_iteration = max(1, int(args.start_iteration or config.get("start_iteration", 1)))
     final_iteration = start_iteration + total_iterations - 1
     versions_dir = Path(config.get("versions_dir", "storage/ai/alphazero_lite/versions"))
-    current_path = config.get("current_path", "storage/ai/alphazero_lite/current")
+    current_path = config.get("current_path", "model-artifact/current")
     steps = config.get("steps", [])
     gates = config.get("gates", {})
     replay_window = max(1, int(config.get("replay_window", 1)))

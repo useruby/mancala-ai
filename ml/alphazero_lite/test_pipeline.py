@@ -194,13 +194,13 @@ class PipelineScriptTest(unittest.TestCase):
 
         self.assertEqual("aggressive-v3-superhuman", phase1["run_id"])
         self.assertEqual("aggressive-v3-superhuman", phase2["run_id"])
-        self.assertEqual("storage/ai/alphazero_lite/current", phase1["current_path"])
+        self.assertEqual("model-artifact/current", phase1["current_path"])
         self.assertEqual("/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1", phase2["current_path"])
 
         phase2_steps = self.config_steps_by_name(phase2)
         self.assertIn("arena_vs_hard_report", phase2_steps)
-        self.assertIn("storage/ai/alphazero_lite/current", " ".join(phase2_steps["benchmark_contract"]["command"]))
-        self.assertIn("storage/ai/alphazero_lite/current", " ".join(phase2_steps["arena_confirm_report"]["command"]))
+        self.assertIn("model-artifact/current", " ".join(phase2_steps["benchmark_contract"]["command"]))
+        self.assertIn("model-artifact/current", " ".join(phase2_steps["arena_confirm_report"]["command"]))
 
     def test_superhuman_configs_tighten_training_recipe(self):
         phase1 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE1_CONFIG)
@@ -404,6 +404,8 @@ class PipelineScriptTest(unittest.TestCase):
                     str(hard_arena_games),
                     "--min-mcts-games",
                     str(min_mcts_games),
+                    "--hard-path",
+                    "model-artifact/current",
                     "--stub-arena-report",
                     str(arena_report_path),
                     "--stub-hard-report",
@@ -2475,6 +2477,8 @@ class PipelineScriptTest(unittest.TestCase):
                     str(candidate_path),
                     "--out",
                     str(report_path),
+                    "--hard-path",
+                    "model-artifact/current",
                     "--dry-run",
                 ],
                 cwd=repo_root,
@@ -2489,7 +2493,7 @@ class PipelineScriptTest(unittest.TestCase):
             report = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertEqual("azlite_local_promotion_gate_v1", report["schema"])
             self.assertEqual(str(candidate_path), report["candidate_path"])
-            self.assertEqual("storage/ai/alphazero_lite/current", report["current_path"])
+            self.assertEqual("model-artifact/current", report["current_path"])
             self.assertEqual(str(report_path), report["report_path"])
             self.assertEqual(4, len(report["evaluations"]))
             self.assertEqual(
@@ -2506,14 +2510,14 @@ class PipelineScriptTest(unittest.TestCase):
                     {
                         "id": "candidate_vs_current_arena",
                         "subject": str(candidate_path),
-                        "opponent": "storage/ai/alphazero_lite/current",
+                        "opponent": "model-artifact/current",
                         "games": 120,
                         "report_path": str(tmp_path / "candidate_vs_current_arena.json"),
                     },
                     {
                         "id": "candidate_vs_hard_arena",
                         "subject": str(candidate_path),
-                        "opponent": "storage/ai/alphazero_lite/current",
+                        "opponent": "model-artifact/current",
                         "games": 120,
                         "report_path": str(tmp_path / "candidate_vs_hard_arena.json"),
                     },
@@ -2526,7 +2530,7 @@ class PipelineScriptTest(unittest.TestCase):
                     },
                     {
                         "id": "current_vs_mcts1200",
-                        "subject": "storage/ai/alphazero_lite/current",
+                        "subject": "model-artifact/current",
                         "opponent": "mcts1200",
                         "games": 40,
                         "report_path": str(tmp_path / "current_vs_mcts1200.json"),

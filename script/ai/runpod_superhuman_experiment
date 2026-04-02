@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 exec "$ROOT_DIR/script/ai/runpod_training_experiment" \
-  --promotion-current-path storage/ai/alphazero_lite/current \
+  --promotion-current-path model-artifact/current \
   --promotion-arena-games 400 \
   --promotion-min-arena-games 400 \
   --promotion-min-arena-score 0.55 \

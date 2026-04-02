@@ -4,7 +4,7 @@
   "iterations": 1,
   "replay_window": 3,
   "versions_dir": "/tmp/azlite_v3_superhuman_versions",
-  "current_path": "storage/ai/alphazero_lite/current",
+  "current_path": "model-artifact/current",
   "steps": [
     {
       "name": "self_play",

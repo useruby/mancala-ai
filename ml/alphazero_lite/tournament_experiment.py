@@ -180,7 +180,7 @@ def main() -> None:
                 "--challenger",
                 winner_dir,
                 "--current",
-                "storage/ai/alphazero_lite/current",
+                "model-artifact/current",
                 "--games",
                 str(args.confirm_games),
                 "--challenger-simulations",

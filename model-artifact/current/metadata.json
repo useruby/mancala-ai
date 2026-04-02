@@ -1,0 +1,73 @@
+{
+  "schema_version": "azlite_model_v1",
+  "version": "human-mix-v4e-iter1",
+  "game": "kalah",
+  "rules_version": "kalah_v1",
+  "input_encoding": "kalah_v3",
+  "feature_count": 27,
+  "policy_size": 6,
+  "feature_order": [
+    "player_pits_0",
+    "player_pits_1",
+    "player_pits_2",
+    "player_pits_3",
+    "player_pits_4",
+    "player_pits_5",
+    "opponent_pits_0",
+    "opponent_pits_1",
+    "opponent_pits_2",
+    "opponent_pits_3",
+    "opponent_pits_4",
+    "opponent_pits_5",
+    "player_store",
+    "opponent_store",
+    "current_player",
+    "player_extra_turn_available",
+    "player_capture_available",
+    "player_empty_pit_ratio",
+    "player_high_seed_ratio",
+    "player_one_to_store_ratio",
+    "player_remaining_stones",
+    "opponent_extra_turn_available",
+    "opponent_capture_available",
+    "opponent_empty_pit_ratio",
+    "opponent_high_seed_ratio",
+    "opponent_one_to_store_ratio",
+    "opponent_remaining_stones"
+  ],
+  "architecture": {
+    "type": "residual_policy_value",
+    "model_type": "residual_v3",
+    "activation": "relu",
+    "policy_size": 6,
+    "value_size": 1,
+    "hidden_sizes": [
+      96
+    ],
+    "hidden_layer_count": 9,
+    "trunk_size": 96,
+    "residual_block_count": 3,
+    "policy_hidden_size": 96,
+    "value_hidden_size": 48
+  },
+  "normalization": {
+    "pits_divisor": 48.0,
+    "stores_divisor": 48.0,
+    "current_player_encoding": "binary_0_1"
+  },
+  "training": {
+    "self_play_games": 0
+  },
+  "metrics": {
+    "policy_loss": 0.0,
+    "value_loss": 0.0
+  },
+  "artifacts": {
+    "weights_file": "weights.json",
+    "weights_fallback_file": "model.npz",
+    "weights_sha256": "1858f268912d91e570282c9fdb10f821aea0f65043328735eab62408d7af4b50",
+    "weights_json_sha256": "e2eb300789136e81a527c04f591770c64b830d2fc98cb8a726a78628e725132e"
+  },
+  "framework": "numpy",
+  "created_at": "2026-04-02T20:23:33.718604+00:00"
+}

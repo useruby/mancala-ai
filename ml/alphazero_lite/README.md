@@ -61,10 +61,10 @@ Large batch (chunked, resumable, parallel workers):
 To make this checkpoint active in Rails:
 
 ```bash
-mkdir -p storage/ai/alphazero_lite/current
-cp storage/ai/alphazero_lite/versions/azlite-local-001/model.npz storage/ai/alphazero_lite/current/model.npz
-cp storage/ai/alphazero_lite/versions/azlite-local-001/weights.json storage/ai/alphazero_lite/current/weights.json
-cp storage/ai/alphazero_lite/versions/azlite-local-001/metadata.json storage/ai/alphazero_lite/current/metadata.json
+mkdir -p model-artifact/current
+cp storage/ai/alphazero_lite/versions/azlite-local-001/weights.json model-artifact/current/weights.json
+cp storage/ai/alphazero_lite/versions/azlite-local-001/metadata.json model-artifact/current/metadata.json
+cp storage/ai/alphazero_lite/versions/azlite-local-001/arena_report.json model-artifact/current/arena_report.json
 ```
 
 ## Output contract
@@ -78,8 +78,8 @@ The export script writes:
 Important metadata fields:
 
 - `schema_version = "azlite_model_v1"`
-- `input_encoding = "kalah_v1"`
-- `feature_count = 15`
+- `input_encoding = "kalah_v3"`
+- `feature_count = 27`
 - `policy_size = 6`
 - `architecture.policy_size = 6`
 
@@ -96,7 +96,7 @@ script/ai/runpod_training_experiment \
 
 The wrapper:
 
-- bundles `ml/alphazero_lite`, `script/ai`, the selected config, and `storage/ai/alphazero_lite/current`
+- bundles `ml/alphazero_lite`, `script/ai`, the selected config, and `model-artifact/current`
 - runs `pipeline.py` remotely
 - runs `script/ai/local_promotion_gate` remotely against the produced candidate
 - downloads the remote results directory back under `--local-results-path` using the remote results directory name as the leaf folder
@@ -124,25 +124,16 @@ script/ai/promote_superhuman_candidate \
   tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2
 ```
 
-Build and publish the model artifact image (no manual `scp`):
+Deploy the runtime model set to production with standard app deploy:
 
 ```bash
-script/ai/build_model_artifact_image
+bin/kamal deploy
 ```
 
-Deploy the runtime model set to production storage (`current`) from that image:
+Rollback model + app together with standard deploy rollback:
 
 ```bash
-MODEL_ARTIFACT_TAG=<model-version> bin/kamal model_deploy
-```
-
-`MODEL_ARTIFACT_TAG` should match the image tag printed by
-`script/ai/build_model_artifact_image`.
-
-Rollback to the previous deployed runtime model set (`current`):
-
-```bash
-bin/kamal model_rollback
+bin/kamal rollback
 ```
 
 ## Local promotion gate

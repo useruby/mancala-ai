@@ -160,7 +160,7 @@ arena, candidate vs MCTS1200, current vs MCTS1200
 - `--require-lossless --max-losses 0` enforces zero arena losses
 - combine with `--arena-games 400 --min-arena-games 400` for the
   superhuman contract
-- compare against `storage/ai/alphazero_lite/current` for both hard and
+- compare against `model-artifact/current` for both hard and
   superhuman tracks (difficulty is simulation-budget driven)
 - optional `--skip-mcts-relative-check` disables candidate-vs-current MCTS
   comparison when the gate is strictly "never lose"
@@ -244,7 +244,7 @@ exact engine the model must beat.
   `runpod_training_experiment` with 400-game lossless gate defaults and a
   strict `current` promotion target
 - Use `script/ai/promote_superhuman_candidate <candidate_dir>` to publish a
-  downloaded candidate to `storage/ai/alphazero_lite/current` after the gate
+  downloaded candidate to `model-artifact/current` after the gate
   report passes
 
 ---

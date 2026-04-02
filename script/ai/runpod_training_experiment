@@ -72,7 +72,7 @@ parser.add_argument("--promotion-max-losses", type=non_negative_int, default=0,
 parser.add_argument("--promotion-skip-mcts-relative-check", action=argparse.BooleanOptionalAction,
                     default=False,
                     help="Skip candidate-vs-current MCTS relative score check in local_promotion_gate")
-parser.add_argument("--promotion-current-path", default="storage/ai/alphazero_lite/current",
+parser.add_argument("--promotion-current-path", default="model-artifact/current",
                     help="Current artifact path used as gate baseline")
 
 args = parser.parse_args()
@@ -146,9 +146,9 @@ include_paths = [
     "ml/alphazero_lite",
     "script/ai",
     config_path,
-    "storage/ai/alphazero_lite/current",
+    "model-artifact/current",
 ]
-if args.promotion_current_path != "storage/ai/alphazero_lite/current":
+if args.promotion_current_path != "model-artifact/current":
     include_paths.append(args.promotion_current_path)
 if phase2_config_path:
     include_paths.append(phase2_config_path)
