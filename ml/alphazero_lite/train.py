@@ -366,6 +366,37 @@ def set_seed(seed: int):
         torch.cuda.manual_seed_all(seed)
 
 
+def split_replay_positions_by_source_row(
+    replay_indexes: np.ndarray,
+    *,
+    val_split: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    normalized_val_split = max(0.0, min(val_split, 0.5))
+    source_rows = np.unique(replay_indexes)
+    source_row_count = int(source_rows.shape[0])
+
+    if source_row_count <= 0:
+        raise ValueError("replay set is empty")
+
+    if normalized_val_split <= 0.0 or source_row_count < 2:
+        val_source_count = 0
+    else:
+        val_source_count = max(1, int(source_row_count * normalized_val_split))
+        val_source_count = min(val_source_count, source_row_count - 1)
+
+    train_source_count = source_rows.shape[0] - val_source_count
+    if train_source_count <= 0:
+        raise ValueError("training set is empty; decrease --val-split")
+
+    shuffled_source_rows = np.random.permutation(source_rows)
+    val_source_rows = shuffled_source_rows[train_source_count:]
+
+    is_val = np.isin(replay_indexes, val_source_rows)
+    train_positions = np.flatnonzero(~is_val)
+    val_positions = np.flatnonzero(is_val)
+    return train_positions, val_positions
+
+
 def train(
     model: PolicyValueNet,
     x: np.ndarray,
@@ -395,16 +426,8 @@ def train(
     else:
         replay_indexes_array = replay_indexes.astype(np.int64, copy=False)
 
-    dataset_size = replay_indexes_array.shape[0]
-    val_count = int(dataset_size * max(0.0, min(val_split, 0.5)))
-    train_count = dataset_size - val_count
-    if train_count <= 0:
-        raise ValueError("training set is empty; decrease --val-split")
-
-    shuffled_positions = np.arange(dataset_size)
-    np.random.shuffle(shuffled_positions)
-    train_positions = shuffled_positions[:train_count]
-    val_positions = shuffled_positions[train_count:]
+    train_positions, val_positions = split_replay_positions_by_source_row(replay_indexes_array, val_split=val_split)
+    val_count = int(val_positions.shape[0])
 
     x_all = torch.from_numpy(x).to(device)
     p_all = torch.from_numpy(p_target).to(device)

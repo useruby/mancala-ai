@@ -25,6 +25,7 @@ from ml.alphazero_lite.self_play import (
     DEFAULT_SEARCH_OPTIONS,
     add_search_option_args,
     build_eval_search_options,
+    build_search_profile,
     build_search_options,
     encode_state,
     search_options_from_args,
@@ -219,6 +220,25 @@ def run_arena_worker(
     challenger = ArtifactEvaluator(Path(challenger_path))
     current = ArtifactEvaluator(Path(current_path))
 
+    normalized_search_options = build_search_options(
+        fpu_mode=fpu_mode,
+        reuse_subtree=reuse_subtree,
+        normalize_values=normalize_values,
+        root_policy_mode=root_policy_mode,
+        tactical_root_bias=tactical_root_bias,
+    )
+    search_profile = build_search_profile(
+        kind="arena_eval",
+        player_mode="puct",
+        simulations=max(int(challenger_simulations), int(current_simulations)),
+        c_puct=c_puct,
+        search_options=normalized_search_options,
+        extra_fields={
+            "challenger_simulations": int(challenger_simulations),
+            "current_simulations": int(current_simulations),
+        },
+    )
+
     wins = 0
     losses = 0
     draws = 0
@@ -263,11 +283,11 @@ def run_arena_worker(
                 c_puct=c_puct,
                 rng=random.Random(int(rng.integers(0, 2**31 - 1))),
                 root=reusable_roots[acting_player],
-                fpu_mode=fpu_mode,
-                reuse_subtree=reuse_subtree,
-                normalize_values=normalize_values,
-                root_policy_mode=root_policy_mode,
-                tactical_root_bias=tactical_root_bias,
+                fpu_mode=str(normalized_search_options["fpu_mode"]),
+                reuse_subtree=bool(normalized_search_options["reuse_subtree"]),
+                normalize_values=bool(normalized_search_options["normalize_values"]),
+                root_policy_mode=str(normalized_search_options["root_policy_mode"]),
+                tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
             )
             started = time.perf_counter()
             visits, root = search.run(game)
@@ -301,13 +321,9 @@ def run_arena_worker(
         "losses": losses,
         "draws": draws,
         "move_durations_ms": move_durations_ms,
-        "search_options": build_search_options(
-            fpu_mode=fpu_mode,
-            reuse_subtree=reuse_subtree,
-            normalize_values=normalize_values,
-            root_policy_mode=root_policy_mode,
-            tactical_root_bias=tactical_root_bias,
-        ),
+        "search_options": normalized_search_options,
+        "search_profile": search_profile,
+        "search_profile_hash": search_profile["hash"],
     }
 
 
@@ -366,6 +382,19 @@ def main() -> None:
     ]
 
     score = (wins + (0.5 * draws)) / float(args.games)
+    fallback_search_profile = build_search_profile(
+        kind="arena_eval",
+        player_mode="puct",
+        simulations=max(int(args.challenger_simulations), int(args.current_simulations)),
+        c_puct=args.c_puct,
+        search_options=search_options,
+        extra_fields={
+            "challenger_simulations": int(args.challenger_simulations),
+            "current_simulations": int(args.current_simulations),
+        },
+    )
+    emitted_search_profile = results[0]["search_profile"] if results else fallback_search_profile
+    emitted_search_profile_hash = results[0]["search_profile_hash"] if results else fallback_search_profile["hash"]
     report = {
         "schema": "arena_v1",
         "games_played": int(args.games),
@@ -385,6 +414,8 @@ def main() -> None:
             "workers_used": len(results),
             "worker_game_counts": [int(result["wins"] + result["losses"] + result["draws"]) for result in results],
             "search_options": search_options,
+            "search_profile": emitted_search_profile,
+            "search_profile_hash": emitted_search_profile_hash,
             "move_time_mean_ms": round(statistics.fmean(move_durations_ms), 2) if move_durations_ms else 0.0,
             "move_time_p95_ms": round(percentile(move_durations_ms, 95), 2),
         },

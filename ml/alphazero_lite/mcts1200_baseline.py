@@ -17,7 +17,13 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.arena import ArtifactEvaluator
 from ml.alphazero_lite.classic_mcts import MCTS
 from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.self_play import PUCT, add_search_option_args, build_eval_search_options, search_options_from_args
+from ml.alphazero_lite.self_play import (
+    PUCT,
+    add_search_option_args,
+    build_eval_search_options,
+    build_search_profile,
+    search_options_from_args,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -180,16 +186,40 @@ def random_for_game(seed: int, game_index: int, acting_player: int) -> random.Ra
     return random.Random(seed + (game_index * 37) + acting_player)
 
 
-def build_report(*, games: int, az_base_simulations: int, mcts_simulations: int, results: list[dict]) -> dict:
+def build_report(
+    *,
+    games: int,
+    az_base_simulations: int,
+    mcts_simulations: int,
+    search_options: dict,
+    results: list[dict],
+) -> dict:
     az_wins = sum(int(result["az_wins"]) for result in results)
     mcts_wins = sum(int(result["mcts_wins"]) for result in results)
     draws = sum(int(result["draws"]) for result in results)
     score = (az_wins + (0.5 * draws)) / float(games)
+    search_profile = build_search_profile(
+        kind="mcts1200_baseline_eval",
+        player_mode="puct",
+        simulations=az_base_simulations,
+        c_puct=1.25,
+        search_options=search_options,
+        extra_fields={
+            "az_base_simulations": int(az_base_simulations),
+            "mcts_simulations": int(mcts_simulations),
+            "simulation_budget_policy": "stones_in_pits_scaled_clamped",
+            "simulation_budget_min": 96,
+            "simulation_budget_max": 1024,
+            "simulation_budget_multipliers": "early:1.25,mid:1.0,late:1.15",
+        },
+    )
     return {
         "schema": "azlite_vs_mcts_v1",
         "games": games,
         "az_base_simulations": az_base_simulations,
         "mcts_simulations": mcts_simulations,
+        "search_profile": search_profile,
+        "search_profile_hash": search_profile["hash"],
         "az_wins": az_wins,
         "mcts_wins": mcts_wins,
         "draws": draws,
@@ -234,6 +264,7 @@ def main() -> None:
         games=args.games,
         az_base_simulations=args.az_base_simulations,
         mcts_simulations=args.mcts_simulations,
+        search_options=search_options,
         results=results,
     )
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

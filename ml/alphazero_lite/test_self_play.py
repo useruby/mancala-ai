@@ -3,12 +3,14 @@ import random
 import subprocess
 import tempfile
 import unittest
+import hashlib
 from pathlib import Path
 from unittest import mock
 
 import numpy as np
 
 from ml.alphazero_lite import self_play
+from ml.alphazero_lite import opponent_pool
 from ml.alphazero_lite.input_encodings import BASE_FEATURE_ORDER, KALAH_V3_EXTRA_FEATURE_ORDER
 from ml.alphazero_lite.kalah_rules import KalahGame
 
@@ -111,6 +113,231 @@ class SelfPlayScriptTest(unittest.TestCase):
             args = self_play.parse_args()
 
         self.assertEqual("sharpened", args.policy_target_mode)
+
+    def test_parse_args_accepts_opponent_pool_config(self):
+        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--opponent-pool-config", "pool.json"]):
+            args = self_play.parse_args()
+
+        self.assertEqual("pool.json", args.opponent_pool_config)
+
+    def test_load_opponent_checkpoints_requires_checkpoints_field(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            config_path = Path(tmp) / "pool.json"
+            config_path.write_text(json.dumps({"unexpected": []}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "must include a checkpoints field"):
+                opponent_pool.load_opponent_checkpoints(str(config_path))
+
+    def test_load_opponent_checkpoints_rejects_empty_checkpoints_list(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            config_path = Path(tmp) / "pool.json"
+            config_path.write_text(json.dumps({"checkpoints": []}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "must not be empty"):
+                opponent_pool.load_opponent_checkpoints(str(config_path))
+
+    def test_load_opponent_checkpoints_rejects_missing_file(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            config_path = Path(tmp) / "missing.json"
+            with self.assertRaisesRegex(ValueError, "does not exist"):
+                opponent_pool.load_opponent_checkpoints(str(config_path))
+
+    def test_load_opponent_checkpoints_rejects_invalid_json(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            config_path = Path(tmp) / "pool.json"
+            config_path.write_text("{ not-json", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "not valid JSON"):
+                opponent_pool.load_opponent_checkpoints(str(config_path))
+
+    def test_load_opponent_checkpoints_requires_object_root(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            config_path = Path(tmp) / "pool.json"
+            config_path.write_text(json.dumps(["not", "an", "object"]), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "root must be a JSON object"):
+                opponent_pool.load_opponent_checkpoints(str(config_path))
+
+    def test_load_opponent_checkpoints_rejects_missing_checkpoint_path(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            config_path = Path(tmp) / "pool.json"
+            config_path.write_text(json.dumps({"checkpoints": ["missing/model.npz"]}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "references missing checkpoint"):
+                opponent_pool.load_opponent_checkpoints(str(config_path))
+
+    def test_load_opponent_checkpoints_rejects_directory_entry(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir = tmp_path / "checkpoints"
+            checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            config_path = tmp_path / "pool.json"
+            config_path.write_text(json.dumps({"checkpoints": [str(checkpoint_dir)]}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "non-file checkpoint"):
+                opponent_pool.load_opponent_checkpoints(str(config_path))
+
+    def test_load_opponent_checkpoints_normalizes_absolute_paths(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_path = tmp_path / "model.npz"
+            checkpoint_path.write_text("", encoding="utf-8")
+            weird_absolute = checkpoint_path.parent / "." / checkpoint_path.name
+            config_path = tmp_path / "pool.json"
+            config_path.write_text(json.dumps({"checkpoints": [str(weird_absolute)]}), encoding="utf-8")
+
+            loaded = opponent_pool.load_opponent_checkpoints(str(config_path))
+            self.assertEqual([str(checkpoint_path.resolve())], loaded)
+
+    def test_opponent_pool_sampling_is_repeatable_for_seeded_sequence(self):
+        checkpoints = ["opp_a.npz", "opp_b.npz", "opp_c.npz"]
+
+        first = [
+            opponent_pool.sample_opponent_checkpoint(
+                checkpoints,
+                base_seed=11,
+                game_index=game_index,
+                worker_id=2,
+            )
+            for game_index in range(8)
+        ]
+        second = [
+            opponent_pool.sample_opponent_checkpoint(
+                checkpoints,
+                base_seed=11,
+                game_index=game_index,
+                worker_id=2,
+            )
+            for game_index in range(8)
+        ]
+
+        self.assertEqual(first, second)
+
+    def test_build_search_profile_hash_is_deterministic_for_same_inputs(self):
+        search_options = self_play.build_search_options(
+            fpu_mode="parent_q",
+            reuse_subtree=True,
+            normalize_values=True,
+            root_policy_mode="deterministic",
+            tactical_root_bias=0.2,
+        )
+
+        first = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=96,
+            c_puct=1.25,
+            search_options=search_options,
+        )
+        second = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=96,
+            c_puct=1.25,
+            search_options=search_options,
+        )
+
+        self.assertEqual(first["hash"], second["hash"])
+
+    def test_build_search_profile_hash_changes_when_semantic_field_changes(self):
+        search_options = self_play.build_search_options(
+            fpu_mode="parent_q",
+            reuse_subtree=True,
+            normalize_values=True,
+            root_policy_mode="deterministic",
+            tactical_root_bias=0.2,
+        )
+
+        baseline = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=96,
+            c_puct=1.25,
+            search_options=search_options,
+        )
+        changed = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=128,
+            c_puct=1.25,
+            search_options=search_options,
+        )
+
+        self.assertNotEqual(baseline["hash"], changed["hash"])
+
+    def test_build_search_profile_uses_classic_fields_for_classic_mode(self):
+        profile = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="classic_mcts",
+            simulations=96,
+            c_puct=1.25,
+            search_options=self_play.build_search_options(),
+        )
+
+        self.assertEqual("classic_mcts", profile["player_mode"])
+        self.assertEqual(96, profile["classic_mcts_simulations"])
+        self.assertNotIn("simulations", profile)
+        self.assertNotIn("c_puct", profile)
+        self.assertNotIn("search_options", profile)
+
+    def test_run_self_play_worker_profile_includes_opponent_pool_fingerprint(self):
+        evaluator_paths = []
+
+        class FakeEvaluator(self_play.Evaluator):
+            def __init__(self, checkpoint_path, *, input_encoding):
+                evaluator_paths.append((str(checkpoint_path), input_encoding))
+
+            def evaluate(self, game):
+                del game
+                priors = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                return priors, 0.0
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opponents-fingerprint-") as tmp:
+            tmp_path = Path(tmp)
+            shard_path = tmp_path / "worker.jsonl"
+            opponent_pool_config_path = tmp_path / "pool.json"
+            (tmp_path / "opp_1.npz").write_text("", encoding="utf-8")
+            nested_dir = tmp_path / "nested"
+            nested_dir.mkdir(parents=True, exist_ok=True)
+            (nested_dir / "opp_2.npz").write_text("", encoding="utf-8")
+            opponent_pool_config_path.write_text(
+                json.dumps({"checkpoints": ["opp_1.npz", "nested/opp_2.npz"]}),
+                encoding="utf-8",
+            )
+
+            with mock.patch.object(self_play, "CheckpointEvaluator", FakeEvaluator):
+                self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=1,
+                    seed=7,
+                    seed_pool=[7],
+                    checkpoint="primary.npz",
+                    input_encoding="kalah_v1",
+                    simulations=8,
+                    c_puct=1.25,
+                    temperature_threshold=10,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=2,
+                    shard_path=str(shard_path),
+                    opponent_pool_config=str(opponent_pool_config_path),
+                )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            self.assertGreater(len(rows), 0)
+
+            resolved_checkpoints = [
+                str((tmp_path / "opp_1.npz").resolve()),
+                str((tmp_path / "nested/opp_2.npz").resolve()),
+            ]
+            expected_fingerprint = hashlib.sha256(
+                json.dumps(resolved_checkpoints, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+            ).hexdigest()
+
+            self.assertEqual(expected_fingerprint, rows[0]["search_profile"]["opponent_pool_fingerprint"])
 
     def test_encode_state_kalah_v3_exposes_extra_turn_and_capture_signals(self):
         extra_turn_state = {
@@ -660,6 +887,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             unique_states = set()
             for row in rows:
                 self.assertEqual("default", row["policy_target_mode"])
+                self.assertEqual("v1", row["search_profile"]["version"])
+                self.assertEqual("self_play", row["search_profile"]["kind"])
+                self.assertEqual(row["search_profile"]["hash"], row["search_profile_hash"])
                 self.assertEqual(15, len(row["state"]))
                 self.assertEqual(6, len(row["policy"]))
                 self.assertAlmostEqual(1.0, sum(row["policy"]), places=4)
@@ -961,6 +1191,55 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertIsNone(created_roots[0])
         self.assertIsNotNone(created_roots[1])
         self.assertEqual([False, True], reused_roots)
+
+    def test_run_self_play_worker_uses_opponent_pool_checkpoint_for_player_one(self):
+        evaluator_paths = []
+
+        class FakeEvaluator(self_play.Evaluator):
+            def __init__(self, checkpoint_path, *, input_encoding):
+                evaluator_paths.append((str(checkpoint_path), input_encoding))
+
+            def evaluate(self, game):
+                del game
+                priors = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                return priors, 0.0
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opponents-") as tmp:
+            tmp_path = Path(tmp)
+            shard_path = tmp_path / "worker.jsonl"
+            opponent_pool_config_path = tmp_path / "pool.json"
+            (tmp_path / "opp_1.npz").write_text("", encoding="utf-8")
+            (tmp_path / "opp_2.npz").write_text("", encoding="utf-8")
+            opponent_pool_config_path.write_text(
+                json.dumps({"checkpoints": ["opp_1.npz", "opp_2.npz"]}),
+                encoding="utf-8",
+            )
+
+            with mock.patch.object(self_play, "CheckpointEvaluator", FakeEvaluator):
+                result = self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=2,
+                    seed=7,
+                    seed_pool=[7],
+                    checkpoint="primary.npz",
+                    input_encoding="kalah_v1",
+                    simulations=8,
+                    c_puct=1.25,
+                    temperature_threshold=10,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=2,
+                    shard_path=str(shard_path),
+                    opponent_pool_config=str(opponent_pool_config_path),
+                )
+
+        self.assertGreater(result["rows_written"], 0)
+        loaded_paths = [path for path, _encoding in evaluator_paths]
+        self.assertIn("primary.npz", loaded_paths)
+        self.assertTrue(any(path.endswith("opp_1.npz") or path.endswith("opp_2.npz") for path in loaded_paths))
 
     def test_search_preserves_value_sign_when_child_keeps_turn(self):
         class FakeGame:
@@ -1473,6 +1752,37 @@ class ClassicMCTSHelpersInSelfPlayTest(unittest.TestCase):
 
 
 class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
+    def test_classic_mcts_player_mode_ignores_opponent_pool_config(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+            pool_path = Path(tmp) / "pool.json"
+            pool_path.write_text(json.dumps({"invalid": True}), encoding="utf-8")
+
+            result = self_play.run_self_play_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                seed=7,
+                seed_pool=[7],
+                checkpoint=None,
+                input_encoding="kalah_v3",
+                simulations=30,
+                c_puct=1.25,
+                temperature_threshold=5,
+                temperature=1.0,
+                temperature_late=0.1,
+                dirichlet_alpha=0.3,
+                dirichlet_epsilon=0.25,
+                max_moves=100,
+                shard_path=str(shard_path),
+                player_mode="classic_mcts",
+                opponent_pool_config=str(pool_path),
+                policy_target_mode="default",
+                value_target_mode="default",
+            )
+
+            self.assertGreater(result["rows_written"], 0)
+
     def test_classic_mcts_player_mode_produces_valid_rows(self):
         """run_self_play_worker with player_mode=classic_mcts should write valid JSONL rows."""
         import tempfile, json

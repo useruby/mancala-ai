@@ -115,6 +115,9 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual("deterministic", result["search_options"]["root_policy_mode"])
         self.assertEqual(0.1, result["search_options"]["tactical_root_bias"])
         self.assertEqual([result["search_options"]], captured_search_options)
+        self.assertEqual("v1", result["search_profile"]["version"])
+        self.assertEqual("arena_eval", result["search_profile"]["kind"])
+        self.assertEqual(result["search_profile"]["hash"], result["search_profile_hash"])
 
     def test_artifact_evaluator_loads_residual_v2_weights_and_selected_input_encoding(self):
         with tempfile.TemporaryDirectory(prefix="azlite-arena-unit-") as tmp:

@@ -66,6 +66,8 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
                     "games",
                     "az_base_simulations",
                     "mcts_simulations",
+                    "search_profile",
+                    "search_profile_hash",
                     "az_wins",
                     "mcts_wins",
                     "draws",
@@ -77,6 +79,16 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             self.assertEqual(30, report["games"])
             self.assertEqual(640, report["az_base_simulations"])
             self.assertEqual(1200, report["mcts_simulations"])
+            self.assertEqual("v1", report["search_profile"]["version"])
+            self.assertEqual("mcts1200_baseline_eval", report["search_profile"]["kind"])
+            self.assertEqual(report["search_profile"]["hash"], report["search_profile_hash"])
+            self.assertEqual("stones_in_pits_scaled_clamped", report["search_profile"]["simulation_budget_policy"])
+            self.assertEqual(96, report["search_profile"]["simulation_budget_min"])
+            self.assertEqual(1024, report["search_profile"]["simulation_budget_max"])
+            self.assertEqual(
+                "early:1.25,mid:1.0,late:1.15",
+                report["search_profile"]["simulation_budget_multipliers"],
+            )
 
     def test_partitioning_preserves_global_game_indexes(self):
         from ml.alphazero_lite.mcts1200_baseline import partition_counts, partition_starts

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import hashlib
 import json
 import math
 import random
@@ -21,6 +22,7 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING, SUPPORTED_INPUT_ENCODINGS, feature_count_for
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
+from ml.alphazero_lite.opponent_pool import load_opponent_checkpoints, sample_opponent_checkpoint
 
 
 PITS_PER_PLAYER = 6
@@ -203,6 +205,52 @@ def build_eval_search_options(
         root_policy_mode=root_policy_mode,
         tactical_root_bias=tactical_root_bias,
     )
+
+
+def build_search_profile(
+    *,
+    kind: str,
+    player_mode: str,
+    simulations: int,
+    c_puct: float,
+    search_options: dict[str, str | bool | float],
+    extra_fields: dict[str, str | int | float | bool] | None = None,
+) -> dict[str, str | int | float | bool | dict[str, str | bool | float]]:
+    normalized_options = build_search_options(
+        fpu_mode=str(search_options["fpu_mode"]),
+        reuse_subtree=bool(search_options["reuse_subtree"]),
+        normalize_values=bool(search_options["normalize_values"]),
+        root_policy_mode=str(search_options["root_policy_mode"]),
+        tactical_root_bias=float(search_options["tactical_root_bias"]),
+    )
+    profile = {
+        "version": "v1",
+        "kind": str(kind),
+        "player_mode": str(player_mode),
+    }
+    if str(player_mode) == "classic_mcts":
+        profile["classic_mcts_simulations"] = int(simulations)
+    else:
+        profile.update(
+            {
+                "simulations": int(simulations),
+                "c_puct": float(c_puct),
+                "search_options": normalized_options,
+            }
+        )
+    if extra_fields:
+        profile.update(extra_fields)
+    encoded_profile = json.dumps(profile, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    profile_hash = hashlib.sha256(encoded_profile.encode("utf-8")).hexdigest()
+    return {
+        **profile,
+        "hash": profile_hash,
+    }
+
+
+def opponent_pool_fingerprint(checkpoints: list[str]) -> str:
+    encoded = json.dumps([str(path) for path in checkpoints], separators=(",", ":"), ensure_ascii=True)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 def normalize_policy_target_mode(policy_target_mode: str) -> str:
@@ -833,6 +881,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--games", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--checkpoint", default=None, help="Optional model checkpoint .npz")
+    parser.add_argument("--opponent-pool-config", default=None, help="Optional JSON config for opponent checkpoint pool")
     parser.add_argument("--input-encoding", choices=SUPPORTED_INPUT_ENCODINGS, default=DEFAULT_INPUT_ENCODING)
     parser.add_argument("--simulations", type=int, default=96)
     parser.add_argument("--c-puct", type=float, default=1.25)
@@ -947,6 +996,7 @@ def run_self_play_worker(
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
     player_mode: str = DEFAULT_PLAYER_MODE,
+    opponent_pool_config: str | None = None,
 ) -> dict:
     shard = Path(shard_path)
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
@@ -956,13 +1006,35 @@ def run_self_play_worker(
         raise ValueError(f"Unsupported player_mode {player_mode!r}. Must be one of {sorted(SUPPORTED_PLAYER_MODES)}")
 
     evaluator: Evaluator | None = None
+    opponent_evaluator_cache: dict[str, Evaluator] = {}
+    opponent_checkpoints: list[str] = []
     if player_mode == "puct":
+        opponent_checkpoints = load_opponent_checkpoints(opponent_pool_config)
         if checkpoint:
             evaluator = CheckpointEvaluator(Path(checkpoint), input_encoding=input_encoding)
         else:
             evaluator = HeuristicEvaluator()
 
     effective_reuse_subtree = bool(reuse_subtree or tree_reuse_enabled)
+    normalized_search_options = build_search_options(
+        fpu_mode=fpu_mode,
+        reuse_subtree=effective_reuse_subtree,
+        normalize_values=normalize_values,
+        root_policy_mode=root_policy_mode,
+        tactical_root_bias=tactical_root_bias,
+    )
+    profile_extra_fields: dict[str, str] = {}
+    if opponent_checkpoints:
+        profile_extra_fields["opponent_pool_fingerprint"] = opponent_pool_fingerprint(opponent_checkpoints)
+
+    search_profile = build_search_profile(
+        kind="self_play",
+        player_mode=player_mode,
+        simulations=simulations,
+        c_puct=c_puct,
+        search_options=normalized_search_options,
+        extra_fields=profile_extra_fields,
+    )
 
     rows_written = 0
     with shard.open("w", encoding="utf-8") as handle:
@@ -981,6 +1053,14 @@ def run_self_play_worker(
             )
             positions: list[tuple[list[float], list[float], int, float, int]] = []
             reusable_root: Node | None = None
+            opponent_checkpoint_for_game: str | None = None
+            if opponent_checkpoints:
+                opponent_checkpoint_for_game = sample_opponent_checkpoint(
+                    opponent_checkpoints,
+                    base_seed=seed,
+                    game_index=global_index,
+                    worker_id=worker_id,
+                )
 
             for ply in range(max_moves):
                 if game.over():
@@ -997,17 +1077,27 @@ def run_self_play_worker(
                     visits = np.array(visits_from_classic_mcts_root(mcts_root), dtype=np.float32)
                     search_value = value_from_classic_mcts_root(mcts_root)
                 else:
+                    selected_evaluator = evaluator
+                    if game.current_player == 1 and opponent_checkpoint_for_game is not None:
+                        selected_evaluator = opponent_evaluator_cache.get(opponent_checkpoint_for_game)
+                        if selected_evaluator is None:
+                            selected_evaluator = CheckpointEvaluator(
+                                Path(opponent_checkpoint_for_game),
+                                input_encoding=input_encoding,
+                            )
+                            opponent_evaluator_cache[opponent_checkpoint_for_game] = selected_evaluator
+
                     search = PUCT(
-                        evaluator=evaluator,
+                        evaluator=selected_evaluator,
                         simulations=simulations,
                         c_puct=c_puct,
                         rng=rng,
                         root=reusable_root,
-                        fpu_mode=fpu_mode,
-                        reuse_subtree=effective_reuse_subtree,
-                        normalize_values=normalize_values,
-                        root_policy_mode=root_policy_mode,
-                        tactical_root_bias=tactical_root_bias,
+                        fpu_mode=str(normalized_search_options["fpu_mode"]),
+                        reuse_subtree=bool(normalized_search_options["reuse_subtree"]),
+                        normalize_values=bool(normalized_search_options["normalize_values"]),
+                        root_policy_mode=str(normalized_search_options["root_policy_mode"]),
+                        tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
                     )
                     visits, puct_root = search.run(
                         game,
@@ -1059,6 +1149,8 @@ def run_self_play_worker(
                     "winner": winner,
                     "policy_target_mode": policy_target_mode,
                     "value_target_mode": value_target_mode,
+                    "search_profile": search_profile,
+                    "search_profile_hash": search_profile["hash"],
                 }
                 handle.write(json.dumps(row) + "\n")
                 rows_written += 1
@@ -1114,6 +1206,7 @@ def main() -> None:
                         seed=args.seed,
                         seed_pool=seed_pool,
                         checkpoint=args.checkpoint,
+                        opponent_pool_config=args.opponent_pool_config,
                         input_encoding=args.input_encoding,
                         simulations=args.simulations,
                         c_puct=args.c_puct,

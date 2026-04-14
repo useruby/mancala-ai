@@ -12,7 +12,12 @@ class ArenaReportValidationError(ValueError):
         super().__init__(message)
 
 
-def validate_arena_report(*, report: dict[str, Any], min_score: float) -> dict[str, float | int | bool]:
+def validate_arena_report(
+    *,
+    report: dict[str, Any],
+    min_score: float,
+    min_confidence_lower_bound: float | None = None,
+) -> dict[str, float | int | bool | None]:
     if report.get("schema") != EXPECTED_ARENA_SCHEMA:
         raise_validation("SCHEMA", f"schema must be {EXPECTED_ARENA_SCHEMA}")
 
@@ -29,23 +34,36 @@ def validate_arena_report(*, report: dict[str, Any], min_score: float) -> dict[s
         raise_validation("COUNTS", "wins + losses + draws must equal games_played")
 
     score = (wins + (draws * 0.5)) / games_played
-    passed = score >= float(min_score)
+    score_passed = score >= float(min_score)
+    confidence_lower_bound = wilson_lower_bound(score=score, sample_size=games_played)
+    confidence_passed = True
+    if min_confidence_lower_bound is not None:
+        confidence_passed = confidence_lower_bound >= float(min_confidence_lower_bound)
+    passed = score_passed and confidence_passed
 
     decision = report.get("promotion_decision")
     if not isinstance(decision, dict):
         raise_validation("DECISION", "promotion_decision must be present")
-        decision = {}
 
     declared = decision.get("passed")
     if not isinstance(declared, bool):
         raise_validation("DECISION", "promotion_decision.passed must be boolean")
-    if declared != passed:
-        raise_validation("DECISION_MISMATCH", "promotion_decision.passed must match computed threshold outcome")
+    if declared != score_passed:
+        raise_validation(
+            "DECISION_MISMATCH",
+            "promotion_decision.passed must match score threshold outcome (not confidence gate)",
+        )
 
     return {
         "passed": passed,
         "score": score,
+        "score_passed": score_passed,
+        "confidence_passed": confidence_passed,
+        "confidence_lower_bound": confidence_lower_bound,
         "min_score": float(min_score),
+        "min_confidence_lower_bound": (
+            float(min_confidence_lower_bound) if min_confidence_lower_bound is not None else None
+        ),
         "games_played": games_played,
         "wins": wins,
         "losses": losses,
@@ -57,14 +75,22 @@ def integer_field(report: dict[str, Any], key: str) -> int:
     value: Any = report.get(key)
     if value is None:
         raise_validation("SCHEMA", f"{key} is missing")
-        return 0
 
-    try:
-        return int(value)
-    except (TypeError, ValueError):
+    if isinstance(value, bool) or not isinstance(value, int):
         raise_validation("SCHEMA", f"{key} must be an integer")
-        return 0
+
+    return value
 
 
 def raise_validation(suffix: str, message: str) -> None:
     raise ArenaReportValidationError(f"ARENA_VALIDATION::{suffix}", message)
+
+
+def wilson_lower_bound(*, score: float, sample_size: int, z: float = 1.96) -> float:
+    if sample_size <= 0:
+        return 0.0
+
+    denominator = 1.0 + ((z**2) / sample_size)
+    center = score + ((z**2) / (2.0 * sample_size))
+    margin = z * (((score * (1.0 - score)) + ((z**2) / (4.0 * sample_size))) / sample_size) ** 0.5
+    return max(0.0, (center - margin) / denominator)

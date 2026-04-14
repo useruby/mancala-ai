@@ -6,6 +6,7 @@ import math
 import random
 from dataclasses import dataclass, field
 
+from ml.alphazero_lite.endgame_tablebase import EndgameTablebaseContract
 from ml.alphazero_lite.kalah_rules import KalahGame, NUMBER_OF_PLAYERS, PITS_PER_PLAYER
 
 
@@ -78,6 +79,7 @@ class MCTS:
         early_stop_check_interval: int = 200,
         early_stop_top_visit_share: float = 0.85,
         early_stop_required_checks: int = 2,
+        endgame_tablebase: EndgameTablebaseContract | None = None,
     ):
         self.game = game
         self.simulations = simulations
@@ -89,6 +91,7 @@ class MCTS:
         self.early_stop_check_interval = max(int(early_stop_check_interval), 1)
         self.early_stop_top_visit_share = float(early_stop_top_visit_share)
         self.early_stop_required_checks = max(int(early_stop_required_checks), 1)
+        self.endgame_tablebase = endgame_tablebase
 
     def choose_move(self) -> int | None:
         possible_moves = self.game.possible_moves()
@@ -185,6 +188,11 @@ class MCTS:
         return (top / float(total)) >= self.early_stop_top_visit_share
 
     def simulate_playout(self, game: KalahGame) -> float:
+        if self.endgame_tablebase is not None:
+            solved_value = self.endgame_tablebase.lookup(game, self.player)
+            if solved_value is not None:
+                return solved_value
+
         current_game = game.clone()
         depth = self.playout_depth_for(current_game)
         for _ in range(depth):

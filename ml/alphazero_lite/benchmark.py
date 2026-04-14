@@ -15,6 +15,40 @@ from ml.alphazero_lite.report_validation import ArenaReportValidationError, vali
 from ml.alphazero_lite.self_play import add_search_option_args, build_eval_search_options, search_options_from_args
 
 
+EXPECTED_MCTS_SCHEMA = "azlite_vs_mcts_v1"
+
+
+def mcts_integer_field(report: dict, key: str, report_name: str) -> int:
+    if key not in report:
+        raise SystemExit(f"{report_name} missing required field: {key}")
+
+    value = report[key]
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise SystemExit(f"{report_name} field {key} must be an integer")
+
+    return value
+
+
+def validate_mcts_report(report: dict, report_name: str) -> tuple[int, int, int, int]:
+    schema = report.get("schema")
+    if schema is not None and schema != EXPECTED_MCTS_SCHEMA:
+        raise SystemExit(f"{report_name} schema must be {EXPECTED_MCTS_SCHEMA} when present")
+
+    games = mcts_integer_field(report, "games", report_name)
+    az_wins = mcts_integer_field(report, "az_wins", report_name)
+    mcts_wins = mcts_integer_field(report, "mcts_wins", report_name)
+    draws = mcts_integer_field(report, "draws", report_name)
+
+    if games <= 0:
+        raise SystemExit(f"{report_name} games must be > 0")
+    if az_wins < 0 or mcts_wins < 0 or draws < 0:
+        raise SystemExit(f"{report_name} az_wins/mcts_wins/draws must be non-negative")
+    if az_wins + mcts_wins + draws != games:
+        raise SystemExit(f"{report_name} az_wins + mcts_wins + draws must equal games")
+
+    return games, az_wins, mcts_wins, draws
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["sanity", "promotion"], required=True)
@@ -25,6 +59,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--current-path", default="storage/ai/alphazero_lite/current")
     parser.add_argument("--arena-report", default=None)
     parser.add_argument("--min-score", type=float, default=0.55)
+    parser.add_argument("--min-confidence-lower-bound", type=float, default=None)
     parser.add_argument("--mcts-report", default=None)
     parser.add_argument("--current-baseline-mcts-report", default=None)
     parser.add_argument("--min-mcts-score", type=float, default=0.45)
@@ -63,7 +98,11 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
 
     arena = json.loads(arena_path.read_text(encoding="utf-8"))
     try:
-        arena_result = validate_arena_report(report=arena, min_score=float(args.min_score))
+        arena_result = validate_arena_report(
+            report=arena,
+            min_score=float(args.min_score),
+            min_confidence_lower_bound=args.min_confidence_lower_bound,
+        )
     except ArenaReportValidationError as error:
         raise SystemExit(str(error)) from error
 
@@ -80,12 +119,7 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
         raise SystemExit(f"mcts report not found: {mcts_path}")
 
     mcts = json.loads(mcts_path.read_text(encoding="utf-8"))
-    mcts_games = int(mcts.get("games", 0))
-    mcts_wins = int(mcts.get("az_wins", 0))
-    mcts_losses = int(mcts.get("mcts_wins", 0))
-    mcts_draws = int(mcts.get("draws", 0))
-    if mcts_games <= 0:
-        raise SystemExit("mcts report games must be > 0")
+    mcts_games, mcts_wins, mcts_losses, mcts_draws = validate_mcts_report(mcts, "mcts report")
 
     mcts_score = (mcts_wins + (0.5 * mcts_draws)) / mcts_games
     mcts_min_score = float(args.min_mcts_score)
@@ -108,11 +142,10 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
             raise SystemExit(f"current baseline mcts report not found: {baseline_mcts_path}")
 
         baseline_mcts = json.loads(baseline_mcts_path.read_text(encoding="utf-8"))
-        baseline_games = int(baseline_mcts.get("games", 0))
-        baseline_wins = int(baseline_mcts.get("az_wins", 0))
-        baseline_draws = int(baseline_mcts.get("draws", 0))
-        if baseline_games <= 0:
-            raise SystemExit("current baseline mcts report games must be > 0")
+        baseline_games, baseline_wins, _baseline_losses, baseline_draws = validate_mcts_report(
+            baseline_mcts,
+            "current baseline mcts report",
+        )
 
         baseline_score = (baseline_wins + (0.5 * baseline_draws)) / baseline_games
         mcts_check.update(
@@ -125,21 +158,28 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
         )
         del mcts_check["min_score"]
 
-    return [
-        {
-            "id": "promotion_arena",
-            "description": "Candidate versus current arena gate",
-            "passed": check_passed,
-            "score": round(score, 4),
-            "games_played": games_played,
-            "wins": wins,
-            "losses": losses,
-            "draws": draws,
-            "declared_passed": declared,
-            "min_score": float(args.min_score),
-        },
-        mcts_check,
-    ]
+    arena_check: dict[str, int | float | bool | str] = {
+        "id": "promotion_arena",
+        "description": "Candidate versus current arena gate",
+        "passed": check_passed,
+        "score": round(score, 4),
+        "games_played": games_played,
+        "wins": wins,
+        "losses": losses,
+        "draws": draws,
+        "declared_passed": declared,
+        "min_score": float(args.min_score),
+    }
+    if args.min_confidence_lower_bound is not None:
+        arena_check.update(
+            {
+                "confidence_lower_bound": round(float(arena_result["confidence_lower_bound"]), 4),
+                "confidence_passed": bool(arena_result["confidence_passed"]),
+                "min_confidence_lower_bound": float(args.min_confidence_lower_bound),
+            }
+        )
+
+    return [arena_check, mcts_check]
 
 
 def build_report(args: argparse.Namespace) -> dict:
@@ -158,6 +198,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "mcts_report": args.mcts_report,
         "current_baseline_mcts_report": args.current_baseline_mcts_report,
         "min_score": float(args.min_score),
+        "min_confidence_lower_bound": args.min_confidence_lower_bound,
         "min_mcts_score": float(args.min_mcts_score),
         "dry_run": bool(args.dry_run),
         "search_options": build_eval_search_options(**search_options_from_args(args)),

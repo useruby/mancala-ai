@@ -381,6 +381,73 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertTrue(mcts_check["passed"])
             self.assertEqual(0.5, mcts_check["score"])
 
+    def test_promotion_mode_includes_confidence_fields_when_confidence_gate_is_set(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--min-confidence-lower-bound",
+                    "0.45",
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            arena_check = report["checks"][0]
+            self.assertEqual("promotion_arena", arena_check["id"])
+            self.assertIn("confidence_lower_bound", arena_check)
+            self.assertIn("confidence_passed", arena_check)
+            self.assertIn("min_confidence_lower_bound", arena_check)
+            self.assertEqual(0.45, arena_check["min_confidence_lower_bound"])
+
     def test_promotion_mode_accepts_parallel_mcts1200_report_shape(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
             tmp_path = Path(tmp)
@@ -801,6 +868,295 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertNotIn("min_score", mcts_check)
             self.assertNotIn("challenger_score", mcts_check)
             self.assertNotIn("current_baseline_score", mcts_check)
+
+    def test_promotion_mode_rejects_mcts_report_missing_required_fields(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": 15,
+                        "draws": 0,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("missing required field", result.stderr)
+
+    def test_promotion_mode_rejects_mcts_report_with_negative_counts(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": -1,
+                        "mcts_wins": 31,
+                        "draws": 0,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("must be non-negative", result.stderr)
+
+    def test_promotion_mode_rejects_mcts_report_with_boolean_integer_field(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": True,
+                        "draws": 0,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("field mcts_wins must be an integer", result.stderr)
+
+    def test_promotion_mode_rejects_mcts_report_with_string_integer_field(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": "30",
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("field games must be an integer", result.stderr)
+
+    def test_promotion_mode_rejects_mcts_report_with_inconsistent_totals(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": 10,
+                        "mcts_wins": 10,
+                        "draws": 5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("must equal games", result.stderr)
 
 
 if __name__ == "__main__":

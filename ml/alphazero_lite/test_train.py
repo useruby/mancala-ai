@@ -1304,72 +1304,49 @@ class TrainScriptTest(unittest.TestCase):
                 atol=1e-6,
             )
 
-    def test_train_replay_indexes_match_duplicated_validation_split_semantics(self):
-        x_compact = np.array([[1.0] * 15, [2.0] * 15], dtype=np.float32)
-        p_compact = np.array(
-            [
-                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-            ],
-            dtype=np.float32,
-        )
-        v_compact = np.array([[1.0], [-1.0]], dtype=np.float32)
+    def test_split_replay_positions_by_source_row_keeps_source_rows_disjoint(self):
         replay_indexes = np.array([0, 1, 1, 1], dtype=np.int64)
 
-        x_duplicated = np.array([[1.0] * 15, [2.0] * 15, [2.0] * 15, [2.0] * 15], dtype=np.float32)
-        p_duplicated = np.array(
-            [
-                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-            ],
-            dtype=np.float32,
-        )
-        v_duplicated = np.array([[1.0], [-1.0], [-1.0], [-1.0]], dtype=np.float32)
-
-        indexed_model = train_module.PolicyValueNet(hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15)
-        duplicated_model = train_module.PolicyValueNet(hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15)
-        duplicated_model.load_state_dict(indexed_model.state_dict())
-
         train_module.set_seed(11)
-        indexed_losses = train_module.train(
-            indexed_model,
-            x_compact,
-            p_compact,
-            v_compact,
-            replay_indexes=replay_indexes,
-            epochs=1,
-            batch_size=8,
-            lr=0.0,
-            device=torch.device("cpu"),
-            value_loss_weight=0.5,
-            value_loss="mse",
-            huber_delta=1.0,
-            val_split=0.25,
-            grad_clip=None,
-            save_top_k=0,
-        )
+        train_positions, val_positions = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.5)
 
-        train_module.set_seed(11)
-        duplicated_losses = train_module.train(
-            duplicated_model,
-            x_duplicated,
-            p_duplicated,
-            v_duplicated,
-            epochs=1,
-            batch_size=8,
-            lr=0.0,
-            device=torch.device("cpu"),
-            value_loss_weight=0.5,
-            value_loss="mse",
-            huber_delta=1.0,
-            val_split=0.25,
-            grad_clip=None,
-            save_top_k=0,
-        )
+        train_source_rows = set(replay_indexes[train_positions].tolist())
+        val_source_rows = set(replay_indexes[val_positions].tolist())
 
-        np.testing.assert_allclose(indexed_losses, duplicated_losses, rtol=1e-6, atol=1e-6)
+        self.assertTrue(train_source_rows)
+        self.assertTrue(val_source_rows)
+        self.assertTrue(train_source_rows.isdisjoint(val_source_rows))
+        self.assertEqual({0, 1}, train_source_rows | val_source_rows)
+
+    def test_split_replay_positions_by_source_row_is_seed_deterministic(self):
+        replay_indexes = np.array([0, 1, 1, 1, 2, 2], dtype=np.int64)
+
+        train_module.set_seed(23)
+        first_train, first_val = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.5)
+
+        train_module.set_seed(23)
+        second_train, second_val = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.5)
+
+        np.testing.assert_array_equal(first_train, second_train)
+        np.testing.assert_array_equal(first_val, second_val)
+
+    def test_split_replay_positions_by_source_row_keeps_nonzero_val_split_nonempty(self):
+        replay_indexes = np.array([0, 0, 1, 1, 2, 2, 3, 3, 4, 4], dtype=np.int64)
+
+        train_module.set_seed(31)
+        train_positions, val_positions = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.1)
+
+        self.assertGreater(train_positions.shape[0], 0)
+        self.assertGreater(val_positions.shape[0], 0)
+
+    def test_split_replay_positions_by_source_row_zero_val_split_stays_empty(self):
+        replay_indexes = np.array([0, 0, 1, 1], dtype=np.int64)
+
+        train_module.set_seed(31)
+        train_positions, val_positions = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.0)
+
+        self.assertGreater(train_positions.shape[0], 0)
+        self.assertEqual(0, val_positions.shape[0])
 
 
 if __name__ == "__main__":
