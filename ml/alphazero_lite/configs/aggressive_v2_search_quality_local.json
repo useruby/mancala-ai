@@ -51,7 +51,9 @@
         "--checkpoint",
         "{parent_checkpoint}",
         "--input-encoding",
-        "kalah_v2"
+        "kalah_v2",
+        "--evaluator-cache-size",
+        "50000"
       ]
     },
     {

@@ -1,7 +1,17 @@
+import importlib.machinery
+import io
 import json
+import runpy
 import subprocess
+import sys
+import tempfile
+import types
 import unittest
+from argparse import Namespace
 from pathlib import Path
+from unittest import mock
+
+from ml.alphazero_lite import runpod_experiment
 
 
 class RunpodWrappersTest(unittest.TestCase):
@@ -54,11 +64,960 @@ class RunpodWrappersTest(unittest.TestCase):
         self.assertIn("Usage: script/ai/promote_superhuman_candidate CANDIDATE_DIR", result.stderr)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class RunpodTrainingExperimentValidationTest(unittest.TestCase):
+    def write_downloaded_aggregate_summary(self, *, local_results_path, results_path, passed):
+        aggregate_summary_path = Path(local_results_path) / Path(results_path).name / "aggregate_summary.json"
+        aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
+        aggregate_summary_path.write_text(json.dumps({"passed": passed}), encoding="utf-8")
+        return aggregate_summary_path
+
+    def run_model_robustness_wrapper(self, *, orchestrate_impl, cli_args):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/runpod_model_robustness_confirmation"
+        fake_runpod_experiment = types.ModuleType("ml.alphazero_lite.runpod_experiment")
+        fake_runpod_experiment.build_dry_run_plan = lambda **kwargs: kwargs
+        fake_runpod_experiment.orchestrate = orchestrate_impl
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with mock.patch.dict(sys.modules, {"ml.alphazero_lite.runpod_experiment": fake_runpod_experiment}):
+            with mock.patch.object(sys, "argv", [str(script_path), *cli_args]), mock.patch("sys.stdout", stdout), mock.patch(
+                "sys.stderr", stderr
+            ):
+                try:
+                    runpy.run_path(str(script_path), run_name="__main__")
+                except SystemExit as exc:
+                    if isinstance(exc.code, int):
+                        code = exc.code
+                    else:
+                        if exc.code not in (None, ""):
+                            print(exc.code, file=sys.stderr)
+                        code = 1
+                else:
+                    code = 0
+
+        return code, stdout.getvalue(), stderr.getvalue()
+
+    def test_runpod_model_robustness_confirmation_dry_run_builds_remote_confirmation_plan(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_model_robustness_confirmation",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        command = plan["command"]
+
+        self.assertIn("script/ai/model_robustness_confirmation", command)
+        self.assertIn(
+            "--parent-artifact /tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
+            command,
+        )
+        self.assertIn("--current-path model-artifact/current", command)
+        self.assertIn("--output-root /tmp/azlite_v3_robustness_confirmation", command)
+        self.assertIn(
+            "cp -R /tmp/azlite_v3_robustness_confirmation/. storage/ai/alphazero_lite/versions/runpod-robustness-confirmation/",
+            command,
+        )
+        self.assertEqual(
+            [
+                "script/ai/model_robustness_confirmation",
+                "script/ai/local_promotion_gate",
+                "ml/alphazero_lite",
+                "model-artifact/current",
+                "tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
+            ],
+            plan["include_paths"],
+        )
+
+    def test_runpod_model_robustness_confirmation_dry_run_wraps_robustness_run_and_copy_in_shell_block(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_model_robustness_confirmation",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        command = plan["command"]
+
+        self.assertIn(" && (", command)
+        self.assertIn("if script/ai/model_robustness_confirmation", command)
+        self.assertIn("then robustness_status=0;", command)
+        self.assertIn("else robustness_status=$?;", command)
+        self.assertIn(
+            "fi; if cp -R /tmp/azlite_v3_robustness_confirmation/. storage/ai/alphazero_lite/versions/runpod-robustness-confirmation/;",
+            command,
+        )
+        self.assertIn("then copy_status=0;", command)
+        self.assertIn("else copy_status=$?;", command)
+        self.assertIn("if [ \"$copy_status\" -ne 0 ]; then", command)
+        self.assertIn('exit "$robustness_status"', command)
+        self.assertTrue(command.rstrip().endswith(")"), command)
+
+    def test_runpod_model_robustness_confirmation_exits_zero_when_downloaded_aggregate_passed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            def fake_orchestrate(**kwargs):
+                aggregate_summary_path = self.write_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    passed=True,
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                    "_aggregate_summary_path": str(aggregate_summary_path),
+                }
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+        self.assertEqual("", stderr)
+        self.assertEqual(0, code)
+        payload = json.loads(stdout)
+        self.assertTrue(payload["robustness_passed"])
+        self.assertTrue(payload["robustness_summary_path"].endswith("aggregate_summary.json"))
+
+    def test_runpod_model_robustness_confirmation_exits_non_zero_when_downloaded_aggregate_failed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            def fake_orchestrate(**kwargs):
+                aggregate_summary_path = self.write_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    passed=False,
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                    "_aggregate_summary_path": str(aggregate_summary_path),
+                }
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+        self.assertEqual("", stderr)
+        self.assertNotEqual(0, code)
+        payload = json.loads(stdout)
+        self.assertFalse(payload["robustness_passed"])
+        self.assertTrue(payload["robustness_summary_path"].endswith("aggregate_summary.json"))
+
+    def test_runpod_model_robustness_confirmation_errors_when_downloaded_aggregate_is_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=lambda **kwargs: {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                },
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+        self.assertEqual("", stdout)
+        self.assertNotEqual(0, code)
+        self.assertIn("Missing downloaded robustness aggregate summary", stderr)
+
+    def test_runpod_model_robustness_confirmation_rejects_non_bool_downloaded_passed_value(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            def fake_orchestrate(**kwargs):
+                aggregate_summary_path = Path(kwargs["local_results_path"]) / Path(kwargs["results_path"]).name / "aggregate_summary.json"
+                aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
+                aggregate_summary_path.write_text(json.dumps({"passed": "false"}), encoding="utf-8")
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+        self.assertEqual("", stdout)
+        self.assertNotEqual(0, code)
+        self.assertIn("must contain boolean 'passed'", stderr)
+
+    def test_runpod_model_robustness_confirmation_succeeds_when_passed_summary_exists_after_orchestrate_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            def fake_orchestrate(**kwargs):
+                aggregate_summary_path = self.write_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    passed=True,
+                )
+                raise RuntimeError("remote robustness command failed after download")
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+        self.assertEqual("", stderr)
+        self.assertEqual(0, code)
+        payload = json.loads(stdout)
+        self.assertTrue(payload["robustness_passed"])
+        self.assertTrue(payload["robustness_summary_path"].endswith("aggregate_summary.json"))
+        self.assertIsNone(payload["pod_id"])
+
+    def test_runpod_model_robustness_confirmation_uses_downloaded_aggregate_when_orchestrate_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            def fake_orchestrate(**kwargs):
+                aggregate_summary_path = self.write_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    passed=False,
+                )
+                raise RuntimeError("remote robustness command failed after download")
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+        self.assertEqual("", stderr)
+        self.assertEqual(1, code)
+        payload = json.loads(stdout)
+        self.assertFalse(payload["robustness_passed"])
+        self.assertTrue(payload["robustness_summary_path"].endswith("aggregate_summary.json"))
+        self.assertIsNone(payload["pod_id"])
+
+    def test_runpod_model_robustness_confirmation_surfaces_orchestrate_error_when_no_summary_exists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            def fake_orchestrate(**kwargs):
+                raise RuntimeError("remote robustness command failed before download")
+
+            with self.assertRaisesRegex(RuntimeError, "remote robustness command failed before download"):
+                self.run_model_robustness_wrapper(
+                    orchestrate_impl=fake_orchestrate,
+                    cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+                )
+
+    def test_runpod_model_robustness_confirmation_clears_stale_local_summary_before_orchestrate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+            stale_summary_path = local_results_path / Path(results_path).name / "aggregate_summary.json"
+            stale_summary_path.parent.mkdir(parents=True)
+            stale_summary_path.write_text(json.dumps({"passed": True}), encoding="utf-8")
+
+            def fake_orchestrate(**kwargs):
+                raise RuntimeError("remote robustness command failed before download")
+
+            with self.assertRaisesRegex(RuntimeError, "remote robustness command failed before download"):
+                self.run_model_robustness_wrapper(
+                    orchestrate_impl=fake_orchestrate,
+                    cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+                )
+
+        self.assertFalse(stale_summary_path.exists())
+
+    def test_runpod_model_robustness_confirmation_dry_run_syncs_absolute_tmp_current_path(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_model_robustness_confirmation",
+                "--current-path",
+                "/tmp/runpod-current-model",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        command = plan["command"]
+
+        self.assertIn("mkdir -p /tmp", command)
+        self.assertIn("rm -rf /tmp/runpod-current-model", command)
+        self.assertIn("cp -R tmp/runpod-current-model /tmp/runpod-current-model", command)
+        self.assertIn("--current-path /tmp/runpod-current-model", command)
+        self.assertEqual(
+            [
+                "script/ai/model_robustness_confirmation",
+                "script/ai/local_promotion_gate",
+                "ml/alphazero_lite",
+                "model-artifact/current",
+                "tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
+                "tmp/runpod-current-model",
+            ],
+            plan["include_paths"],
+        )
+
+    def test_runpod_model_robustness_confirmation_dry_run_syncs_absolute_tmp_parent_artifact(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_model_robustness_confirmation",
+                "--parent-artifact",
+                "/tmp/runpod-parent-artifact",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        command = plan["command"]
+
+        self.assertIn("mkdir -p /tmp", command)
+        self.assertIn("rm -rf /tmp/runpod-parent-artifact", command)
+        self.assertIn("cp -R tmp/runpod-parent-artifact /tmp/runpod-parent-artifact", command)
+        self.assertIn("--parent-artifact /tmp/runpod-parent-artifact", command)
+        self.assertEqual(
+            [
+                "script/ai/model_robustness_confirmation",
+                "script/ai/local_promotion_gate",
+                "ml/alphazero_lite",
+                "model-artifact/current",
+                "tmp/runpod-parent-artifact",
+            ],
+            plan["include_paths"],
+        )
+
+    def test_runpod_model_robustness_confirmation_stages_absolute_tmp_parent_artifact_before_orchestrate(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="runpod-parent-artifact-", dir="/tmp") as tmp:
+            parent_artifact = Path(tmp) / "artifact"
+            parent_artifact.mkdir()
+            (parent_artifact / "model.npz").write_text("stub", encoding="utf-8")
+            local_results_path = Path(tmp) / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+
+            def fake_orchestrate(**kwargs):
+                include_paths = kwargs["include_paths"]
+                self.assertIn("tmp/runpod-parent-artifact-", " ".join(include_paths))
+                for include_path in include_paths:
+                    self.assertTrue((repo_root / include_path).exists(), include_path)
+                self.write_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    passed=True,
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=[
+                    "--parent-artifact",
+                    str(parent_artifact),
+                    "--local-results-path",
+                    str(local_results_path),
+                    "--results-path",
+                    results_path,
+                ],
+            )
+
+        self.assertEqual("", stderr)
+        self.assertEqual(0, code)
+        payload = json.loads(stdout)
+        self.assertTrue(payload["robustness_passed"])
+
+    def test_model_robustness_confirmation_dry_run_lists_five_seed_lanes(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/model_robustness_confirmation",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+
+        self.assertEqual(
+            "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
+            plan["parent_artifact"],
+        )
+        self.assertEqual(5, len(plan["lanes"]))
+        self.assertEqual([41, 42, 43, 44, 45], [lane["seed"] for lane in plan["lanes"]])
+        self.assertTrue(plan["aggregate_summary_path"].endswith("aggregate_summary.json"))
+        self.assertTrue(all(lane["config_path"].endswith(".json") for lane in plan["lanes"]))
+        self.assertTrue(all(lane["results_dir"].endswith("/versions") for lane in plan["lanes"]))
+
+    def test_model_robustness_confirmation_dry_run_uses_seed_specific_run_ids_and_sweeps(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/model_robustness_confirmation",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+
+        self.assertEqual(
+            [
+                "aggressive-v3-superhuman-robust-s41",
+                "aggressive-v3-superhuman-robust-s42",
+                "aggressive-v3-superhuman-robust-s43",
+                "aggressive-v3-superhuman-robust-s44",
+                "aggressive-v3-superhuman-robust-s45",
+            ],
+            [lane["run_id"] for lane in plan["lanes"]],
+        )
+        self.assertEqual(
+            [
+                "41,141,241",
+                "42,142,242",
+                "43,143,243",
+                "44,144,244",
+                "45,145,245",
+            ],
+            [lane["seed_sweep"] for lane in plan["lanes"]],
+        )
+
+    def test_model_robustness_confirmation_dry_run_uses_base_config_override(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = Path(temp_dir) / "override.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "custom-run",
+                        "seed": 42,
+                        "iterations": 1,
+                        "start_iteration": 2,
+                        "versions_dir": "/tmp/custom_versions",
+                        "current_path": "/tmp/custom_current",
+                        "steps": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    "script/ai/model_robustness_confirmation",
+                    "--dry-run",
+                    "--base-config",
+                    str(config_path),
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+
+        self.assertEqual(str(config_path), plan["base_config"])
+        self.assertEqual("custom-run-robust-s41", plan["lanes"][0]["run_id"])
+
+    def test_model_robustness_confirmation_rejects_missing_parent_artifact_directory(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as current_dir:
+            result = subprocess.run(
+                [
+                    "script/ai/model_robustness_confirmation",
+                    "--parent-artifact",
+                    "/definitely/missing-parent-artifact",
+                    "--current-path",
+                    current_dir,
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("parent artifact does not exist", result.stderr)
+
+    def test_model_robustness_confirmation_rejects_current_path_that_is_not_directory(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as parent_dir:
+            with tempfile.NamedTemporaryFile() as current_file:
+                result = subprocess.run(
+                    [
+                        "script/ai/model_robustness_confirmation",
+                        "--parent-artifact",
+                        parent_dir,
+                        "--current-path",
+                        current_file.name,
+                    ],
+                    cwd=repo_root,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("current path must be a directory", result.stderr)
+
+    def test_model_robustness_confirmation_rejects_output_root_that_overlaps_parent_artifact(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as shared_dir:
+            with tempfile.TemporaryDirectory() as current_dir:
+                result = subprocess.run(
+                    [
+                        "script/ai/model_robustness_confirmation",
+                        "--parent-artifact",
+                        shared_dir,
+                        "--current-path",
+                        current_dir,
+                        "--output-root",
+                        shared_dir,
+                    ],
+                    cwd=repo_root,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("output root must not overlap parent artifact", result.stderr)
+
+    def test_model_robustness_confirmation_rejects_symlink_output_root_into_current_path(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as parent_dir:
+            with tempfile.TemporaryDirectory() as current_dir:
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    symlink_path = Path(temp_dir) / "linked-output"
+                    symlink_path.symlink_to(current_dir, target_is_directory=True)
+
+                    result = subprocess.run(
+                        [
+                            "script/ai/model_robustness_confirmation",
+                            "--parent-artifact",
+                            parent_dir,
+                            "--current-path",
+                            current_dir,
+                            "--output-root",
+                            str(symlink_path),
+                        ],
+                        cwd=repo_root,
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("output root must not overlap current path", result.stderr)
+
+    def test_model_robustness_confirmation_execute_lane_reads_benchmark_report_from_candidate_path(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/model_robustness_confirmation"
+        loader = importlib.machinery.SourceFileLoader("model_robustness_confirmation", str(script_path))
+        module = types.ModuleType(loader.name)
+        module.__file__ = str(script_path)
+        loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "versions" / "custom-run-iter4"
+            candidate_path.mkdir(parents=True)
+            benchmark_report_path = candidate_path / "benchmark_report.json"
+            gate_report_path = tmp_path / "lane" / "local_promotion_gate.json"
+            summary_path = tmp_path / "lane" / "seed_summary.json"
+            config_path = tmp_path / "custom-run.json"
+
+            benchmark_report_path.write_text(
+                json.dumps(
+                    {
+                        "checks": [{"id": "runtime_parity", "passed": True}],
+                        "arena_confidence_lower_bound": 0.56,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gate_report_path.parent.mkdir(parents=True)
+            gate_report_path.write_text(
+                json.dumps(
+                    {
+                        "passed": True,
+                        "arena_score": 0.61,
+                        "candidate_mcts_score": 0.57,
+                        "current_mcts_score": 0.53,
+                        "failure_reasons": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            lane = {
+                "seed": 41,
+                "candidate_path": str(candidate_path),
+                "lane_root": str(gate_report_path.parent),
+                "results_dir": str(tmp_path / "versions"),
+                "config_path": str(config_path),
+                "gate_report_path": str(gate_report_path),
+                "summary_path": str(summary_path),
+            }
+
+            original_run_command = module.run_command
+            module.run_command = lambda command, stage: None
+            try:
+                summary = module.execute_lane(lane, {"steps": []}, current_path=str(tmp_path / "current"))
+            finally:
+                module.run_command = original_run_command
+
+        self.assertTrue(summary["benchmark_passed"])
+        self.assertTrue(summary["local_promotion_gate_passed"])
+        self.assertEqual(0.56, summary["arena_confidence_lower_bound"])
+        self.assertEqual(str(candidate_path), summary["candidate_path"])
+
+    def test_model_robustness_confirmation_execute_lane_keeps_gate_failure_report(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/model_robustness_confirmation"
+        loader = importlib.machinery.SourceFileLoader("model_robustness_confirmation", str(script_path))
+        module = types.ModuleType(loader.name)
+        module.__file__ = str(script_path)
+        loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "versions" / "custom-run-iter2"
+            candidate_path.mkdir(parents=True)
+            benchmark_report_path = candidate_path / "benchmark_report.json"
+            gate_report_path = tmp_path / "lane" / "local_promotion_gate.json"
+            summary_path = tmp_path / "lane" / "seed_summary.json"
+            config_path = tmp_path / "custom-run.json"
+
+            benchmark_report_path.write_text(
+                json.dumps(
+                    {
+                        "checks": [{"id": "runtime_parity", "passed": True}],
+                        "arena_confidence_lower_bound": 0.51,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gate_report_path.parent.mkdir(parents=True)
+
+            lane = {
+                "seed": 41,
+                "candidate_path": str(candidate_path),
+                "lane_root": str(gate_report_path.parent),
+                "results_dir": str(tmp_path / "versions"),
+                "config_path": str(config_path),
+                "gate_report_path": str(gate_report_path),
+                "summary_path": str(summary_path),
+            }
+
+            def fake_run_command(command, stage):
+                if "local promotion gate" in stage:
+                    gate_report_path.write_text(
+                        json.dumps(
+                            {
+                                "passed": False,
+                                "arena_score": 0.49,
+                                "candidate_mcts_score": 0.47,
+                                "current_mcts_score": 0.53,
+                                "failure_reasons": [{"code": "arena_score_below_threshold"}],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    raise SystemExit("lane 41 local promotion gate failed")
+
+            original_run_command = module.run_command
+            module.run_command = fake_run_command
+            try:
+                summary = module.execute_lane(lane, {"steps": []}, current_path=str(tmp_path / "current"))
+                written_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            finally:
+                module.run_command = original_run_command
+
+        self.assertTrue(summary["benchmark_passed"])
+        self.assertFalse(summary["local_promotion_gate_passed"])
+        self.assertEqual([{"code": "arena_score_below_threshold"}], summary["failure_reasons"])
+        self.assertEqual(summary, written_summary)
+
+    def test_model_robustness_confirmation_continues_after_manifest_backed_pipeline_failure(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/model_robustness_confirmation"
+        loader = importlib.machinery.SourceFileLoader("model_robustness_confirmation", str(script_path))
+        module = types.ModuleType(loader.name)
+        module.__file__ = str(script_path)
+        loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            parent_artifact = tmp_path / "parent"
+            current_path = tmp_path / "current"
+            output_root = tmp_path / "output"
+            parent_artifact.mkdir()
+            current_path.mkdir()
+
+            lane_41 = {
+                "seed": 41,
+                "run_id": "custom-run-robust-s41",
+                "seed_sweep": "41,141,241",
+                "lane_root": str(output_root / "custom-run-robust-s41"),
+                "results_dir": str(output_root / "custom-run-robust-s41" / "versions"),
+                "config_path": str(output_root / "custom-run-robust-s41.json"),
+                "candidate_path": str(output_root / "custom-run-robust-s41" / "versions" / "custom-run-robust-s41-iter2"),
+                "gate_report_path": str(output_root / "custom-run-robust-s41" / "local_promotion_gate.json"),
+                "summary_path": str(output_root / "custom-run-robust-s41" / "seed_summary.json"),
+            }
+            lane_42 = {
+                "seed": 42,
+                "run_id": "custom-run-robust-s42",
+                "seed_sweep": "42,142,242",
+                "lane_root": str(output_root / "custom-run-robust-s42"),
+                "results_dir": str(output_root / "custom-run-robust-s42" / "versions"),
+                "config_path": str(output_root / "custom-run-robust-s42.json"),
+                "candidate_path": str(output_root / "custom-run-robust-s42" / "versions" / "custom-run-robust-s42-iter2"),
+                "gate_report_path": str(output_root / "custom-run-robust-s42" / "local_promotion_gate.json"),
+                "summary_path": str(output_root / "custom-run-robust-s42" / "seed_summary.json"),
+            }
+            aggregate_summary_path = output_root / "aggregate_summary.json"
+            plan = {
+                "base_config": str(tmp_path / "base.json"),
+                "parent_artifact": str(parent_artifact),
+                "current_path": str(current_path),
+                "aggregate_summary_path": str(aggregate_summary_path),
+                "lanes": [lane_41, lane_42],
+            }
+            base_config = {
+                "run_id": "custom-run",
+                "seed": 41,
+                "iterations": 1,
+                "start_iteration": 2,
+                "versions_dir": str(tmp_path / "unused-versions"),
+                "current_path": str(parent_artifact),
+                "steps": [],
+            }
+            calls = []
+
+            def fake_run_command(command, stage):
+                calls.append(stage)
+                if stage == "lane 41 pipeline":
+                    candidate_path = Path(lane_41["candidate_path"])
+                    candidate_path.mkdir(parents=True)
+                    (candidate_path / "run_manifest.json").write_text(
+                        json.dumps(
+                            {
+                                "schema": "azlite_run_manifest_v1",
+                                "run_id": lane_41["run_id"],
+                                "iteration": 2,
+                                "seed": 41,
+                                "config_path": lane_41["config_path"],
+                                "status": "failed",
+                                "steps": [{"name": "arena_prefilter_validate", "status": "failed"}],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    raise SystemExit("lane 41 pipeline failed")
+                if stage == "lane 42 pipeline":
+                    candidate_path = Path(lane_42["candidate_path"])
+                    candidate_path.mkdir(parents=True)
+                    (candidate_path / "benchmark_report.json").write_text(
+                        json.dumps(
+                            {
+                                "checks": [{"id": "runtime_parity", "passed": True}],
+                                "arena_confidence_lower_bound": 0.58,
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    return
+                if stage == "lane 42 local promotion gate":
+                    Path(lane_42["gate_report_path"]).write_text(
+                        json.dumps(
+                            {
+                                "passed": True,
+                                "arena_score": 0.62,
+                                "candidate_mcts_score": 0.58,
+                                "current_mcts_score": 0.52,
+                                "failure_reasons": [],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    return
+                self.fail(f"unexpected stage: {stage}")
+
+            stdout = io.StringIO()
+            args = Namespace(
+                base_config=plan["base_config"],
+                parent_artifact=str(parent_artifact),
+                current_path=str(current_path),
+                output_root=str(output_root),
+                dry_run=False,
+            )
+
+            with mock.patch.object(module, "parse_args", return_value=args), mock.patch.object(
+                module, "build_plan", return_value=(plan, base_config)
+            ), mock.patch.object(module, "run_command", side_effect=fake_run_command), mock.patch(
+                "sys.stdout", stdout
+            ):
+                exit_code = module.main()
+
+            lane_41_summary = json.loads(Path(lane_41["summary_path"]).read_text(encoding="utf-8"))
+            lane_42_summary = json.loads(Path(lane_42["summary_path"]).read_text(encoding="utf-8"))
+            aggregate_summary = json.loads(aggregate_summary_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(1, exit_code)
+        self.assertEqual(
+            ["lane 41 pipeline", "lane 42 pipeline", "lane 42 local promotion gate"],
+            calls,
+        )
+        self.assertFalse(lane_41_summary["benchmark_passed"])
+        self.assertIsNone(lane_41_summary["local_promotion_gate_passed"])
+        self.assertEqual("pipeline", lane_41_summary["failure_source"])
+        self.assertEqual([{"name": "arena_prefilter_validate", "status": "failed"}], lane_41_summary["failure_reasons"])
+        self.assertTrue(lane_42_summary["benchmark_passed"])
+        self.assertTrue(lane_42_summary["local_promotion_gate_passed"])
+        self.assertFalse(aggregate_summary["passed"])
+        self.assertEqual([41, 42], [summary["seed"] for summary in aggregate_summary["lanes"]])
+        self.assertEqual(aggregate_summary, json.loads(stdout.getvalue()))
+
+    def test_model_robustness_confirmation_rejects_stale_manifest_on_pipeline_failure(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/model_robustness_confirmation"
+        loader = importlib.machinery.SourceFileLoader("model_robustness_confirmation", str(script_path))
+        module = types.ModuleType(loader.name)
+        module.__file__ = str(script_path)
+        loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "versions" / "custom-run-robust-s41-iter2"
+            gate_report_path = tmp_path / "lane" / "local_promotion_gate.json"
+            summary_path = tmp_path / "lane" / "seed_summary.json"
+            config_path = tmp_path / "custom-run-robust-s41.json"
+            lane = {
+                "seed": 41,
+                "run_id": "custom-run-robust-s41",
+                "candidate_path": str(candidate_path),
+                "lane_root": str(gate_report_path.parent),
+                "results_dir": str(tmp_path / "versions"),
+                "config_path": str(config_path),
+                "gate_report_path": str(gate_report_path),
+                "summary_path": str(summary_path),
+            }
+
+            def fake_run_command(command, stage):
+                if stage == "lane 41 pipeline":
+                    candidate_path.mkdir(parents=True)
+                    (candidate_path / "run_manifest.json").write_text(
+                        json.dumps(
+                            {
+                                "schema": "azlite_run_manifest_v1",
+                                "run_id": "other-run",
+                                "iteration": 2,
+                                "seed": 41,
+                                "config_path": lane["config_path"],
+                                "status": "failed",
+                                "gate_failures": [{"code": "arena_score_below_threshold"}],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    raise SystemExit("lane 41 pipeline failed")
+
+            original_run_command = module.run_command
+            module.run_command = fake_run_command
+            try:
+                with self.assertRaises(SystemExit):
+                    module.execute_lane(lane, {"steps": []}, current_path=str(tmp_path / "current"))
+            finally:
+                module.run_command = original_run_command
+
+        self.assertFalse(summary_path.exists())
+
     def test_rejects_negative_promotion_max_losses(self):
         repo_root = Path(__file__).resolve().parents[2]
 
@@ -79,3 +1038,91 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
 
         self.assertNotEqual(0, result.returncode)
         self.assertIn("must be a non-negative integer", result.stderr)
+
+
+class RunpodExperimentCleanupTest(unittest.TestCase):
+    def test_inspect_downloaded_results_falls_back_to_manifest_when_aggregate_summary_is_invalid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+            downloaded_results_dir = local_results_path / Path(results_path).name
+            aggregate_summary_path = downloaded_results_dir / "aggregate_summary.json"
+            manifest_path = downloaded_results_dir / "lane-41" / "run_manifest.json"
+
+            aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
+            aggregate_summary_path.write_text("{\n", encoding="utf-8")
+            manifest_path.parent.mkdir(parents=True, exist_ok=True)
+            manifest_path.write_text(json.dumps({"status": "failed"}), encoding="utf-8")
+
+            result = runpod_experiment._inspect_downloaded_results(str(local_results_path), results_path)
+
+        self.assertFalse(result["execution_completed"])
+        self.assertIsNone(result["experiment_report_path"])
+        self.assertIsNone(result["experiment_passed"])
+        self.assertEqual(str(manifest_path), result["manifest_path"])
+        self.assertEqual("failed", result["manifest_status"])
+
+    def test_orchestrate_deletes_pod_when_downloaded_robustness_summary_exists_after_remote_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bundle_path = tmp_path / "bundle.tar.gz"
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+            downloaded_results_dir = local_results_path / Path(results_path).name
+            aggregate_summary_path = downloaded_results_dir / "aggregate_summary.json"
+
+            def fake_bundle_builder(**kwargs):
+                bundle_path.write_text("bundle", encoding="utf-8")
+                return str(bundle_path)
+
+            def fake_timeout_runner(seconds, fn):
+                return fn()
+
+            executed_commands = []
+
+            def fake_command_runner(command):
+                executed_commands.append(command)
+                if "https://rest.runpod.io/v1/pods" in command:
+                    return json.dumps({"id": "pod-123"})
+                if command == "runpodctl ssh info pod-123":
+                    return json.dumps({
+                        "host": "example.com",
+                        "port": 22,
+                        "user": "root",
+                        "keyPath": "/tmp/fake-key",
+                    })
+                if "runpod_remote_run.sh" in command:
+                    raise RuntimeError("remote robustness command failed")
+                if command.startswith("scp ") and results_path in command:
+                    aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
+                    aggregate_summary_path.write_text(json.dumps({"passed": False}), encoding="utf-8")
+                    return ""
+                if command == "runpodctl pod delete pod-123":
+                    return ""
+                return ""
+
+            result = runpod_experiment.orchestrate(
+                name="robustness-confirmation",
+                command="script/ai/model_robustness_confirmation",
+                bundle_path=str(bundle_path),
+                results_path=results_path,
+                local_results_path=str(local_results_path),
+                include_paths=["ml/alphazero_lite"],
+                api_key_env="RUNPOD_API_KEY",
+                keep_pod_on_failure=True,
+                bundle_builder=fake_bundle_builder,
+                command_runner=fake_command_runner,
+                timeout_runner=fake_timeout_runner,
+                sleeper=lambda _: None,
+            )
+
+        self.assertEqual("pod-123", result["pod_id"])
+        self.assertIsNone(result["experiment_report_path"])
+        self.assertIs(False, result["experiment_passed"])
+        self.assertIsNone(result["manifest_path"])
+        self.assertIn("runpodctl pod delete pod-123", executed_commands)
+
+
+if __name__ == "__main__":
+    unittest.main()

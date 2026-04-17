@@ -92,6 +92,97 @@ class PipelineScriptTest(unittest.TestCase):
         repo_root = Path(__file__).resolve().parents[2]
         return load_config(repo_root / "ml/alphazero_lite/configs" / filename)
 
+    def iter_json_pipeline_configs(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        for path in sorted((repo_root / "ml/alphazero_lite/configs").glob("*.json")):
+            yield path, load_config(path)
+
+    def iter_step_commands(self, config: dict, *, command_name: str):
+        for step in config.get("steps", []):
+            command = step.get("command", [])
+            if command_name in command:
+                yield step, command
+
+    def test_checkpoint_self_play_configs_require_evaluator_cache_size(self):
+        configs_dir = Path(__file__).resolve().parents[2] / "ml/alphazero_lite/configs"
+        found_checkpoint_self_play = False
+
+        for path, config in self.iter_json_pipeline_configs():
+            for step, command in self.iter_step_commands(config, command_name="ml/alphazero_lite/self_play.py"):
+                with self.subTest(config=path.name, step=step["name"]):
+                    config_path = str(path)
+
+                    if "--checkpoint" in command:
+                        found_checkpoint_self_play = True
+                        self.assertIn(
+                            "--evaluator-cache-size",
+                            command,
+                            msg=f"{config_path}: checkpoint self_play step must set --evaluator-cache-size",
+                        )
+                        cache_size_index = command.index("--evaluator-cache-size")
+                        self.assertLess(
+                            cache_size_index + 1,
+                            len(command),
+                            msg=f"{config_path}: checkpoint self_play step sets --evaluator-cache-size without a value",
+                        )
+                        self.assertEqual(
+                            "50000",
+                            command[cache_size_index + 1],
+                            msg=f"{config_path}: checkpoint self_play step must set --evaluator-cache-size 50000",
+                        )
+                    else:
+                        self.assertNotIn(
+                            "--evaluator-cache-size",
+                            command,
+                            msg=f"{config_path}: non-checkpoint self_play step must not set --evaluator-cache-size",
+                        )
+
+        self.assertTrue(found_checkpoint_self_play, f"No checkpoint-driven self_play config found under {configs_dir}")
+
+    def test_bootstrap_configs_gate_teacher_search_reuse_by_hybrid_teacher_mode(self):
+        configs_dir = Path(__file__).resolve().parents[2] / "ml/alphazero_lite/configs"
+        found_hybrid_teacher_puct_bootstrap = False
+
+        for path, config in self.iter_json_pipeline_configs():
+            for step, command in self.iter_step_commands(
+                config,
+                command_name="ml/alphazero_lite/generate_bootstrap_dataset.py",
+            ):
+                with self.subTest(config=path.name, step=step["name"]):
+                    config_path = str(path)
+                    has_hybrid_teacher_mode = any(
+                        flag == "--position-selection-mode" and value == "hybrid_teacher"
+                        for flag, value in zip(command, command[1:])
+                    )
+                    teacher_mode = self.command_flag_value(command, "--teacher-mode") if "--teacher-mode" in command else "puct"
+                    has_hybrid_teacher_puct_semantics = has_hybrid_teacher_mode and teacher_mode == "puct"
+
+                    if has_hybrid_teacher_puct_semantics:
+                        found_hybrid_teacher_puct_bootstrap = True
+                        self.assertIn(
+                            "--teacher-search-reuse",
+                            command,
+                            msg=(
+                                f"{config_path}: hybrid_teacher bootstrap step with effective "
+                                "teacher-mode puct must set --teacher-search-reuse"
+                            ),
+                        )
+                    else:
+                        self.assertNotIn(
+                            "--teacher-search-reuse",
+                            command,
+                            msg=(
+                                f"{config_path}: bootstrap step without effective hybrid_teacher + puct semantics "
+                                "must not set --teacher-search-reuse"
+                            ),
+                        )
+
+        self.assertTrue(
+            found_hybrid_teacher_puct_bootstrap,
+            f"No hybrid_teacher bootstrap config with effective teacher-mode puct found under {configs_dir}",
+        )
+
     def test_pipeline_skip_step_omits_named_step(self):
         repo_root = Path(__file__).resolve().parents[2]
 
@@ -1233,6 +1324,7 @@ class PipelineScriptTest(unittest.TestCase):
                 expected_self_play[expected_self_play.index("--games") + 1] = expected["self_play_games"]
                 expected_self_play[expected_self_play.index("--simulations") + 1] = expected["self_play_simulations"]
                 expected_self_play[expected_self_play.index("--temperature-late") + 1] = expected["self_play_temperature_late"]
+                expected_self_play.extend(["--evaluator-cache-size", "50000"])
                 self.assertEqual(expected_self_play, variant_self_play)
 
                 expected_train = base_train.copy()
@@ -1628,7 +1720,9 @@ class PipelineScriptTest(unittest.TestCase):
             self.render_config_step(base_config, "self_play"),
             config=base_config,
         )
-        expected_self_play.extend(["--policy-target-mode", "sharpened"])
+        cache_index = expected_self_play.index("--evaluator-cache-size")
+        expected_self_play.insert(cache_index, "--policy-target-mode")
+        expected_self_play.insert(cache_index + 1, "sharpened")
         self.assertEqual(expected_self_play, self.normalize_rendered_command(variant_self_play, config=variant_config))
 
         expected_train = self.normalize_rendered_command(
@@ -1701,7 +1795,9 @@ class PipelineScriptTest(unittest.TestCase):
             self.render_config_step(base_config, "self_play"),
             config=base_config,
         )
-        expected_self_play.extend(["--value-target-mode", "sharpened"])
+        cache_index = expected_self_play.index("--evaluator-cache-size")
+        expected_self_play.insert(cache_index, "--value-target-mode")
+        expected_self_play.insert(cache_index + 1, "sharpened")
         self.assertEqual(expected_self_play, self.normalize_rendered_command(variant_self_play, config=variant_config))
 
         expected_train = self.normalize_rendered_command(
@@ -1791,6 +1887,9 @@ class PipelineScriptTest(unittest.TestCase):
         if "--checkpoint" in expected_self_play:
             checkpoint_index = expected_self_play.index("--checkpoint")
             del expected_self_play[checkpoint_index:checkpoint_index + 2]
+        if "--evaluator-cache-size" in expected_self_play:
+            cache_index = expected_self_play.index("--evaluator-cache-size")
+            del expected_self_play[cache_index:cache_index + 2]
         expected_steps = self.config_steps_by_name(expected_config)
         expected_steps["train"]["command"][expected_steps["train"]["command"].index("--hidden-sizes") + 1] = "96,3"
         self.assertEqual(expected_config, variant_config)
@@ -1836,6 +1935,9 @@ class PipelineScriptTest(unittest.TestCase):
         if "--checkpoint" in expected_self_play:
             checkpoint_index = expected_self_play.index("--checkpoint")
             del expected_self_play[checkpoint_index:checkpoint_index + 2]
+        if "--evaluator-cache-size" in expected_self_play:
+            cache_index = expected_self_play.index("--evaluator-cache-size")
+            del expected_self_play[cache_index:cache_index + 2]
         expected_steps = self.config_steps_by_name(expected_config)
         expected_steps["train"]["command"][expected_steps["train"]["command"].index("--hidden-sizes") + 1] = "128,3"
         self.assertEqual(expected_config, variant_config)

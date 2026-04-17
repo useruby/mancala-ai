@@ -42,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--hard-path",
-        default=None,
+        default="model-artifact/current",
     )
     parser.add_argument("--arena-games", default=120, type=positive_int)
     parser.add_argument("--mcts-games", default=40, type=positive_int)

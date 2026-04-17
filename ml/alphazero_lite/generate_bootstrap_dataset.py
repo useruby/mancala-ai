@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import concurrent.futures
 import json
 import random
@@ -25,6 +26,7 @@ from ml.alphazero_lite.self_play import (
     HYBRID_VALUE_TARGET_MODE,
     PUCT,
     HeuristicEvaluator,
+    format_metrics_line,
     derive_self_play_value_target,
     encode_state,
     merge_worker_shards,
@@ -62,6 +64,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dirichlet-epsilon", type=float, default=DEFAULT_DIRICHLET_EPSILON)
     parser.add_argument("--dirichlet-opening-moves", type=int, default=0)
     parser.add_argument("--teacher-mode", default="puct", choices=["puct", "classic_mcts"])
+    parser.add_argument("--teacher-search-reuse", action="store_true")
     return parser.parse_args()
 
 
@@ -161,6 +164,26 @@ def best_move_for(policy: list[float]) -> int | None:
     if not indexed:
         return None
     return max(indexed, key=lambda item: (float(item[1]), -item[0]))[0]
+
+
+def clone_search_root(node):
+    if node is None:
+        return None
+
+    game = getattr(node, "game", None)
+    children = getattr(node, "children", {})
+    if game is None or not hasattr(game, "clone") or not isinstance(children, dict):
+        return copy.deepcopy(node)
+
+    cloned = node.__class__(
+        game=game.clone(),
+        prior=getattr(node, "prior", 0.0),
+        visit_count=getattr(node, "visit_count", 0),
+        value_sum=getattr(node, "value_sum", 0.0),
+        expanded=getattr(node, "expanded", False),
+    )
+    cloned.children = {action: clone_search_root(child) for action, child in children.items()}
+    return cloned
 
 
 
@@ -311,6 +334,7 @@ def run_worker(
     input_encoding: str,
     max_positions_per_game: int,
     tree_reuse_enabled: bool,
+    teacher_search_reuse: bool,
     position_selection_mode: str,
     policy_target_mode: str,
     value_target_mode: str,
@@ -350,16 +374,39 @@ def run_worker(
                     dirichlet_epsilon=dirichlet_epsilon,
                 )
                 visit_list = visits.tolist()
+                shallow_root_search_value = float(root.q_value if root is not None else 0.0)
+                move = sample_move(
+                    shape_policy(
+                        visits=visit_list,
+                        legal_moves=legal_moves,
+                        move_index=move_index,
+                        rng=rng,
+                        apply_dirichlet=True,
+                        top_k=top_k,
+                        tau=tau,
+                        dirichlet_alpha=dirichlet_alpha,
+                        dirichlet_epsilon=dirichlet_epsilon,
+                        dirichlet_opening_moves=dirichlet_opening_moves,
+                    ),
+                    legal_moves=legal_moves,
+                    rng=rng,
+                )
+                next_reusable_root = root.child_for_action(move) if tree_reuse_enabled and root is not None else None
                 positions_visited += 1
                 simulations_run += simulations
 
                 deeper_policy = None
                 if position_selection_mode == "hybrid_teacher":
+                    deeper_target_simulations = simulations * DISAGREEMENT_DEEPER_SIMULATION_FACTOR
+                    deeper_simulations = max(deeper_target_simulations - simulations, 0) if teacher_search_reuse else deeper_target_simulations
+                    teacher_root = clone_search_root(root) if teacher_search_reuse else None
                     deeper_search = PUCT(
                         evaluator=evaluator,
-                        simulations=simulations * DISAGREEMENT_DEEPER_SIMULATION_FACTOR,
+                        simulations=deeper_simulations,
                         c_puct=1.25,
                         rng=random.Random(search_seed(seed + 17, game_index, move_index)),
+                        root=teacher_root,
+                        reuse_subtree=teacher_search_reuse,
                     )
                     deeper_visits, _ = deeper_search.run(game.clone())
                     deeper_policy = shape_policy(
@@ -374,7 +421,7 @@ def run_worker(
                         dirichlet_epsilon=dirichlet_epsilon,
                         dirichlet_opening_moves=dirichlet_opening_moves,
                     )
-                    simulations_run += simulations * DISAGREEMENT_DEEPER_SIMULATION_FACTOR
+                    simulations_run += deeper_simulations
 
                 policy = build_policy_target(
                     visits=visit_list,
@@ -385,18 +432,6 @@ def run_worker(
                     tau=tau,
                     top_k=top_k,
                 )
-                sampling_policy = shape_policy(
-                    visits=visit_list,
-                    legal_moves=legal_moves,
-                    move_index=move_index,
-                    rng=rng,
-                    apply_dirichlet=True,
-                    top_k=top_k,
-                    tau=tau,
-                    dirichlet_alpha=dirichlet_alpha,
-                    dirichlet_epsilon=dirichlet_epsilon,
-                    dirichlet_opening_moves=dirichlet_opening_moves,
-                )
                 positions.append(
                     {
                         "state": encode_state(game.to_state(), input_encoding=input_encoding),
@@ -405,12 +440,11 @@ def run_worker(
                         "move_index": move_index,
                         "policy": policy,
                         "deeper_policy": deeper_policy,
-                        "root_search_value": float(root.q_value if root is not None else 0.0),
+                        "root_search_value": shallow_root_search_value,
                         "policy_target_mode": policy_target_mode,
                     }
                 )
-                move = sample_move(sampling_policy, legal_moves=legal_moves, rng=rng)
-                reusable_root = root.child_for_action(move) if tree_reuse_enabled and root is not None else None
+                reusable_root = next_reusable_root
                 if not game.move(game.pit_index(move)):
                     break
 
@@ -604,6 +638,7 @@ def main() -> None:
                             input_encoding=args.input_encoding,
                             max_positions_per_game=args.max_positions_per_game,
                             tree_reuse_enabled=bool(args.tree_reuse_enabled),
+                            teacher_search_reuse=bool(args.teacher_search_reuse),
                             position_selection_mode=position_selection_mode,
                             policy_target_mode=policy_target_mode,
                             value_target_mode=value_target_mode,
@@ -632,6 +667,15 @@ def main() -> None:
         "dataset_stats "
         f"games_processed={games_processed} rows_written={rows_written} positions_visited={positions_visited} "
         f"positions_searched={positions_searched} simulations_run={simulations_run} average_rows_retained_per_game={average_rows}"
+    )
+    effective_teacher_search_reuse = bool(args.teacher_search_reuse and teacher_mode == "puct" and position_selection_mode == "hybrid_teacher")
+    print(
+        format_metrics_line(
+            prefix="dataset_metrics",
+            extra_fields={"teacher_search_reuse": effective_teacher_search_reuse},
+            cache_hits=0,
+            cache_misses=0,
+        )
     )
 
 

@@ -529,6 +529,21 @@ def _inspect_downloaded_results(local_results_path: str, results_path: str) -> d
                 "manifest_status": None,
             }
 
+        aggregate_summary_path = os.path.join(results_dir, "aggregate_summary.json")
+        if os.path.exists(aggregate_summary_path):
+            try:
+                payload = json.loads(Path(aggregate_summary_path).read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                payload = None
+            if isinstance(payload, dict) and isinstance(payload.get("passed"), bool):
+                return {
+                    "execution_completed": True,
+                    "experiment_report_path": None,
+                    "experiment_passed": payload["passed"],
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
         manifests = glob.glob(os.path.join(results_dir, "**", "run_manifest.json"), recursive=True)
         if manifests:
             manifest_path = manifests[0]

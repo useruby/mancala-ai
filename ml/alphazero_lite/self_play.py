@@ -20,6 +20,7 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING, SUPPORTED_INPUT_ENCODINGS, feature_count_for
+from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
 from ml.alphazero_lite.opponent_pool import load_opponent_checkpoints, sample_opponent_checkpoint
@@ -59,6 +60,13 @@ HYBRID_VALUE_TARGET_WEIGHTS = {
     "mid": {"outcome": 0.5, "search": 0.5},
     "late": {"outcome": 0.75, "search": 0.25},
 }
+
+
+def non_negative_int(raw_value: str) -> int:
+    value = int(raw_value)
+    if value < 0:
+        raise argparse.ArgumentTypeError("must be non-negative")
+    return value
 
 
 def softmax(logits: np.ndarray) -> np.ndarray:
@@ -253,6 +261,55 @@ def opponent_pool_fingerprint(checkpoints: list[str]) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
+def cache_hit_rate(cache_hits: int, cache_misses: int) -> float:
+    total = int(cache_hits) + int(cache_misses)
+    if total <= 0:
+        return 0.0
+    return float(cache_hits) / float(total)
+
+
+def cache_metrics_for(evaluators: list[Evaluator | None]) -> dict[str, bool | int | float]:
+    cache_hits = 0
+    cache_misses = 0
+    cache_enabled = False
+    for evaluator in evaluators:
+        stats = getattr(evaluator, "cache_stats", None)
+        if not isinstance(stats, dict):
+            continue
+        cache_enabled = cache_enabled or bool(stats.get("enabled", False))
+        cache_hits += int(stats.get("hits", 0))
+        cache_misses += int(stats.get("misses", 0))
+    return {
+        "cache_enabled": cache_enabled,
+        "cache_hits": cache_hits,
+        "cache_misses": cache_misses,
+        "cache_hit_rate": cache_hit_rate(cache_hits, cache_misses),
+    }
+
+
+def format_metrics_line(
+    *,
+    prefix: str,
+    extra_fields: dict[str, str | bool | int] | None = None,
+    cache_hits: int,
+    cache_misses: int,
+) -> str:
+    fields: list[str] = []
+    for key, value in (extra_fields or {}).items():
+        if isinstance(value, bool):
+            fields.append(f"{key}={str(value).lower()}")
+        else:
+            fields.append(f"{key}={value}")
+    fields.extend(
+        [
+            f"cache_hits={int(cache_hits)}",
+            f"cache_misses={int(cache_misses)}",
+            f"cache_hit_rate={cache_hit_rate(cache_hits, cache_misses):.6f}",
+        ]
+    )
+    return f"{prefix} {' '.join(fields)}"
+
+
 def normalize_policy_target_mode(policy_target_mode: str) -> str:
     normalized = str(policy_target_mode)
     if normalized not in SUPPORTED_POLICY_TARGET_MODES:
@@ -433,7 +490,14 @@ class HeuristicEvaluator(Evaluator):
 
 
 class CheckpointEvaluator(Evaluator):
-    def __init__(self, checkpoint_path: Path, *, input_encoding: str = DEFAULT_INPUT_ENCODING):
+    def __init__(
+        self,
+        checkpoint_path: Path,
+        *,
+        input_encoding: str = DEFAULT_INPUT_ENCODING,
+        cache_size: int = 0,
+    ):
+        checkpoint_path = checkpoint_path.resolve()
         npz = np.load(checkpoint_path)
         self.residual_blocks = self._extract_residual_blocks(npz)
         self.hidden_layers = [] if self.residual_blocks else self._extract_hidden_layers(npz)
@@ -462,6 +526,31 @@ class CheckpointEvaluator(Evaluator):
             self.uses_specialized_heads = True
             self._validate_specialized_head_shapes()
         self.input_encoding = input_encoding
+        self.checkpoint_identity = self._checkpoint_identity_for(checkpoint_path)
+        self.cache = EvalCache(cache_size) if cache_size > 0 else None
+
+    @property
+    def cache_stats(self) -> dict[str, int | bool]:
+        if self.cache is None:
+            return {"enabled": False, "hits": 0, "misses": 0, "size": 0}
+        return {
+            "enabled": True,
+            "hits": self.cache.hits,
+            "misses": self.cache.misses,
+            "size": self.cache.size,
+        }
+
+    def _checkpoint_identity_for(self, checkpoint_path: Path) -> str:
+        stat = checkpoint_path.stat()
+        return f"{checkpoint_path}:{stat.st_mtime_ns}:{stat.st_size}"
+
+    def _cache_key_for(self, game: KalahGame) -> str:
+        canonical_state = json.dumps(game.to_state(), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        return "|".join((self.checkpoint_identity, self.input_encoding, canonical_state))
+
+    def _clone_cached_result(self, result: tuple[np.ndarray, float]) -> tuple[np.ndarray, float]:
+        policy, value = result
+        return policy.copy(), value
 
     def _validate_specialized_head_shapes(self) -> None:
         assert self.w_policy_hidden is not None
@@ -519,6 +608,12 @@ class CheckpointEvaluator(Evaluator):
         return [(npz["w1"], npz["b1"]), (npz["w2"], npz["b2"])]
 
     def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
+        if self.cache is not None:
+            cache_key = self._cache_key_for(game)
+            cached = self.cache.get(cache_key)
+            if cached is not None:
+                return self._clone_cached_result(cached)
+
         x = np.asarray(encode_state(game.to_state(), input_encoding=self.input_encoding), dtype=np.float32)
 
         if self.residual_blocks:
@@ -545,7 +640,11 @@ class CheckpointEvaluator(Evaluator):
 
         policy_logits = (policy_hidden @ self.w_policy) + self.b_policy
         value_logit = float(((value_hidden @ self.w_value) + self.b_value).reshape(-1)[0])
-        return softmax(policy_logits), float(np.tanh(value_logit))
+        result = (softmax(policy_logits), float(np.tanh(value_logit)))
+        if self.cache is not None:
+            self.cache.put(cache_key, result)
+            return self._clone_cached_result(result)
+        return result
 
 
 @dataclass
@@ -895,6 +994,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--total-iterations", type=int, default=1)
     parser.add_argument("--max-moves", type=int, default=200)
     parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--evaluator-cache-size", type=non_negative_int, default=0)
     parser.add_argument("--seed-sweep", default=None, help="Comma-separated seeds to mix within one run")
     parser.add_argument("--tree-reuse-enabled", action="store_true")
     parser.add_argument("--policy-target-mode", choices=sorted(SUPPORTED_POLICY_TARGET_MODES), default=DEFAULT_POLICY_TARGET_MODE)
@@ -969,6 +1069,17 @@ def parse_seed_pool(seed: int, seed_sweep: str | None) -> list[int]:
     return pool or [int(seed)]
 
 
+def build_checkpoint_evaluator(
+    checkpoint_path: Path,
+    *,
+    input_encoding: str,
+    cache_size: int,
+) -> CheckpointEvaluator:
+    if cache_size > 0:
+        return CheckpointEvaluator(checkpoint_path, input_encoding=input_encoding, cache_size=cache_size)
+    return CheckpointEvaluator(checkpoint_path, input_encoding=input_encoding)
+
+
 def run_self_play_worker(
     *,
     worker_id: int,
@@ -987,6 +1098,7 @@ def run_self_play_worker(
     dirichlet_epsilon: float,
     max_moves: int,
     shard_path: str,
+    evaluator_cache_size: int = 0,
     tree_reuse_enabled: bool = False,
     fpu_mode: str = DEFAULT_SEARCH_OPTIONS["fpu_mode"],
     reuse_subtree: bool = DEFAULT_SEARCH_OPTIONS["reuse_subtree"],
@@ -1011,7 +1123,11 @@ def run_self_play_worker(
     if player_mode == "puct":
         opponent_checkpoints = load_opponent_checkpoints(opponent_pool_config)
         if checkpoint:
-            evaluator = CheckpointEvaluator(Path(checkpoint), input_encoding=input_encoding)
+            evaluator = build_checkpoint_evaluator(
+                Path(checkpoint),
+                input_encoding=input_encoding,
+                cache_size=evaluator_cache_size,
+            )
         else:
             evaluator = HeuristicEvaluator()
 
@@ -1081,9 +1197,10 @@ def run_self_play_worker(
                     if game.current_player == 1 and opponent_checkpoint_for_game is not None:
                         selected_evaluator = opponent_evaluator_cache.get(opponent_checkpoint_for_game)
                         if selected_evaluator is None:
-                            selected_evaluator = CheckpointEvaluator(
+                            selected_evaluator = build_checkpoint_evaluator(
                                 Path(opponent_checkpoint_for_game),
                                 input_encoding=input_encoding,
+                                cache_size=evaluator_cache_size,
                             )
                             opponent_evaluator_cache[opponent_checkpoint_for_game] = selected_evaluator
 
@@ -1159,6 +1276,7 @@ def run_self_play_worker(
         "worker_id": worker_id,
         "rows_written": rows_written,
         "shard_path": str(shard),
+        **cache_metrics_for([evaluator, *opponent_evaluator_cache.values()]),
     }
 
 
@@ -1217,6 +1335,7 @@ def main() -> None:
                         dirichlet_epsilon=float(exploration["dirichlet_epsilon"]),
                         max_moves=args.max_moves,
                         shard_path=shard_paths[worker_id],
+                        evaluator_cache_size=args.evaluator_cache_size,
                         tree_reuse_enabled=args.tree_reuse_enabled,
                         fpu_mode=str(search_options["fpu_mode"]),
                         reuse_subtree=bool(search_options["reuse_subtree"]),
@@ -1235,6 +1354,18 @@ def main() -> None:
         rows_written = merge_worker_shards(results, out_path)
 
     print(f"wrote {rows_written} rows to {out_path}")
+    cache_metrics = cache_metrics_for([])
+    cache_metrics["cache_enabled"] = any(bool(result.get("cache_enabled", False)) for result in results)
+    cache_metrics["cache_hits"] = sum(int(result.get("cache_hits", 0)) for result in results)
+    cache_metrics["cache_misses"] = sum(int(result.get("cache_misses", 0)) for result in results)
+    print(
+        format_metrics_line(
+            prefix="cache_metrics",
+            extra_fields={"cache_enabled": cache_metrics.get("cache_enabled", False)},
+            cache_hits=int(cache_metrics["cache_hits"]),
+            cache_misses=int(cache_metrics["cache_misses"]),
+        )
+    )
 
 
 if __name__ == "__main__":

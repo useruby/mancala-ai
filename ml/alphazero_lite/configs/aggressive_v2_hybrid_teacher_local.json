@@ -43,7 +43,9 @@
         "--checkpoint",
         "{parent_checkpoint}",
         "--input-encoding",
-        "kalah_v2"
+        "kalah_v2",
+        "--evaluator-cache-size",
+        "50000"
       ]
     },
     {
@@ -76,7 +78,8 @@
         "5",
         "--tree-reuse-enabled",
         "--position-selection-mode",
-        "hybrid_teacher"
+        "hybrid_teacher",
+        "--teacher-search-reuse"
       ]
     },
     {

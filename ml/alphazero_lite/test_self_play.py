@@ -9,6 +9,7 @@ from unittest import mock
 
 import numpy as np
 
+from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite import self_play
 from ml.alphazero_lite import opponent_pool
 from ml.alphazero_lite.input_encodings import BASE_FEATURE_ORDER, KALAH_V3_EXTRA_FEATURE_ORDER
@@ -23,6 +24,62 @@ def kalah_v3_feature_index(name: str) -> int:
 
 
 class SelfPlayScriptTest(unittest.TestCase):
+    def _checkpoint_evaluator_test_game(self, *, current_player=0):
+        return KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": current_player,
+            }
+        )
+
+    def _write_checkpoint(self, directory: Path, name: str, *, input_features: int) -> Path:
+        checkpoint_path = directory / name
+        np.savez(
+            checkpoint_path,
+            w_hidden_1=np.zeros((input_features, 2), dtype=np.float32),
+            b_hidden_1=np.zeros(2, dtype=np.float32),
+            w_hidden_2=np.zeros((2, 2), dtype=np.float32),
+            b_hidden_2=np.zeros(2, dtype=np.float32),
+            w_policy=np.zeros((2, 6), dtype=np.float32),
+            b_policy=np.zeros(6, dtype=np.float32),
+            w_value=np.zeros((2, 1), dtype=np.float32),
+            b_value=np.zeros(1, dtype=np.float32),
+        )
+        return checkpoint_path
+
+    def test_eval_cache_stores_and_retrieves_values_by_key(self):
+        cache = EvalCache(max_entries=2)
+
+        cache.put("state-a", ("priors-a", 0.25))
+
+        self.assertEqual(("priors-a", 0.25), cache.get("state-a"))
+
+    def test_eval_cache_evicts_least_recently_used_entry_when_max_entries_exceeded(self):
+        cache = EvalCache(max_entries=2)
+
+        cache.put("state-a", "value-a")
+        cache.put("state-b", "value-b")
+        self.assertEqual("value-a", cache.get("state-a"))
+        cache.put("state-c", "value-c")
+
+        self.assertIsNone(cache.get("state-b"))
+        self.assertEqual("value-a", cache.get("state-a"))
+        self.assertEqual("value-c", cache.get("state-c"))
+
+    def test_eval_cache_tracks_hit_and_miss_counters(self):
+        cache = EvalCache(max_entries=2)
+
+        cache.put("state-a", "value-a")
+
+        self.assertEqual("value-a", cache.get("state-a"))
+        self.assertIsNone(cache.get("missing-state"))
+        self.assertEqual(1, cache.hits)
+        self.assertEqual(1, cache.misses)
+        self.assertEqual(1, cache.size)
+
     def test_canonical_value_target_default_uses_outcome_value(self):
         target = self_play.canonical_value_target(
             outcome_value=1.0,
@@ -119,6 +176,17 @@ class SelfPlayScriptTest(unittest.TestCase):
             args = self_play.parse_args()
 
         self.assertEqual("pool.json", args.opponent_pool_config)
+
+    def test_parse_args_accepts_evaluator_cache_size(self):
+        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--evaluator-cache-size", "128"]):
+            args = self_play.parse_args()
+
+        self.assertEqual(128, args.evaluator_cache_size)
+
+    def test_parse_args_rejects_negative_evaluator_cache_size(self):
+        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--evaluator-cache-size", "-1"]):
+            with self.assertRaisesRegex(SystemExit, "2"):
+                self_play.parse_args()
 
     def test_load_opponent_checkpoints_requires_checkpoints_field(self):
         with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
@@ -458,15 +526,7 @@ class SelfPlayScriptTest(unittest.TestCase):
             self.assertEqual(0.0, value)
 
     def test_checkpoint_evaluator_uses_selected_input_encoding(self):
-        game = KalahGame.from_state(
-            {
-                "player_pits": [4, 4, 4, 4, 4, 4],
-                "opponent_pits": [4, 4, 4, 4, 4, 4],
-                "player_store": 0,
-                "opponent_store": 0,
-                "current_player": 0,
-            }
-        )
+        game = self._checkpoint_evaluator_test_game()
 
         checkpoint = {
             "w_hidden_1": np.zeros((15, 2), dtype=np.float32),
@@ -490,6 +550,81 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             encode_state.assert_called_once()
             self.assertEqual("kalah_v2", encode_state.call_args.kwargs["input_encoding"])
+
+    def test_checkpoint_evaluator_cache_computes_once_for_same_state_when_enabled(self):
+        game = self._checkpoint_evaluator_test_game()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = self._write_checkpoint(Path(tmp), "checkpoint.npz", input_features=15)
+            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1", cache_size=8)
+
+            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+                first_policy, first_value = evaluator.evaluate(game)
+                second_policy, second_value = evaluator.evaluate(game)
+
+            encode_state.assert_called_once()
+            np.testing.assert_allclose(first_policy, second_policy)
+            self.assertEqual(first_value, second_value)
+            self.assertEqual({"enabled": True, "hits": 1, "misses": 1, "size": 1}, evaluator.cache_stats)
+
+    def test_checkpoint_evaluator_cached_policy_mutation_does_not_affect_later_evaluations(self):
+        game = self._checkpoint_evaluator_test_game()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = self._write_checkpoint(Path(tmp), "checkpoint.npz", input_features=15)
+            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1", cache_size=8)
+
+            first_policy, _first_value = evaluator.evaluate(game)
+            first_policy[0] = 0.75
+            first_policy[1] = 0.25
+
+            second_policy, _second_value = evaluator.evaluate(game)
+
+            self.assertEqual(1.0 / 6.0, second_policy[0])
+            self.assertEqual(1.0 / 6.0, second_policy[1])
+
+    def test_checkpoint_evaluator_cache_key_changes_with_input_encoding_and_checkpoint_identity(self):
+        game = self._checkpoint_evaluator_test_game()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_v1 = self._write_checkpoint(tmp_path, "checkpoint_v1.npz", input_features=15)
+            checkpoint_v3 = self._write_checkpoint(tmp_path, "checkpoint_v3.npz", input_features=27)
+            duplicate_checkpoint_v1 = self._write_checkpoint(tmp_path, "checkpoint_v1_copy.npz", input_features=15)
+
+            evaluator_v1 = self_play.CheckpointEvaluator(checkpoint_v1, input_encoding="kalah_v1", cache_size=8)
+            evaluator_v3 = self_play.CheckpointEvaluator(checkpoint_v3, input_encoding="kalah_v3", cache_size=8)
+            duplicate_evaluator_v1 = self_play.CheckpointEvaluator(
+                duplicate_checkpoint_v1,
+                input_encoding="kalah_v1",
+                cache_size=8,
+            )
+
+            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+                evaluator_v1.evaluate(game)
+                evaluator_v3.evaluate(game)
+                duplicate_evaluator_v1.evaluate(game)
+
+            self.assertEqual(3, encode_state.call_count)
+            self.assertNotEqual(evaluator_v1._cache_key_for(game), evaluator_v3._cache_key_for(game))
+            self.assertNotEqual(evaluator_v1._cache_key_for(game), duplicate_evaluator_v1._cache_key_for(game))
+            self.assertEqual({"enabled": True, "hits": 0, "misses": 1, "size": 1}, evaluator_v1.cache_stats)
+            self.assertEqual({"enabled": True, "hits": 0, "misses": 1, "size": 1}, evaluator_v3.cache_stats)
+            self.assertEqual({"enabled": True, "hits": 0, "misses": 1, "size": 1}, duplicate_evaluator_v1.cache_stats)
+
+    def test_checkpoint_evaluator_disabled_cache_preserves_old_behavior(self):
+        game = self._checkpoint_evaluator_test_game()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = self._write_checkpoint(Path(tmp), "checkpoint.npz", input_features=15)
+            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+
+            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+                evaluator.evaluate(game)
+                evaluator.evaluate(game)
+
+            self.assertEqual(2, encode_state.call_count)
+            self.assertEqual({"enabled": False, "hits": 0, "misses": 0, "size": 0}, evaluator.cache_stats)
 
     def test_checkpoint_evaluator_applies_residual_v3_specialized_heads(self):
         game = KalahGame.from_state(
@@ -899,6 +1034,107 @@ class SelfPlayScriptTest(unittest.TestCase):
                 unique_states.add(tuple(row["state"]))
 
             self.assertGreater(len(unique_states), 2)
+
+    def test_cli_emits_machine_readable_cache_metrics(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-metrics-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "self_play.jsonl"
+            checkpoint_path = self._write_checkpoint(tmp_path, "checkpoint.npz", input_features=15)
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/self_play.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "1",
+                    "--seed",
+                    "7",
+                    "--simulations",
+                    "8",
+                    "--workers",
+                    "1",
+                    "--checkpoint",
+                    str(checkpoint_path),
+                    "--evaluator-cache-size",
+                    "8",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertRegex(result.stdout, r"cache_enabled=true")
+            self.assertRegex(result.stdout, r"cache_hits=\d+")
+            self.assertRegex(result.stdout, r"cache_misses=\d+")
+            self.assertRegex(result.stdout, r"cache_hit_rate=\d+(?:\.\d+)?")
+
+    def test_cli_emits_cache_disabled_metric_when_evaluator_cache_is_off(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-metrics-disabled-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "self_play.jsonl"
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/self_play.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "1",
+                    "--seed",
+                    "7",
+                    "--simulations",
+                    "8",
+                    "--workers",
+                    "1",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertRegex(result.stdout, r"cache_enabled=false")
+            self.assertRegex(result.stdout, r"cache_hits=0")
+            self.assertRegex(result.stdout, r"cache_misses=0")
+
+    def test_cli_keeps_cache_disabled_metric_false_without_checkpoint_evaluator(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-metrics-no-checkpoint-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "self_play.jsonl"
+
+            result = subprocess.run(
+                [
+                    ".venv/bin/python",
+                    "ml/alphazero_lite/self_play.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "1",
+                    "--seed",
+                    "7",
+                    "--simulations",
+                    "8",
+                    "--workers",
+                    "1",
+                    "--evaluator-cache-size",
+                    "8",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertRegex(result.stdout, r"cache_enabled=false")
+            self.assertRegex(result.stdout, r"cache_hits=0")
+            self.assertRegex(result.stdout, r"cache_misses=0")
 
     def test_cli_emits_requested_value_target_mode_in_rows(self):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:

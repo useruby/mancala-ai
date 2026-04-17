@@ -47,7 +47,9 @@
         "--policy-target-mode",
         "sharpened",
         "--value-target-mode",
-        "phase_aware_sharpened"
+        "phase_aware_sharpened",
+        "--evaluator-cache-size",
+        "50000"
       ]
     },
     {

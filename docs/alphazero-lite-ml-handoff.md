@@ -25,6 +25,33 @@ This is the practical baseline for the next ML engineer iteration.
 - Variance at small sample sizes: short runs can suggest gains that disappear at confirmation scale.
 - Throughput constraints: long local runs are expensive; use RunPod wrapper for heavier experiments.
 
+## Throughput Flags
+
+Use spare RAM to reduce repeated evaluator/search work before scaling up pod size.
+
+- For checkpoint-guided self-play, enable `--evaluator-cache-size` when repeated state evaluation is likely.
+- For bootstrap runs using `--position-selection-mode hybrid_teacher`, enable `--teacher-search-reuse`.
+- When using a checkpoint, make `--input-encoding` match the checkpoint metadata `input_encoding` field. Example: the current stronger bootstrap artifact at `/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1/metadata.json` expects `kalah_v3`.
+
+Focused benchmark results from this branch:
+
+- Self-play benchmark:
+  - command shape: `ml/alphazero_lite/self_play.py --checkpoint .../model.npz --input-encoding kalah_v3 --games 8 --workers 1 --simulations 96`
+  - baseline: `6.020s`
+  - with `--evaluator-cache-size 50000`: `4.203s`
+  - result: about `30.2%` faster with `cache_hit_rate=0.713468` and identical row count (`297`)
+- Bootstrap benchmark:
+  - command shape: `ml/alphazero_lite/generate_bootstrap_dataset.py --games 8 --workers 1 --simulations 96 --max-positions-per-game 12 --position-selection-mode hybrid_teacher`
+  - baseline: `5.304s`
+  - with `--teacher-search-reuse`: `4.475s`
+  - result: about `15.6%` faster, with identical retained rows (`70`) and fewer total simulations (`81792` down to `54528`)
+
+Recommendation:
+
+- Default these flags on for heavy experiment lanes where output semantics stay acceptable:
+  - self-play with checkpoint: `--evaluator-cache-size 50000`
+  - hybrid-teacher bootstrap: `--teacher-search-reuse`
+
 ## Standard Experiment Command
 
 Use this as the default reproducible run entrypoint:
@@ -40,6 +67,28 @@ Notes:
 
 - Swap only `--config-path` (and optionally paths) per lane.
 - Wrapper runs pipeline + `local_promotion_gate` remotely and downloads outputs.
+
+## Robustness Confirmation On RunPod
+
+Use the dedicated wrapper for multi-seed confirmation runs that are too expensive locally:
+
+```bash
+script/ai/runpod_model_robustness_confirmation
+```
+
+Default behavior:
+
+- launches `script/ai/model_robustness_confirmation` remotely on RunPod
+- downloads the full confirmation output tree to `/tmp/runpod-robustness-confirmation-results`
+- preserves results even when the sweep exits non-zero because `passed=false`
+- reports final pass/fail from downloaded `aggregate_summary.json`
+
+Important:
+
+- `passed=false` is a completed experiment result, not an infrastructure failure
+- the top-level result file for confirmation runs is `aggregate_summary.json`
+- if `aggregate_summary.json` is malformed or missing, fall back to `run_manifest.json` triage to distinguish real run failure from transport/setup failure
+- long confirmation sweeps should prefer this wrapper over local execution
 
 ## Minimum Artifacts Per Run
 

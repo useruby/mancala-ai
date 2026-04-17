@@ -45,7 +45,9 @@
         "--input-encoding",
         "kalah_v3",
         "--policy-target-mode",
-        "sharpened"
+        "sharpened",
+        "--evaluator-cache-size",
+        "50000"
       ]
     },
     {

@@ -47,7 +47,9 @@
         "--policy-target-mode",
         "sharpened",
         "--value-target-mode",
-        "hybrid"
+        "hybrid",
+        "--evaluator-cache-size",
+        "50000"
       ]
     },
     {

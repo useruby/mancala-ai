@@ -54,7 +54,9 @@
         "--policy-target-mode",
         "sharpened",
         "--value-target-mode",
-        "sharpened"
+        "sharpened",
+        "--evaluator-cache-size",
+        "50000"
       ]
     },
     {

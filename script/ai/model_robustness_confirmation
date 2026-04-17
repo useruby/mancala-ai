@@ -1,0 +1,429 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import copy
+import json
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json"
+DEFAULT_PARENT_ARTIFACT = "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1"
+DEFAULT_CURRENT_PATH = "model-artifact/current"
+DEFAULT_OUTPUT_ROOT = "/tmp/azlite_v3_robustness_confirmation"
+DEFAULT_SEEDS = (41, 42, 43, 44, 45)
+
+
+def validate_unique_seeds(seeds: list[int]) -> list[int]:
+    duplicate_seeds = sorted({seed for seed in seeds if seeds.count(seed) > 1})
+    if duplicate_seeds:
+        formatted_duplicates = ", ".join(str(seed) for seed in duplicate_seeds)
+        raise SystemExit(f"duplicate seeds are not allowed: {formatted_duplicates}")
+    return seeds
+
+
+def python_executable() -> str:
+    repo_python = REPO_ROOT / ".venv/bin/python"
+    if repo_python.exists():
+        return str(repo_python)
+    return sys.executable
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="script/ai/model_robustness_confirmation",
+        description="Run a five-lane robustness confirmation sweep for the superhuman model.",
+    )
+    parser.add_argument("--base-config", default=DEFAULT_BASE_CONFIG)
+    parser.add_argument("--parent-artifact", default=DEFAULT_PARENT_ARTIFACT)
+    parser.add_argument("--current-path", default=DEFAULT_CURRENT_PATH)
+    parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args()
+
+
+def resolve_repo_path(path_value: str) -> Path:
+    path = Path(path_value)
+    if path.is_absolute():
+        return path
+    return REPO_ROOT / path
+
+
+def require_existing_runtime_path(path_value: str, *, label: str, require_directory: bool = False) -> Path:
+    path = resolve_repo_path(path_value)
+    if not path.exists():
+        raise SystemExit(f"{label} does not exist: {path}")
+    if require_directory and not path.is_dir():
+        raise SystemExit(f"{label} must be a directory: {path}")
+    return path
+
+
+def paths_overlap(first: Path, second: Path) -> bool:
+    if first == second:
+        return True
+    return first in second.parents or second in first.parents
+
+
+def validate_output_root_safety(*, output_root: Path, parent_artifact: Path, current_path: Path) -> None:
+    protected_paths = (
+        (REPO_ROOT.resolve(), "repo root"),
+        (parent_artifact.resolve(), "parent artifact"),
+        (current_path.resolve(), "current path"),
+    )
+    output_root = output_root.resolve(strict=False)
+    for protected_path, label in protected_paths:
+        if paths_overlap(output_root, protected_path):
+            raise SystemExit(f"output root must not overlap {label}: {output_root}")
+
+
+def load_json(path: Path) -> dict:
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as error:
+        raise SystemExit(f"Missing JSON file: {path}") from error
+    except json.JSONDecodeError as error:
+        raise SystemExit(f"Invalid JSON file: {path}") from error
+    if not isinstance(loaded, dict):
+        raise SystemExit(f"Base config must be a JSON object: {path}")
+    return loaded
+
+
+def require_config_string(config: dict, key: str) -> str:
+    value = config.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise SystemExit(f"Base config field '{key}' must be a non-empty string")
+    return value
+
+
+def require_config_positive_int(config: dict, key: str) -> int:
+    value = config.get(key)
+    if isinstance(value, bool):
+        raise SystemExit(f"Base config field '{key}' must be an integer")
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError) as error:
+        raise SystemExit(f"Base config field '{key}' must be an integer") from error
+    if parsed <= 0:
+        raise SystemExit(f"Base config field '{key}' must be greater than zero")
+    return parsed
+
+
+def require_config_steps(config: dict) -> list[dict]:
+    steps = config.get("steps")
+    if not isinstance(steps, list):
+        raise SystemExit("Base config field 'steps' must be a list")
+    for index, step in enumerate(steps):
+        if not isinstance(step, dict):
+            raise SystemExit(f"Base config step at index {index} must be an object")
+        command = step.get("command")
+        if command is not None and not isinstance(command, list):
+            raise SystemExit(f"Base config step at index {index} has a non-list command")
+        if isinstance(command, list) and any(not isinstance(part, str) for part in command):
+            raise SystemExit(f"Base config step at index {index} has a command with non-string entries")
+    return steps
+
+
+def replace_flag(command: list[str], flag: str, value: str) -> None:
+    if flag not in command:
+        return
+    flag_index = command.index(flag)
+    if flag_index + 1 >= len(command):
+        raise SystemExit(f"Malformed command in base config, missing value for {flag}")
+    command[flag_index + 1] = value
+
+
+def build_lane_run_id(base_run_id: str, seed: int) -> str:
+    return f"{base_run_id}-robust-s{seed}"
+
+
+def build_seed_sweep(seed: int) -> str:
+    return f"{seed},{seed + 100},{seed + 200}"
+
+
+def build_lane(seed: int, *, base_run_id: str, iteration: int, output_root: Path) -> dict:
+    run_id = build_lane_run_id(base_run_id, seed)
+    lane_root = output_root / run_id
+    results_dir = lane_root / "versions"
+    config_path = output_root / f"{run_id}.json"
+    candidate_path = results_dir / f"{run_id}-iter{iteration}"
+    gate_report_path = lane_root / "local_promotion_gate.json"
+    summary_path = lane_root / "seed_summary.json"
+    return {
+        "seed": seed,
+        "seed_sweep": build_seed_sweep(seed),
+        "run_id": run_id,
+        "lane_root": str(lane_root),
+        "results_dir": str(results_dir),
+        "config_path": str(config_path),
+        "candidate_path": str(candidate_path),
+        "gate_report_path": str(gate_report_path),
+        "summary_path": str(summary_path),
+    }
+
+
+def build_plan(args: argparse.Namespace) -> tuple[dict, dict]:
+    base_config_path = resolve_repo_path(args.base_config)
+    base_config = load_json(base_config_path)
+    run_id = require_config_string(base_config, "run_id")
+    start_iteration = require_config_positive_int(base_config, "start_iteration")
+    iterations = require_config_positive_int(base_config, "iterations")
+    require_config_steps(base_config)
+    final_iteration = start_iteration + iterations - 1
+    output_root = resolve_repo_path(args.output_root)
+    aggregate_summary_path = output_root / "aggregate_summary.json"
+    seeds = validate_unique_seeds(list(DEFAULT_SEEDS))
+
+    lanes = [
+        build_lane(
+            seed,
+            base_run_id=run_id,
+            iteration=final_iteration,
+            output_root=output_root,
+        )
+        for seed in seeds
+    ]
+    plan = {
+        "base_config": str(base_config_path),
+        "parent_artifact": args.parent_artifact,
+        "current_path": args.current_path,
+        "aggregate_summary_path": str(aggregate_summary_path),
+        "lanes": lanes,
+    }
+    return plan, base_config
+
+
+def build_lane_config(base_config: dict, lane: dict, *, parent_artifact: str) -> dict:
+    lane_config = copy.deepcopy(base_config)
+    lane_config["run_id"] = lane["run_id"]
+    lane_config["seed"] = lane["seed"]
+    lane_config["versions_dir"] = lane["results_dir"]
+    lane_config["current_path"] = parent_artifact
+
+    for step in lane_config.get("steps", []):
+        if step.get("name") == "benchmark_contract":
+            command = step.get("command")
+            if isinstance(command, list) and "--min-confidence-lower-bound" not in command:
+                command.extend(["--min-confidence-lower-bound", "0.55"])
+
+        command = step.get("command")
+        if not isinstance(command, list):
+            continue
+        replace_flag(command, "--seed", str(lane["seed"]))
+        replace_flag(command, "--seed-sweep", lane["seed_sweep"])
+
+    return lane_config
+
+
+def run_command(command: list[str], *, stage: str) -> None:
+    command_text = " ".join(command)
+    try:
+        result = subprocess.run(
+            command,
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError as error:
+        raise SystemExit(f"{stage} failed to launch ({command_text}): {error}") from error
+    if result.returncode == 0:
+        return
+
+    details = (result.stderr or result.stdout).strip()
+    if details:
+        raise SystemExit(f"{stage} failed ({command_text}): {details}")
+    raise SystemExit(f"{stage} failed ({command_text})")
+
+
+def classify_pipeline_failure(lane: dict) -> dict | None:
+    manifest_path = Path(lane["candidate_path"]) / "run_manifest.json"
+    if not manifest_path.exists():
+        return None
+
+    manifest = load_json(manifest_path)
+    if manifest.get("schema") != "azlite_run_manifest_v1":
+        return None
+
+    candidate_path = Path(lane["candidate_path"])
+    candidate_name = candidate_path.name
+    iteration_token = "-iter"
+    if iteration_token not in candidate_name:
+        return None
+
+    expected_run_id, _, iteration_text = candidate_name.rpartition(iteration_token)
+    if not expected_run_id or not iteration_text:
+        return None
+    try:
+        expected_iteration = int(iteration_text)
+    except ValueError:
+        return None
+
+    if manifest.get("run_id") != lane.get("run_id") or manifest.get("run_id") != expected_run_id:
+        return None
+    if manifest.get("seed") != lane.get("seed"):
+        return None
+    if manifest.get("iteration") != expected_iteration:
+        return None
+    if manifest.get("config_path") != lane.get("config_path"):
+        return None
+    if manifest.get("status") != "failed":
+        return None
+
+    gate_failures = manifest.get("gate_failures")
+    failed_steps = manifest.get("steps")
+    if not isinstance(gate_failures, list):
+        gate_failures = []
+    if not isinstance(failed_steps, list):
+        failed_steps = []
+
+    failed_steps = [
+        step for step in failed_steps if isinstance(step, dict) and step.get("status") == "failed"
+    ]
+    failure_reasons = gate_failures or failed_steps
+    if not failure_reasons:
+        return None
+
+    return {
+        "seed": lane["seed"],
+        "candidate_path": lane["candidate_path"],
+        "failure_source": "pipeline",
+        "benchmark_passed": False,
+        "local_promotion_gate_passed": None,
+        "arena_score": None,
+        "arena_confidence_lower_bound": None,
+        "candidate_mcts_score": None,
+        "current_mcts_score": None,
+        "failure_reasons": failure_reasons,
+    }
+
+
+def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
+    lane_root = Path(lane["lane_root"])
+    results_dir = Path(lane["results_dir"])
+    candidate_path = Path(lane["candidate_path"])
+    config_path = Path(lane["config_path"])
+    gate_report_path = Path(lane["gate_report_path"])
+    summary_path = Path(lane["summary_path"])
+
+    lane_root.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(lane_config, indent=2), encoding="utf-8")
+
+    try:
+        run_command(
+            [
+                python_executable(),
+                "ml/alphazero_lite/pipeline.py",
+                "--config",
+                str(config_path),
+                "--skip-step",
+                "rules_parity_fuzz",
+            ],
+            stage=f"lane {lane['seed']} pipeline",
+        )
+    except SystemExit:
+        summary = classify_pipeline_failure(lane)
+        if summary is None:
+            raise
+        summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        return summary
+
+    try:
+        run_command(
+            [
+                "script/ai/local_promotion_gate",
+                "--candidate-path",
+                lane["candidate_path"],
+                "--config-path",
+                str(config_path),
+                "--current-path",
+                current_path,
+                "--out",
+                str(gate_report_path),
+            ],
+            stage=f"lane {lane['seed']} local promotion gate",
+        )
+    except SystemExit:
+        if not gate_report_path.exists():
+            raise
+
+    benchmark_report_path = candidate_path / "benchmark_report.json"
+    benchmark_report = load_json(benchmark_report_path)
+    gate_report = load_json(gate_report_path)
+    benchmark_checks = benchmark_report.get("checks", [])
+    benchmark_passed = bool(benchmark_checks) and all(
+        isinstance(check, dict) and bool(check.get("passed")) for check in benchmark_checks
+    )
+    summary = {
+        "seed": lane["seed"],
+        "candidate_path": lane["candidate_path"],
+        "failure_source": "local_promotion_gate",
+        "benchmark_passed": benchmark_passed,
+        "local_promotion_gate_passed": bool(gate_report.get("passed")),
+        "arena_score": gate_report.get("arena_score"),
+        "arena_confidence_lower_bound": benchmark_report.get("arena_confidence_lower_bound"),
+        "candidate_mcts_score": gate_report.get("candidate_mcts_score"),
+        "current_mcts_score": gate_report.get("current_mcts_score"),
+        "failure_reasons": gate_report.get("failure_reasons", []),
+    }
+    summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    return summary
+
+
+def main() -> int:
+    args = parse_args()
+    plan, base_config = build_plan(args)
+
+    if args.dry_run:
+        print(json.dumps(plan, indent=2))
+        return 0
+
+    parent_artifact_path = require_existing_runtime_path(
+        args.parent_artifact,
+        label="parent artifact",
+        require_directory=True,
+    )
+    current_path = require_existing_runtime_path(
+        args.current_path,
+        label="current path",
+        require_directory=True,
+    )
+    output_root = resolve_repo_path(args.output_root)
+    validate_output_root_safety(
+        output_root=output_root,
+        parent_artifact=parent_artifact_path,
+        current_path=current_path,
+    )
+    shutil.rmtree(output_root, ignore_errors=True)
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    lane_summaries = []
+    for lane in plan["lanes"]:
+        Path(lane["lane_root"]).mkdir(parents=True, exist_ok=True)
+        lane_config = build_lane_config(base_config, lane, parent_artifact=str(parent_artifact_path))
+        lane_summaries.append(execute_lane(lane, lane_config, current_path=str(current_path)))
+
+    aggregate_summary = {
+        "parent_artifact": args.parent_artifact,
+        "current_path": args.current_path,
+        "passed": all(
+            summary.get("benchmark_passed") and summary.get("local_promotion_gate_passed")
+            for summary in lane_summaries
+        ),
+        "lanes": lane_summaries,
+    }
+    aggregate_summary_path = Path(plan["aggregate_summary_path"])
+    aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
+    aggregate_summary_path.write_text(json.dumps(aggregate_summary, indent=2), encoding="utf-8")
+    print(json.dumps(aggregate_summary, indent=2))
+    if aggregate_summary["passed"]:
+        return 0
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
