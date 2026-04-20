@@ -44,6 +44,10 @@ def parse_args() -> argparse.Namespace:
         "--hard-path",
         default="model-artifact/current",
     )
+    parser.add_argument(
+        "--regression-positions-path",
+        default="test/fixtures/ai/superhuman_regression_positions.json",
+    )
     parser.add_argument("--arena-games", default=120, type=positive_int)
     parser.add_argument("--mcts-games", default=40, type=positive_int)
     parser.add_argument("--min-arena-score", default=0.55, type=float)
@@ -61,6 +65,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stub-hard-report", type=Path)
     parser.add_argument("--stub-candidate-mcts-report", type=Path)
     parser.add_argument("--stub-current-mcts-report", type=Path)
+    parser.add_argument("--stub-regression-report", type=Path)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
 
@@ -94,9 +99,11 @@ def resolve_optional_config_path(config_path: str | None) -> Path | None:
     return path
 
 
-def search_flags_for_step(config: dict, step_name: str) -> list[str]:
+def search_flags_for_step(config: dict, step_name: str, *, required: bool) -> list[str]:
     step = next((candidate for candidate in config.get("steps", []) if candidate.get("name") == step_name), None)
     if step is None:
+        if required:
+            raise SystemExit(f"config missing required step: {step_name}")
         return []
 
     command = step.get("command", [])
@@ -106,7 +113,10 @@ def search_flags_for_step(config: dict, step_name: str) -> list[str]:
 
     for flag in option_flags:
         if flag in command:
-            rendered_flags.extend([flag, command[command.index(flag) + 1]])
+            flag_index = command.index(flag)
+            if flag_index + 1 >= len(command):
+                raise SystemExit(f"config step {step_name} missing value for {flag}")
+            rendered_flags.extend([flag, command[flag_index + 1]])
 
     for flag in boolean_flags:
         if flag in command:
@@ -115,16 +125,24 @@ def search_flags_for_step(config: dict, step_name: str) -> list[str]:
     return rendered_flags
 
 
-def load_search_flag_map(config_path: str | None) -> dict[str, list[str]]:
+def load_search_flag_map(config_path: str | None, *, require_steps: bool = True) -> dict[str, list[str]]:
     resolved_path = resolve_optional_config_path(config_path)
     if resolved_path is None:
         return {}
 
     config = load_json(resolved_path)
     return {
-        "arena": search_flags_for_step(config, "arena_confirm_report"),
-        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report"),
-        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report"),
+        "arena": search_flags_for_step(config, "arena_confirm_report", required=False),
+        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report", required=False),
+        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report", required=False),
+    }
+
+
+def default_regression_report(positions_path: str) -> dict:
+    return {
+        "passed": True,
+        "positions_path": positions_path,
+        "results": [],
     }
 
 
@@ -165,10 +183,12 @@ def build_decision_report(
     hard_report: dict | None,
     candidate_mcts_report: dict,
     current_mcts_report: dict,
+    regression_report: dict,
     arena_report_path: Path,
     hard_report_path: Path | None,
     candidate_mcts_report_path: Path,
     current_mcts_report_path: Path,
+    regression_report_path: Path,
 ) -> dict:
     arena_games_played = int(arena_report.get("games_played", 0))
     arena_losses = int(arena_report.get("losses", 0))
@@ -196,6 +216,8 @@ def build_decision_report(
         failure_reasons.append({"code": "arena_losses_above_threshold"})
     if not args.skip_mcts_relative_check and raw_candidate_mcts_score < raw_current_mcts_score:
         failure_reasons.append({"code": "candidate_mcts_below_current"})
+    if not regression_report.get("passed", False):
+        failure_reasons.append({"code": "regression_check_failed"})
 
     notes = arena_report.get("notes", {}) if isinstance(arena_report.get("notes", {}), dict) else {}
     move_time_mean_ms = notes.get("move_time_mean_ms", arena_report.get("move_time_mean_ms"))
@@ -227,6 +249,7 @@ def build_decision_report(
             "hard_report_path": str(hard_report_path) if hard_report_path is not None else None,
             "candidate_mcts_report_path": str(candidate_mcts_report_path),
             "current_mcts_report_path": str(current_mcts_report_path),
+            "regression_report_path": str(regression_report_path),
             "arena_score": computed_arena_score,
             "hard_score": computed_hard_score,
             "arena_losses": arena_losses,
@@ -242,6 +265,12 @@ def build_decision_report(
 
 def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
     hard_report = load_json(args.stub_hard_report) if args.stub_hard_report is not None else None
+    regression_report = (
+        load_json(args.stub_regression_report)
+        if args.stub_regression_report is not None
+        else default_regression_report(args.regression_positions_path)
+    )
+    regression_report_path = args.stub_regression_report or Path(report["regression_report_path"])
     return build_decision_report(
         args,
         report,
@@ -249,10 +278,12 @@ def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
         hard_report=hard_report,
         candidate_mcts_report=load_json(args.stub_candidate_mcts_report),
         current_mcts_report=load_json(args.stub_current_mcts_report),
+        regression_report=regression_report,
         arena_report_path=args.stub_arena_report,
         hard_report_path=args.stub_hard_report,
         candidate_mcts_report_path=args.stub_candidate_mcts_report,
         current_mcts_report_path=args.stub_current_mcts_report,
+        regression_report_path=regression_report_path,
     )
 
 
@@ -272,12 +303,54 @@ def run_command(command: list[str]) -> None:
         raise SystemExit(f"{command_label} failed: {' '.join(command)}")
 
 
+def run_regression_check(command: list[str], report_path: Path) -> dict:
+    if report_path.exists():
+        report_path.unlink()
+    command_with_output = [*command, "--out", str(report_path)]
+    result = subprocess.run(
+        command_with_output,
+        cwd=repo_root(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    stdout = result.stdout.strip()
+    if result.returncode != 0:
+        details = (result.stderr or stdout).strip()
+        if details:
+            raise SystemExit(f"check_superhuman_regressions failed: {details}")
+        raise SystemExit("check_superhuman_regressions failed")
+
+    report_text = report_path.read_text(encoding="utf-8").strip() if report_path.exists() else stdout
+
+    try:
+        report = json.loads(report_text)
+    except json.JSONDecodeError as exc:
+        details = (result.stderr or report_text or stdout).strip()
+        if details:
+            raise SystemExit(f"check_superhuman_regressions failed: {details}") from exc
+        raise SystemExit("check_superhuman_regressions failed") from exc
+
+    if result.returncode not in (0, 1):
+        details = (result.stderr or stdout).strip()
+        if details:
+            raise SystemExit(f"check_superhuman_regressions failed: {details}")
+        raise SystemExit("check_superhuman_regressions failed")
+
+    if not isinstance(report, dict) or "passed" not in report:
+        raise SystemExit("check_superhuman_regressions failed: missing passed field")
+
+    return report
+
+
 def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     evaluations = {evaluation["id"]: evaluation for evaluation in report["evaluations"]}
     arena_report_path = Path(evaluations["candidate_vs_current_arena"]["report_path"])
     candidate_mcts_report_path = Path(evaluations["candidate_vs_mcts1200"]["report_path"])
     current_mcts_report_path = Path(evaluations["current_vs_mcts1200"]["report_path"])
     hard_report_path = Path(evaluations["candidate_vs_hard_arena"]["report_path"]) if "candidate_vs_hard_arena" in evaluations else None
+    regression_report_path = Path(report["regression_report_path"])
     search_flag_map = load_search_flag_map(args.config_path)
 
     run_command(
@@ -341,6 +414,17 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             str(current_mcts_report_path),
         ]
     )
+    regression_report = run_regression_check(
+        [
+            "script/ai/check_superhuman_regressions",
+            "--artifact",
+            str(args.candidate_path),
+            "--positions",
+            str(args.regression_positions_path),
+            *search_flag_map.get("arena", []),
+        ],
+        regression_report_path,
+    )
 
     for evaluation in report["evaluations"]:
         evaluation["mode"] = "executed"
@@ -353,16 +437,20 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         hard_report=hard_report,
         candidate_mcts_report=load_json(candidate_mcts_report_path),
         current_mcts_report=load_json(current_mcts_report_path),
+        regression_report=regression_report,
         arena_report_path=arena_report_path,
         hard_report_path=hard_report_path,
         candidate_mcts_report_path=candidate_mcts_report_path,
         current_mcts_report_path=current_mcts_report_path,
+        regression_report_path=regression_report_path,
     )
 
 
 def main() -> int:
     args = parse_args()
     args.out.parent.mkdir(parents=True, exist_ok=True)
+    if args.dry_run and args.config_path:
+        load_search_flag_map(args.config_path, require_steps=False)
 
     non_hard_stub_paths = (
         args.stub_arena_report,
@@ -426,7 +514,9 @@ def main() -> int:
         "config_path": args.config_path,
         "current_path": current_path,
         "hard_path": args.hard_path,
+        "regression_positions_path": args.regression_positions_path,
         "report_path": str(args.out),
+        "regression_report_path": str(args.stub_regression_report) if args.stub_regression_report is not None else str(args.out.parent / "candidate_regression_suite.json"),
         "arena_games": args.arena_games,
         "mcts_games": args.mcts_games,
         "hard_arena_games": args.hard_arena_games,

@@ -2,11 +2,30 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
-if [[ ! -x "$PYTHON_BIN" ]]; then
-  PYTHON_BIN="python3"
-fi
-PYTHON_BIN="${AZLITE_EXPERIMENT_PYTHON:-$PYTHON_BIN}"
+
+python_executable() {
+  if [[ -n "${AZLITE_EXPERIMENT_PYTHON:-}" ]]; then
+    printf '%s\n' "$AZLITE_EXPERIMENT_PYTHON"
+    return 0
+  fi
+
+  local candidates=(
+    "$ROOT_DIR/.venv/bin/python"
+    "$(cd "$ROOT_DIR/../.." && pwd)/.venv/bin/python"
+  )
+
+  local candidate
+  for candidate in "${candidates[@]}"; do
+    if [[ -x "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  command -v python3
+}
+
+PYTHON_BIN="$(python_executable)"
 
 RUN_ID=""
 GAMES_JSON="$ROOT_DIR/ml/alphazero_lite/fixtures/superhuman_strength_games_2026_04_06.json"
@@ -16,6 +35,7 @@ BOOTSTRAP_GAMES="320"
 ARENA_GAMES="120"
 MCTS_GAMES="40"
 DRY_RUN=0
+OPPONENT_CHECKPOINTS=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -47,6 +67,10 @@ while [[ $# -gt 0 ]]; do
       MCTS_GAMES="$2"
       shift 2
       ;;
+    --opponent-checkpoint)
+      OPPONENT_CHECKPOINTS+=("$2")
+      shift 2
+      ;;
     --dry-run)
       DRY_RUN=1
       shift
@@ -67,6 +91,8 @@ BASE_DIR="$OUTPUT_ROOT/$RUN_ID"
 VERSIONS_DIR="$BASE_DIR/versions"
 CURATED_DATASET_PATH="$BASE_DIR/curated_superhuman_strength.jsonl"
 CURRENT_INIT_CHECKPOINT_PATH="$BASE_DIR/current_init_checkpoint.npz"
+OPPONENT_POOL_PATH="$BASE_DIR/opponent_pool.json"
+OPPONENT_CHECKPOINT_INPUTS_PATH="$BASE_DIR/opponent_checkpoint_inputs.json"
 STAGE1_CONFIG_PATH="$BASE_DIR/stage1_config.json"
 STAGE2_CONFIG_PATH="$BASE_DIR/stage2_config.json"
 LANE_A_REPORT_PATH="$BASE_DIR/lane_a_promotion_report.json"
@@ -75,7 +101,7 @@ SEARCH_CONFIG_PATH="$ROOT_DIR/ml/alphazero_lite/configs/aggressive_v3_superhuman
 
 mkdir -p "$BASE_DIR"
 
-"$PYTHON_BIN" "$ROOT_DIR/ml/alphazero_lite/build_superhuman_strength_dataset.py" --games-json "$GAMES_JSON" --out "$CURATED_DATASET_PATH" >/dev/null
+"$PYTHON_BIN" "$ROOT_DIR/ml/alphazero_lite/build_superhuman_strength_dataset.py" --games-json "$GAMES_JSON" --out "$CURATED_DATASET_PATH" >&2
 
 "$PYTHON_BIN" - "$ROOT_DIR/model-artifact/current/weights.json" "$CURRENT_INIT_CHECKPOINT_PATH" <<'PY'
 import json
@@ -85,13 +111,14 @@ from pathlib import Path
 import numpy as np
 
 weights_path = Path(sys.argv[1])
-checkpoint_path = Path(sys.argv[2])
 weights = json.loads(weights_path.read_text(encoding="utf-8"))
+arrays = {key: np.array(value, dtype=np.float32) for key, value in weights.items()}
+checkpoint_path = Path(sys.argv[2])
 checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
-np.savez(checkpoint_path, **{key: np.array(value, dtype=np.float32) for key, value in weights.items()})
+np.savez(checkpoint_path, **arrays)
 PY
 
-"$PYTHON_BIN" - "$ROOT_DIR" "$RUN_ID" "$VERSIONS_DIR" "$CURATED_DATASET_PATH" "$CURRENT_INIT_CHECKPOINT_PATH" "$STAGE1_CONFIG_PATH" "$STAGE2_CONFIG_PATH" "$SELF_PLAY_GAMES" "$BOOTSTRAP_GAMES" "$PYTHON_BIN" <<'PY'
+"$PYTHON_BIN" - "$ROOT_DIR" "$RUN_ID" "$VERSIONS_DIR" "$CURATED_DATASET_PATH" "$CURRENT_INIT_CHECKPOINT_PATH" "$STAGE1_CONFIG_PATH" "$STAGE2_CONFIG_PATH" "$SELF_PLAY_GAMES" "$BOOTSTRAP_GAMES" "$PYTHON_BIN" "$OPPONENT_POOL_PATH" "$OPPONENT_CHECKPOINT_INPUTS_PATH" "${OPPONENT_CHECKPOINTS[@]}" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -106,6 +133,9 @@ stage2_config_path = Path(sys.argv[7])
 self_play_games = sys.argv[8]
 bootstrap_games = sys.argv[9]
 python_bin = sys.argv[10]
+opponent_pool_path = Path(sys.argv[11])
+opponent_checkpoint_inputs_path = Path(sys.argv[12])
+explicit_opponent_checkpoints = sys.argv[13:]
 
 phase1 = json.loads((root_dir / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase1.json").read_text(encoding="utf-8"))
 phase2 = json.loads((root_dir / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json").read_text(encoding="utf-8"))
@@ -125,6 +155,53 @@ def set_python_bin(command, python_bin):
     if command and command[0] == ".venv/bin/python":
         command[0] = python_bin
 
+def normalize_explicit_checkpoint(root_dir, raw_path):
+    candidate = Path(raw_path)
+    if not candidate.is_absolute():
+        candidate = root_dir / candidate
+    if candidate.name != "model.npz":
+        raise SystemExit(f"opponent checkpoint must point to model.npz: {raw_path}")
+    resolved = candidate.resolve()
+    if not resolved.exists():
+        raise SystemExit(f"opponent checkpoint does not exist: {raw_path}")
+    return resolved
+
+def resolve_existing_model_candidates(candidates):
+    resolved_candidates = []
+    seen = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if not resolved.exists() or resolved.name != "model.npz":
+            continue
+        checkpoint = str(resolved)
+        if checkpoint in seen:
+            continue
+        seen.add(checkpoint)
+        resolved_candidates.append(checkpoint)
+    return resolved_candidates
+
+def build_opponent_pool(root_dir, opponent_pool_path, fallback_checkpoint_path, explicit_checkpoints):
+    explicit_candidates = [normalize_explicit_checkpoint(root_dir, checkpoint) for checkpoint in explicit_checkpoints]
+    discovered_checkpoints = resolve_existing_model_candidates([
+        root_dir / "model-artifact/current/model.npz",
+        root_dir / "storage/ai/alphazero_lite/current/model.npz",
+    ])
+    checkpoints = resolve_existing_model_candidates(explicit_candidates) + [
+        checkpoint for checkpoint in discovered_checkpoints
+        if checkpoint not in {str(candidate.resolve()) for candidate in explicit_candidates}
+    ]
+    fallback_resolved = fallback_checkpoint_path.resolve()
+    if explicit_candidates and not discovered_checkpoints and fallback_resolved.exists():
+        checkpoints.append(str(fallback_resolved))
+    if not checkpoints:
+        if fallback_resolved.exists():
+            checkpoints = [str(fallback_resolved)]
+    if not checkpoints:
+        raise SystemExit("no model.npz found for opponent pool; export one checkpoint first")
+    opponent_pool_path.parent.mkdir(parents=True, exist_ok=True)
+    opponent_pool_path.write_text(json.dumps({"checkpoints": checkpoints}, indent=2), encoding="utf-8")
+    return resolve_existing_model_candidates(explicit_candidates)
+
 def replace_train_command(command, *, data_files, replay_weights, init_checkpoint=None, epochs=None, lr=None, hidden_sizes="96,3"):
     command = list(command)
     set_flag(command, "--data-files", data_files)
@@ -142,6 +219,17 @@ def replace_train_command(command, *, data_files, replay_weights, init_checkpoin
         set_flag(command, "--init-checkpoint", str(init_checkpoint))
     return command
 
+resolved_explicit_opponent_checkpoints = build_opponent_pool(
+    root_dir,
+    opponent_pool_path,
+    current_init_checkpoint_path,
+    explicit_opponent_checkpoints,
+)
+opponent_checkpoint_inputs_path.write_text(
+    json.dumps(resolved_explicit_opponent_checkpoints, indent=2),
+    encoding="utf-8",
+)
+
 stage1 = dict(phase1)
 stage1["run_id"] = stage1_run_id
 stage1["iterations"] = 1
@@ -156,6 +244,7 @@ for step in stage1["steps"]:
     if step["name"] == "self_play":
         set_flag(step["command"], "--games", self_play_games)
         set_flag(step["command"], "--simulations", "256")
+        set_flag(step["command"], "--opponent-pool-config", str(opponent_pool_path))
     elif step["name"] == "mcts_bootstrap_dataset":
         set_flag(step["command"], "--games", bootstrap_games)
         set_flag(step["command"], "--simulations", "2400")
@@ -188,7 +277,12 @@ for step in stage2["steps"]:
         set_flag(step["command"], "--simulations", "320")
         set_flag(step["command"], "--checkpoint", str(stage1_checkpoint))
     elif step["name"] == "mcts_bootstrap_dataset":
-        step["command"] = ["bash", "-lc", "printf '' > '{iter_dir}/mcts_bootstrap.jsonl'"]
+        step["command"] = [
+            python_bin,
+            "-c",
+            "from pathlib import Path; import sys; Path(sys.argv[1]).write_text('', encoding='utf-8')",
+            "{iter_dir}/mcts_bootstrap.jsonl",
+        ]
     elif step["name"] == "train":
         step["command"] = replace_train_command(
             step["command"],
@@ -261,13 +355,15 @@ LANE_A_GATE_COMMAND_JSON="$LANE_A_GATE_COMMAND_JSON" \
 LANE_B_STAGE1_COMMAND_JSON="$LANE_B_STAGE1_COMMAND_JSON" \
 LANE_B_STAGE2_COMMAND_JSON="$LANE_B_STAGE2_COMMAND_JSON" \
 LANE_B_GATE_COMMAND_JSON="$LANE_B_GATE_COMMAND_JSON" \
-"$PYTHON_BIN" - "$RUN_ID" "$CURATED_DATASET_PATH" "$STAGE1_CONFIG_PATH" "$STAGE2_CONFIG_PATH" "$SEARCH_CONFIG_PATH" "$LANE_A_REPORT_PATH" "$LANE_B_REPORT_PATH" <<'PY'
+"$PYTHON_BIN" - "$RUN_ID" "$CURATED_DATASET_PATH" "$STAGE1_CONFIG_PATH" "$STAGE2_CONFIG_PATH" "$SEARCH_CONFIG_PATH" "$LANE_A_REPORT_PATH" "$LANE_B_REPORT_PATH" "$OPPONENT_POOL_PATH" "$OPPONENT_CHECKPOINT_INPUTS_PATH" <<'PY'
 import json
 import os
 import sys
 
 def command_from_env(key):
     return [part for part in os.environ[key].splitlines() if part]
+
+opponent_checkpoint_inputs = json.loads(open(sys.argv[9], encoding="utf-8").read())
 
 report = {
     "run_id": sys.argv[1],
@@ -277,6 +373,8 @@ report = {
     "search_config_path": sys.argv[5],
     "lane_a_report_path": sys.argv[6],
     "lane_b_report_path": sys.argv[7],
+    "opponent_pool_path": sys.argv[8],
+    "opponent_checkpoint_inputs": opponent_checkpoint_inputs,
     "lane_a_gate_command": command_from_env("LANE_A_GATE_COMMAND_JSON"),
     "lane_b_stage1_command": command_from_env("LANE_B_STAGE1_COMMAND_JSON"),
     "lane_b_stage2_command": command_from_env("LANE_B_STAGE2_COMMAND_JSON"),

@@ -7,6 +7,8 @@ import argparse
 import ast
 import json
 import math
+import os
+import platform
 import struct
 import subprocess
 import sys
@@ -147,6 +149,116 @@ def build_replay_context(*, iteration: int, iter_dir: Path, versions_dir: Path, 
     replay_data = ",".join(str(path) for path in replay_paths)
     replay_weights = ",".join(str(weight) for weight in range(len(replay_paths), 0, -1))
     return replay_data, replay_weights
+
+
+def json_safe_config(value):
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    if isinstance(value, dict):
+        return {str(key): json_safe_config(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [json_safe_config(item) for item in value]
+    return repr(value)
+
+
+def numpy_build_summary(numpy_module) -> dict:
+    config = getattr(numpy_module, "__config__", None)
+    if config is None:
+        return {}
+
+    config_dict = getattr(config, "CONFIG", None)
+    if isinstance(config_dict, dict):
+        return json_safe_config(config_dict)
+
+    get_info = getattr(config, "get_info", None)
+    if callable(get_info):
+        summary = {}
+        for name in ("blas_opt", "lapack_opt", "openblas", "blas_ilp64_opt", "lapack_ilp64_opt"):
+            info = get_info(name)
+            if info:
+                summary[name] = json_safe_config(info)
+        return summary
+
+    return {}
+
+
+def environment_report() -> dict:
+    uname = platform.uname()
+    env_keys = [
+        "CUDA_VISIBLE_DEVICES",
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "PYTHONHASHSEED",
+    ]
+
+    report = {
+        "python": {
+            "executable": sys.executable,
+            "version": sys.version,
+            "implementation": platform.python_implementation(),
+        },
+        "platform": {
+            "platform": platform.platform(),
+            "machine": platform.machine(),
+            "processor": platform.processor(),
+            "system": uname.system,
+            "release": uname.release,
+            "version": uname.version,
+            "node": uname.node,
+        },
+        "env": {key: os.environ.get(key) for key in env_keys},
+    }
+
+    def safe_call(function):
+        if not callable(function):
+            return None
+
+        try:
+            return function()
+        except Exception:
+            return None
+
+    torch_fallback = {
+        "version": None,
+        "cuda": {
+            "available": None,
+            "version": None,
+            "device_count": None,
+            "cudnn_version": None,
+        },
+    }
+
+    try:
+        import numpy  # type: ignore
+
+        report["numpy"] = {
+            "version": numpy.__version__,
+            "build": numpy_build_summary(numpy),
+        }
+    except Exception:
+        report["numpy"] = {"version": None, "build": {}}
+
+    try:
+        import torch  # type: ignore
+
+        cuda_module = getattr(torch, "cuda", None)
+        torch_version = getattr(torch, "version", None)
+        cudnn_module = getattr(getattr(torch, "backends", None), "cudnn", None)
+        cuda_available = safe_call(getattr(cuda_module, "is_available", None))
+        report["torch"] = {
+            "version": getattr(torch, "__version__", None),
+            "cuda": {
+                "available": cuda_available,
+                "version": getattr(torch_version, "cuda", None),
+                "device_count": safe_call(getattr(cuda_module, "device_count", None)) if cuda_available is True else None,
+                "cudnn_version": safe_call(getattr(cudnn_module, "version", None)) if cuda_available is True else None,
+            },
+        }
+    except Exception:
+        report["torch"] = torch_fallback
+
+    return report
 
 
 def run_step(
@@ -349,6 +461,10 @@ def main() -> None:
     for iteration in range(start_iteration, start_iteration + total_iterations):
         iter_dir = versions_dir / f"{run_id}-iter{iteration}"
         iter_dir.mkdir(parents=True, exist_ok=True)
+        (iter_dir / "environment.json").write_text(
+            json.dumps(environment_report(), indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
 
         parent_model_dir = Path(current_path) if iteration == start_iteration else versions_dir / f"{run_id}-iter{iteration - 1}"
         checkpoint_candidate = parent_model_dir / "checkpoint.npz"

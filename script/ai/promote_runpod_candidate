@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+import sys
+import tempfile
+from pathlib import Path
+
+
+REQUIRED_ARTIFACT_FILES = ("weights.json", "metadata.json", "arena_report.json", "run_manifest.json")
+REQUIRED_ROOT_REPORTS = (
+    "local_promotion_gate.json",
+    "candidate_vs_current_arena.json",
+    "candidate_vs_mcts1200.json",
+    "current_vs_mcts1200.json",
+    "candidate_regression_suite.json",
+)
+
+
+def existing_dir(value: str) -> Path:
+    path = Path(value)
+    if not path.exists():
+        raise argparse.ArgumentTypeError(f"path does not exist: {value}")
+    if not path.is_dir():
+        raise argparse.ArgumentTypeError(f"path is not a directory: {value}")
+    return path
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="script/ai/promote_runpod_candidate",
+        description="Validate a downloaded RunPod candidate result tree and promote it locally.",
+    )
+    parser.add_argument("downloaded_root", type=existing_dir)
+    parser.add_argument("--target", default="model-artifact/current", type=Path)
+    return parser.parse_args()
+
+
+def load_json(path: Path) -> dict:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"invalid JSON: {path}") from exc
+    if not isinstance(payload, dict):
+        raise SystemExit(f"JSON payload must be an object: {path}")
+    return payload
+
+
+def require_files(root: Path, names: tuple[str, ...]) -> None:
+    for name in names:
+        path = root / name
+        if not path.exists():
+            raise SystemExit(f"Missing required file: {path}")
+        if not path.is_file():
+            raise SystemExit(f"Required path is not a file: {path}")
+
+
+def detect_candidate_dir(downloaded_root: Path) -> Path:
+    candidates = []
+    for child in sorted(downloaded_root.iterdir()):
+        if not child.is_dir():
+            continue
+        if all((child / name).exists() for name in REQUIRED_ARTIFACT_FILES):
+            candidates.append(child)
+
+    if not candidates:
+        raise SystemExit(f"Missing candidate artifact directory under {downloaded_root}")
+    if len(candidates) > 1:
+        raise SystemExit(f"Expected exactly one candidate artifact directory under {downloaded_root}")
+    return candidates[0]
+
+
+def validate_gate_report(gate_report_path: Path, candidate_dir: Path) -> dict:
+    report = load_json(gate_report_path)
+    if report.get("passed") is not True:
+        raise SystemExit(f"Gate report did not pass: {gate_report_path}")
+
+    reported_candidate_path = report.get("candidate_path")
+    if not isinstance(reported_candidate_path, str) or not reported_candidate_path:
+        raise SystemExit("Gate report failed candidate-path consistency check: missing candidate_path")
+
+    if Path(reported_candidate_path).name != candidate_dir.name:
+        raise SystemExit(
+            "Gate report failed candidate-path consistency check: "
+            f"expected candidate dir named {candidate_dir.name}, got {reported_candidate_path}"
+        )
+    return report
+
+
+def promote(candidate_dir: Path, target_dir: Path) -> None:
+    target_dir.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="azlite-runpod-promote-", dir=str(target_dir.parent)) as tmp:
+        tmp_root = Path(tmp)
+        staging_dir = tmp_root / f"{target_dir.name}.staging"
+        backup_dir = tmp_root / f"{target_dir.name}.backup"
+        staging_dir.mkdir(parents=True, exist_ok=True)
+        for name in REQUIRED_ARTIFACT_FILES:
+            if name != "run_manifest.json":
+                shutil.copy2(candidate_dir / name, staging_dir / name)
+
+        target_exists = target_dir.exists()
+        try:
+            if target_exists:
+                target_dir.rename(backup_dir)
+            staging_dir.rename(target_dir)
+        except Exception:
+            if target_dir.exists() and not staging_dir.exists():
+                shutil.rmtree(target_dir)
+            if backup_dir.exists() and not target_dir.exists():
+                backup_dir.rename(target_dir)
+            raise
+        else:
+            if backup_dir.exists():
+                shutil.rmtree(backup_dir)
+
+
+def main() -> int:
+    args = parse_args()
+    downloaded_root = args.downloaded_root.resolve()
+    target_dir = args.target.resolve()
+
+    if target_dir.exists() and not target_dir.is_dir():
+        raise SystemExit(f"target path is not a directory: {target_dir}")
+
+    require_files(downloaded_root, REQUIRED_ROOT_REPORTS)
+    candidate_dir = detect_candidate_dir(downloaded_root)
+    require_files(candidate_dir, REQUIRED_ARTIFACT_FILES)
+
+    gate_report_path = downloaded_root / "local_promotion_gate.json"
+    validate_gate_report(gate_report_path, candidate_dir)
+    promote(candidate_dir, target_dir)
+
+    print(
+        json.dumps(
+            {
+                "downloaded_root": str(downloaded_root),
+                "candidate_path": str(candidate_dir),
+                "gate_report_path": str(gate_report_path),
+                "target_path": str(target_dir),
+                "promoted_files": [name for name in REQUIRED_ARTIFACT_FILES if name != "run_manifest.json"],
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -2,7 +2,30 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+
+python_executable() {
+  if [[ -n "${AZLITE_EXPERIMENT_PYTHON:-}" ]]; then
+    printf '%s\n' "$AZLITE_EXPERIMENT_PYTHON"
+    return 0
+  fi
+
+  local candidates=(
+    "$ROOT_DIR/.venv/bin/python"
+    "$(cd "$ROOT_DIR/../.." && pwd)/.venv/bin/python"
+  )
+
+  local candidate
+  for candidate in "${candidates[@]}"; do
+    if [[ -x "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  command -v python3
+}
+
+PYTHON_BIN="$(python_executable)"
 
 CONFIG_PATH=""
 RUN_ID=""

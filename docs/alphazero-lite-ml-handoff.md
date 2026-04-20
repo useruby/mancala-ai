@@ -5,7 +5,7 @@ This is the practical baseline for the next ML engineer iteration.
 ## Current Baseline
 
 - Runtime target in this handoff is local AlphaZero-lite for `hard` (the same infrastructure also supports the stricter `superhuman` lane); `easy` and `medium` remain pure MCTS.
-- Current promoted artifact path is `model-artifact/current` (`weights.json`, `metadata.json`, `arena_report.json`).
+- Current promoted runtime artifact path is `model-artifact/current` (`weights.json`, `metadata.json`, `arena_report.json`). Downloaded RunPod candidate trees now have a wider stronger-lane contract and must be promoted with `script/ai/promote_runpod_candidate` instead of manual copies.
 - Note: some pipeline configs reference `storage/ai/alphazero_lite/current` for historical compatibility. Before each lane, verify which path exists in your environment and set `current_path` consistently.
 - Search/eval gate is baseline-relative against `MCTS1200` (candidate must score at least as well as current).
 - Promotion gate uses `script/ai/local_promotion_gate` with defaults: arena `120` games, MCTS baseline `40` games, min arena score `0.55`, and candidate-vs-MCTS score must be >= current-vs-MCTS score.
@@ -90,19 +90,120 @@ Important:
 - if `aggregate_summary.json` is malformed or missing, fall back to `run_manifest.json` triage to distinguish real run failure from transport/setup failure
 - long confirmation sweeps should prefer this wrapper over local execution
 
-## Minimum Artifacts Per Run
+## Stronger-Lane Promotion Contract
 
-Treat a run as usable only when all files below are present in the downloaded results leaf:
+Treat a downloaded RunPod result tree as usable only when the candidate leaf and root-level reports are complete.
 
-- `<results>/<candidate_dir>/weights.json`
-- `<results>/<candidate_dir>/metadata.json`
-- `<results>/<candidate_dir>/arena_report.json`
-- `<results>/local_promotion_gate.json`
-- `<results>/candidate_vs_current_arena.json`
-- `<results>/candidate_vs_mcts1200.json`
-- `<results>/current_vs_mcts1200.json`
+Candidate leaf (`<results>/<candidate_dir>/`):
+
+- `weights.json`
+- `metadata.json`
+- `arena_report.json`
+- `run_manifest.json`
+
+Root-level reports (`<results>/`):
+
+- `local_promotion_gate.json`
+- `candidate_vs_current_arena.json`
+- `candidate_vs_mcts1200.json`
+- `current_vs_mcts1200.json`
+- `candidate_regression_suite.json`
 
 If any item is missing, do not compare or promote; rerun/fix pipeline output first.
+
+## Promoting A Downloaded RunPod Candidate
+
+Do not manually copy files into `model-artifact/current`. Use the promotion helper so the gate report and candidate directory are validated before the local runtime artifact is swapped.
+
+```bash
+script/ai/promote_runpod_candidate /path/to/downloaded-results
+```
+
+Promotion flow:
+
+1. Confirm `<results>/local_promotion_gate.json` exists and has `passed=true`.
+2. Detect exactly one candidate artifact directory under the downloaded root.
+3. Validate that the gate report `candidate_path` matches the detected candidate directory name.
+4. Atomically replace `model-artifact/current` with the candidate runtime files (`weights.json`, `metadata.json`, `arena_report.json`).
+
+Important:
+
+- `run_manifest.json` and the root-level comparison/regression reports stay in the downloaded result tree for audit/debugging; they are not copied into `model-artifact/current`.
+- Do not touch `model-artifact/current` from an unvalidated RunPod download.
+- If the promotion helper rejects the tree, fix the result contract or rerun the lane; do not bypass the helper.
+
+## Phase 2 Ablation Workflow
+
+Use the ablation runner against a required parent artifact from a completed stronger-lane result tree. The parent artifact input is the baseline candidate directory that each variant is compared against.
+
+Runnable example:
+
+```bash
+script/ai/run_local_superhuman_phase2_ablation --variant replay_balanced --parent-artifact tmp/runpod_results_partial/aggressive-v3-superhuman-iter1
+```
+
+Initial variants run in this order:
+
+1. `replay_balanced`
+2. `selfplay_only`
+3. `phase1_arch`
+
+Why this order:
+
+- `replay_balanced` is the smallest phase 2 change, so it gives the fastest read on whether replay mix alone explains the gain.
+- `selfplay_only` isolates the self-play contribution after that, without also changing architecture.
+- `phase1_arch` runs last because it is the broadest fallback comparison and is least specific to phase 2 behavior.
+
+After each run, review these outputs before deciding whether the variant is stronger than its parent:
+
+- `tmp/local_superhuman_phase2_ablation/<variant>/local_promotion_gate.json`
+- `tmp/local_superhuman_phase2_ablation/<variant>/current_regressions.json`
+- `tmp/local_superhuman_phase2_ablation/<variant>/parent_regressions.json`
+
+The runner also prints the exact generated output paths in its final JSON payload.
+
+Promotion stays blocked unless `script/ai/local_promotion_gate` passes. No ablation artifact should be promoted unless `script/ai/local_promotion_gate` passes.
+
+## Opponent-Pool Phase-1 Comparison Lane
+
+Use the existing script-based launcher for the phase-1 opponent-pool comparison lane. Do not invent a separate runner or edit pipeline commands by hand.
+
+Runnable dry-run example:
+
+```bash
+RUN_ID="opponent-pool-$(date +%Y%m%d-%H%M%S)"
+
+script/ai/run_local_superhuman_strength_experiment \
+  --run-id "$RUN_ID" \
+  --dry-run
+```
+
+What the launcher prepares:
+
+- `opponent_pool_path`: generated checkpoint pool JSON used by lane B phase-1 self-play via `--opponent-pool-config`
+- `stage1_config_path`: generated one-iteration phase-1 config for the balanced stage-1 run
+- `stage2_config_path`: generated one-iteration phase-2 config for the balanced stage-2 follow-up run
+
+The script prints a JSON summary. Inspect these fields before running the real lane:
+
+- `opponent_pool_path`
+- `stage1_config_path`
+- `stage2_config_path`
+- `lane_b_report_path`
+- `lane_b_stage1_command`
+- `lane_b_stage2_command`
+- `lane_b_gate_command`
+
+Lane B evaluation flow:
+
+1. Run `script/ai/local_promotion_gate` using the generated lane-B gate command to write `lane_b_report_path`.
+2. If you want a direct regression diff against the current artifact, run `script/ai/compare_superhuman_regressions` with `--baseline-artifact model-artifact/current` and `--candidate-artifact <lane-b-candidate-dir>`.
+
+Notes:
+
+- `script/ai/local_promotion_gate` remains the promotion decision source of truth.
+- `script/ai/compare_superhuman_regressions` is for inspecting regression deltas; it does not replace the promotion gate.
+- Keep the documented flow aligned with `script/ai/run_local_superhuman_strength_experiment` output fields and generated commands.
 
 ## Run Triage (Copy/Paste Checklist)
 
@@ -146,40 +247,14 @@ PY
 .venv/bin/python ml/alphazero_lite/pipeline.py --config "$TMP_CONFIG"
 ```
 
-2) Opponent-pool lane (introduce checkpoint-pool diversity in self-play)
+2) Opponent-pool lane (use the script-based phase-1 comparison flow above)
 
 ```bash
 RUN_ID="opponent-pool-$(date +%Y%m%d-%H%M%S)"
-POOL_JSON="/tmp/${RUN_ID}-opponent-pool.json"
-TMP_CONFIG="/tmp/${RUN_ID}-phase1-opponent-pool.json"
 
-POOL_JSON="$POOL_JSON" TMP_CONFIG="$TMP_CONFIG" .venv/bin/python - <<'PY'
-import json
-import os
-from pathlib import Path
-
-pool_path = Path(os.environ["POOL_JSON"])
-candidate_pool = [
-    "model-artifact/current/model.npz",
-    "storage/ai/alphazero_lite/current/model.npz",
-]
-checkpoints = [str(Path(path).resolve()) for path in candidate_pool if Path(path).exists()]
-if not checkpoints:
-    raise SystemExit("no model.npz found for opponent pool; export one checkpoint first")
-pool_path.write_text(json.dumps({"checkpoints": checkpoints}, indent=2), encoding="utf-8")
-
-src = Path("ml/alphazero_lite/configs/aggressive_v3_superhuman_phase1.json")
-cfg = json.loads(src.read_text(encoding="utf-8"))
-for step in cfg.get("steps", []):
-    if step.get("name") == "self_play":
-        cmd = step.get("command", [])
-        if "--opponent-pool-config" not in cmd:
-            cmd.extend(["--opponent-pool-config", os.environ["POOL_JSON"]])
-        step["command"] = cmd
-Path(os.environ["TMP_CONFIG"]).write_text(json.dumps(cfg, indent=2), encoding="utf-8")
-PY
-
-.venv/bin/python ml/alphazero_lite/pipeline.py --config "$TMP_CONFIG"
+script/ai/run_local_superhuman_strength_experiment \
+  --run-id "$RUN_ID" \
+  --dry-run
 ```
 
 3) Tablebase-assisted lane (validate integration path and tactical upside)

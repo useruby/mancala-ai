@@ -1039,6 +1039,27 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn("must be a non-negative integer", result.stderr)
 
+    def test_runpod_training_experiment_dry_run_bundles_full_app_models_for_regression_gate(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_training_experiment",
+                "--config-path",
+                "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase1.json",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+
+        self.assertIn("app/models", plan["include_paths"])
+
 
 class RunpodExperimentCleanupTest(unittest.TestCase):
     def test_inspect_downloaded_results_falls_back_to_manifest_when_aggregate_summary_is_invalid(self):

@@ -1,6 +1,7 @@
 import json
 import importlib.machinery
 import importlib.util
+import os
 import subprocess
 import sys
 import tempfile
@@ -8,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from ml.alphazero_lite.pipeline import load_config, render_command
+from ml.alphazero_lite.pipeline import environment_report, load_config, render_command
 
 
 class PipelineScriptTest(unittest.TestCase):
@@ -30,6 +31,11 @@ class PipelineScriptTest(unittest.TestCase):
     V3_STRONGER_BOOTSTRAP_MORE_DATA_LOCAL_CONFIG = "aggressive_v3_stronger_bootstrap_more_data_local.json"
     V3_SUPERHUMAN_PHASE1_CONFIG = "aggressive_v3_superhuman_phase1.json"
     V3_SUPERHUMAN_PHASE2_CONFIG = "aggressive_v3_superhuman_phase2.json"
+    V3_SUPERHUMAN_PHASE2_ABLATION_REPLAY_BALANCED_CONFIG = (
+        "aggressive_v3_superhuman_phase2_ablation_replay_balanced.json"
+    )
+    V3_SUPERHUMAN_PHASE2_ABLATION_SELFPLAY_ONLY_CONFIG = "aggressive_v3_superhuman_phase2_ablation_selfplay_only.json"
+    V3_SUPERHUMAN_PHASE2_ABLATION_PHASE1_ARCH_CONFIG = "aggressive_v3_superhuman_phase2_ablation_phase1_arch.json"
     HYBRID_VALUE_TARGET_LOCAL_CONFIG = "aggressive_v3_hybrid_value_target_local.json"
     PHASE_AWARE_VALUE_TARGET_LOCAL_CONFIG = "aggressive_v3_phase_aware_value_target_local.json"
     V2_LOCAL_CONFIG_EXPECTATIONS = {
@@ -77,6 +83,37 @@ class PipelineScriptTest(unittest.TestCase):
                     return command
 
         raise AssertionError(f"No bash block found containing any of: {containing}")
+
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
+    def test_executable_python_skips_non_executable_candidates(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        executable_fallback = candidates[1]
+
+        def fake_exists(self):
+            return self in candidates
+
+        def fake_is_file(self):
+            return self in candidates
+
+        def fake_access(path, mode):
+            return path == executable_fallback and mode == os.X_OK
+
+        with mock.patch.object(Path, "exists", fake_exists), mock.patch.object(Path, "is_file", fake_is_file), mock.patch("os.access", side_effect=fake_access):
+            self.assertEqual(str(executable_fallback), self.executable_python())
 
     def load_local_promotion_gate_module(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -279,6 +316,139 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual("completed", manifest["status"])
             self.assertEqual([], manifest["gate_failures"])
 
+    def test_pipeline_writes_environment_report(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="pipeline-env-report-") as tmp:
+            run_id = "env-report-smoke"
+            config_path = Path(tmp) / "config.json"
+            versions_dir = Path(tmp) / "versions"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": run_id,
+                        "versions_dir": str(versions_dir),
+                        "seed": 42,
+                        "iterations": 1,
+                        "steps": [
+                            {
+                                "name": "first_step",
+                                "command": ["python3", "-c", "print('ok')"],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(repo_root / "ml/alphazero_lite/pipeline.py"),
+                    "--config",
+                    str(config_path),
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            environment_report = json.loads(
+                (versions_dir / f"{run_id}-iter1" / "environment.json").read_text(encoding="utf-8")
+            )
+            self.assertIn("python", environment_report)
+            self.assertIn("platform", environment_report)
+            self.assertIn("numpy", environment_report)
+            self.assertIn("torch", environment_report)
+            self.assertIn("env", environment_report)
+
+            self.assertIn("executable", environment_report["python"])
+            self.assertIn("version", environment_report["python"])
+            self.assertIn("implementation", environment_report["python"])
+
+            self.assertIn("platform", environment_report["platform"])
+            self.assertIn("machine", environment_report["platform"])
+            self.assertIn("processor", environment_report["platform"])
+            self.assertIn("system", environment_report["platform"])
+            self.assertIn("release", environment_report["platform"])
+            self.assertIn("version", environment_report["platform"])
+            self.assertIn("node", environment_report["platform"])
+
+            self.assertIn("version", environment_report["numpy"])
+            self.assertIn("build", environment_report["numpy"])
+
+            self.assertIn("version", environment_report["torch"])
+            self.assertIn("cuda", environment_report["torch"])
+
+            self.assertIn("CUDA_VISIBLE_DEVICES", environment_report["env"])
+            self.assertIn("OMP_NUM_THREADS", environment_report["env"])
+            self.assertIn("MKL_NUM_THREADS", environment_report["env"])
+            self.assertIn("OPENBLAS_NUM_THREADS", environment_report["env"])
+            self.assertIn("PYTHONHASHSEED", environment_report["env"])
+
+    def test_environment_report_handles_broken_torch_import(self):
+        original_import = __import__
+
+        def broken_torch_import(name, globals=None, locals=None, fromlist=(), level=0):
+            if name == "torch":
+                raise OSError("broken torch loader")
+
+            return original_import(name, globals, locals, fromlist, level)
+
+        with mock.patch("builtins.__import__", side_effect=broken_torch_import):
+            report = environment_report()
+
+        self.assertEqual(None, report["torch"]["version"])
+        self.assertEqual(
+            {
+                "available": None,
+                "version": None,
+                "device_count": None,
+                "cudnn_version": None,
+            },
+            report["torch"]["cuda"],
+        )
+
+    def test_environment_report_handles_broken_numpy_import(self):
+        original_import = __import__
+
+        def broken_numpy_import(name, globals=None, locals=None, fromlist=(), level=0):
+            if name == "numpy":
+                raise OSError("broken numpy loader")
+
+            return original_import(name, globals, locals, fromlist, level)
+
+        with mock.patch("builtins.__import__", side_effect=broken_numpy_import):
+            report = environment_report()
+
+        self.assertEqual({"version": None, "build": {}}, report["numpy"])
+
+    def test_environment_report_skips_cuda_counts_when_cuda_is_unavailable(self):
+        unavailable_cuda = mock.Mock()
+        unavailable_cuda.is_available.return_value = False
+        unavailable_cuda.device_count.side_effect = AssertionError("device_count should not be called")
+
+        cudnn = mock.Mock()
+        cudnn.version.side_effect = AssertionError("cudnn.version should not be called")
+
+        torch = mock.Mock(
+            __version__="test-torch",
+            cuda=unavailable_cuda,
+            version=mock.Mock(cuda="12.8"),
+            backends=mock.Mock(cudnn=cudnn),
+        )
+
+        with mock.patch.dict(sys.modules, {"torch": torch}):
+            report = environment_report()
+
+        self.assertEqual("test-torch", report["torch"]["version"])
+        self.assertEqual(False, report["torch"]["cuda"]["available"])
+        self.assertEqual("12.8", report["torch"]["cuda"]["version"])
+        self.assertEqual(None, report["torch"]["cuda"]["device_count"])
+        self.assertEqual(None, report["torch"]["cuda"]["cudnn_version"])
+
     def test_superhuman_configs_use_current_baseline(self):
         phase1 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE1_CONFIG)
         phase2 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_CONFIG)
@@ -319,6 +489,133 @@ class PipelineScriptTest(unittest.TestCase):
         self.assertEqual("sharpened", self.command_flag_value(phase1_steps["train"]["command"], "--policy-target-mode"))
         self.assertEqual("sharpened", self.command_flag_value(phase1_steps["train"]["command"], "--value-target-mode"))
         self.assertIn("mcts_bootstrap_dataset", phase2_steps)
+
+    def test_superhuman_phase2_ablation_configs_pin_expected_train_knobs(self):
+        phase2 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_CONFIG)
+        replay_balanced = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_ABLATION_REPLAY_BALANCED_CONFIG)
+        selfplay_only = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_ABLATION_SELFPLAY_ONLY_CONFIG)
+        phase1_arch = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_ABLATION_PHASE1_ARCH_CONFIG)
+
+        phase2_train = self.config_steps_by_name(phase2)["train"]["command"]
+        def replace_flag_value(command: list[str], flag: str, value: str) -> list[str]:
+            updated = list(command)
+            updated[updated.index(flag) + 1] = value
+            return updated
+
+        self.assertEqual(
+            "{replay_data},{versions_dir}/{run_id}-iter1/mcts_bootstrap.jsonl",
+            self.command_flag_value(self.config_steps_by_name(replay_balanced)["train"]["command"], "--data-files"),
+        )
+        self.assertEqual(
+            "{replay_weights},2",
+            self.command_flag_value(self.config_steps_by_name(replay_balanced)["train"]["command"], "--replay-weights"),
+        )
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--epochs"),
+            self.command_flag_value(self.config_steps_by_name(replay_balanced)["train"]["command"], "--epochs"),
+        )
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--hidden-sizes"),
+            self.command_flag_value(self.config_steps_by_name(replay_balanced)["train"]["command"], "--hidden-sizes"),
+        )
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--save-top-k"),
+            self.command_flag_value(self.config_steps_by_name(replay_balanced)["train"]["command"], "--save-top-k"),
+        )
+        self.assertEqual(
+            replace_flag_value(phase2_train, "--replay-weights", "{replay_weights},2"),
+            self.config_steps_by_name(replay_balanced)["train"]["command"],
+        )
+        self.assertEqual(
+            "aggressive-v3-superhuman-ablation-replay-balanced",
+            replay_balanced["run_id"],
+        )
+        self.assertEqual(
+            "{versions_dir}/{run_id}-iter1/mcts_bootstrap.jsonl",
+            self.command_flag_value(self.config_steps_by_name(replay_balanced)["mcts_bootstrap_dataset"]["command"], "--out"),
+        )
+
+        self.assertEqual(
+            "{replay_data}",
+            self.command_flag_value(self.config_steps_by_name(selfplay_only)["train"]["command"], "--data-files"),
+        )
+        self.assertEqual(
+            "{replay_weights}",
+            self.command_flag_value(self.config_steps_by_name(selfplay_only)["train"]["command"], "--replay-weights"),
+        )
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--epochs"),
+            self.command_flag_value(self.config_steps_by_name(selfplay_only)["train"]["command"], "--epochs"),
+        )
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--hidden-sizes"),
+            self.command_flag_value(self.config_steps_by_name(selfplay_only)["train"]["command"], "--hidden-sizes"),
+        )
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--save-top-k"),
+            self.command_flag_value(self.config_steps_by_name(selfplay_only)["train"]["command"], "--save-top-k"),
+        )
+        self.assertEqual(
+            replace_flag_value(
+                replace_flag_value(phase2_train, "--data-files", "{replay_data}"),
+                "--replay-weights",
+                "{replay_weights}"
+            ),
+            self.config_steps_by_name(selfplay_only)["train"]["command"],
+        )
+        self.assertEqual(
+            "aggressive-v3-superhuman-ablation-selfplay-only",
+            selfplay_only["run_id"],
+        )
+        self.assertEqual(
+            "{versions_dir}/{run_id}-iter1/mcts_bootstrap.jsonl",
+            self.command_flag_value(self.config_steps_by_name(selfplay_only)["mcts_bootstrap_dataset"]["command"], "--out"),
+        )
+
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--data-files"),
+            self.command_flag_value(self.config_steps_by_name(phase1_arch)["train"]["command"], "--data-files"),
+        )
+        self.assertEqual(
+            self.command_flag_value(phase2_train, "--replay-weights"),
+            self.command_flag_value(self.config_steps_by_name(phase1_arch)["train"]["command"], "--replay-weights"),
+        )
+        self.assertEqual(
+            "12",
+            self.command_flag_value(self.config_steps_by_name(phase1_arch)["train"]["command"], "--epochs"),
+        )
+        self.assertEqual(
+            "128,3",
+            self.command_flag_value(self.config_steps_by_name(phase1_arch)["train"]["command"], "--hidden-sizes"),
+        )
+        self.assertEqual(
+            "3",
+            self.command_flag_value(self.config_steps_by_name(phase1_arch)["train"]["command"], "--save-top-k"),
+        )
+        self.assertEqual(
+            replace_flag_value(
+                replace_flag_value(
+                    replace_flag_value(phase2_train, "--epochs", "12"),
+                    "--hidden-sizes",
+                    "128,3"
+                ),
+                "--save-top-k",
+                "3"
+            ),
+            self.config_steps_by_name(phase1_arch)["train"]["command"],
+        )
+        self.assertEqual(
+            "aggressive-v3-superhuman-ablation-phase1-arch",
+            phase1_arch["run_id"],
+        )
+        self.assertEqual(
+            "{versions_dir}/{run_id}-iter1/mcts_bootstrap.jsonl",
+            self.command_flag_value(self.config_steps_by_name(phase1_arch)["mcts_bootstrap_dataset"]["command"], "--out"),
+        )
+        self.assertEqual(
+            3,
+            len({replay_balanced["run_id"], selfplay_only["run_id"], phase1_arch["run_id"]}),
+        )
 
     def command_flag_value(self, command: list[str], flag: str) -> str:
         return command[command.index(flag) + 1]
@@ -453,6 +750,7 @@ class PipelineScriptTest(unittest.TestCase):
         hard_report: dict | None = None,
         candidate_mcts_report: dict,
         current_mcts_report: dict,
+        regression_report: dict | None = None,
         min_arena_score: float = 0.55,
         hard_min_score: float = 0.55,
         min_arena_games: int = 120,
@@ -470,6 +768,7 @@ class PipelineScriptTest(unittest.TestCase):
             hard_report_path = tmp_path / "hard_report.json"
             candidate_mcts_report_path = tmp_path / "candidate_mcts_report.json"
             current_mcts_report_path = tmp_path / "current_mcts_report.json"
+            regression_report_path = tmp_path / "regression_report.json"
 
             candidate_path.write_text("stub", encoding="utf-8")
             arena_report_path.write_text(json.dumps(arena_report), encoding="utf-8")
@@ -477,6 +776,8 @@ class PipelineScriptTest(unittest.TestCase):
             hard_report_path.write_text(json.dumps(hard_payload), encoding="utf-8")
             candidate_mcts_report_path.write_text(json.dumps(candidate_mcts_report), encoding="utf-8")
             current_mcts_report_path.write_text(json.dumps(current_mcts_report), encoding="utf-8")
+            if regression_report is not None:
+                regression_report_path.write_text(json.dumps(regression_report), encoding="utf-8")
 
             result = subprocess.run(
                 [
@@ -505,6 +806,14 @@ class PipelineScriptTest(unittest.TestCase):
                     str(candidate_mcts_report_path),
                     "--stub-current-mcts-report",
                     str(current_mcts_report_path),
+                    *(
+                        [
+                            "--stub-regression-report",
+                            str(regression_report_path),
+                        ]
+                        if regression_report is not None
+                        else []
+                    ),
                     *(extra_args or []),
                 ],
                 cwd=repo_root,
@@ -562,6 +871,7 @@ class PipelineScriptTest(unittest.TestCase):
             hard_report_path = tmp_path / "hard_report.json"
             candidate_mcts_report_path = tmp_path / "candidate_mcts_report.json"
             current_mcts_report_path = tmp_path / "current_mcts_report.json"
+            regression_report_path = tmp_path / "regression_report.json"
 
             candidate_path.write_text("stub", encoding="utf-8")
             arena_report_path.write_text("{not-json", encoding="utf-8")
@@ -574,6 +884,7 @@ class PipelineScriptTest(unittest.TestCase):
                 json.dumps({"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}),
                 encoding="utf-8",
             )
+            regression_report_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
 
             result = subprocess.run(
                 [
@@ -590,6 +901,8 @@ class PipelineScriptTest(unittest.TestCase):
                     str(candidate_mcts_report_path),
                     "--stub-current-mcts-report",
                     str(current_mcts_report_path),
+                    "--stub-regression-report",
+                    str(regression_report_path),
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -601,6 +914,19 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertIn("invalid JSON in stub report", result.stderr)
             self.assertIn(str(arena_report_path), result.stderr)
             self.assertFalse(report_path.exists())
+
+    def test_local_promotion_gate_stub_mode_defaults_regression_report_to_passing(self):
+        result, report = self.run_local_promotion_gate_with_stub_reports(
+            arena_report={"wins": 66, "losses": 42, "draws": 12, "games_played": 120},
+            candidate_mcts_report={"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40},
+            current_mcts_report={"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40},
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        self.assertIsNotNone(report)
+        assert report is not None
+        self.assertTrue(report["passed"])
+        self.assertTrue(report["regression_report_path"].endswith("candidate_regression_suite.json"))
 
     def test_dry_run_creates_iteration_manifest(self):
         with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
@@ -623,7 +949,7 @@ class PipelineScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/pipeline.py",
                     "--config",
                     str(config_path),
@@ -692,7 +1018,7 @@ class PipelineScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/pipeline.py",
                     "--config",
                     str(config_path),
@@ -741,7 +1067,7 @@ class PipelineScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/pipeline.py",
                     "--config",
                     str(config_path),
@@ -796,7 +1122,7 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [".venv/bin/python", "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
                 cwd=Path(__file__).resolve().parents[2],
                 capture_output=True,
                 text=True,
@@ -847,7 +1173,7 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [".venv/bin/python", "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
                 cwd=Path(__file__).resolve().parents[2],
                 capture_output=True,
                 text=True,
@@ -902,7 +1228,7 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [".venv/bin/python", "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
                 cwd=Path(__file__).resolve().parents[2],
                 capture_output=True,
                 text=True,
@@ -956,7 +1282,7 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [".venv/bin/python", "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
                 cwd=Path(__file__).resolve().parents[2],
                 capture_output=True,
                 text=True,
@@ -2813,6 +3139,10 @@ class PipelineScriptTest(unittest.TestCase):
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
                 calls.append({"command": command, "cwd": cwd, "capture_output": capture_output, "text": text, "check": check})
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    out_path = Path(command[command.index("--out") + 1])
+                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
                 out_path = Path(command[command.index("--out") + 1])
                 if command[1].endswith("arena.py"):
                     payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
@@ -2837,13 +3167,14 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(4, len(calls))
+            self.assertEqual(5, len(calls))
             self.assertEqual(
                 [
                     str(tmp_path / "candidate_vs_current_arena.json"),
                     str(tmp_path / "candidate_vs_hard_arena.json"),
                     str(tmp_path / "candidate_vs_mcts1200.json"),
                     str(tmp_path / "current_vs_mcts1200.json"),
+                    str(tmp_path / "candidate_regression_suite.json"),
                 ],
                 [call["command"][call["command"].index("--out") + 1] for call in calls],
             )
@@ -2871,6 +3202,10 @@ class PipelineScriptTest(unittest.TestCase):
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
                 calls.append(command)
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    out_path = Path(command[command.index("--out") + 1])
+                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
                 out_path = Path(command[command.index("--out") + 1])
                 if command[1].endswith("arena.py"):
                     payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
@@ -2897,9 +3232,19 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(4, len(calls))
+            self.assertEqual(5, len(calls))
 
             for command in calls:
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    self.assertIn("--fpu-mode", command)
+                    self.assertIn("parent_q", command)
+                    self.assertIn("--reuse-subtree", command)
+                    self.assertIn("--normalize-values", command)
+                    self.assertIn("--root-policy-mode", command)
+                    self.assertIn("deterministic", command)
+                    self.assertIn("--tactical-root-bias", command)
+                    self.assertIn("0.1", command)
+                    continue
                 if command[1].endswith("arena.py") and "candidate_vs_hard_arena" not in command:
                     self.assertIn("--fpu-mode", command)
                     self.assertIn("parent_q", command)
@@ -2909,6 +3254,100 @@ class PipelineScriptTest(unittest.TestCase):
                     self.assertIn("deterministic", command)
                     self.assertIn("--tactical-root-bias", command)
                     self.assertIn("0.1", command)
+
+    def test_local_promotion_gate_accepts_phase1_config_without_phase2_search_steps(self):
+        module = self.load_local_promotion_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="local-promotion-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "candidate"
+            current_path = tmp_path / "current"
+            report_path = tmp_path / "promotion_report.json"
+
+            candidate_path.mkdir()
+            current_path.mkdir()
+
+            calls = []
+
+            def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
+                calls.append(command)
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    out_path = Path(command[command.index("--out") + 1])
+                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+                out_path = Path(command[command.index("--out") + 1])
+                if command[1].endswith("arena.py"):
+                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
+                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
+                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
+                else:
+                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
+                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+
+            argv = [
+                str(module.__file__),
+                "--candidate-path",
+                str(candidate_path),
+                "--current-path",
+                str(current_path),
+                "--config-path",
+                "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase1.json",
+                "--out",
+                str(report_path),
+            ]
+
+            with mock.patch.object(sys, "argv", argv), mock.patch.object(module.subprocess, "run", side_effect=fake_run):
+                exit_code = module.main()
+
+            self.assertEqual(0, exit_code)
+            self.assertEqual(5, len(calls))
+
+    def test_local_promotion_gate_ignores_stale_regression_report_when_command_fails(self):
+        module = self.load_local_promotion_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="local-promotion-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "candidate"
+            current_path = tmp_path / "current"
+            report_path = tmp_path / "promotion_report.json"
+
+            candidate_path.mkdir()
+            current_path.mkdir()
+
+            stale_regression_path = tmp_path / "candidate_regression_suite.json"
+            stale_regression_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+
+            def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
+                out_path = Path(command[command.index("--out") + 1])
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    self.assertEqual(stale_regression_path, out_path)
+                    return subprocess.CompletedProcess(command, 1, stdout="", stderr="regression exploded")
+                if command[1].endswith("arena.py"):
+                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
+                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
+                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
+                else:
+                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
+                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+
+            argv = [
+                str(module.__file__),
+                "--candidate-path",
+                str(candidate_path),
+                "--current-path",
+                str(current_path),
+                "--out",
+                str(report_path),
+            ]
+
+            with mock.patch.object(sys, "argv", argv), mock.patch.object(module.subprocess, "run", side_effect=fake_run):
+                with self.assertRaises(SystemExit) as exc:
+                    module.main()
+
+            self.assertIn("check_superhuman_regressions failed", str(exc.exception))
+            self.assertIn("regression exploded", str(exc.exception))
 
     def test_local_promotion_gate_returns_nonzero_when_real_screening_fails(self):
         module = self.load_local_promotion_gate_module()
@@ -2923,6 +3362,10 @@ class PipelineScriptTest(unittest.TestCase):
             current_path.mkdir()
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    out_path = Path(command[command.index("--out") + 1])
+                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
                 out_path = Path(command[command.index("--out") + 1])
                 if command[1].endswith("arena.py"):
                     payload = {"wins": 54, "losses": 60, "draws": 6, "games_played": 120}
@@ -2970,6 +3413,10 @@ class PipelineScriptTest(unittest.TestCase):
 
                 def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
                     calls.append(command)
+                    if Path(command[0]).name == "check_superhuman_regressions":
+                        out_path = Path(command[command.index("--out") + 1])
+                        out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+                        return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
                     out_path = Path(command[command.index("--out") + 1])
                     script_name = Path(command[1]).name
                     if script_name == failing_script:

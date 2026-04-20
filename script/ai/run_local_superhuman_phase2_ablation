@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+import argparse
+import shutil
+import json
+import os
+import subprocess
+import sys
+import stat
+from pathlib import Path
+
+
+VARIANT_CONFIGS = {
+    "replay_balanced": "aggressive_v3_superhuman_phase2_ablation_replay_balanced.json",
+    "selfplay_only": "aggressive_v3_superhuman_phase2_ablation_selfplay_only.json",
+    "phase1_arch": "aggressive_v3_superhuman_phase2_ablation_phase1_arch.json",
+}
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def python_executable() -> str:
+    if os.environ.get("AZLITE_EXPERIMENT_PYTHON"):
+        return os.environ["AZLITE_EXPERIMENT_PYTHON"]
+
+    candidates = [
+        repo_root() / ".venv/bin/python",
+        repo_root().parents[1] / ".venv/bin/python",
+    ]
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK) and candidate.stat().st_mode & stat.S_IXUSR:
+            return str(candidate)
+
+    return sys.executable
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--variant", choices=sorted(VARIANT_CONFIGS), required=True)
+    parser.add_argument("--parent-artifact", required=True)
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args()
+
+
+def load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def build_run_paths(*, root: Path, variant: str, run_id: str, iteration: int) -> dict[str, Path]:
+    base_dir = root / "tmp/local_superhuman_phase2_ablation" / variant
+    versions_dir = base_dir / "versions"
+    candidate_path = versions_dir / f"{run_id}-iter{iteration}"
+    return {
+        "base_dir": base_dir,
+        "versions_dir": versions_dir,
+        "config_path": base_dir / "pipeline_config.json",
+        "parent_replay_path": versions_dir / f"{run_id}-iter{iteration - 1}" / "self_play.jsonl",
+        "candidate_path": candidate_path,
+        "gate_report_path": base_dir / "local_promotion_gate.json",
+        "current_comparison_path": base_dir / "current_regressions.json",
+        "parent_comparison_path": base_dir / "parent_regressions.json",
+    }
+
+
+def write_runtime_config(*, source_config_path: Path, destination_path: Path, versions_dir: Path, parent_artifact: Path, python_bin: str) -> dict:
+    config = load_json(source_config_path)
+    config["versions_dir"] = str(versions_dir)
+    config["current_path"] = str(parent_artifact)
+    for step in config.get("steps", []):
+        command = step.get("command")
+        if isinstance(command, list) and command and command[0] == ".venv/bin/python":
+            step["command"] = [python_bin, *command[1:]]
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+    destination_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+    return config
+
+
+def build_commands(*, root: Path, python_bin: str, config_path: Path, candidate_path: Path, gate_report_path: Path, current_comparison_path: Path, parent_comparison_path: Path, parent_artifact: Path) -> dict[str, list[str]]:
+    comparison_script = str(root / "script/ai/compare_superhuman_regressions")
+    return {
+        "pipeline_command": [python_bin, "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--iterations", "1"],
+        "gate_command": [
+            python_bin,
+            "script/ai/local_promotion_gate",
+            "--candidate-path",
+            str(candidate_path),
+            "--current-path",
+            str(root / "model-artifact/current"),
+            "--hard-path",
+            str(root / "model-artifact/current"),
+            "--config-path",
+            str(config_path),
+            "--out",
+            str(gate_report_path),
+        ],
+        "current_comparison_command": [
+            comparison_script,
+            "--baseline-artifact",
+            str(root / "model-artifact/current"),
+            "--candidate-artifact",
+            str(candidate_path),
+            "--out",
+            str(current_comparison_path),
+        ],
+        "parent_comparison_command": [
+            comparison_script,
+            "--baseline-artifact",
+            str(parent_artifact),
+            "--candidate-artifact",
+            str(candidate_path),
+            "--out",
+            str(parent_comparison_path),
+        ],
+    }
+
+
+def run_command(command: list[str], *, cwd: Path) -> None:
+    result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, check=False)
+    if result.stdout:
+        print(result.stdout, file=sys.stderr, end="" if result.stdout.endswith("\n") else "\n")
+    if result.stderr:
+        print(result.stderr, file=sys.stderr, end="" if result.stderr.endswith("\n") else "\n")
+    if result.returncode != 0:
+        raise SystemExit(result.returncode)
+
+
+def seed_parent_replay(*, parent_artifact: Path, parent_replay_path: Path) -> None:
+    source_replay = parent_artifact / "self_play.jsonl"
+    if not source_replay.exists():
+        return
+
+    parent_replay_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_replay, parent_replay_path)
+
+
+def main() -> int:
+    args = parse_args()
+    root = repo_root()
+    parent_artifact = Path(args.parent_artifact)
+    if not parent_artifact.is_absolute():
+        parent_artifact = root / parent_artifact
+    if not parent_artifact.exists():
+        raise SystemExit(f"parent artifact does not exist: {parent_artifact}")
+
+    source_config_path = root / "ml/alphazero_lite/configs" / VARIANT_CONFIGS[args.variant]
+    python_bin = python_executable()
+    source_config = load_json(source_config_path)
+    iteration = int(source_config.get("start_iteration", 1))
+    run_id = source_config["run_id"]
+    paths = build_run_paths(root=root, variant=args.variant, run_id=run_id, iteration=iteration)
+    write_runtime_config(
+        source_config_path=source_config_path,
+        destination_path=paths["config_path"],
+        versions_dir=paths["versions_dir"],
+        parent_artifact=parent_artifact,
+        python_bin=python_bin,
+    )
+    commands = build_commands(
+        root=root,
+        python_bin=python_bin,
+        config_path=paths["config_path"],
+        candidate_path=paths["candidate_path"],
+        gate_report_path=paths["gate_report_path"],
+        current_comparison_path=paths["current_comparison_path"],
+        parent_comparison_path=paths["parent_comparison_path"],
+        parent_artifact=parent_artifact,
+    )
+
+    if not args.dry_run:
+        seed_parent_replay(parent_artifact=parent_artifact, parent_replay_path=paths["parent_replay_path"])
+        run_command(commands["pipeline_command"], cwd=root)
+        run_command(commands["gate_command"], cwd=root)
+        run_command(commands["current_comparison_command"], cwd=root)
+        run_command(commands["parent_comparison_command"], cwd=root)
+
+    payload = {
+        "variant": args.variant,
+        "config_path": str(paths["config_path"]),
+        "pipeline_command": commands["pipeline_command"],
+        "gate_command": commands["gate_command"],
+        "current_comparison_command": commands["current_comparison_command"],
+        "parent_comparison_command": commands["parent_comparison_command"],
+    }
+    if not args.dry_run:
+        payload.update(
+            {
+                "candidate_path": str(paths["candidate_path"]),
+                "gate_report_path": str(paths["gate_report_path"]),
+                "current_comparison_path": str(paths["current_comparison_path"]),
+                "parent_comparison_path": str(paths["parent_comparison_path"]),
+            }
+        )
+
+    print(json.dumps(payload))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

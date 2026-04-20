@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require "optparse"
+require_relative "../../config/environment"
+
+options = {
+  positions: Rails.root.join("test/fixtures/ai/superhuman_regression_positions.json").to_s,
+  artifact: AI::AlphaZeroLite::Chooser::ARTIFACT_PATH.to_s,
+  simulations: nil,
+  out: nil,
+  search_options: {}
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: script/ai/check_superhuman_regressions [--positions PATH] [--artifact PATH] [--simulations N]"
+
+  opts.on("--positions PATH") { |value| options[:positions] = value }
+  opts.on("--artifact PATH") { |value| options[:artifact] = value }
+  opts.on("--simulations N", Integer) { |value| options[:simulations] = value }
+  opts.on("--out PATH") { |value| options[:out] = value }
+  opts.on("--fpu-mode VALUE") { |value| options[:search_options][:fpu_mode] = value.to_sym }
+  opts.on("--reuse-subtree") { options[:search_options][:reuse_subtree] = true }
+  opts.on("--no-reuse-subtree") { options[:search_options][:reuse_subtree] = false }
+  opts.on("--normalize-values") { options[:search_options][:normalize_values] = true }
+  opts.on("--no-normalize-values") { options[:search_options][:normalize_values] = false }
+  opts.on("--root-policy-mode VALUE") { |value| options[:search_options][:root_policy_mode] = value.to_sym }
+  opts.on("--tactical-root-bias VALUE", Float) { |value| options[:search_options][:tactical_root_bias] = value }
+end
+
+parser.parse!(ARGV)
+
+results = AI::AlphaZeroLite::RegressionSuite.evaluate_positions(
+  path: options[:positions],
+  artifact_path: options[:artifact],
+  simulations: options[:simulations],
+  search_options: options[:search_options].empty? ? nil : options[:search_options]
+)
+
+passed = results.any? && results.all? { |result| result.fetch(:passed) }
+payload = JSON.pretty_generate(
+  passed: passed,
+  artifact_path: options[:artifact],
+  positions_path: options[:positions],
+  results: results
+)
+
+Pathname(options[:out]).write(payload) if options[:out]
+puts payload
+
+exit(passed ? 0 : 1)

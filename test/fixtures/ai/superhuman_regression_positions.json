@@ -1,0 +1,17 @@
+[
+  {
+    "id": "missed_capture_f67bd4k0_move_28",
+    "description": "Bot should prefer the immediate capture from pit B over the extra-turn line from pit F.",
+    "state": {
+      "player_pits": [1, 8, 0, 1, 1, 0],
+      "opponent_pits": [1, 3, 5, 0, 0, 1],
+      "player_store": 20,
+      "opponent_store": 7,
+      "current_player": 1
+    },
+    "expected_move": 1,
+    "acceptable_moves": [1],
+    "token": "f67bd4k0",
+    "move_number": 28
+  }
+]
