@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+
+DEFAULT_OUT = "tmp/policy_value_ablation/report.json"
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def python_executable() -> str:
+    if os.environ.get("AZLITE_EXPERIMENT_PYTHON"):
+        return os.environ["AZLITE_EXPERIMENT_PYTHON"]
+
+    candidates = [
+        repo_root() / ".venv/bin/python",
+        repo_root().parents[1] / ".venv/bin/python",
+    ]
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
+    return sys.executable
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--out", default=DEFAULT_OUT)
+    return parser.parse_args()
+
+
+def build_command(*, python_bin: str, out_path: str) -> list[str]:
+    return [
+        python_bin,
+        "ml/alphazero_lite/run_search_ablation.py",
+        "--artifact-path",
+        "model-artifact/current",
+        "--suite",
+        "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+        "--budgets",
+        "128,384,1200",
+        "--out",
+        out_path,
+    ]
+
+
+def main() -> int:
+    args = parse_args()
+    root = repo_root()
+    command = build_command(python_bin=python_executable(), out_path=args.out)
+
+    if args.dry_run:
+        print(json.dumps({"command": command}))
+        return 0
+
+    result = subprocess.run(command, cwd=root, check=False)
+    return result.returncode
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

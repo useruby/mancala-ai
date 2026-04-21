@@ -2,9 +2,11 @@ import json
 import os
 import random
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
@@ -12,6 +14,40 @@ from ml.alphazero_lite import self_play
 
 
 class BenchmarkScriptTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
+    def test_executable_python_skips_non_executable_candidates(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        executable_fallback = candidates[1]
+
+        def fake_is_file(self):
+            return self in candidates
+
+        def fake_access(path, mode):
+            return path == executable_fallback and mode == os.X_OK
+
+        with mock.patch.object(Path, "is_file", fake_is_file), mock.patch("os.access", side_effect=fake_access):
+            self.assertEqual(str(executable_fallback), self.executable_python())
+
+    def test_executable_python_falls_back_to_sys_executable(self):
+        expected = __import__("sys").executable
+
+        with mock.patch.object(Path, "is_file", return_value=False):
+            self.assertEqual(expected, self.executable_python())
+
     def seeded_game(self):
         return self_play.KalahGame.from_state(
             {
@@ -205,7 +241,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "sanity",
@@ -240,7 +276,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "sanity",
@@ -286,7 +322,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "sanity",
@@ -344,7 +380,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -416,7 +452,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -470,7 +506,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             mcts_result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/mcts1200_baseline.py",
                     "--challenger-path",
                     "storage/ai/alphazero_lite/current",
@@ -498,7 +534,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -555,7 +591,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             mcts_result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/mcts1200_baseline.py",
                     "--challenger-path",
                     "storage/ai/alphazero_lite/current",
@@ -583,7 +619,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -668,7 +704,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -750,7 +786,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -832,7 +868,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -902,7 +938,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -960,7 +996,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -1018,7 +1054,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -1076,7 +1112,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",
@@ -1134,7 +1170,7 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/benchmark.py",
                     "--mode",
                     "promotion",

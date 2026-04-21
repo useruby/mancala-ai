@@ -24,6 +24,7 @@ from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
 from ml.alphazero_lite.opponent_pool import load_opponent_checkpoints, sample_opponent_checkpoint
+from ml.alphazero_lite.search_ablation import build_mode_config, flat_legal_priors, neutral_value
 
 
 PITS_PER_PLAYER = 6
@@ -680,6 +681,7 @@ class PUCT:
         normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
         root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
         tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+        ablation_mode: str | None = None,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -691,6 +693,7 @@ class PUCT:
         self.normalize_values = normalize_values
         self.root_policy_mode = normalize_root_policy_mode(root_policy_mode)
         self.tactical_root_bias = float(tactical_root_bias)
+        self.ablation_mode = build_mode_config(ablation_mode or "full")
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -826,6 +829,11 @@ class PUCT:
     ) -> tuple[np.ndarray, float]:
         priors, value = self.evaluator.evaluate(node.game)
         legal_moves = node.game.possible_moves()
+
+        if not self.ablation_mode["use_policy"]:
+            priors = flat_legal_priors(legal_moves)
+        if not self.ablation_mode["use_value"]:
+            value = neutral_value()
 
         masked = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         if legal_moves:

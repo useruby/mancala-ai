@@ -8,6 +8,17 @@ from pathlib import Path
 
 
 class MCTS1200BaselineScriptTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
     def test_parse_args_uses_search_defaults_without_flags(self):
         from ml.alphazero_lite.mcts1200_baseline import parse_args
 
@@ -34,7 +45,7 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/mcts1200_baseline.py",
                     "--challenger-path",
                     str(tmp_path / "challenger"),
@@ -102,7 +113,7 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/mcts1200_baseline.py",
                     "--challenger-path",
                     str(tmp_path / "challenger"),

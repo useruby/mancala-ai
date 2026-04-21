@@ -20,6 +20,7 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.self_play import (
+    ClassicMCTS,
     PUCT,
     DEFAULT_EVAL_SEARCH_OPTIONS,
     DEFAULT_SEARCH_OPTIONS,
@@ -29,7 +30,10 @@ from ml.alphazero_lite.self_play import (
     build_search_options,
     encode_state,
     search_options_from_args,
+    value_from_classic_mcts_root,
+    visits_from_classic_mcts_root,
 )
+from ml.alphazero_lite.search_ablation import build_mode_config, neutral_value
 
 
 PITS_PER_PLAYER = 6
@@ -194,16 +198,55 @@ def choose_best_move(visits: np.ndarray, legal_moves: list[int]) -> int:
 
 def evaluate_artifact_position(
     *,
-    artifact_path: str | Path,
+    artifact_path: str | Path | None = None,
     evaluator: ArtifactEvaluator | None = None,
     state: dict,
     simulations: int,
     seed: int,
     c_puct: float,
     search_options: dict,
+    ablation_mode: str = "full",
 ) -> dict:
     game = KalahGame.from_state(state)
-    evaluator = evaluator or ArtifactEvaluator(Path(artifact_path))
+    normalized_mode = build_mode_config(ablation_mode)
+
+    if normalized_mode["use_classic"]:
+        search = ClassicMCTS(game.clone(), simulations=simulations, seed=seed)
+        root = search.search_root()
+        visits = np.asarray(visits_from_classic_mcts_root(root), dtype=np.float32)
+        legal_moves = game.possible_moves()
+        selected_move = search.root_summary()["selected_move"]
+        total_visits = float(np.sum(visits[legal_moves])) if legal_moves else 0.0
+        policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
+        if total_visits > 0:
+            policy[legal_moves] = visits[legal_moves] / total_visits
+        child_stats = []
+        for move in legal_moves:
+            child = root.children.get(move)
+            child_stats.append(
+                {
+                    "move": int(move),
+                    "visits": int(0 if child is None else child.visits),
+                    "q_value": 0.0
+                    if child is None or child.visits <= 0
+                    else float((2.0 * (child.wins / float(child.visits))) - 1.0),
+                }
+            )
+
+        return {
+            "selected_move": None if selected_move is None else int(selected_move),
+            "legal_moves": [int(move) for move in legal_moves],
+            "policy": [float(prior) for prior in policy.tolist()],
+            "value": float(value_from_classic_mcts_root(root)),
+            "child_stats": child_stats,
+            "visits": [float(visit) for visit in visits.tolist()],
+        }
+
+    if evaluator is None:
+        if artifact_path is None:
+            raise ValueError("artifact_path is required when evaluator is not provided")
+        evaluator = ArtifactEvaluator(Path(artifact_path))
+
     root_value: float | None = None
 
     class RootValueEvaluator:
@@ -211,7 +254,7 @@ def evaluate_artifact_position(
             nonlocal root_value
             policy, value = evaluator.evaluate(position_game)
             if root_value is None:
-                root_value = float(value)
+                root_value = float(value) if normalized_mode["use_value"] else neutral_value()
             return policy, value
 
     search = PUCT(
@@ -224,26 +267,33 @@ def evaluate_artifact_position(
         normalize_values=bool(search_options["normalize_values"]),
         root_policy_mode=str(search_options["root_policy_mode"]),
         tactical_root_bias=float(search_options["tactical_root_bias"]),
+        ablation_mode=str(normalized_mode["name"]),
     )
     visits, root = search.run(game)
     legal_moves = game.possible_moves()
-    selected_move = search.select_root_move(root, legal_moves) if legal_moves else None
+    if legal_moves and root is not None:
+        selected_move = search.select_root_move(root, legal_moves)
+    elif legal_moves:
+        selected_move = choose_best_move(np.asarray(visits, dtype=np.float32), legal_moves)
+    else:
+        selected_move = None
     policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
     child_stats = []
     for move in legal_moves:
-        child = root.children.get(move)
+        child = root.children.get(move) if root is not None else None
         if child is not None:
             policy[move] = float(child.prior)
         child_stats.append(
             {
                 "move": int(move),
-                "visits": int(child.visit_count if child is not None else 0),
+                "visits": int(child.visit_count if child is not None else visits[move]),
                 "q_value": float(child.q_value if child is not None and child.visit_count > 0 else 0.0),
             }
         )
 
     return {
         "selected_move": None if selected_move is None else int(selected_move),
+        "legal_moves": [int(move) for move in legal_moves],
         "policy": [float(prior) for prior in policy.tolist()],
         "value": 0.0 if root_value is None else float(root_value),
         "child_stats": child_stats,

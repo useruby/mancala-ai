@@ -1,6 +1,8 @@
 import json
+import os
 import random
 import subprocess
+import sys
 import tempfile
 import unittest
 import hashlib
@@ -24,6 +26,40 @@ def kalah_v3_feature_index(name: str) -> int:
 
 
 class SelfPlayScriptTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
+    def test_executable_python_skips_non_executable_candidates(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        executable_fallback = candidates[1]
+
+        def fake_is_file(self):
+            return self in candidates
+
+        def fake_access(path, mode):
+            return path == executable_fallback and mode == os.X_OK
+
+        with mock.patch.object(Path, "is_file", fake_is_file), mock.patch("os.access", side_effect=fake_access):
+            self.assertEqual(str(executable_fallback), self.executable_python())
+
+    def test_executable_python_falls_back_to_sys_executable(self):
+        expected = __import__("sys").executable
+
+        with mock.patch.object(Path, "is_file", return_value=False):
+            self.assertEqual(expected, self.executable_python())
+
     def _checkpoint_evaluator_test_game(self, *, current_player=0):
         return KalahGame.from_state(
             {
@@ -988,7 +1024,7 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/self_play.py",
                     "--out",
                     str(out_path),
@@ -1043,7 +1079,7 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/self_play.py",
                     "--out",
                     str(out_path),
@@ -1079,7 +1115,7 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/self_play.py",
                     "--out",
                     str(out_path),
@@ -1110,7 +1146,7 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/self_play.py",
                     "--out",
                     str(out_path),
@@ -1143,7 +1179,7 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/self_play.py",
                     "--out",
                     str(out_path),
@@ -1202,7 +1238,7 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/self_play.py",
                     "--out",
                     str(out_path),
@@ -1495,6 +1531,94 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(0.5, value)
         self.assertEqual(1, child.visit_count)
         self.assertEqual(0.5, child.value_sum)
+
+    def test_puct_value_only_mode_uses_flat_legal_priors_and_preserves_evaluator_value(self):
+        game = self._checkpoint_evaluator_test_game()
+        node = self_play.Node(game=game)
+        evaluator_priors = np.array([0.55, 0.05, 0.1, 0.1, 0.1, 0.1], dtype=np.float32)
+
+        class ScriptedEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                return evaluator_priors.copy(), 0.75
+
+        search = self_play.PUCT(
+            evaluator=ScriptedEvaluator(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+            ablation_mode="value_only",
+        )
+
+        priors, value = search._expand(
+            node,
+            apply_dirichlet=False,
+            dirichlet_alpha=None,
+            dirichlet_epsilon=0.0,
+            is_root=False,
+        )
+
+        expected_priors = np.full(6, 1.0 / 6.0, dtype=np.float32)
+        np.testing.assert_allclose(expected_priors, priors)
+        self.assertEqual(0.75, value)
+
+    def test_puct_policy_only_mode_preserves_evaluator_priors_and_uses_neutral_value(self):
+        game = self._checkpoint_evaluator_test_game()
+        node = self_play.Node(game=game)
+        evaluator_priors = np.array([0.55, 0.05, 0.1, 0.1, 0.1, 0.1], dtype=np.float32)
+
+        class ScriptedEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                return evaluator_priors.copy(), 0.75
+
+        search = self_play.PUCT(
+            evaluator=ScriptedEvaluator(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+            ablation_mode="policy_only",
+        )
+
+        priors, value = search._expand(
+            node,
+            apply_dirichlet=False,
+            dirichlet_alpha=None,
+            dirichlet_epsilon=0.0,
+            is_root=False,
+        )
+
+        np.testing.assert_allclose(evaluator_priors, priors, atol=1e-7)
+        self.assertEqual(0.0, value)
+
+    def test_puct_full_mode_preserves_evaluator_priors_and_value(self):
+        game = self._checkpoint_evaluator_test_game()
+        node = self_play.Node(game=game)
+        evaluator_priors = np.array([0.55, 0.05, 0.1, 0.1, 0.1, 0.1], dtype=np.float32)
+
+        class ScriptedEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                return evaluator_priors.copy(), 0.75
+
+        search = self_play.PUCT(
+            evaluator=ScriptedEvaluator(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+            ablation_mode="full",
+        )
+
+        priors, value = search._expand(
+            node,
+            apply_dirichlet=False,
+            dirichlet_alpha=None,
+            dirichlet_epsilon=0.0,
+            is_root=False,
+        )
+
+        np.testing.assert_allclose(evaluator_priors, priors, atol=1e-7)
+        self.assertEqual(0.75, value)
 
     def test_run_self_play_worker_sharpened_row_preserves_winner_sign_when_search_disagrees(self):
         default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=-0.4, winner=0)

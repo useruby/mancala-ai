@@ -15,6 +15,127 @@ from ml.alphazero_lite import self_play
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 
+class ArenaAblationEvaluationTest(unittest.TestCase):
+    def test_evaluate_artifact_position_passes_normalized_ablation_mode_to_puct(self):
+        captured = []
+
+        class FakePUCT:
+            def __init__(self, **kwargs):
+                captured.append(kwargs["ablation_mode"])
+
+            def run(self, game):
+                del game
+                return np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), None
+
+            def select_root_move(self, root, legal_moves):
+                del root
+                return legal_moves[0]
+
+        with mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT):
+            result = arena.evaluate_artifact_position(
+                evaluator=mock.Mock(),
+                state={
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                },
+                simulations=32,
+                seed=42,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+                ablation_mode="value_only",
+            )
+
+        self.assertEqual("value_only", captured[0])
+        self.assertEqual(0, result["selected_move"])
+        self.assertEqual([0, 1, 2, 3, 4, 5], result["legal_moves"])
+
+    def test_evaluate_artifact_position_policy_only_reports_neutral_value(self):
+        class FakeEvaluator:
+            def evaluate(self, game):
+                del game
+                return np.full(6, 1.0 / 6.0, dtype=np.float32), 0.25
+
+        summary = arena.evaluate_artifact_position(
+            artifact_path="ignored",
+            evaluator=FakeEvaluator(),
+            state={
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            },
+            simulations=0,
+            seed=42,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(),
+            ablation_mode="policy_only",
+        )
+
+        self.assertEqual(0.0, summary["value"])
+
+    def test_evaluate_artifact_position_classic_only_uses_classic_mcts(self):
+        class FakeChild:
+            def __init__(self, visits, wins):
+                self.visits = visits
+                self.wins = wins
+
+        class FakeRoot:
+            def __init__(self):
+                self.visits = 10
+                self.wins = 7.5
+                self.children = {
+                    1: FakeChild(visits=2, wins=1.0),
+                    4: FakeChild(visits=8, wins=7.0),
+                }
+
+        captured = []
+
+        class FakeClassicMCTS:
+            def __init__(self, game, *, simulations, seed):
+                del game
+                captured.append((simulations, seed))
+
+            def search_root(self):
+                return FakeRoot()
+
+            def root_summary(self):
+                return {
+                    "selected_move": 4,
+                    "child_stats": [
+                        {"move": 1, "visits": 2, "win_rate": 0.5},
+                        {"move": 4, "visits": 8, "win_rate": 0.875},
+                    ],
+                }
+
+        with mock.patch("ml.alphazero_lite.arena.PUCT", side_effect=AssertionError("classic_only should not use PUCT")), mock.patch(
+            "ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True
+        ):
+            summary = arena.evaluate_artifact_position(
+                artifact_path="ignored",
+                evaluator=mock.Mock(),
+                state={
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                },
+                simulations=64,
+                seed=17,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+                ablation_mode="classic_only",
+            )
+
+        self.assertEqual([(64, 17)], captured)
+        self.assertEqual(4, summary["selected_move"])
+        self.assertAlmostEqual(0.5, summary["value"])
+
+
 class ArenaScriptTest(unittest.TestCase):
     def executable_python(self) -> str:
         repo_root = Path(__file__).resolve().parents[2]
