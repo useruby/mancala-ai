@@ -220,6 +220,38 @@ Notes:
    - strength failures -> keep artifacts for analysis, do not promote;
    - performance failures -> profile search/inference before next lane.
 
+## Incumbent Forensic Suite
+
+Run the position-level forensic report before starting any new promotion lane:
+
+```bash
+.venv/bin/python ml/alphazero_lite/run_forensic_suite.py \
+  --suite ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json \
+  --current-artifact model-artifact/current \
+  --challenger-artifact <artifact_path> \
+  --mcts-simulations 1200 \
+  --teacher-simulations 1800 \
+  --out artifacts/incumbent_forensics.json
+```
+
+Review these fields first:
+
+- `systems.current.overall.top1_agreement`
+- `systems.current.overall.average_regret`
+- `systems.challenger.overall.top1_agreement`
+- `systems.challenger.overall.average_regret`
+- `buckets.sparse_endgame.systems.current`
+- `buckets.capture_available.systems.current`
+- `buckets.incumbent_proxy_disagreement.systems.current`
+- `buckets.incumbent_proxy_disagreement.systems.challenger`
+
+Interpretation notes:
+
+- Use `top1_agreement` as the first policy signal against the classic-MCTS teacher.
+- Use `average_regret` to distinguish close misses from catastrophic move choice errors.
+- Use `value_calibration_mae` to spot value-head drift even when top-1 policy agreement looks acceptable.
+- Start with `incumbent_proxy_disagreement` to inspect incumbent-style proxy disagreement states, then check `sparse_endgame` and `capture_available` for broader tactical and endgame regressions.
+
 ## Next 3 Experiments
 
 1) Confidence-gate-only lane (keep training/search fixed, tighten promotion confidence)

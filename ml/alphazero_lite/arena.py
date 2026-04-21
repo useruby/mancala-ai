@@ -192,6 +192,65 @@ def choose_best_move(visits: np.ndarray, legal_moves: list[int]) -> int:
     return min(best_moves)
 
 
+def evaluate_artifact_position(
+    *,
+    artifact_path: str | Path,
+    evaluator: ArtifactEvaluator | None = None,
+    state: dict,
+    simulations: int,
+    seed: int,
+    c_puct: float,
+    search_options: dict,
+) -> dict:
+    game = KalahGame.from_state(state)
+    evaluator = evaluator or ArtifactEvaluator(Path(artifact_path))
+    root_value: float | None = None
+
+    class RootValueEvaluator:
+        def evaluate(self, position_game):
+            nonlocal root_value
+            policy, value = evaluator.evaluate(position_game)
+            if root_value is None:
+                root_value = float(value)
+            return policy, value
+
+    search = PUCT(
+        evaluator=RootValueEvaluator(),
+        simulations=simulations,
+        c_puct=c_puct,
+        rng=random.Random(seed),
+        fpu_mode=str(search_options["fpu_mode"]),
+        reuse_subtree=bool(search_options["reuse_subtree"]),
+        normalize_values=bool(search_options["normalize_values"]),
+        root_policy_mode=str(search_options["root_policy_mode"]),
+        tactical_root_bias=float(search_options["tactical_root_bias"]),
+    )
+    visits, root = search.run(game)
+    legal_moves = game.possible_moves()
+    selected_move = search.select_root_move(root, legal_moves) if legal_moves else None
+    policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
+    child_stats = []
+    for move in legal_moves:
+        child = root.children.get(move)
+        if child is not None:
+            policy[move] = float(child.prior)
+        child_stats.append(
+            {
+                "move": int(move),
+                "visits": int(child.visit_count if child is not None else 0),
+                "q_value": float(child.q_value if child is not None and child.visit_count > 0 else 0.0),
+            }
+        )
+
+    return {
+        "selected_move": None if selected_move is None else int(selected_move),
+        "policy": [float(prior) for prior in policy.tolist()],
+        "value": 0.0 if root_value is None else float(root_value),
+        "child_stats": child_stats,
+        "visits": [float(visit) for visit in visits.tolist()],
+    }
+
+
 def percentile(values: list[float], percentile_value: float) -> float:
     if not values:
         return 0.0

@@ -2708,6 +2708,13 @@ class PipelineScriptTest(unittest.TestCase):
         self.assertIn("`kalah_v3`", readme)
         self.assertIn("`residual_v2`", readme)
 
+    def test_handoff_documents_forensic_suite_command(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        handoff = (repo_root / "docs/alphazero-lite-ml-handoff.md").read_text(encoding="utf-8")
+
+        self.assertIn("run_forensic_suite.py", handoff)
+        self.assertIn("incumbent_forensic_suite_v1.json", handoff)
+
     def test_bootstrap_300_config_renders_expected_dataset_step(self):
         repo_root = Path(__file__).resolve().parents[2]
         config = load_config(repo_root / "ml/alphazero_lite/configs/aggressive_v1_bootstrap_300.yaml")

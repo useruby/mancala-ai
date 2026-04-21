@@ -1,6 +1,8 @@
 import json
+import os
 import random
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,6 +16,168 @@ from ml.alphazero_lite.kalah_rules import KalahGame
 
 
 class ArenaScriptTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
+    def write_tactical_bias_artifact(self) -> Path:
+        temp_dir = tempfile.TemporaryDirectory(prefix="azlite-tactical-artifact-")
+        self.addCleanup(temp_dir.cleanup)
+        artifact_dir = Path(temp_dir.name)
+        (artifact_dir / "weights.json").write_text(
+            json.dumps(
+                {
+                    "w1": [[0.1], [0.0]] + [[0.0]] * 13,
+                    "b1": [0.0],
+                    "w2": [[1.0]],
+                    "b2": [0.0],
+                    "w_policy": [[0.2, -10.0, -10.0, -10.0, -10.0, 0.0]],
+                    "b_policy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    "w_value": [[0.0]],
+                    "b_value": [0.0],
+                }
+            ),
+            encoding="utf-8",
+        )
+        return artifact_dir
+
+    def write_basic_artifact(self) -> Path:
+        temp_dir = tempfile.TemporaryDirectory(prefix="azlite-artifact-")
+        self.addCleanup(temp_dir.cleanup)
+        artifact_dir = Path(temp_dir.name)
+        (artifact_dir / "weights.json").write_text(
+            json.dumps(
+                {
+                    "w1": [[0.1, 0.0, 0.0, 0.0], [0.0, 0.1, 0.0, 0.0]] + [[0.0, 0.0, 0.0, 0.0]] * 13,
+                    "b1": [0.0, 0.0, 0.0, 0.0],
+                    "w2": [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
+                    "b2": [0.0, 0.0, 0.0, 0.0],
+                    "w_policy": [
+                        [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                        [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+                    ],
+                    "b_policy": [0.0, 0.0, 0.0, 0.0, -1.0, -1.0],
+                    "w_value": [[0.25], [0.25], [0.25], [0.25]],
+                    "b_value": [0.0],
+                }
+            ),
+            encoding="utf-8",
+        )
+        return artifact_dir
+
+    def test_evaluate_position_returns_selected_move_priors_and_value(self):
+        artifact_dir = self.write_basic_artifact()
+        position = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+
+        summary = arena.evaluate_artifact_position(
+            artifact_path=artifact_dir,
+            state=position,
+            simulations=16,
+            seed=7,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(),
+        )
+
+        self.assertIn("selected_move", summary)
+        self.assertIn("policy", summary)
+        self.assertIn("value", summary)
+        self.assertIn("child_stats", summary)
+
+    def test_evaluate_position_policy_matches_tactical_root_bias_adjusted_root(self):
+        artifact_dir = self.write_tactical_bias_artifact()
+        position = {
+            "player_pits": [1, 0, 0, 0, 0, 2],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+
+        with mock.patch("ml.alphazero_lite.arena.encode_state", return_value=[1.0] * 15):
+            summary = arena.evaluate_artifact_position(
+                artifact_path=artifact_dir,
+                state=position,
+                simulations=0,
+                seed=7,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(root_policy_mode="deterministic", tactical_root_bias=2.0),
+            )
+
+        self.assertEqual(0, summary["selected_move"])
+        self.assertEqual(summary["selected_move"], int(np.argmax(summary["policy"])))
+        self.assertGreater(summary["policy"][0], 0.8)
+        self.assertLess(summary["policy"][5], 0.2)
+
+    def test_evaluate_position_accepts_preloaded_evaluator(self):
+        artifact_dir = self.write_basic_artifact()
+        position = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        evaluator = arena.ArtifactEvaluator(artifact_dir)
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", side_effect=AssertionError("should not reload artifact")):
+            summary = arena.evaluate_artifact_position(
+                artifact_path=artifact_dir,
+                evaluator=evaluator,
+                state=position,
+                simulations=16,
+                seed=7,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+            )
+
+        self.assertIn("selected_move", summary)
+        self.assertIn("value", summary)
+
+    def test_evaluate_position_reuses_root_evaluation_without_extra_forward_pass(self):
+        position = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        evaluate_calls = 0
+
+        class FakeEvaluator:
+            def evaluate(self, game):
+                nonlocal evaluate_calls
+                del game
+                evaluate_calls += 1
+                return np.full(6, 1.0 / 6.0, dtype=np.float32), 0.25
+
+        summary = arena.evaluate_artifact_position(
+            artifact_path="ignored",
+            evaluator=FakeEvaluator(),
+            state=position,
+            simulations=0,
+            seed=7,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(),
+        )
+
+        self.assertEqual(1, evaluate_calls)
+        self.assertEqual(0.25, summary["value"])
+
     def test_deterministic_root_policy_breaks_tied_root_visits_using_search_signal(self):
         root = arena.PUCT(
             evaluator=arena.ArtifactEvaluator,
@@ -430,6 +594,7 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual([("challenger", None), ("current", None)], created)
 
     def test_cli_generates_validator_compatible_arena_report(self):
+        python = self.executable_python()
         with tempfile.TemporaryDirectory(prefix="azlite-arena-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "data.jsonl"
@@ -447,7 +612,7 @@ class ArenaScriptTest(unittest.TestCase):
 
             train = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    python,
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -470,7 +635,7 @@ class ArenaScriptTest(unittest.TestCase):
             for out_dir, version in ((challenger_dir, "azlite-challenger"), (current_dir, "azlite-current")):
                 export = subprocess.run(
                     [
-                        ".venv/bin/python",
+                        python,
                         "ml/alphazero_lite/export_artifact.py",
                         "--checkpoint",
                         str(checkpoint_path),
@@ -488,7 +653,7 @@ class ArenaScriptTest(unittest.TestCase):
 
             arena = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    python,
                     "ml/alphazero_lite/arena.py",
                     "--challenger",
                     str(challenger_dir),
@@ -520,7 +685,7 @@ class ArenaScriptTest(unittest.TestCase):
             report = json.loads(out_path.read_text(encoding="utf-8"))
             validate = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    python,
                     "ml/alphazero_lite/validate_arena_report.py",
                     "--report",
                     str(out_path),
@@ -536,6 +701,7 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertIn("arena_report_valid", validate.stdout)
 
     def test_cli_records_multi_worker_distribution_when_workers_requested(self):
+        python = self.executable_python()
         with tempfile.TemporaryDirectory(prefix="azlite-arena-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "data.jsonl"
@@ -553,7 +719,7 @@ class ArenaScriptTest(unittest.TestCase):
 
             train = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    python,
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -576,7 +742,7 @@ class ArenaScriptTest(unittest.TestCase):
             for out_dir, version in ((challenger_dir, "azlite-challenger"), (current_dir, "azlite-current")):
                 export = subprocess.run(
                     [
-                        ".venv/bin/python",
+                        python,
                         "ml/alphazero_lite/export_artifact.py",
                         "--checkpoint",
                         str(checkpoint_path),
@@ -594,7 +760,7 @@ class ArenaScriptTest(unittest.TestCase):
 
             arena = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    python,
                     "ml/alphazero_lite/arena.py",
                     "--challenger",
                     str(challenger_dir),

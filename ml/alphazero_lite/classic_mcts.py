@@ -92,6 +92,8 @@ class MCTS:
         self.early_stop_top_visit_share = float(early_stop_top_visit_share)
         self.early_stop_required_checks = max(int(early_stop_required_checks), 1)
         self.endgame_tablebase = endgame_tablebase
+        self._cached_root: Node | None = None
+        self._cached_root_state: dict | None = None
 
     def choose_move(self) -> int | None:
         possible_moves = self.game.possible_moves()
@@ -99,17 +101,24 @@ class MCTS:
             return None
 
         root = self.search_root()
-        if len(root.children) == 1:
-            return next(iter(root.children.keys()))
+        return self._choose_move_from_root(root)
 
-        best_action = None
-        best_value = -float("inf")
-        for action, child in root.children.items():
-            value = 0.0 if child.wins == 0 else child.wins / float(child.visits)
-            if value > best_value:
-                best_action = action
-                best_value = value
-        return best_action
+    def root_summary(self) -> dict:
+        root = self.search_root()
+        child_stats = []
+        for action, child in sorted(root.children.items()):
+            child_stats.append(
+                {
+                    "move": int(action),
+                    "visits": int(child.visits),
+                    "win_rate": float(child.wins / child.visits) if child.visits else 0.0,
+                }
+            )
+        selected_move = self._choose_move_from_root(root)
+        return {
+            "selected_move": None if selected_move is None else int(selected_move),
+            "child_stats": child_stats,
+        }
 
     def choose_playout_move(self, game: KalahGame) -> int | None:
         possible_actions = game.possible_moves()
@@ -136,12 +145,33 @@ class MCTS:
         return best_actions[self.rng.randrange(len(best_actions))]
 
     def search_root(self) -> Node:
+        current_state = self.game.to_state()
+        if self._cached_root is not None and self._cached_root_state == current_state:
+            return self._cached_root
+
+        self.player = self.game.current_player
         node = Node(self.game.clone())
         node.expand()
-        if len(node.children) <= 1:
-            return node
-        self.run_search(node, self.simulations, allow_early_stop=True)
+        if len(node.children) > 1:
+            self.run_search(node, self.simulations, allow_early_stop=True)
+        self._cached_root = node
+        self._cached_root_state = current_state
         return node
+
+    def _choose_move_from_root(self, root: Node) -> int | None:
+        if not root.children:
+            return None
+        if len(root.children) == 1:
+            return next(iter(root.children.keys()))
+
+        best_action = None
+        best_value = -float("inf")
+        for action, child in root.children.items():
+            value = 0.0 if child.wins == 0 else child.wins / float(child.visits)
+            if value > best_value:
+                best_action = action
+                best_value = value
+        return best_action
 
     def run_search(self, node: Node, simulations_to_run: int, *, allow_early_stop: bool) -> int:
         decisive_checks = 0
