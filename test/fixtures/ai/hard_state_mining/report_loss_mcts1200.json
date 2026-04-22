@@ -1,0 +1,13 @@
+{
+  "kind": "arena_loss_vs_mcts1200",
+  "rows": [
+    {
+      "state": {"player_pits": [4, 4, 4, 4, 4, 4], "opponent_pits": [4, 4, 4, 4, 4, 4], "player_store": 5, "opponent_store": 0, "current_player": 0},
+      "side_to_move": 0,
+      "legal_moves": [0, 1, 2, 3, 4, 5],
+      "selection_reason": "challenger_loss_vs_mcts1200",
+      "consequence": "caused_loss",
+      "metrics": {"regret": 0.6}
+    }
+  ]
+}

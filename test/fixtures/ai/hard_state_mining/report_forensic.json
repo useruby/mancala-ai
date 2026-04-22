@@ -1,0 +1,74 @@
+{
+  "schema": "azlite_forensic_suite_v1",
+  "systems": {
+    "challenger": {
+      "artifact_path": "challenger.pt",
+      "rows": [
+        {
+          "id": "pos-1",
+          "bucket": "capture_available",
+          "state": {"player_pits": [4, 4, 4, 4, 4, 4], "opponent_pits": [4, 4, 4, 4, 4, 4], "player_store": 0, "opponent_store": 0, "current_player": 0},
+          "side_to_move": 0,
+          "legal_moves": [0, 1, 2, 3, 4, 5],
+          "selected_move": 1,
+          "reference_move": 0,
+          "agrees_top1": false,
+          "regret": 0.4,
+          "teacher_value": 0.1,
+          "system_value": -0.2,
+          "value_error": 0.7,
+          "entropy": 0.0,
+          "best_second_gap": 0.0
+        },
+        {
+          "id": "pos-2",
+          "bucket": "high_value_swing",
+          "state": {"player_pits": [4, 4, 4, 4, 4, 4], "opponent_pits": [4, 4, 4, 4, 4, 4], "player_store": 1, "opponent_store": 0, "current_player": 0},
+          "side_to_move": 0,
+          "legal_moves": [0, 1, 2, 3, 4, 5],
+          "selected_move": 0,
+          "reference_move": 0,
+          "agrees_top1": true,
+          "regret": 0.0,
+          "teacher_value": 0.2,
+          "system_value": -0.6,
+          "value_error": 0.0,
+          "entropy": 0.9,
+          "best_second_gap": 0.0
+        },
+        {
+          "id": "pos-3",
+          "bucket": "opening_plies_1_8",
+          "state": {"player_pits": [4, 4, 4, 4, 4, 4], "opponent_pits": [4, 4, 4, 4, 4, 4], "player_store": 2, "opponent_store": 0, "current_player": 0},
+          "side_to_move": 0,
+          "legal_moves": [0, 1, 2, 3, 4, 5],
+          "selected_move": 0,
+          "reference_move": 0,
+          "agrees_top1": true,
+          "regret": 0.0,
+          "teacher_value": 0.2,
+          "system_value": 0.2,
+          "value_error": 0.0,
+          "entropy": 0.0,
+          "best_second_gap": 0.8
+        },
+        {
+          "id": "pos-4",
+          "bucket": "high_value_swing",
+          "state": {"player_pits": [4, 4, 4, 4, 4, 4], "opponent_pits": [4, 4, 4, 4, 4, 4], "player_store": 3, "opponent_store": 0, "current_player": 0},
+          "side_to_move": 0,
+          "legal_moves": [0, 1, 2, 3, 4, 5],
+          "selected_move": 0,
+          "reference_move": 0,
+          "agrees_top1": true,
+          "regret": 0.0,
+          "teacher_value": 0.2,
+          "system_value": -0.5,
+          "value_error": 0.7,
+          "entropy": 0.0,
+          "best_second_gap": 0.0
+        }
+      ]
+    }
+  }
+}
