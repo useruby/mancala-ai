@@ -3,6 +3,31 @@
 
 require "json"
 require "optparse"
+
+if ENV["AZLITE_CHECK_SUPERHUMAN_REGRESSIONS_STUB"] == "1"
+  options = {
+    positions: "test/fixtures/ai/superhuman_regression_positions.json",
+    artifact: "model-artifact/current",
+    out: nil
+  }
+
+  OptionParser.new do |opts|
+    opts.on("--positions PATH") { |value| options[:positions] = value }
+    opts.on("--artifact PATH") { |value| options[:artifact] = value }
+    opts.on("--out PATH") { |value| options[:out] = value }
+  end.parse!(ARGV)
+
+  payload = JSON.pretty_generate(
+    passed: true,
+    artifact_path: options[:artifact],
+    positions_path: options[:positions],
+    results: []
+  )
+  Pathname(options[:out]).write(payload) if options[:out]
+  puts payload
+  exit(0)
+end
+
 require_relative "../../config/environment"
 
 options = {

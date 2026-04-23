@@ -132,9 +132,9 @@ def load_search_flag_map(config_path: str | None, *, require_steps: bool = True)
 
     config = load_json(resolved_path)
     return {
-        "arena": search_flags_for_step(config, "arena_confirm_report", required=False),
-        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report", required=False),
-        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report", required=False),
+        "arena": search_flags_for_step(config, "arena_confirm_report", required=require_steps),
+        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report", required=require_steps),
+        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report", required=require_steps),
     }
 
 
@@ -175,6 +175,104 @@ def mcts_score(report: dict) -> float:
     return (az_wins + (0.5 * draws)) / games
 
 
+def build_endgame_exact_solve_section(*, status: str, results_source: str, results: list[dict]) -> dict:
+    return {
+        "status": status,
+        "scaffold_only": True,
+        "results_source": results_source,
+        "thresholds": [8, 10, 12],
+        "results": results,
+        "planned_evaluations": [],
+        "recommendation": {
+            "enabled": False,
+            "threshold": None,
+            "reason": "endgame exact solve threshold data is scaffold metadata only until threshold-specific evaluations run",
+        },
+    }
+
+
+def build_endgame_exact_solve_recommendation(results: list[dict]) -> dict:
+    if not results:
+        return {
+            "enabled": False,
+            "threshold": None,
+            "reason": "endgame exact solve threshold data is scaffold metadata only until threshold-specific evaluations run",
+        }
+
+    best_result = max(
+        results,
+        key=lambda row: (
+            float(row.get("candidate_mcts_score", 0.0)) - float(row.get("current_mcts_score", 0.0)),
+            float(row.get("candidate_mcts_score", 0.0)),
+            -int(row.get("threshold", 0)),
+        ),
+    )
+    best_gain = round(
+        float(best_result.get("candidate_mcts_score", 0.0)) - float(best_result.get("current_mcts_score", 0.0)),
+        4,
+    )
+    if best_gain <= 0.0:
+        return {
+            "enabled": False,
+            "threshold": None,
+            "reason": "no threshold improved candidate-vs-mcts1200 score over the current baseline",
+        }
+
+    return {
+        "enabled": True,
+        "threshold": int(best_result["threshold"]),
+        "reason": f"threshold {int(best_result['threshold'])} delivered the best candidate-vs-mcts1200 gain ({best_gain:+.4f})",
+    }
+
+
+def build_endgame_exact_solve_plans(args: argparse.Namespace, *, report_dir: Path, search_flag_map: dict[str, list[str]]) -> list[dict]:
+    plans = []
+    for threshold in (8, 10, 12):
+        candidate_report_path = report_dir / f"endgame_exact_solve_threshold_{threshold}_candidate_vs_mcts1200.json"
+        current_report_path = report_dir / f"endgame_exact_solve_threshold_{threshold}_current_vs_mcts1200.json"
+        summary_report_path = report_dir / f"endgame_exact_solve_threshold_{threshold}.json"
+        plans.append(
+            {
+                "threshold": threshold,
+                "status": "planned",
+                "scaffold_only": True,
+                "mode": "planned",
+                "report_path": str(summary_report_path),
+                "candidate_mcts_report_path": str(candidate_report_path),
+                "current_mcts_report_path": str(current_report_path),
+                "candidate_mcts_command": [
+                    python_executable(),
+                    "ml/alphazero_lite/mcts1200_baseline.py",
+                    "--challenger-path",
+                    str(args.candidate_path),
+                    "--games",
+                    str(args.mcts_games),
+                    *search_flag_map.get("candidate_mcts", []),
+                    "--exact-solve-enabled",
+                    "--exact-solve-stone-threshold",
+                    str(threshold),
+                    "--out",
+                    str(candidate_report_path),
+                ],
+                "current_mcts_command": [
+                    python_executable(),
+                    "ml/alphazero_lite/mcts1200_baseline.py",
+                    "--challenger-path",
+                    str(args.current_path),
+                    "--games",
+                    str(args.mcts_games),
+                    *search_flag_map.get("current_mcts", []),
+                    "--exact-solve-enabled",
+                    "--exact-solve-stone-threshold",
+                    str(threshold),
+                    "--out",
+                    str(current_report_path),
+                ],
+            }
+        )
+    return plans
+
+
 def build_decision_report(
     args: argparse.Namespace,
     report: dict,
@@ -190,6 +288,8 @@ def build_decision_report(
     current_mcts_report_path: Path,
     regression_report_path: Path,
 ) -> dict:
+    planned_evaluations = list(report.get("endgame_exact_solve", {}).get("planned_evaluations", []))
+    existing_threshold_results = list(report.get("endgame_exact_solve", {}).get("results", []))
     arena_games_played = int(arena_report.get("games_played", 0))
     arena_losses = int(arena_report.get("losses", 0))
     candidate_mcts_games = int(candidate_mcts_report.get("games", 0))
@@ -258,8 +358,16 @@ def build_decision_report(
             "lossless_passed": arena_losses <= args.max_losses,
             "passed": not failure_reasons,
             "failure_reasons": failure_reasons,
+            "endgame_exact_solve": build_endgame_exact_solve_section(
+                status="executed" if existing_threshold_results else "planned_only",
+                results_source="threshold_specific_reports" if existing_threshold_results else "planned_evaluation_metadata_only",
+                results=existing_threshold_results,
+            ),
         }
     )
+    report["endgame_exact_solve"]["planned_evaluations"] = planned_evaluations
+    report["endgame_exact_solve"]["scaffold_only"] = not bool(existing_threshold_results)
+    report["endgame_exact_solve"]["recommendation"] = build_endgame_exact_solve_recommendation(existing_threshold_results)
     return report
 
 
@@ -426,6 +534,29 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         regression_report_path,
     )
 
+    threshold_results = []
+    for planned_evaluation in report["endgame_exact_solve"]["planned_evaluations"]:
+        run_command(planned_evaluation["candidate_mcts_command"])
+        run_command(planned_evaluation["current_mcts_command"])
+        candidate_threshold_report = load_json(Path(planned_evaluation["candidate_mcts_report_path"]))
+        current_threshold_report = load_json(Path(planned_evaluation["current_mcts_report_path"]))
+        threshold_summary = {
+            "threshold": int(planned_evaluation["threshold"]),
+            "mode": "executed",
+            "score": round(mcts_score(candidate_threshold_report), 4),
+            "candidate_mcts_score": round(mcts_score(candidate_threshold_report), 4),
+            "current_mcts_score": round(mcts_score(current_threshold_report), 4),
+            "candidate_mcts_report_path": planned_evaluation["candidate_mcts_report_path"],
+            "current_mcts_report_path": planned_evaluation["current_mcts_report_path"],
+        }
+        Path(planned_evaluation["report_path"]).write_text(json.dumps(threshold_summary, indent=2), encoding="utf-8")
+        planned_evaluation["status"] = "executed"
+        planned_evaluation["mode"] = "executed"
+        planned_evaluation["scaffold_only"] = False
+        threshold_results.append(threshold_summary)
+
+    report["endgame_exact_solve"]["results"] = threshold_results
+
     for evaluation in report["evaluations"]:
         evaluation["mode"] = "executed"
 
@@ -444,6 +575,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         current_mcts_report_path=current_mcts_report_path,
         regression_report_path=regression_report_path,
     )
+
 
 
 def main() -> int:
@@ -531,7 +663,19 @@ def main() -> int:
         "skip_mcts_relative_check": args.skip_mcts_relative_check,
         "dry_run": args.dry_run,
         "evaluations": evaluations,
+        "endgame_exact_solve": build_endgame_exact_solve_section(
+            status="planned_only",
+            results_source="evaluation_plan",
+            results=[],
+        ),
     }
+
+    search_flag_map = load_search_flag_map(args.config_path, require_steps=not args.dry_run) if args.config_path else {}
+    report["endgame_exact_solve"]["planned_evaluations"] = build_endgame_exact_solve_plans(
+        args,
+        report_dir=args.out.parent,
+        search_flag_map=search_flag_map,
+    )
 
     stub_reports_provided = all(path is not None for path in non_hard_stub_paths)
 

@@ -5,6 +5,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 class MCTS1200BaselineScriptTest(unittest.TestCase):
@@ -37,6 +38,85 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
 
         self.assertEqual("visit_count", args.root_policy_mode)
         self.assertEqual(0.0, args.tactical_root_bias)
+
+    def test_parse_args_clamps_exact_solve_threshold_to_tablebase_limit(self):
+        from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+        from ml.alphazero_lite.mcts1200_baseline import parse_args
+
+        original_argv = list(sys.argv)
+        try:
+            sys.argv = [
+                "mcts1200_baseline.py",
+                "--challenger-path",
+                "/tmp/challenger",
+                "--out",
+                "/tmp/report.json",
+                "--exact-solve-enabled",
+                "--exact-solve-stone-threshold",
+                "99",
+            ]
+            args = parse_args()
+        finally:
+            sys.argv = original_argv
+
+        self.assertEqual(EndgameTablebase.MAX_SOLVED_SEEDS, args.exact_solve_stone_threshold)
+
+    def test_parse_args_requires_threshold_when_exact_solve_enabled(self):
+        from ml.alphazero_lite.mcts1200_baseline import parse_args
+
+        original_argv = list(sys.argv)
+        try:
+            sys.argv = [
+                "mcts1200_baseline.py",
+                "--challenger-path",
+                "/tmp/challenger",
+                "--out",
+                "/tmp/report.json",
+                "--exact-solve-enabled",
+            ]
+            with self.assertRaises(SystemExit):
+                parse_args()
+        finally:
+            sys.argv = original_argv
+
+    def test_parse_args_requires_exact_solve_enabled_when_threshold_provided(self):
+        from ml.alphazero_lite.mcts1200_baseline import parse_args
+
+        original_argv = list(sys.argv)
+        try:
+            sys.argv = [
+                "mcts1200_baseline.py",
+                "--challenger-path",
+                "/tmp/challenger",
+                "--out",
+                "/tmp/report.json",
+                "--exact-solve-stone-threshold",
+                "8",
+            ]
+            with self.assertRaises(SystemExit):
+                parse_args()
+        finally:
+            sys.argv = original_argv
+
+    def test_parse_args_rejects_negative_exact_solve_threshold(self):
+        from ml.alphazero_lite.mcts1200_baseline import parse_args
+
+        original_argv = list(sys.argv)
+        try:
+            sys.argv = [
+                "mcts1200_baseline.py",
+                "--challenger-path",
+                "/tmp/challenger",
+                "--out",
+                "/tmp/report.json",
+                "--exact-solve-enabled",
+                "--exact-solve-stone-threshold",
+                "-1",
+            ]
+            with self.assertRaises(SystemExit):
+                parse_args()
+        finally:
+            sys.argv = original_argv
 
     def test_cli_writes_mcts1200_report_with_expected_schema(self):
         with tempfile.TemporaryDirectory(prefix="azlite-mcts1200-") as tmp:
@@ -195,6 +275,67 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             )
 
         self.assertEqual(1, result["games"])
+
+    def test_run_worker_passes_tablebase_when_exact_solve_is_enabled(self):
+        from ml.alphazero_lite import mcts1200_baseline
+        from ml.alphazero_lite.mcts1200_baseline import run_worker
+
+        constructed = []
+
+        class FakeMCTS:
+            def __init__(self, game, **kwargs):
+                del game
+                constructed.append(kwargs)
+
+            def choose_move(self):
+                return 0
+
+        with tempfile.TemporaryDirectory(prefix="azlite-mcts1200-") as tmp:
+            artifact_dir = Path(tmp) / "artifact"
+            artifact_dir.mkdir()
+            (artifact_dir / "metadata.json").write_text(
+                json.dumps({"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}),
+                encoding="utf-8",
+            )
+            (artifact_dir / "weights.json").write_text(
+                json.dumps(
+                    {
+                        "w1": [[0.0] * 16 for _ in range(15)],
+                        "b1": [0.0] * 16,
+                        "w2": [[0.0] * 16 for _ in range(16)],
+                        "b2": [0.0] * 16,
+                        "w_policy": [[0.0] * 6 for _ in range(16)],
+                        "b_policy": [0.0] * 6,
+                        "w_value": [[0.0] for _ in range(16)],
+                        "b_value": [0.0],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with mock.patch.object(mcts1200_baseline, "MCTS", FakeMCTS):
+                run_worker(
+                    challenger_path=str(artifact_dir),
+                    games=1,
+                    start_index=0,
+                    seed=42,
+                    az_base_simulations=64,
+                    mcts_simulations=64,
+                    search_options={
+                        "fpu_mode": "zero",
+                        "reuse_subtree": False,
+                        "normalize_values": False,
+                        "root_policy_mode": "deterministic",
+                        "tactical_root_bias": 0.1,
+                    },
+                    exact_solve_enabled=True,
+                    exact_solve_stone_threshold=10,
+                )
+
+        self.assertTrue(constructed)
+        self.assertTrue(constructed[0]["exact_solve_enabled"])
+        self.assertEqual(10, constructed[0]["exact_solve_stone_threshold"])
+        self.assertIsNotNone(constructed[0]["endgame_tablebase"])
 
 
 if __name__ == "__main__":

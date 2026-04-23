@@ -4,6 +4,24 @@ from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 
+class SpyTablebase:
+    def __init__(self, *, cached_value=None, lookup_value=None):
+        self.cached_value = cached_value
+        self.lookup_value = lookup_value
+        self.lookup_calls = 0
+        self.lookup_cached_calls = 0
+
+    def lookup_cached(self, game, perspective_player):
+        del game, perspective_player
+        self.lookup_cached_calls += 1
+        return self.cached_value
+
+    def lookup(self, game, perspective_player):
+        del game, perspective_player
+        self.lookup_calls += 1
+        return self.lookup_value
+
+
 class ClassicMCTSTest(unittest.TestCase):
     def test_root_summary_selected_move_stays_aligned_with_choose_move_on_same_instance(self):
         from ml.alphazero_lite.classic_mcts import MCTS
@@ -164,13 +182,166 @@ class ClassicMCTSTest(unittest.TestCase):
 
         self.assertEqual(4, MCTS(game, simulations=8, seed=42).choose_playout_move(game))
 
-    def test_simulate_playout_uses_tablebase_value_when_available(self):
+    def test_simulate_playout_runtime_mode_skips_exact_solver_for_sparse_nonterminal_state(self):
         from ml.alphazero_lite.classic_mcts import MCTS
 
         game = KalahGame.from_state(
             {
-                "player_pits": [0, 0, 0, 0, 1, 0],
-                "opponent_pits": [0, 0, 0, 0, 0, 0],
+                "player_pits": [0, 0, 0, 0, 0, 1],
+                "opponent_pits": [1, 0, 0, 0, 0, 0],
+                "player_store": 20,
+                "opponent_store": 20,
+                "current_player": 0,
+            }
+        )
+        tablebase = SpyTablebase(lookup_value=0.75)
+
+        mcts = MCTS(game, simulations=4, seed=42, endgame_tablebase=tablebase)
+
+        self.assertEqual(0.5, mcts.simulate_playout(game))
+        self.assertEqual(0, tablebase.lookup_calls)
+
+    def test_simulate_playout_uses_exact_solver_when_evaluation_mode_threshold_applies(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 0, 1],
+                "opponent_pits": [1, 0, 0, 0, 0, 0],
+                "player_store": 20,
+                "opponent_store": 20,
+                "current_player": 0,
+            }
+        )
+        tablebase = SpyTablebase(lookup_value=0.75)
+
+        mcts = MCTS(
+            game,
+            simulations=4,
+            seed=42,
+            endgame_tablebase=tablebase,
+            exact_solve_enabled=True,
+            exact_solve_stone_threshold=2,
+        )
+
+        self.assertEqual(0.75, mcts.simulate_playout(game))
+        self.assertEqual(1, tablebase.lookup_calls)
+
+    def test_simulate_playout_skips_cached_probe_when_exact_solver_applies(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 0, 1],
+                "opponent_pits": [1, 0, 0, 0, 0, 0],
+                "player_store": 20,
+                "opponent_store": 20,
+                "current_player": 0,
+            }
+        )
+        tablebase = SpyTablebase(lookup_value=0.75)
+
+        mcts = MCTS(
+            game,
+            simulations=4,
+            seed=42,
+            endgame_tablebase=tablebase,
+            exact_solve_enabled=True,
+            exact_solve_stone_threshold=2,
+        )
+
+        self.assertEqual(0.75, mcts.simulate_playout(game))
+        self.assertEqual(1, tablebase.lookup_calls)
+        self.assertEqual(0, tablebase.lookup_cached_calls)
+
+    def test_simulate_playout_falls_back_to_rollout_when_exact_solver_returns_none(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 0, 1],
+                "opponent_pits": [1, 0, 0, 0, 0, 0],
+                "player_store": 20,
+                "opponent_store": 20,
+                "current_player": 0,
+            }
+        )
+        tablebase = SpyTablebase(lookup_value=None)
+
+        mcts = MCTS(
+            game,
+            simulations=4,
+            seed=42,
+            endgame_tablebase=tablebase,
+            exact_solve_enabled=True,
+            exact_solve_stone_threshold=2,
+        )
+        playout_move_calls = 0
+
+        def fake_choose_playout_move(playout_game):
+            nonlocal playout_move_calls
+            self.assertIsNot(playout_game, game)
+            playout_move_calls += 1
+            return 5
+
+        mcts.choose_playout_move = fake_choose_playout_move
+
+        self.assertTrue(mcts.exact_solve_applies(game))
+        self.assertEqual(0.5, mcts.simulate_playout(game))
+        self.assertEqual(1, tablebase.lookup_calls)
+        self.assertEqual(1, playout_move_calls)
+
+    def test_simulate_playout_skips_exact_solver_above_threshold(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 0, 1],
+                "opponent_pits": [1, 0, 0, 0, 0, 0],
+                "player_store": 20,
+                "opponent_store": 20,
+                "current_player": 0,
+            }
+        )
+        tablebase = SpyTablebase(lookup_value=0.75)
+
+        mcts = MCTS(
+            game,
+            simulations=4,
+            seed=42,
+            endgame_tablebase=tablebase,
+            exact_solve_enabled=True,
+            exact_solve_stone_threshold=1,
+        )
+
+        self.assertEqual(0.5, mcts.simulate_playout(game))
+        self.assertEqual(0, tablebase.lookup_calls)
+
+    def test_simulate_playout_returns_terminal_tablebase_value_for_no_legal_move_state(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 0, 0],
+                "opponent_pits": [1, 1, 1, 1, 1, 1],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+
+        tablebase = EndgameTablebase()
+        mcts = MCTS(game, simulations=4, seed=42, endgame_tablebase=tablebase)
+
+        self.assertEqual(0.0, mcts.simulate_playout(game))
+
+    def test_simulate_playout_uses_recorded_tablebase_hit_when_exact_solver_disabled(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 0, 1],
+                "opponent_pits": [1, 0, 0, 0, 0, 0],
                 "player_store": 20,
                 "opponent_store": 20,
                 "current_player": 0,
@@ -182,22 +353,3 @@ class ClassicMCTSTest(unittest.TestCase):
         mcts = MCTS(game, simulations=4, seed=42, endgame_tablebase=tablebase)
 
         self.assertEqual(0.75, mcts.simulate_playout(game))
-
-    def test_simulate_playout_falls_back_without_tablebase_hit(self):
-        from ml.alphazero_lite.classic_mcts import MCTS
-
-        game = KalahGame.from_state(
-            {
-                "player_pits": [0, 0, 0, 0, 1, 0],
-                "opponent_pits": [0, 0, 0, 0, 0, 0],
-                "player_store": 20,
-                "opponent_store": 20,
-                "current_player": 0,
-            }
-        )
-
-        tablebase = EndgameTablebase()
-        mcts_with_tb = MCTS(game, simulations=4, seed=42, endgame_tablebase=tablebase)
-        mcts_without_tb = MCTS(game, simulations=4, seed=42)
-
-        self.assertEqual(mcts_without_tb.simulate_playout(game), mcts_with_tb.simulate_playout(game))

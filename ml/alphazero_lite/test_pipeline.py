@@ -3174,7 +3174,7 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(5, len(calls))
+            self.assertEqual(11, len(calls))
             self.assertEqual(
                 [
                     str(tmp_path / "candidate_vs_current_arena.json"),
@@ -3182,6 +3182,12 @@ class PipelineScriptTest(unittest.TestCase):
                     str(tmp_path / "candidate_vs_mcts1200.json"),
                     str(tmp_path / "current_vs_mcts1200.json"),
                     str(tmp_path / "candidate_regression_suite.json"),
+                    str(tmp_path / "endgame_exact_solve_threshold_8_candidate_vs_mcts1200.json"),
+                    str(tmp_path / "endgame_exact_solve_threshold_8_current_vs_mcts1200.json"),
+                    str(tmp_path / "endgame_exact_solve_threshold_10_candidate_vs_mcts1200.json"),
+                    str(tmp_path / "endgame_exact_solve_threshold_10_current_vs_mcts1200.json"),
+                    str(tmp_path / "endgame_exact_solve_threshold_12_candidate_vs_mcts1200.json"),
+                    str(tmp_path / "endgame_exact_solve_threshold_12_current_vs_mcts1200.json"),
                 ],
                 [call["command"][call["command"].index("--out") + 1] for call in calls],
             )
@@ -3239,7 +3245,7 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(5, len(calls))
+            self.assertEqual(11, len(calls))
 
             for command in calls:
                 if Path(command[0]).name == "check_superhuman_regressions":
@@ -3308,7 +3314,7 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(5, len(calls))
+            self.assertEqual(11, len(calls))
 
     def test_local_promotion_gate_ignores_stale_regression_report_when_command_fails(self):
         module = self.load_local_promotion_gate_module()
@@ -3398,6 +3404,149 @@ class PipelineScriptTest(unittest.TestCase):
             report = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertFalse(report["passed"])
             self.assertEqual([{"code": "arena_score_below_threshold"}, {"code": "candidate_not_stronger_than_hard"}], report["failure_reasons"])
+
+    def test_local_promotion_gate_executes_threshold_specific_exact_solve_evaluations(self):
+        module = self.load_local_promotion_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="local-promotion-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "candidate"
+            current_path = tmp_path / "current"
+            report_path = tmp_path / "promotion_report.json"
+
+            candidate_path.mkdir()
+            current_path.mkdir()
+
+            calls = []
+
+            def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
+                calls.append(command)
+                out_path = Path(command[command.index("--out") + 1])
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+                if command[1].endswith("arena.py"):
+                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
+                elif command[1].endswith("mcts1200_baseline.py") and "--exact-solve-stone-threshold" in command:
+                    threshold = int(command[command.index("--exact-solve-stone-threshold") + 1])
+                    payload = {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 20 + threshold,
+                        "mcts_wins": 20 - threshold,
+                        "draws": 0,
+                        "score": round((20 + threshold) / 40.0, 4),
+                        "search_profile": {
+                            "exact_solve_enabled": True,
+                            "exact_solve_stone_threshold": threshold,
+                        },
+                    }
+                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
+                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
+                else:
+                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
+                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+
+            argv = [
+                str(module.__file__),
+                "--candidate-path",
+                str(candidate_path),
+                "--current-path",
+                str(current_path),
+                "--out",
+                str(report_path),
+            ]
+
+            with mock.patch.object(sys, "argv", argv), mock.patch.object(module.subprocess, "run", side_effect=fake_run):
+                exit_code = module.main()
+
+            self.assertEqual(0, exit_code)
+            self.assertEqual(11, len(calls))
+            threshold_calls = [
+                command
+                for command in calls
+                if len(command) > 1
+                and command[1].endswith("mcts1200_baseline.py")
+                and "--exact-solve-stone-threshold" in command
+            ]
+            self.assertEqual([8, 8, 10, 10, 12, 12], [int(command[command.index("--exact-solve-stone-threshold") + 1]) for command in threshold_calls])
+            for command in threshold_calls:
+                self.assertIn("--exact-solve-enabled", command)
+
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual("executed", report["endgame_exact_solve"]["status"])
+            self.assertEqual("threshold_specific_reports", report["endgame_exact_solve"]["results_source"])
+            self.assertFalse(report["endgame_exact_solve"]["scaffold_only"])
+            self.assertEqual([8, 10, 12], [result["threshold"] for result in report["endgame_exact_solve"]["results"]])
+            self.assertEqual(
+                [0.7, 0.75, 0.8],
+                [result["score"] for result in report["endgame_exact_solve"]["results"]],
+            )
+            self.assertTrue(all(result["mode"] == "executed" for result in report["endgame_exact_solve"]["results"]))
+
+    def test_local_promotion_gate_forwards_config_search_flags_to_threshold_exact_solve_evaluations(self):
+        module = self.load_local_promotion_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="local-promotion-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "candidate"
+            current_path = tmp_path / "current"
+            report_path = tmp_path / "promotion_report.json"
+
+            candidate_path.mkdir()
+            current_path.mkdir()
+
+            calls = []
+
+            def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
+                calls.append(command)
+                out_path = Path(command[command.index("--out") + 1])
+                if Path(command[0]).name == "check_superhuman_regressions":
+                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+                if command[1].endswith("arena.py"):
+                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
+                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
+                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
+                else:
+                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
+                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+
+            argv = [
+                str(module.__file__),
+                "--candidate-path",
+                str(candidate_path),
+                "--current-path",
+                str(current_path),
+                "--config-path",
+                "ml/alphazero_lite/configs/aggressive_v2_search_quality_local.json",
+                "--out",
+                str(report_path),
+            ]
+
+            with mock.patch.object(sys, "argv", argv), mock.patch.object(module.subprocess, "run", side_effect=fake_run):
+                exit_code = module.main()
+
+            self.assertEqual(0, exit_code)
+            threshold_calls = [
+                command
+                for command in calls
+                if len(command) > 1
+                and command[1].endswith("mcts1200_baseline.py")
+                and "--exact-solve-stone-threshold" in command
+            ]
+            self.assertEqual(6, len(threshold_calls))
+            for command in threshold_calls:
+                self.assertIn("--fpu-mode", command)
+                self.assertIn("parent_q", command)
+                self.assertIn("--reuse-subtree", command)
+                self.assertIn("--normalize-values", command)
+                self.assertIn("--root-policy-mode", command)
+                self.assertIn("deterministic", command)
+                self.assertIn("--tactical-root-bias", command)
+                self.assertIn("0.1", command)
 
     def test_local_promotion_gate_surfaces_real_subprocess_failures_with_command_context(self):
         module = self.load_local_promotion_gate_module()

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import json
+import os
 import random
 import statistics
 import sys
@@ -438,6 +439,43 @@ def run_arena_worker(
 
 def main() -> None:
     args = parse_args()
+
+    if os.environ.get("AZLITE_ARENA_STUB") == "1":
+        out_path = Path(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        search_options = build_eval_search_options(**search_options_from_args(args))
+        search_profile = build_search_profile(
+            kind="arena_eval",
+            player_mode="puct",
+            simulations=max(int(args.challenger_simulations), int(args.current_simulations)),
+            c_puct=args.c_puct,
+            search_options=search_options,
+            extra_fields={
+                "challenger_simulations": int(args.challenger_simulations),
+                "current_simulations": int(args.current_simulations),
+            },
+        )
+        report = {
+            "schema": "arena_v1",
+            "games_played": int(args.games),
+            "wins": int(args.games * 0.6),
+            "losses": 0,
+            "draws": int(args.games) - int(args.games * 0.6),
+            "promotion_decision": {"passed": True},
+            "notes": {
+                "challenger_path": str(Path(args.challenger)),
+                "current_path": str(Path(args.current)),
+                "search_options": search_options,
+                "search_profile": search_profile,
+                "search_profile_hash": search_profile["hash"],
+                "move_time_mean_ms": 120.0,
+                "move_time_p95_ms": 160.0,
+            },
+        }
+        out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        print(f"wrote arena report to {out_path}")
+        print("score=0.8000 passed=True")
+        return
 
     challenger_path = Path(args.challenger)
     current_path = Path(args.current)

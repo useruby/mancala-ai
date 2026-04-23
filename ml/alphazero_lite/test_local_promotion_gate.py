@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -243,6 +244,368 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.assertEqual(0, result.returncode, msg=result.stderr)
             report = json.loads(out.read_text(encoding="utf-8"))
             self.assertTrue(report["passed"])
+
+    def test_reports_endgame_threshold_sweep_results(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28, move_time_mean_ms=120, move_time_p95_ms=160)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual([8, 10, 12], report["endgame_exact_solve"]["thresholds"])
+            self.assertTrue(report["endgame_exact_solve"]["scaffold_only"])
+            self.assertEqual("planned_evaluation_metadata_only", report["endgame_exact_solve"]["results_source"])
+            self.assertEqual([], report["endgame_exact_solve"]["results"])
+            self.assertEqual(
+                [8, 10, 12],
+                [evaluation["threshold"] for evaluation in report["endgame_exact_solve"]["planned_evaluations"]],
+            )
+            self.assertIn("recommendation", report["endgame_exact_solve"])
+
+    def test_dry_run_includes_endgame_exact_solve_scaffold_metadata(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--dry-run",
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual([8, 10, 12], report["endgame_exact_solve"]["thresholds"])
+            self.assertTrue(report["endgame_exact_solve"]["scaffold_only"])
+            self.assertEqual("planned_only", report["endgame_exact_solve"]["status"])
+            self.assertEqual([], report["endgame_exact_solve"]["results"])
+            self.assertEqual(
+                [8, 10, 12],
+                [evaluation["threshold"] for evaluation in report["endgame_exact_solve"]["planned_evaluations"]],
+            )
+            self.assertTrue(
+                all(evaluation["mode"] == "planned" for evaluation in report["endgame_exact_solve"]["planned_evaluations"])
+            )
+
+    def test_endgame_threshold_results_are_marked_as_placeholder_scaffold(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28, move_time_mean_ms=120, move_time_p95_ms=160)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertTrue(report["endgame_exact_solve"]["scaffold_only"])
+            self.assertEqual("planned_evaluation_metadata_only", report["endgame_exact_solve"]["results_source"])
+            self.assertEqual([], report["endgame_exact_solve"]["results"])
+            self.assertEqual(3, len(report["endgame_exact_solve"]["planned_evaluations"]))
+            for planned_evaluation in report["endgame_exact_solve"]["planned_evaluations"]:
+                self.assertTrue(planned_evaluation["scaffold_only"])
+                self.assertIn("report_path", planned_evaluation)
+
+    def test_stub_decision_mode_anchors_endgame_planned_report_paths_to_output_directory(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            stub_dir = tmp / "stub-reports"
+            stub_dir.mkdir()
+            out_dir = tmp / "gate-output"
+            out_dir.mkdir()
+            out = out_dir / "report.json"
+            self.write_report(stub_dir / "arena.json", games_played=120, wins=92, losses=0, draws=28, move_time_mean_ms=120, move_time_p95_ms=160)
+            self.write_report(stub_dir / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(stub_dir / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(stub_dir / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(stub_dir / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(stub_dir / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(stub_dir / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(stub_dir / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(
+                [
+                    str(out_dir / "endgame_exact_solve_threshold_8.json"),
+                    str(out_dir / "endgame_exact_solve_threshold_10.json"),
+                    str(out_dir / "endgame_exact_solve_threshold_12.json"),
+                ],
+                [evaluation["report_path"] for evaluation in report["endgame_exact_solve"]["planned_evaluations"]],
+            )
+
+    def test_missing_mcts_config_steps_fall_back_to_defaults(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            config_path = tmp / "search_config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "steps": [
+                            {
+                                "name": "arena_confirm_report",
+                                "command": ["python", "ml/alphazero_lite/arena.py", "--fpu-mode", "parent_q"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--config-path",
+                str(config_path),
+                "--dry-run",
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual([8, 10, 12], [row["threshold"] for row in report["endgame_exact_solve"]["planned_evaluations"]])
+
+    def test_non_dry_run_requires_configured_search_steps(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            config_path = tmp / "search_config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "steps": [
+                            {
+                                "name": "arena_confirm_report",
+                                "command": ["python", "ml/alphazero_lite/arena.py", "--fpu-mode", "parent_q"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--config-path",
+                str(config_path),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("config missing required step", result.stderr)
+
+    def test_dry_run_plans_threshold_specific_mcts_commands(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--dry-run",
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            planned = report["endgame_exact_solve"]["planned_evaluations"]
+            self.assertEqual([8, 10, 12], [row["threshold"] for row in planned])
+            for row, threshold in zip(planned, [8, 10, 12], strict=True):
+                self.assertIn("candidate_mcts_command", row)
+                self.assertIn("current_mcts_command", row)
+                self.assertIn("--exact-solve-enabled", row["candidate_mcts_command"])
+                self.assertIn("--exact-solve-enabled", row["current_mcts_command"])
+                self.assertEqual(
+                    str(threshold),
+                    row["candidate_mcts_command"][row["candidate_mcts_command"].index("--exact-solve-stone-threshold") + 1],
+                )
+                self.assertEqual(
+                    str(threshold),
+                    row["current_mcts_command"][row["current_mcts_command"].index("--exact-solve-stone-threshold") + 1],
+                )
+
+    def test_executed_threshold_runs_record_threshold_specific_results(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            current = tmp / "current"
+            candidate.mkdir()
+            current.mkdir()
+            out = tmp / "report.json"
+
+            env = {
+                **dict(os.environ),
+                "AZLITE_ARENA_STUB": "1",
+                "AZLITE_MCTS1200_BASELINE_STUB": "1",
+                "AZLITE_CHECK_SUPERHUMAN_REGRESSIONS_STUB": "1",
+            }
+            repo_root = Path(__file__).resolve().parents[2]
+            result = subprocess.run(
+                [
+                    "script/ai/local_promotion_gate",
+                    "--candidate-path",
+                    str(candidate),
+                    "--current-path",
+                    str(current),
+                    "--out",
+                    str(out),
+                ],
+                cwd=repo_root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual("executed", report["endgame_exact_solve"]["status"])
+            self.assertFalse(report["endgame_exact_solve"]["scaffold_only"])
+            self.assertEqual("threshold_specific_reports", report["endgame_exact_solve"]["results_source"])
+            self.assertEqual([8, 10, 12], [row["threshold"] for row in report["endgame_exact_solve"]["results"]])
+            self.assertFalse(report["endgame_exact_solve"]["recommendation"]["enabled"])
+            self.assertIsNone(report["endgame_exact_solve"]["recommendation"]["threshold"])
+            self.assertTrue(
+                all(evaluation["mode"] == "executed" for evaluation in report["endgame_exact_solve"]["planned_evaluations"])
+            )
+            self.assertTrue(
+                all(not evaluation["scaffold_only"] for evaluation in report["endgame_exact_solve"]["planned_evaluations"])
+            )
+            for row in report["endgame_exact_solve"]["results"]:
+                self.assertIn("candidate_mcts_score", row)
+                self.assertIn("current_mcts_score", row)
+                self.assertTrue(Path(row["candidate_mcts_report_path"]).exists())
+                self.assertTrue(Path(row["current_mcts_report_path"]).exists())
+
+    def test_endgame_exact_solve_recommendation_prefers_best_threshold_gain(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28, move_time_mean_ms=120, move_time_p95_ms=160)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            report["endgame_exact_solve"]["results"] = [
+                {"threshold": 8, "candidate_mcts_score": 0.55, "current_mcts_score": 0.50},
+                {"threshold": 10, "candidate_mcts_score": 0.65, "current_mcts_score": 0.50},
+                {"threshold": 12, "candidate_mcts_score": 0.60, "current_mcts_score": 0.50},
+            ]
+
+            import importlib.util
+
+            spec = importlib.util.spec_from_file_location(
+                "local_promotion_gate",
+                Path(__file__).resolve().parents[2] / "script/ai/local_promotion_gate",
+                loader=importlib.machinery.SourceFileLoader(
+                    "local_promotion_gate",
+                    str(Path(__file__).resolve().parents[2] / "script/ai/local_promotion_gate"),
+                ),
+            )
+            assert spec is not None and spec.loader is not None
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            recommendation = module.build_endgame_exact_solve_recommendation(report["endgame_exact_solve"]["results"])
+            self.assertTrue(recommendation["enabled"])
+            self.assertEqual(10, recommendation["threshold"])
 
     def test_omitting_hard_path_uses_default_current_path_and_records_regression_report(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:

@@ -80,6 +80,8 @@ class MCTS:
         early_stop_top_visit_share: float = 0.85,
         early_stop_required_checks: int = 2,
         endgame_tablebase: EndgameTablebaseContract | None = None,
+        exact_solve_enabled: bool = False,
+        exact_solve_stone_threshold: int | None = None,
     ):
         self.game = game
         self.simulations = simulations
@@ -92,6 +94,8 @@ class MCTS:
         self.early_stop_top_visit_share = float(early_stop_top_visit_share)
         self.early_stop_required_checks = max(int(early_stop_required_checks), 1)
         self.endgame_tablebase = endgame_tablebase
+        self.exact_solve_enabled = exact_solve_enabled
+        self.exact_solve_stone_threshold = exact_solve_stone_threshold
         self._cached_root: Node | None = None
         self._cached_root_state: dict | None = None
 
@@ -219,7 +223,10 @@ class MCTS:
 
     def simulate_playout(self, game: KalahGame) -> float:
         if self.endgame_tablebase is not None:
-            solved_value = self.endgame_tablebase.lookup(game, self.player)
+            if self.exact_solve_applies(game):
+                solved_value = self.endgame_tablebase.lookup(game, self.player)
+            else:
+                solved_value = self.endgame_tablebase.lookup_cached(game, self.player)
             if solved_value is not None:
                 return solved_value
 
@@ -233,6 +240,17 @@ class MCTS:
                 break
             current_game.move(current_game.pit_index(action))
         return self.rank(current_game)
+
+    def exact_solve_applies(self, game: KalahGame) -> bool:
+        if not self.exact_solve_enabled:
+            return False
+        if self.exact_solve_stone_threshold is None:
+            return False
+        if game.over():
+            return False
+        if not game.possible_moves():
+            return False
+        return sum(game.pits) <= self.exact_solve_stone_threshold
 
     def rank(self, game: KalahGame) -> float:
         player_score = game.captured_seeds[self.player]

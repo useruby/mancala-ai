@@ -16,6 +16,7 @@ if __package__ in (None, ""):
 
 from ml.alphazero_lite.arena import ArtifactEvaluator
 from ml.alphazero_lite.classic_mcts import MCTS
+from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.self_play import (
     PUCT,
@@ -35,8 +36,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mcts-simulations", type=int, default=1200)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--out", required=True)
+    parser.add_argument("--exact-solve-enabled", action="store_true")
+    parser.add_argument("--exact-solve-stone-threshold", type=int)
     add_search_option_args(parser)
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.exact_solve_enabled and args.exact_solve_stone_threshold is None:
+        parser.error("--exact-solve-enabled requires --exact-solve-stone-threshold")
+    if args.exact_solve_stone_threshold is not None and not args.exact_solve_enabled:
+        parser.error("--exact-solve-stone-threshold requires --exact-solve-enabled")
+    if args.exact_solve_stone_threshold is not None and int(args.exact_solve_stone_threshold) < 0:
+        parser.error("--exact-solve-stone-threshold must be non-negative")
+    if args.exact_solve_stone_threshold is not None:
+        args.exact_solve_stone_threshold = min(int(args.exact_solve_stone_threshold), EndgameTablebase.MAX_SOLVED_SEEDS)
+    return args
 
 
 def partition_counts(total: int, workers: int) -> list[int]:
@@ -113,11 +125,14 @@ def run_worker(
     az_base_simulations: int,
     mcts_simulations: int,
     search_options: dict,
+    exact_solve_enabled: bool = False,
+    exact_solve_stone_threshold: int | None = None,
 ) -> dict:
     if os.environ.get("AZLITE_MCTS1200_BASELINE_STUB") == "1":
         return run_stub_worker(start_index=start_index, games=games)
 
     evaluator = ArtifactEvaluator(Path(challenger_path))
+    tablebase = EndgameTablebase() if exact_solve_enabled else None
     az_wins = 0
     mcts_wins = 0
     draws = 0
@@ -152,7 +167,14 @@ def run_worker(
                 _visits, root = search.run(game)
                 relative_move = search.select_root_move(root, legal_moves)
             else:
-                relative_move = MCTS(game, simulations=mcts_simulations, seed=seed + game_index).choose_move()
+                relative_move = MCTS(
+                    game,
+                    simulations=mcts_simulations,
+                    seed=seed + game_index,
+                    endgame_tablebase=tablebase,
+                    exact_solve_enabled=exact_solve_enabled,
+                    exact_solve_stone_threshold=exact_solve_stone_threshold,
+                ).choose_move()
 
             if relative_move is None:
                 break
@@ -193,6 +215,8 @@ def build_report(
     mcts_simulations: int,
     search_options: dict,
     results: list[dict],
+    exact_solve_enabled: bool,
+    exact_solve_stone_threshold: int | None,
 ) -> dict:
     az_wins = sum(int(result["az_wins"]) for result in results)
     mcts_wins = sum(int(result["mcts_wins"]) for result in results)
@@ -211,6 +235,10 @@ def build_report(
             "simulation_budget_min": 96,
             "simulation_budget_max": 1024,
             "simulation_budget_multipliers": "early:1.25,mid:1.0,late:1.15",
+            "exact_solve_enabled": bool(exact_solve_enabled),
+            "exact_solve_stone_threshold": None
+            if exact_solve_stone_threshold is None
+            else int(exact_solve_stone_threshold),
         },
     )
     return {
@@ -253,6 +281,8 @@ def main() -> None:
                 az_base_simulations=args.az_base_simulations,
                 mcts_simulations=args.mcts_simulations,
                 search_options=search_options,
+                exact_solve_enabled=bool(args.exact_solve_enabled),
+                exact_solve_stone_threshold=args.exact_solve_stone_threshold,
             )
             for start_index, count in zip(starts, counts, strict=True)
             if count > 0
@@ -266,6 +296,8 @@ def main() -> None:
         mcts_simulations=args.mcts_simulations,
         search_options=search_options,
         results=results,
+        exact_solve_enabled=bool(args.exact_solve_enabled),
+        exact_solve_stone_threshold=args.exact_solve_stone_threshold,
     )
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"wrote mcts1200 baseline report to {out_path}")
