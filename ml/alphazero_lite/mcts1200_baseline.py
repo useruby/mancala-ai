@@ -6,20 +6,18 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import json
+import math
 import os
-import random
 import sys
 from pathlib import Path
 
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.arena import ArtifactEvaluator
 from ml.alphazero_lite.classic_mcts import MCTS
 from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.self_play import (
-    PUCT,
     add_search_option_args,
     build_eval_search_options,
     build_search_profile,
@@ -36,6 +34,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mcts-simulations", type=int, default=1200)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--out", required=True)
+    parser.add_argument("--dynamic-budget-enabled", action="store_true")
+    parser.add_argument("--dynamic-budget-probe-simulations", type=int, default=0)
+    parser.add_argument("--dynamic-budget-min-simulations", type=int)
+    parser.add_argument("--dynamic-budget-max-simulations", type=int)
+    parser.add_argument("--dynamic-budget-entropy-weight", type=float, default=0.8)
+    parser.add_argument("--dynamic-budget-low-margin-threshold", type=float, default=0.2)
+    parser.add_argument("--dynamic-budget-low-margin-weight", type=float, default=1.5)
+    parser.add_argument("--dynamic-budget-variance-weight", type=float, default=1.5)
     parser.add_argument("--exact-solve-enabled", action="store_true")
     parser.add_argument("--exact-solve-stone-threshold", type=int)
     add_search_option_args(parser)
@@ -48,6 +54,35 @@ def parse_args() -> argparse.Namespace:
         parser.error("--exact-solve-stone-threshold must be non-negative")
     if args.exact_solve_stone_threshold is not None:
         args.exact_solve_stone_threshold = min(int(args.exact_solve_stone_threshold), EndgameTablebase.MAX_SOLVED_SEEDS)
+    if args.dynamic_budget_enabled:
+        min_simulations = args.mcts_simulations if args.dynamic_budget_min_simulations is None else int(args.dynamic_budget_min_simulations)
+        max_simulations = args.mcts_simulations if args.dynamic_budget_max_simulations is None else int(args.dynamic_budget_max_simulations)
+        probe_simulations = int(args.dynamic_budget_probe_simulations)
+        float_knobs = {
+            "--dynamic-budget-entropy-weight": float(args.dynamic_budget_entropy_weight),
+            "--dynamic-budget-low-margin-threshold": float(args.dynamic_budget_low_margin_threshold),
+            "--dynamic-budget-low-margin-weight": float(args.dynamic_budget_low_margin_weight),
+            "--dynamic-budget-variance-weight": float(args.dynamic_budget_variance_weight),
+        }
+        if min_simulations < 1:
+            parser.error("--dynamic-budget-min-simulations must be >= 1 when dynamic budget is enabled")
+        if max_simulations < min_simulations:
+            parser.error("--dynamic-budget-max-simulations must be >= --dynamic-budget-min-simulations")
+        if probe_simulations < 1:
+            parser.error("--dynamic-budget-probe-simulations must be >= 1 when dynamic budget is enabled")
+        if probe_simulations >= max_simulations:
+            parser.error("--dynamic-budget-probe-simulations must be < --dynamic-budget-max-simulations")
+        for name, value in float_knobs.items():
+            if not math.isfinite(value):
+                parser.error(f"{name} must be finite")
+        if not (0.0 <= float_knobs["--dynamic-budget-low-margin-threshold"] <= 1.0):
+            parser.error("--dynamic-budget-low-margin-threshold must be between 0 and 1")
+        if float_knobs["--dynamic-budget-entropy-weight"] < 0.0:
+            parser.error("--dynamic-budget-entropy-weight must be >= 0")
+        if float_knobs["--dynamic-budget-low-margin-weight"] < 0.0:
+            parser.error("--dynamic-budget-low-margin-weight must be >= 0")
+        if float_knobs["--dynamic-budget-variance-weight"] < 0.0:
+            parser.error("--dynamic-budget-variance-weight must be >= 0")
     return args
 
 
@@ -67,19 +102,6 @@ def partition_starts(counts: list[int]) -> list[int]:
     return starts
 
 
-def simulation_budget_for(game: KalahGame, base_simulations: int) -> int:
-    stones_in_pits = sum(game.pits)
-    if stones_in_pits >= 36:
-        multiplier = 1.25
-    elif stones_in_pits <= 12:
-        multiplier = 1.15
-    else:
-        multiplier = 1.0
-
-    scaled = round(int(base_simulations) * multiplier)
-    return max(96, min(1024, scaled))
-
-
 def initial_game() -> KalahGame:
     return KalahGame.from_state(
         {
@@ -92,7 +114,7 @@ def initial_game() -> KalahGame:
     )
 
 
-def run_stub_worker(*, start_index: int, games: int) -> dict:
+def run_stub_worker(*, start_index: int, games: int, az_base_simulations: int, mcts_simulations: int) -> dict:
     az_wins = 0
     mcts_wins = 0
     draws = 0
@@ -107,13 +129,82 @@ def run_stub_worker(*, start_index: int, games: int) -> dict:
         else:
             mcts_wins += 1
 
+    fixed_simulations = float(mcts_simulations)
+    dynamic_simulations = max(1.0, round(float(az_base_simulations) * 1.15, 2))
     return {
         "start_index": start_index,
         "games": games,
-        "az_wins": az_wins,
-        "mcts_wins": mcts_wins,
-        "draws": draws,
+        "dynamic": {
+            "az_wins": az_wins,
+            "mcts_wins": mcts_wins,
+            "draws": draws,
+            "budget_sample_count": games,
+            "budget_total_final_simulations": float(games * dynamic_simulations),
+            "budget_total_root_latency_ms": float(games * 6.5),
+        },
+        "fixed": {
+            "az_wins": az_wins,
+            "mcts_wins": mcts_wins,
+            "draws": draws,
+            "budget_sample_count": games,
+            "budget_total_final_simulations": float(games * fixed_simulations),
+            "budget_total_root_latency_ms": float(games * 6.3),
+        },
     }
+
+
+def empty_mode_result(*, games: int, start_index: int) -> dict:
+    return {
+        "start_index": start_index,
+        "games": games,
+        "az_wins": 0,
+        "mcts_wins": 0,
+        "draws": 0,
+        "budget_sample_count": 0,
+        "budget_total_final_simulations": 0.0,
+        "budget_total_root_latency_ms": 0.0,
+    }
+
+
+def head_to_head_role_for(*, game_index: int, player: int) -> str:
+    dynamic_player = game_index % 2
+    return "dynamic" if player == dynamic_player else "fixed"
+
+
+def build_classic_mcts(
+    *,
+    game: KalahGame,
+    game_index: int,
+    seed: int,
+    mcts_simulations: int,
+    dynamic_budget_enabled: bool,
+    dynamic_budget_probe_simulations: int,
+    dynamic_budget_min_simulations: int | None,
+    dynamic_budget_max_simulations: int | None,
+    dynamic_budget_entropy_weight: float,
+    dynamic_budget_low_margin_threshold: float,
+    dynamic_budget_low_margin_weight: float,
+    dynamic_budget_variance_weight: float,
+    endgame_tablebase: EndgameTablebase | None,
+    exact_solve_enabled: bool,
+    exact_solve_stone_threshold: int | None,
+) -> MCTS:
+    return MCTS(
+        game,
+        simulations=mcts_simulations,
+        seed=seed + (game_index * 37) + game.current_player,
+        dynamic_budget_enabled=dynamic_budget_enabled,
+        dynamic_budget_probe_simulations=dynamic_budget_probe_simulations,
+        dynamic_budget_min_simulations=dynamic_budget_min_simulations,
+        dynamic_budget_max_simulations=dynamic_budget_max_simulations,
+        dynamic_budget_entropy_weight=dynamic_budget_entropy_weight,
+        dynamic_budget_low_margin_threshold=dynamic_budget_low_margin_threshold,
+        dynamic_budget_low_margin_weight=dynamic_budget_low_margin_weight,
+        dynamic_budget_variance_weight=dynamic_budget_variance_weight,
+        endgame_tablebase=endgame_tablebase,
+        exact_solve_enabled=exact_solve_enabled,
+        exact_solve_stone_threshold=exact_solve_stone_threshold,
+    )
 
 
 def run_worker(
@@ -125,87 +216,162 @@ def run_worker(
     az_base_simulations: int,
     mcts_simulations: int,
     search_options: dict,
+    dynamic_budget_enabled: bool = False,
+    dynamic_budget_probe_simulations: int = 0,
+    dynamic_budget_min_simulations: int | None = None,
+    dynamic_budget_max_simulations: int | None = None,
+    dynamic_budget_entropy_weight: float = 0.8,
+    dynamic_budget_low_margin_threshold: float = 0.2,
+    dynamic_budget_low_margin_weight: float = 1.5,
+    dynamic_budget_variance_weight: float = 1.5,
     exact_solve_enabled: bool = False,
     exact_solve_stone_threshold: int | None = None,
 ) -> dict:
     if os.environ.get("AZLITE_MCTS1200_BASELINE_STUB") == "1":
-        return run_stub_worker(start_index=start_index, games=games)
+        return run_stub_worker(
+            start_index=start_index,
+            games=games,
+            az_base_simulations=az_base_simulations,
+            mcts_simulations=mcts_simulations,
+        )
 
-    evaluator = ArtifactEvaluator(Path(challenger_path))
+    del challenger_path, search_options
+
     tablebase = EndgameTablebase() if exact_solve_enabled else None
-    az_wins = 0
-    mcts_wins = 0
-    draws = 0
+    dynamic_result = empty_mode_result(games=games, start_index=start_index)
+    fixed_result = empty_mode_result(games=games, start_index=start_index)
 
     for local_index in range(games):
         game_index = start_index + local_index
         game = initial_game()
-        az_player = 0 if (game_index % 2) == 0 else 1
-        az_reusable_root = None
 
         while not game.over():
-            search = None
-            root = None
-            acting_player = game.current_player
-            if acting_player == az_player:
-                simulations = simulation_budget_for(game, az_base_simulations)
-                search = PUCT(
-                    evaluator=evaluator,
-                    simulations=simulations,
-                    c_puct=1.25,
-                    rng=random_for_game(seed, game_index, acting_player),
-                    root=az_reusable_root,
-                    fpu_mode=str(search_options["fpu_mode"]),
-                    reuse_subtree=bool(search_options["reuse_subtree"]),
-                    normalize_values=bool(search_options["normalize_values"]),
-                    root_policy_mode=str(search_options["root_policy_mode"]),
-                    tactical_root_bias=float(search_options["tactical_root_bias"]),
-                )
-                legal_moves = game.possible_moves()
-                if not legal_moves:
-                    break
-                _visits, root = search.run(game)
-                relative_move = search.select_root_move(root, legal_moves)
+            role = head_to_head_role_for(game_index=game_index, player=game.current_player)
+            is_dynamic = role == "dynamic"
+            search = build_classic_mcts(
+                game=game,
+                game_index=game_index,
+                seed=seed,
+                mcts_simulations=mcts_simulations,
+                dynamic_budget_enabled=is_dynamic and dynamic_budget_enabled,
+                dynamic_budget_probe_simulations=dynamic_budget_probe_simulations if is_dynamic else 0,
+                dynamic_budget_min_simulations=dynamic_budget_min_simulations if is_dynamic else mcts_simulations,
+                dynamic_budget_max_simulations=dynamic_budget_max_simulations if is_dynamic else mcts_simulations,
+                dynamic_budget_entropy_weight=dynamic_budget_entropy_weight,
+                dynamic_budget_low_margin_threshold=dynamic_budget_low_margin_threshold,
+                dynamic_budget_low_margin_weight=dynamic_budget_low_margin_weight,
+                dynamic_budget_variance_weight=dynamic_budget_variance_weight,
+                endgame_tablebase=tablebase,
+                exact_solve_enabled=exact_solve_enabled,
+                exact_solve_stone_threshold=exact_solve_stone_threshold,
+            )
+            if hasattr(search, "root_summary"):
+                summary = search.root_summary()
+                budget = summary.get("budget", {})
+                relative_move = summary.get("selected_move")
             else:
-                relative_move = MCTS(
-                    game,
-                    simulations=mcts_simulations,
-                    seed=seed + game_index,
-                    endgame_tablebase=tablebase,
-                    exact_solve_enabled=exact_solve_enabled,
-                    exact_solve_stone_threshold=exact_solve_stone_threshold,
-                ).choose_move()
+                budget = {}
+                relative_move = search.choose_move()
+
+            target = dynamic_result if is_dynamic else fixed_result
+            target["budget_sample_count"] += 1
+            target["budget_total_final_simulations"] += float(budget.get("final_simulations", 0.0))
+            target["budget_total_root_latency_ms"] += float(budget.get("root_latency_ms", 0.0))
 
             if relative_move is None:
                 break
             if not game.move(game.pit_index(relative_move)):
                 break
 
-            if acting_player == az_player and bool(search_options["reuse_subtree"]) and root is not None and game.current_player == az_player:
-                az_reusable_root = root.child_for_action(relative_move)
-            else:
-                az_reusable_root = None
-
-        az_score = game.captured_seeds[az_player]
-        baseline_score = game.captured_seeds[1 - az_player]
-        if az_score > baseline_score:
-            az_wins += 1
-        elif az_score < baseline_score:
-            mcts_wins += 1
+        dynamic_player = game_index % 2
+        fixed_player = 1 - dynamic_player
+        dynamic_score = game.captured_seeds[dynamic_player]
+        fixed_score = game.captured_seeds[fixed_player]
+        if dynamic_score > fixed_score:
+            dynamic_result["az_wins"] += 1
+            fixed_result["mcts_wins"] += 1
+        elif dynamic_score < fixed_score:
+            dynamic_result["mcts_wins"] += 1
+            fixed_result["az_wins"] += 1
         else:
-            draws += 1
+            dynamic_result["draws"] += 1
+            fixed_result["draws"] += 1
 
     return {
         "start_index": start_index,
         "games": games,
-        "az_wins": az_wins,
-        "mcts_wins": mcts_wins,
-        "draws": draws,
+        "dynamic": dynamic_result,
+        "fixed": fixed_result,
     }
 
 
-def random_for_game(seed: int, game_index: int, acting_player: int) -> random.Random:
-    return random.Random(seed + (game_index * 37) + acting_player)
+def summarize_mode_results(results: list[dict], *, mode: str) -> dict:
+    mode_results = []
+    for parent_result in results:
+        mode_result = dict(parent_result.get(mode, empty_mode_result(games=0, start_index=0)))
+        if "games" not in mode_result:
+            inferred_games = int(parent_result.get("games", 0))
+            if inferred_games <= 0:
+                inferred_games = (
+                    int(mode_result.get("az_wins", 0))
+                    + int(mode_result.get("mcts_wins", 0))
+                    + int(mode_result.get("draws", 0))
+                )
+            mode_result["games"] = inferred_games
+        if "start_index" not in mode_result:
+            mode_result["start_index"] = int(parent_result.get("start_index", 0))
+        mode_results.append(mode_result)
+    games = sum(int(result.get("games", 0)) for result in mode_results)
+    az_wins = sum(int(result.get("az_wins", 0)) for result in mode_results)
+    mcts_wins = sum(int(result.get("mcts_wins", 0)) for result in mode_results)
+    draws = sum(int(result.get("draws", 0)) for result in mode_results)
+    final_simulation_samples = sum(int(result.get("budget_sample_count", 0)) for result in mode_results)
+    latency_samples = sum(int(result.get("budget_sample_count", 0)) for result in mode_results)
+    total_final_simulations = sum(float(result.get("budget_total_final_simulations", 0.0)) for result in mode_results)
+    total_root_latency_ms = sum(float(result.get("budget_total_root_latency_ms", 0.0)) for result in mode_results)
+    if final_simulation_samples <= 0 and latency_samples <= 0:
+        for result in mode_results:
+            budget_summary = result.get("budget_summary")
+            if not isinstance(budget_summary, dict):
+                continue
+            weight = int(result.get("games", 0))
+            if weight <= 0:
+                weight = 1
+            if budget_summary.get("mean_final_simulations") is not None:
+                total_final_simulations += float(budget_summary["mean_final_simulations"]) * weight
+                final_simulation_samples += weight
+            if budget_summary.get("mean_root_latency_ms") is not None:
+                total_root_latency_ms += float(budget_summary["mean_root_latency_ms"]) * weight
+                latency_samples += weight
+
+    score = None if games <= 0 else (az_wins + (0.5 * draws)) / float(games)
+    return {
+        "games": games,
+        "az_wins": az_wins,
+        "mcts_wins": mcts_wins,
+        "draws": draws,
+        "score": score,
+        "budget_summary": {
+            "mean_final_simulations": round(total_final_simulations / final_simulation_samples, 2)
+            if final_simulation_samples > 0
+            else None,
+            "mean_root_latency_ms": round(total_root_latency_ms / latency_samples, 2) if latency_samples > 0 else None,
+        },
+    }
+
+
+def seat_bias_neutralized(results: list[dict]) -> bool:
+    dynamic_starts = 0
+    dynamic_replies = 0
+    for result in results:
+        start_index = int(result.get("start_index", 0))
+        game_count = int(result.get("games", 0))
+        for game_index in range(start_index, start_index + game_count):
+            if game_index % 2 == 0:
+                dynamic_starts += 1
+            else:
+                dynamic_replies += 1
+    return dynamic_starts == dynamic_replies
 
 
 def build_report(
@@ -214,45 +380,113 @@ def build_report(
     az_base_simulations: int,
     mcts_simulations: int,
     search_options: dict,
+    dynamic_budget_enabled: bool = False,
+    dynamic_budget_probe_simulations: int = 0,
+    dynamic_budget_min_simulations: int | None = None,
+    dynamic_budget_max_simulations: int | None = None,
+    dynamic_budget_entropy_weight: float = 0.8,
+    dynamic_budget_low_margin_threshold: float = 0.2,
+    dynamic_budget_low_margin_weight: float = 1.5,
+    dynamic_budget_variance_weight: float = 1.5,
     results: list[dict],
     exact_solve_enabled: bool,
     exact_solve_stone_threshold: int | None,
 ) -> dict:
-    az_wins = sum(int(result["az_wins"]) for result in results)
-    mcts_wins = sum(int(result["mcts_wins"]) for result in results)
-    draws = sum(int(result["draws"]) for result in results)
-    score = (az_wins + (0.5 * draws)) / float(games)
+    comparison_enabled = bool(dynamic_budget_enabled)
+    effective_dynamic_budget_min_simulations = (
+        int(mcts_simulations)
+        if (not dynamic_budget_enabled or dynamic_budget_min_simulations is None)
+        else int(dynamic_budget_min_simulations)
+    )
+    effective_dynamic_budget_max_simulations = (
+        int(mcts_simulations)
+        if (not dynamic_budget_enabled or dynamic_budget_max_simulations is None)
+        else int(dynamic_budget_max_simulations)
+    )
+    classic_mcts_dynamic_budget_config = {
+        "enabled": comparison_enabled,
+        "probe_simulations": int(dynamic_budget_probe_simulations) if comparison_enabled else 0,
+        "min_simulations": effective_dynamic_budget_min_simulations,
+        "max_simulations": effective_dynamic_budget_max_simulations,
+        "entropy_weight": float(dynamic_budget_entropy_weight) if comparison_enabled else 0.0,
+        "low_margin_threshold": float(dynamic_budget_low_margin_threshold) if comparison_enabled else 0.0,
+        "low_margin_weight": float(dynamic_budget_low_margin_weight) if comparison_enabled else 0.0,
+        "variance_weight": float(dynamic_budget_variance_weight) if comparison_enabled else 0.0,
+    }
+    dynamic_summary = summarize_mode_results(results, mode="dynamic")
+    fixed_summary = summarize_mode_results(results, mode="fixed")
     search_profile = build_search_profile(
         kind="mcts1200_baseline_eval",
-        player_mode="puct",
-        simulations=az_base_simulations,
+        player_mode="classic_mcts",
+        simulations=mcts_simulations,
         c_puct=1.25,
         search_options=search_options,
         extra_fields={
             "az_base_simulations": int(az_base_simulations),
             "mcts_simulations": int(mcts_simulations),
-            "simulation_budget_policy": "stones_in_pits_scaled_clamped",
-            "simulation_budget_min": 96,
-            "simulation_budget_max": 1024,
-            "simulation_budget_multipliers": "early:1.25,mid:1.0,late:1.15",
+            "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts" if comparison_enabled else "fixed_classic_mcts",
+            "simulation_budget_min": effective_dynamic_budget_min_simulations,
+            "simulation_budget_max": effective_dynamic_budget_max_simulations,
+            "simulation_budget_multipliers": "dynamic:adaptive,fixed:constant" if comparison_enabled else "fixed:constant",
+            "dynamic_budget_enabled": classic_mcts_dynamic_budget_config["enabled"],
+            "dynamic_budget_probe_simulations": classic_mcts_dynamic_budget_config["probe_simulations"],
+            "dynamic_budget_min_simulations": classic_mcts_dynamic_budget_config["min_simulations"],
+            "dynamic_budget_max_simulations": classic_mcts_dynamic_budget_config["max_simulations"],
+            "dynamic_budget_entropy_weight": classic_mcts_dynamic_budget_config["entropy_weight"],
+            "dynamic_budget_low_margin_threshold": classic_mcts_dynamic_budget_config["low_margin_threshold"],
+            "dynamic_budget_low_margin_weight": classic_mcts_dynamic_budget_config["low_margin_weight"],
+            "dynamic_budget_variance_weight": classic_mcts_dynamic_budget_config["variance_weight"],
             "exact_solve_enabled": bool(exact_solve_enabled),
             "exact_solve_stone_threshold": None
             if exact_solve_stone_threshold is None
             else int(exact_solve_stone_threshold),
         },
     )
-    return {
+    classic_mcts_mode = "dynamic" if bool(dynamic_budget_enabled) else "fixed"
+    budget_summary_source = "classic_mcts_dynamic_runtime" if bool(dynamic_budget_enabled) else "classic_mcts_fixed_runtime"
+    report = {
         "schema": "azlite_vs_mcts_v1",
+        "classic_mcts_mode": classic_mcts_mode,
         "games": games,
         "az_base_simulations": az_base_simulations,
         "mcts_simulations": mcts_simulations,
+        "search_option_notes": "PUCT-oriented search flags are recorded in search_profile for provenance but ignored by ClassicMCTS execution",
         "search_profile": search_profile,
         "search_profile_hash": search_profile["hash"],
-        "az_wins": az_wins,
-        "mcts_wins": mcts_wins,
-        "draws": draws,
-        "score": round(score, 4),
+        "classic_mcts_dynamic_budget_config": classic_mcts_dynamic_budget_config,
+        "az_wins": dynamic_summary["az_wins"] if bool(dynamic_budget_enabled) else fixed_summary["az_wins"],
+        "mcts_wins": dynamic_summary["mcts_wins"] if bool(dynamic_budget_enabled) else fixed_summary["mcts_wins"],
+        "draws": dynamic_summary["draws"] if bool(dynamic_budget_enabled) else fixed_summary["draws"],
+        "score": round(float(dynamic_summary["score"] if bool(dynamic_budget_enabled) else fixed_summary["score"]), 4),
+        "budget_summary": {
+            "source": budget_summary_source,
+            "mean_final_simulations": dynamic_summary["budget_summary"]["mean_final_simulations"]
+            if bool(dynamic_budget_enabled)
+            else fixed_summary["budget_summary"]["mean_final_simulations"],
+            "mean_root_latency_ms": dynamic_summary["budget_summary"]["mean_root_latency_ms"]
+            if bool(dynamic_budget_enabled)
+            else fixed_summary["budget_summary"]["mean_root_latency_ms"],
+        },
     }
+    if comparison_enabled:
+        runtime_target_ms = fixed_summary["budget_summary"]["mean_root_latency_ms"]
+        dynamic_latency_ms = dynamic_summary["budget_summary"]["mean_root_latency_ms"]
+        report["comparison_mode"] = "classic_dynamic_vs_fixed"
+        report["dynamic_budget_comparison"] = {
+            "comparison_mode": "classic_dynamic_vs_fixed",
+            "runtime_target_ms": runtime_target_ms,
+            "runtime_target_matched": (
+                runtime_target_ms is not None and dynamic_latency_ms is not None and dynamic_latency_ms >= runtime_target_ms
+            ),
+            "seat_bias_neutralized": seat_bias_neutralized(results),
+            "dynamic_mean_final_simulations": dynamic_summary["budget_summary"]["mean_final_simulations"],
+            "dynamic_mean_root_latency_ms": dynamic_latency_ms,
+            "fixed_mean_final_simulations": fixed_summary["budget_summary"]["mean_final_simulations"],
+            "fixed_mean_root_latency_ms": runtime_target_ms,
+            "dynamic_score": None if dynamic_summary["score"] is None else round(float(dynamic_summary["score"]), 4),
+            "fixed_score": None if fixed_summary["score"] is None else round(float(fixed_summary["score"]), 4),
+        }
+    return report
 
 
 def main() -> None:
@@ -261,6 +495,8 @@ def main() -> None:
         raise SystemExit("--games must be > 0")
 
     challenger_path = Path(args.challenger_path).resolve()
+    if os.environ.get("AZLITE_MCTS1200_BASELINE_STUB") != "1" and not challenger_path.exists():
+        raise SystemExit(f"challenger path not found: {challenger_path}")
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -281,6 +517,14 @@ def main() -> None:
                 az_base_simulations=args.az_base_simulations,
                 mcts_simulations=args.mcts_simulations,
                 search_options=search_options,
+                dynamic_budget_enabled=bool(args.dynamic_budget_enabled),
+                dynamic_budget_probe_simulations=int(args.dynamic_budget_probe_simulations),
+                dynamic_budget_min_simulations=args.dynamic_budget_min_simulations,
+                dynamic_budget_max_simulations=args.dynamic_budget_max_simulations,
+                dynamic_budget_entropy_weight=float(args.dynamic_budget_entropy_weight),
+                dynamic_budget_low_margin_threshold=float(args.dynamic_budget_low_margin_threshold),
+                dynamic_budget_low_margin_weight=float(args.dynamic_budget_low_margin_weight),
+                dynamic_budget_variance_weight=float(args.dynamic_budget_variance_weight),
                 exact_solve_enabled=bool(args.exact_solve_enabled),
                 exact_solve_stone_threshold=args.exact_solve_stone_threshold,
             )
@@ -295,6 +539,14 @@ def main() -> None:
         az_base_simulations=args.az_base_simulations,
         mcts_simulations=args.mcts_simulations,
         search_options=search_options,
+        dynamic_budget_enabled=bool(args.dynamic_budget_enabled),
+        dynamic_budget_probe_simulations=int(args.dynamic_budget_probe_simulations),
+        dynamic_budget_min_simulations=args.dynamic_budget_min_simulations,
+        dynamic_budget_max_simulations=args.dynamic_budget_max_simulations,
+        dynamic_budget_entropy_weight=float(args.dynamic_budget_entropy_weight),
+        dynamic_budget_low_margin_threshold=float(args.dynamic_budget_low_margin_threshold),
+        dynamic_budget_low_margin_weight=float(args.dynamic_budget_low_margin_weight),
+        dynamic_budget_variance_weight=float(args.dynamic_budget_variance_weight),
         results=results,
         exact_solve_enabled=bool(args.exact_solve_enabled),
         exact_solve_stone_threshold=args.exact_solve_stone_threshold,

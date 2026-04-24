@@ -1,4 +1,6 @@
 import json
+import importlib.machinery
+import importlib.util
 import os
 import subprocess
 import tempfile
@@ -7,6 +9,18 @@ from pathlib import Path
 
 
 class LocalPromotionGateTest(unittest.TestCase):
+    def load_gate_module(self):
+        script_path = Path(__file__).resolve().parents[2] / "script/ai/local_promotion_gate"
+        spec = importlib.util.spec_from_file_location(
+            "local_promotion_gate",
+            script_path,
+            loader=importlib.machinery.SourceFileLoader("local_promotion_gate", str(script_path)),
+        )
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
     def run_gate(self, *args: str) -> subprocess.CompletedProcess[str]:
         repo_root = Path(__file__).resolve().parents[2]
         return subprocess.run(
@@ -706,6 +720,570 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.assertEqual("model-artifact/current", report["hard_path"])
             self.assertEqual(str(tmp / "regression.json"), report["regression_report_path"])
             self.assertTrue(any(reason["code"] == "regression_check_failed" for reason in report["failure_reasons"]))
+
+    def test_stub_decision_report_carries_dynamic_budget_summary(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            (tmp / "arena.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "budget_summary": {"mean_final_simulations": 128, "trigger_counts": {"late_high_entropy": 6}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cand_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30,
+                        "mcts_wins": 2,
+                        "draws": 8,
+                        "budget_summary": {"mean_final_simulations": 128, "mean_root_latency_ms": 6.5},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cur_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 24,
+                        "mcts_wins": 8,
+                        "draws": 8,
+                        "budget_summary": {"mean_final_simulations": 96, "mean_root_latency_ms": 6.2},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertIn("dynamic_budget", report)
+            self.assertEqual(128, report["dynamic_budget"]["candidate_mean_final_simulations"])
+            self.assertEqual(96, report["dynamic_budget"]["current_mean_final_simulations"])
+
+    def test_stub_decision_report_includes_hard_suite_bucket_breakdown(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            (tmp / "hard.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 72,
+                        "losses": 0,
+                        "draws": 48,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "hard_suite_buckets": {
+                            "opening": {"games": 20, "score": 0.58},
+                            "midgame": {"games": 20, "score": 0.61},
+                            "late": {"games": 20, "score": 0.55},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--hard-path",
+                str(tmp / "hard_model"),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-hard-report",
+                str(tmp / "hard.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertIn("hard_suite_buckets", report)
+            self.assertEqual({"games": 20, "score": 0.58}, report["hard_suite_buckets"]["opening"])
+
+    def test_stub_decision_report_preserves_real_producer_backed_zero_bucket_keys(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            (tmp / "hard.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 72,
+                        "losses": 0,
+                        "draws": 48,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "hard_suite_buckets": {
+                            "opening": {"games": 0, "score": None},
+                            "midgame": {"games": 3, "score": None},
+                            "late": {"games": 0, "score": None},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--hard-path",
+                str(tmp / "hard_model"),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-hard-report",
+                str(tmp / "hard.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual({"games": 0, "score": None}, report["hard_suite_buckets"]["opening"])
+            self.assertEqual({"games": 3, "score": None}, report["hard_suite_buckets"]["midgame"])
+            self.assertEqual({"games": 0, "score": None}, report["hard_suite_buckets"]["late"])
+
+    def test_stub_decision_report_ignores_generic_buckets_without_explicit_hard_suite_schema(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            (tmp / "hard.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 72,
+                        "losses": 0,
+                        "draws": 48,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "buckets": {
+                            "opening": {"games": 20, "score": 0.58},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--hard-path",
+                str(tmp / "hard_model"),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-hard-report",
+                str(tmp / "hard.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual({}, report["hard_suite_buckets"])
+
+    def test_stub_decision_report_marks_dynamic_budget_unavailable_without_budget_summaries(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertIsNone(report["dynamic_budget"])
+
+    def test_stub_decision_report_emits_dynamic_budget_recommendation(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            (tmp / "arena.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "budget_summary": {"mean_final_simulations": 128, "trigger_counts": {"late_high_entropy": 6}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "hard.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 72,
+                        "losses": 0,
+                        "draws": 48,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "hard_suite_buckets": {
+                            "opening": {"games": 20, "score": None},
+                            "midgame": {"games": 20, "score": None},
+                            "late": {"games": 20, "score": None},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cand_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30,
+                        "mcts_wins": 2,
+                        "draws": 8,
+                        "budget_summary": {
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                            "dynamic_budget_comparison": {
+                                "comparison_mode": "classic_dynamic_vs_fixed",
+                                "runtime_target_matched": True,
+                                "dynamic_score": 0.52,
+                                "fixed_score": 0.49,
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cur_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 24,
+                        "mcts_wins": 8,
+                        "draws": 8,
+                        "budget_summary": {"mean_final_simulations": 96, "mean_root_latency_ms": 6.2},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--hard-path",
+                str(tmp / "hard_model"),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-hard-report",
+                str(tmp / "hard.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual("keep", report["dynamic_budget_recommendation"]["decision"])
+            self.assertIn("promotion safety", report["dynamic_budget_recommendation"]["reason"])
+            self.assertEqual(0.8833, report["dynamic_budget_recommendation"]["evidence"]["arena_score"])
+
+    def test_stub_decision_report_emits_drop_recommendation_when_promotion_safety_fails(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            (tmp / "arena.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 20,
+                        "losses": 0,
+                        "draws": 40,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": False},
+                        "budget_summary": {"mean_final_simulations": 128, "trigger_counts": {"late_high_entropy": 6}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cand_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30,
+                        "mcts_wins": 2,
+                        "draws": 8,
+                        "budget_summary": {
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                            "dynamic_budget_comparison": {
+                                "comparison_mode": "classic_dynamic_vs_fixed",
+                                "runtime_target_matched": True,
+                                "dynamic_score": 0.52,
+                                "fixed_score": 0.49,
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cur_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 24,
+                        "mcts_wins": 8,
+                        "draws": 8,
+                        "budget_summary": {"mean_final_simulations": 96, "mean_root_latency_ms": 6.2},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual("drop", report["dynamic_budget_recommendation"]["decision"])
+            self.assertIn("promotion safety", report["dynamic_budget_recommendation"]["reason"])
+
+    def test_stub_decision_report_emits_tune_recommendation_when_runtime_matched_evidence_is_missing(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            (tmp / "arena.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "budget_summary": {"mean_final_simulations": 128, "trigger_counts": {"late_high_entropy": 6}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cand_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30,
+                        "mcts_wins": 2,
+                        "draws": 8,
+                        "budget_summary": {
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cur_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 24,
+                        "mcts_wins": 8,
+                        "draws": 8,
+                        "budget_summary": {"mean_final_simulations": 96, "mean_root_latency_ms": 6.2},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual("tune", report["dynamic_budget_recommendation"]["decision"])
+            self.assertIn("mixed", report["dynamic_budget_recommendation"]["reason"])
+
+    def test_dynamic_budget_recommendation_keeps_when_promotion_safety_passes_and_runtime_match_is_favorable(self):
+        module = self.load_gate_module()
+
+        recommendation = module.build_dynamic_budget_recommendation(
+            passed=True,
+            arena_score_value=0.88,
+            candidate_mcts_score_value=0.48,
+            current_mcts_score_value=0.55,
+            dynamic_budget={
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_matched": True,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                }
+            },
+            failure_reasons=[],
+        )
+
+        self.assertEqual("keep", recommendation["decision"])
+
+    def test_dynamic_budget_summary_reads_top_level_dynamic_budget_comparison(self):
+        module = self.load_gate_module()
+
+        summary = module.dynamic_budget_summary(
+            {
+                "budget_summary": {
+                    "mean_final_simulations": 128,
+                    "mean_root_latency_ms": 6.5,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_matched": True,
+                },
+            },
+            {
+                "budget_summary": {
+                    "mean_final_simulations": 96,
+                    "mean_root_latency_ms": 6.2,
+                }
+            },
+            {"budget_summary": {"trigger_counts": {"late_high_entropy": 6}}},
+        )
+
+        self.assertEqual(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "runtime_target_matched": True,
+            },
+            summary["dynamic_budget_comparison"],
+        )
 
 
 if __name__ == "__main__":

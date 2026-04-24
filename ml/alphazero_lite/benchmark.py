@@ -49,7 +49,53 @@ def validate_mcts_report(report: dict, report_name: str) -> tuple[int, int, int,
     return games, az_wins, mcts_wins, draws
 
 
-def parse_args() -> argparse.Namespace:
+def validated_numeric_score(report: dict, report_name: str) -> float:
+    if "score" not in report:
+        raise SystemExit(f"dynamic budget comparison requires explicit score fields; missing {report_name} score")
+    value = report.get("score")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise SystemExit(f"dynamic budget comparison requires explicit score fields; {report_name} score must be numeric")
+    score = float(value)
+    games, az_wins, _mcts_wins, draws = validate_mcts_report(report, report_name)
+    derived_score = round((az_wins + (0.5 * draws)) / games, 4)
+    if score != derived_score:
+        raise SystemExit(
+            f"dynamic budget comparison requires explicit score fields derived from raw counts; {report_name} score does not match games/az_wins/draws"
+        )
+    return score
+
+
+def validate_matching_fixed_arm_configuration(candidate_report: dict, baseline_report: dict) -> None:
+    candidate_profile = candidate_report.get("search_profile")
+    baseline_profile = baseline_report.get("search_profile")
+    if not isinstance(candidate_profile, dict) or not isinstance(baseline_profile, dict):
+        raise SystemExit("dynamic budget comparison requires producer provenance metadata in both reports")
+    if candidate_profile.get("kind") != baseline_profile.get("kind"):
+        raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
+    invariant_fields = (
+        "player_mode",
+        "classic_mcts_simulations",
+        "az_base_simulations",
+        "mcts_simulations",
+        "exact_solve_enabled",
+        "exact_solve_stone_threshold",
+    )
+    for field in invariant_fields:
+        candidate_value = candidate_profile.get(field)
+        baseline_value = baseline_profile.get(field)
+        if candidate_value != baseline_value:
+            raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
+
+    candidate_config = candidate_report.get("classic_mcts_dynamic_budget_config")
+    baseline_config = baseline_report.get("classic_mcts_dynamic_budget_config")
+    if isinstance(candidate_config, dict) and isinstance(baseline_config, dict):
+        if bool(candidate_config.get("enabled")) is not True:
+            raise SystemExit("dynamic budget comparison requires candidate dynamic budget config metadata")
+        if bool(baseline_config.get("enabled")) is not False:
+            raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["sanity", "promotion"], required=True)
     parser.add_argument("--games", type=int, default=60)
@@ -66,7 +112,77 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true")
     add_search_option_args(parser)
     parser.set_defaults(root_policy_mode="deterministic", tactical_root_bias=0.1)
-    return parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def dynamic_budget_comparison(mcts_report: dict, baseline_report: dict | None, *, strict: bool = True) -> dict | None:
+    if baseline_report is None:
+        return None
+
+    candidate_mode = mcts_report.get("comparison_mode")
+    if candidate_mode is None:
+        if strict:
+            raise SystemExit("dynamic budget comparison requires explicit fixed-vs-dynamic ClassicMCTS candidate comparison_mode")
+        return None
+    if candidate_mode != "classic_dynamic_vs_fixed":
+        if strict:
+            raise SystemExit("dynamic budget comparison requires explicit fixed-vs-dynamic ClassicMCTS candidate comparison_mode")
+        return None
+
+    candidate_budget = mcts_report.get("budget_summary", {})
+    baseline_budget = baseline_report.get("budget_summary", {})
+    candidate_source = candidate_budget.get("source")
+    baseline_source = baseline_budget.get("source")
+    candidate_classic_mode = mcts_report.get("classic_mcts_mode")
+    baseline_classic_mode = baseline_report.get("classic_mcts_mode")
+    if candidate_classic_mode != "dynamic" or baseline_classic_mode != "fixed":
+        raise SystemExit("dynamic budget comparison requires dynamic candidate and fixed baseline ClassicMCTS reports")
+    if candidate_source != "classic_mcts_dynamic_runtime" or baseline_source != "classic_mcts_fixed_runtime":
+        raise SystemExit("dynamic budget comparison requires fixed-vs-dynamic ClassicMCTS comparison metric sources")
+    validate_matching_fixed_arm_configuration(mcts_report, baseline_report)
+
+    embedded_candidate = mcts_report.get("dynamic_budget_comparison")
+    if not isinstance(embedded_candidate, dict):
+        raise SystemExit("dynamic budget comparison requires embedded fixed-vs-dynamic ClassicMCTS candidate comparison data")
+
+    candidate_mean_final_simulations = candidate_budget.get("mean_final_simulations")
+    candidate_mean_root_latency_ms = candidate_budget.get("mean_root_latency_ms")
+    baseline_mean_final_simulations = baseline_budget.get("mean_final_simulations")
+    baseline_mean_root_latency_ms = baseline_budget.get("mean_root_latency_ms")
+    candidate_seat_bias_neutralized = embedded_candidate.get("seat_bias_neutralized")
+    if not isinstance(candidate_seat_bias_neutralized, bool):
+        raise SystemExit("dynamic budget comparison requires explicit seat-bias allocation metadata")
+    if candidate_mean_root_latency_ms is None or baseline_mean_root_latency_ms is None:
+        raise SystemExit("dynamic budget comparison requires candidate and baseline latency metrics")
+    runtime_target_ms = baseline_mean_root_latency_ms
+    runtime_target_matched = candidate_mean_root_latency_ms >= runtime_target_ms
+
+    candidate_score = validated_numeric_score(mcts_report, "candidate")
+    baseline_score = validated_numeric_score(baseline_report, "baseline")
+
+    result = {
+        "comparison_mode": "classic_dynamic_vs_fixed",
+        "runtime_target_ms": runtime_target_ms,
+        "runtime_target_matched": bool(runtime_target_matched),
+        "seat_bias_neutralized": candidate_seat_bias_neutralized,
+        "dynamic_mean_final_simulations": None
+        if candidate_mean_final_simulations is None
+        else float(candidate_mean_final_simulations),
+        "dynamic_mean_root_latency_ms": None
+        if candidate_mean_root_latency_ms is None
+        else float(candidate_mean_root_latency_ms),
+        "fixed_mean_final_simulations": None
+        if baseline_mean_final_simulations is None
+        else float(baseline_mean_final_simulations),
+        "fixed_mean_root_latency_ms": None
+        if baseline_mean_root_latency_ms is None
+        else float(baseline_mean_root_latency_ms),
+        "dynamic_score": candidate_score,
+        "fixed_score": baseline_score,
+    }
+    if embedded_candidate != result:
+        raise SystemExit("dynamic budget comparison requires truthful fixed-vs-dynamic ClassicMCTS comparison data")
+    return result
 
 
 def checks_for_mode(mode: str) -> list[dict[str, str]]:
@@ -184,8 +300,24 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
 
 def build_report(args: argparse.Namespace) -> dict:
     checks = checks_for_mode(args.mode)
+    dynamic_budget = None
+    dynamic_budget_metric_source = None
+    classic_mcts_dynamic_budget_config = None
     if args.mode == "promotion":
         checks = promotion_checks(args)
+        if not args.dry_run and args.mcts_report:
+            mcts = json.loads(Path(args.mcts_report).read_text(encoding="utf-8"))
+            dynamic_budget_metric_source = {
+                "candidate": mcts.get("budget_summary", {}).get("source"),
+            }
+            classic_mcts_dynamic_budget_config = {
+                "candidate": mcts.get("classic_mcts_dynamic_budget_config"),
+            }
+            if args.current_baseline_mcts_report:
+                baseline_mcts = json.loads(Path(args.current_baseline_mcts_report).read_text(encoding="utf-8"))
+                dynamic_budget_metric_source["baseline"] = baseline_mcts.get("budget_summary", {}).get("source")
+                classic_mcts_dynamic_budget_config["baseline"] = baseline_mcts.get("classic_mcts_dynamic_budget_config")
+                dynamic_budget = dynamic_budget_comparison(mcts, baseline_mcts, strict=True)
 
     return {
         "schema": "azlite_benchmark_v1",
@@ -202,6 +334,9 @@ def build_report(args: argparse.Namespace) -> dict:
         "min_mcts_score": float(args.min_mcts_score),
         "dry_run": bool(args.dry_run),
         "search_options": build_eval_search_options(**search_options_from_args(args)),
+        "dynamic_budget_metric_source": dynamic_budget_metric_source,
+        "classic_mcts_dynamic_budget_config": classic_mcts_dynamic_budget_config,
+        "dynamic_budget_comparison": dynamic_budget,
         "checks": checks,
     }
 

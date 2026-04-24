@@ -175,6 +175,84 @@ def mcts_score(report: dict) -> float:
     return (az_wins + (0.5 * draws)) / games
 
 
+def dynamic_budget_summary(candidate_mcts_report: dict, current_mcts_report: dict, arena_report: dict) -> dict | None:
+    candidate_budget = candidate_mcts_report.get("budget_summary", {})
+    current_budget = current_mcts_report.get("budget_summary", {})
+    arena_budget = arena_report.get("budget_summary", {})
+    if not any((candidate_budget, current_budget, arena_budget)):
+        return None
+
+    return {
+        "candidate_mean_final_simulations": candidate_budget.get("mean_final_simulations"),
+        "candidate_mean_root_latency_ms": candidate_budget.get("mean_root_latency_ms"),
+        "current_mean_final_simulations": current_budget.get("mean_final_simulations"),
+        "current_mean_root_latency_ms": current_budget.get("mean_root_latency_ms"),
+        "arena_trigger_counts": arena_budget.get("trigger_counts", {}),
+        "dynamic_budget_comparison": candidate_mcts_report.get(
+            "dynamic_budget_comparison", candidate_budget.get("dynamic_budget_comparison")
+        ),
+    }
+
+
+def build_dynamic_budget_recommendation(
+    *,
+    passed: bool,
+    arena_score_value: float,
+    candidate_mcts_score_value: float,
+    current_mcts_score_value: float,
+    dynamic_budget: dict | None,
+    failure_reasons: list[dict],
+) -> dict:
+    comparison = {}
+    if isinstance(dynamic_budget, dict):
+        candidate_comparison = dynamic_budget.get("dynamic_budget_comparison")
+        if isinstance(candidate_comparison, dict):
+            comparison = candidate_comparison
+
+    decision = "tune"
+    reason = "promotion safety passed, but dynamic budget evidence is incomplete or mixed"
+    if not passed:
+        decision = "drop"
+        reason = "promotion safety checks failed for the dynamic budget candidate"
+    else:
+        runtime_target_matched = bool(comparison.get("runtime_target_matched"))
+        dynamic_score = comparison.get("dynamic_score")
+        fixed_score = comparison.get("fixed_score")
+        favorable_comparison = (
+            runtime_target_matched
+            and dynamic_score is not None
+            and fixed_score is not None
+            and float(dynamic_score) >= float(fixed_score)
+        )
+        if favorable_comparison:
+            decision = "keep"
+            reason = "promotion safety checks passed and dynamic budget evidence stayed favorable under the matched runtime target"
+
+    return {
+        "decision": decision,
+        "reason": reason,
+        "evidence": {
+            "promotion_safety_passed": bool(passed),
+            "arena_score": arena_score_value,
+            "candidate_mcts_score": candidate_mcts_score_value,
+            "current_mcts_score": current_mcts_score_value,
+            "dynamic_budget": dynamic_budget,
+            "failure_reasons": [row.get("code") for row in failure_reasons],
+        },
+    }
+
+
+def hard_suite_bucket_breakdown(hard_report: dict | None) -> dict:
+    if hard_report is None:
+        return {}
+
+    direct_buckets = hard_report.get("hard_suite_buckets")
+    if isinstance(direct_buckets, dict):
+        return direct_buckets
+
+    return {}
+
+
 def build_endgame_exact_solve_section(*, status: str, results_source: str, results: list[dict]) -> dict:
     return {
         "status": status,
@@ -355,6 +433,8 @@ def build_decision_report(
             "arena_losses": arena_losses,
             "candidate_mcts_score": computed_candidate_mcts_score,
             "current_mcts_score": computed_current_mcts_score,
+            "dynamic_budget": dynamic_budget_summary(candidate_mcts_report, current_mcts_report, arena_report),
+            "hard_suite_buckets": hard_suite_bucket_breakdown(hard_report),
             "lossless_passed": arena_losses <= args.max_losses,
             "passed": not failure_reasons,
             "failure_reasons": failure_reasons,
@@ -364,6 +444,14 @@ def build_decision_report(
                 results=existing_threshold_results,
             ),
         }
+    )
+    report["dynamic_budget_recommendation"] = build_dynamic_budget_recommendation(
+        passed=report["passed"],
+        arena_score_value=computed_arena_score,
+        candidate_mcts_score_value=computed_candidate_mcts_score,
+        current_mcts_score_value=computed_current_mcts_score,
+        dynamic_budget=report["dynamic_budget"],
+        failure_reasons=failure_reasons,
     )
     report["endgame_exact_solve"]["planned_evaluations"] = planned_evaluations
     report["endgame_exact_solve"]["scaffold_only"] = not bool(existing_threshold_results)

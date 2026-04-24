@@ -135,7 +135,6 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
         self.assertEqual(4, summary["selected_move"])
         self.assertAlmostEqual(0.5, summary["value"])
 
-
 class ArenaScriptTest(unittest.TestCase):
     def executable_python(self) -> str:
         repo_root = Path(__file__).resolve().parents[2]
@@ -218,6 +217,320 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertIn("policy", summary)
         self.assertIn("value", summary)
         self.assertIn("child_stats", summary)
+
+    def test_evaluate_artifact_position_classic_only_reports_budget_metadata(self):
+        from ml.alphazero_lite import arena
+
+        state = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+
+        class FakeClassicMCTS:
+            def __init__(self, game, simulations, seed):
+                del game, simulations, seed
+
+            def search_root(self):
+                class FakeChild:
+                    visits = 12
+                    wins = 9.0
+
+                class FakeRoot:
+                    visits = 12
+                    wins = 9.0
+                    children = {2: FakeChild()}
+
+                return FakeRoot()
+
+            def root_summary(self):
+                return {
+                    "selected_move": 2,
+                    "child_stats": [{"move": 2, "visits": 12, "win_rate": 0.75}],
+                    "budget": {
+                        "dynamic_budget_enabled": True,
+                        "baseline_simulations": 96,
+                        "probe_simulations": 24,
+                        "final_simulations": 144,
+                        "phase_bucket": "mid",
+                        "entropy": 0.81,
+                        "top_move_margin": 0.04,
+                        "child_value_variance": 0.03,
+                        "trigger": "mid_high_entropy_low_margin",
+                        "root_latency_ms": 7.5,
+                    },
+                }
+
+        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+            result = arena.evaluate_artifact_position(
+                artifact_path=None,
+                evaluator=None,
+                state=state,
+                simulations=96,
+                seed=7,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+                ablation_mode="classic_only",
+            )
+
+        self.assertIn("budget", result)
+        self.assertEqual(144, result["budget"]["final_simulations"])
+        self.assertEqual("mid_high_entropy_low_margin", result["budget"]["trigger"])
+        self.assertEqual(7.5, result["budget"]["root_latency_ms"])
+
+    def test_real_arena_report_includes_budget_summary_when_classic_only_probe_data_present(self):
+        report = {
+            "schema": "arena_v1",
+            "games_played": 2,
+            "wins": 1,
+            "losses": 1,
+            "draws": 0,
+            "promotion_decision": {"passed": False},
+            "notes": {},
+            "positions": [
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "dynamic_budget_enabled": True,
+                            "baseline_simulations": 96,
+                            "probe_simulations": 24,
+                            "final_simulations": 128,
+                            "phase_bucket": "late",
+                            "entropy": 0.82,
+                            "top_move_margin": 0.05,
+                            "child_value_variance": 0.03,
+                            "trigger": "late_high_entropy",
+                            "root_latency_ms": 7.0,
+                        }
+                    },
+                    "current_summary": {
+                        "budget": {
+                            "dynamic_budget_enabled": False,
+                            "baseline_simulations": 96,
+                            "probe_simulations": 96,
+                            "final_simulations": 96,
+                            "phase_bucket": "fixed",
+                            "entropy": 0.0,
+                            "top_move_margin": 0.0,
+                            "child_value_variance": 0.0,
+                            "trigger": "fixed_budget",
+                            "root_latency_ms": 6.0,
+                        }
+                    },
+                },
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "dynamic_budget_enabled": True,
+                            "baseline_simulations": 96,
+                            "probe_simulations": 24,
+                            "final_simulations": 144,
+                            "phase_bucket": "late",
+                            "entropy": 0.88,
+                            "top_move_margin": 0.03,
+                            "child_value_variance": 0.04,
+                            "trigger": "late_high_entropy",
+                            "root_latency_ms": 9.0,
+                        }
+                    },
+                    "current_summary": {
+                        "budget": {
+                            "dynamic_budget_enabled": False,
+                            "baseline_simulations": 96,
+                            "probe_simulations": 96,
+                            "final_simulations": 96,
+                            "phase_bucket": "fixed",
+                            "entropy": 0.0,
+                            "top_move_margin": 0.0,
+                            "child_value_variance": 0.0,
+                            "trigger": "fixed_budget",
+                            "root_latency_ms": 6.5,
+                        }
+                    },
+                },
+            ],
+        }
+
+        summary = arena.budget_summary_for(report)
+
+        self.assertEqual(136.0, summary["mean_final_simulations"])
+        self.assertEqual(8.9, summary["p95_root_latency_ms"])
+        self.assertEqual({"late_high_entropy": 2}, summary["trigger_counts"])
+
+    def test_budget_summary_ignores_partial_or_invalid_budget_fields(self):
+        report = {
+            "positions": [
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "trigger": "fixed_budget",
+                            "final_simulations": "not-a-number",
+                            "root_latency_ms": 7.0,
+                        }
+                    }
+                },
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "trigger": "late_high_entropy",
+                            "final_simulations": 144,
+                        }
+                    }
+                },
+            ],
+            "notes": {},
+        }
+
+        summary = arena.budget_summary_for(report)
+
+        self.assertEqual(144.0, summary["mean_final_simulations"])
+        self.assertEqual(7.0, summary["p95_root_latency_ms"])
+        self.assertEqual({"fixed_budget": 1, "late_high_entropy": 1}, summary["trigger_counts"])
+
+    def test_budget_summary_does_not_infer_hard_suite_buckets_from_synthetic_positions(self):
+        report = {
+            "positions": [
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "final_simulations": 128,
+                            "root_latency_ms": 7.0,
+                            "trigger": "early_high_entropy",
+                            "phase_bucket": "early",
+                        }
+                    }
+                },
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "final_simulations": 96,
+                            "root_latency_ms": 6.0,
+                            "trigger": "mid_high_entropy",
+                            "phase_bucket": "mid",
+                        }
+                    }
+                },
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "final_simulations": 64,
+                            "root_latency_ms": 5.0,
+                            "trigger": "late_high_entropy",
+                            "phase_bucket": "late",
+                        }
+                    }
+                },
+            ],
+            "notes": {},
+        }
+
+        summary = arena.budget_summary_for(report)
+
+        self.assertNotIn("hard_suite_buckets", summary)
+
+    def test_attach_budget_summary_emits_stable_empty_hard_suite_bucket_schema_without_worker_data(self):
+        report = {
+            "positions": [
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "final_simulations": 128,
+                            "root_latency_ms": 7.0,
+                            "trigger": "early_high_entropy",
+                            "phase_bucket": "early",
+                        }
+                    }
+                }
+            ],
+            "notes": {},
+        }
+
+        emitted = arena.attach_budget_summary(report)
+
+        self.assertEqual(
+            {
+                "opening": {"games": 0, "score": None},
+                "midgame": {"games": 0, "score": None},
+                "late": {"games": 0, "score": None},
+            },
+            emitted["hard_suite_buckets"],
+        )
+
+    def test_evaluate_artifact_position_classic_only_synthesizes_fixed_budget_metadata(self):
+        from ml.alphazero_lite import arena
+
+        state = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+
+        class FakeClassicMCTS:
+            def __init__(self, game, simulations, seed):
+                del game, simulations, seed
+
+            def search_root(self):
+                class FakeChild:
+                    visits = 10
+                    wins = 6.0
+
+                class FakeRoot:
+                    visits = 10
+                    wins = 6.0
+                    children = {3: FakeChild()}
+
+                return FakeRoot()
+
+            def root_summary(self):
+                return {
+                    "selected_move": 3,
+                    "child_stats": [{"move": 3, "visits": 10, "win_rate": 0.6}],
+                }
+
+        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+            result = arena.evaluate_artifact_position(
+                artifact_path=None,
+                evaluator=None,
+                state=state,
+                simulations=96,
+                seed=7,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+                ablation_mode="classic_only",
+            )
+
+        self.assertIn("budget", result)
+        self.assertFalse(result["budget"]["dynamic_budget_enabled"])
+        self.assertEqual(96, result["budget"]["baseline_simulations"])
+        self.assertEqual(96, result["budget"]["chosen_simulations"])
+        self.assertEqual(96, result["budget"]["final_simulations"])
+        self.assertEqual("fixed_budget", result["budget"]["trigger"])
+
+    def test_budget_summary_returns_none_for_missing_numeric_metrics(self):
+        report = {
+            "positions": [
+                {
+                    "challenger_summary": {
+                        "budget": {
+                            "trigger": "fixed_budget",
+                            "final_simulations": "not-a-number",
+                            "root_latency_ms": "not-a-number",
+                        }
+                    }
+                }
+            ],
+            "notes": {},
+        }
+
+        summary = arena.budget_summary_for(report)
+
+        self.assertIsNone(summary["mean_final_simulations"])
+        self.assertIsNone(summary["p95_root_latency_ms"])
+        self.assertEqual({"fixed_budget": 1}, summary["trigger_counts"])
 
     def test_evaluate_position_policy_matches_tactical_root_bias_adjusted_root(self):
         artifact_dir = self.write_tactical_bias_artifact()
@@ -584,6 +897,7 @@ class ArenaScriptTest(unittest.TestCase):
                 self.moves_played = 0
                 self.current_player = 0
                 self.captured_seeds = [0, 0]
+                self.pits = [4] * 12
 
             def over(self):
                 return self.moves_played >= 2
@@ -597,6 +911,7 @@ class ArenaScriptTest(unittest.TestCase):
             def move(self, absolute_move):
                 self.moves_played += 1
                 self.current_player = 0
+                self.pits = [4] * 12
                 return absolute_move == 0
 
         class FakeRoot:
@@ -655,6 +970,7 @@ class ArenaScriptTest(unittest.TestCase):
                 self.moves_played = 0
                 self.current_player = 0
                 self.captured_seeds = [0, 0]
+                self.pits = [4] * 12
 
             def over(self):
                 return self.moves_played >= 2
@@ -668,6 +984,7 @@ class ArenaScriptTest(unittest.TestCase):
             def move(self, absolute_move):
                 self.moves_played += 1
                 self.current_player = self.moves_played % 2
+                self.pits = [4] * 12
                 return absolute_move == 0
 
         class FakeRoot:
@@ -713,6 +1030,116 @@ class ArenaScriptTest(unittest.TestCase):
             )
 
         self.assertEqual([("challenger", None), ("current", None)], created)
+
+    def test_run_arena_worker_assigns_each_game_to_a_single_hard_suite_bucket(self):
+        class FakeArtifactEvaluator:
+            def __init__(self, artifact_dir):
+                self.name = str(artifact_dir)
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.captured_seeds = [1, 0]
+                self.pits = [3] * 10
+
+            def over(self):
+                return self.moves_played >= 4
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                del absolute_move
+                phase_sums = [30, 18, 9, 9]
+                self.moves_played += 1
+                self.current_player = self.moves_played % 2
+                self.pits = [1] * phase_sums[self.moves_played - 1]
+                return True
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, None
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
+            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=32,
+                current_simulations=16,
+                seed=42,
+                c_puct=1.25,
+                max_moves=4,
+            )
+
+        self.assertEqual(1, sum(bucket["games"] for bucket in result["hard_suite_buckets"].values()))
+        self.assertEqual({"games": 0, "score": None}, result["hard_suite_buckets"]["opening"])
+        self.assertEqual({"games": 1, "score": None}, result["hard_suite_buckets"]["midgame"])
+        self.assertEqual({"games": 0, "score": None}, result["hard_suite_buckets"]["late"])
+
+    def test_aggregate_worker_reports_emits_stable_hard_suite_bucket_schema(self):
+        report = arena.aggregate_worker_reports(
+            games=3,
+            min_score=0.55,
+            challenger_path=Path("challenger"),
+            current_path=Path("current"),
+            challenger_simulations=32,
+            current_simulations=16,
+            seed=42,
+            workers=2,
+            search_options=arena.build_eval_search_options(),
+            results=[
+                {
+                    "wins": 2,
+                    "losses": 0,
+                    "draws": 0,
+                    "move_durations_ms": [10.0, 20.0],
+                    "search_profile": {"hash": "abc"},
+                    "search_profile_hash": "abc",
+                    "hard_suite_buckets": {
+                        "opening": {"games": 2, "score": None},
+                        "midgame": {"games": 1, "score": None},
+                        "late": {"games": 0, "score": None},
+                    },
+                },
+                {
+                    "wins": 0,
+                    "losses": 1,
+                    "draws": 0,
+                    "move_durations_ms": [30.0],
+                    "search_profile": {"hash": "abc"},
+                    "search_profile_hash": "abc",
+                    "hard_suite_buckets": {
+                        "opening": {"games": 0, "score": None},
+                        "midgame": {"games": 1, "score": None},
+                        "late": {"games": 3, "score": None},
+                    },
+                },
+            ],
+        )
+
+        self.assertEqual(
+            {
+                "opening": {"games": 2, "score": None},
+                "midgame": {"games": 2, "score": None},
+                "late": {"games": 3, "score": None},
+            },
+            report["hard_suite_buckets"],
+        )
 
     def test_cli_generates_validator_compatible_arena_report(self):
         python = self.executable_python()
@@ -804,6 +1231,10 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertTrue(out_path.exists())
 
             report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertIn("budget_summary", report)
+            self.assertEqual(32.0, report["budget_summary"]["mean_final_simulations"])
+            self.assertEqual({"fixed_budget": 6}, report["budget_summary"]["trigger_counts"])
+            self.assertGreaterEqual(report["budget_summary"]["p95_root_latency_ms"], 0.0)
             validate = subprocess.run(
                 [
                     python,
@@ -913,6 +1344,46 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertEqual(2, report["notes"]["workers_requested"])
             self.assertEqual(2, report["notes"]["workers_used"])
             self.assertEqual([3, 2], report["notes"]["worker_game_counts"])
+
+    def test_stub_cli_emits_budget_summary_for_downstream_parity(self):
+        python = self.executable_python()
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-stub-") as tmp:
+            tmp_path = Path(tmp)
+            challenger_dir = tmp_path / "challenger"
+            current_dir = tmp_path / "current"
+            out_path = tmp_path / "arena_report.json"
+            challenger_dir.mkdir()
+            current_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    python,
+                    "ml/alphazero_lite/arena.py",
+                    "--challenger",
+                    str(challenger_dir),
+                    "--current",
+                    str(current_dir),
+                    "--games",
+                    "5",
+                    "--challenger-simulations",
+                    "16",
+                    "--current-simulations",
+                    "16",
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env={**os.environ, "AZLITE_ARENA_STUB": "1"},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertIn("budget_summary", report)
+            self.assertEqual(16.0, report["budget_summary"]["mean_final_simulations"])
+            self.assertEqual({"fixed_budget": 5}, report["budget_summary"]["trigger_counts"])
 
 
 if __name__ == "__main__":

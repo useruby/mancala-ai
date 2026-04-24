@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import math
 import random
-from dataclasses import dataclass, field
+import time
+from dataclasses import asdict, dataclass, field
 
 from ml.alphazero_lite.endgame_tablebase import EndgameTablebaseContract
 from ml.alphazero_lite.kalah_rules import KalahGame, NUMBER_OF_PLAYERS, PITS_PER_PLAYER
@@ -58,6 +59,33 @@ class Node:
             self.parent.backpropagate(wins)
 
 
+@dataclass
+class DynamicBudgetConfig:
+    enabled: bool = False
+    probe_simulations: int = 0
+    min_simulations: int = 0
+    max_simulations: int = 0
+    entropy_weight: float = 0.8
+    low_margin_threshold: float = 0.2
+    low_margin_weight: float = 1.5
+    variance_weight: float = 1.5
+
+
+@dataclass
+class RootBudgetSummary:
+    dynamic_budget_enabled: bool
+    baseline_simulations: int
+    probe_simulations: int
+    chosen_simulations: int | None
+    final_simulations: int
+    phase_bucket: str
+    entropy: float
+    top_move_margin: float
+    child_value_variance: float
+    trigger: str
+    root_latency_ms: float = 0.0
+
+
 class MCTS:
     DEFAULT_SIMULATIONS = 5000
     DEPTH_OF_SIMULATION = 5
@@ -79,6 +107,14 @@ class MCTS:
         early_stop_check_interval: int = 200,
         early_stop_top_visit_share: float = 0.85,
         early_stop_required_checks: int = 2,
+        dynamic_budget_enabled: bool = False,
+        dynamic_budget_probe_simulations: int = 0,
+        dynamic_budget_min_simulations: int | None = None,
+        dynamic_budget_max_simulations: int | None = None,
+        dynamic_budget_entropy_weight: float = 0.8,
+        dynamic_budget_low_margin_threshold: float = 0.2,
+        dynamic_budget_low_margin_weight: float = 1.5,
+        dynamic_budget_variance_weight: float = 1.5,
         endgame_tablebase: EndgameTablebaseContract | None = None,
         exact_solve_enabled: bool = False,
         exact_solve_stone_threshold: int | None = None,
@@ -93,6 +129,40 @@ class MCTS:
         self.early_stop_check_interval = max(int(early_stop_check_interval), 1)
         self.early_stop_top_visit_share = float(early_stop_top_visit_share)
         self.early_stop_required_checks = max(int(early_stop_required_checks), 1)
+        min_simulations = simulations if dynamic_budget_min_simulations is None else int(dynamic_budget_min_simulations)
+        max_simulations = simulations if dynamic_budget_max_simulations is None else int(dynamic_budget_max_simulations)
+        probe_simulations = int(dynamic_budget_probe_simulations)
+        if dynamic_budget_enabled:
+            if min_simulations < 1:
+                raise ValueError("dynamic_budget_min_simulations must be >= 1")
+            if max_simulations < min_simulations:
+                raise ValueError("dynamic_budget_max_simulations must be >= dynamic_budget_min_simulations")
+            if probe_simulations < 1:
+                raise ValueError("dynamic_budget_probe_simulations must be >= 1 when dynamic budget is enabled")
+            if probe_simulations >= max_simulations:
+                raise ValueError("dynamic_budget_probe_simulations must be < dynamic_budget_max_simulations")
+        self.dynamic_budget_config = DynamicBudgetConfig(
+            enabled=bool(dynamic_budget_enabled),
+            probe_simulations=probe_simulations,
+            min_simulations=min_simulations,
+            max_simulations=max_simulations,
+            entropy_weight=float(dynamic_budget_entropy_weight),
+            low_margin_threshold=float(dynamic_budget_low_margin_threshold),
+            low_margin_weight=float(dynamic_budget_low_margin_weight),
+            variance_weight=float(dynamic_budget_variance_weight),
+        )
+        self._last_root_budget_summary = RootBudgetSummary(
+            dynamic_budget_enabled=bool(dynamic_budget_enabled),
+            baseline_simulations=int(simulations),
+            probe_simulations=int(probe_simulations) if dynamic_budget_enabled else int(simulations),
+            chosen_simulations=int(simulations),
+            final_simulations=int(simulations),
+            phase_bucket="fixed",
+            entropy=0.0,
+            top_move_margin=0.0,
+            child_value_variance=0.0,
+            trigger="fixed_budget",
+        )
         self.endgame_tablebase = endgame_tablebase
         self.exact_solve_enabled = exact_solve_enabled
         self.exact_solve_stone_threshold = exact_solve_stone_threshold
@@ -122,6 +192,7 @@ class MCTS:
         return {
             "selected_move": None if selected_move is None else int(selected_move),
             "child_stats": child_stats,
+            "budget": asdict(self._last_root_budget_summary),
         }
 
     def choose_playout_move(self, game: KalahGame) -> int | None:
@@ -154,13 +225,85 @@ class MCTS:
             return self._cached_root
 
         self.player = self.game.current_player
-        node = Node(self.game.clone())
-        node.expand()
-        if len(node.children) > 1:
-            self.run_search(node, self.simulations, allow_early_stop=True)
-        self._cached_root = node
+        root = Node(self.game.clone())
+        root.expand()
+        started = time.perf_counter()
+        probe_simulations = (
+            int(self.dynamic_budget_config.probe_simulations)
+            if self.dynamic_budget_config.enabled
+            else int(self.simulations)
+        )
+        simulations_run = 0
+        if len(root.children) > 1:
+            if self.dynamic_budget_config.enabled:
+                probe_budget = self.dynamic_budget_config.probe_simulations
+                probe_simulations_run = int(self.run_search(root, probe_budget, allow_early_stop=False))
+                probe_phase_bucket = self.phase_bucket_for(root.game)
+                probe_entropy = self.root_entropy(root)
+                probe_top_move_margin = self.top_move_margin(root)
+                probe_child_value_variance = self.child_value_variance(root)
+                probe_trigger = self.dynamic_budget_trigger_label(root)
+                final_budget = self.choose_dynamic_budget(root)
+                remaining_budget = max(final_budget - probe_budget, 0)
+                second_phase_simulations_run = 0
+                if remaining_budget > 0:
+                    second_phase_simulations_run = int(
+                        self.run_search(root, remaining_budget, allow_early_stop=True)
+                    )
+                simulations_run = probe_simulations_run + second_phase_simulations_run
+                self._last_root_budget_summary = RootBudgetSummary(
+                    dynamic_budget_enabled=True,
+                    baseline_simulations=int(self.simulations),
+                    probe_simulations=probe_simulations,
+                    chosen_simulations=int(final_budget),
+                    final_simulations=int(simulations_run),
+                    phase_bucket=probe_phase_bucket,
+                    entropy=probe_entropy,
+                    top_move_margin=probe_top_move_margin,
+                    child_value_variance=probe_child_value_variance,
+                    trigger=probe_trigger,
+                    root_latency_ms=(time.perf_counter() - started) * 1000.0,
+                )
+            else:
+                simulations_run = int(self.run_search(root, self.simulations, allow_early_stop=True))
+                self._last_root_budget_summary = RootBudgetSummary(
+                    dynamic_budget_enabled=False,
+                    baseline_simulations=int(self.simulations),
+                    probe_simulations=probe_simulations,
+                    chosen_simulations=int(self.simulations),
+                    final_simulations=int(simulations_run),
+                    phase_bucket="fixed",
+                    entropy=0.0,
+                    top_move_margin=0.0,
+                    child_value_variance=0.0,
+                    trigger="fixed_budget",
+                    root_latency_ms=(time.perf_counter() - started) * 1000.0,
+                )
+        else:
+            self._last_root_budget_summary = RootBudgetSummary(
+                dynamic_budget_enabled=bool(self.dynamic_budget_config.enabled),
+                baseline_simulations=int(self.simulations),
+                probe_simulations=probe_simulations,
+                chosen_simulations=(
+                    None
+                    if self.dynamic_budget_config.enabled
+                    else int(self.simulations)
+                ),
+                final_simulations=0,
+                phase_bucket=self.phase_bucket_for(root.game) if self.dynamic_budget_config.enabled else "fixed",
+                entropy=self.root_entropy(root),
+                top_move_margin=self.top_move_margin(root),
+                child_value_variance=self.child_value_variance(root),
+                trigger=(
+                    self.dynamic_budget_trigger_label(root)
+                    if self.dynamic_budget_config.enabled
+                    else "fixed_budget"
+                ),
+                root_latency_ms=(time.perf_counter() - started) * 1000.0,
+            )
+        self._cached_root = root
         self._cached_root_state = current_state
-        return node
+        return root
 
     def _choose_move_from_root(self, root: Node) -> int | None:
         if not root.children:
@@ -271,6 +414,78 @@ class MCTS:
         if seeds_remaining <= 24:
             return self.MID_GAME_PLAYOUT_DEPTH
         return self.EARLY_GAME_PLAYOUT_DEPTH
+
+    def phase_bucket_for(self, game: KalahGame) -> str:
+        seeds_remaining = sum(game.pits)
+        if seeds_remaining <= 12:
+            return "late"
+        if seeds_remaining <= 24:
+            return "mid"
+        return "early"
+
+    def root_entropy(self, node: Node) -> float:
+        visits = [child.visits for child in node.children.values()]
+        total = float(sum(visits))
+        if total <= 0.0:
+            return 0.0
+        probabilities = [visit / total for visit in visits]
+        entropy = -sum(probability * math.log(probability) for probability in probabilities if probability > 0.0)
+        max_entropy = math.log(len(node.children)) if len(node.children) > 1 else 1.0
+        return 0.0 if max_entropy <= 0 else entropy / max_entropy
+
+    def top_move_margin(self, node: Node) -> float:
+        win_rates = sorted(
+            [(child.wins / float(child.visits)) for child in node.children.values() if child.visits > 0],
+            reverse=True,
+        )
+        if len(node.children) > 1 and len(win_rates) < 2:
+            return 0.0
+        if len(win_rates) < 2:
+            return 1.0
+        return win_rates[0] - win_rates[1]
+
+    def child_value_variance(self, node: Node) -> float:
+        win_rates = [(child.wins / float(child.visits)) for child in node.children.values() if child.visits > 0]
+        if len(node.children) > 1 and len(win_rates) < 2:
+            return 0.25
+        if len(win_rates) < 2:
+            return 0.0
+        mean = sum(win_rates) / float(len(win_rates))
+        return sum((value - mean) ** 2 for value in win_rates) / float(len(win_rates))
+
+    def choose_dynamic_budget(self, node: Node) -> int:
+        entropy = self.root_entropy(node)
+        margin = self.top_move_margin(node)
+        variance = self.child_value_variance(node)
+        phase_bucket = self.phase_bucket_for(node.game)
+
+        multiplier = 1.0
+        if phase_bucket == "early":
+            multiplier -= 0.15
+        elif phase_bucket == "late":
+            multiplier += 0.15
+        multiplier += (entropy - 0.5) * self.dynamic_budget_config.entropy_weight
+        multiplier += max(0.0, self.dynamic_budget_config.low_margin_threshold - margin) * self.dynamic_budget_config.low_margin_weight
+        multiplier += variance * self.dynamic_budget_config.variance_weight
+
+        unclamped = round(self.simulations * multiplier)
+        return max(
+            self.dynamic_budget_config.probe_simulations,
+            self.dynamic_budget_config.min_simulations,
+            min(self.dynamic_budget_config.max_simulations, unclamped),
+        )
+
+    def dynamic_budget_trigger_label(self, node: Node) -> str:
+        labels = [self.phase_bucket_for(node.game)]
+        if self.root_entropy(node) >= 0.75:
+            labels.append("high_entropy")
+        if self.top_move_margin(node) <= self.dynamic_budget_config.low_margin_threshold:
+            labels.append("low_margin")
+        if self.child_value_variance(node) >= 0.02:
+            labels.append("high_variance")
+        if len(labels) == 1:
+            labels.append("low_uncertainty")
+        return "_".join(labels)
 
     def kalah_playout_move_score(
         self,

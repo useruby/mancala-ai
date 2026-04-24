@@ -39,6 +39,12 @@ from ml.alphazero_lite.search_ablation import build_mode_config, neutral_value
 
 PITS_PER_PLAYER = 6
 
+HARD_SUITE_BUCKET_LABELS = {
+    "early": "opening",
+    "mid": "midgame",
+    "late": "late",
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -216,7 +222,8 @@ def evaluate_artifact_position(
         root = search.search_root()
         visits = np.asarray(visits_from_classic_mcts_root(root), dtype=np.float32)
         legal_moves = game.possible_moves()
-        selected_move = search.root_summary()["selected_move"]
+        summary = search.root_summary()
+        selected_move = summary["selected_move"]
         total_visits = float(np.sum(visits[legal_moves])) if legal_moves else 0.0
         policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         if total_visits > 0:
@@ -241,6 +248,22 @@ def evaluate_artifact_position(
             "value": float(value_from_classic_mcts_root(root)),
             "child_stats": child_stats,
             "visits": [float(visit) for visit in visits.tolist()],
+            "budget": summary.get(
+                "budget",
+                {
+                    "dynamic_budget_enabled": False,
+                    "baseline_simulations": int(simulations),
+                    "chosen_simulations": int(simulations),
+                    "probe_simulations": int(simulations),
+                    "final_simulations": int(simulations),
+                    "phase_bucket": "fixed",
+                    "entropy": 0.0,
+                    "top_move_margin": 0.0,
+                    "child_value_variance": 0.0,
+                    "trigger": "fixed_budget",
+                    "root_latency_ms": 0.0,
+                },
+            ),
         }
 
     if evaluator is None:
@@ -308,6 +331,174 @@ def percentile(values: list[float], percentile_value: float) -> float:
     return float(np.percentile(np.asarray(values, dtype=np.float64), percentile_value))
 
 
+def empty_hard_suite_buckets() -> dict[str, dict]:
+    return {
+        "opening": {"games": 0, "score": None},
+        "midgame": {"games": 0, "score": None},
+        "late": {"games": 0, "score": None},
+    }
+
+
+def phase_bucket_for_game(game: KalahGame) -> str:
+    pits = getattr(game, "pits", None)
+    if pits is None:
+        return "early"
+    seeds_remaining = sum(pits)
+    if seeds_remaining <= 12:
+        return "late"
+    if seeds_remaining <= 24:
+        return "mid"
+    return "early"
+
+
+def record_hard_suite_bucket(buckets: dict[str, dict], game: KalahGame) -> None:
+    phase_bucket = phase_bucket_for_game(game)
+    label = HARD_SUITE_BUCKET_LABELS[phase_bucket]
+    buckets[label]["games"] += 1
+
+
+def record_completed_game_bucket(buckets: dict[str, dict], seen_phase_buckets: set[str]) -> None:
+    if not seen_phase_buckets:
+        label = HARD_SUITE_BUCKET_LABELS["early"]
+    elif "mid" in seen_phase_buckets:
+        label = HARD_SUITE_BUCKET_LABELS["mid"]
+    elif "late" in seen_phase_buckets:
+        label = HARD_SUITE_BUCKET_LABELS["late"]
+    else:
+        label = HARD_SUITE_BUCKET_LABELS["early"]
+    buckets[label]["games"] += 1
+
+
+def merge_hard_suite_buckets(bucket_summaries: list[dict | None]) -> dict[str, dict]:
+    merged = empty_hard_suite_buckets()
+    for summary in bucket_summaries:
+        if not isinstance(summary, dict):
+            continue
+        for label in merged:
+            row = summary.get(label, {}) if isinstance(summary.get(label, {}), dict) else {}
+            merged[label]["games"] += int(row.get("games", 0))
+    return merged
+
+
+def budget_summary_for(report: dict) -> dict:
+    def parse_budget_number(budget: dict, key: str) -> float | None:
+        value = budget.get(key)
+        if value is None:
+            return None
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    budgets = []
+    for position in report.get("positions", []):
+        summary = position.get("challenger_summary", {})
+        budget = summary.get("budget") if isinstance(summary, dict) else None
+        if isinstance(budget, dict) and budget:
+            budgets.append(budget)
+
+    if budgets:
+        final_simulations = [
+            value
+            for budget in budgets
+            if (value := parse_budget_number(budget, "final_simulations")) is not None
+        ]
+        root_latencies = [
+            value
+            for budget in budgets
+            if (value := parse_budget_number(budget, "root_latency_ms")) is not None
+        ]
+        trigger_counts: dict[str, int] = {}
+        for budget in budgets:
+            trigger = budget.get("trigger")
+            if trigger:
+                trigger_counts[str(trigger)] = trigger_counts.get(str(trigger), 0) + 1
+
+        summary = {
+            "mean_final_simulations": round(statistics.fmean(final_simulations), 2) if final_simulations else None,
+            "p95_root_latency_ms": round(percentile(root_latencies, 95), 2) if root_latencies else None,
+            "trigger_counts": trigger_counts,
+        }
+        return summary
+
+    notes = report.get("notes", {}) if isinstance(report.get("notes"), dict) else {}
+    return {
+        "mean_final_simulations": float(notes.get("challenger_simulations")) if notes.get("challenger_simulations") is not None else None,
+        "p95_root_latency_ms": float(notes.get("move_time_p95_ms", 0.0)),
+        "trigger_counts": ({"fixed_budget": int(report.get("games_played", 0))} if report.get("games_played") is not None else {}),
+    }
+
+
+def attach_budget_summary(report: dict) -> dict:
+    summary = budget_summary_for(report)
+    report["budget_summary"] = summary
+    if "hard_suite_buckets" not in report:
+        report["hard_suite_buckets"] = empty_hard_suite_buckets()
+    return report
+
+
+def aggregate_worker_reports(
+    *,
+    games: int,
+    min_score: float,
+    challenger_path: Path,
+    current_path: Path,
+    challenger_simulations: int,
+    current_simulations: int,
+    seed: int,
+    workers: int,
+    search_options: dict,
+    results: list[dict],
+) -> dict:
+    wins = sum(int(result["wins"]) for result in results)
+    losses = sum(int(result["losses"]) for result in results)
+    draws = sum(int(result["draws"]) for result in results)
+    move_durations_ms = [duration for result in results for duration in result["move_durations_ms"]]
+
+    score = (wins + (0.5 * draws)) / float(games)
+    fallback_search_profile = build_search_profile(
+        kind="arena_eval",
+        player_mode="puct",
+        simulations=max(int(challenger_simulations), int(current_simulations)),
+        c_puct=1.25,
+        search_options=search_options,
+        extra_fields={
+            "challenger_simulations": int(challenger_simulations),
+            "current_simulations": int(current_simulations),
+        },
+    )
+    emitted_search_profile = results[0]["search_profile"] if results else fallback_search_profile
+    emitted_search_profile_hash = results[0]["search_profile_hash"] if results else fallback_search_profile["hash"]
+
+    report = {
+        "schema": "arena_v1",
+        "games_played": int(games),
+        "wins": int(wins),
+        "losses": int(losses),
+        "draws": int(draws),
+        "promotion_decision": {"passed": bool(score >= min_score)},
+        "notes": {
+            "challenger_path": str(challenger_path),
+            "current_path": str(current_path),
+            "challenger_simulations": int(challenger_simulations),
+            "current_simulations": int(current_simulations),
+            "seed": int(seed),
+            "workers_requested": int(workers),
+            "workers_used": len(results),
+            "worker_game_counts": [int(result["wins"] + result["losses"] + result["draws"]) for result in results],
+            "search_options": search_options,
+            "search_profile": emitted_search_profile,
+            "search_profile_hash": emitted_search_profile_hash,
+            "move_time_mean_ms": round(statistics.fmean(move_durations_ms), 2) if move_durations_ms else 0.0,
+            "move_time_p95_ms": round(percentile(move_durations_ms, 95), 2),
+        },
+        "hard_suite_buckets": merge_hard_suite_buckets([result.get("hard_suite_buckets") for result in results]),
+    }
+    attach_budget_summary(report)
+    report["score"] = score
+    return report
+
+
 def run_arena_worker(
     *,
     worker_id: int,
@@ -353,6 +544,7 @@ def run_arena_worker(
     losses = 0
     draws = 0
     move_durations_ms: list[float] = []
+    hard_suite_buckets = empty_hard_suite_buckets()
 
     for local_index in range(games):
         game_index = start_index + local_index
@@ -370,6 +562,7 @@ def run_arena_worker(
             0: None,
             1: None,
         }
+        challenger_phase_buckets_seen: set[str] = set()
 
         for _ in range(max_moves):
             if game.over():
@@ -378,6 +571,9 @@ def run_arena_worker(
             legal_moves = game.possible_moves()
             if not legal_moves:
                 break
+
+            if game.current_player == challenger_player:
+                challenger_phase_buckets_seen.add(phase_bucket_for_game(game))
 
             if game.current_player == challenger_player:
                 evaluator = challenger
@@ -424,6 +620,7 @@ def run_arena_worker(
             losses += 1
         else:
             draws += 1
+        record_completed_game_bucket(hard_suite_buckets, challenger_phase_buckets_seen)
 
     return {
         "worker_id": worker_id,
@@ -431,6 +628,7 @@ def run_arena_worker(
         "losses": losses,
         "draws": draws,
         "move_durations_ms": move_durations_ms,
+        "hard_suite_buckets": hard_suite_buckets,
         "search_options": normalized_search_options,
         "search_profile": search_profile,
         "search_profile_hash": search_profile["hash"],
@@ -465,6 +663,12 @@ def main() -> None:
             "notes": {
                 "challenger_path": str(Path(args.challenger)),
                 "current_path": str(Path(args.current)),
+                "challenger_simulations": int(args.challenger_simulations),
+                "current_simulations": int(args.current_simulations),
+                "seed": int(args.seed),
+                "workers_requested": 1,
+                "workers_used": 1,
+                "worker_game_counts": [int(args.games)],
                 "search_options": search_options,
                 "search_profile": search_profile,
                 "search_profile_hash": search_profile["hash"],
@@ -472,6 +676,7 @@ def main() -> None:
                 "move_time_p95_ms": 160.0,
             },
         }
+        attach_budget_summary(report)
         out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"wrote arena report to {out_path}")
         print("score=0.8000 passed=True")
@@ -519,58 +724,22 @@ def main() -> None:
             )
         results = [future.result() for future in futures]
 
-    wins = sum(int(result["wins"]) for result in results)
-    losses = sum(int(result["losses"]) for result in results)
-    draws = sum(int(result["draws"]) for result in results)
-    move_durations_ms = [
-        duration
-        for result in results
-        for duration in result["move_durations_ms"]
-    ]
-
-    score = (wins + (0.5 * draws)) / float(args.games)
-    fallback_search_profile = build_search_profile(
-        kind="arena_eval",
-        player_mode="puct",
-        simulations=max(int(args.challenger_simulations), int(args.current_simulations)),
-        c_puct=args.c_puct,
+    report = aggregate_worker_reports(
+        games=args.games,
+        min_score=args.min_score,
+        challenger_path=challenger_path,
+        current_path=current_path,
+        challenger_simulations=args.challenger_simulations,
+        current_simulations=args.current_simulations,
+        seed=args.seed,
+        workers=args.workers,
         search_options=search_options,
-        extra_fields={
-            "challenger_simulations": int(args.challenger_simulations),
-            "current_simulations": int(args.current_simulations),
-        },
+        results=results,
     )
-    emitted_search_profile = results[0]["search_profile"] if results else fallback_search_profile
-    emitted_search_profile_hash = results[0]["search_profile_hash"] if results else fallback_search_profile["hash"]
-    report = {
-        "schema": "arena_v1",
-        "games_played": int(args.games),
-        "wins": int(wins),
-        "losses": int(losses),
-        "draws": int(draws),
-        "promotion_decision": {
-            "passed": bool(score >= args.min_score),
-        },
-        "notes": {
-            "challenger_path": str(challenger_path),
-            "current_path": str(current_path),
-            "challenger_simulations": int(args.challenger_simulations),
-            "current_simulations": int(args.current_simulations),
-            "seed": int(args.seed),
-            "workers_requested": int(args.workers),
-            "workers_used": len(results),
-            "worker_game_counts": [int(result["wins"] + result["losses"] + result["draws"]) for result in results],
-            "search_options": search_options,
-            "search_profile": emitted_search_profile,
-            "search_profile_hash": emitted_search_profile_hash,
-            "move_time_mean_ms": round(statistics.fmean(move_durations_ms), 2) if move_durations_ms else 0.0,
-            "move_time_p95_ms": round(percentile(move_durations_ms, 95), 2),
-        },
-    }
 
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"wrote arena report to {out_path}")
-    print(f"score={score:.4f} passed={report['promotion_decision']['passed']}")
+    print(f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}")
 
 
 if __name__ == "__main__":

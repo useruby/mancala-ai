@@ -59,6 +59,30 @@ class BenchmarkScriptTest(unittest.TestCase):
             }
         )
 
+    def classic_mcts_dynamic_search_profile(self, *, exact_solve_enabled=False, exact_solve_stone_threshold=None):
+        return {
+            "kind": "mcts1200_baseline_eval",
+            "player_mode": "classic_mcts",
+            "classic_mcts_simulations": 1200,
+            "az_base_simulations": 640,
+            "mcts_simulations": 1200,
+            "exact_solve_enabled": exact_solve_enabled,
+            "exact_solve_stone_threshold": exact_solve_stone_threshold,
+            "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts",
+        }
+
+    def classic_mcts_fixed_search_profile(self, *, exact_solve_enabled=False, exact_solve_stone_threshold=None):
+        return {
+            "kind": "mcts1200_baseline_eval",
+            "player_mode": "classic_mcts",
+            "classic_mcts_simulations": 1200,
+            "az_base_simulations": 640,
+            "mcts_simulations": 1200,
+            "exact_solve_enabled": exact_solve_enabled,
+            "exact_solve_stone_threshold": exact_solve_stone_threshold,
+            "simulation_budget_policy": "fixed_classic_mcts",
+        }
+
     def test_parent_value_fpu_uses_parent_q_for_unvisited_children(self):
         parent = self_play.Node(game=self.seeded_game(), visit_count=1, value_sum=0.6)
         child = self_play.Node(game=self.seeded_game(), prior=0.2)
@@ -679,11 +703,32 @@ class BenchmarkScriptTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "dynamic",
+                        "search_profile": self.classic_mcts_dynamic_search_profile(),
+                        "search_profile_hash": "dynamic-profile-hash",
                         "games": 30,
                         "az_wins": 15,
                         "mcts_wins": 15,
                         "draws": 0,
                         "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_dynamic_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.5,
+                            "fixed_score": 0.5,
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -692,11 +737,32 @@ class BenchmarkScriptTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "fixed",
+                        "search_profile": self.classic_mcts_fixed_search_profile(),
+                        "search_profile_hash": "fixed-profile-hash",
                         "games": 30,
                         "az_wins": 15,
                         "mcts_wins": 15,
                         "draws": 0,
                         "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.5,
+                            "fixed_score": 0.5,
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -761,11 +827,32 @@ class BenchmarkScriptTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "dynamic",
+                        "search_profile": self.classic_mcts_dynamic_search_profile(),
+                        "search_profile_hash": "dynamic-profile-hash",
                         "games": 30,
                         "az_wins": 12,
                         "mcts_wins": 18,
                         "draws": 0,
                         "score": 0.4,
+                        "budget_summary": {
+                            "source": "classic_mcts_dynamic_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.4,
+                            "fixed_score": 0.5,
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -774,11 +861,32 @@ class BenchmarkScriptTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "fixed",
+                        "search_profile": self.classic_mcts_fixed_search_profile(),
+                        "search_profile_hash": "fixed-profile-hash",
                         "games": 30,
                         "az_wins": 15,
                         "mcts_wins": 15,
                         "draws": 0,
                         "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.4,
+                            "fixed_score": 0.5,
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -843,11 +951,32 @@ class BenchmarkScriptTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "dynamic",
+                        "search_profile": self.classic_mcts_dynamic_search_profile(),
+                        "search_profile_hash": "dynamic-profile-hash",
                         "games": 30,
                         "az_wins": 12,
                         "mcts_wins": 18,
                         "draws": 0,
                         "score": 0.4,
+                        "budget_summary": {
+                            "source": "classic_mcts_dynamic_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.4,
+                            "fixed_score": 0.5,
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -856,11 +985,32 @@ class BenchmarkScriptTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "fixed",
+                        "search_profile": self.classic_mcts_fixed_search_profile(),
+                        "search_profile_hash": "fixed-profile-hash",
                         "games": 30,
                         "az_wins": 15,
                         "mcts_wins": 15,
                         "draws": 0,
                         "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.4,
+                            "fixed_score": 0.5,
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -904,6 +1054,1504 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertNotIn("min_score", mcts_check)
             self.assertNotIn("challenger_score", mcts_check)
             self.assertNotIn("current_baseline_score", mcts_check)
+
+    def test_promotion_report_rejects_non_classic_dynamic_budget_comparison_input(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            baseline_report = tmp_path / "baseline.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 36,
+                        "losses": 12,
+                        "draws": 12,
+                        "games_played": 60,
+                        "promotion_decision": {"passed": True},
+                        "budget_summary": {"mean_final_simulations": 128, "p95_root_latency_ms": 8.0},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 22,
+                        "mcts_wins": 10,
+                        "draws": 8,
+                        "budget_summary": {
+                            "source": "challenger_puct_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 24,
+                            "max_simulations": 96,
+                            "entropy_weight": 0.75,
+                            "low_margin_threshold": 0.18,
+                            "low_margin_weight": 1.25,
+                            "variance_weight": 1.1,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            baseline_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 20,
+                        "mcts_wins": 12,
+                        "draws": 8,
+                        "budget_summary": {
+                            "source": "challenger_puct_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": False,
+                            "probe_simulations": 0,
+                            "min_simulations": None,
+                            "max_simulations": None,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                    "--current-baseline-mcts-report",
+                    str(baseline_report),
+                ]
+            )
+            with self.assertRaisesRegex(SystemExit, "candidate comparison_mode"):
+                benchmark.build_report(args)
+
+    def test_dynamic_budget_comparison_requires_explicit_fixed_vs_dynamic_classic_mcts_reports(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "comparison_mode"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "budget_summary": {"mean_final_simulations": 128, "mean_root_latency_ms": 6.5},
+                },
+                {
+                    "budget_summary": {"mean_final_simulations": 96, "mean_root_latency_ms": 6.3},
+                },
+            )
+
+    def test_dynamic_budget_comparison_rejects_unexpected_mode_when_strict(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "candidate comparison_mode"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "unexpected_mode",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": self.classic_mcts_dynamic_search_profile(),
+                    "games": 30,
+                    "az_wins": 15,
+                    "mcts_wins": 15,
+                    "draws": 0,
+                    "score": 0.5,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {"comparison_mode": "classic_dynamic_vs_fixed"},
+                    "classic_mcts_dynamic_budget_config": {"enabled": True},
+                },
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": self.classic_mcts_fixed_search_profile(),
+                    "games": 30,
+                    "az_wins": 15,
+                    "mcts_wins": 15,
+                    "draws": 0,
+                    "score": 0.5,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {"enabled": False},
+                },
+                strict=True,
+            )
+
+    def test_dynamic_budget_comparison_reports_runtime_target_match_for_fixed_vs_dynamic_classic_mcts(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.dynamic_budget_comparison(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "dynamic",
+                "search_profile": self.classic_mcts_dynamic_search_profile(),
+                "search_profile_hash": "dynamic-profile-hash",
+                "games": 25,
+                "az_wins": 13,
+                "mcts_wins": 12,
+                "draws": 0,
+                "score": 0.52,
+                "budget_summary": {
+                    "source": "classic_mcts_dynamic_runtime",
+                    "mean_final_simulations": 128,
+                    "mean_root_latency_ms": 6.5,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": True,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {"enabled": True},
+            },
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "fixed",
+                "search_profile": self.classic_mcts_fixed_search_profile(),
+                "search_profile_hash": "fixed-profile-hash",
+                "games": 100,
+                "az_wins": 49,
+                "mcts_wins": 51,
+                "draws": 0,
+                "score": 0.49,
+                "budget_summary": {
+                    "source": "classic_mcts_fixed_runtime",
+                    "mean_final_simulations": 96,
+                    "mean_root_latency_ms": 6.3,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": True,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {"enabled": False},
+            },
+        )
+
+        self.assertEqual(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "runtime_target_ms": 6.3,
+                "runtime_target_matched": True,
+                "seat_bias_neutralized": True,
+                "dynamic_mean_final_simulations": 128.0,
+                "dynamic_mean_root_latency_ms": 6.5,
+                "fixed_mean_final_simulations": 96.0,
+                "fixed_mean_root_latency_ms": 6.3,
+                "dynamic_score": 0.52,
+                "fixed_score": 0.49,
+            },
+            report,
+        )
+
+    def test_dynamic_budget_comparison_accepts_real_fixed_baseline_without_embedded_comparison_payload(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.dynamic_budget_comparison(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "dynamic",
+                "search_profile": self.classic_mcts_dynamic_search_profile(),
+                "search_profile_hash": "dynamic-profile-hash",
+                "games": 25,
+                "az_wins": 13,
+                "mcts_wins": 12,
+                "draws": 0,
+                "score": 0.52,
+                "budget_summary": {
+                    "source": "classic_mcts_dynamic_runtime",
+                    "mean_final_simulations": 128,
+                    "mean_root_latency_ms": 6.5,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": True,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {"enabled": True},
+            },
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "fixed",
+                "search_profile": self.classic_mcts_fixed_search_profile(),
+                "search_profile_hash": "fixed-profile-hash",
+                "games": 100,
+                "az_wins": 49,
+                "mcts_wins": 51,
+                "draws": 0,
+                "score": 0.49,
+                "budget_summary": {
+                    "source": "classic_mcts_fixed_runtime",
+                    "mean_final_simulations": 96,
+                    "mean_root_latency_ms": 6.3,
+                },
+                "classic_mcts_dynamic_budget_config": {
+                    "enabled": False,
+                    "probe_simulations": 0,
+                    "min_simulations": 1200,
+                    "max_simulations": 1200,
+                    "entropy_weight": 0.0,
+                    "low_margin_threshold": 0.0,
+                    "low_margin_weight": 0.0,
+                    "variance_weight": 0.0,
+                },
+            },
+        )
+
+        self.assertEqual(6.3, report["runtime_target_ms"])
+        self.assertEqual(96.0, report["fixed_mean_final_simulations"])
+        self.assertEqual(0.49, report["fixed_score"])
+
+    def test_dynamic_budget_comparison_accepts_matching_producer_reports_with_different_profile_hashes(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.dynamic_budget_comparison(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "dynamic",
+                "search_profile": {
+                    "kind": "mcts1200_baseline_eval",
+                    "player_mode": "classic_mcts",
+                    "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts",
+                    "classic_mcts_simulations": 1200,
+                    "az_base_simulations": 640,
+                    "mcts_simulations": 1200,
+                },
+                "search_profile_hash": "dynamic-profile-hash",
+                "games": 25,
+                "az_wins": 13,
+                "mcts_wins": 12,
+                "draws": 0,
+                "score": 0.52,
+                "budget_summary": {
+                    "source": "classic_mcts_dynamic_runtime",
+                    "mean_final_simulations": 128,
+                    "mean_root_latency_ms": 6.5,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": True,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {
+                    "enabled": True,
+                    "probe_simulations": 12,
+                    "min_simulations": 24,
+                    "max_simulations": 96,
+                    "entropy_weight": 0.75,
+                    "low_margin_threshold": 0.18,
+                    "low_margin_weight": 1.25,
+                    "variance_weight": 1.1,
+                },
+            },
+            {
+                "classic_mcts_mode": "fixed",
+                "search_profile": {
+                    "kind": "mcts1200_baseline_eval",
+                    "player_mode": "classic_mcts",
+                    "simulation_budget_policy": "fixed_classic_mcts",
+                    "classic_mcts_simulations": 1200,
+                    "az_base_simulations": 640,
+                    "mcts_simulations": 1200,
+                },
+                "search_profile_hash": "fixed-profile-hash",
+                "games": 100,
+                "az_wins": 49,
+                "mcts_wins": 51,
+                "draws": 0,
+                "score": 0.49,
+                "budget_summary": {
+                    "source": "classic_mcts_fixed_runtime",
+                    "mean_final_simulations": 96,
+                    "mean_root_latency_ms": 6.3,
+                },
+                "classic_mcts_dynamic_budget_config": {
+                    "enabled": False,
+                    "probe_simulations": 0,
+                    "min_simulations": 1200,
+                    "max_simulations": 1200,
+                    "entropy_weight": 0.0,
+                    "low_margin_threshold": 0.0,
+                    "low_margin_weight": 0.0,
+                    "variance_weight": 0.0,
+                },
+            },
+        )
+
+        self.assertEqual(0.49, report["fixed_score"])
+
+    def test_dynamic_budget_comparison_rejects_missing_producer_provenance_metadata(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "producer provenance metadata"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "score": 0.52,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.52,
+                        "fixed_score": 0.49,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": True,
+                        "probe_simulations": 12,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.75,
+                        "low_margin_threshold": 0.18,
+                        "low_margin_weight": 1.25,
+                        "variance_weight": 1.1,
+                    },
+                },
+                {
+                    "classic_mcts_mode": "fixed",
+                    "score": 0.49,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": False,
+                        "probe_simulations": 0,
+                        "min_simulations": 1200,
+                        "max_simulations": 1200,
+                        "entropy_weight": 0.0,
+                        "low_margin_threshold": 0.0,
+                        "low_margin_weight": 0.0,
+                        "variance_weight": 0.0,
+                    },
+                },
+            )
+
+    def test_dynamic_budget_comparison_rejects_baseline_from_different_fixed_arm_configuration(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "matching fixed arm configuration"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": {
+                        "kind": "mcts1200_baseline_eval",
+                        "player_mode": "classic_mcts",
+                        "classic_mcts_simulations": 1200,
+                        "az_base_simulations": 640,
+                        "mcts_simulations": 1200,
+                        "exact_solve_enabled": False,
+                        "exact_solve_stone_threshold": None,
+                        "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts",
+                    },
+                    "search_profile_hash": "shared-profile-hash",
+                    "score": 0.52,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.52,
+                        "fixed_score": 0.49,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": True,
+                        "probe_simulations": 12,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.75,
+                        "low_margin_threshold": 0.18,
+                        "low_margin_weight": 1.25,
+                        "variance_weight": 1.1,
+                    },
+                },
+                {
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": {
+                        "kind": "mcts1200_baseline_eval",
+                        "player_mode": "classic_mcts",
+                        "classic_mcts_simulations": 1200,
+                        "az_base_simulations": 640,
+                        "mcts_simulations": 999,
+                        "exact_solve_enabled": False,
+                        "exact_solve_stone_threshold": None,
+                        "simulation_budget_policy": "fixed_classic_mcts",
+                    },
+                    "search_profile_hash": "different-profile-hash",
+                    "score": 0.49,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": False,
+                        "probe_simulations": 0,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.0,
+                        "low_margin_threshold": 0.0,
+                        "low_margin_weight": 0.0,
+                        "variance_weight": 0.0,
+                    },
+                },
+            )
+
+    def test_dynamic_budget_comparison_rejects_baseline_with_mismatched_exact_solve_invariant(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "matching fixed arm configuration"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": {
+                        "kind": "mcts1200_baseline_eval",
+                        "player_mode": "classic_mcts",
+                        "classic_mcts_simulations": 1200,
+                        "az_base_simulations": 640,
+                        "mcts_simulations": 1200,
+                        "exact_solve_enabled": True,
+                        "exact_solve_stone_threshold": 10,
+                        "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts",
+                    },
+                    "search_profile_hash": "dynamic-profile-hash",
+                    "score": 0.52,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.52,
+                        "fixed_score": 0.49,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": True,
+                        "probe_simulations": 12,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.75,
+                        "low_margin_threshold": 0.18,
+                        "low_margin_weight": 1.25,
+                        "variance_weight": 1.1,
+                    },
+                },
+                {
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": {
+                        "kind": "mcts1200_baseline_eval",
+                        "player_mode": "classic_mcts",
+                        "classic_mcts_simulations": 1200,
+                        "az_base_simulations": 640,
+                        "mcts_simulations": 1200,
+                        "exact_solve_enabled": False,
+                        "exact_solve_stone_threshold": None,
+                        "simulation_budget_policy": "fixed_classic_mcts",
+                    },
+                    "search_profile_hash": "fixed-profile-hash",
+                    "score": 0.49,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": False,
+                        "probe_simulations": 0,
+                        "min_simulations": 1200,
+                        "max_simulations": 1200,
+                        "entropy_weight": 0.0,
+                        "low_margin_threshold": 0.0,
+                        "low_margin_weight": 0.0,
+                        "variance_weight": 0.0,
+                    },
+                },
+            )
+
+    def test_dynamic_budget_comparison_preserves_embedded_seat_bias_neutralization_value(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.dynamic_budget_comparison(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "dynamic",
+                "search_profile": self.classic_mcts_dynamic_search_profile(),
+                "search_profile_hash": "dynamic-profile-hash",
+                "games": 25,
+                "az_wins": 13,
+                "mcts_wins": 12,
+                "draws": 0,
+                "score": 0.52,
+                "budget_summary": {
+                    "source": "classic_mcts_dynamic_runtime",
+                    "mean_final_simulations": 128,
+                    "mean_root_latency_ms": 6.5,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": True,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {
+                    "enabled": True,
+                    "probe_simulations": 12,
+                    "min_simulations": 24,
+                    "max_simulations": 96,
+                    "entropy_weight": 0.75,
+                    "low_margin_threshold": 0.18,
+                    "low_margin_weight": 1.25,
+                    "variance_weight": 1.1,
+                },
+            },
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "fixed",
+                "search_profile": self.classic_mcts_fixed_search_profile(),
+                "search_profile_hash": "fixed-profile-hash",
+                "games": 100,
+                "az_wins": 49,
+                "mcts_wins": 51,
+                "draws": 0,
+                "score": 0.49,
+                "budget_summary": {
+                    "source": "classic_mcts_fixed_runtime",
+                    "mean_final_simulations": 96,
+                    "mean_root_latency_ms": 6.3,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": True,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {
+                    "enabled": False,
+                    "probe_simulations": 0,
+                    "min_simulations": 1200,
+                    "max_simulations": 1200,
+                    "entropy_weight": 0.0,
+                    "low_margin_threshold": 0.0,
+                    "low_margin_weight": 0.0,
+                    "variance_weight": 0.0,
+                },
+            },
+        )
+
+        self.assertIs(True, report["seat_bias_neutralized"])
+
+    def test_dynamic_budget_comparison_accepts_derived_non_neutralized_seat_bias(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.dynamic_budget_comparison(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "dynamic",
+                "search_profile": self.classic_mcts_dynamic_search_profile(),
+                "search_profile_hash": "dynamic-profile-hash",
+                "games": 25,
+                "az_wins": 13,
+                "mcts_wins": 12,
+                "draws": 0,
+                "score": 0.52,
+                "budget_summary": {
+                    "source": "classic_mcts_dynamic_runtime",
+                    "mean_final_simulations": 128,
+                    "mean_root_latency_ms": 6.5,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": False,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {"enabled": True},
+            },
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "fixed",
+                "search_profile": self.classic_mcts_fixed_search_profile(),
+                "search_profile_hash": "fixed-profile-hash",
+                "games": 100,
+                "az_wins": 49,
+                "mcts_wins": 51,
+                "draws": 0,
+                "score": 0.49,
+                "budget_summary": {
+                    "source": "classic_mcts_fixed_runtime",
+                    "mean_final_simulations": 96,
+                    "mean_root_latency_ms": 6.3,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": False,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.52,
+                    "fixed_score": 0.49,
+                },
+                "classic_mcts_dynamic_budget_config": {"enabled": False},
+            },
+        )
+
+        self.assertIs(False, report["seat_bias_neutralized"])
+
+    def test_dynamic_budget_comparison_rejects_untruthful_candidate_comparison_payload(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "truthful fixed-vs-dynamic ClassicMCTS comparison data"):
+            benchmark.dynamic_budget_comparison(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "dynamic",
+                "search_profile": self.classic_mcts_dynamic_search_profile(),
+                "search_profile_hash": "dynamic-profile-hash",
+                "games": 25,
+                "az_wins": 13,
+                "mcts_wins": 12,
+                "draws": 0,
+                "score": 0.52,
+                "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 95.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.52,
+                        "fixed_score": 0.49,
+                        "seat_bias_neutralized": False,
+                    },
+                    "classic_mcts_dynamic_budget_config": {"enabled": True},
+                },
+                {
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": self.classic_mcts_fixed_search_profile(),
+                    "search_profile_hash": "fixed-profile-hash",
+                    "games": 100,
+                    "az_wins": 49,
+                    "mcts_wins": 51,
+                    "draws": 0,
+                    "score": 0.49,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {"enabled": False},
+                },
+            )
+
+    def test_dynamic_budget_comparison_rejects_missing_score_fields_with_controlled_error(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "score fields"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": {
+                        "kind": "mcts1200_baseline_eval",
+                        "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts",
+                    },
+                    "search_profile_hash": "shared-profile-hash",
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.52,
+                        "fixed_score": 0.49,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": True,
+                        "probe_simulations": 12,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.75,
+                        "low_margin_threshold": 0.18,
+                        "low_margin_weight": 1.25,
+                        "variance_weight": 1.1,
+                    },
+                },
+                {
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": {
+                        "kind": "mcts1200_baseline_eval",
+                        "simulation_budget_policy": "fixed_classic_mcts",
+                    },
+                    "search_profile_hash": "shared-profile-hash",
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": False,
+                        "probe_simulations": 0,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.0,
+                        "low_margin_threshold": 0.0,
+                        "low_margin_weight": 0.0,
+                        "variance_weight": 0.0,
+                    },
+                },
+            )
+
+    def test_dynamic_budget_comparison_rejects_score_fields_that_do_not_match_raw_counts(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "score fields"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": self.classic_mcts_dynamic_search_profile(),
+                    "search_profile_hash": "dynamic-profile-hash",
+                    "games": 40,
+                    "az_wins": 22,
+                    "mcts_wins": 10,
+                    "draws": 8,
+                    "score": 0.52,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.65,
+                        "fixed_score": 0.49,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": True,
+                        "probe_simulations": 12,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.75,
+                        "low_margin_threshold": 0.18,
+                        "low_margin_weight": 1.25,
+                        "variance_weight": 1.1,
+                    },
+                },
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": self.classic_mcts_fixed_search_profile(),
+                    "search_profile_hash": "fixed-profile-hash",
+                    "games": 40,
+                    "az_wins": 20,
+                    "mcts_wins": 12,
+                    "draws": 8,
+                    "score": 0.6,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": False,
+                        "probe_simulations": 0,
+                        "min_simulations": 1200,
+                        "max_simulations": 1200,
+                        "entropy_weight": 0.0,
+                        "low_margin_threshold": 0.0,
+                        "low_margin_weight": 0.0,
+                        "variance_weight": 0.0,
+                    },
+                },
+            )
+
+    def test_dynamic_budget_comparison_accepts_truthful_producer_rounded_scores(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.dynamic_budget_comparison(
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "dynamic",
+                "search_profile": self.classic_mcts_dynamic_search_profile(),
+                "search_profile_hash": "dynamic-profile-hash",
+                "games": 30,
+                "az_wins": 11,
+                "mcts_wins": 17,
+                "draws": 2,
+                "score": 0.4,
+                "budget_summary": {
+                    "source": "classic_mcts_dynamic_runtime",
+                    "mean_final_simulations": 128,
+                    "mean_root_latency_ms": 6.5,
+                },
+                "dynamic_budget_comparison": {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "runtime_target_ms": 6.3,
+                    "runtime_target_matched": True,
+                    "seat_bias_neutralized": True,
+                    "dynamic_mean_final_simulations": 128.0,
+                    "dynamic_mean_root_latency_ms": 6.5,
+                    "fixed_mean_final_simulations": 96.0,
+                    "fixed_mean_root_latency_ms": 6.3,
+                    "dynamic_score": 0.4,
+                    "fixed_score": 0.4333,
+                },
+                "classic_mcts_dynamic_budget_config": {
+                    "enabled": True,
+                    "probe_simulations": 12,
+                    "min_simulations": 24,
+                    "max_simulations": 96,
+                    "entropy_weight": 0.75,
+                    "low_margin_threshold": 0.18,
+                    "low_margin_weight": 1.25,
+                    "variance_weight": 1.1,
+                },
+            },
+            {
+                "comparison_mode": "classic_dynamic_vs_fixed",
+                "classic_mcts_mode": "fixed",
+                "search_profile": self.classic_mcts_fixed_search_profile(),
+                "search_profile_hash": "fixed-profile-hash",
+                "games": 30,
+                "az_wins": 12,
+                "mcts_wins": 16,
+                "draws": 2,
+                "score": 0.4333,
+                "budget_summary": {
+                    "source": "classic_mcts_fixed_runtime",
+                    "mean_final_simulations": 96,
+                    "mean_root_latency_ms": 6.3,
+                },
+                "classic_mcts_dynamic_budget_config": {
+                    "enabled": False,
+                    "probe_simulations": 0,
+                    "min_simulations": 1200,
+                    "max_simulations": 1200,
+                    "entropy_weight": 0.0,
+                    "low_margin_threshold": 0.0,
+                    "low_margin_weight": 0.0,
+                    "variance_weight": 0.0,
+                },
+            },
+        )
+
+        self.assertEqual(0.4333, report["fixed_score"])
+
+    def test_dynamic_budget_comparison_rejects_missing_candidate_latency_metric(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "latency metrics"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": self.classic_mcts_dynamic_search_profile(),
+                    "search_profile_hash": "dynamic-profile-hash",
+                    "games": 40,
+                    "az_wins": 22,
+                    "mcts_wins": 10,
+                    "draws": 8,
+                    "score": 0.65,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": None,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.65,
+                        "fixed_score": 0.6,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": True,
+                        "probe_simulations": 12,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.75,
+                        "low_margin_threshold": 0.18,
+                        "low_margin_weight": 1.25,
+                        "variance_weight": 1.1,
+                    },
+                },
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": self.classic_mcts_fixed_search_profile(),
+                    "search_profile_hash": "fixed-profile-hash",
+                    "games": 40,
+                    "az_wins": 20,
+                    "mcts_wins": 12,
+                    "draws": 8,
+                    "score": 0.6,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": False,
+                        "probe_simulations": 0,
+                        "min_simulations": 1200,
+                        "max_simulations": 1200,
+                        "entropy_weight": 0.0,
+                        "low_margin_threshold": 0.0,
+                        "low_margin_weight": 0.0,
+                        "variance_weight": 0.0,
+                    },
+                },
+            )
+
+    def test_dynamic_budget_comparison_rejects_missing_baseline_latency_metric(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "latency metrics"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": self.classic_mcts_dynamic_search_profile(),
+                    "search_profile_hash": "dynamic-profile-hash",
+                    "games": 40,
+                    "az_wins": 22,
+                    "mcts_wins": 10,
+                    "draws": 8,
+                    "score": 0.65,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": None,
+                        "runtime_target_matched": False,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": None,
+                        "dynamic_score": 0.65,
+                        "fixed_score": 0.6,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": True,
+                        "probe_simulations": 12,
+                        "min_simulations": 24,
+                        "max_simulations": 96,
+                        "entropy_weight": 0.75,
+                        "low_margin_threshold": 0.18,
+                        "low_margin_weight": 1.25,
+                        "variance_weight": 1.1,
+                    },
+                },
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": self.classic_mcts_fixed_search_profile(),
+                    "search_profile_hash": "fixed-profile-hash",
+                    "games": 40,
+                    "az_wins": 20,
+                    "mcts_wins": 12,
+                    "draws": 8,
+                    "score": 0.6,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                    },
+                    "classic_mcts_dynamic_budget_config": {
+                        "enabled": False,
+                        "probe_simulations": 0,
+                        "min_simulations": 1200,
+                        "max_simulations": 1200,
+                        "entropy_weight": 0.0,
+                        "low_margin_threshold": 0.0,
+                        "low_margin_weight": 0.0,
+                        "variance_weight": 0.0,
+                    },
+                },
+            )
+
+    def test_promotion_report_uses_embedded_fixed_vs_dynamic_classic_mcts_comparison(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            baseline_report = tmp_path / "baseline.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 36,
+                        "losses": 12,
+                        "draws": 12,
+                        "games_played": 60,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "dynamic",
+                        "search_profile": self.classic_mcts_dynamic_search_profile(),
+                        "search_profile_hash": "dynamic-profile-hash",
+                        "games": 40,
+                        "az_wins": 22,
+                        "mcts_wins": 10,
+                        "draws": 8,
+                        "score": 0.65,
+                        "budget_summary": {
+                            "source": "classic_mcts_dynamic_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.65,
+                            "fixed_score": 0.6,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 24,
+                            "max_simulations": 96,
+                            "entropy_weight": 0.75,
+                            "low_margin_threshold": 0.18,
+                            "low_margin_weight": 1.25,
+                            "variance_weight": 1.1,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            baseline_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "fixed",
+                        "search_profile": self.classic_mcts_fixed_search_profile(),
+                        "search_profile_hash": "fixed-profile-hash",
+                        "games": 40,
+                        "az_wins": 20,
+                        "mcts_wins": 12,
+                        "draws": 8,
+                        "score": 0.6,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.65,
+                            "fixed_score": 0.6,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": False,
+                            "probe_simulations": 0,
+                            "min_simulations": 96,
+                            "max_simulations": 96,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                    "--current-baseline-mcts-report",
+                    str(baseline_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual(0.65, report["dynamic_budget_comparison"]["dynamic_score"])
+        self.assertEqual(0.6, report["dynamic_budget_comparison"]["fixed_score"])
+        self.assertEqual("classic_mcts_dynamic_runtime", report["dynamic_budget_metric_source"]["candidate"])
+        self.assertEqual("classic_mcts_fixed_runtime", report["dynamic_budget_metric_source"]["baseline"])
+
+    def test_promotion_report_accepts_real_fixed_baseline_without_comparison_payload(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            baseline_report = tmp_path / "baseline.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 36,
+                        "losses": 12,
+                        "draws": 12,
+                        "games_played": 60,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "dynamic",
+                        "search_profile": self.classic_mcts_dynamic_search_profile(),
+                        "search_profile_hash": "dynamic-profile-hash",
+                        "games": 40,
+                        "az_wins": 22,
+                        "mcts_wins": 10,
+                        "draws": 8,
+                        "score": 0.65,
+                        "budget_summary": {
+                            "source": "classic_mcts_dynamic_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.65,
+                            "fixed_score": 0.6,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 24,
+                            "max_simulations": 96,
+                            "entropy_weight": 0.75,
+                            "low_margin_threshold": 0.18,
+                            "low_margin_weight": 1.25,
+                            "variance_weight": 1.1,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            baseline_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "classic_mcts_mode": "fixed",
+                        "search_profile": self.classic_mcts_fixed_search_profile(),
+                        "search_profile_hash": "fixed-profile-hash",
+                        "games": 40,
+                        "az_wins": 20,
+                        "mcts_wins": 12,
+                        "draws": 8,
+                        "score": 0.6,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": False,
+                            "probe_simulations": 0,
+                            "min_simulations": 96,
+                            "max_simulations": 96,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                    "--current-baseline-mcts-report",
+                    str(baseline_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual(0.65, report["dynamic_budget_comparison"]["dynamic_score"])
+        self.assertEqual(0.6, report["dynamic_budget_comparison"]["fixed_score"])
+
+    def test_promotion_dry_run_allows_baseline_flag_without_mcts_report(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "12",
+                    "--seed",
+                    "7",
+                    "--out",
+                    str(out_path),
+                    "--dry-run",
+                    "--current-baseline-mcts-report",
+                    str(tmp_path / "baseline.json"),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertIsNone(report["dynamic_budget_comparison"])
+
+    def test_promotion_report_preserves_candidate_dynamic_budget_metadata_without_baseline(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 36,
+                        "losses": 12,
+                        "draws": 12,
+                        "games_played": 60,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 22,
+                        "mcts_wins": 10,
+                        "draws": 8,
+                        "budget_summary": {
+                            "source": "challenger_puct_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 24,
+                            "max_simulations": 96,
+                            "entropy_weight": 0.75,
+                            "low_margin_threshold": 0.18,
+                            "low_margin_weight": 1.25,
+                            "variance_weight": 1.1,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual("challenger_puct_runtime", report["dynamic_budget_metric_source"]["candidate"])
+        self.assertIsNone(report["dynamic_budget_metric_source"].get("baseline"))
+        self.assertEqual(0.75, report["classic_mcts_dynamic_budget_config"]["candidate"]["entropy_weight"])
+        self.assertIsNone(report["classic_mcts_dynamic_budget_config"].get("baseline"))
+        self.assertNotIn("dynamic_budget_config", report)
+        self.assertIsNone(report["dynamic_budget_comparison"])
 
     def test_promotion_mode_rejects_mcts_report_missing_required_fields(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
