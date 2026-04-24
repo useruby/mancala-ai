@@ -18,6 +18,18 @@ from ml.alphazero_lite.self_play import add_search_option_args, build_eval_searc
 EXPECTED_MCTS_SCHEMA = "azlite_vs_mcts_v1"
 
 
+def opening_cache_summary_fields(summary: dict | None) -> dict | None:
+    if not isinstance(summary, dict):
+        return None
+
+    return {
+        "runtime_hit_rate": summary.get("runtime_hit_rate"),
+        "training_hit_rate": summary.get("training_hit_rate"),
+        "opening_bucket_quality_delta": summary.get("opening_bucket_quality_delta"),
+        "latency_delta_ms": summary.get("latency_delta_ms"),
+    }
+
+
 def mcts_integer_field(report: dict, key: str, report_name: str) -> int:
     if key not in report:
         raise SystemExit(f"{report_name} missing required field: {key}")
@@ -88,11 +100,10 @@ def validate_matching_fixed_arm_configuration(candidate_report: dict, baseline_r
 
     candidate_config = candidate_report.get("classic_mcts_dynamic_budget_config")
     baseline_config = baseline_report.get("classic_mcts_dynamic_budget_config")
-    if isinstance(candidate_config, dict) and isinstance(baseline_config, dict):
-        if bool(candidate_config.get("enabled")) is not True:
-            raise SystemExit("dynamic budget comparison requires candidate dynamic budget config metadata")
-        if bool(baseline_config.get("enabled")) is not False:
-            raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
+    if not isinstance(candidate_config, dict) or bool(candidate_config.get("enabled")) is not True:
+        raise SystemExit("dynamic budget comparison requires candidate dynamic budget config metadata")
+    if not isinstance(baseline_config, dict) or bool(baseline_config.get("enabled")) is not False:
+        raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -303,8 +314,12 @@ def build_report(args: argparse.Namespace) -> dict:
     dynamic_budget = None
     dynamic_budget_metric_source = None
     classic_mcts_dynamic_budget_config = None
+    opening_cache_summary = None
     if args.mode == "promotion":
         checks = promotion_checks(args)
+        if not args.dry_run and args.arena_report:
+            arena = json.loads(Path(args.arena_report).read_text(encoding="utf-8"))
+            opening_cache_summary = opening_cache_summary_fields(arena.get("opening_cache_summary"))
         if not args.dry_run and args.mcts_report:
             mcts = json.loads(Path(args.mcts_report).read_text(encoding="utf-8"))
             dynamic_budget_metric_source = {
@@ -337,7 +352,24 @@ def build_report(args: argparse.Namespace) -> dict:
         "dynamic_budget_metric_source": dynamic_budget_metric_source,
         "classic_mcts_dynamic_budget_config": classic_mcts_dynamic_budget_config,
         "dynamic_budget_comparison": dynamic_budget,
+        "opening_cache_summary": opening_cache_summary,
         "checks": checks,
+    }
+
+
+def build_report_from_inputs(*, arena_report: dict, mcts_report: dict, opening_cache_summary: dict | None = None) -> dict:
+    validate_arena_report(report=arena_report, min_score=0.0, min_confidence_lower_bound=None)
+    validate_mcts_report(mcts_report, "mcts report")
+    resolved_opening_cache_summary = opening_cache_summary
+    if resolved_opening_cache_summary is None:
+        resolved_opening_cache_summary = arena_report.get("opening_cache_summary")
+
+    return {
+        "schema": "azlite_benchmark_v1",
+        "mode": "promotion",
+        "arena_report": arena_report,
+        "mcts_report": mcts_report,
+        "opening_cache_summary": opening_cache_summary_fields(resolved_opening_cache_summary),
     }
 
 

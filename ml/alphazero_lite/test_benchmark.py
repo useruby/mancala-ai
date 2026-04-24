@@ -729,6 +729,7 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.5,
                             "fixed_score": 0.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {"enabled": True},
                     }
                 ),
                 encoding="utf-8",
@@ -763,6 +764,7 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.5,
                             "fixed_score": 0.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {"enabled": False},
                     }
                 ),
                 encoding="utf-8",
@@ -853,6 +855,7 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.4,
                             "fixed_score": 0.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {"enabled": True},
                     }
                 ),
                 encoding="utf-8",
@@ -887,6 +890,7 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.4,
                             "fixed_score": 0.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {"enabled": False},
                     }
                 ),
                 encoding="utf-8",
@@ -977,6 +981,7 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.4,
                             "fixed_score": 0.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {"enabled": True},
                     }
                 ),
                 encoding="utf-8",
@@ -1011,6 +1016,7 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.4,
                             "fixed_score": 0.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {"enabled": False},
                     }
                 ),
                 encoding="utf-8",
@@ -2553,6 +2559,132 @@ class BenchmarkScriptTest(unittest.TestCase):
         self.assertNotIn("dynamic_budget_config", report)
         self.assertIsNone(report["dynamic_budget_comparison"])
 
+    def test_build_report_preserves_opening_cache_summary_fields_from_arena_report(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                        "opening_cache_summary": {
+                            "runtime_hit_rate": 0.25,
+                            "training_hit_rate": 0.4,
+                            "opening_bucket_quality_delta": 0.03,
+                            "latency_delta_ms": -5.2,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 22,
+                        "mcts_wins": 10,
+                        "draws": 8,
+                        "score": 0.65,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual(0.25, report["opening_cache_summary"]["runtime_hit_rate"])
+        self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
+        self.assertEqual(0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(-5.2, report["opening_cache_summary"]["latency_delta_ms"])
+
+    def test_promotion_report_preserves_opening_cache_summary_fields(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.build_report_from_inputs(
+            arena_report={
+                "schema": "arena_v1",
+                "games_played": 60,
+                "wins": 36,
+                "losses": 24,
+                "draws": 0,
+                "promotion_decision": {"passed": True},
+            },
+            mcts_report={
+                "schema": "azlite_vs_mcts_v1",
+                "games": 40,
+                "az_wins": 22,
+                "mcts_wins": 10,
+                "draws": 8,
+                "score": 0.65,
+            },
+            opening_cache_summary={
+                "runtime_hit_rate": 0.25,
+                "training_hit_rate": 0.4,
+                "opening_bucket_quality_delta": 0.03,
+                "latency_delta_ms": -5.2,
+            },
+        )
+
+        self.assertEqual(0.25, report["opening_cache_summary"]["runtime_hit_rate"])
+        self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
+        self.assertEqual(0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(-5.2, report["opening_cache_summary"]["latency_delta_ms"])
+
+    def test_promotion_report_uses_arena_embedded_opening_cache_summary_when_input_not_overridden(self):
+        from ml.alphazero_lite import benchmark
+
+        report = benchmark.build_report_from_inputs(
+            arena_report={
+                "schema": "arena_v1",
+                "games_played": 60,
+                "wins": 36,
+                "losses": 24,
+                "draws": 0,
+                "promotion_decision": {"passed": True},
+                "opening_cache_summary": {
+                    "runtime_hit_rate": 0.25,
+                    "training_hit_rate": 0.4,
+                    "opening_bucket_quality_delta": 0.03,
+                    "latency_delta_ms": -5.2,
+                },
+            },
+            mcts_report={
+                "schema": "azlite_vs_mcts_v1",
+                "games": 40,
+                "az_wins": 22,
+                "mcts_wins": 10,
+                "draws": 8,
+                "score": 0.65,
+            },
+        )
+
+        self.assertEqual(0.25, report["opening_cache_summary"]["runtime_hit_rate"])
+        self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
+        self.assertEqual(0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(-5.2, report["opening_cache_summary"]["latency_delta_ms"])
+
     def test_promotion_mode_rejects_mcts_report_missing_required_fields(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
             tmp_path = Path(tmp)
@@ -2609,6 +2741,56 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn("missing required field", result.stderr)
+
+    def test_dynamic_budget_comparison_rejects_missing_candidate_dynamic_budget_config(self):
+        from ml.alphazero_lite import benchmark
+
+        with self.assertRaisesRegex(SystemExit, "candidate dynamic budget config metadata"):
+            benchmark.dynamic_budget_comparison(
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": self.classic_mcts_dynamic_search_profile(),
+                    "games": 30,
+                    "az_wins": 15,
+                    "mcts_wins": 15,
+                    "draws": 0,
+                    "score": 0.5,
+                    "budget_summary": {
+                        "source": "classic_mcts_dynamic_runtime",
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "runtime_target_ms": 6.3,
+                        "runtime_target_matched": True,
+                        "seat_bias_neutralized": True,
+                        "dynamic_mean_final_simulations": 128.0,
+                        "dynamic_mean_root_latency_ms": 6.5,
+                        "fixed_mean_final_simulations": 96.0,
+                        "fixed_mean_root_latency_ms": 6.3,
+                        "dynamic_score": 0.5,
+                        "fixed_score": 0.5,
+                    },
+                },
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "fixed",
+                    "search_profile": self.classic_mcts_fixed_search_profile(),
+                    "games": 30,
+                    "az_wins": 15,
+                    "mcts_wins": 15,
+                    "draws": 0,
+                    "score": 0.5,
+                    "budget_summary": {
+                        "source": "classic_mcts_fixed_runtime",
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
+                    "classic_mcts_dynamic_budget_config": {"enabled": False},
+                },
+            )
 
     def test_promotion_mode_rejects_mcts_report_with_negative_counts(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:

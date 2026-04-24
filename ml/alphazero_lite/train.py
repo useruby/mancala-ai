@@ -149,6 +149,16 @@ def validate_policy_target(
         )
 
 
+def declared_policy_target_mode_for_row(row: dict[str, object]) -> str | None:
+    actual_mode = row.get("policy_target_actual_mode")
+    if actual_mode is not None:
+        return str(actual_mode)
+    declared_mode = row.get("policy_target_mode")
+    if declared_mode is None:
+        return None
+    return str(declared_mode)
+
+
 def validate_value_target_mode(
     *,
     path: Path,
@@ -199,7 +209,7 @@ def load_jsonl(
                 path=path,
                 row_number=row_number,
                 policy_target_mode=policy_target_mode,
-                declared_mode=row.get("policy_target_mode"),
+                declared_mode=declared_policy_target_mode_for_row(row),
             )
             validate_value_target_mode(
                 path=path,

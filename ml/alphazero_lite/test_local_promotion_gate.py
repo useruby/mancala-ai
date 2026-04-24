@@ -2,6 +2,8 @@ import json
 import importlib.machinery
 import importlib.util
 import os
+import sys
+import types
 import subprocess
 import tempfile
 import unittest
@@ -1284,6 +1286,269 @@ class LocalPromotionGateTest(unittest.TestCase):
             },
             summary["dynamic_budget_comparison"],
         )
+
+    def test_dynamic_budget_summary_includes_opening_cache_keep_signal(self):
+        module = self.load_gate_module()
+
+        summary = module.dynamic_budget_summary(
+            candidate_mcts_report={"budget_summary": {}},
+            current_mcts_report={"budget_summary": {}},
+            arena_report={
+                "budget_summary": {},
+                "opening_cache_summary": {
+                    "runtime_hit_rate": 0.25,
+                    "training_hit_rate": 0.4,
+                    "opening_bucket_quality_delta": 0.03,
+                    "latency_delta_ms": -5.2,
+                },
+            },
+        )
+
+        self.assertEqual(0.25, summary["opening_cache_summary"]["runtime_hit_rate"])
+        self.assertEqual(0.4, summary["opening_cache_summary"]["training_hit_rate"])
+        self.assertEqual(0.03, summary["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(-5.2, summary["opening_cache_summary"]["latency_delta_ms"])
+
+    def test_opening_cache_recommendation_keeps_when_cache_evidence_is_favorable(self):
+        module = self.load_gate_module()
+
+        recommendation = module.build_opening_cache_recommendation(
+            opening_cache_summary={
+                "runtime_hit_rate": 0.25,
+                "training_hit_rate": 0.4,
+                "opening_bucket_quality_delta": 0.03,
+                "latency_delta_ms": -5.2,
+            }
+        )
+
+        self.assertEqual("keep", recommendation["decision"])
+
+    def test_opening_cache_recommendation_tunes_when_runtime_cache_evidence_is_unavailable(self):
+        module = self.load_gate_module()
+
+        recommendation = module.build_opening_cache_recommendation(
+            opening_cache_summary={
+                "runtime_hit_rate": None,
+                "training_hit_rate": 0.4,
+                "opening_bucket_quality_delta": None,
+                "latency_delta_ms": None,
+            }
+        )
+
+        self.assertEqual("tune", recommendation["decision"])
+
+    def test_opening_cache_recommendation_drop_reason_describes_unfavorable_evidence(self):
+        module = self.load_gate_module()
+
+        recommendation = module.build_opening_cache_recommendation(
+            opening_cache_summary={
+                "runtime_hit_rate": 0.2,
+                "training_hit_rate": 0.3,
+                "opening_bucket_quality_delta": -0.1,
+                "latency_delta_ms": 4.0,
+            }
+        )
+
+        self.assertEqual("drop", recommendation["decision"])
+        self.assertIn("unfavorable", recommendation["reason"])
+        self.assertNotIn("missing", recommendation["reason"])
+
+    def test_stub_decision_report_tunes_when_opening_cache_runtime_evidence_is_unavailable(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            (tmp / "arena.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "opening_cache_summary": {
+                            "runtime_hit_rate": None,
+                            "training_hit_rate": 0.4,
+                            "opening_bucket_quality_delta": None,
+                            "latency_delta_ms": None,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cand_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30,
+                        "mcts_wins": 2,
+                        "draws": 8,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cur_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 24,
+                        "mcts_wins": 8,
+                        "draws": 8,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual("tune", report["opening_cache_recommendation"]["decision"])
+
+    def test_stub_decision_report_emits_opening_cache_recommendation(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            (tmp / "arena.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                        "opening_cache_summary": {
+                            "runtime_hit_rate": 0.25,
+                            "training_hit_rate": 0.4,
+                            "opening_bucket_quality_delta": 0.03,
+                            "latency_delta_ms": -5.2,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cand_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30,
+                        "mcts_wins": 2,
+                        "draws": 8,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (tmp / "cur_mcts.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 24,
+                        "mcts_wins": 8,
+                        "draws": 8,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual("keep", report["opening_cache_recommendation"]["decision"])
+
+    def test_run_regression_check_accepts_exit_code_one_with_valid_report(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            report_path = Path(tmp) / "regression.json"
+            payload = json.dumps(
+                {
+                    "passed": False,
+                    "artifact_path": "candidate",
+                    "positions_path": "positions.json",
+                    "results": [{"passed": False}],
+                }
+            )
+
+            original_run = module.subprocess.run
+            module.subprocess.run = lambda *args, **kwargs: types.SimpleNamespace(returncode=1, stdout=payload, stderr="")
+            try:
+                report = module.run_regression_check(["script/ai/check_superhuman_regressions"], report_path)
+            finally:
+                module.subprocess.run = original_run
+
+        self.assertFalse(report["passed"])
+
+    def test_python_executable_prefers_shared_workspace_venv_when_worktree_venv_is_missing(self):
+        module = self.load_gate_module()
+        repo_root = module.repo_root()
+        worktree_python = repo_root / ".venv/bin/python"
+        shared_python = repo_root.parents[1] / ".venv/bin/python"
+
+        original_is_file = Path.is_file
+        original_access = os.access
+
+        def fake_is_file(path_self):
+            return path_self == shared_python
+
+        def fake_access(path_value, mode):
+            return path_value == shared_python and mode == os.X_OK
+
+        Path.is_file = fake_is_file
+        os.access = fake_access
+        try:
+            self.assertEqual(str(shared_python), module.python_executable())
+        finally:
+            Path.is_file = original_is_file
+            os.access = original_access
+
+    def test_python_executable_falls_back_to_sys_executable_outside_worktrees(self):
+        module = self.load_gate_module()
+        original_repo_root = module.repo_root
+        module.repo_root = lambda: Path("/tmp/project")
+        try:
+            self.assertEqual(sys.executable, module.python_executable())
+        finally:
+            module.repo_root = original_repo_root
 
 
 if __name__ == "__main__":

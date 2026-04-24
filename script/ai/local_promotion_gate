@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -151,9 +152,13 @@ def repo_root() -> Path:
 
 
 def python_executable() -> str:
-    repo_python = repo_root() / ".venv/bin/python"
-    if repo_python.exists():
-        return str(repo_python)
+    root = repo_root()
+    candidates = [root / ".venv/bin/python"]
+    if root.parent.name == ".worktrees":
+        candidates.append(root.parents[1] / ".venv/bin/python")
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
     return sys.executable
 
 
@@ -179,7 +184,8 @@ def dynamic_budget_summary(candidate_mcts_report: dict, current_mcts_report: dic
     candidate_budget = candidate_mcts_report.get("budget_summary", {})
     current_budget = current_mcts_report.get("budget_summary", {})
     arena_budget = arena_report.get("budget_summary", {})
-    if not any((candidate_budget, current_budget, arena_budget)):
+    opening_cache_summary = arena_report.get("opening_cache_summary")
+    if not any((candidate_budget, current_budget, arena_budget, opening_cache_summary)):
         return None
 
     return {
@@ -191,6 +197,7 @@ def dynamic_budget_summary(candidate_mcts_report: dict, current_mcts_report: dic
         "dynamic_budget_comparison": candidate_mcts_report.get(
             "dynamic_budget_comparison", candidate_budget.get("dynamic_budget_comparison")
         ),
+        "opening_cache_summary": opening_cache_summary,
     }
 
 
@@ -238,6 +245,70 @@ def build_dynamic_budget_recommendation(
             "current_mcts_score": current_mcts_score_value,
             "dynamic_budget": dynamic_budget,
             "failure_reasons": [row.get("code") for row in failure_reasons],
+        },
+    }
+
+
+def build_opening_cache_recommendation(*, opening_cache_summary: dict | None) -> dict:
+    if not isinstance(opening_cache_summary, dict):
+        return {
+            "decision": "tune",
+            "reason": "opening memoization evidence is unavailable, so promotion odds impact is still unclear",
+            "evidence": {"opening_cache_summary": None},
+        }
+
+    runtime_hit_rate = opening_cache_summary.get("runtime_hit_rate")
+    training_hit_rate = opening_cache_summary.get("training_hit_rate")
+    quality_delta = opening_cache_summary.get("opening_bucket_quality_delta")
+    latency_delta_ms = opening_cache_summary.get("latency_delta_ms")
+    evidence_available = all(
+        value is not None
+        for value in (
+            runtime_hit_rate,
+            training_hit_rate,
+            quality_delta,
+            latency_delta_ms,
+        )
+    )
+
+    if not evidence_available:
+        return {
+            "decision": "tune",
+            "reason": "opening memoization runtime evidence is unavailable, so promotion odds impact is still unclear",
+            "evidence": {
+                "opening_cache_summary": {
+                    "runtime_hit_rate": runtime_hit_rate,
+                    "training_hit_rate": training_hit_rate,
+                    "opening_bucket_quality_delta": quality_delta,
+                    "latency_delta_ms": latency_delta_ms,
+                }
+            },
+        }
+
+    favorable = (
+        float(runtime_hit_rate) > 0.0
+        and float(training_hit_rate) > 0.0
+        and float(quality_delta) >= 0.0
+        and float(latency_delta_ms) <= 0.0
+    )
+
+    if favorable:
+        decision = "keep"
+        reason = "opening memoization improved promotion odds enough to keep based on favorable hit-rate, quality, and latency evidence"
+    else:
+        decision = "drop"
+        reason = "opening memoization did not improve promotion odds enough to keep because the hit-rate, quality, or latency evidence was unfavorable"
+
+    return {
+        "decision": decision,
+        "reason": reason,
+        "evidence": {
+            "opening_cache_summary": {
+                "runtime_hit_rate": runtime_hit_rate,
+                "training_hit_rate": training_hit_rate,
+                "opening_bucket_quality_delta": quality_delta,
+                "latency_delta_ms": latency_delta_ms,
+            }
         },
     }
 
@@ -453,6 +524,13 @@ def build_decision_report(
         dynamic_budget=report["dynamic_budget"],
         failure_reasons=failure_reasons,
     )
+    dynamic_budget_details = report.get("dynamic_budget")
+    opening_cache_summary = None
+    if isinstance(dynamic_budget_details, dict):
+        opening_cache_summary = dynamic_budget_details.get("opening_cache_summary")
+    report["opening_cache_recommendation"] = build_opening_cache_recommendation(
+        opening_cache_summary=opening_cache_summary
+    )
     report["endgame_exact_solve"]["planned_evaluations"] = planned_evaluations
     report["endgame_exact_solve"]["scaffold_only"] = not bool(existing_threshold_results)
     report["endgame_exact_solve"]["recommendation"] = build_endgame_exact_solve_recommendation(existing_threshold_results)
@@ -512,12 +590,6 @@ def run_regression_check(command: list[str], report_path: Path) -> dict:
     )
 
     stdout = result.stdout.strip()
-    if result.returncode != 0:
-        details = (result.stderr or stdout).strip()
-        if details:
-            raise SystemExit(f"check_superhuman_regressions failed: {details}")
-        raise SystemExit("check_superhuman_regressions failed")
-
     report_text = report_path.read_text(encoding="utf-8").strip() if report_path.exists() else stdout
 
     try:

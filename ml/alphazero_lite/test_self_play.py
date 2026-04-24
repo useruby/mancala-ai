@@ -213,6 +213,12 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         self.assertEqual("pool.json", args.opponent_pool_config)
 
+    def test_parse_args_accepts_opening_cache_path(self):
+        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--opening-cache", "opening-cache.json"]):
+            args = self_play.parse_args()
+
+        self.assertEqual("opening-cache.json", args.opening_cache)
+
     def test_parse_args_accepts_evaluator_cache_size(self):
         with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--evaluator-cache-size", "128"]):
             args = self_play.parse_args()
@@ -840,6 +846,17 @@ class SelfPlayScriptTest(unittest.TestCase):
             default_target[0] - default_target[1],
         )
 
+    def test_build_policy_target_from_distribution_sharpens_cached_teacher_policy(self):
+        policy = [0.0, 0.75, 0.25, 0.0, 0.0, 0.0]
+
+        target = self_play.build_policy_target_from_distribution(policy, mode="sharpened")
+
+        np.testing.assert_allclose(
+            np.array([0.0, 0.9, 0.1, 0.0, 0.0, 0.0], dtype=np.float32),
+            np.array(target, dtype=np.float32),
+            atol=1e-6,
+        )
+
     def test_build_value_target_keeps_default_outcome_behavior(self):
         self.assertEqual(0.4, self_play.build_value_target(0.4))
         self.assertEqual(-0.4, self_play.build_value_target(-0.4))
@@ -1464,6 +1481,420 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertIsNotNone(created_roots[1])
         self.assertEqual([False, True], reused_roots)
 
+    def test_run_self_play_worker_reuses_opening_cache_teacher_outputs_on_hit(self):
+        cached_policy = [0.0, 0.75, 0.25, 0.0, 0.0, 0.0]
+        cached_value = 0.5
+        lookup_calls = []
+        cached_teacher_profile = {
+            "version": "v1",
+            "kind": "opening_cache_teacher",
+            "player_mode": "classic_mcts",
+            "classic_mcts_simulations": 1200,
+            "hash": "cached-profile-hash",
+        }
+
+        class FakeOpeningCache:
+            search_profile = cached_teacher_profile
+
+            def lookup(self, state, *, ply):
+                lookup_calls.append((state, ply))
+                return {
+                    "policy": cached_policy,
+                    "value": cached_value,
+                    "provenance": {
+                        "teacher_kind": "classic_mcts",
+                        "search_profile_hash": cached_teacher_profile["hash"],
+                    },
+                }
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [1] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move == 1
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-hit-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "PUCT", side_effect=AssertionError("PUCT should not run on cache hit")):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=2,
+                        shard_path=str(shard_path),
+                        opening_cache=FakeOpeningCache(),
+                        policy_target_mode="sharpened",
+                        value_target_mode="sharpened",
+                    )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(1, len(lookup_calls))
+        np.testing.assert_allclose(
+            np.array([0.0, 0.9, 0.1, 0.0, 0.0, 0.0], dtype=np.float32),
+            np.array(rows[0]["policy"], dtype=np.float32),
+            atol=1e-6,
+        )
+        self.assertEqual("opening_cache", rows[0]["teacher_source"])
+        self.assertEqual("sharpened", rows[0]["policy_target_mode"])
+        self.assertEqual("sharpened", rows[0]["policy_target_actual_mode"])
+        self.assertEqual(cached_teacher_profile, rows[0]["teacher_search_profile"])
+        self.assertEqual(cached_teacher_profile["hash"], rows[0]["teacher_search_profile_hash"])
+        self.assertAlmostEqual(
+            self_play.canonical_value_target(
+                outcome_value=1.0,
+                search_value=cached_value,
+                mode="sharpened",
+            ),
+            rows[0]["value"],
+            places=6,
+        )
+
+    def test_run_self_play_worker_lazy_loads_opening_cache_teacher_profile_on_hit(self):
+        cached_policy = [0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+        cached_value = 0.5
+        cached_teacher_profile = {
+            "version": "v1",
+            "kind": "opening_cache_teacher",
+            "player_mode": "classic_mcts",
+            "classic_mcts_simulations": 1200,
+            "hash": "cached-profile-hash",
+        }
+        opening_state = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        opening_cache_payload = {
+            "schema": "azlite_opening_cache_v1",
+            "opening_gate": {"max_ply": 10, "min_stones_in_pits": 36},
+            "search_profile": cached_teacher_profile,
+            "entries": {
+                hashlib.sha256(
+                    json.dumps(opening_state, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+                ).hexdigest(): {
+                    "state": opening_state,
+                    "side_to_move": 0,
+                    "selected_move": 1,
+                    "policy": cached_policy,
+                    "value": cached_value,
+                    "budget": {
+                        "baseline_simulations": 1200,
+                        "probe_simulations": 1200,
+                        "chosen_simulations": 1200,
+                        "final_simulations": 1200,
+                        "root_latency_ms": 8.0,
+                    },
+                    "provenance": {
+                        "teacher_kind": "classic_mcts",
+                        "search_profile_hash": cached_teacher_profile["hash"],
+                        "hit_count_in_sources": 1,
+                        "example_origins": ["self_play:test"],
+                    },
+                }
+            },
+        }
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [1] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move == 1
+
+            def to_state(self):
+                return dict(opening_state)
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-lazy-hit-") as tmp:
+            tmp_path = Path(tmp)
+            shard_path = tmp_path / "worker.jsonl"
+            opening_cache_path = tmp_path / "opening_cache.json"
+            opening_cache_path.write_text(json.dumps(opening_cache_payload), encoding="utf-8")
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "PUCT", side_effect=AssertionError("PUCT should not run on cache hit")):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=2,
+                        shard_path=str(shard_path),
+                        opening_cache_path=str(opening_cache_path),
+                        value_target_mode="sharpened",
+                    )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(cached_policy, rows[0]["policy"])
+        self.assertEqual("opening_cache", rows[0]["teacher_source"])
+        self.assertEqual("default", rows[0]["policy_target_actual_mode"])
+        self.assertEqual(cached_teacher_profile, rows[0]["teacher_search_profile"])
+        self.assertEqual(cached_teacher_profile["hash"], rows[0]["teacher_search_profile_hash"])
+        self.assertAlmostEqual(
+            self_play.canonical_value_target(
+                outcome_value=1.0,
+                search_value=cached_value,
+                mode="sharpened",
+            ),
+            rows[0]["value"],
+            places=6,
+        )
+
+    def test_run_self_play_worker_marks_teacher_source_on_opening_cache_miss(self):
+        lookup_calls = []
+
+        class FakeOpeningCache:
+            def lookup(self, state, *, ply):
+                lookup_calls.append((state, ply))
+                return None
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move == 0
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeRoot:
+            q_value = 0.4
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                del game, dirichlet_alpha, dirichlet_epsilon
+                visits = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                return visits, FakeRoot()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-miss-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "PUCT", FakePUCT):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=2,
+                        shard_path=str(shard_path),
+                        opening_cache=FakeOpeningCache(),
+                    )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(1, len(lookup_calls))
+        self.assertEqual("puct", rows[0]["teacher_source"])
+        self.assertEqual(rows[0]["search_profile"], rows[0]["teacher_search_profile"])
+        self.assertEqual(rows[0]["search_profile_hash"], rows[0]["teacher_search_profile_hash"])
+
+    def test_run_self_play_worker_cache_miss_uses_gameplay_sampling_policy_not_sharpened_target(self):
+        lookup_calls = []
+        created_games = []
+
+        class FakeOpeningCache:
+            def lookup(self, state, *, ply):
+                lookup_calls.append((state, ply))
+                return None
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+                self.selected_moves = []
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [0, 1] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.selected_moves.append(absolute_move)
+                self.moves_played += 1
+                return True
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeRoot:
+            q_value = 0.4
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                del game, dirichlet_alpha, dirichlet_epsilon
+                visits = np.array([70.0, 30.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                return visits, FakeRoot()
+
+        class FakeRandom:
+            def __init__(self, seed):
+                self.seed = seed
+
+            def random(self):
+                return 0.8
+
+            def randint(self, a, b):
+                del a, b
+                return 0
+
+        def build_game(_state):
+            game = FakeGame()
+            created_games.append(game)
+            return game
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-miss-sampling-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", side_effect=build_game):
+                with mock.patch.object(self_play, "PUCT", FakePUCT):
+                    with mock.patch.object(self_play.random, "Random", FakeRandom):
+                        result = self_play.run_self_play_worker(
+                            worker_id=0,
+                            start_index=0,
+                            games=1,
+                            seed=42,
+                            seed_pool=[42],
+                            checkpoint=None,
+                            input_encoding="kalah_v1",
+                            simulations=8,
+                            c_puct=1.25,
+                            temperature_threshold=10,
+                            temperature=1.0,
+                            temperature_late=1.0,
+                            dirichlet_alpha=0.3,
+                            dirichlet_epsilon=0.25,
+                            max_moves=2,
+                            shard_path=str(shard_path),
+                            opening_cache=FakeOpeningCache(),
+                            policy_target_mode="sharpened",
+                        )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(1, len(lookup_calls))
+        self.assertEqual([1], created_games[0].selected_moves)
+        self.assertEqual("sharpened", rows[0]["policy_target_mode"])
+        self.assertEqual("sharpened", rows[0]["policy_target_actual_mode"])
+        self.assertGreater(rows[0]["policy"][0], 0.8)
+        self.assertLess(rows[0]["policy"][1], 0.2)
+
     def test_run_self_play_worker_uses_opponent_pool_checkpoint_for_player_one(self):
         evaluator_paths = []
 
@@ -2020,6 +2451,108 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         self.assertEqual(1, len(submitted_kwargs))
         self.assertEqual("sharpened", submitted_kwargs[0]["policy_target_mode"])
+
+    def test_main_passes_opening_cache_path_to_worker_submissions(self):
+        submitted_kwargs = []
+
+        class FakeFuture:
+            def __init__(self, result):
+                self._result = result
+
+            def result(self):
+                return self._result
+
+        class FakeExecutor:
+            def __init__(self, max_workers):
+                self.max_workers = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return False
+
+            def submit(self, fn, **kwargs):
+                del fn
+                submitted_kwargs.append(kwargs)
+                shard_path = Path(kwargs["shard_path"])
+                shard_path.write_text("", encoding="utf-8")
+                return FakeFuture(
+                    {
+                        "worker_id": kwargs["worker_id"],
+                        "rows_written": 0,
+                        "shard_path": str(shard_path),
+                    }
+                )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-main-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "self_play.jsonl"
+            opening_state = {
+                "current_player": 0,
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+            }
+            opening_cache_path = tmp_path / "opening_cache.json"
+            opening_cache_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_opening_cache_v1",
+                        "opening_gate": {"max_ply": 10, "min_stones_in_pits": 36},
+                        "entries": {
+                            hashlib.sha256(
+                                json.dumps(opening_state, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+                            ).hexdigest(): {
+                                "state": opening_state,
+                                "side_to_move": 0,
+                                "selected_move": 0,
+                                "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                "value": 0.25,
+                                "budget": {
+                                    "baseline_simulations": 1200,
+                                    "probe_simulations": 1200,
+                                    "chosen_simulations": 1200,
+                                    "final_simulations": 1200,
+                                    "root_latency_ms": 8.0,
+                                },
+                                "provenance": {
+                                    "teacher_kind": "classic_mcts",
+                                    "search_profile_hash": "abc",
+                                    "hit_count_in_sources": 1,
+                                    "example_origins": ["test"],
+                                },
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            argv = [
+                "self_play.py",
+                "--out",
+                str(out_path),
+                "--games",
+                "1",
+                "--workers",
+                "1",
+                "--seed",
+                "7",
+                "--simulations",
+                "8",
+                "--opening-cache",
+                str(opening_cache_path),
+            ]
+
+            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+                with mock.patch("sys.argv", argv):
+                    self_play.main()
+
+        self.assertEqual(1, len(submitted_kwargs))
+        self.assertEqual(str(opening_cache_path), submitted_kwargs[0]["opening_cache_path"])
+        self.assertNotIn("opening_cache", submitted_kwargs[0])
 
     def test_main_passes_value_target_mode_to_worker_submissions(self):
         submitted_kwargs = []

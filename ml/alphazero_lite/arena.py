@@ -20,6 +20,7 @@ if __package__ in (None, ""):
 
 from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.opening_cache import load_opening_cache, state_qualifies_for_opening_cache
 from ml.alphazero_lite.self_play import (
     ClassicMCTS,
     PUCT,
@@ -58,6 +59,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-score", type=float, default=0.55)
     parser.add_argument("--max-moves", type=int, default=200)
     parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--opening-cache", default=None)
+    parser.add_argument("--opening-cache-training-summary", default=None)
     parser.add_argument("--out", required=True)
     add_search_option_args(parser)
     parser.set_defaults(
@@ -449,6 +452,7 @@ def aggregate_worker_reports(
     workers: int,
     search_options: dict,
     results: list[dict],
+    training_summary: dict | None = None,
 ) -> dict:
     wins = sum(int(result["wins"]) for result in results)
     losses = sum(int(result["losses"]) for result in results)
@@ -494,9 +498,52 @@ def aggregate_worker_reports(
         },
         "hard_suite_buckets": merge_hard_suite_buckets([result.get("hard_suite_buckets") for result in results]),
     }
+    report["opening_cache_summary"] = opening_cache_summary_for(results=results, training_summary=training_summary)
     attach_budget_summary(report)
     report["score"] = score
     return report
+
+
+def opening_cache_summary_for(*, results: list[dict], training_summary: dict | None = None) -> dict:
+    hits = sum(int(result.get("opening_cache_hits", 0)) for result in results)
+    misses = sum(int(result.get("opening_cache_misses", 0)) for result in results)
+    hit_quality_sum = sum(float(result.get("opening_cache_hit_quality_sum", 0.0)) for result in results)
+    miss_quality_sum = sum(float(result.get("opening_cache_miss_quality_sum", 0.0)) for result in results)
+    hit_latencies = [value for result in results for value in result.get("opening_cache_hit_latency_ms", [])]
+    miss_latencies = [value for result in results for value in result.get("opening_cache_miss_latency_ms", [])]
+
+    runtime_total = hits + misses
+    runtime_hit_rate = None if runtime_total <= 0 else round(hits / runtime_total, 4)
+    hit_quality_mean = None if hits <= 0 else hit_quality_sum / hits
+    miss_quality_mean = None if misses <= 0 else miss_quality_sum / misses
+    quality_delta = None if hit_quality_mean is None or miss_quality_mean is None else round(hit_quality_mean - miss_quality_mean, 4)
+    hit_latency_mean = None if not hit_latencies else statistics.fmean(hit_latencies)
+    miss_latency_mean = None if not miss_latencies else statistics.fmean(miss_latencies)
+    latency_delta_ms = None if hit_latency_mean is None or miss_latency_mean is None else round(hit_latency_mean - miss_latency_mean, 2)
+
+    upstream = training_summary if isinstance(training_summary, dict) else {}
+    return {
+        "runtime_hit_rate": runtime_hit_rate,
+        "training_hit_rate": upstream.get("training_hit_rate"),
+        "opening_bucket_quality_delta": quality_delta,
+        "latency_delta_ms": latency_delta_ms,
+    }
+
+
+def load_training_summary(path: str | None) -> dict | None:
+    if not path:
+        return None
+
+    summary_path = Path(path)
+    return json.loads(summary_path.read_text(encoding="utf-8"))
+
+
+def load_opening_cache_artifact(path: str | None):
+    if not path:
+        return None
+
+    cache_path = Path(path)
+    return load_opening_cache(json.loads(cache_path.read_text(encoding="utf-8")))
 
 
 def run_arena_worker(
@@ -516,10 +563,14 @@ def run_arena_worker(
     normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
+    opening_cache=None,
+    opening_cache_path: str | None = None,
 ) -> dict:
     rng = np.random.default_rng(seed + worker_id)
     challenger = ArtifactEvaluator(Path(challenger_path))
     current = ArtifactEvaluator(Path(current_path))
+    if opening_cache is None and opening_cache_path:
+        opening_cache = load_opening_cache_artifact(opening_cache_path)
 
     normalized_search_options = build_search_options(
         fpu_mode=fpu_mode,
@@ -545,6 +596,12 @@ def run_arena_worker(
     draws = 0
     move_durations_ms: list[float] = []
     hard_suite_buckets = empty_hard_suite_buckets()
+    opening_cache_hits = 0
+    opening_cache_misses = 0
+    opening_cache_hit_quality_sum = 0.0
+    opening_cache_miss_quality_sum = 0.0
+    opening_cache_hit_latency_ms: list[float] = []
+    opening_cache_miss_latency_ms: list[float] = []
 
     for local_index in range(games):
         game_index = start_index + local_index
@@ -563,6 +620,7 @@ def run_arena_worker(
             1: None,
         }
         challenger_phase_buckets_seen: set[str] = set()
+        ply = 0
 
         for _ in range(max_moves):
             if game.over():
@@ -583,26 +641,63 @@ def run_arena_worker(
                 sims = current_simulations
             acting_player = game.current_player
 
-            search = PUCT(
-                evaluator=evaluator,
-                simulations=sims,
-                c_puct=c_puct,
-                rng=random.Random(int(rng.integers(0, 2**31 - 1))),
-                root=reusable_roots[acting_player],
-                fpu_mode=str(normalized_search_options["fpu_mode"]),
-                reuse_subtree=bool(normalized_search_options["reuse_subtree"]),
-                normalize_values=bool(normalized_search_options["normalize_values"]),
-                root_policy_mode=str(normalized_search_options["root_policy_mode"]),
-                tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
-            )
-            started = time.perf_counter()
-            visits, root = search.run(game)
-            move_durations_ms.append((time.perf_counter() - started) * 1000.0)
+            cached_move: int | None = None
+            lookup_duration_ms = 0.0
+            if opening_cache is not None and acting_player == challenger_player:
+                state = game.to_state()
+                if state_qualifies_for_opening_cache(state, ply=ply, opening_gate=getattr(opening_cache, "opening_gate", None)):
+                    lookup_started = time.perf_counter()
+                    cached_entry = opening_cache.lookup(state, ply=ply)
+                    lookup_duration_ms = (time.perf_counter() - lookup_started) * 1000.0
+                    if cached_entry is not None:
+                        selected_move = cached_entry.get("selected_move")
+                        try:
+                            normalized_selected_move = int(selected_move)
+                        except (TypeError, ValueError):
+                            cached_entry = None
+                        else:
+                            if normalized_selected_move in legal_moves:
+                                cached_move = normalized_selected_move
+                                opening_cache_hits += 1
+                                opening_cache_hit_quality_sum += float(cached_entry.get("value", 0.0))
+                                opening_cache_hit_latency_ms.append(lookup_duration_ms)
+                                move_durations_ms.append(lookup_duration_ms)
+                            else:
+                                cached_entry = None
 
-            if hasattr(search, "select_root_move") and root is not None:
-                move = search.select_root_move(root, legal_moves)
+                    if cached_move is None:
+                        opening_cache_misses += 1
+
+            if cached_move is None:
+                search = PUCT(
+                    evaluator=evaluator,
+                    simulations=sims,
+                    c_puct=c_puct,
+                    rng=random.Random(int(rng.integers(0, 2**31 - 1))),
+                    root=reusable_roots[acting_player],
+                    fpu_mode=str(normalized_search_options["fpu_mode"]),
+                    reuse_subtree=bool(normalized_search_options["reuse_subtree"]),
+                    normalize_values=bool(normalized_search_options["normalize_values"]),
+                    root_policy_mode=str(normalized_search_options["root_policy_mode"]),
+                    tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
+                )
+                started = time.perf_counter()
+                visits, root = search.run(game)
+                search_duration_ms = (time.perf_counter() - started) * 1000.0
+                total_duration_ms = search_duration_ms + lookup_duration_ms
+                move_durations_ms.append(total_duration_ms)
+
+                if opening_cache is not None and acting_player == challenger_player:
+                    opening_cache_miss_quality_sum += float(getattr(root, "q_value", 0.0) if root is not None else 0.0)
+                    opening_cache_miss_latency_ms.append(total_duration_ms)
+
+                if hasattr(search, "select_root_move") and root is not None:
+                    move = search.select_root_move(root, legal_moves)
+                else:
+                    move = choose_best_move(visits, legal_moves)
             else:
-                move = choose_best_move(visits, legal_moves)
+                root = None
+                move = cached_move
             if not game.move(game.pit_index(move)):
                 break
             if reuse_subtree and root is not None and game.current_player == acting_player:
@@ -611,6 +706,7 @@ def run_arena_worker(
                 reusable_roots[acting_player] = None
             if game.current_player != acting_player:
                 reusable_roots[game.current_player] = None
+            ply += 1
 
         challenger_store = game.captured_seeds[challenger_player]
         current_store = game.captured_seeds[1 - challenger_player]
@@ -629,6 +725,12 @@ def run_arena_worker(
         "draws": draws,
         "move_durations_ms": move_durations_ms,
         "hard_suite_buckets": hard_suite_buckets,
+        "opening_cache_hits": opening_cache_hits,
+        "opening_cache_misses": opening_cache_misses,
+        "opening_cache_hit_quality_sum": opening_cache_hit_quality_sum,
+        "opening_cache_miss_quality_sum": opening_cache_miss_quality_sum,
+        "opening_cache_hit_latency_ms": opening_cache_hit_latency_ms,
+        "opening_cache_miss_latency_ms": opening_cache_miss_latency_ms,
         "search_options": normalized_search_options,
         "search_profile": search_profile,
         "search_profile_hash": search_profile["hash"],
@@ -637,6 +739,7 @@ def run_arena_worker(
 
 def main() -> None:
     args = parse_args()
+    training_summary = load_training_summary(args.opening_cache_training_summary)
 
     if os.environ.get("AZLITE_ARENA_STUB") == "1":
         out_path = Path(args.out)
@@ -676,6 +779,7 @@ def main() -> None:
                 "move_time_p95_ms": 160.0,
             },
         }
+        report["opening_cache_summary"] = opening_cache_summary_for(results=[], training_summary=training_summary)
         attach_budget_summary(report)
         out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"wrote arena report to {out_path}")
@@ -715,6 +819,7 @@ def main() -> None:
                     seed=args.seed,
                     c_puct=args.c_puct,
                     max_moves=args.max_moves,
+                    opening_cache_path=args.opening_cache,
                     fpu_mode=str(search_options["fpu_mode"]),
                     reuse_subtree=bool(search_options["reuse_subtree"]),
                     normalize_values=bool(search_options["normalize_values"]),
@@ -735,6 +840,7 @@ def main() -> None:
         workers=args.workers,
         search_options=search_options,
         results=results,
+        training_summary=training_summary,
     )
 
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

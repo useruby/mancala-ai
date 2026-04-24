@@ -1091,6 +1091,333 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual({"games": 1, "score": None}, result["hard_suite_buckets"]["midgame"])
         self.assertEqual({"games": 0, "score": None}, result["hard_suite_buckets"]["late"])
 
+    def test_run_arena_worker_emits_runtime_opening_cache_metrics_from_real_hits_and_misses(self):
+        class FakeArtifactEvaluator:
+            def __init__(self, artifact_dir):
+                self.name = str(artifact_dir)
+
+        class FakeOpeningCache:
+            opening_gate = {"max_ply": 10, "min_stones_in_pits": 36}
+
+            def lookup(self, state, *, ply):
+                del state
+                if ply == 0:
+                    return {
+                        "selected_move": 0,
+                        "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        "value": 0.8,
+                    }
+                return None
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.captured_seeds = [1, 0]
+                self.pits = [4] * 12
+
+            def over(self):
+                return self.moves_played >= 2
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                self.current_player = 0
+                self.pits = [4] * 12 if self.moves_played == 1 else [0] * 12
+                return absolute_move == 0
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4] if self.moves_played == 0 else [3, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeRootChild:
+            visit_count = 1
+            q_value = 0.3
+            prior = 1.0
+
+        class FakeRoot:
+            visit_count = 1
+            value_sum = 0.3
+            children = {0: FakeRootChild()}
+
+            @property
+            def q_value(self):
+                return self.value_sum / self.visit_count
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            run_calls = 0
+
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game):
+                del game
+                FakePUCT.run_calls += 1
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, FakeRoot()
+
+            def select_root_move(self, root, legal_moves):
+                del root
+                return legal_moves[0]
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
+            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()), mock.patch(
+            "ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.003, 2.0, 2.001, 3.0, 3.011]
+        ):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=32,
+                current_simulations=16,
+                seed=42,
+                c_puct=1.25,
+                max_moves=4,
+                opening_cache=FakeOpeningCache(),
+            )
+
+        self.assertEqual(1, FakePUCT.run_calls)
+        self.assertEqual(1, result["opening_cache_hits"])
+        self.assertEqual(1, result["opening_cache_misses"])
+        self.assertEqual(0.8, result["opening_cache_hit_quality_sum"])
+        self.assertEqual(0.3, result["opening_cache_miss_quality_sum"])
+        self.assertAlmostEqual(3.0, result["opening_cache_hit_latency_ms"][0], places=6)
+        self.assertAlmostEqual(12.0, result["opening_cache_miss_latency_ms"][0], places=6)
+
+    def test_run_arena_worker_miss_latency_includes_lookup_overhead_in_total_runtime_cost(self):
+        class FakeArtifactEvaluator:
+            def __init__(self, artifact_dir):
+                self.name = str(artifact_dir)
+
+        class FakeOpeningCache:
+            def lookup(self, state, *, ply):
+                del state, ply
+                return None
+
+        class FakeRootChild:
+            visit_count = 1
+            q_value = 0.4
+            prior = 1.0
+
+        class FakeRoot:
+            visit_count = 1
+            value_sum = 0.4
+            children = {0: FakeRootChild()}
+
+            @property
+            def q_value(self):
+                return self.value_sum / self.visit_count
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, FakeRoot()
+
+            def select_root_move(self, root, legal_moves):
+                del root
+                return legal_moves[0]
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
+            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        ), mock.patch("ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.002, 2.0, 2.011]):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=32,
+                current_simulations=16,
+                seed=42,
+                c_puct=1.25,
+                max_moves=1,
+                opening_cache=FakeOpeningCache(),
+            )
+
+        self.assertEqual(1, result["opening_cache_misses"])
+        self.assertAlmostEqual(13.0, result["opening_cache_miss_latency_ms"][0], places=6)
+        self.assertAlmostEqual(13.0, result["move_durations_ms"][0], places=6)
+
+    def test_run_arena_worker_does_not_count_gate_rejected_positions_as_opening_cache_misses(self):
+        class FakeArtifactEvaluator:
+            def __init__(self, artifact_dir):
+                self.name = str(artifact_dir)
+
+        class FakeOpeningCache:
+            opening_gate = {"max_ply": 10, "min_stones_in_pits": 49}
+
+            def __init__(self):
+                self.lookup_calls = []
+
+            def lookup(self, state, *, ply):
+                self.lookup_calls.append((state, ply))
+                return None
+
+        class FakeRootChild:
+            visit_count = 1
+            q_value = 0.4
+            prior = 1.0
+
+        class FakeRoot:
+            visit_count = 1
+            value_sum = 0.4
+            children = {0: FakeRootChild()}
+
+            @property
+            def q_value(self):
+                return self.value_sum / self.visit_count
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, FakeRoot()
+
+            def select_root_move(self, root, legal_moves):
+                del root
+                return legal_moves[0]
+
+        cache = FakeOpeningCache()
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
+            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        ), mock.patch("ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.001, 2.0, 2.011]):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=32,
+                current_simulations=16,
+                seed=42,
+                c_puct=1.25,
+                max_moves=1,
+                opening_cache=cache,
+            )
+
+        self.assertEqual([], cache.lookup_calls)
+        self.assertEqual(0, result["opening_cache_hits"])
+        self.assertEqual(0, result["opening_cache_misses"])
+
+    def test_run_arena_worker_accepts_string_selected_move_when_it_is_legal(self):
+        class FakeArtifactEvaluator:
+            def __init__(self, artifact_dir):
+                self.name = str(artifact_dir)
+
+        class FakeOpeningCache:
+            opening_gate = {"max_ply": 10, "min_stones_in_pits": 36}
+
+            def lookup(self, state, *, ply):
+                del state, ply
+                return {
+                    "selected_move": "0",
+                    "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    "value": 0.8,
+                }
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.captured_seeds = [1, 0]
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move == 0
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakePUCT:
+            run_calls = 0
+
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game):
+                del game
+                FakePUCT.run_calls += 1
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, None
+
+            def select_root_move(self, root, legal_moves):
+                del root
+                return legal_moves[0]
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
+            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()), mock.patch(
+            "ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.003, 2.0, 2.011]
+        ):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=32,
+                current_simulations=16,
+                seed=42,
+                c_puct=1.25,
+                max_moves=1,
+                opening_cache=FakeOpeningCache(),
+            )
+
+        self.assertEqual(0, FakePUCT.run_calls)
+        self.assertEqual(1, result["opening_cache_hits"])
+        self.assertEqual(0, result["opening_cache_misses"])
+
     def test_aggregate_worker_reports_emits_stable_hard_suite_bucket_schema(self):
         report = arena.aggregate_worker_reports(
             games=3,
@@ -1140,6 +1467,56 @@ class ArenaScriptTest(unittest.TestCase):
             },
             report["hard_suite_buckets"],
         )
+
+    def test_aggregate_worker_reports_emits_opening_cache_summary_from_runtime_metrics(self):
+        report = arena.aggregate_worker_reports(
+            games=4,
+            min_score=0.55,
+            challenger_path=Path("challenger"),
+            current_path=Path("current"),
+            challenger_simulations=32,
+            current_simulations=16,
+            seed=42,
+            workers=2,
+            search_options=arena.build_eval_search_options(),
+            results=[
+                {
+                    "wins": 2,
+                    "losses": 0,
+                    "draws": 0,
+                    "move_durations_ms": [10.0, 14.0],
+                    "search_profile": {"hash": "abc"},
+                    "search_profile_hash": "abc",
+                    "hard_suite_buckets": arena.empty_hard_suite_buckets(),
+                    "opening_cache_hits": 2,
+                    "opening_cache_misses": 2,
+                    "opening_cache_hit_quality_sum": 1.4,
+                    "opening_cache_miss_quality_sum": 1.0,
+                    "opening_cache_hit_latency_ms": [3.0, 5.0],
+                    "opening_cache_miss_latency_ms": [11.0, 13.0],
+                },
+                {
+                    "wins": 0,
+                    "losses": 2,
+                    "draws": 0,
+                    "move_durations_ms": [12.0, 18.0],
+                    "search_profile": {"hash": "abc"},
+                    "search_profile_hash": "abc",
+                    "hard_suite_buckets": arena.empty_hard_suite_buckets(),
+                    "opening_cache_hits": 0,
+                    "opening_cache_misses": 0,
+                    "opening_cache_hit_quality_sum": 0.0,
+                    "opening_cache_miss_quality_sum": 0.0,
+                    "opening_cache_hit_latency_ms": [],
+                    "opening_cache_miss_latency_ms": [],
+                },
+            ],
+        )
+
+        self.assertEqual(0.5, report["opening_cache_summary"]["runtime_hit_rate"])
+        self.assertIsNone(report["opening_cache_summary"]["training_hit_rate"])
+        self.assertEqual(0.2, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(-8.0, report["opening_cache_summary"]["latency_delta_ms"])
 
     def test_cli_generates_validator_compatible_arena_report(self):
         python = self.executable_python()
@@ -1384,6 +1761,49 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertIn("budget_summary", report)
             self.assertEqual(16.0, report["budget_summary"]["mean_final_simulations"])
             self.assertEqual({"fixed_budget": 5}, report["budget_summary"]["trigger_counts"])
+
+    def test_stub_cli_emits_opening_cache_summary_with_training_pass_through(self):
+        python = self.executable_python()
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-stub-") as tmp:
+            tmp_path = Path(tmp)
+            challenger_dir = tmp_path / "challenger"
+            current_dir = tmp_path / "current"
+            training_summary_path = tmp_path / "training_summary.json"
+            out_path = tmp_path / "arena_report.json"
+            challenger_dir.mkdir()
+            current_dir.mkdir()
+            training_summary_path.write_text(json.dumps({"training_hit_rate": 0.4}), encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    python,
+                    "ml/alphazero_lite/arena.py",
+                    "--challenger",
+                    str(challenger_dir),
+                    "--current",
+                    str(current_dir),
+                    "--games",
+                    "5",
+                    "--challenger-simulations",
+                    "16",
+                    "--current-simulations",
+                    "16",
+                    "--opening-cache-training-summary",
+                    str(training_summary_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env={**os.environ, "AZLITE_ARENA_STUB": "1"},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertIn("opening_cache_summary", report)
+            self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
 
 
 if __name__ == "__main__":

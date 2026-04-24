@@ -23,6 +23,7 @@ from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING, SUPPORTED_
 from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
+from ml.alphazero_lite.opening_cache import load_opening_cache
 from ml.alphazero_lite.opponent_pool import load_opponent_checkpoints, sample_opponent_checkpoint
 from ml.alphazero_lite.search_ablation import build_mode_config, flat_legal_priors, neutral_value
 
@@ -337,6 +338,16 @@ def build_policy_target(
         policy_from_visits(visits, legal_moves=legal_moves, temperature=temperature),
         dtype=np.float32,
     )
+    return build_policy_target_from_distribution(default_target, mode=normalized_mode)
+
+
+def build_policy_target_from_distribution(
+    policy: list[float] | np.ndarray,
+    *,
+    mode: str = DEFAULT_POLICY_TARGET_MODE,
+) -> list[float]:
+    normalized_mode = normalize_policy_target_mode(mode)
+    default_target = np.asarray(policy, dtype=np.float32)
     if normalized_mode != "sharpened":
         return default_target.tolist()
 
@@ -982,6 +993,49 @@ def value_from_classic_mcts_root(root: "Any") -> float:
     return 2.0 * (root.wins / float(root.visits)) - 1.0
 
 
+def teacher_targets_for_state(
+    *,
+    state: dict,
+    ply: int,
+    opening_cache,
+    player_mode: str,
+    search_profile: dict,
+    teacher_runner,
+    policy_target_mode: str,
+) -> tuple[list[float], list[float], float, str, dict, str, str]:
+    if opening_cache is not None:
+        cached = opening_cache.lookup(state, ply=ply)
+        if cached is not None:
+            cached_policy = list(cached["policy"])
+            cached_policy_target = build_policy_target_from_distribution(cached_policy, mode=policy_target_mode)
+            cached_search_profile = dict(getattr(opening_cache, "search_profile", {}) or {})
+            cached_search_profile_hash = str(
+                cached.get("provenance", {}).get("search_profile_hash")
+                or cached_search_profile.get("hash")
+                or ""
+            )
+            return (
+                cached_policy,
+                cached_policy_target,
+                float(cached["value"]),
+                "opening_cache",
+                cached_search_profile,
+                cached_search_profile_hash,
+                str(policy_target_mode),
+            )
+
+    gameplay_policy, policy_target, value = teacher_runner()
+    return (
+        list(gameplay_policy),
+        list(policy_target),
+        float(value),
+        str(player_mode),
+        dict(search_profile),
+        str(search_profile["hash"]),
+        str(policy_target_mode),
+    )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", required=True, help="Output JSONL path")
@@ -989,6 +1043,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--checkpoint", default=None, help="Optional model checkpoint .npz")
     parser.add_argument("--opponent-pool-config", default=None, help="Optional JSON config for opponent checkpoint pool")
+    parser.add_argument("--opening-cache", default=None, help="Optional JSON opening-cache artifact path")
     parser.add_argument("--input-encoding", choices=SUPPORTED_INPUT_ENCODINGS, default=DEFAULT_INPUT_ENCODING)
     parser.add_argument("--simulations", type=int, default=96)
     parser.add_argument("--c-puct", type=float, default=1.25)
@@ -1117,6 +1172,8 @@ def run_self_play_worker(
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
     player_mode: str = DEFAULT_PLAYER_MODE,
     opponent_pool_config: str | None = None,
+    opening_cache=None,
+    opening_cache_path: str | None = None,
 ) -> dict:
     shard = Path(shard_path)
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
@@ -1160,6 +1217,10 @@ def run_self_play_worker(
         extra_fields=profile_extra_fields,
     )
 
+    if opening_cache is None and opening_cache_path:
+        opening_cache_payload = json.loads(Path(opening_cache_path).read_text(encoding="utf-8"))
+        opening_cache = load_opening_cache(opening_cache_payload)
+
     rows_written = 0
     with shard.open("w", encoding="utf-8") as handle:
         for local_index in range(games):
@@ -1175,7 +1236,7 @@ def run_self_play_worker(
                     "current_player": 0,
                 }
             )
-            positions: list[tuple[list[float], list[float], int, float, int]] = []
+            positions: list[tuple[list[float], list[float], int, float, int, str, dict, str, str]] = []
             reusable_root: Node | None = None
             opponent_checkpoint_for_game: str | None = None
             if opponent_checkpoints:
@@ -1194,13 +1255,29 @@ def run_self_play_worker(
                 if not legal_moves:
                     break
 
-                if player_mode == "classic_mcts":
-                    mcts_seed = search_seed_for_classic_mcts(seed, global_index, ply)
-                    mcts = ClassicMCTS(game.clone(), simulations=simulations, seed=mcts_seed)
-                    mcts_root = mcts.search_root()
-                    visits = np.array(visits_from_classic_mcts_root(mcts_root), dtype=np.float32)
-                    search_value = value_from_classic_mcts_root(mcts_root)
-                else:
+                state = game.to_state()
+                puct_root: Node | None = None
+                temp = temperature if ply < temperature_threshold else temperature_late
+
+                def run_teacher() -> tuple[list[float], list[float], float]:
+                    nonlocal puct_root
+                    if player_mode == "classic_mcts":
+                        mcts_seed = search_seed_for_classic_mcts(seed, global_index, ply)
+                        mcts = ClassicMCTS(game.clone(), simulations=simulations, seed=mcts_seed)
+                        mcts_root = mcts.search_root()
+                        visits = np.array(visits_from_classic_mcts_root(mcts_root), dtype=np.float32)
+                        gameplay_policy = policy_from_visits(visits, legal_moves=legal_moves, temperature=temp)
+                        return (
+                            gameplay_policy,
+                            build_policy_target(
+                                visits,
+                                legal_moves=legal_moves,
+                                temperature=temp,
+                                mode=policy_target_mode,
+                            ),
+                            value_from_classic_mcts_root(mcts_root),
+                        )
+
                     selected_evaluator = evaluator
                     if game.current_player == 1 and opponent_checkpoint_for_game is not None:
                         selected_evaluator = opponent_evaluator_cache.get(opponent_checkpoint_for_game)
@@ -1229,28 +1306,51 @@ def run_self_play_worker(
                         dirichlet_alpha=dirichlet_alpha if ply < temperature_threshold else None,
                         dirichlet_epsilon=dirichlet_epsilon,
                     )
-                    search_value = puct_root.q_value
+                    gameplay_policy = policy_from_visits(visits, legal_moves=legal_moves, temperature=temp)
+                    return (
+                        gameplay_policy,
+                        build_policy_target(
+                            visits,
+                            legal_moves=legal_moves,
+                            temperature=temp,
+                            mode=policy_target_mode,
+                        ),
+                        puct_root.q_value,
+                    )
 
-                temp = temperature if ply < temperature_threshold else temperature_late
-                policy = policy_from_visits(visits, legal_moves=legal_moves, temperature=temp)
-                policy_target = build_policy_target(
-                    visits,
-                    legal_moves=legal_moves,
-                    temperature=temp,
-                    mode=policy_target_mode,
+                (
+                    gameplay_policy,
+                    policy_target,
+                    search_value,
+                    teacher_source,
+                    teacher_search_profile,
+                    teacher_search_profile_hash,
+                    policy_target_actual_mode,
+                ) = teacher_targets_for_state(
+                    state=state,
+                    ply=ply,
+                    opening_cache=opening_cache,
+                    player_mode=player_mode,
+                    search_profile=search_profile,
+                    teacher_runner=run_teacher,
+                    policy_target_mode=policy_target_mode,
                 )
                 positions.append(
                     (
-                        encode_state(game.to_state(), input_encoding=input_encoding),
+                        encode_state(state, input_encoding=input_encoding),
                         policy_target,
                         game.current_player,
                         search_value,
                         ply,
+                        teacher_source,
+                        teacher_search_profile,
+                        teacher_search_profile_hash,
+                        policy_target_actual_mode,
                     )
                 )
 
-                move = sample_move(policy, legal_moves=legal_moves, rng=rng)
-                if player_mode == "classic_mcts":
+                move = sample_move(gameplay_policy, legal_moves=legal_moves, rng=rng)
+                if player_mode == "classic_mcts" or teacher_source == "opening_cache":
                     reusable_root = None
                 else:
                     reusable_root = puct_root.child_for_action(move) if effective_reuse_subtree else None
@@ -1259,7 +1359,17 @@ def run_self_play_worker(
                     break
 
             winner = game.winner
-            for state, policy, player, search_value, move_index in positions:
+            for (
+                state,
+                policy,
+                player,
+                search_value,
+                move_index,
+                teacher_source,
+                teacher_search_profile,
+                teacher_search_profile_hash,
+                policy_target_actual_mode,
+            ) in positions:
                 row = {
                     "state": state,
                     "policy": policy,
@@ -1272,10 +1382,14 @@ def run_self_play_worker(
                     "player": int(player),
                     "move_index": int(move_index),
                     "winner": winner,
+                    "teacher_source": teacher_source,
                     "policy_target_mode": policy_target_mode,
+                    "policy_target_actual_mode": policy_target_actual_mode,
                     "value_target_mode": value_target_mode,
                     "search_profile": search_profile,
                     "search_profile_hash": search_profile["hash"],
+                    "teacher_search_profile": teacher_search_profile,
+                    "teacher_search_profile_hash": teacher_search_profile_hash,
                 }
                 handle.write(json.dumps(row) + "\n")
                 rows_written += 1
@@ -1353,6 +1467,7 @@ def main() -> None:
                         policy_target_mode=args.policy_target_mode,
                         value_target_mode=args.value_target_mode,
                         player_mode=args.player_mode,
+                        opening_cache_path=args.opening_cache,
                     )
                 )
 

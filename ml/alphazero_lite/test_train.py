@@ -1079,6 +1079,53 @@ class TrainScriptTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must declare policy_target_mode=sharpened"):
                 train_module.load_jsonl_replay([data_path], policy_target_mode="sharpened")
 
+    def test_load_jsonl_uses_policy_target_mode_when_actual_mode_is_absent(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            tmp_path = Path(tmp)
+            data_path = tmp_path / "legacy-policy-mode.jsonl"
+
+            self._write_rows(
+                data_path,
+                [
+                    {
+                        "state": [1.0] * 15,
+                        "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        "value": 1.0,
+                        "policy_target_mode": "sharpened",
+                    }
+                ],
+            )
+
+            x, p_target, v_target = train_module.load_jsonl(data_path, policy_target_mode="sharpened")
+
+            self.assertEqual((1, 15), x.shape)
+            self.assertEqual((1, 6), p_target.shape)
+            self.assertEqual((1, 1), v_target.shape)
+
+    def test_load_jsonl_rejects_rows_when_policy_target_actual_mode_differs_from_request(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            tmp_path = Path(tmp)
+            data_path = tmp_path / "actual-policy-mode-mismatch.jsonl"
+
+            self._write_rows(
+                data_path,
+                [
+                    {
+                        "state": [1.0] * 15,
+                        "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        "value": 1.0,
+                        "policy_target_mode": "sharpened",
+                        "policy_target_actual_mode": "default",
+                    }
+                ],
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "policy_target_mode=default does not match requested sharpened",
+            ):
+                train_module.load_jsonl(data_path, policy_target_mode="sharpened")
+
     def test_load_jsonl_rejects_missing_sharpened_value_target_metadata(self):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
