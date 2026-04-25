@@ -9,10 +9,17 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from ml.alphazero_lite.pipeline import environment_report, load_config, render_command
+from ml.alphazero_lite.pipeline import (
+    environment_report,
+    load_config,
+    render_command,
+    resolve_step_command,
+    run_step,
+)
 
 
 class PipelineScriptTest(unittest.TestCase):
+    ISSUE_263_HARD_STATE_FINETUNE_CONFIG = "aggressive_v3_incumbent_hard_state_finetune.json"
     HYBRID_TEACHER_LOCAL_CONFIG = "aggressive_v2_hybrid_teacher_local.json"
     POLICY_TARGET_LOCAL_CONFIG = "aggressive_v3_policy_target_local.json"
     SEARCH_QUALITY_LOCAL_CONFIG = "aggressive_v2_search_quality_local.json"
@@ -620,20 +627,36 @@ class PipelineScriptTest(unittest.TestCase):
     def command_flag_value(self, command: list[str], flag: str) -> str:
         return command[command.index(flag) + 1]
 
-    def render_config_step(self, config: dict, step_name: str, *, iteration: int = 1) -> list[str]:
+    def render_config_step(
+        self,
+        config: dict,
+        step_name: str,
+        *,
+        iteration: int = 1,
+        iter_dir: Path | None = None,
+        current_path: str | None = None,
+        parent_model_dir: Path | None = None,
+        hard_state_validation_path: str | None = None,
+    ) -> list[str]:
         repo_root = Path(__file__).resolve().parents[2]
-        iter_dir = repo_root / "tmp" / f"{config['run_id']}-iter{iteration}"
+        iter_dir = iter_dir or (repo_root / "tmp" / f"{config['run_id']}-iter{iteration}")
+        current_path = current_path or config["current_path"]
+        parent_model_dir = parent_model_dir or (repo_root / Path(config.get("parent_artifact_path", current_path)))
+        checkpoint_candidate = parent_model_dir / "checkpoint.npz"
+        fallback_model = parent_model_dir / "model.npz"
+        parent_checkpoint = checkpoint_candidate if checkpoint_candidate.exists() else fallback_model
         return render_command(
             self.config_steps_by_name(config)[step_name]["command"],
             iteration=iteration,
             iter_dir=iter_dir,
             run_id=config["run_id"],
             versions_dir=Path(config["versions_dir"]),
-            current_path=config["current_path"],
-            parent_model_dir=repo_root / "storage" / "ai" / "alphazero_lite" / "current",
-            parent_checkpoint=repo_root / "storage" / "ai" / "alphazero_lite" / "current" / "checkpoint.npz",
+            current_path=current_path,
+            parent_model_dir=parent_model_dir,
+            parent_checkpoint=parent_checkpoint,
             replay_data="",
             replay_weights="",
+            hard_state_validation_path=hard_state_validation_path or config.get("hard_state_validation_path", ""),
         )
 
     def normalize_rendered_command(self, command: list[str], *, config: dict, iteration: int = 1) -> list[str]:
@@ -1084,6 +1107,55 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual("failed", manifest["status"])
             self.assertEqual("failed", manifest["steps"][0]["status"])
 
+    def test_run_step_falls_back_to_workspace_venv_when_worktree_venv_is_missing(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-run-step-") as tmp:
+            workspace_root = Path(tmp) / "workspace"
+            workspace_python = workspace_root / ".venv/bin/python"
+            repo_root = workspace_root / "nested/worktree"
+            iter_dir = repo_root / "iter"
+            workspace_python.parent.mkdir(parents=True)
+            repo_root.mkdir(parents=True)
+            iter_dir.mkdir(parents=True)
+            workspace_python.symlink_to(Path(sys.executable))
+            step = {
+                "name": "venv_fallback_probe",
+                "command": [
+                    ".venv/bin/python",
+                    "-c",
+                    "from pathlib import Path; import sys; Path(sys.argv[1]).write_text('ok', encoding='utf-8')",
+                    "{iter_dir}/venv_fallback.txt",
+                ],
+            }
+
+            result = run_step(
+                step,
+                iteration=1,
+                iter_dir=iter_dir,
+                run_id="venv-fallback",
+                versions_dir=iter_dir,
+                repo_root=repo_root,
+                current_path="model-artifact/current",
+                parent_model_dir=repo_root / "model-artifact/current",
+                parent_checkpoint=repo_root / "model-artifact/current/model.npz",
+                replay_data="",
+                replay_weights="",
+            )
+
+            self.assertEqual("completed", result["status"])
+            self.assertTrue((iter_dir / "venv_fallback.txt").exists())
+
+    def test_resolve_step_command_falls_back_to_sys_executable_when_no_venv_exists(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-resolve-step-") as tmp:
+            repo_root = Path(tmp) / "nested/worktree"
+            repo_root.mkdir(parents=True)
+
+            resolved = resolve_step_command(
+                [".venv/bin/python", "-c", "print('ok')"],
+                repo_root=repo_root,
+            )
+
+        self.assertEqual([sys.executable, "-c", "print('ok')"], resolved)
+
     def test_run_fails_when_rules_parity_gate_fails(self):
         with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
             tmp_path = Path(tmp)
@@ -1293,6 +1365,675 @@ class PipelineScriptTest(unittest.TestCase):
             replay_capture = (out_dir / "aggressive-v1-iter2" / "replay_capture.txt").read_text(encoding="utf-8")
             self.assertIn("aggressive-v1-iter2/self_play.jsonl", replay_capture)
             self.assertIn("aggressive-v1-iter1/self_play.jsonl", replay_capture)
+
+    def test_run_renders_fixed_replay_sources_after_dynamic_replay_context(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            fixed_replay_path = tmp_path / "bootstrap.jsonl"
+            fixed_replay_path.write_text('{"row": 1}\n', encoding="utf-8")
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "aggressive-v1",
+                        "seed": 42,
+                        "iterations": 2,
+                        "replay_window": 3,
+                        "versions_dir": str(out_dir),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "fixed_replay_sources": [
+                            {
+                                "path": str(fixed_replay_path),
+                                "weight": 7,
+                            }
+                        ],
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "from pathlib import Path; import sys; Path(sys.argv[1]).write_text('row', encoding='utf-8')",
+                                    "{iter_dir}/self_play.jsonl",
+                                ],
+                            },
+                            {
+                                "name": "capture_replay",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "from pathlib import Path; import sys; Path(sys.argv[3]).write_text(f'{sys.argv[1]}\\n{sys.argv[2]}', encoding='utf-8')",
+                                    "{replay_data}",
+                                    "{replay_weights}",
+                                    "{iter_dir}/replay_capture.txt",
+                                ],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            replay_capture = (out_dir / "aggressive-v1-iter2" / "replay_capture.txt").read_text(encoding="utf-8").splitlines()
+            self.assertEqual(
+                [
+                    str(out_dir / "aggressive-v1-iter2" / "self_play.jsonl"),
+                    str(out_dir / "aggressive-v1-iter1" / "self_play.jsonl"),
+                    str(fixed_replay_path),
+                ],
+                replay_capture[0].split(","),
+            )
+            self.assertEqual(["2", "1", "7"], replay_capture[1].split(","))
+
+    def test_run_uses_repo_relative_fixed_replay_sources_without_injecting_missing_self_play(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "aggressive-v1",
+                        "seed": 42,
+                        "iterations": 1,
+                        "replay_window": 3,
+                        "versions_dir": str(out_dir),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "fixed_replay_sources": [
+                            {
+                                "path": "ml/alphazero_lite/synthetic_endgame_escape_fix.jsonl",
+                                "weight": 8,
+                            }
+                        ],
+                        "steps": [
+                            {
+                                "name": "capture_replay",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "from pathlib import Path; import sys; Path(sys.argv[3]).write_text(f'{sys.argv[1]}\\n{sys.argv[2]}', encoding='utf-8')",
+                                    "{replay_data}",
+                                    "{replay_weights}",
+                                    "{iter_dir}/replay_capture.txt",
+                                ],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), str(repo_root / "ml/alphazero_lite/pipeline.py"), "--config", str(config_path)],
+                cwd=tmp_path,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            replay_capture = (out_dir / "aggressive-v1-iter1" / "replay_capture.txt").read_text(encoding="utf-8").splitlines()
+            self.assertEqual(
+                [str(repo_root / "ml/alphazero_lite" / "synthetic_endgame_escape_fix.jsonl")],
+                replay_capture[0].split(","),
+            )
+            self.assertEqual(["8"], replay_capture[1].split(","))
+
+    def test_run_fails_when_fixed_replay_source_is_missing(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
+            tmp_path = Path(tmp)
+            missing_replay_path = tmp_path / "missing.jsonl"
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "aggressive-v1",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "fixed_replay_sources": [
+                            {
+                                "path": str(missing_replay_path),
+                                "weight": 2,
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("missing fixed replay source", result.stderr)
+            self.assertIn(str(missing_replay_path), result.stderr)
+
+    def test_issue_263_hard_state_finetune_train_renders_init_checkpoint(self):
+        config = self.load_v2_local_config(self.ISSUE_263_HARD_STATE_FINETUNE_CONFIG)
+
+        with tempfile.TemporaryDirectory(prefix="issue-263-train-render-") as tmp:
+            tmp_path = Path(tmp)
+            parent_artifact = tmp_path / "parent-artifact"
+            parent_artifact.mkdir()
+            checkpoint_path = parent_artifact / "checkpoint.npz"
+            checkpoint_path.write_text("stub", encoding="utf-8")
+
+            train_step = self.render_config_step(
+                config,
+                "train",
+                iter_dir=tmp_path / "iter1",
+                current_path=str(tmp_path / "runtime-current"),
+                parent_model_dir=parent_artifact,
+            )
+
+        self.assertIn("--init-checkpoint", train_step)
+        self.assertEqual(
+            str(checkpoint_path),
+            train_step[train_step.index("--init-checkpoint") + 1],
+        )
+
+    def test_issue_263_hard_state_finetune_config_declares_replay_and_validation_contract(self):
+        config = self.load_v2_local_config(self.ISSUE_263_HARD_STATE_FINETUNE_CONFIG)
+        steps = self.config_steps_by_name(config)
+
+        self.assertEqual("aggressive-v3-incumbent-hard-state-finetune", config["run_id"])
+        self.assertEqual(
+            [
+                {
+                    "path": "ml/alphazero_lite/synthetic_endgame_escape_fix.jsonl",
+                    "weight": 8,
+                }
+            ],
+            config["fixed_replay_sources"],
+        )
+        self.assertIn("parent_artifact_path", config)
+        self.assertEqual(
+            "storage/ai/alphazero_lite/versions/arena-push-stability-2026-04-05",
+            config["current_path"],
+        )
+        self.assertEqual(
+            "storage/ai/alphazero_lite/versions/arena-push-stability-2026-04-05",
+            config["parent_artifact_path"],
+        )
+        self.assertIn("hard_state_validation_path", config)
+        self.assertIn("hard_state_validation", steps)
+
+        train_command = steps["train"]["command"]
+        self.assertIn("--init-checkpoint", train_command)
+        self.assertEqual("{replay_data}", self.command_flag_value(train_command, "--data-files"))
+        self.assertEqual("{replay_weights}", self.command_flag_value(train_command, "--replay-weights"))
+        self.assertEqual("96,3", self.command_flag_value(train_command, "--hidden-sizes"))
+
+        validation_command = steps["hard_state_validation"]["command"]
+        self.assertIn("--validation-path", validation_command)
+        self.assertEqual(
+            "{hard_state_validation_path}",
+            self.command_flag_value(validation_command, "--validation-path"),
+        )
+        self.assertEqual(
+            "{iter_dir}/hard_state_validation.json",
+            self.command_flag_value(validation_command, "--out"),
+        )
+        self.assertIn("{iter_dir}/hard_state_validation.json", validation_command)
+
+    def test_issue_263_hard_state_finetune_validation_step_renders_top_level_validation_path(self):
+        config = self.load_v2_local_config(self.ISSUE_263_HARD_STATE_FINETUNE_CONFIG)
+
+        with tempfile.TemporaryDirectory(prefix="issue-263-validation-render-") as tmp:
+            tmp_path = Path(tmp)
+            validation_path = tmp_path / "fixtures" / "validation.json"
+            validation_path.parent.mkdir(parents=True)
+            validation_path.write_text("[]", encoding="utf-8")
+
+            validation_step = self.render_config_step(
+                config,
+                "hard_state_validation",
+                iter_dir=tmp_path / "iter1",
+                current_path=str(tmp_path / "runtime-current"),
+                parent_model_dir=tmp_path / "parent-artifact",
+                hard_state_validation_path=str(validation_path),
+            )
+
+        self.assertEqual(
+            str(validation_path),
+            validation_step[validation_step.index("--validation-path") + 1],
+        )
+        self.assertNotEqual(
+            "{hard_state_validation_path}",
+            validation_step[validation_step.index("--validation-path") + 1],
+        )
+
+    def test_pipeline_initial_iteration_uses_parent_artifact_path_for_parent_checkpoint_and_keeps_current_path_for_runtime_targets(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-parent-artifact-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            runtime_current = tmp_path / "runtime-current"
+            parent_artifact = tmp_path / "parent-artifact"
+            runtime_current.mkdir()
+            parent_artifact.mkdir()
+            (parent_artifact / "checkpoint.npz").write_text("parent", encoding="utf-8")
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "parent-artifact-contract",
+                        "seed": 42,
+                        "iterations": 1,
+                        "start_iteration": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(runtime_current),
+                        "parent_artifact_path": str(parent_artifact),
+                        "steps": [
+                            {
+                                "name": "capture_parent_contract",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    (
+                                        "from pathlib import Path; import json, sys; "
+                                        "Path(sys.argv[3]).write_text(json.dumps({"
+                                        "'parent_model_dir': sys.argv[1], 'parent_checkpoint': sys.argv[2]}), encoding='utf-8')"
+                                    ),
+                                    "{parent_model_dir}",
+                                    "{parent_checkpoint}",
+                                    "{iter_dir}/parent_contract.json",
+                                ],
+                            },
+                            {
+                                "name": "capture_runtime_target",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "from pathlib import Path; import sys; Path(sys.argv[2]).write_text(sys.argv[1], encoding='utf-8')",
+                                    "{current_path}",
+                                    "{iter_dir}/runtime_target.txt",
+                                ],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            iter_dir = out_dir / "parent-artifact-contract-iter1"
+            parent_contract = json.loads((iter_dir / "parent_contract.json").read_text(encoding="utf-8"))
+            runtime_target = (iter_dir / "runtime_target.txt").read_text(encoding="utf-8")
+
+            self.assertEqual(str(parent_artifact), parent_contract["parent_model_dir"])
+            self.assertEqual(str(parent_artifact / "checkpoint.npz"), parent_contract["parent_checkpoint"])
+            self.assertEqual(str(runtime_current), runtime_target)
+
+    def test_pipeline_initial_iteration_resolves_relative_parent_artifact_path_against_repo_root_not_caller_cwd(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-relative-parent-cwd-") as tmp, tempfile.TemporaryDirectory(
+            prefix="azlite-pipeline-relative-parent-artifact-",
+            dir=repo_root,
+        ) as repo_tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            caller_cwd = tmp_path / "caller-cwd"
+            caller_cwd.mkdir()
+
+            parent_artifact = Path(repo_tmp) / "parent-artifact"
+            parent_artifact.mkdir()
+            (parent_artifact / "checkpoint.npz").write_text("parent", encoding="utf-8")
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "relative-parent-artifact-contract",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "parent_artifact_path": parent_artifact.relative_to(repo_root).as_posix(),
+                        "steps": [
+                            {
+                                "name": "capture_parent_contract",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    (
+                                        "from pathlib import Path; import json, sys; "
+                                        "Path(sys.argv[3]).write_text(json.dumps({"
+                                        "'parent_model_dir': sys.argv[1], 'parent_checkpoint': sys.argv[2]}), encoding='utf-8')"
+                                    ),
+                                    "{parent_model_dir}",
+                                    "{parent_checkpoint}",
+                                    "{iter_dir}/parent_contract.json",
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), str(repo_root / "ml/alphazero_lite/pipeline.py"), "--config", str(config_path)],
+                cwd=caller_cwd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            iter_dir = out_dir / "relative-parent-artifact-contract-iter1"
+            parent_contract = json.loads((iter_dir / "parent_contract.json").read_text(encoding="utf-8"))
+
+            self.assertEqual(str(parent_artifact), parent_contract["parent_model_dir"])
+            self.assertEqual(str(parent_artifact / "checkpoint.npz"), parent_contract["parent_checkpoint"])
+
+    def test_pipeline_initial_iteration_resolves_relative_current_path_against_repo_root_when_parent_artifact_path_is_omitted(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-relative-current-cwd-") as tmp, tempfile.TemporaryDirectory(
+            prefix="azlite-pipeline-relative-current-artifact-",
+            dir=repo_root,
+        ) as repo_tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            caller_cwd = tmp_path / "caller-cwd"
+            caller_cwd.mkdir()
+
+            current_artifact = Path(repo_tmp) / "current-artifact"
+            current_artifact.mkdir()
+            (current_artifact / "checkpoint.npz").write_text("parent", encoding="utf-8")
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "relative-current-artifact-contract",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": current_artifact.relative_to(repo_root).as_posix(),
+                        "steps": [
+                            {
+                                "name": "capture_parent_contract",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    (
+                                        "from pathlib import Path; import json, sys; "
+                                        "Path(sys.argv[3]).write_text(json.dumps({"
+                                        "'parent_model_dir': sys.argv[1], 'parent_checkpoint': sys.argv[2]}), encoding='utf-8')"
+                                    ),
+                                    "{parent_model_dir}",
+                                    "{parent_checkpoint}",
+                                    "{iter_dir}/parent_contract.json",
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), str(repo_root / "ml/alphazero_lite/pipeline.py"), "--config", str(config_path)],
+                cwd=caller_cwd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            iter_dir = out_dir / "relative-current-artifact-contract-iter1"
+            parent_contract = json.loads((iter_dir / "parent_contract.json").read_text(encoding="utf-8"))
+
+            self.assertEqual(str(current_artifact), parent_contract["parent_model_dir"])
+            self.assertEqual(str(current_artifact / "checkpoint.npz"), parent_contract["parent_checkpoint"])
+
+    def test_pipeline_fails_before_running_steps_when_parent_artifact_path_is_missing(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-missing-parent-artifact-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            marker_path = tmp_path / "step_ran.txt"
+            missing_parent_artifact = tmp_path / "missing-parent-artifact"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "missing-parent-artifact",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(tmp_path / "runtime-current"),
+                        "parent_artifact_path": str(missing_parent_artifact),
+                        "steps": [
+                            {
+                                "name": "should_not_run",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    f"from pathlib import Path; Path(r'{marker_path}').write_text('ran', encoding='utf-8')",
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("missing parent_artifact_path", result.stderr)
+            self.assertFalse(marker_path.exists())
+
+    def test_pipeline_fails_before_running_steps_when_parent_artifact_has_no_checkpoint_or_model(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-parent-artifact-without-checkpoint-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            marker_path = tmp_path / "step_ran.txt"
+            parent_artifact = tmp_path / "parent-artifact"
+            parent_artifact.mkdir()
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "parent-artifact-without-checkpoint",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(tmp_path / "runtime-current"),
+                        "parent_artifact_path": str(parent_artifact),
+                        "steps": [
+                            {
+                                "name": "should_not_run",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    f"from pathlib import Path; Path(r'{marker_path}').write_text('ran', encoding='utf-8')",
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("checkpoint.npz or model.npz", result.stderr)
+            self.assertFalse(marker_path.exists())
+
+    def test_pipeline_fails_before_running_steps_when_hard_state_validation_path_is_missing(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-missing-hard-state-validation-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            marker_path = tmp_path / "step_ran.txt"
+            runtime_current = tmp_path / "runtime-current"
+            runtime_current.mkdir()
+            (runtime_current / "model.npz").write_text("parent", encoding="utf-8")
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "missing-hard-state-validation",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(runtime_current),
+                        "hard_state_validation_path": str(tmp_path / "missing-hard-state-validation.jsonl"),
+                        "steps": [
+                            {
+                                "name": "should_not_run",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    f"from pathlib import Path; Path(r'{marker_path}').write_text('ran', encoding='utf-8')",
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("missing hard_state_validation_path", result.stderr)
+            self.assertFalse(marker_path.exists())
+
+    def test_pipeline_dry_run_allows_missing_parent_artifact_and_hard_state_validation_paths(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-missing-inputs-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-missing-inputs",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(tmp_path / "runtime-current"),
+                        "parent_artifact_path": str(tmp_path / "missing-parent-artifact"),
+                        "hard_state_validation_path": str(tmp_path / "missing-hard-state-validation.jsonl"),
+                        "steps": [
+                            {
+                                "name": "should_not_run_in_dry_run",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "raise SystemExit('dry-run should not execute steps')",
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertIn("pipeline_dry_run_complete", result.stdout)
+            manifest = json.loads((out_dir / "dry-run-missing-inputs-iter1" / "run_manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual("planned", manifest["status"])
+
+    def test_pipeline_manifest_uses_parent_artifact_path_for_first_iteration_parent_version(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-parent-version-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            runtime_current = tmp_path / "runtime-current"
+            parent_artifact = tmp_path / "parent-artifact"
+            runtime_current.mkdir()
+            parent_artifact.mkdir()
+            (parent_artifact / "model.npz").write_text("parent", encoding="utf-8")
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "parent-version-contract",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(runtime_current),
+                        "parent_artifact_path": str(parent_artifact),
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            manifest = json.loads((out_dir / "parent-version-contract-iter1" / "run_manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(str(parent_artifact), manifest["parent_version"])
 
     def test_aggressive_config_uses_python_arena_workers_for_prefilter_and_confirm(self):
         repo_root = Path(__file__).resolve().parents[2]

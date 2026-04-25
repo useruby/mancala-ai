@@ -1156,6 +1156,112 @@ class BenchmarkScriptTest(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, "candidate comparison_mode"):
                 benchmark.build_report(args)
 
+    def test_promotion_report_skips_dynamic_budget_comparison_for_fixed_vs_fixed_baseline_inputs(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            baseline_report = tmp_path / "baseline.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "wins": 36,
+                        "losses": 12,
+                        "draws": 12,
+                        "games_played": 60,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "classic_mcts_mode": "fixed",
+                        "games": 30,
+                        "az_wins": 18,
+                        "mcts_wins": 11,
+                        "draws": 1,
+                        "score": 0.6167,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 1148.94,
+                            "mean_root_latency_ms": 133.77,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": False,
+                            "probe_simulations": 0,
+                            "min_simulations": 1200,
+                            "max_simulations": 1200,
+                            "entropy_weight": 0.0,
+                            "low_margin_threshold": 0.0,
+                            "low_margin_weight": 0.0,
+                            "variance_weight": 0.0,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            baseline_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "classic_mcts_mode": "fixed",
+                        "games": 30,
+                        "az_wins": 18,
+                        "mcts_wins": 11,
+                        "draws": 1,
+                        "score": 0.6167,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 1148.94,
+                            "mean_root_latency_ms": 132.13,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": False,
+                            "probe_simulations": 0,
+                            "min_simulations": 1200,
+                            "max_simulations": 1200,
+                            "entropy_weight": 0.0,
+                            "low_margin_threshold": 0.0,
+                            "low_margin_weight": 0.0,
+                            "variance_weight": 0.0,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                    "--current-baseline-mcts-report",
+                    str(baseline_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        mcts_check = report["checks"][1]
+        self.assertEqual("current_baseline", mcts_check["comparison"])
+        self.assertEqual(0.6167, mcts_check["score"])
+        self.assertEqual(0.6167, mcts_check["baseline_score"])
+        self.assertTrue(mcts_check["passed"])
+        self.assertIsNone(report["dynamic_budget_comparison"])
+        self.assertEqual("classic_mcts_fixed_runtime", report["dynamic_budget_metric_source"]["candidate"])
+        self.assertEqual("classic_mcts_fixed_runtime", report["dynamic_budget_metric_source"]["baseline"])
+
     def test_dynamic_budget_comparison_requires_explicit_fixed_vs_dynamic_classic_mcts_reports(self):
         from ml.alphazero_lite import benchmark
 

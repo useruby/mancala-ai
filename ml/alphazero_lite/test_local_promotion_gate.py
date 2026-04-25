@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 class LocalPromotionGateTest(unittest.TestCase):
@@ -67,6 +68,55 @@ class LocalPromotionGateTest(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+
+    def test_run_regression_check_allows_failed_regression_report_exit_code(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp_path = Path(tmp)
+            report_path = tmp_path / "candidate_regression_suite.json"
+            payload = {
+                "passed": False,
+                "artifact_path": "candidate",
+                "positions_path": "test/fixtures/ai/superhuman_regression_positions.json",
+                "results": [],
+            }
+
+            completed = subprocess.CompletedProcess(
+                args=["script/ai/check_superhuman_regressions"],
+                returncode=1,
+                stdout=json.dumps(payload),
+                stderr="",
+            )
+
+            with mock.patch.object(module.subprocess, "run", return_value=completed):
+                report = module.run_regression_check(
+                    ["script/ai/check_superhuman_regressions", "--artifact", "candidate"],
+                    report_path,
+                )
+
+        self.assertFalse(report["passed"])
+
+    def test_python_executable_falls_back_to_workspace_venv(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp_path = Path(tmp)
+            workspace_root = tmp_path / "workspace"
+            workspace_python = workspace_root / ".venv/bin/python"
+            worktree_root = workspace_root / "nested/worktree"
+            workspace_python.parent.mkdir(parents=True)
+            worktree_root.mkdir(parents=True)
+            workspace_python.symlink_to(Path(sys.executable))
+
+            original_file = module.__file__
+            module.__file__ = str(worktree_root / "script/ai/local_promotion_gate")
+            try:
+                resolved = module.python_executable()
+            finally:
+                module.__file__ = original_file
+
+        self.assertEqual(str(workspace_python), resolved)
 
     def test_rejects_candidate_when_regression_report_is_missing_passed_field(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
@@ -484,6 +534,63 @@ class LocalPromotionGateTest(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn("config missing required step", result.stderr)
+
+    def test_dry_run_with_phase1_config_still_plans_threshold_evaluations(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--config-path",
+                str(repo_root / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase1.json"),
+                "--dry-run",
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual([8, 10, 12], [row["threshold"] for row in report["endgame_exact_solve"]["planned_evaluations"]])
+
+    def test_load_search_flag_map_can_scope_missing_phase2_steps_to_threshold_planning_only(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            config_path = tmp / "search_config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "steps": [
+                            {
+                                "name": "arena_confirm_report",
+                                "command": [
+                                    "python",
+                                    "ml/alphazero_lite/arena.py",
+                                    "--fpu-mode",
+                                    "parent_q",
+                                ],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(SystemExit) as error:
+                module.load_search_flag_map(str(config_path))
+
+            self.assertIn("config missing required step", str(error.exception))
+            scoped_flags = module.load_search_flag_map(str(config_path), require_steps=False)
+            self.assertEqual(["--fpu-mode", "parent_q"], scoped_flags["arena"])
+            self.assertEqual([], scoped_flags["candidate_mcts"])
+            self.assertEqual([], scoped_flags["current_mcts"])
 
     def test_dry_run_plans_threshold_specific_mcts_commands(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:

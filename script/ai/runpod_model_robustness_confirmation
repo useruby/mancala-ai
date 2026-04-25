@@ -20,6 +20,7 @@ from ml.alphazero_lite.runpod_experiment import (  # noqa: E402
 
 DEFAULT_PARENT_ARTIFACT = "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1"
 DEFAULT_CURRENT_PATH = "model-artifact/current"
+DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json"
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_v3_robustness_confirmation"
 DEFAULT_RESULTS_PATH = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
 DEFAULT_LOCAL_RESULTS_PATH = "/tmp/runpod-robustness-confirmation-results"
@@ -45,10 +46,30 @@ def stage_tmp_bundle_path(path_value: str) -> str:
     return staged_path.relative_to(REPO_ROOT).as_posix()
 
 
+def stage_absolute_bundle_path(path_value: str) -> str:
+    path = Path(path_value)
+    if not path.is_absolute() or path_value.startswith("/tmp/"):
+        return path.as_posix()
+
+    staged_path = REPO_ROOT / "tmp" / "runpod-staged" / path.relative_to("/")
+    staged_path.parent.mkdir(parents=True, exist_ok=True)
+    if staged_path.exists() or staged_path.is_symlink():
+        if staged_path.is_dir() and not staged_path.is_symlink():
+            shutil.rmtree(staged_path)
+        else:
+            staged_path.unlink()
+    shutil.copytree(path, staged_path, symlinks=True)
+    return staged_path.relative_to(REPO_ROOT).as_posix()
+
+
 def repo_bundle_path(path_value: str) -> str:
     path = Path(path_value)
     if not path.is_absolute():
         return path.as_posix()
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        pass
     if path_value.startswith("/tmp/"):
         return path.relative_to("/").as_posix()
     raise SystemExit(f"Path must be repo-relative or under /tmp for RunPod bundling: {path_value}")
@@ -103,23 +124,39 @@ def build_output_payload(result: dict, robustness_summary: dict) -> dict:
         "manifest_status": result.get("manifest_status"),
         "robustness_summary_path": robustness_summary["summary_path"],
         "robustness_passed": robustness_summary["passed"],
+        "lanes": robustness_summary.get("lanes"),
     }
 
 
 def main() -> int:
     args = parser.parse_args()
 
-    parent_bundle_path = repo_bundle_path(args.parent_artifact)
-    if Path(args.current_path).is_absolute():
+    dry_run_parent_artifact = args.parent_artifact
+    dry_run_current_path = args.current_path
+    base_config_bundle_path = repo_bundle_path(args.base_config)
+    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith("/tmp/"):
+        dry_run_parent_artifact = str(REPO_ROOT / stage_absolute_bundle_path(args.parent_artifact))
+        parent_bundle_path = Path(dry_run_parent_artifact).relative_to(REPO_ROOT).as_posix()
+    else:
+        parent_bundle_path = repo_bundle_path(args.parent_artifact)
+
+    if Path(args.current_path).is_absolute() and not args.current_path.startswith("/tmp/"):
+        dry_run_current_path = str(REPO_ROOT / stage_absolute_bundle_path(args.current_path))
+        current_bundle_path = Path(dry_run_current_path).relative_to(REPO_ROOT).as_posix()
+    elif Path(args.current_path).is_absolute():
         current_bundle_path = repo_bundle_path(args.current_path)
     else:
         current_bundle_path = args.current_path
+
+    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith("/tmp/"):
+        pass
 
     include_paths = [
         "script/ai/model_robustness_confirmation",
         "script/ai/local_promotion_gate",
         "ml/alphazero_lite",
         "model-artifact/current",
+        base_config_bundle_path,
         parent_bundle_path,
     ]
     if args.current_path != "model-artifact/current":
@@ -127,8 +164,9 @@ def main() -> int:
 
     robustness_command = " ".join([
         "script/ai/model_robustness_confirmation",
-        f"--parent-artifact {shlex.quote(args.parent_artifact)}",
-        f"--current-path {shlex.quote(args.current_path)}",
+        f"--base-config {shlex.quote(args.base_config)}",
+        f"--parent-artifact {shlex.quote(dry_run_parent_artifact)}",
+        f"--current-path {shlex.quote(dry_run_current_path)}",
         f"--output-root {shlex.quote(args.output_root)}",
     ])
 
@@ -169,11 +207,20 @@ def main() -> int:
 
     parent_bundle_path = stage_tmp_bundle_path(args.parent_artifact)
     current_bundle_path = stage_tmp_bundle_path(args.current_path) if Path(args.current_path).is_absolute() else args.current_path
+    parent_artifact_arg = args.parent_artifact
+    current_path_arg = args.current_path
+    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith("/tmp/"):
+        parent_bundle_path = stage_absolute_bundle_path(args.parent_artifact)
+        parent_artifact_arg = str(REPO_ROOT / parent_bundle_path)
+    if Path(args.current_path).is_absolute() and not args.current_path.startswith("/tmp/"):
+        current_bundle_path = stage_absolute_bundle_path(args.current_path)
+        current_path_arg = str(REPO_ROOT / current_bundle_path)
     include_paths = [
         "script/ai/model_robustness_confirmation",
         "script/ai/local_promotion_gate",
         "ml/alphazero_lite",
         "model-artifact/current",
+        base_config_bundle_path,
         parent_bundle_path,
     ]
     if args.current_path != "model-artifact/current":
@@ -217,6 +264,8 @@ parser = argparse.ArgumentParser(
     prog="script/ai/runpod_model_robustness_confirmation",
     description="Launch the expensive model robustness confirmation sweep on RunPod.",
 )
+parser.add_argument("--base-config", default=DEFAULT_BASE_CONFIG,
+                    help="Base pipeline config used by model_robustness_confirmation")
 parser.add_argument("--parent-artifact", default=DEFAULT_PARENT_ARTIFACT,
                     help="Parent artifact used as the remote baseline")
 parser.add_argument("--current-path", default=DEFAULT_CURRENT_PATH,

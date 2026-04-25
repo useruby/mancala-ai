@@ -65,10 +65,13 @@ class RunpodWrappersTest(unittest.TestCase):
 
 
 class RunpodTrainingExperimentValidationTest(unittest.TestCase):
-    def write_downloaded_aggregate_summary(self, *, local_results_path, results_path, passed):
+    def write_downloaded_aggregate_summary(self, *, local_results_path, results_path, passed, lanes=None):
         aggregate_summary_path = Path(local_results_path) / Path(results_path).name / "aggregate_summary.json"
         aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
-        aggregate_summary_path.write_text(json.dumps({"passed": passed}), encoding="utf-8")
+        payload = {"passed": passed}
+        if lanes is not None:
+            payload["lanes"] = lanes
+        aggregate_summary_path.write_text(json.dumps(payload), encoding="utf-8")
         return aggregate_summary_path
 
     def run_model_robustness_wrapper(self, *, orchestrate_impl, cli_args):
@@ -79,22 +82,29 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         fake_runpod_experiment.orchestrate = orchestrate_impl
         stdout = io.StringIO()
         stderr = io.StringIO()
+        normalized_cli_args = list(cli_args)
 
-        with mock.patch.dict(sys.modules, {"ml.alphazero_lite.runpod_experiment": fake_runpod_experiment}):
-            with mock.patch.object(sys, "argv", [str(script_path), *cli_args]), mock.patch("sys.stdout", stdout), mock.patch(
-                "sys.stderr", stderr
-            ):
-                try:
-                    runpy.run_path(str(script_path), run_name="__main__")
-                except SystemExit as exc:
-                    if isinstance(exc.code, int):
-                        code = exc.code
+        with tempfile.TemporaryDirectory() as tmp:
+            if "--parent-artifact" not in normalized_cli_args:
+                parent_artifact = Path(tmp) / "parent-artifact"
+                parent_artifact.mkdir()
+                normalized_cli_args = ["--parent-artifact", str(parent_artifact), *normalized_cli_args]
+
+            with mock.patch.dict(sys.modules, {"ml.alphazero_lite.runpod_experiment": fake_runpod_experiment}):
+                with mock.patch.object(sys, "argv", [str(script_path), *normalized_cli_args]), mock.patch(
+                    "sys.stdout", stdout
+                ), mock.patch("sys.stderr", stderr):
+                    try:
+                        runpy.run_path(str(script_path), run_name="__main__")
+                    except SystemExit as exc:
+                        if isinstance(exc.code, int):
+                            code = exc.code
+                        else:
+                            if exc.code not in (None, ""):
+                                print(exc.code, file=sys.stderr)
+                            code = 1
                     else:
-                        if exc.code not in (None, ""):
-                            print(exc.code, file=sys.stderr)
-                        code = 1
-                else:
-                    code = 0
+                        code = 0
 
         return code, stdout.getvalue(), stderr.getvalue()
 
@@ -170,6 +180,32 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         self.assertIn('exit "$robustness_status"', command)
         self.assertTrue(command.rstrip().endswith(")"), command)
 
+    def test_runpod_model_robustness_confirmation_dry_run_passes_base_config_override(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base_config = Path(temp_dir) / "hard-state.json"
+            base_config.write_text("{}", encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    "script/ai/runpod_model_robustness_confirmation",
+                    "--dry-run",
+                    "--base-config",
+                    str(base_config),
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        command = plan["command"]
+
+        self.assertIn(f"--base-config {base_config}", command)
+
     def test_runpod_model_robustness_confirmation_exits_zero_when_downloaded_aggregate_passed(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -203,6 +239,60 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         payload = json.loads(stdout)
         self.assertTrue(payload["robustness_passed"])
         self.assertTrue(payload["robustness_summary_path"].endswith("aggregate_summary.json"))
+
+    def test_runpod_model_robustness_confirmation_preserves_downloaded_lane_summaries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+            parent_artifact = tmp_path / "parent-artifact"
+            parent_artifact.mkdir()
+            lanes = [
+                {
+                    "seed": 41,
+                    "hard_state_report_path": "/tmp/lane-41/hard_state_validation.json",
+                    "hard_state_summary": {
+                        "policy_top1_agreement": 0.82,
+                        "average_regret": 0.07,
+                        "value_calibration_mae": 0.11,
+                    },
+                }
+            ]
+
+            def fake_orchestrate(**kwargs):
+                aggregate_summary_path = self.write_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    passed=True,
+                    lanes=lanes,
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                    "_aggregate_summary_path": str(aggregate_summary_path),
+                }
+
+            code, stdout, stderr = self.run_model_robustness_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=[
+                    "--parent-artifact",
+                    str(parent_artifact),
+                    "--local-results-path",
+                    str(local_results_path),
+                    "--results-path",
+                    results_path,
+                ],
+            )
+
+        self.assertEqual("", stderr)
+        self.assertEqual(0, code)
+        payload = json.loads(stdout)
+        self.assertEqual(lanes, payload["lanes"])
 
     def test_runpod_model_robustness_confirmation_exits_non_zero_when_downloaded_aggregate_failed(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -447,6 +537,37 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
             ],
             plan["include_paths"],
         )
+
+    def test_runpod_model_robustness_confirmation_dry_run_accepts_repo_absolute_parent_and_current_paths(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        repo_artifact = repo_root.parents[1] / "storage/ai/alphazero_lite/versions/arena-push-stability-2026-04-05"
+        staged_artifact = str(repo_root / "tmp/runpod-staged" / repo_artifact.relative_to(Path("/")))
+        staged_include_path = (
+            Path("tmp/runpod-staged") / repo_artifact.relative_to(Path("/"))
+        ).as_posix()
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_model_robustness_confirmation",
+                "--dry-run",
+                "--parent-artifact",
+                str(repo_artifact),
+                "--current-path",
+                str(repo_artifact),
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        command = plan["command"]
+
+        self.assertIn(f"--parent-artifact {staged_artifact}", command)
+        self.assertIn(f"--current-path {staged_artifact}", command)
+        self.assertIn(staged_include_path, plan["include_paths"])
 
     def test_runpod_model_robustness_confirmation_stages_absolute_tmp_parent_artifact_before_orchestrate(self):
         repo_root = Path(__file__).resolve().parents[2]

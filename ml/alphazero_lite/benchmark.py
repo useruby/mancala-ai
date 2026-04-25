@@ -332,7 +332,14 @@ def build_report(args: argparse.Namespace) -> dict:
                 baseline_mcts = json.loads(Path(args.current_baseline_mcts_report).read_text(encoding="utf-8"))
                 dynamic_budget_metric_source["baseline"] = baseline_mcts.get("budget_summary", {}).get("source")
                 classic_mcts_dynamic_budget_config["baseline"] = baseline_mcts.get("classic_mcts_dynamic_budget_config")
-                dynamic_budget = dynamic_budget_comparison(mcts, baseline_mcts, strict=True)
+                candidate_comparison_mode = mcts.get("comparison_mode")
+                candidate_dynamic_budget_config = mcts.get("classic_mcts_dynamic_budget_config")
+                candidate_dynamic_budget_enabled = isinstance(candidate_dynamic_budget_config, dict) and bool(
+                    candidate_dynamic_budget_config.get("enabled")
+                )
+                should_validate_dynamic_budget = candidate_comparison_mode is not None or candidate_dynamic_budget_enabled
+                if should_validate_dynamic_budget:
+                    dynamic_budget = dynamic_budget_comparison(mcts, baseline_mcts, strict=True)
 
     return {
         "schema": "azlite_benchmark_v1",

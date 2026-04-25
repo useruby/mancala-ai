@@ -95,6 +95,7 @@ def render_command(
     parent_checkpoint: Path,
     replay_data: str,
     replay_weights: str,
+    hard_state_validation_path: str = "",
 ) -> list[str]:
     rendered: list[str] = []
     for token in command:
@@ -108,6 +109,7 @@ def render_command(
         value = value.replace("{parent_checkpoint}", str(parent_checkpoint))
         value = value.replace("{replay_data}", replay_data)
         value = value.replace("{replay_weights}", replay_weights)
+        value = value.replace("{hard_state_validation_path}", hard_state_validation_path)
         rendered.append(value)
     return drop_incompatible_parent_checkpoint(rendered, parent_checkpoint=parent_checkpoint)
 
@@ -124,6 +126,7 @@ def render_path(
     parent_checkpoint: Path,
     replay_data: str,
     replay_weights: str,
+    hard_state_validation_path: str = "",
 ) -> Path:
     rendered = path
     rendered = rendered.replace("{iteration}", str(iteration))
@@ -135,20 +138,161 @@ def render_path(
     rendered = rendered.replace("{parent_checkpoint}", str(parent_checkpoint))
     rendered = rendered.replace("{replay_data}", replay_data)
     rendered = rendered.replace("{replay_weights}", replay_weights)
+    rendered = rendered.replace("{hard_state_validation_path}", hard_state_validation_path)
     return Path(rendered)
 
 
-def build_replay_context(*, iteration: int, iter_dir: Path, versions_dir: Path, run_id: str, replay_window: int) -> tuple[str, str]:
-    replay_paths: list[Path] = [iter_dir / "self_play.jsonl"]
+def resolve_step_command(command: list[str], *, repo_root: Path) -> list[str]:
+    if not command:
+        return command
+
+    executable = command[0]
+    if executable != ".venv/bin/python":
+        return command
+
+    local_venv = repo_root / executable
+    if local_venv.exists():
+        return command
+
+    for ancestor in repo_root.parents:
+        candidate = ancestor / executable
+        if candidate.exists():
+            return [str(candidate), *command[1:]]
+
+    return [sys.executable, *command[1:]]
+
+
+def load_fixed_replay_sources(config: dict, *, repo_root: Path) -> list[tuple[Path, int]]:
+    raw_sources = config.get("fixed_replay_sources", [])
+    if raw_sources is None:
+        return []
+    if not isinstance(raw_sources, list):
+        raise SystemExit("fixed_replay_sources must be a list")
+
+    fixed_sources: list[tuple[Path, int]] = []
+    for source in raw_sources:
+        if not isinstance(source, dict):
+            raise SystemExit("fixed_replay_sources entries must be objects")
+
+        path = source.get("path")
+        weight = source.get("weight")
+
+        if not isinstance(path, str) or not path.strip():
+            raise SystemExit("fixed replay source path must be a non-empty string")
+        if not isinstance(weight, int) or isinstance(weight, bool) or weight <= 0:
+            raise SystemExit("fixed replay source weight must be a positive integer")
+
+        replay_path = Path(path)
+        if not replay_path.is_absolute():
+            replay_path = repo_root / replay_path
+        if not replay_path.exists():
+            raise SystemExit(f"missing fixed replay source: {replay_path}")
+        fixed_sources.append((replay_path.resolve(), weight))
+
+    return fixed_sources
+
+
+def resolve_config_path(path: str, *, repo_root: Path) -> Path:
+    resolved = Path(path)
+    if not resolved.is_absolute():
+        resolved = repo_root / resolved
+    return resolved
+
+
+def validate_startup_paths(
+    *,
+    repo_root: Path,
+    resolved_parent_artifact_path: Path | None,
+    hard_state_validation_path: str,
+    config: dict,
+    dry_run: bool,
+) -> None:
+    if dry_run:
+        return
+
+    if "parent_artifact_path" in config:
+        parent_path = resolved_parent_artifact_path
+        if parent_path is None:
+            raise SystemExit("parent_artifact_path must resolve before validation")
+        if not parent_path.exists():
+            raise SystemExit(f"missing parent_artifact_path: {parent_path}")
+
+        checkpoint_path = parent_path / "checkpoint.npz"
+        model_path = parent_path / "model.npz"
+        if not checkpoint_path.exists() and not model_path.exists():
+            raise SystemExit(
+                f"parent_artifact_path must contain checkpoint.npz or model.npz: {parent_path}"
+            )
+
+    if "hard_state_validation_path" in config:
+        validation_path = resolve_config_path(hard_state_validation_path, repo_root=repo_root)
+        if not validation_path.exists():
+            raise SystemExit(f"missing hard_state_validation_path: {validation_path}")
+
+
+def has_self_play_step(steps: list[dict]) -> bool:
+    return any(step.get("name") == "self_play" for step in steps if isinstance(step, dict))
+
+
+def build_replay_context(
+    *,
+    iteration: int,
+    iter_dir: Path,
+    versions_dir: Path,
+    run_id: str,
+    replay_window: int,
+    include_current_iteration: bool,
+) -> tuple[list[Path], list[int]]:
+    replay_paths: list[Path] = []
+
+    if include_current_iteration:
+        replay_paths.append(iter_dir / "self_play.jsonl")
 
     for previous_iteration in range(iteration - 1, max(0, iteration - replay_window), -1):
         previous_path = versions_dir / f"{run_id}-iter{previous_iteration}" / "self_play.jsonl"
         if previous_path.exists():
             replay_paths.append(previous_path)
 
+    replay_weights = list(range(len(replay_paths), 0, -1))
+    return replay_paths, replay_weights
+
+
+def merge_replay_context(
+    dynamic_paths: list[Path],
+    dynamic_weights: list[int],
+    fixed_sources: list[tuple[Path, int]] | None = None,
+) -> tuple[str, str]:
+    replay_paths = list(dynamic_paths)
+    replay_weights = list(dynamic_weights)
+
+    for path, weight in fixed_sources or []:
+        replay_paths.append(path)
+        replay_weights.append(weight)
+
     replay_data = ",".join(str(path) for path in replay_paths)
-    replay_weights = ",".join(str(weight) for weight in range(len(replay_paths), 0, -1))
-    return replay_data, replay_weights
+    replay_weights_text = ",".join(str(weight) for weight in replay_weights)
+    return replay_data, replay_weights_text
+
+
+def resolve_replay_context(
+    *,
+    iteration: int,
+    iter_dir: Path,
+    versions_dir: Path,
+    run_id: str,
+    replay_window: int,
+    include_current_iteration: bool,
+    fixed_replay_sources: list[tuple[Path, int]] | None = None,
+) -> tuple[str, str]:
+    replay_paths, replay_weights = build_replay_context(
+        iteration=iteration,
+        iter_dir=iter_dir,
+        versions_dir=versions_dir,
+        run_id=run_id,
+        replay_window=replay_window,
+        include_current_iteration=include_current_iteration,
+    )
+    return merge_replay_context(replay_paths, replay_weights, fixed_replay_sources)
 
 
 def json_safe_config(value):
@@ -274,6 +418,7 @@ def run_step(
     parent_checkpoint: Path,
     replay_data: str,
     replay_weights: str,
+    hard_state_validation_path: str = "",
 ) -> dict:
     name = step.get("name", "unnamed_step")
     command = step.get("command", [])
@@ -291,7 +436,9 @@ def run_step(
         parent_checkpoint=parent_checkpoint,
         replay_data=replay_data,
         replay_weights=replay_weights,
+        hard_state_validation_path=hard_state_validation_path,
     )
+    rendered = resolve_step_command(rendered, repo_root=repo_root)
     started = time.time()
     result = subprocess.run(rendered, cwd=repo_root, capture_output=True, text=True, check=False)
     duration = round(time.time() - started, 4)
@@ -325,6 +472,7 @@ def gate_failures(
     replay_data: str,
     replay_weights: str,
     skipped_steps: set[str],
+    hard_state_validation_path: str = "",
 ) -> list[dict]:
     failures: list[dict] = []
 
@@ -341,6 +489,7 @@ def gate_failures(
             parent_checkpoint=parent_checkpoint,
             replay_data=replay_data,
             replay_weights=replay_weights,
+            hard_state_validation_path=hard_state_validation_path,
         )
         if not parity_path.exists():
             failures.append({"code": "rules_parity_report_missing", "message": f"missing rules parity report: {parity_path}"})
@@ -362,6 +511,7 @@ def gate_failures(
             parent_checkpoint=parent_checkpoint,
             replay_data=replay_data,
             replay_weights=replay_weights,
+            hard_state_validation_path=hard_state_validation_path,
         )
         if not audit_path.exists():
             failures.append({"code": "perspective_audit_missing", "message": f"missing perspective audit report: {audit_path}"})
@@ -383,6 +533,7 @@ def gate_failures(
             parent_checkpoint=parent_checkpoint,
             replay_data=replay_data,
             replay_weights=replay_weights,
+            hard_state_validation_path=hard_state_validation_path,
         )
         min_arena_score = float(gates.get("min_arena_score", 0.55))
         if not arena_path.exists():
@@ -411,6 +562,7 @@ def gate_failures(
             parent_checkpoint=parent_checkpoint,
             replay_data=replay_data,
             replay_weights=replay_weights,
+            hard_state_validation_path=hard_state_validation_path,
         )
         if not benchmark_path.exists():
             failures.append({"code": "benchmark_report_missing", "message": f"missing benchmark report: {benchmark_path}"})
@@ -454,9 +606,24 @@ def main() -> None:
     final_iteration = start_iteration + total_iterations - 1
     versions_dir = Path(config.get("versions_dir", "storage/ai/alphazero_lite/versions"))
     current_path = config.get("current_path", "model-artifact/current")
+    parent_artifact_path = config.get("parent_artifact_path", current_path)
+    resolved_first_iteration_parent_path = resolve_config_path(parent_artifact_path, repo_root=repo_root)
+    resolved_parent_artifact_path = (
+        resolved_first_iteration_parent_path if "parent_artifact_path" in config else None
+    )
     steps = config.get("steps", [])
     gates = config.get("gates", {})
     replay_window = max(1, int(config.get("replay_window", 1)))
+    include_current_iteration = has_self_play_step(steps)
+    fixed_replay_sources = load_fixed_replay_sources(config, repo_root=repo_root)
+    hard_state_validation_path = str(config.get("hard_state_validation_path", ""))
+    validate_startup_paths(
+        repo_root=repo_root,
+        resolved_parent_artifact_path=resolved_parent_artifact_path,
+        hard_state_validation_path=hard_state_validation_path,
+        config=config,
+        dry_run=args.dry_run,
+    )
 
     for iteration in range(start_iteration, start_iteration + total_iterations):
         iter_dir = versions_dir / f"{run_id}-iter{iteration}"
@@ -466,7 +633,11 @@ def main() -> None:
             encoding="utf-8",
         )
 
-        parent_model_dir = Path(current_path) if iteration == start_iteration else versions_dir / f"{run_id}-iter{iteration - 1}"
+        parent_model_dir = (
+            resolved_first_iteration_parent_path
+            if iteration == start_iteration
+            else versions_dir / f"{run_id}-iter{iteration - 1}"
+        )
         checkpoint_candidate = parent_model_dir / "checkpoint.npz"
         fallback_model = parent_model_dir / "model.npz"
         parent_checkpoint = checkpoint_candidate if checkpoint_candidate.exists() else fallback_model
@@ -476,18 +647,24 @@ def main() -> None:
             iteration=iteration,
             seed=seed,
             config_path=str(config_path),
-            parent_version=current_path if iteration == start_iteration else f"{run_id}-iter{iteration - 1}",
+            parent_version=parent_artifact_path if iteration == start_iteration else f"{run_id}-iter{iteration - 1}",
             status="planned" if args.dry_run else "running",
-            notes={"phase": "phase_1_scaffold", "dry_run": bool(args.dry_run)},
+            notes={
+                "phase": "phase_1_scaffold",
+                "dry_run": bool(args.dry_run),
+                "parent_artifact_path": parent_artifact_path if iteration == start_iteration else None,
+            },
         )
 
         manifest["steps"] = []
-        replay_data, replay_weights = build_replay_context(
+        replay_data, replay_weights = resolve_replay_context(
             iteration=iteration,
             iter_dir=iter_dir,
             versions_dir=versions_dir,
             run_id=run_id,
             replay_window=replay_window,
+            include_current_iteration=include_current_iteration,
+            fixed_replay_sources=fixed_replay_sources,
         )
 
         skipped_steps = set(args.skip_step)
@@ -505,12 +682,14 @@ def main() -> None:
                     continue
                 if step.get("name") in skipped_steps:
                     continue
-                replay_data, replay_weights = build_replay_context(
+                replay_data, replay_weights = resolve_replay_context(
                     iteration=iteration,
                     iter_dir=iter_dir,
                     versions_dir=versions_dir,
                     run_id=run_id,
                     replay_window=replay_window,
+                    include_current_iteration=include_current_iteration,
+                    fixed_replay_sources=fixed_replay_sources,
                 )
                 step_result = run_step(
                     step,
@@ -524,6 +703,7 @@ def main() -> None:
                     parent_checkpoint=parent_checkpoint,
                     replay_data=replay_data,
                     replay_weights=replay_weights,
+                    hard_state_validation_path=hard_state_validation_path,
                 )
                 manifest["steps"].append(step_result)
                 if step_result["status"] == "failed":
@@ -543,6 +723,7 @@ def main() -> None:
                 replay_data=replay_data,
                 replay_weights=replay_weights,
                 skipped_steps=skipped_steps,
+                hard_state_validation_path=hard_state_validation_path,
             )
             manifest["gate_failures"] = failures
             if failures:

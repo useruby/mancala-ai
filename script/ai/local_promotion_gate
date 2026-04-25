@@ -132,11 +132,27 @@ def load_search_flag_map(config_path: str | None, *, require_steps: bool = True)
         return {}
 
     config = load_json(resolved_path)
-    return {
-        "arena": search_flags_for_step(config, "arena_confirm_report", required=require_steps),
-        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report", required=require_steps),
-        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report", required=require_steps),
+    required_step_names = (
+        "arena_confirm_report",
+        "mcts1200_baseline_report",
+        "current_mcts1200_baseline_report",
+    )
+    present_step_names = {
+        step.get("name")
+        for step in config.get("steps", [])
+        if isinstance(step, dict) and isinstance(step.get("name"), str)
     }
+    require_evaluation_steps = require_steps and any(step_name in present_step_names for step_name in required_step_names)
+
+    return {
+        "arena": search_flags_for_step(config, "arena_confirm_report", required=require_evaluation_steps),
+        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report", required=require_evaluation_steps),
+        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report", required=require_evaluation_steps),
+    }
+
+
+def load_threshold_planning_search_flag_map(config_path: str | None) -> dict[str, list[str]]:
+    return load_search_flag_map(config_path, require_steps=False)
 
 
 def default_regression_report(positions_path: str) -> dict:
@@ -159,6 +175,12 @@ def python_executable() -> str:
     for candidate in candidates:
         if candidate.is_file() and os.access(candidate, os.X_OK):
             return str(candidate)
+
+    for ancestor in root.parents:
+        candidate = ancestor / ".venv/bin/python"
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
     return sys.executable
 
 
@@ -590,6 +612,11 @@ def run_regression_check(command: list[str], report_path: Path) -> dict:
     )
 
     stdout = result.stdout.strip()
+    if result.returncode not in (0, 1):
+        details = (result.stderr or stdout).strip()
+        if details:
+            raise SystemExit(f"check_superhuman_regressions failed: {details}")
+        raise SystemExit("check_superhuman_regressions failed")
     report_text = report_path.read_text(encoding="utf-8").strip() if report_path.exists() else stdout
 
     try:
@@ -599,12 +626,6 @@ def run_regression_check(command: list[str], report_path: Path) -> dict:
         if details:
             raise SystemExit(f"check_superhuman_regressions failed: {details}") from exc
         raise SystemExit("check_superhuman_regressions failed") from exc
-
-    if result.returncode not in (0, 1):
-        details = (result.stderr or stdout).strip()
-        if details:
-            raise SystemExit(f"check_superhuman_regressions failed: {details}")
-        raise SystemExit("check_superhuman_regressions failed")
 
     if not isinstance(report, dict) or "passed" not in report:
         raise SystemExit("check_superhuman_regressions failed: missing passed field")
@@ -742,7 +763,9 @@ def main() -> int:
     args = parse_args()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if args.dry_run and args.config_path:
-        load_search_flag_map(args.config_path, require_steps=False)
+        load_threshold_planning_search_flag_map(args.config_path)
+    if not args.dry_run and args.config_path:
+        load_search_flag_map(args.config_path)
 
     non_hard_stub_paths = (
         args.stub_arena_report,
@@ -830,7 +853,7 @@ def main() -> int:
         ),
     }
 
-    search_flag_map = load_search_flag_map(args.config_path, require_steps=not args.dry_run) if args.config_path else {}
+    search_flag_map = load_threshold_planning_search_flag_map(args.config_path) if args.config_path else {}
     report["endgame_exact_solve"]["planned_evaluations"] = build_endgame_exact_solve_plans(
         args,
         report_dir=args.out.parent,

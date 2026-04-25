@@ -30,6 +30,12 @@ def python_executable() -> str:
     repo_python = REPO_ROOT / ".venv/bin/python"
     if repo_python.exists():
         return str(repo_python)
+
+    for ancestor in REPO_ROOT.parents:
+        candidate = ancestor / ".venv/bin/python"
+        if candidate.exists():
+            return str(candidate)
+
     return sys.executable
 
 
@@ -196,12 +202,13 @@ def build_plan(args: argparse.Namespace) -> tuple[dict, dict]:
     return plan, base_config
 
 
-def build_lane_config(base_config: dict, lane: dict, *, parent_artifact: str) -> dict:
+def build_lane_config(base_config: dict, lane: dict, *, parent_artifact: str, current_path: str) -> dict:
     lane_config = copy.deepcopy(base_config)
     lane_config["run_id"] = lane["run_id"]
     lane_config["seed"] = lane["seed"]
     lane_config["versions_dir"] = lane["results_dir"]
-    lane_config["current_path"] = parent_artifact
+    lane_config["current_path"] = current_path
+    lane_config["parent_artifact_path"] = parent_artifact
 
     for step in lane_config.get("steps", []):
         if step.get("name") == "benchmark_contract":
@@ -301,6 +308,22 @@ def classify_pipeline_failure(lane: dict) -> dict | None:
     }
 
 
+def load_hard_state_summary(candidate_path: Path) -> dict:
+    hard_state_report_path = candidate_path / "hard_state_validation.json"
+    if not hard_state_report_path.exists():
+        return {}
+
+    hard_state_report = load_json(hard_state_report_path)
+    return {
+        "hard_state_report_path": str(hard_state_report_path),
+        "hard_state_summary": {
+            "policy_top1_agreement": hard_state_report.get("policy_top1_agreement"),
+            "average_regret": hard_state_report.get("average_regret"),
+            "value_calibration_mae": hard_state_report.get("value_calibration_mae"),
+        },
+    }
+
+
 def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
     lane_root = Path(lane["lane_root"])
     results_dir = Path(lane["results_dir"])
@@ -335,12 +358,15 @@ def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
     try:
         run_command(
             [
+                python_executable(),
                 "script/ai/local_promotion_gate",
                 "--candidate-path",
                 lane["candidate_path"],
                 "--config-path",
                 str(config_path),
                 "--current-path",
+                current_path,
+                "--hard-path",
                 current_path,
                 "--out",
                 str(gate_report_path),
@@ -370,6 +396,7 @@ def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
         "current_mcts_score": gate_report.get("current_mcts_score"),
         "failure_reasons": gate_report.get("failure_reasons", []),
     }
+    summary.update(load_hard_state_summary(candidate_path))
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
 
@@ -404,7 +431,12 @@ def main() -> int:
     lane_summaries = []
     for lane in plan["lanes"]:
         Path(lane["lane_root"]).mkdir(parents=True, exist_ok=True)
-        lane_config = build_lane_config(base_config, lane, parent_artifact=str(parent_artifact_path))
+        lane_config = build_lane_config(
+            base_config,
+            lane,
+            parent_artifact=str(parent_artifact_path),
+            current_path=str(current_path),
+        )
         lane_summaries.append(execute_lane(lane, lane_config, current_path=str(current_path)))
 
     aggregate_summary = {
