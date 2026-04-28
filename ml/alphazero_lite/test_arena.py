@@ -1091,6 +1091,15 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual({"games": 1, "score": None}, result["hard_suite_buckets"]["midgame"])
         self.assertEqual({"games": 0, "score": None}, result["hard_suite_buckets"]["late"])
 
+    def test_record_completed_game_bucket_prefers_deepest_phase_reached(self):
+        buckets = arena.empty_hard_suite_buckets()
+
+        arena.record_completed_game_bucket(buckets, {"early", "mid", "late"})
+
+        self.assertEqual({"games": 0, "score": None}, buckets["opening"])
+        self.assertEqual({"games": 0, "score": None}, buckets["midgame"])
+        self.assertEqual({"games": 1, "score": None}, buckets["late"])
+
     def test_run_arena_worker_emits_runtime_opening_cache_metrics_from_real_hits_and_misses(self):
         class FakeArtifactEvaluator:
             def __init__(self, artifact_dir):
@@ -1759,8 +1768,52 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertEqual(0, result.returncode, msg=result.stderr)
             report = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertIn("budget_summary", report)
+            self.assertEqual(0.8, report["score"])
             self.assertEqual(16.0, report["budget_summary"]["mean_final_simulations"])
             self.assertEqual({"fixed_budget": 5}, report["budget_summary"]["trigger_counts"])
+            self.assertEqual(5, sum(bucket["games"] for bucket in report["hard_suite_buckets"].values()))
+
+    def test_stub_cli_derives_pass_and_stdout_from_report_score(self):
+        python = self.executable_python()
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-stub-") as tmp:
+            tmp_path = Path(tmp)
+            challenger_dir = tmp_path / "challenger"
+            current_dir = tmp_path / "current"
+            out_path = tmp_path / "arena_report.json"
+            challenger_dir.mkdir()
+            current_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    python,
+                    "ml/alphazero_lite/arena.py",
+                    "--challenger",
+                    str(challenger_dir),
+                    "--current",
+                    str(current_dir),
+                    "--games",
+                    "1",
+                    "--challenger-simulations",
+                    "16",
+                    "--current-simulations",
+                    "16",
+                    "--out",
+                    str(out_path),
+                    "--min-score",
+                    "0.55",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env={**os.environ, "AZLITE_ARENA_STUB": "1"},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(0.5, report["score"])
+            self.assertFalse(report["promotion_decision"]["passed"])
+            self.assertIn("score=0.5000 passed=False", result.stdout)
 
     def test_stub_cli_emits_opening_cache_summary_with_training_pass_through(self):
         python = self.executable_python()

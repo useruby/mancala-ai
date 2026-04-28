@@ -363,10 +363,10 @@ def record_hard_suite_bucket(buckets: dict[str, dict], game: KalahGame) -> None:
 def record_completed_game_bucket(buckets: dict[str, dict], seen_phase_buckets: set[str]) -> None:
     if not seen_phase_buckets:
         label = HARD_SUITE_BUCKET_LABELS["early"]
-    elif "mid" in seen_phase_buckets:
-        label = HARD_SUITE_BUCKET_LABELS["mid"]
     elif "late" in seen_phase_buckets:
         label = HARD_SUITE_BUCKET_LABELS["late"]
+    elif "mid" in seen_phase_buckets:
+        label = HARD_SUITE_BUCKET_LABELS["mid"]
     else:
         label = HARD_SUITE_BUCKET_LABELS["early"]
     buckets[label]["games"] += 1
@@ -756,13 +756,22 @@ def main() -> None:
                 "current_simulations": int(args.current_simulations),
             },
         )
+        wins = int(args.games * 0.6)
+        losses = 0
+        draws = int(args.games) - wins
+        hard_suite_buckets = {
+            "opening": {"games": wins, "score": 1.0 if wins > 0 else None},
+            "midgame": {"games": 0, "score": None},
+            "late": {"games": draws, "score": 0.5 if draws > 0 else None},
+        }
         report = {
             "schema": "arena_v1",
             "games_played": int(args.games),
-            "wins": int(args.games * 0.6),
-            "losses": 0,
-            "draws": int(args.games) - int(args.games * 0.6),
-            "promotion_decision": {"passed": True},
+            "wins": wins,
+            "losses": losses,
+            "draws": draws,
+            "score": (wins + (0.5 * draws)) / int(args.games),
+            "promotion_decision": {"passed": bool(((wins + (0.5 * draws)) / int(args.games)) >= args.min_score)},
             "notes": {
                 "challenger_path": str(Path(args.challenger)),
                 "current_path": str(Path(args.current)),
@@ -778,12 +787,13 @@ def main() -> None:
                 "move_time_mean_ms": 120.0,
                 "move_time_p95_ms": 160.0,
             },
+            "hard_suite_buckets": hard_suite_buckets,
         }
         report["opening_cache_summary"] = opening_cache_summary_for(results=[], training_summary=training_summary)
         attach_budget_summary(report)
         out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"wrote arena report to {out_path}")
-        print("score=0.8000 passed=True")
+        print(f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}")
         return
 
     challenger_path = Path(args.challenger)
