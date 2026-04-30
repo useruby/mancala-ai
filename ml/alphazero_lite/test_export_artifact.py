@@ -1,5 +1,7 @@
 import json
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +12,17 @@ from ml.alphazero_lite.input_encodings import BASE_FEATURE_ORDER, KALAH_V3_EXTRA
 
 
 class ExportArtifactScriptTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
     def write_synthetic_residual_v3_checkpoint(self, path: Path, *, include_value_head: bool = True) -> dict[str, np.ndarray]:
         feature_count = feature_count_for("kalah_v3")
         checkpoint = {
@@ -72,7 +85,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             train = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -98,7 +111,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -139,7 +152,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             train = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -165,7 +178,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -204,7 +217,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -251,7 +264,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -285,7 +298,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -316,7 +329,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -356,7 +369,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -391,7 +404,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             train = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -413,7 +426,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -453,7 +466,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),
@@ -498,7 +511,7 @@ class ExportArtifactScriptTest(unittest.TestCase):
 
             export = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/export_artifact.py",
                     "--checkpoint",
                     str(checkpoint_path),

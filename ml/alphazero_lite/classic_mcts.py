@@ -28,7 +28,7 @@ class Node:
             next_game.move(next_game.pit_index(action))
             self.children[action] = Node(next_game, self)
 
-    def select_child(self, c: float = math.sqrt(2.0)) -> "Node":
+    def select_child(self, c: float = math.sqrt(2.0), value_trust_multiplier: float = 1.0) -> "Node":
         if not self.children:
             return self
 
@@ -41,7 +41,7 @@ class Node:
             if child.visits == 0:
                 score = float("inf")
             else:
-                exploitation = child.wins / float(child.visits)
+                exploitation = (child.wins / float(child.visits)) * value_trust_multiplier
                 exploration = c * math.sqrt(log_parent_visits / child.visits)
                 score = exploitation + exploration
 
@@ -86,6 +86,41 @@ class RootBudgetSummary:
     root_latency_ms: float = 0.0
 
 
+@dataclass
+class ValueTrustSchedule:
+    enabled: bool = False
+    opening: float = 1.0
+    midgame: float = 1.0
+    late: float = 1.0
+
+
+def _validated_value_trust_schedule(raw_schedule: dict | None) -> ValueTrustSchedule:
+    if raw_schedule is None:
+        return ValueTrustSchedule()
+
+    if not isinstance(raw_schedule, dict):
+        raise ValueError("value_trust_schedule must be an object")
+
+    allowed_keys = {"enabled", "opening", "midgame", "late"}
+    if set(raw_schedule.keys()) - allowed_keys:
+        raise ValueError("value_trust_schedule keys must be enabled, opening, midgame, and late")
+
+    enabled = raw_schedule.get("enabled", False)
+    if not isinstance(enabled, bool):
+        raise ValueError("value_trust_schedule enabled must be a boolean")
+    schedule_values = {}
+    for key in ("opening", "midgame", "late"):
+        raw_value = raw_schedule.get(key, 1.0)
+        if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float)):
+            raise ValueError(f"value_trust_schedule {key} must be numeric")
+        normalized = float(raw_value)
+        if not math.isfinite(normalized) or normalized <= 0.0:
+            raise ValueError(f"value_trust_schedule {key} must be > 0")
+        schedule_values[key] = normalized
+
+    return ValueTrustSchedule(enabled=enabled, **schedule_values)
+
+
 class MCTS:
     DEFAULT_SIMULATIONS = 5000
     DEPTH_OF_SIMULATION = 5
@@ -115,6 +150,7 @@ class MCTS:
         dynamic_budget_low_margin_threshold: float = 0.2,
         dynamic_budget_low_margin_weight: float = 1.5,
         dynamic_budget_variance_weight: float = 1.5,
+        value_trust_schedule: dict | None = None,
         endgame_tablebase: EndgameTablebaseContract | None = None,
         exact_solve_enabled: bool = False,
         exact_solve_stone_threshold: int | None = None,
@@ -151,6 +187,7 @@ class MCTS:
             low_margin_weight=float(dynamic_budget_low_margin_weight),
             variance_weight=float(dynamic_budget_variance_weight),
         )
+        self.value_trust_schedule = _validated_value_trust_schedule(value_trust_schedule)
         self._last_root_budget_summary = RootBudgetSummary(
             dynamic_budget_enabled=bool(dynamic_budget_enabled),
             baseline_simulations=int(simulations),
@@ -193,7 +230,32 @@ class MCTS:
             "selected_move": None if selected_move is None else int(selected_move),
             "child_stats": child_stats,
             "budget": asdict(self._last_root_budget_summary),
+            "value_trust": self._value_trust_summary_for(root.game),
         }
+
+    def _value_trust_summary_for(self, game: KalahGame) -> dict:
+        phase_key = self._value_trust_phase_key_for(game)
+        return {
+            "enabled": bool(self.value_trust_schedule.enabled),
+            "phase_bucket": phase_key,
+            "effective_multiplier": float(self._effective_value_trust_multiplier_for(game)),
+            "schedule": {
+                "opening": float(self.value_trust_schedule.opening),
+                "midgame": float(self.value_trust_schedule.midgame),
+                "late": float(self.value_trust_schedule.late),
+            },
+        }
+
+    def _value_trust_phase_key_for(self, game: KalahGame) -> str:
+        return {"early": "opening", "mid": "midgame", "late": "late"}[self.phase_bucket_for(game)]
+
+    def _effective_value_trust_multiplier_for(self, game: KalahGame) -> float:
+        if not self.value_trust_schedule.enabled:
+            return 1.0
+        return float(getattr(self.value_trust_schedule, self._value_trust_phase_key_for(game)))
+
+    def _select_guided_child(self, node: Node) -> Node:
+        return node.select_child(value_trust_multiplier=self._effective_value_trust_multiplier_for(node.game))
 
     def choose_playout_move(self, game: KalahGame) -> int | None:
         possible_actions = game.possible_moves()
@@ -325,14 +387,14 @@ class MCTS:
         simulations_run = 0
 
         for simulation_index in range(simulations_to_run):
-            selected = node.select_child()
+            selected = self._select_guided_child(node)
             while True:
                 if selected.visits == 0:
                     break
                 selected.expand()
                 if not selected.children:
                     break
-                selected = selected.select_child()
+                selected = self._select_guided_child(selected)
 
             wins = self.simulate_playout(selected.game)
             selected.backpropagate(wins)

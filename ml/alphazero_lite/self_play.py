@@ -29,6 +29,8 @@ from ml.alphazero_lite.search_ablation import build_mode_config, flat_legal_prio
 
 
 PITS_PER_PLAYER = 6
+SearchOptionValue = str | bool | float | dict[str, bool | float]
+SearchOptions = dict[str, SearchOptionValue]
 DEFAULT_SEARCH_OPTIONS = {
     "fpu_mode": "zero",
     "reuse_subtree": False,
@@ -182,14 +184,47 @@ def build_search_options(
     normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
-) -> dict[str, str | bool | float]:
+    value_trust_schedule: dict | None = None,
+) -> SearchOptions:
     root_policy_mode = normalize_root_policy_mode(root_policy_mode)
-    return {
+    options: SearchOptions = {
         "fpu_mode": fpu_mode,
         "reuse_subtree": bool(reuse_subtree),
         "normalize_values": bool(normalize_values),
         "root_policy_mode": root_policy_mode,
         "tactical_root_bias": float(tactical_root_bias),
+    }
+    normalized_value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
+    if normalized_value_trust_schedule is not None:
+        options["value_trust_schedule"] = normalized_value_trust_schedule
+    return options
+
+
+def normalize_value_trust_schedule(value_trust_schedule: dict | None) -> dict[str, bool | float] | None:
+    if value_trust_schedule is None:
+        return None
+
+    enabled = value_trust_schedule.get("enabled", False)
+    if not isinstance(enabled, bool):
+        raise ValueError("value_trust_schedule.enabled must be a boolean")
+
+    def normalize_phase_multiplier(phase_name: str) -> float:
+        raw_value = value_trust_schedule.get(phase_name, 1.0)
+        if isinstance(raw_value, bool):
+            raise ValueError(f"value_trust_schedule.{phase_name} must be a finite number > 0")
+        try:
+            normalized_value = float(raw_value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"value_trust_schedule.{phase_name} must be a finite number > 0") from exc
+        if not math.isfinite(normalized_value) or normalized_value <= 0.0:
+            raise ValueError(f"value_trust_schedule.{phase_name} must be a finite number > 0")
+        return normalized_value
+
+    return {
+        "enabled": enabled,
+        "opening": normalize_phase_multiplier("opening"),
+        "midgame": normalize_phase_multiplier("midgame"),
+        "late": normalize_phase_multiplier("late"),
     }
 
 
@@ -207,13 +242,15 @@ def build_eval_search_options(
     normalize_values: bool = DEFAULT_EVAL_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
-) -> dict[str, str | bool | float]:
+    value_trust_schedule: dict | None = None,
+) -> SearchOptions:
     return build_search_options(
         fpu_mode=fpu_mode,
         reuse_subtree=reuse_subtree,
         normalize_values=normalize_values,
         root_policy_mode=root_policy_mode,
         tactical_root_bias=tactical_root_bias,
+        value_trust_schedule=value_trust_schedule,
     )
 
 
@@ -223,15 +260,16 @@ def build_search_profile(
     player_mode: str,
     simulations: int,
     c_puct: float,
-    search_options: dict[str, str | bool | float],
+    search_options: SearchOptions,
     extra_fields: dict[str, str | int | float | bool] | None = None,
-) -> dict[str, str | int | float | bool | dict[str, str | bool | float]]:
+) -> dict[str, str | int | float | bool | dict[str, bool | float] | SearchOptions]:
     normalized_options = build_search_options(
         fpu_mode=str(search_options["fpu_mode"]),
         reuse_subtree=bool(search_options["reuse_subtree"]),
         normalize_values=bool(search_options["normalize_values"]),
         root_policy_mode=str(search_options["root_policy_mode"]),
         tactical_root_bias=float(search_options["tactical_root_bias"]),
+        value_trust_schedule=search_options.get("value_trust_schedule"),
     )
     profile = {
         "version": "v1",
@@ -240,6 +278,8 @@ def build_search_profile(
     }
     if str(player_mode) == "classic_mcts":
         profile["classic_mcts_simulations"] = int(simulations)
+        if "value_trust_schedule" in normalized_options:
+            profile["value_trust_schedule"] = normalized_options["value_trust_schedule"]
     else:
         profile.update(
             {
@@ -468,15 +508,36 @@ def add_search_option_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--normalize-values", action="store_true")
     parser.add_argument("--root-policy-mode", choices=sorted(SUPPORTED_ROOT_POLICY_MODES), default=DEFAULT_SEARCH_OPTIONS["root_policy_mode"])
     parser.add_argument("--tactical-root-bias", type=float, default=DEFAULT_SEARCH_OPTIONS["tactical_root_bias"])
+    parser.add_argument("--value-trust-enabled", action="store_true")
+    parser.add_argument("--value-trust-opening", type=float, default=None)
+    parser.add_argument("--value-trust-midgame", type=float, default=None)
+    parser.add_argument("--value-trust-late", type=float, default=None)
 
 
-def search_options_from_args(args: argparse.Namespace) -> dict[str, str | bool | float]:
+def value_trust_schedule_from_args(args: argparse.Namespace) -> dict[str, bool | float] | None:
+    opening = getattr(args, "value_trust_opening", None)
+    midgame = getattr(args, "value_trust_midgame", None)
+    late = getattr(args, "value_trust_late", None)
+    enabled = bool(getattr(args, "value_trust_enabled", False))
+    if not enabled and opening is None and midgame is None and late is None:
+        return None
+
+    return {
+        "enabled": enabled,
+        "opening": 1.0 if opening is None else float(opening),
+        "midgame": 1.0 if midgame is None else float(midgame),
+        "late": 1.0 if late is None else float(late),
+    }
+
+
+def search_options_from_args(args: argparse.Namespace) -> SearchOptions:
     return build_search_options(
         fpu_mode=args.fpu_mode,
         reuse_subtree=args.reuse_subtree,
         normalize_values=args.normalize_values,
         root_policy_mode=args.root_policy_mode,
         tactical_root_bias=args.tactical_root_bias,
+        value_trust_schedule=value_trust_schedule_from_args(args),
     )
 
 
@@ -692,6 +753,7 @@ class PUCT:
         normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
         root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
         tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+        value_trust_schedule: dict | None = None,
         ablation_mode: str | None = None,
     ):
         self.evaluator = evaluator
@@ -704,13 +766,16 @@ class PUCT:
         self.normalize_values = normalize_values
         self.root_policy_mode = normalize_root_policy_mode(root_policy_mode)
         self.tactical_root_bias = float(tactical_root_bias)
+        self.value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
         self.ablation_mode = build_mode_config(ablation_mode or "full")
+        self._last_root: Node | None = None
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
             normalize_values=self.normalize_values,
             root_policy_mode=self.root_policy_mode,
             tactical_root_bias=self.tactical_root_bias,
+            value_trust_schedule=self.value_trust_schedule,
         )
 
     def run(
@@ -737,7 +802,61 @@ class PUCT:
         visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         for move, child in root.children.items():
             visits[move] = child.visit_count
+        self._last_root = root
         return visits, root
+
+    def root_summary(self) -> dict:
+        if self._last_root is None:
+            raise ValueError("root_summary requires run() to be called first")
+
+        child_stats = []
+        for action, child in sorted(self._last_root.children.items()):
+            child_stats.append(
+                {
+                    "move": int(action),
+                    "visits": int(child.visit_count),
+                    "q_value": float(child.q_value) if child.visit_count else 0.0,
+                }
+            )
+        legal_moves = sorted(self._last_root.children)
+        selected_move = None if not legal_moves else int(self.select_root_move(self._last_root, legal_moves))
+        return {
+            "selected_move": selected_move,
+            "child_stats": child_stats,
+            "value_trust": self._value_trust_summary_for(self._last_root.game),
+        }
+
+    def _value_trust_summary_for(self, game: KalahGame) -> dict:
+        phase_key = self._value_trust_phase_key_for(game)
+        schedule = self.value_trust_schedule or {
+            "enabled": False,
+            "opening": 1.0,
+            "midgame": 1.0,
+            "late": 1.0,
+        }
+        return {
+            "enabled": bool(schedule["enabled"]),
+            "phase_bucket": phase_key,
+            "effective_multiplier": float(self._effective_value_trust_multiplier_for(game)),
+            "schedule": {
+                "opening": float(schedule["opening"]),
+                "midgame": float(schedule["midgame"]),
+                "late": float(schedule["late"]),
+            },
+        }
+
+    def _value_trust_phase_key_for(self, game: KalahGame) -> str:
+        seeds_remaining = sum(game.pits)
+        if seeds_remaining <= 12:
+            return "late"
+        if seeds_remaining <= 24:
+            return "midgame"
+        return "opening"
+
+    def _effective_value_trust_multiplier_for(self, game: KalahGame) -> float:
+        if self.value_trust_schedule is None or not self.value_trust_schedule["enabled"]:
+            return 1.0
+        return float(self.value_trust_schedule[self._value_trust_phase_key_for(game)])
 
     def select_root_move(self, root: Node, legal_moves: list[int]) -> int:
         if not legal_moves:
@@ -792,13 +911,14 @@ class PUCT:
         q_values = [self._child_q_value(node, child) for _move, child in items]
         if self.normalize_values:
             q_values = self._normalize_child_values(q_values)
+        value_trust_multiplier = self._effective_value_trust_multiplier_for(node.game)
 
         best_child = None
         best_score = -float("inf")
 
         for (move, child), q_value in zip(items, q_values):
             u_score = self.c_puct * child.prior * math.sqrt(total_visits) / (1 + child.visit_count)
-            score = q_value + u_score
+            score = (q_value * value_trust_multiplier) + u_score
             if score > best_score:
                 best_score = score
                 best_child = child
@@ -1002,7 +1122,7 @@ def teacher_targets_for_state(
     search_profile: dict,
     teacher_runner,
     policy_target_mode: str,
-) -> tuple[list[float], list[float], float, str, dict, str, str]:
+) -> tuple[list[float], list[float], float, str, dict, str, str, dict | None]:
     if opening_cache is not None:
         cached = opening_cache.lookup(state, ply=ply)
         if cached is not None:
@@ -1022,9 +1142,10 @@ def teacher_targets_for_state(
                 cached_search_profile,
                 cached_search_profile_hash,
                 str(policy_target_mode),
+                None,
             )
 
-    gameplay_policy, policy_target, value = teacher_runner()
+    gameplay_policy, policy_target, value, teacher_root_summary = teacher_runner()
     return (
         list(gameplay_policy),
         list(policy_target),
@@ -1033,6 +1154,7 @@ def teacher_targets_for_state(
         dict(search_profile),
         str(search_profile["hash"]),
         str(policy_target_mode),
+        teacher_root_summary,
     )
 
 
@@ -1171,6 +1293,7 @@ def run_self_play_worker(
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
     player_mode: str = DEFAULT_PLAYER_MODE,
+    value_trust_schedule: dict | None = None,
     opponent_pool_config: str | None = None,
     opening_cache=None,
     opening_cache_path: str | None = None,
@@ -1203,6 +1326,7 @@ def run_self_play_worker(
         normalize_values=normalize_values,
         root_policy_mode=root_policy_mode,
         tactical_root_bias=tactical_root_bias,
+        value_trust_schedule=value_trust_schedule,
     )
     profile_extra_fields: dict[str, str] = {}
     if opponent_checkpoints:
@@ -1236,7 +1360,7 @@ def run_self_play_worker(
                     "current_player": 0,
                 }
             )
-            positions: list[tuple[list[float], list[float], int, float, int, str, dict, str, str]] = []
+            positions: list[tuple[list[float], list[float], int, float, int, str, dict, str, str, dict | None]] = []
             reusable_root: Node | None = None
             opponent_checkpoint_for_game: str | None = None
             if opponent_checkpoints:
@@ -1259,12 +1383,18 @@ def run_self_play_worker(
                 puct_root: Node | None = None
                 temp = temperature if ply < temperature_threshold else temperature_late
 
-                def run_teacher() -> tuple[list[float], list[float], float]:
+                def run_teacher() -> tuple[list[float], list[float], float, dict | None]:
                     nonlocal puct_root
                     if player_mode == "classic_mcts":
                         mcts_seed = search_seed_for_classic_mcts(seed, global_index, ply)
-                        mcts = ClassicMCTS(game.clone(), simulations=simulations, seed=mcts_seed)
+                        classic_kwargs = {}
+                        if "value_trust_schedule" in normalized_search_options:
+                            classic_kwargs["value_trust_schedule"] = normalized_search_options["value_trust_schedule"]
+                        mcts = ClassicMCTS(game.clone(), simulations=simulations, seed=mcts_seed, **classic_kwargs)
                         mcts_root = mcts.search_root()
+                        mcts_summary = None
+                        if "value_trust_schedule" in normalized_search_options:
+                            mcts_summary = mcts.root_summary()
                         visits = np.array(visits_from_classic_mcts_root(mcts_root), dtype=np.float32)
                         gameplay_policy = policy_from_visits(visits, legal_moves=legal_moves, temperature=temp)
                         return (
@@ -1276,6 +1406,7 @@ def run_self_play_worker(
                                 mode=policy_target_mode,
                             ),
                             value_from_classic_mcts_root(mcts_root),
+                            mcts_summary,
                         )
 
                     selected_evaluator = evaluator
@@ -1289,6 +1420,9 @@ def run_self_play_worker(
                             )
                             opponent_evaluator_cache[opponent_checkpoint_for_game] = selected_evaluator
 
+                    puct_kwargs = {}
+                    if "value_trust_schedule" in normalized_search_options:
+                        puct_kwargs["value_trust_schedule"] = normalized_search_options["value_trust_schedule"]
                     search = PUCT(
                         evaluator=selected_evaluator,
                         simulations=simulations,
@@ -1300,6 +1434,7 @@ def run_self_play_worker(
                         normalize_values=bool(normalized_search_options["normalize_values"]),
                         root_policy_mode=str(normalized_search_options["root_policy_mode"]),
                         tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
+                        **puct_kwargs,
                     )
                     visits, puct_root = search.run(
                         game,
@@ -1307,6 +1442,9 @@ def run_self_play_worker(
                         dirichlet_epsilon=dirichlet_epsilon,
                     )
                     gameplay_policy = policy_from_visits(visits, legal_moves=legal_moves, temperature=temp)
+                    root_summary = None
+                    if "value_trust_schedule" in normalized_search_options and hasattr(search, "root_summary"):
+                        root_summary = search.root_summary()
                     return (
                         gameplay_policy,
                         build_policy_target(
@@ -1316,6 +1454,7 @@ def run_self_play_worker(
                             mode=policy_target_mode,
                         ),
                         puct_root.q_value,
+                        root_summary,
                     )
 
                 (
@@ -1326,6 +1465,7 @@ def run_self_play_worker(
                     teacher_search_profile,
                     teacher_search_profile_hash,
                     policy_target_actual_mode,
+                    teacher_root_summary,
                 ) = teacher_targets_for_state(
                     state=state,
                     ply=ply,
@@ -1346,6 +1486,7 @@ def run_self_play_worker(
                         teacher_search_profile,
                         teacher_search_profile_hash,
                         policy_target_actual_mode,
+                        teacher_root_summary,
                     )
                 )
 
@@ -1369,6 +1510,7 @@ def run_self_play_worker(
                 teacher_search_profile,
                 teacher_search_profile_hash,
                 policy_target_actual_mode,
+                teacher_root_summary,
             ) in positions:
                 row = {
                     "state": state,
@@ -1391,6 +1533,8 @@ def run_self_play_worker(
                     "teacher_search_profile": teacher_search_profile,
                     "teacher_search_profile_hash": teacher_search_profile_hash,
                 }
+                if teacher_root_summary is not None:
+                    row["teacher_root_summary"] = teacher_root_summary
                 handle.write(json.dumps(row) + "\n")
                 rows_written += 1
 
@@ -1437,39 +1581,39 @@ def main() -> None:
                     Path(shard_paths[worker_id]).write_text("", encoding="utf-8")
                     continue
 
-                futures.append(
-                    pool.submit(
-                        run_self_play_worker,
-                        worker_id=worker_id,
-                        start_index=start_index,
-                        games=game_count,
-                        seed=args.seed,
-                        seed_pool=seed_pool,
-                        checkpoint=args.checkpoint,
-                        opponent_pool_config=args.opponent_pool_config,
-                        input_encoding=args.input_encoding,
-                        simulations=args.simulations,
-                        c_puct=args.c_puct,
-                        temperature_threshold=int(exploration["temperature_threshold"]),
-                        temperature=float(exploration["temperature"]),
-                        temperature_late=float(exploration["temperature_late"]),
-                        dirichlet_alpha=args.dirichlet_alpha,
-                        dirichlet_epsilon=float(exploration["dirichlet_epsilon"]),
-                        max_moves=args.max_moves,
-                        shard_path=shard_paths[worker_id],
-                        evaluator_cache_size=args.evaluator_cache_size,
-                        tree_reuse_enabled=args.tree_reuse_enabled,
-                        fpu_mode=str(search_options["fpu_mode"]),
-                        reuse_subtree=bool(search_options["reuse_subtree"]),
-                        normalize_values=bool(search_options["normalize_values"]),
-                        root_policy_mode=str(search_options["root_policy_mode"]),
-                        tactical_root_bias=float(search_options["tactical_root_bias"]),
-                        policy_target_mode=args.policy_target_mode,
-                        value_target_mode=args.value_target_mode,
-                        player_mode=args.player_mode,
-                        opening_cache_path=args.opening_cache,
-                    )
-                )
+                worker_kwargs = {
+                    "worker_id": worker_id,
+                    "start_index": start_index,
+                    "games": game_count,
+                    "seed": args.seed,
+                    "seed_pool": seed_pool,
+                    "checkpoint": args.checkpoint,
+                    "opponent_pool_config": args.opponent_pool_config,
+                    "input_encoding": args.input_encoding,
+                    "simulations": args.simulations,
+                    "c_puct": args.c_puct,
+                    "temperature_threshold": int(exploration["temperature_threshold"]),
+                    "temperature": float(exploration["temperature"]),
+                    "temperature_late": float(exploration["temperature_late"]),
+                    "dirichlet_alpha": args.dirichlet_alpha,
+                    "dirichlet_epsilon": float(exploration["dirichlet_epsilon"]),
+                    "max_moves": args.max_moves,
+                    "shard_path": shard_paths[worker_id],
+                    "evaluator_cache_size": args.evaluator_cache_size,
+                    "tree_reuse_enabled": args.tree_reuse_enabled,
+                    "fpu_mode": str(search_options["fpu_mode"]),
+                    "reuse_subtree": bool(search_options["reuse_subtree"]),
+                    "normalize_values": bool(search_options["normalize_values"]),
+                    "root_policy_mode": str(search_options["root_policy_mode"]),
+                    "tactical_root_bias": float(search_options["tactical_root_bias"]),
+                    "policy_target_mode": args.policy_target_mode,
+                    "value_target_mode": args.value_target_mode,
+                    "player_mode": args.player_mode,
+                    "opening_cache_path": args.opening_cache,
+                }
+                if "value_trust_schedule" in search_options:
+                    worker_kwargs["value_trust_schedule"] = search_options["value_trust_schedule"]
+                futures.append(pool.submit(run_self_play_worker, **worker_kwargs))
 
             results = [future.result() for future in futures]
             results.sort(key=lambda item: item["worker_id"])

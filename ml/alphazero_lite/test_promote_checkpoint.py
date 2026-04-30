@@ -1,11 +1,24 @@
 import json
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 
 class PromoteCheckpointScriptTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
     def test_cli_rejects_negative_max_losses(self):
         repo_root = Path(__file__).resolve().parents[2]
 
@@ -30,7 +43,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                     "--min-score",
@@ -72,7 +85,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                 ],
@@ -108,7 +121,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [".venv/bin/python", "ml/alphazero_lite/promote_checkpoint.py", str(checkpoint_dir)],
+                [self.executable_python(), "ml/alphazero_lite/promote_checkpoint.py", str(checkpoint_dir)],
                 cwd=repo_root,
                 capture_output=True,
                 text=True,
@@ -144,7 +157,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                     "--target",
@@ -186,7 +199,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                     "--target",
@@ -229,7 +242,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                     "--gate-report",
@@ -273,7 +286,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                     "--gate-report",
@@ -321,7 +334,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
                 relative_gate_path = gate_report_path.relative_to(repo_root).as_posix()
                 result = subprocess.run(
                     [
-                        str(repo_root / ".venv/bin/python"),
+                        self.executable_python(),
                         str(repo_root / "ml/alphazero_lite/promote_checkpoint.py"),
                         str(checkpoint_dir),
                         "--target",
@@ -366,7 +379,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                     "--target",
@@ -411,7 +424,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
                     "--target", str(target_a),

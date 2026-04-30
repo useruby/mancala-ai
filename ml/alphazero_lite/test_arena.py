@@ -77,6 +77,109 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
 
         self.assertEqual(0.0, summary["value"])
 
+    def test_evaluate_artifact_position_puct_preserves_value_trust_root_summary_metadata(self):
+        root_value_trust = {
+            "enabled": True,
+            "phase_bucket": "opening",
+            "effective_multiplier": 0.8,
+            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+        }
+
+        class FakeEvaluator:
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        class FakeRoot:
+            def __init__(self):
+                self.children = {}
+
+        class FakePUCT:
+            def __init__(self, **kwargs):
+                del kwargs
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, FakeRoot()
+
+            def select_root_move(self, root, legal_moves):
+                del root, legal_moves
+                return 0
+
+            def root_summary(self):
+                return {"value_trust": root_value_trust}
+
+        with mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT):
+            summary = arena.evaluate_artifact_position(
+                evaluator=FakeEvaluator(),
+                state={
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                },
+                simulations=32,
+                seed=42,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(
+                    value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+                ),
+            )
+
+        self.assertEqual(root_value_trust, summary["value_trust"])
+
+    def test_evaluate_artifact_position_puct_omits_value_trust_when_root_summary_lacks_it(self):
+        class FakeEvaluator:
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        class FakeRoot:
+            def __init__(self):
+                self.children = {}
+
+        class FakePUCT:
+            def __init__(self, **kwargs):
+                del kwargs
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, FakeRoot()
+
+            def select_root_move(self, root, legal_moves):
+                del root, legal_moves
+                return 0
+
+            def root_summary(self):
+                return {}
+
+        with mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT):
+            summary = arena.evaluate_artifact_position(
+                evaluator=FakeEvaluator(),
+                state={
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                },
+                simulations=32,
+                seed=42,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+            )
+
+        self.assertNotIn("value_trust", summary)
+
     def test_evaluate_artifact_position_classic_only_uses_classic_mcts(self):
         class FakeChild:
             def __init__(self, visits, wins):
@@ -686,7 +789,7 @@ class ArenaScriptTest(unittest.TestCase):
         class FakePUCT:
             def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
                 del evaluator, simulations, c_puct, rng, root
-                captured_search_options.append(search_options)
+                captured_search_options.append(dict(search_options))
 
             def run(self, game):
                 del game
@@ -884,6 +987,274 @@ class ArenaScriptTest(unittest.TestCase):
             result["search_options"],
         )
         self.assertEqual([result["search_options"]], captured_search_options)
+
+    def test_run_arena_worker_preserves_value_trust_schedule_in_search_options(self):
+        captured_search_options = []
+        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+
+        class FakeArtifactEvaluator:
+            def __init__(self, _artifact_dir):
+                pass
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root
+                captured_search_options.append(search_options)
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, None
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
+            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        ):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=32,
+                current_simulations=16,
+                seed=42,
+                c_puct=1.25,
+                max_moves=1,
+                value_trust_schedule=value_trust_schedule,
+            )
+
+        self.assertEqual(value_trust_schedule, result["search_options"]["value_trust_schedule"])
+        self.assertEqual(value_trust_schedule, captured_search_options[0]["value_trust_schedule"])
+
+    def test_run_arena_worker_emits_root_summary_value_trust_not_raw_schedule(self):
+        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+        root_value_trust = {
+            "enabled": True,
+            "phase_bucket": "opening",
+            "effective_multiplier": 0.8,
+            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+        }
+
+        class FakeArtifactEvaluator:
+            def __init__(self, _artifact_dir):
+                pass
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+
+                class FakeRoot:
+                    q_value = 0.3
+
+                    def child_for_action(self, action):
+                        del action
+                        return None
+
+                return visits, FakeRoot()
+
+            def select_root_move(self, root, legal_moves):
+                del root, legal_moves
+                return 0
+
+            def root_summary(self):
+                return {"value_trust": root_value_trust}
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
+            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        ):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=32,
+                current_simulations=16,
+                seed=42,
+                c_puct=1.25,
+                max_moves=1,
+                value_trust_schedule=value_trust_schedule,
+            )
+
+        self.assertEqual(root_value_trust, result["value_trust_summary"])
+        self.assertNotEqual(value_trust_schedule, result["value_trust_summary"])
+
+    def test_real_puct_run_arena_worker_emits_value_trust_summary(self):
+        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+
+        class TinyDeterministicEvaluator(self_play.Evaluator):
+            def __init__(self, _artifact_dir):
+                pass
+
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", TinyDeterministicEvaluator):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=4,
+                current_simulations=4,
+                seed=42,
+                c_puct=1.25,
+                max_moves=1,
+                value_trust_schedule=value_trust_schedule,
+            )
+
+        self.assertEqual(
+            {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+            result["value_trust_summary"],
+        )
+
+    def test_real_puct_run_arena_worker_omits_value_trust_summary_by_default(self):
+        class TinyDeterministicEvaluator(self_play.Evaluator):
+            def __init__(self, _artifact_dir):
+                pass
+
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", TinyDeterministicEvaluator):
+            result = arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="challenger",
+                current_path="current",
+                challenger_simulations=4,
+                current_simulations=4,
+                seed=42,
+                c_puct=1.25,
+                max_moves=1,
+            )
+
+        self.assertIsNone(result["value_trust_summary"])
+
+    def test_evaluate_artifact_position_classic_only_preserves_value_trust_root_summary_metadata(self):
+        state = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        value_trust = {
+            "enabled": True,
+            "phase_bucket": "midgame",
+            "effective_multiplier": 1.15,
+            "schedule": {"opening": 0.8, "midgame": 1.15, "late": 1.3},
+        }
+
+        class FakeClassicMCTS:
+            def __init__(self, game, simulations, seed, value_trust_schedule=None):
+                del game, simulations, seed, value_trust_schedule
+
+            def search_root(self):
+                class FakeChild:
+                    visits = 10
+                    wins = 6.0
+
+                class FakeRoot:
+                    visits = 10
+                    wins = 6.0
+                    children = {3: FakeChild()}
+
+                return FakeRoot()
+
+            def root_summary(self):
+                return {
+                    "selected_move": 3,
+                    "child_stats": [{"move": 3, "visits": 10, "win_rate": 0.6}],
+                    "value_trust": value_trust,
+                }
+
+        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+            result = arena.evaluate_artifact_position(
+                artifact_path=None,
+                evaluator=None,
+                state=state,
+                simulations=96,
+                seed=7,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(
+                    value_trust_schedule=value_trust["schedule"] | {"enabled": value_trust["enabled"]}
+                ),
+                ablation_mode="classic_only",
+            )
+
+        self.assertEqual(value_trust, result["value_trust"])
+
+    def test_evaluate_artifact_position_classic_only_omits_value_trust_by_default(self):
+        state = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        root_value_trust = {
+            "enabled": True,
+            "phase_bucket": "opening",
+            "effective_multiplier": 0.8,
+            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+        }
+
+        class FakeClassicMCTS:
+            def __init__(self, game, simulations, seed, value_trust_schedule=None):
+                del game, simulations, seed, value_trust_schedule
+
+            def search_root(self):
+                class FakeChild:
+                    visits = 10
+                    wins = 6.0
+
+                class FakeRoot:
+                    visits = 10
+                    wins = 6.0
+                    children = {3: FakeChild()}
+
+                return FakeRoot()
+
+            def root_summary(self):
+                return {
+                    "selected_move": 3,
+                    "child_stats": [{"move": 3, "visits": 10, "win_rate": 0.6}],
+                    "value_trust": root_value_trust,
+                }
+
+        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+            result = arena.evaluate_artifact_position(
+                artifact_path=None,
+                evaluator=None,
+                state=state,
+                simulations=96,
+                seed=7,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+                ablation_mode="classic_only",
+            )
+
+        self.assertNotIn("value_trust", result)
 
     def test_run_arena_worker_reuses_selected_child_between_moves_when_enabled(self):
         created_roots = []
@@ -1527,6 +1898,53 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual(0.2, report["opening_cache_summary"]["opening_bucket_quality_delta"])
         self.assertEqual(-8.0, report["opening_cache_summary"]["latency_delta_ms"])
 
+    def test_aggregate_worker_reports_falls_back_to_configured_value_trust_schedule_when_runtime_summary_is_missing(self):
+        configured_schedule = {
+            "enabled": True,
+            "opening": 0.8,
+            "midgame": 1.0,
+            "late": 1.15,
+        }
+
+        report = arena.aggregate_worker_reports(
+            games=2,
+            min_score=0.55,
+            challenger_path=Path("challenger"),
+            current_path=Path("current"),
+            challenger_simulations=32,
+            current_simulations=16,
+            seed=42,
+            workers=1,
+            search_options=arena.build_eval_search_options(value_trust_schedule=configured_schedule),
+            results=[
+                {
+                    "wins": 1,
+                    "losses": 1,
+                    "draws": 0,
+                    "move_durations_ms": [10.0, 12.0],
+                    "search_profile": {"hash": "abc"},
+                    "search_profile_hash": "abc",
+                    "hard_suite_buckets": arena.empty_hard_suite_buckets(),
+                    "value_trust_summary": None,
+                }
+            ],
+        )
+
+        self.assertEqual(
+            {
+                "enabled": True,
+                "phase_bucket": None,
+                "effective_multiplier": None,
+                "schedule": {
+                    "opening": 0.8,
+                    "midgame": 1.0,
+                    "late": 1.15,
+                },
+                "source": "configured_schedule",
+            },
+            report["value_trust_summary"],
+        )
+
     def test_cli_generates_validator_compatible_arena_report(self):
         python = self.executable_python()
         with tempfile.TemporaryDirectory(prefix="azlite-arena-") as tmp:
@@ -1772,6 +2190,112 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertEqual(16.0, report["budget_summary"]["mean_final_simulations"])
             self.assertEqual({"fixed_budget": 5}, report["budget_summary"]["trigger_counts"])
             self.assertEqual(5, sum(bucket["games"] for bucket in report["hard_suite_buckets"].values()))
+
+    def test_stub_cli_records_value_trust_schedule_in_search_options(self):
+        python = self.executable_python()
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-stub-") as tmp:
+            tmp_path = Path(tmp)
+            challenger_dir = tmp_path / "challenger"
+            current_dir = tmp_path / "current"
+            out_path = tmp_path / "arena_report.json"
+            challenger_dir.mkdir()
+            current_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    python,
+                    "ml/alphazero_lite/arena.py",
+                    "--challenger",
+                    str(challenger_dir),
+                    "--current",
+                    str(current_dir),
+                    "--games",
+                    "5",
+                    "--challenger-simulations",
+                    "16",
+                    "--current-simulations",
+                    "16",
+                    "--out",
+                    str(out_path),
+                    "--value-trust-enabled",
+                    "--value-trust-opening",
+                    "0.8",
+                    "--value-trust-midgame",
+                    "1.0",
+                    "--value-trust-late",
+                    "1.15",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env={**os.environ, "AZLITE_ARENA_STUB": "1"},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                {
+                    "enabled": True,
+                    "opening": 0.8,
+                    "midgame": 1.0,
+                    "late": 1.15,
+                },
+                report["notes"]["search_options"]["value_trust_schedule"],
+            )
+
+    def test_stub_cli_emits_value_trust_summary_for_benchmark_passthrough(self):
+        python = self.executable_python()
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-stub-") as tmp:
+            tmp_path = Path(tmp)
+            challenger_dir = tmp_path / "challenger"
+            current_dir = tmp_path / "current"
+            out_path = tmp_path / "arena_report.json"
+            challenger_dir.mkdir()
+            current_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    python,
+                    "ml/alphazero_lite/arena.py",
+                    "--challenger",
+                    str(challenger_dir),
+                    "--current",
+                    str(current_dir),
+                    "--games",
+                    "5",
+                    "--challenger-simulations",
+                    "16",
+                    "--current-simulations",
+                    "16",
+                    "--out",
+                    str(out_path),
+                    "--value-trust-enabled",
+                    "--value-trust-opening",
+                    "0.8",
+                    "--value-trust-midgame",
+                    "1.0",
+                    "--value-trust-late",
+                    "1.15",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env={**os.environ, "AZLITE_ARENA_STUB": "1"},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                {
+                    "enabled": True,
+                    "phase_bucket": "opening",
+                    "effective_multiplier": 0.8,
+                    "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                },
+                report["value_trust_summary"],
+            )
 
     def test_stub_cli_derives_pass_and_stdout_from_report_score(self):
         python = self.executable_python()

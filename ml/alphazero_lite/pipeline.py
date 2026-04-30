@@ -22,6 +22,7 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.input_encodings import feature_count_for
 from ml.alphazero_lite.report_validation import ArenaReportValidationError, validate_arena_report
 from ml.alphazero_lite.run_manifest import build_manifest, write_manifest
+from ml.alphazero_lite.self_play import normalize_value_trust_schedule
 
 
 def parse_args() -> argparse.Namespace:
@@ -112,6 +113,114 @@ def render_command(
         value = value.replace("{hard_state_validation_path}", hard_state_validation_path)
         rendered.append(value)
     return drop_incompatible_parent_checkpoint(rendered, parent_checkpoint=parent_checkpoint)
+
+
+def append_step_search_option_flags(step: dict, command: list[str]) -> list[str]:
+    value_trust_schedule = validate_self_play_value_trust_schedule(step, command)
+    if value_trust_schedule is None:
+        return command
+
+    augmented = list(command)
+    if bool(value_trust_schedule.get("enabled", False)):
+        augmented.append("--value-trust-enabled")
+
+    for option_name, flag in (
+        ("opening", "--value-trust-opening"),
+        ("midgame", "--value-trust-midgame"),
+        ("late", "--value-trust-late"),
+    ):
+        if option_name in value_trust_schedule:
+            augmented.extend([flag, str(value_trust_schedule[option_name])])
+
+    return augmented
+
+
+def build_step_command(step: dict) -> list[str] | object:
+    command = step.get("command", [])
+    if not isinstance(command, list) or not command:
+        return command
+    return append_step_search_option_flags(step, command)
+
+
+def has_explicit_value_trust_flag(command: list[str]) -> bool:
+    explicit_value_trust_flags = (
+        "--value-trust-enabled",
+        "--value-trust-opening",
+        "--value-trust-midgame",
+        "--value-trust-late",
+    )
+    return any(token in explicit_value_trust_flags or any(token.startswith(f"{flag}=") for flag in explicit_value_trust_flags) for token in command)
+
+
+def validate_self_play_value_trust_schedule(step: dict, command: list[str] | None = None) -> dict | None:
+    if step.get("name") != "self_play":
+        return None
+
+    search_options = step.get("search_options")
+    if search_options is None:
+        return None
+    if not isinstance(search_options, dict):
+        raise SystemExit("self_play step search_options must be an object")
+
+    if "value_trust_schedule" not in search_options:
+        return None
+
+    value_trust_schedule = search_options["value_trust_schedule"]
+    if not isinstance(value_trust_schedule, dict):
+        raise SystemExit("self_play step search_options.value_trust_schedule must be an object")
+
+    allowed_keys = {"enabled", "opening", "midgame", "late"}
+    unexpected_keys = sorted(str(key) for key in value_trust_schedule if key not in allowed_keys)
+    if unexpected_keys:
+        raise SystemExit(
+            "self_play step search_options.value_trust_schedule contains unexpected keys: "
+            + ", ".join(unexpected_keys)
+        )
+
+    try:
+        normalized_value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
+    except ValueError as error:
+        message = str(error)
+        if message == "value_trust_schedule.enabled must be a boolean":
+            raise SystemExit("self_play step search_options.value_trust_schedule.enabled must be a boolean") from None
+        if message.endswith("must be a finite number > 0"):
+            field_name = message.removeprefix("value_trust_schedule.").removesuffix(" must be a finite number > 0")
+            raw_value = value_trust_schedule.get(field_name)
+            if isinstance(raw_value, bool) or raw_value is None:
+                raise SystemExit(
+                    f"self_play step search_options.value_trust_schedule.{field_name} must be a finite number"
+                ) from None
+            try:
+                numeric_value = float(raw_value)
+            except (TypeError, ValueError):
+                raise SystemExit(
+                    f"self_play step search_options.value_trust_schedule.{field_name} must be a finite number"
+                ) from None
+            if not math.isfinite(numeric_value):
+                raise SystemExit(
+                    f"self_play step search_options.value_trust_schedule.{field_name} must be a finite number"
+                ) from None
+            raise SystemExit(
+                f"self_play step search_options.value_trust_schedule.{field_name} must be greater than zero"
+            ) from None
+        raise
+
+    if command is None:
+        command = step.get("command", [])
+    if isinstance(command, list) and has_explicit_value_trust_flag(command):
+        raise SystemExit("value_trust_schedule cannot be combined with explicit --value-trust flags")
+
+    return normalized_value_trust_schedule
+
+
+def validate_pipeline_step_config(steps: list[dict]) -> None:
+    for step in steps:
+        if not isinstance(step, dict):
+            continue
+        command = step.get("command", [])
+        if not isinstance(command, list):
+            continue
+        validate_self_play_value_trust_schedule(step, command)
 
 
 def render_path(
@@ -421,7 +530,7 @@ def run_step(
     hard_state_validation_path: str = "",
 ) -> dict:
     name = step.get("name", "unnamed_step")
-    command = step.get("command", [])
+    command = build_step_command(step)
     if not isinstance(command, list) or not command:
         return {"name": name, "status": "failed", "error": "step command must be a non-empty list"}
 
@@ -615,6 +724,7 @@ def main() -> None:
     gates = config.get("gates", {})
     replay_window = max(1, int(config.get("replay_window", 1)))
     include_current_iteration = has_self_play_step(steps)
+    validate_pipeline_step_config(steps)
     fixed_replay_sources = load_fixed_replay_sources(config, repo_root=repo_root)
     hard_state_validation_path = str(config.get("hard_state_validation_path", ""))
     validate_startup_paths(

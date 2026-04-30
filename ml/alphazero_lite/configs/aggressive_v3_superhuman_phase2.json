@@ -9,6 +9,14 @@
   "steps": [
     {
       "name": "self_play",
+      "search_options": {
+        "value_trust_schedule": {
+          "enabled": true,
+          "opening": 0.8,
+          "midgame": 1.0,
+          "late": 1.15
+        }
+      },
       "command": [
         ".venv/bin/python",
         "ml/alphazero_lite/self_play.py",

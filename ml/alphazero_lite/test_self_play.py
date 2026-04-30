@@ -390,6 +390,23 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertNotIn("c_puct", profile)
         self.assertNotIn("search_options", profile)
 
+    def test_build_search_options_normalizes_partial_value_trust_schedule_with_defaults(self):
+        options = self_play.build_search_options(
+            value_trust_schedule={
+                "opening": 0.8,
+            }
+        )
+
+        self.assertEqual(
+            {
+                "enabled": False,
+                "opening": 0.8,
+                "midgame": 1.0,
+                "late": 1.0,
+            },
+            options["value_trust_schedule"],
+        )
+
     def test_run_self_play_worker_profile_includes_opponent_pool_fingerprint(self):
         evaluator_paths = []
 
@@ -2051,6 +2068,33 @@ class SelfPlayScriptTest(unittest.TestCase):
         np.testing.assert_allclose(evaluator_priors, priors, atol=1e-7)
         self.assertEqual(0.75, value)
 
+    def test_puct_value_trust_schedule_changes_child_selection_score(self):
+        class FakeGame:
+            current_player = 0
+            pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+
+        parent = self_play.Node(game=FakeGame(), expanded=True, visit_count=10)
+        high_q_child = self_play.Node(game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4)
+        high_u_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=10, value_sum=3.0)
+        parent.children = {0: high_q_child, 1: high_u_child}
+
+        default_search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+        )
+        scheduled_search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+            value_trust_schedule={"enabled": True, "opening": 0.1, "midgame": 1.0, "late": 1.0},
+        )
+
+        self.assertIs(high_q_child, default_search._select_child(parent))
+        self.assertIs(high_u_child, scheduled_search._select_child(parent))
+
     def test_run_self_play_worker_sharpened_row_preserves_winner_sign_when_search_disagrees(self):
         default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=-0.4, winner=0)
 
@@ -2613,6 +2657,63 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(1, len(submitted_kwargs))
         self.assertEqual("sharpened", submitted_kwargs[0]["value_target_mode"])
 
+    def test_main_only_passes_value_trust_schedule_when_configured(self):
+        submitted_kwargs = []
+
+        class FakeFuture:
+            def __init__(self, result):
+                self._result = result
+
+            def result(self):
+                return self._result
+
+        class FakeExecutor:
+            def __init__(self, max_workers):
+                self.max_workers = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return False
+
+            def submit(self, fn, **kwargs):
+                del fn
+                submitted_kwargs.append(kwargs)
+                shard_path = Path(kwargs["shard_path"])
+                shard_path.write_text("", encoding="utf-8")
+                return FakeFuture(
+                    {
+                        "worker_id": kwargs["worker_id"],
+                        "rows_written": 0,
+                        "shard_path": str(shard_path),
+                    }
+                )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-trust-main-") as tmp:
+            out_path = Path(tmp) / "self_play.jsonl"
+            argv = [
+                "self_play.py",
+                "--out",
+                str(out_path),
+                "--games",
+                "1",
+                "--workers",
+                "1",
+                "--seed",
+                "7",
+                "--simulations",
+                "8",
+            ]
+
+            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+                with mock.patch("sys.argv", argv):
+                    self_play.main()
+
+        self.assertEqual(1, len(submitted_kwargs))
+        self.assertNotIn("value_trust_schedule", submitted_kwargs[0])
+
 
 class ClassicMCTSHelpersInSelfPlayTest(unittest.TestCase):
     def test_visits_from_classic_mcts_root_extracts_child_visit_counts(self):
@@ -2645,6 +2746,361 @@ class ClassicMCTSHelpersInSelfPlayTest(unittest.TestCase):
 
 
 class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
+    def test_run_self_play_worker_passes_value_trust_schedule_to_puct(self):
+        captured_search_options = []
+
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move == 0
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeRoot:
+            q_value = 0.4
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+                del evaluator, simulations, c_puct, rng, root
+                captured_search_options.append(dict(search_options))
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                del game, dirichlet_alpha, dirichlet_epsilon
+                visits = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                return visits, FakeRoot()
+
+        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-trust-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "PUCT", FakePUCT):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=2,
+                        shard_path=str(shard_path),
+                        value_trust_schedule=value_trust_schedule,
+                    )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(value_trust_schedule, captured_search_options[0]["value_trust_schedule"])
+        self.assertNotIn("teacher_root_summary", rows[0])
+
+    def test_classic_mcts_rows_include_root_summary_value_trust_metadata(self):
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move == 0
+
+            def clone(self):
+                cloned = FakeGame()
+                cloned.moves_played = self.moves_played
+                cloned.current_player = self.current_player
+                cloned.winner = self.winner
+                return cloned
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeClassicRoot:
+            visits = 10
+            wins = 7.0
+            children = {}
+
+        class FakeClassicMCTS:
+            def __init__(self, game, simulations, seed, value_trust_schedule=None):
+                del game, simulations, seed, value_trust_schedule
+
+            def search_root(self):
+                return FakeClassicRoot()
+
+            def root_summary(self):
+                return {
+                    "selected_move": 0,
+                    "child_stats": [{"move": 0, "visits": 10, "win_rate": 0.7}],
+                    "value_trust": {
+                        "enabled": True,
+                        "phase_bucket": "opening",
+                        "effective_multiplier": 0.8,
+                        "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                    },
+                }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-classic-summary-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "ClassicMCTS", FakeClassicMCTS):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=2,
+                        shard_path=str(shard_path),
+                        player_mode="classic_mcts",
+                        value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15},
+                    )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(
+            {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+            rows[0]["teacher_root_summary"]["value_trust"],
+        )
+
+    def test_classic_mcts_rows_omit_root_summary_by_default(self):
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [0] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move == 0
+
+            def clone(self):
+                cloned = FakeGame()
+                cloned.moves_played = self.moves_played
+                cloned.current_player = self.current_player
+                cloned.winner = self.winner
+                return cloned
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeClassicRoot:
+            visits = 10
+            wins = 7.0
+            children = {}
+
+        class FakeClassicMCTS:
+            def __init__(self, game, simulations, seed, value_trust_schedule=None):
+                del game, simulations, seed, value_trust_schedule
+
+            def search_root(self):
+                return FakeClassicRoot()
+
+            def root_summary(self):
+                return {
+                    "selected_move": 0,
+                    "child_stats": [{"move": 0, "visits": 10, "win_rate": 0.7}],
+                    "value_trust": {
+                        "enabled": True,
+                        "phase_bucket": "opening",
+                        "effective_multiplier": 0.8,
+                        "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                    },
+                }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-classic-default-summary-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+                with mock.patch.object(self_play, "ClassicMCTS", FakeClassicMCTS):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=2,
+                        shard_path=str(shard_path),
+                        player_mode="classic_mcts",
+                    )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertNotIn("teacher_root_summary", rows[0])
+
+    def test_puct_rows_include_real_teacher_root_summary_value_trust_metadata(self):
+        class TinyDeterministicEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-puct-summary-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play, "HeuristicEvaluator", TinyDeterministicEvaluator):
+                result = self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=1,
+                    seed=42,
+                    seed_pool=[42],
+                    checkpoint=None,
+                    input_encoding="kalah_v1",
+                    simulations=4,
+                    c_puct=1.25,
+                    temperature_threshold=0,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=1,
+                    shard_path=str(shard_path),
+                    player_mode="puct",
+                    value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15},
+                )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(
+            {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+            rows[0]["teacher_root_summary"]["value_trust"],
+        )
+        self.assertEqual(0, rows[0]["teacher_root_summary"]["selected_move"])
+        self.assertEqual(0, rows[0]["teacher_root_summary"]["child_stats"][0]["move"])
+
+    def test_puct_rows_omit_value_trust_metadata_by_default(self):
+        class TinyDeterministicEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-puct-default-summary-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(self_play, "HeuristicEvaluator", TinyDeterministicEvaluator):
+                result = self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=1,
+                    seed=42,
+                    seed_pool=[42],
+                    checkpoint=None,
+                    input_encoding="kalah_v1",
+                    simulations=4,
+                    c_puct=1.25,
+                    temperature_threshold=0,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=1,
+                    shard_path=str(shard_path),
+                    player_mode="puct",
+                )
+
+            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertNotIn("teacher_root_summary", rows[0])
+
     def test_classic_mcts_player_mode_ignores_opponent_pool_config(self):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"

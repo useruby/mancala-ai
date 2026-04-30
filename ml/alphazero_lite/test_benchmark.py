@@ -369,6 +369,811 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertEqual("deterministic", report["search_options"]["root_policy_mode"])
             self.assertEqual(0.1, report["search_options"]["tactical_root_bias"])
 
+    def test_cli_records_value_trust_schedule_in_report(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "sanity",
+                    "--games",
+                    "12",
+                    "--seed",
+                    "7",
+                    "--out",
+                    str(out_path),
+                    "--dry-run",
+                    "--value-trust-enabled",
+                    "--value-trust-opening",
+                    "0.8",
+                    "--value-trust-midgame",
+                    "1.0",
+                    "--value-trust-late",
+                    "1.15",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                {
+                    "enabled": True,
+                    "opening": 0.8,
+                    "midgame": 1.0,
+                    "late": 1.15,
+                },
+                report["search_options"]["value_trust_schedule"],
+            )
+
+    def test_promotion_build_report_preserves_arena_value_trust_summary(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            out_path = tmp_path / "out.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 10,
+                        "wins": 6,
+                        "losses": 4,
+                        "draws": 0,
+                        "score": 0.6,
+                        "promotion_decision": {"passed": True},
+                        "value_trust_summary": {
+                            "enabled": True,
+                            "phase_bucket": "opening",
+                            "effective_multiplier": 0.8,
+                            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 10,
+                        "az_wins": 5,
+                        "mcts_wins": 5,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(out_path),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual(
+            {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+            report["value_trust_summary"],
+        )
+
+    def test_promotion_build_report_marks_scheduled_value_trust_as_experimental_when_checks_pass(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            out_path = tmp_path / "out.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 10,
+                        "wins": 6,
+                        "losses": 4,
+                        "draws": 0,
+                        "score": 0.6,
+                        "promotion_decision": {"passed": True},
+                        "value_trust_summary": {
+                            "enabled": True,
+                            "phase_bucket": "opening",
+                            "effective_multiplier": 0.8,
+                            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 10,
+                        "az_wins": 5,
+                        "mcts_wins": 5,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(out_path),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertTrue(report["value_trust_recommendation"]["scheduled_trust_active"])
+        self.assertIn("remain experimental", report["value_trust_recommendation"]["summary"])
+        self.assertEqual(0.6, report["value_trust_recommendation"]["arena_score"])
+        self.assertEqual(0.5, report["value_trust_recommendation"]["mcts_score"])
+
+    def test_promotion_build_report_recommends_ship_for_uniform_value_trust_when_checks_pass(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            out_path = tmp_path / "out.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 10,
+                        "wins": 6,
+                        "losses": 4,
+                        "draws": 0,
+                        "score": 0.6,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 10,
+                        "az_wins": 5,
+                        "mcts_wins": 5,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(out_path),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual("ship", report["value_trust_recommendation"]["decision"])
+        self.assertFalse(report["value_trust_recommendation"]["scheduled_trust_active"])
+        self.assertIn("ship", report["value_trust_recommendation"]["summary"])
+
+    def test_promotion_build_report_recommends_drop_when_existing_gate_fails(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            out_path = tmp_path / "out.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 10,
+                        "wins": 6,
+                        "losses": 4,
+                        "draws": 0,
+                        "score": 0.6,
+                        "promotion_decision": {"passed": True},
+                        "value_trust_summary": {
+                            "enabled": True,
+                            "phase_bucket": "opening",
+                            "effective_multiplier": 0.8,
+                            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 10,
+                        "az_wins": 4,
+                        "mcts_wins": 6,
+                        "draws": 0,
+                        "score": 0.4,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(out_path),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual("drop", report["value_trust_recommendation"]["decision"])
+        self.assertIn("did not clear", report["value_trust_recommendation"]["summary"])
+        self.assertFalse(report["value_trust_recommendation"]["mcts_passed"])
+
+    def test_promotion_build_report_recommends_drop_when_confidence_gate_fails(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            out_path = tmp_path / "out.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 20,
+                        "wins": 11,
+                        "losses": 9,
+                        "draws": 0,
+                        "score": 0.55,
+                        "promotion_decision": {"passed": True},
+                        "value_trust_summary": {
+                            "enabled": True,
+                            "phase_bucket": "opening",
+                            "effective_multiplier": 0.8,
+                            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 10,
+                        "az_wins": 5,
+                        "mcts_wins": 5,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(out_path),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                    "--min-confidence-lower-bound",
+                    "0.6",
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertEqual("drop", report["value_trust_recommendation"]["decision"])
+        self.assertFalse(report["value_trust_recommendation"]["arena_passed"])
+        self.assertFalse(report["value_trust_recommendation"]["arena_confidence_passed"])
+        self.assertTrue(report["value_trust_recommendation"]["mcts_passed"])
+
+    def test_promotion_build_report_omits_value_trust_summary_when_arena_report_lacks_it(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            out_path = tmp_path / "out.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 10,
+                        "wins": 6,
+                        "losses": 4,
+                        "draws": 0,
+                        "score": 0.6,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 10,
+                        "az_wins": 5,
+                        "mcts_wins": 5,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(out_path),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                ]
+            )
+            report = benchmark.build_report(args)
+
+        self.assertNotIn("value_trust_summary", report)
+
+    def test_build_report_from_inputs_preserves_real_arena_value_trust_summary(self):
+        from ml.alphazero_lite import benchmark
+        from ml.alphazero_lite import arena
+
+        root_value_trust = {
+            "enabled": True,
+            "phase_bucket": "late",
+            "effective_multiplier": 1.15,
+            "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+        }
+
+        arena_report = arena.aggregate_worker_reports(
+            games=10,
+            min_score=0.55,
+            challenger_path=Path("challenger"),
+            current_path=Path("current"),
+            challenger_simulations=96,
+            current_simulations=96,
+            seed=42,
+            workers=1,
+            search_options=arena.build_eval_search_options(
+                value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+            ),
+            results=[
+                {
+                    "wins": 6,
+                    "losses": 4,
+                    "draws": 0,
+                    "move_durations_ms": [5.0],
+                    "hard_suite_buckets": arena.empty_hard_suite_buckets(),
+                    "search_profile": arena.build_search_profile(
+                        kind="arena_eval",
+                        player_mode="puct",
+                        simulations=96,
+                        c_puct=1.25,
+                        search_options=arena.build_eval_search_options(
+                            value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+                        ),
+                    ),
+                    "search_profile_hash": "placeholder",
+                    "value_trust_summary": root_value_trust,
+                }
+            ],
+        )
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 5,
+            "mcts_wins": 5,
+            "draws": 0,
+            "score": 0.5,
+        }
+
+        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+
+        self.assertEqual(root_value_trust, report["arena_report"]["value_trust_summary"])
+        self.assertNotEqual(
+            {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15},
+            report["arena_report"]["value_trust_summary"],
+        )
+
+    def test_build_report_from_inputs_omits_value_trust_summary_when_arena_report_lacks_it(self):
+        from ml.alphazero_lite import benchmark
+
+        arena_report = {
+            "schema": "arena_v1",
+            "games_played": 10,
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "score": 0.6,
+            "promotion_decision": {"passed": True},
+        }
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 5,
+            "mcts_wins": 5,
+            "draws": 0,
+            "score": 0.5,
+        }
+
+        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+
+        self.assertNotIn("value_trust_summary", report)
+
+    def test_build_report_from_inputs_uses_configured_schedule_to_keep_scheduled_recommendation_without_runtime_summary(self):
+        from ml.alphazero_lite import benchmark
+
+        arena_report = {
+            "schema": "arena_v1",
+            "games_played": 10,
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "score": 0.6,
+            "promotion_decision": {"passed": True},
+            "notes": {
+                "search_options": {
+                    "value_trust_schedule": {
+                        "enabled": True,
+                        "opening": 0.8,
+                        "midgame": 1.0,
+                        "late": 1.15,
+                    }
+                }
+            },
+        }
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 5,
+            "mcts_wins": 5,
+            "draws": 0,
+            "score": 0.5,
+        }
+
+        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+
+        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertTrue(report["value_trust_recommendation"]["scheduled_trust_active"])
+
+    def test_build_report_from_inputs_marks_scheduled_value_trust_as_experimental_when_checks_pass(self):
+        from ml.alphazero_lite import benchmark
+
+        arena_report = {
+            "schema": "arena_v1",
+            "games_played": 10,
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "score": 0.6,
+            "promotion_decision": {"passed": True},
+            "value_trust_summary": {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+        }
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 5,
+            "mcts_wins": 5,
+            "draws": 0,
+            "score": 0.5,
+        }
+
+        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+
+        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertTrue(report["value_trust_recommendation"]["scheduled_trust_active"])
+        self.assertTrue(report["value_trust_recommendation"]["arena_passed"])
+        self.assertTrue(report["value_trust_recommendation"]["mcts_passed"])
+
+    def test_build_report_from_inputs_recommends_ship_for_uniform_value_trust_when_checks_pass(self):
+        from ml.alphazero_lite import benchmark
+
+        arena_report = {
+            "schema": "arena_v1",
+            "games_played": 10,
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "score": 0.6,
+            "promotion_decision": {"passed": True},
+        }
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 5,
+            "mcts_wins": 5,
+            "draws": 0,
+            "score": 0.5,
+        }
+
+        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+
+        self.assertEqual("ship", report["value_trust_recommendation"]["decision"])
+        self.assertFalse(report["value_trust_recommendation"]["scheduled_trust_active"])
+        self.assertTrue(report["value_trust_recommendation"]["arena_passed"])
+        self.assertTrue(report["value_trust_recommendation"]["mcts_passed"])
+
+    def test_build_report_from_inputs_recommends_drop_when_gate_fails(self):
+        from ml.alphazero_lite import benchmark
+
+        arena_report = {
+            "schema": "arena_v1",
+            "games_played": 20,
+            "wins": 11,
+            "losses": 9,
+            "draws": 0,
+            "score": 0.55,
+            "promotion_decision": {"passed": True},
+            "value_trust_summary": {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+        }
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 4,
+            "mcts_wins": 6,
+            "draws": 0,
+            "score": 0.4,
+        }
+
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report,
+            mcts_report=mcts_report,
+            min_score=0.55,
+            min_confidence_lower_bound=0.6,
+            min_mcts_score=0.45,
+        )
+
+        self.assertEqual("drop", report["value_trust_recommendation"]["decision"])
+        self.assertFalse(report["value_trust_recommendation"]["arena_passed"])
+        self.assertFalse(report["value_trust_recommendation"]["arena_confidence_passed"])
+        self.assertFalse(report["value_trust_recommendation"]["mcts_passed"])
+
+    def test_build_report_from_inputs_recommends_drop_when_current_baseline_outscores_candidate(self):
+        from ml.alphazero_lite import benchmark
+
+        arena_report = {
+            "schema": "arena_v1",
+            "games_played": 10,
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "score": 0.6,
+            "promotion_decision": {"passed": True},
+            "value_trust_summary": {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+        }
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 5,
+            "mcts_wins": 5,
+            "draws": 0,
+            "score": 0.5,
+        }
+        current_baseline_mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 10,
+            "az_wins": 6,
+            "mcts_wins": 4,
+            "draws": 0,
+            "score": 0.6,
+        }
+
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report,
+            mcts_report=mcts_report,
+            current_baseline_mcts_report=current_baseline_mcts_report,
+        )
+
+        self.assertEqual("drop", report["value_trust_recommendation"]["decision"])
+        self.assertTrue(report["value_trust_recommendation"]["arena_passed"])
+        self.assertFalse(report["value_trust_recommendation"]["mcts_passed"])
+        self.assertEqual("current_baseline", report["value_trust_recommendation"]["mcts_comparison"])
+        self.assertEqual(0.6, report["value_trust_recommendation"]["mcts_baseline_score"])
+        self.assertIn("current baseline", report["value_trust_recommendation"]["summary"])
+        mcts_check = next(check for check in report["checks"] if check["id"] == "mcts1200_gate")
+        self.assertEqual("current_baseline", mcts_check["comparison"])
+        self.assertEqual(0.6, mcts_check["baseline_score"])
+        self.assertNotIn("min_score", mcts_check)
+
+    def test_build_report_and_helper_match_for_baseline_and_confidence_context(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report_path = tmp_path / "arena.json"
+            mcts_report_path = tmp_path / "mcts.json"
+            baseline_report_path = tmp_path / "baseline.json"
+            out_path = tmp_path / "out.json"
+
+            arena_report = {
+                "schema": "arena_v1",
+                "games_played": 20,
+                "wins": 11,
+                "losses": 9,
+                "draws": 0,
+                "score": 0.55,
+                "promotion_decision": {"passed": True},
+                "value_trust_summary": {
+                    "enabled": False,
+                    "phase_bucket": "midgame",
+                    "effective_multiplier": 1.0,
+                    "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+                },
+            }
+            mcts_report = {
+                "schema": "azlite_vs_mcts_v1",
+                "games": 10,
+                "az_wins": 5,
+                "mcts_wins": 5,
+                "draws": 0,
+                "score": 0.5,
+            }
+            baseline_report = {
+                "schema": "azlite_vs_mcts_v1",
+                "games": 10,
+                "az_wins": 6,
+                "mcts_wins": 4,
+                "draws": 0,
+                "score": 0.6,
+            }
+
+            arena_report_path.write_text(json.dumps(arena_report), encoding="utf-8")
+            mcts_report_path.write_text(json.dumps(mcts_report), encoding="utf-8")
+            baseline_report_path.write_text(json.dumps(baseline_report), encoding="utf-8")
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(out_path),
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--current-baseline-mcts-report",
+                    str(baseline_report_path),
+                    "--min-confidence-lower-bound",
+                    "0.6",
+                ]
+            )
+
+            production_report = benchmark.build_report(args)
+            helper_report = benchmark.build_report_from_inputs(
+                arena_report=arena_report,
+                mcts_report=mcts_report,
+                current_baseline_mcts_report=baseline_report,
+                min_confidence_lower_bound=0.6,
+            )
+
+        self.assertEqual(production_report["checks"], helper_report["checks"])
+        self.assertEqual(production_report["value_trust_recommendation"], helper_report["value_trust_recommendation"])
+
+    def test_build_report_from_inputs_keeps_baseline_tie_when_raw_scores_match_before_rounding(self):
+        from ml.alphazero_lite import benchmark
+
+        arena_report = {
+            "schema": "arena_v1",
+            "games_played": 10,
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "score": 0.6,
+            "promotion_decision": {"passed": True},
+            "value_trust_summary": {
+                "enabled": True,
+                "phase_bucket": "opening",
+                "effective_multiplier": 0.8,
+                "schedule": {"opening": 0.8, "midgame": 1.0, "late": 1.15},
+            },
+        }
+        mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 80000,
+            "az_wins": 39997,
+            "mcts_wins": 40003,
+            "draws": 0,
+            "score": 0.5,
+        }
+        current_baseline_mcts_report = {
+            "schema": "azlite_vs_mcts_v1",
+            "games": 80000,
+            "az_wins": 39997,
+            "mcts_wins": 40003,
+            "draws": 0,
+            "score": 0.5,
+        }
+
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report,
+            mcts_report=mcts_report,
+            current_baseline_mcts_report=current_baseline_mcts_report,
+        )
+
+        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertTrue(report["value_trust_recommendation"]["mcts_passed"])
+        mcts_check = next(check for check in report["checks"] if check["id"] == "mcts1200_gate")
+        self.assertTrue(mcts_check["passed"])
+        self.assertEqual(0.5, mcts_check["score"])
+        self.assertEqual(0.5, mcts_check["baseline_score"])
+
     def test_promotion_mode_reads_arena_report_and_sets_check_pass_status(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
             tmp_path = Path(tmp)
@@ -440,6 +1245,69 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertEqual("mcts1200_gate", mcts_check["id"])
             self.assertTrue(mcts_check["passed"])
             self.assertEqual(0.5, mcts_check["score"])
+
+    def test_promotion_mode_rejects_missing_current_baseline_report_with_explicit_error(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            missing_baseline_path = tmp_path / "missing_baseline.json"
+
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--current-baseline-mcts-report",
+                    str(missing_baseline_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(f"current baseline mcts report not found: {missing_baseline_path}", result.stderr)
 
     def test_promotion_mode_includes_confidence_fields_when_confidence_gate_is_set(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:

@@ -84,11 +84,9 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         stderr = io.StringIO()
         normalized_cli_args = list(cli_args)
 
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(prefix="runpod-default-parent-", dir="/tmp") as default_parent_artifact:
             if "--parent-artifact" not in normalized_cli_args:
-                parent_artifact = Path(tmp) / "parent-artifact"
-                parent_artifact.mkdir()
-                normalized_cli_args = ["--parent-artifact", str(parent_artifact), *normalized_cli_args]
+                normalized_cli_args = ["--parent-artifact", default_parent_artifact, *normalized_cli_args]
 
             with mock.patch.dict(sys.modules, {"ml.alphazero_lite.runpod_experiment": fake_runpod_experiment}):
                 with mock.patch.object(sys, "argv", [str(script_path), *normalized_cli_args]), mock.patch(
@@ -143,6 +141,7 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
                 "script/ai/local_promotion_gate",
                 "ml/alphazero_lite",
                 "model-artifact/current",
+                "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json",
                 "tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
             ],
             plan["include_paths"],
@@ -497,6 +496,7 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
                 "script/ai/local_promotion_gate",
                 "ml/alphazero_lite",
                 "model-artifact/current",
+                "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json",
                 "tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
                 "tmp/runpod-current-model",
             ],
@@ -533,6 +533,7 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
                 "script/ai/local_promotion_gate",
                 "ml/alphazero_lite",
                 "model-artifact/current",
+                "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json",
                 "tmp/runpod-parent-artifact",
             ],
             plan["include_paths"],
@@ -540,34 +541,38 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
 
     def test_runpod_model_robustness_confirmation_dry_run_accepts_repo_absolute_parent_and_current_paths(self):
         repo_root = Path(__file__).resolve().parents[2]
-        repo_artifact = repo_root.parents[1] / "storage/ai/alphazero_lite/versions/arena-push-stability-2026-04-05"
-        staged_artifact = str(repo_root / "tmp/runpod-staged" / repo_artifact.relative_to(Path("/")))
-        staged_include_path = (
-            Path("tmp/runpod-staged") / repo_artifact.relative_to(Path("/"))
-        ).as_posix()
+        temp_root = repo_root / "tmp"
+        temp_root.mkdir(parents=True, exist_ok=True)
 
-        result = subprocess.run(
-            [
-                "script/ai/runpod_model_robustness_confirmation",
-                "--dry-run",
-                "--parent-artifact",
-                str(repo_artifact),
-                "--current-path",
-                str(repo_artifact),
-            ],
-            cwd=repo_root,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        with tempfile.TemporaryDirectory(prefix="runpod-repo-absolute-artifact-", dir=temp_root) as tmp:
+            repo_artifact = Path(tmp)
+            staged_artifact = str(repo_root / "tmp/runpod-staged" / repo_artifact.relative_to(Path("/")))
+            staged_include_path = (
+                Path("tmp/runpod-staged") / repo_artifact.relative_to(Path("/"))
+            ).as_posix()
 
-        self.assertEqual(0, result.returncode, msg=result.stderr)
-        plan = json.loads(result.stdout)
-        command = plan["command"]
+            result = subprocess.run(
+                [
+                    "script/ai/runpod_model_robustness_confirmation",
+                    "--dry-run",
+                    "--parent-artifact",
+                    str(repo_artifact),
+                    "--current-path",
+                    str(repo_artifact),
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
 
-        self.assertIn(f"--parent-artifact {staged_artifact}", command)
-        self.assertIn(f"--current-path {staged_artifact}", command)
-        self.assertIn(staged_include_path, plan["include_paths"])
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            plan = json.loads(result.stdout)
+            command = plan["command"]
+
+            self.assertIn(f"--parent-artifact {staged_artifact}", command)
+            self.assertIn(f"--current-path {staged_artifact}", command)
+            self.assertIn(staged_include_path, plan["include_paths"])
 
     def test_runpod_model_robustness_confirmation_stages_absolute_tmp_parent_artifact_before_orchestrate(self):
         repo_root = Path(__file__).resolve().parents[2]

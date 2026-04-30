@@ -23,6 +23,29 @@ class SpyTablebase:
 
 
 class ClassicMCTSTest(unittest.TestCase):
+    def _guided_action_after_one_simulation(self, search, *, root_visits, child_stats):
+        from ml.alphazero_lite.classic_mcts import Node
+
+        root = Node(search.game.clone(), visits=root_visits)
+        root.children = {
+            action: Node(search.game.clone(), root, visits=visits, wins=wins)
+            for action, visits, wins in child_stats
+        }
+        before_visits = {action: child.visits for action, child in root.children.items()}
+        search.simulate_playout = lambda game: 0.5
+
+        search.run_search(root, 1, allow_early_stop=False)
+
+        selected_actions = [
+            action
+            for action, child in root.children.items()
+            if child.visits == before_visits[action] + 1
+        ]
+        self.assertEqual(1, len(selected_actions))
+        return selected_actions[0], {
+            action: (child.visits, child.wins) for action, child in root.children.items()
+        }
+
     def test_root_summary_selected_move_stays_aligned_with_choose_move_on_same_instance(self):
         from ml.alphazero_lite.classic_mcts import MCTS
 
@@ -101,6 +124,295 @@ class ClassicMCTSTest(unittest.TestCase):
         self.assertEqual(16, summary["budget"]["baseline_simulations"])
         self.assertEqual(16, summary["budget"]["final_simulations"])
         self.assertEqual("fixed_budget", summary["budget"]["trigger"])
+
+    def test_constructor_rejects_unknown_value_trust_schedule_phase_key(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+
+        with self.assertRaisesRegex(ValueError, "value_trust_schedule keys must be enabled, opening, midgame, and late"):
+            MCTS(
+                game,
+                simulations=16,
+                seed=7,
+                value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "endgame": 1.15},
+            )
+
+    def test_constructor_rejects_non_boolean_value_trust_enabled_flag(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+
+        with self.assertRaisesRegex(ValueError, "value_trust_schedule enabled must be a boolean"):
+            MCTS(
+                game,
+                simulations=16,
+                seed=7,
+                value_trust_schedule={"enabled": "false", "opening": 0.8, "midgame": 1.0, "late": 1.15},
+            )
+
+    def test_constructor_rejects_non_positive_value_trust_multiplier(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+
+        with self.assertRaisesRegex(ValueError, "value_trust_schedule opening must be > 0"):
+            MCTS(
+                game,
+                simulations=16,
+                seed=7,
+                value_trust_schedule={"enabled": True, "opening": 0.0, "midgame": 1.0, "late": 1.15},
+            )
+
+    def test_root_summary_reports_disabled_value_trust_schedule_metadata_by_default(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+        search = MCTS(game, simulations=16, seed=7)
+
+        summary = search.root_summary()
+
+        self.assertIn("value_trust", summary)
+        self.assertEqual(False, summary["value_trust"]["enabled"])
+        self.assertEqual({"opening": 1.0, "midgame": 1.0, "late": 1.0}, summary["value_trust"]["schedule"])
+        self.assertEqual("opening", summary["value_trust"]["phase_bucket"])
+        self.assertEqual(1.0, summary["value_trust"]["effective_multiplier"])
+
+    def test_root_summary_reports_custom_value_trust_schedule_metadata_for_late_phase(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 1, 0],
+                "opponent_pits": [0, 1, 0, 0, 0, 0],
+                "player_store": 23,
+                "opponent_store": 23,
+                "current_player": 0,
+            }
+        )
+        search = MCTS(
+            game,
+            simulations=16,
+            seed=7,
+            value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15},
+        )
+
+        summary = search.root_summary()
+
+        self.assertEqual(True, summary["value_trust"]["enabled"])
+        self.assertEqual("late", summary["value_trust"]["phase_bucket"])
+        self.assertEqual(1.15, summary["value_trust"]["effective_multiplier"])
+        self.assertEqual({"opening": 0.8, "midgame": 1.0, "late": 1.15}, summary["value_trust"]["schedule"])
+
+    def test_late_phase_value_trust_schedule_increases_value_term_contribution_in_search_guidance(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 1, 0],
+                "opponent_pits": [0, 1, 0, 0, 0, 0],
+                "player_store": 23,
+                "opponent_store": 23,
+                "current_player": 0,
+            }
+        )
+        baseline = MCTS(game, simulations=16, seed=7)
+        boosted = MCTS(
+            game,
+            simulations=16,
+            seed=7,
+            value_trust_schedule={"enabled": True, "opening": 1.0, "midgame": 1.0, "late": 1.5},
+        )
+        child_stats = [
+            (0, 50, 40.0),
+            (1, 20, 11.6),
+        ]
+
+        baseline_action, _ = self._guided_action_after_one_simulation(
+            baseline,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+        boosted_action, _ = self._guided_action_after_one_simulation(
+            boosted,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+
+        self.assertEqual(1, baseline_action)
+        self.assertEqual(0, boosted_action)
+
+    def test_opening_phase_value_trust_schedule_reduces_value_term_contribution_in_search_guidance(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+        baseline = MCTS(game, simulations=16, seed=7)
+        dampened = MCTS(
+            game,
+            simulations=16,
+            seed=7,
+            value_trust_schedule={"enabled": True, "opening": 0.5, "midgame": 1.0, "late": 1.0},
+        )
+        child_stats = [
+            (0, 50, 40.0),
+            (1, 20, 9.0),
+        ]
+
+        baseline_action, _ = self._guided_action_after_one_simulation(
+            baseline,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+        dampened_action, _ = self._guided_action_after_one_simulation(
+            dampened,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+
+        self.assertEqual(0, baseline_action)
+        self.assertEqual(1, dampened_action)
+
+    def test_midgame_value_trust_schedule_uses_midgame_multiplier_in_search_guidance(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [2, 2, 2, 2, 2, 2],
+                "opponent_pits": [2, 2, 2, 2, 2, 2],
+                "player_store": 12,
+                "opponent_store": 12,
+                "current_player": 0,
+            }
+        )
+        baseline = MCTS(game, simulations=16, seed=7)
+        boosted = MCTS(
+            game,
+            simulations=16,
+            seed=7,
+            value_trust_schedule={"enabled": True, "opening": 0.5, "midgame": 1.5, "late": 0.5},
+        )
+        child_stats = [
+            (0, 50, 40.0),
+            (1, 20, 11.6),
+        ]
+
+        baseline_action, _ = self._guided_action_after_one_simulation(
+            baseline,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+        boosted_action, _ = self._guided_action_after_one_simulation(
+            boosted,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+
+        self.assertEqual(1, baseline_action)
+        self.assertEqual(0, boosted_action)
+
+    def test_disabled_value_trust_schedule_preserves_existing_search_guidance_behavior(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 1, 0],
+                "opponent_pits": [0, 1, 0, 0, 0, 0],
+                "player_store": 23,
+                "opponent_store": 23,
+                "current_player": 0,
+            }
+        )
+        baseline = MCTS(game, simulations=16, seed=7)
+        disabled = MCTS(
+            game,
+            simulations=16,
+            seed=7,
+            value_trust_schedule={"enabled": False, "opening": 0.5, "midgame": 1.0, "late": 1.5},
+        )
+        child_stats = [
+            (0, 50, 40.0),
+            (1, 20, 11.6),
+        ]
+
+        baseline_action, baseline_stats = self._guided_action_after_one_simulation(
+            baseline,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+        disabled_action, disabled_stats = self._guided_action_after_one_simulation(
+            disabled,
+            root_visits=70,
+            child_stats=child_stats,
+        )
+
+        self.assertEqual(baseline_action, disabled_action)
+        self.assertEqual(baseline_stats, disabled_stats)
+
+    def test_root_summary_reports_unit_effective_multiplier_when_schedule_disabled(self):
+        from ml.alphazero_lite.classic_mcts import MCTS
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [0, 0, 0, 0, 1, 1],
+                "opponent_pits": [2, 2, 2, 2, 2, 2],
+                "player_store": 11,
+                "opponent_store": 11,
+                "current_player": 0,
+            }
+        )
+        search = MCTS(
+            game,
+            simulations=16,
+            seed=7,
+            value_trust_schedule={"enabled": False, "opening": 0.5, "midgame": 1.7, "late": 2.0},
+        )
+
+        summary = search.root_summary()
+
+        self.assertEqual(False, summary["value_trust"]["enabled"])
+        self.assertEqual("midgame", summary["value_trust"]["phase_bucket"])
+        self.assertEqual(1.0, summary["value_trust"]["effective_multiplier"])
+        self.assertEqual({"opening": 0.5, "midgame": 1.7, "late": 2.0}, summary["value_trust"]["schedule"])
 
     def test_constructor_rejects_invalid_dynamic_budget_range(self):
         from ml.alphazero_lite.classic_mcts import MCTS

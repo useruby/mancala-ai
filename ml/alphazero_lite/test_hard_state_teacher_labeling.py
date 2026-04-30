@@ -1,6 +1,8 @@
 import json
+import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -10,6 +12,17 @@ from ml.alphazero_lite import train
 
 
 class HardStateTeacherLabelingTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
     def sample_mined_row(self, **overrides):
         row = {
             "canonical_state": "4,4,4,4,4,4|4,4,4,4,4,4|0|0|0",
@@ -667,7 +680,7 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/label_hard_state_subset.py",
                     "--mined-jsonl",
                     str(mined_path),
@@ -703,7 +716,7 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/label_hard_state_subset.py",
                     "--mined-jsonl",
                     str(mined_path),
@@ -1630,7 +1643,7 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/compare_hard_state_teacher_labels.py",
                     "--input-jsonl",
                     str(dataset_path),
@@ -1678,7 +1691,7 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/compare_hard_state_teacher_labels.py",
                     "--input-jsonl",
                     str(dataset_path),

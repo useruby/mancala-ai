@@ -210,6 +210,176 @@ def checks_for_mode(mode: str) -> list[dict[str, str]]:
     ]
 
 
+def promotion_check(checks: list[dict], check_id: str) -> dict | None:
+    for check in checks:
+        if check.get("id") == check_id:
+            return check
+    return None
+
+
+def scheduled_value_trust_active(*, value_trust_summary: dict | None, arena_report: dict | None = None) -> bool:
+    if isinstance(value_trust_summary, dict) and value_trust_summary.get("enabled") is True:
+        return True
+    if not isinstance(arena_report, dict):
+        return False
+    notes = arena_report.get("notes")
+    if not isinstance(notes, dict):
+        return False
+    search_options = notes.get("search_options")
+    if not isinstance(search_options, dict):
+        return False
+    value_trust_schedule = search_options.get("value_trust_schedule")
+    return bool(isinstance(value_trust_schedule, dict) and value_trust_schedule.get("enabled") is True)
+
+
+def build_value_trust_recommendation(*, checks: list[dict], value_trust_summary: dict | None, arena_report: dict | None = None) -> dict | None:
+    arena_check = promotion_check(checks, "promotion_arena")
+    mcts_check = promotion_check(checks, "mcts1200_gate")
+    if arena_check is None or mcts_check is None:
+        return None
+
+    scheduled_trust_active = scheduled_value_trust_active(
+        value_trust_summary=value_trust_summary,
+        arena_report=arena_report,
+    )
+    arena_passed = bool(arena_check.get("passed"))
+    mcts_passed = bool(mcts_check.get("passed"))
+    confidence_passed = arena_check.get("confidence_passed")
+    mcts_comparison = mcts_check.get("comparison")
+    mcts_baseline_score = mcts_check.get("baseline_score")
+    confidence_fragment = ""
+    if confidence_passed is not None:
+        confidence_fragment = (
+            f" Confidence lower bound {arena_check.get('confidence_lower_bound')} "
+            f"{'cleared' if confidence_passed else 'did not clear'} {arena_check.get('min_confidence_lower_bound')}."
+        )
+    mcts_fragment = (
+        f"MCTS score {mcts_check.get('score')} {'passed' if mcts_passed else 'did not clear'} the current baseline gate at {mcts_baseline_score}."
+        if mcts_comparison == "current_baseline"
+        else f"MCTS score {mcts_check.get('score')} {'passed' if mcts_passed else 'did not clear'} its gate."
+    )
+
+    if not arena_passed or not mcts_passed:
+        decision = "drop"
+        drop_target = "scheduled value trust" if scheduled_trust_active else "the uniform value-trust path"
+        summary = (
+            f"Drop {drop_target}: promotion checks did not clear. "
+            f"Arena score {arena_check.get('score')} {'passed' if arena_passed else 'did not clear'} its gate; "
+            f"{mcts_fragment}"
+            f"{confidence_fragment}"
+        )
+    elif scheduled_trust_active:
+        decision = "stay_experimental"
+        summary = (
+            "Scheduled value trust should remain experimental even though the current benchmark passed. "
+            f"Arena score {arena_check.get('score')} cleared its gate. {mcts_fragment}"
+            f"{confidence_fragment}"
+        )
+    else:
+        decision = "ship"
+        summary = (
+            "ship the uniform value-trust path: scheduled trust was not active and the benchmark cleared existing gates. "
+            f"Arena score {arena_check.get('score')} cleared its gate. {mcts_fragment}"
+            f"{confidence_fragment}"
+        )
+
+    return {
+        "decision": decision,
+        "scheduled_trust_active": scheduled_trust_active,
+        "summary": summary.strip(),
+        "arena_score": arena_check.get("score"),
+        "arena_passed": arena_passed,
+        "arena_confidence_lower_bound": arena_check.get("confidence_lower_bound"),
+        "arena_confidence_passed": confidence_passed,
+        "mcts_score": mcts_check.get("score"),
+        "mcts_passed": mcts_passed,
+        "mcts_comparison": mcts_comparison,
+        "mcts_baseline_score": mcts_baseline_score,
+    }
+
+
+def build_promotion_checks_from_reports(
+    *,
+    arena: dict,
+    mcts: dict,
+    min_score: float,
+    min_confidence_lower_bound: float | None,
+    min_mcts_score: float,
+    current_baseline_mcts_report: dict | None = None,
+) -> list[dict]:
+    try:
+        arena_result = validate_arena_report(
+            report=arena,
+            min_score=float(min_score),
+            min_confidence_lower_bound=min_confidence_lower_bound,
+        )
+    except ArenaReportValidationError as error:
+        raise SystemExit(str(error)) from error
+
+    games_played = int(arena_result["games_played"])
+    wins = int(arena_result["wins"])
+    losses = int(arena_result["losses"])
+    draws = int(arena_result["draws"])
+    score = float(arena_result["score"])
+    declared = bool(arena.get("promotion_decision", {}).get("passed", False))
+    check_passed = bool(arena_result["passed"])
+
+    mcts_games, mcts_wins, mcts_losses, mcts_draws = validate_mcts_report(mcts, "mcts report")
+    mcts_score = (mcts_wins + (0.5 * mcts_draws)) / mcts_games
+    mcts_passed = mcts_score >= float(min_mcts_score)
+
+    arena_check: dict[str, int | float | bool | str] = {
+        "id": "promotion_arena",
+        "description": "Candidate versus current arena gate",
+        "passed": check_passed,
+        "score": round(score, 4),
+        "games_played": games_played,
+        "wins": wins,
+        "losses": losses,
+        "draws": draws,
+        "declared_passed": declared,
+        "min_score": float(min_score),
+    }
+    if min_confidence_lower_bound is not None:
+        arena_check.update(
+            {
+                "confidence_lower_bound": round(float(arena_result["confidence_lower_bound"]), 4),
+                "confidence_passed": bool(arena_result["confidence_passed"]),
+                "min_confidence_lower_bound": float(min_confidence_lower_bound),
+            }
+        )
+
+    mcts_check: dict[str, int | float | bool | str] = {
+        "id": "mcts1200_gate",
+        "description": "Candidate versus MCTS1200 minimum strength",
+        "passed": bool(mcts_passed),
+        "score": round(mcts_score, 4),
+        "games_played": mcts_games,
+        "wins": mcts_wins,
+        "losses": mcts_losses,
+        "draws": mcts_draws,
+        "min_score": float(min_mcts_score),
+    }
+
+    if current_baseline_mcts_report is not None:
+        baseline_games, baseline_wins, _baseline_losses, baseline_draws = validate_mcts_report(
+            current_baseline_mcts_report,
+            "current baseline mcts report",
+        )
+        baseline_score = (baseline_wins + (0.5 * baseline_draws)) / baseline_games
+        mcts_check.update(
+            {
+                "description": "Candidate versus current baseline MCTS1200 strength",
+                "passed": bool(mcts_score >= baseline_score),
+                "baseline_score": round(baseline_score, 4),
+                "comparison": "current_baseline",
+            }
+        )
+        del mcts_check["min_score"]
+
+    return [arena_check, mcts_check]
+
+
 def promotion_checks(args: argparse.Namespace) -> list[dict]:
     if args.dry_run:
         return checks_for_mode("promotion")
@@ -224,89 +394,28 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
         raise SystemExit(f"arena report not found: {arena_path}")
 
     arena = json.loads(arena_path.read_text(encoding="utf-8"))
-    try:
-        arena_result = validate_arena_report(
-            report=arena,
-            min_score=float(args.min_score),
-            min_confidence_lower_bound=args.min_confidence_lower_bound,
-        )
-    except ArenaReportValidationError as error:
-        raise SystemExit(str(error)) from error
-
-    games_played = int(arena_result["games_played"])
-    wins = int(arena_result["wins"])
-    losses = int(arena_result["losses"])
-    draws = int(arena_result["draws"])
-    score = float(arena_result["score"])
-    declared = bool(arena.get("promotion_decision", {}).get("passed", False))
-    check_passed = bool(arena_result["passed"])
-
     mcts_path = Path(args.mcts_report)
     if not mcts_path.exists():
         raise SystemExit(f"mcts report not found: {mcts_path}")
 
     mcts = json.loads(mcts_path.read_text(encoding="utf-8"))
-    mcts_games, mcts_wins, mcts_losses, mcts_draws = validate_mcts_report(mcts, "mcts report")
-
-    mcts_score = (mcts_wins + (0.5 * mcts_draws)) / mcts_games
-    mcts_min_score = float(args.min_mcts_score)
-    mcts_passed = mcts_score >= mcts_min_score
-    mcts_check: dict[str, int | float | bool | str] = {
-        "id": "mcts1200_gate",
-        "description": "Candidate versus MCTS1200 minimum strength",
-        "passed": bool(mcts_passed),
-        "score": round(mcts_score, 4),
-        "games_played": mcts_games,
-        "wins": mcts_wins,
-        "losses": mcts_losses,
-        "draws": mcts_draws,
-        "min_score": mcts_min_score,
-    }
-
+    baseline_mcts = None
     if args.current_baseline_mcts_report:
         baseline_mcts_path = Path(args.current_baseline_mcts_report)
         if not baseline_mcts_path.exists():
             raise SystemExit(f"current baseline mcts report not found: {baseline_mcts_path}")
-
         baseline_mcts = json.loads(baseline_mcts_path.read_text(encoding="utf-8"))
-        baseline_games, baseline_wins, _baseline_losses, baseline_draws = validate_mcts_report(
-            baseline_mcts,
-            "current baseline mcts report",
-        )
 
-        baseline_score = (baseline_wins + (0.5 * baseline_draws)) / baseline_games
-        mcts_check.update(
-            {
-                "description": "Candidate versus current baseline MCTS1200 strength",
-                "passed": bool(mcts_score >= baseline_score),
-                "baseline_score": round(baseline_score, 4),
-                "comparison": "current_baseline",
-            }
-        )
-        del mcts_check["min_score"]
+    checks = build_promotion_checks_from_reports(
+        arena=arena,
+        mcts=mcts,
+        min_score=float(args.min_score),
+        min_confidence_lower_bound=args.min_confidence_lower_bound,
+        min_mcts_score=float(args.min_mcts_score),
+        current_baseline_mcts_report=baseline_mcts,
+    )
 
-    arena_check: dict[str, int | float | bool | str] = {
-        "id": "promotion_arena",
-        "description": "Candidate versus current arena gate",
-        "passed": check_passed,
-        "score": round(score, 4),
-        "games_played": games_played,
-        "wins": wins,
-        "losses": losses,
-        "draws": draws,
-        "declared_passed": declared,
-        "min_score": float(args.min_score),
-    }
-    if args.min_confidence_lower_bound is not None:
-        arena_check.update(
-            {
-                "confidence_lower_bound": round(float(arena_result["confidence_lower_bound"]), 4),
-                "confidence_passed": bool(arena_result["confidence_passed"]),
-                "min_confidence_lower_bound": float(args.min_confidence_lower_bound),
-            }
-        )
-
-    return [arena_check, mcts_check]
+    return checks
 
 
 def build_report(args: argparse.Namespace) -> dict:
@@ -315,11 +424,20 @@ def build_report(args: argparse.Namespace) -> dict:
     dynamic_budget_metric_source = None
     classic_mcts_dynamic_budget_config = None
     opening_cache_summary = None
+    arena = None
+    value_trust_summary = None
+    value_trust_recommendation = None
     if args.mode == "promotion":
         checks = promotion_checks(args)
         if not args.dry_run and args.arena_report:
             arena = json.loads(Path(args.arena_report).read_text(encoding="utf-8"))
             opening_cache_summary = opening_cache_summary_fields(arena.get("opening_cache_summary"))
+            value_trust_summary = arena.get("value_trust_summary")
+        value_trust_recommendation = build_value_trust_recommendation(
+            checks=checks,
+            value_trust_summary=value_trust_summary,
+            arena_report=arena,
+        )
         if not args.dry_run and args.mcts_report:
             mcts = json.loads(Path(args.mcts_report).read_text(encoding="utf-8"))
             dynamic_budget_metric_source = {
@@ -341,7 +459,7 @@ def build_report(args: argparse.Namespace) -> dict:
                 if should_validate_dynamic_budget:
                     dynamic_budget = dynamic_budget_comparison(mcts, baseline_mcts, strict=True)
 
-    return {
+    report = {
         "schema": "azlite_benchmark_v1",
         "mode": args.mode,
         "games": args.games,
@@ -362,22 +480,53 @@ def build_report(args: argparse.Namespace) -> dict:
         "opening_cache_summary": opening_cache_summary,
         "checks": checks,
     }
+    if value_trust_summary is not None:
+        report["value_trust_summary"] = value_trust_summary
+    if value_trust_recommendation is not None:
+        report["value_trust_recommendation"] = value_trust_recommendation
+    return report
 
 
-def build_report_from_inputs(*, arena_report: dict, mcts_report: dict, opening_cache_summary: dict | None = None) -> dict:
-    validate_arena_report(report=arena_report, min_score=0.0, min_confidence_lower_bound=None)
-    validate_mcts_report(mcts_report, "mcts report")
+def build_report_from_inputs(
+    *,
+    arena_report: dict,
+    mcts_report: dict,
+    current_baseline_mcts_report: dict | None = None,
+    opening_cache_summary: dict | None = None,
+    min_score: float = 0.55,
+    min_confidence_lower_bound: float | None = None,
+    min_mcts_score: float = 0.45,
+) -> dict:
     resolved_opening_cache_summary = opening_cache_summary
     if resolved_opening_cache_summary is None:
         resolved_opening_cache_summary = arena_report.get("opening_cache_summary")
+    checks = build_promotion_checks_from_reports(
+        arena=arena_report,
+        mcts=mcts_report,
+        min_score=float(min_score),
+        min_confidence_lower_bound=min_confidence_lower_bound,
+        min_mcts_score=float(min_mcts_score),
+        current_baseline_mcts_report=current_baseline_mcts_report,
+    )
+    value_trust_summary = arena_report.get("value_trust_summary")
 
-    return {
+    report = {
         "schema": "azlite_benchmark_v1",
         "mode": "promotion",
         "arena_report": arena_report,
         "mcts_report": mcts_report,
+        "current_baseline_mcts_report": current_baseline_mcts_report,
         "opening_cache_summary": opening_cache_summary_fields(resolved_opening_cache_summary),
+        "checks": checks,
     }
+    if value_trust_summary is not None:
+        report["value_trust_summary"] = value_trust_summary
+    report["value_trust_recommendation"] = build_value_trust_recommendation(
+        checks=checks,
+        value_trust_summary=value_trust_summary,
+        arena_report=arena_report,
+    )
+    return report
 
 
 def main() -> None:

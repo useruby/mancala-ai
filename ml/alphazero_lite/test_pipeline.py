@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest import mock
 
 from ml.alphazero_lite.pipeline import (
+    build_step_command,
     environment_report,
     load_config,
     render_command,
@@ -624,8 +625,81 @@ class PipelineScriptTest(unittest.TestCase):
             len({replay_balanced["run_id"], selfplay_only["run_id"], phase1_arch["run_id"]}),
         )
 
+    def test_superhuman_phase2_config_adds_scheduled_value_trust_to_self_play(self):
+        phase2 = self.load_v2_local_config(self.V3_SUPERHUMAN_PHASE2_CONFIG)
+        self_play_step = self.config_steps_by_name(phase2)["self_play"]
+        rendered_self_play = self.render_config_step(phase2, "self_play")
+
+        self.assertEqual(
+            {
+                "value_trust_schedule": {
+                    "enabled": True,
+                    "opening": 0.8,
+                    "midgame": 1.0,
+                    "late": 1.15,
+                }
+            },
+            self_play_step.get("search_options"),
+        )
+        self.assertIn("--value-trust-enabled", rendered_self_play)
+        self.assertEqual("0.8", self.command_flag_value(rendered_self_play, "--value-trust-opening"))
+        self.assertEqual("1.0", self.command_flag_value(rendered_self_play, "--value-trust-midgame"))
+        self.assertEqual("1.15", self.command_flag_value(rendered_self_play, "--value-trust-late"))
+
     def command_flag_value(self, command: list[str], flag: str) -> str:
         return command[command.index(flag) + 1]
+
+    def test_build_step_command_rejects_explicit_value_trust_flags_when_schedule_is_nested(self):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--value-trust-opening",
+                "0.6",
+            ],
+            "search_options": {
+                "value_trust_schedule": {
+                    "enabled": True,
+                    "opening": 0.8,
+                    "midgame": 1.0,
+                    "late": 1.15,
+                }
+            },
+        }
+
+        with self.assertRaisesRegex(SystemExit, "value_trust_schedule cannot be combined with explicit --value-trust flags"):
+            build_step_command(step)
+
+    def test_build_step_command_rejects_equals_form_value_trust_flags_when_schedule_is_nested(self):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--value-trust-opening=0.6",
+            ],
+            "search_options": {
+                "value_trust_schedule": {
+                    "enabled": True,
+                    "opening": 0.8,
+                    "midgame": 1.0,
+                    "late": 1.15,
+                }
+            },
+        }
+
+        with self.assertRaisesRegex(SystemExit, "value_trust_schedule cannot be combined with explicit --value-trust flags"):
+            build_step_command(step)
+
+    def test_build_step_command_leaves_command_unchanged_when_schedule_is_absent(self):
+        command = [sys.executable, "ml/alphazero_lite/self_play.py", "--games", "100"]
+        step = {
+            "name": "self_play",
+            "command": command,
+        }
+
+        self.assertEqual(command, build_step_command(step))
 
     def render_config_step(
         self,
@@ -646,7 +720,7 @@ class PipelineScriptTest(unittest.TestCase):
         fallback_model = parent_model_dir / "model.npz"
         parent_checkpoint = checkpoint_candidate if checkpoint_candidate.exists() else fallback_model
         return render_command(
-            self.config_steps_by_name(config)[step_name]["command"],
+            build_step_command(self.config_steps_by_name(config)[step_name]),
             iteration=iteration,
             iter_dir=iter_dir,
             run_id=config["run_id"],
@@ -1366,6 +1440,69 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertIn("aggressive-v1-iter2/self_play.jsonl", replay_capture)
             self.assertIn("aggressive-v1-iter1/self_play.jsonl", replay_capture)
 
+    def test_run_appends_nested_value_trust_schedule_to_self_play_command(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "aggressive-v1",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "from pathlib import Path; import json, sys; Path(sys.argv[1]).write_text(json.dumps(sys.argv[2:]), encoding='utf-8')",
+                                    "{iter_dir}/captured_args.json",
+                                ],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "enabled": True,
+                                        "opening": 0.8,
+                                        "midgame": 1.0,
+                                        "late": 1.15,
+                                    }
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            captured_args = json.loads(
+                (out_dir / "aggressive-v1-iter1" / "captured_args.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                [
+                    "--value-trust-enabled",
+                    "--value-trust-opening",
+                    "0.8",
+                    "--value-trust-midgame",
+                    "1.0",
+                    "--value-trust-late",
+                    "1.15",
+                ],
+                captured_args,
+            )
+
     def test_run_renders_fixed_replay_sources_after_dynamic_replay_context(self):
         with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
             tmp_path = Path(tmp)
@@ -1997,6 +2134,386 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertIn("pipeline_dry_run_complete", result.stdout)
             manifest = json.loads((out_dir / "dry-run-missing-inputs-iter1" / "run_manifest.json").read_text(encoding="utf-8"))
             self.assertEqual("planned", manifest["status"])
+
+    def test_pipeline_dry_run_rejects_nested_value_trust_schedule_when_command_has_explicit_flag(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-value-trust-conflict-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-value-trust-conflict",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [
+                                    sys.executable,
+                                    "ml/alphazero_lite/self_play.py",
+                                    "--value-trust-opening",
+                                    "0.6",
+                                ],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "enabled": True,
+                                        "opening": 0.8,
+                                        "midgame": 1.0,
+                                        "late": 1.15,
+                                    }
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("value_trust_schedule cannot be combined with explicit --value-trust flags", result.stderr)
+
+    def test_pipeline_dry_run_rejects_invalid_search_options_shape(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-invalid-search-options-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-invalid-search-options",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": ["not", "a", "dict"],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("self_play step search_options must be an object", result.stderr)
+
+    def test_pipeline_dry_run_rejects_invalid_value_trust_schedule_shape(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-invalid-value-trust-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-invalid-value-trust",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": {
+                                    "value_trust_schedule": ["not", "a", "dict"],
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("self_play step search_options.value_trust_schedule must be an object", result.stderr)
+
+    def test_pipeline_dry_run_rejects_non_boolean_value_trust_enabled(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-invalid-value-trust-enabled-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-invalid-value-trust-enabled",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "enabled": "false",
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("self_play step search_options.value_trust_schedule.enabled must be a boolean", result.stderr)
+
+    def test_pipeline_dry_run_rejects_non_numeric_value_trust_phase_value(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-invalid-value-trust-phase-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-invalid-value-trust-phase",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "opening": "abc",
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(
+                "self_play step search_options.value_trust_schedule.opening must be a finite number",
+                result.stderr,
+            )
+
+    def test_pipeline_dry_run_rejects_non_finite_value_trust_phase_value(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-non-finite-value-trust-phase-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-non-finite-value-trust-phase",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "late": float("inf"),
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(
+                "self_play step search_options.value_trust_schedule.late must be a finite number",
+                result.stderr,
+            )
+
+    def test_pipeline_dry_run_rejects_boolean_value_trust_phase_value(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-bool-value-trust-phase-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-bool-value-trust-phase",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "midgame": True,
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(
+                "self_play step search_options.value_trust_schedule.midgame must be a finite number",
+                result.stderr,
+            )
+
+    def test_pipeline_dry_run_rejects_unknown_value_trust_schedule_key(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-unknown-value-trust-key-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-unknown-value-trust-key",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "surprise": 1.2,
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(
+                "self_play step search_options.value_trust_schedule contains unexpected keys: surprise",
+                result.stderr,
+            )
+
+    def test_pipeline_dry_run_rejects_non_positive_value_trust_schedule_multiplier(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-nonpositive-value-trust-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-nonpositive-value-trust",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(tmp_path / "versions"),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [sys.executable, "ml/alphazero_lite/self_play.py"],
+                                "search_options": {
+                                    "value_trust_schedule": {
+                                        "enabled": True,
+                                        "opening": 0.0,
+                                        "midgame": 1.0,
+                                        "late": 1.15,
+                                    }
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [self.executable_python(), "ml/alphazero_lite/pipeline.py", "--config", str(config_path), "--dry-run"],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(
+                "self_play step search_options.value_trust_schedule.opening must be greater than zero",
+                result.stderr,
+            )
 
     def test_pipeline_manifest_uses_parent_artifact_path_for_first_iteration_parent_version(self):
         with tempfile.TemporaryDirectory(prefix="azlite-pipeline-parent-version-") as tmp:

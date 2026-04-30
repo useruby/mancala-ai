@@ -1,11 +1,24 @@
 import json
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 
 class PerspectiveAuditTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
     def test_audit_passes_for_consistent_rows(self):
         with tempfile.TemporaryDirectory(prefix="azlite-audit-") as tmp:
             tmp_path = Path(tmp)
@@ -39,7 +52,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -73,7 +86,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -124,7 +137,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -169,7 +182,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -218,7 +231,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -255,7 +268,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -301,7 +314,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -346,7 +359,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),
@@ -381,7 +394,7 @@ class PerspectiveAuditTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/perspective_audit.py",
                     "--data",
                     str(data_path),

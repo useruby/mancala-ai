@@ -221,7 +221,10 @@ def evaluate_artifact_position(
     normalized_mode = build_mode_config(ablation_mode)
 
     if normalized_mode["use_classic"]:
-        search = ClassicMCTS(game.clone(), simulations=simulations, seed=seed)
+        classic_kwargs = {}
+        if "value_trust_schedule" in search_options:
+            classic_kwargs["value_trust_schedule"] = search_options["value_trust_schedule"]
+        search = ClassicMCTS(game.clone(), simulations=simulations, seed=seed, **classic_kwargs)
         root = search.search_root()
         visits = np.asarray(visits_from_classic_mcts_root(root), dtype=np.float32)
         legal_moves = game.possible_moves()
@@ -244,7 +247,7 @@ def evaluate_artifact_position(
                 }
             )
 
-        return {
+        result = {
             "selected_move": None if selected_move is None else int(selected_move),
             "legal_moves": [int(move) for move in legal_moves],
             "policy": [float(prior) for prior in policy.tolist()],
@@ -268,6 +271,9 @@ def evaluate_artifact_position(
                 },
             ),
         }
+        if "value_trust_schedule" in search_options and summary.get("value_trust") is not None:
+            result["value_trust"] = summary.get("value_trust")
+        return result
 
     if evaluator is None:
         if artifact_path is None:
@@ -284,6 +290,9 @@ def evaluate_artifact_position(
                 root_value = float(value) if normalized_mode["use_value"] else neutral_value()
             return policy, value
 
+    puct_kwargs = {}
+    if "value_trust_schedule" in search_options:
+        puct_kwargs["value_trust_schedule"] = search_options["value_trust_schedule"]
     search = PUCT(
         evaluator=RootValueEvaluator(),
         simulations=simulations,
@@ -295,6 +304,7 @@ def evaluate_artifact_position(
         root_policy_mode=str(search_options["root_policy_mode"]),
         tactical_root_bias=float(search_options["tactical_root_bias"]),
         ablation_mode=str(normalized_mode["name"]),
+        **puct_kwargs,
     )
     visits, root = search.run(game)
     legal_moves = game.possible_moves()
@@ -304,6 +314,13 @@ def evaluate_artifact_position(
         selected_move = choose_best_move(np.asarray(visits, dtype=np.float32), legal_moves)
     else:
         selected_move = None
+    root_value_trust = None
+    if "value_trust_schedule" in search_options and hasattr(search, "root_summary"):
+        root_summary = search.root_summary()
+        if isinstance(root_summary, dict):
+            candidate_value_trust = root_summary.get("value_trust")
+            if isinstance(candidate_value_trust, dict):
+                root_value_trust = candidate_value_trust
     policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
     child_stats = []
     for move in legal_moves:
@@ -318,7 +335,7 @@ def evaluate_artifact_position(
             }
         )
 
-    return {
+    result = {
         "selected_move": None if selected_move is None else int(selected_move),
         "legal_moves": [int(move) for move in legal_moves],
         "policy": [float(prior) for prior in policy.tolist()],
@@ -326,6 +343,9 @@ def evaluate_artifact_position(
         "child_stats": child_stats,
         "visits": [float(visit) for visit in visits.tolist()],
     }
+    if root_value_trust is not None:
+        result["value_trust"] = root_value_trust
+    return result
 
 
 def percentile(values: list[float], percentile_value: float) -> float:
@@ -440,6 +460,23 @@ def attach_budget_summary(report: dict) -> dict:
     return report
 
 
+def configured_value_trust_summary(search_options: dict) -> dict | None:
+    schedule = search_options.get("value_trust_schedule") if isinstance(search_options, dict) else None
+    if not isinstance(schedule, dict):
+        return None
+    return {
+        "enabled": bool(schedule.get("enabled", False)),
+        "phase_bucket": None,
+        "effective_multiplier": None,
+        "schedule": {
+            "opening": float(schedule.get("opening", 1.0)),
+            "midgame": float(schedule.get("midgame", 1.0)),
+            "late": float(schedule.get("late", 1.0)),
+        },
+        "source": "configured_schedule",
+    }
+
+
 def aggregate_worker_reports(
     *,
     games: int,
@@ -473,6 +510,12 @@ def aggregate_worker_reports(
     )
     emitted_search_profile = results[0]["search_profile"] if results else fallback_search_profile
     emitted_search_profile_hash = results[0]["search_profile_hash"] if results else fallback_search_profile["hash"]
+    emitted_value_trust_summary = next(
+        (result.get("value_trust_summary") for result in results if isinstance(result.get("value_trust_summary"), dict)),
+        None,
+    )
+    if emitted_value_trust_summary is None:
+        emitted_value_trust_summary = configured_value_trust_summary(search_options)
 
     report = {
         "schema": "arena_v1",
@@ -499,6 +542,8 @@ def aggregate_worker_reports(
         "hard_suite_buckets": merge_hard_suite_buckets([result.get("hard_suite_buckets") for result in results]),
     }
     report["opening_cache_summary"] = opening_cache_summary_for(results=results, training_summary=training_summary)
+    if emitted_value_trust_summary is not None:
+        report["value_trust_summary"] = emitted_value_trust_summary
     attach_budget_summary(report)
     report["score"] = score
     return report
@@ -563,6 +608,7 @@ def run_arena_worker(
     normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
+    value_trust_schedule: dict | None = None,
     opening_cache=None,
     opening_cache_path: str | None = None,
 ) -> dict:
@@ -578,6 +624,7 @@ def run_arena_worker(
         normalize_values=normalize_values,
         root_policy_mode=root_policy_mode,
         tactical_root_bias=tactical_root_bias,
+        value_trust_schedule=value_trust_schedule,
     )
     search_profile = build_search_profile(
         kind="arena_eval",
@@ -602,6 +649,7 @@ def run_arena_worker(
     opening_cache_miss_quality_sum = 0.0
     opening_cache_hit_latency_ms: list[float] = []
     opening_cache_miss_latency_ms: list[float] = []
+    value_trust_summary = None
 
     for local_index in range(games):
         game_index = start_index + local_index
@@ -669,6 +717,9 @@ def run_arena_worker(
                         opening_cache_misses += 1
 
             if cached_move is None:
+                puct_kwargs = {}
+                if "value_trust_schedule" in normalized_search_options:
+                    puct_kwargs["value_trust_schedule"] = normalized_search_options["value_trust_schedule"]
                 search = PUCT(
                     evaluator=evaluator,
                     simulations=sims,
@@ -680,6 +731,7 @@ def run_arena_worker(
                     normalize_values=bool(normalized_search_options["normalize_values"]),
                     root_policy_mode=str(normalized_search_options["root_policy_mode"]),
                     tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
+                    **puct_kwargs,
                 )
                 started = time.perf_counter()
                 visits, root = search.run(game)
@@ -692,6 +744,16 @@ def run_arena_worker(
                     opening_cache_miss_latency_ms.append(total_duration_ms)
 
                 if hasattr(search, "select_root_move") and root is not None:
+                    if (
+                        value_trust_summary is None
+                        and "value_trust_schedule" in normalized_search_options
+                        and hasattr(search, "root_summary")
+                    ):
+                        root_summary = search.root_summary()
+                        if isinstance(root_summary, dict):
+                            candidate_value_trust = root_summary.get("value_trust")
+                            if isinstance(candidate_value_trust, dict):
+                                value_trust_summary = candidate_value_trust
                     move = search.select_root_move(root, legal_moves)
                 else:
                     move = choose_best_move(visits, legal_moves)
@@ -734,6 +796,7 @@ def run_arena_worker(
         "search_options": normalized_search_options,
         "search_profile": search_profile,
         "search_profile_hash": search_profile["hash"],
+        "value_trust_summary": value_trust_summary,
     }
 
 
@@ -789,6 +852,19 @@ def main() -> None:
             },
             "hard_suite_buckets": hard_suite_buckets,
         }
+        if "value_trust_schedule" in search_options:
+            report["value_trust_summary"] = {
+                "enabled": bool(search_options["value_trust_schedule"]["enabled"]),
+                "phase_bucket": "opening",
+                "effective_multiplier": float(search_options["value_trust_schedule"]["opening"])
+                if bool(search_options["value_trust_schedule"]["enabled"])
+                else 1.0,
+                "schedule": {
+                    "opening": float(search_options["value_trust_schedule"]["opening"]),
+                    "midgame": float(search_options["value_trust_schedule"]["midgame"]),
+                    "late": float(search_options["value_trust_schedule"]["late"]),
+                },
+            }
         report["opening_cache_summary"] = opening_cache_summary_for(results=[], training_summary=training_summary)
         attach_budget_summary(report)
         out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
@@ -835,6 +911,7 @@ def main() -> None:
                     normalize_values=bool(search_options["normalize_values"]),
                     root_policy_mode=str(search_options["root_policy_mode"]),
                     tactical_root_bias=float(search_options["tactical_root_bias"]),
+                    value_trust_schedule=search_options.get("value_trust_schedule"),
                 )
             )
         results = [future.result() for future in futures]

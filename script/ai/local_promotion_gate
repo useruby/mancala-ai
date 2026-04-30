@@ -132,7 +132,7 @@ def load_search_flag_map(config_path: str | None, *, require_steps: bool = True)
         return {}
 
     config = load_json(resolved_path)
-    required_step_names = (
+    tracked_steps = (
         "arena_confirm_report",
         "mcts1200_baseline_report",
         "current_mcts1200_baseline_report",
@@ -142,7 +142,7 @@ def load_search_flag_map(config_path: str | None, *, require_steps: bool = True)
         for step in config.get("steps", [])
         if isinstance(step, dict) and isinstance(step.get("name"), str)
     }
-    require_evaluation_steps = require_steps and any(step_name in present_step_names for step_name in required_step_names)
+    require_evaluation_steps = require_steps and any(step_name in present_step_names for step_name in tracked_steps)
 
     return {
         "arena": search_flags_for_step(config, "arena_confirm_report", required=require_evaluation_steps),
@@ -180,7 +180,6 @@ def python_executable() -> str:
         candidate = ancestor / ".venv/bin/python"
         if candidate.is_file() and os.access(candidate, os.X_OK):
             return str(candidate)
-
     return sys.executable
 
 

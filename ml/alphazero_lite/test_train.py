@@ -1,6 +1,8 @@
 import json
 import importlib
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,6 +15,17 @@ from ml.alphazero_lite import train as train_module
 
 
 class TrainScriptTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
     def test_argument_parser_accepts_hybrid_value_target_mode(self):
         parser = train_module.build_argument_parser()
 
@@ -68,7 +81,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -102,7 +115,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -136,7 +149,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -260,7 +273,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -294,7 +307,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -362,7 +375,7 @@ class TrainScriptTest(unittest.TestCase):
     ):
         result = subprocess.run(
             [
-                ".venv/bin/python",
+                self.executable_python(),
                 "ml/alphazero_lite/self_play.py",
                 "--out",
                 str(path),
@@ -400,7 +413,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -440,7 +453,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -496,7 +509,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -543,7 +556,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -607,7 +620,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),
@@ -695,7 +708,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data-files",
                     f"{data_path1},{data_path2}",
@@ -735,7 +748,7 @@ class TrainScriptTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/train.py",
                     "--data",
                     str(data_path),

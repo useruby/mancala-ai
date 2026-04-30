@@ -1,5 +1,7 @@
 import json
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,6 +13,17 @@ from ml.alphazero_lite import generate_bootstrap_dataset
 
 
 class GenerateBootstrapDatasetTest(unittest.TestCase):
+    def executable_python(self) -> str:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates = [
+            repo_root / ".venv/bin/python",
+            repo_root.parents[1] / ".venv/bin/python",
+        ]
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return str(candidate)
+        return sys.executable
+
     def test_cli_writes_jsonl_rows(self):
         repo_root = Path(__file__).resolve().parents[2]
 
@@ -19,7 +32,7 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/generate_bootstrap_dataset.py",
                     "--out",
                     str(out_path),
@@ -56,7 +69,7 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/generate_bootstrap_dataset.py",
                     "--out",
                     str(out_path),
@@ -92,7 +105,7 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/generate_bootstrap_dataset.py",
                     "--out",
                     str(out_path),
@@ -152,7 +165,7 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             result = subprocess.run(
                 [
-                    ".venv/bin/python",
+                    self.executable_python(),
                     "ml/alphazero_lite/generate_bootstrap_dataset.py",
                     "--out",
                     str(out_path),
@@ -578,7 +591,7 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
             first_out = Path(tmp) / "bootstrap-first.jsonl"
             second_out = Path(tmp) / "bootstrap-second.jsonl"
             command = [
-                ".venv/bin/python",
+                self.executable_python(),
                 "ml/alphazero_lite/generate_bootstrap_dataset.py",
                 "--out",
                 str(first_out),

@@ -592,6 +592,52 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.assertEqual([], scoped_flags["candidate_mcts"])
             self.assertEqual([], scoped_flags["current_mcts"])
 
+    def test_non_dry_run_allows_phase1_config_without_tracked_evaluation_steps(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            config_path = tmp / "phase1_config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": ["python", "ml/alphazero_lite/self_play.py", "--simulations", "256"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--config-path",
+                str(config_path),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertTrue(report["passed"])
+
     def test_dry_run_plans_threshold_specific_mcts_commands(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
             tmp = Path(tmp)
