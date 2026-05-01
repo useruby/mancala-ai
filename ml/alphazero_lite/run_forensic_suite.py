@@ -10,10 +10,18 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.arena import ArtifactEvaluator, build_eval_search_options, evaluate_artifact_position
-from ml.alphazero_lite.classic_mcts import MCTS
 from ml.alphazero_lite.forensic_suite import centered_value_from_probability, load_suite, summarize_bucket_matrix, summarize_system
-from ml.alphazero_lite.kalah_rules import KalahGame
+
+if os.environ.get("AZLITE_FORENSIC_SUITE_STUB") != "1":
+    from ml.alphazero_lite.arena import ArtifactEvaluator, build_eval_search_options, evaluate_artifact_position
+    from ml.alphazero_lite.classic_mcts import MCTS
+    from ml.alphazero_lite.kalah_rules import KalahGame
+else:
+    ArtifactEvaluator = None
+    build_eval_search_options = lambda: {}  # noqa: E731
+    evaluate_artifact_position = None
+    MCTS = None
+    KalahGame = None
 
 
 DEFAULT_SUITE_PATH = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")

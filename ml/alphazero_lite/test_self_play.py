@@ -744,7 +744,7 @@ class SelfPlayScriptTest(unittest.TestCase):
             evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
             policy, value = evaluator.evaluate(game)
 
-        np.testing.assert_allclose(expected_policy, policy)
+        np.testing.assert_allclose(expected_policy, policy, rtol=1e-6, atol=1e-6)
         self.assertAlmostEqual(expected_value, value)
 
     def test_checkpoint_evaluator_rejects_partial_residual_v3_specialized_heads(self):

@@ -279,7 +279,7 @@ class ForensicSuiteTest(unittest.TestCase):
         )
         return artifact_dir
 
-    def test_summarize_bucket_reports_agreement_regret_and_value_calibration(self):
+    def test_summarize_bucket_reports_agreement_regret_blunder_rate_and_value_calibration(self):
         summary = summarize_bucket(
             [
                 {
@@ -303,6 +303,7 @@ class ForensicSuiteTest(unittest.TestCase):
         self.assertEqual(3, summary["positions"])
         self.assertEqual(0.3333, summary["top1_agreement"])
         self.assertEqual(0.25, summary["average_regret"])
+        self.assertEqual(0.6667, summary["blunder_rate"])
         self.assertEqual(0.2, summary["value_calibration_mae"])
 
     def test_centered_value_from_probability_handles_win_draw_loss_cases(self):
@@ -398,6 +399,7 @@ class ForensicSuiteTest(unittest.TestCase):
                     "positions": 2,
                     "top1_agreement": 0.5,
                     "average_regret": 0.2,
+                    "blunder_rate": 0.5,
                     "value_calibration_mae": 0.2,
                 },
                 report["systems"]["current"]["overall"],
@@ -407,6 +409,7 @@ class ForensicSuiteTest(unittest.TestCase):
                     "positions": 2,
                     "top1_agreement": 0.5,
                     "average_regret": 0.4,
+                    "blunder_rate": 0.5,
                     "value_calibration_mae": 0.5,
                 },
                 report["systems"]["challenger"]["overall"],
@@ -416,6 +419,7 @@ class ForensicSuiteTest(unittest.TestCase):
                     "positions": 1,
                     "top1_agreement": 1.0,
                     "average_regret": 0.0,
+                    "blunder_rate": 0.0,
                     "value_calibration_mae": 0.0,
                 },
                 report["systems"]["current"]["buckets"]["opening_plies_1_8"],
@@ -425,6 +429,7 @@ class ForensicSuiteTest(unittest.TestCase):
                     "positions": 1,
                     "top1_agreement": 0.0,
                     "average_regret": 0.4,
+                    "blunder_rate": 1.0,
                     "value_calibration_mae": 0.4,
                 },
                 report["systems"]["current"]["buckets"]["incumbent_proxy_disagreement"],
@@ -432,6 +437,7 @@ class ForensicSuiteTest(unittest.TestCase):
             self.assertEqual(1, report["buckets"]["opening_plies_1_8"]["positions"])
             self.assertEqual(1.0, report["buckets"]["opening_plies_1_8"]["systems"]["current"]["top1_agreement"])
             self.assertEqual(0.8, report["buckets"]["opening_plies_1_8"]["systems"]["challenger"]["average_regret"])
+            self.assertEqual(1.0, report["buckets"]["opening_plies_1_8"]["systems"]["challenger"]["blunder_rate"])
             self.assertEqual(0.6, report["buckets"]["opening_plies_1_8"]["systems"]["challenger"]["value_calibration_mae"])
             self.assertEqual(2, len(report["systems"]["current"]["rows"]))
 

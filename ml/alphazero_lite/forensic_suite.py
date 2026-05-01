@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -179,11 +180,13 @@ def summarize_bucket(rows: list[dict[str, Any]]) -> dict[str, Any]:
     positions = len(rows)
     top1 = sum(1 for row in rows if bool(row.get("agrees_top1")))
     regrets = [float(row["regret"]) for row in rows if row.get("regret") is not None]
+    blunders = sum(1 for regret in regrets if math.isfinite(regret) and regret > 0.0)
     value_errors = [float(row["value_error"]) for row in rows if row.get("value_error") is not None]
     return {
         "positions": positions,
         "top1_agreement": 0.0 if positions == 0 else _round_metric(top1 / positions),
         "average_regret": 0.0 if not regrets else _round_metric(sum(regrets) / len(regrets)),
+        "blunder_rate": 0.0 if positions == 0 else _round_metric(blunders / positions),
         "value_calibration_mae": None if not value_errors else _round_metric(sum(value_errors) / len(value_errors)),
     }
 

@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -67,6 +68,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stub-candidate-mcts-report", type=Path)
     parser.add_argument("--stub-current-mcts-report", type=Path)
     parser.add_argument("--stub-regression-report", type=Path)
+    parser.add_argument("--stub-forensic-report", type=Path)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
 
@@ -79,6 +81,23 @@ def build_evaluation(*, evaluation_id: str, subject: str, opponent: str, games: 
         "games": games,
         "mode": mode,
         "report_path": str(report_dir / f"{evaluation_id}.json"),
+    }
+
+
+def forensic_evaluation(report_dir: Path, *, candidate_path: Path, current_path: str) -> dict:
+    return {
+        "id": "candidate_forensic_suite",
+        "report_path": str(report_dir / "candidate_forensic_suite.json"),
+        "command": [
+            python_executable(),
+            "ml/alphazero_lite/run_forensic_suite.py",
+            "--suite", "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+            "--current-artifact", str(current_path),
+            "--challenger-artifact", str(candidate_path),
+            "--mcts-simulations", "1200",
+            "--teacher-simulations", "1800",
+            "--out", str(report_dir / "candidate_forensic_suite.json"),
+        ],
     }
 
 
@@ -345,6 +364,204 @@ def hard_suite_bucket_breakdown(hard_report: dict | None) -> dict:
     return {}
 
 
+CRITICAL_FORENSIC_BUCKETS = (
+    "sparse_endgame",
+    "capture_available",
+)
+
+FORENSIC_METRICS = (
+    "top1_agreement",
+    "average_regret",
+    "blunder_rate",
+)
+
+FORENSIC_THRESHOLDS = {
+    "overall": {
+        "top1_agreement": -0.02,
+        "average_regret": 0.02,
+        "blunder_rate": 0.01,
+    },
+    "critical_buckets": {
+        "sparse_endgame": {
+            "top1_agreement": -0.03,
+            "average_regret": 0.03,
+            "blunder_rate": 0.02,
+        },
+        "capture_available": {
+            "top1_agreement": -0.03,
+            "average_regret": 0.03,
+            "blunder_rate": 0.02,
+        },
+    },
+}
+
+
+def numeric_metric(payload: dict, key: str, *, context: str) -> float:
+    if not isinstance(payload, dict):
+        raise SystemExit(f"malformed forensic payload for {context}: expected object")
+
+    value = payload.get(key)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise SystemExit(f"malformed forensic metric {context}.{key}: expected numeric value")
+
+    if not math.isfinite(float(value)):
+        raise SystemExit(f"malformed forensic metric {context}.{key}: non-finite numeric value")
+
+    numeric_value = float(value)
+
+    if key in ("top1_agreement", "blunder_rate") and not 0.0 <= numeric_value <= 1.0:
+        raise SystemExit(f"malformed forensic metric {context}.{key}: expected value between 0.0 and 1.0")
+
+    if key == "average_regret" and numeric_value < 0.0:
+        raise SystemExit(f"malformed forensic metric {context}.{key}: expected value greater than or equal to 0.0")
+
+    return numeric_value
+
+
+def forensic_metric_block(payload: dict, *, context: str) -> dict[str, float]:
+    if not isinstance(payload, dict):
+        raise SystemExit(f"malformed forensic metric block for {context}: expected object")
+
+    return {
+        metric_name: numeric_metric(payload, metric_name, context=context)
+        for metric_name in FORENSIC_METRICS
+    }
+
+
+def forensic_system_overall(report: dict, system_name: str) -> dict[str, float]:
+    if not isinstance(report, dict):
+        raise SystemExit("malformed forensic report: expected object")
+
+    systems = report.get("systems")
+    if not isinstance(systems, dict):
+        raise SystemExit("malformed forensic report: missing systems block")
+
+    system_payload = systems.get(system_name)
+    if not isinstance(system_payload, dict):
+        raise SystemExit(f"malformed forensic report: missing systems.{system_name} block")
+
+    overall = system_payload.get("overall")
+    if not isinstance(overall, dict):
+        raise SystemExit(f"malformed forensic report: missing systems.{system_name}.overall block")
+
+    return forensic_metric_block(overall, context=f"systems.{system_name}.overall")
+
+
+def forensic_bucket_metrics(report: dict, bucket_name: str, system_name: str) -> dict[str, float]:
+    if not isinstance(report, dict):
+        raise SystemExit("malformed forensic report: expected object")
+
+    buckets = report.get("buckets")
+    if not isinstance(buckets, dict):
+        raise SystemExit("malformed forensic report: missing buckets block")
+
+    bucket_payload = buckets.get(bucket_name)
+    if not isinstance(bucket_payload, dict):
+        raise SystemExit(f"missing required forensic bucket: {bucket_name}")
+
+    systems = bucket_payload.get("systems")
+    if not isinstance(systems, dict):
+        raise SystemExit(f"malformed forensic bucket {bucket_name}: missing systems block")
+
+    system_payload = systems.get(system_name)
+    if not isinstance(system_payload, dict):
+        raise SystemExit(f"malformed forensic bucket {bucket_name}: missing systems.{system_name} block")
+
+    return forensic_metric_block(system_payload, context=f"buckets.{bucket_name}.systems.{system_name}")
+
+
+def forensic_quality_summary(report: dict) -> dict:
+    if not isinstance(report, dict):
+        raise SystemExit("malformed forensic report: expected object")
+
+    if report.get("schema") != "azlite_forensic_suite_v1":
+        raise SystemExit("malformed forensic report: expected schema azlite_forensic_suite_v1")
+
+    return {
+        "overall": {
+            "current": forensic_system_overall(report, "current"),
+            "challenger": forensic_system_overall(report, "challenger"),
+        },
+        "critical_buckets": {
+            bucket_name: {
+                "current": forensic_bucket_metrics(report, bucket_name, "current"),
+                "challenger": forensic_bucket_metrics(report, bucket_name, "challenger"),
+            }
+            for bucket_name in CRITICAL_FORENSIC_BUCKETS
+        },
+    }
+
+
+def raw_metric_delta(*, challenger: float, current: float) -> float:
+    return challenger - current
+
+
+def evaluate_forensic_quality(report: dict) -> dict:
+    summary = forensic_quality_summary(report)
+    failure_reasons = []
+
+    def evaluate_metric(metric_name: str, challenger: float, current: float, threshold: float) -> dict:
+        raw_delta = raw_metric_delta(challenger=challenger, current=current)
+        delta = round(raw_delta, 4)
+        if metric_name == "top1_agreement":
+            passed = raw_delta >= threshold
+        else:
+            passed = raw_delta <= threshold
+
+        return {
+            "challenger": challenger,
+            "current": current,
+            "delta": delta,
+            "threshold": threshold,
+            "passed": passed,
+        }
+
+    overall_metrics = {}
+    overall_passed = True
+    for metric_name, threshold in FORENSIC_THRESHOLDS["overall"].items():
+        metric_report = evaluate_metric(
+            metric_name,
+            summary["overall"]["challenger"][metric_name],
+            summary["overall"]["current"][metric_name],
+            threshold,
+        )
+        overall_metrics[metric_name] = metric_report
+        overall_passed = overall_passed and metric_report["passed"]
+    if not overall_passed:
+        failure_reasons.append({"code": "forensic_overall_regressed"})
+
+    bucket_reports = {}
+    for bucket_name, thresholds in FORENSIC_THRESHOLDS["critical_buckets"].items():
+        bucket_metrics = {}
+        bucket_passed = True
+        for metric_name, threshold in thresholds.items():
+            metric_report = evaluate_metric(
+                metric_name,
+                summary["critical_buckets"][bucket_name]["challenger"][metric_name],
+                summary["critical_buckets"][bucket_name]["current"][metric_name],
+                threshold,
+            )
+            bucket_metrics[metric_name] = metric_report
+            bucket_passed = bucket_passed and metric_report["passed"]
+
+        bucket_reports[bucket_name] = {
+            **bucket_metrics,
+            "passed": bucket_passed,
+        }
+        if not bucket_passed:
+            failure_reasons.append({"code": f"forensic_bucket_{bucket_name}_regressed"})
+
+    return {
+        "passed": not failure_reasons,
+        "overall": {
+            **overall_metrics,
+            "passed": overall_passed,
+        },
+        "critical_buckets": bucket_reports,
+        "failure_reasons": failure_reasons,
+    }
+
+
 def build_endgame_exact_solve_section(*, status: str, results_source: str, results: list[dict]) -> dict:
     return {
         "status": status,
@@ -452,6 +669,7 @@ def build_decision_report(
     candidate_mcts_report: dict,
     current_mcts_report: dict,
     regression_report: dict,
+    forensic_report: dict | None,
     arena_report_path: Path,
     hard_report_path: Path | None,
     candidate_mcts_report_path: Path,
@@ -488,6 +706,10 @@ def build_decision_report(
         failure_reasons.append({"code": "candidate_mcts_below_current"})
     if not regression_report.get("passed", False):
         failure_reasons.append({"code": "regression_check_failed"})
+
+    forensic_quality = evaluate_forensic_quality(forensic_report) if forensic_report is not None else None
+    if forensic_quality is not None and not forensic_quality["passed"]:
+        failure_reasons.extend(forensic_quality["failure_reasons"])
 
     notes = arena_report.get("notes", {}) if isinstance(arena_report.get("notes", {}), dict) else {}
     move_time_mean_ms = notes.get("move_time_mean_ms", arena_report.get("move_time_mean_ms"))
@@ -527,6 +749,7 @@ def build_decision_report(
             "current_mcts_score": computed_current_mcts_score,
             "dynamic_budget": dynamic_budget_summary(candidate_mcts_report, current_mcts_report, arena_report),
             "hard_suite_buckets": hard_suite_bucket_breakdown(hard_report),
+            "forensic_quality": forensic_quality,
             "lossless_passed": arena_losses <= args.max_losses,
             "passed": not failure_reasons,
             "failure_reasons": failure_reasons,
@@ -565,6 +788,7 @@ def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
         if args.stub_regression_report is not None
         else default_regression_report(args.regression_positions_path)
     )
+    forensic_report = load_json(args.stub_forensic_report) if args.stub_forensic_report is not None else None
     regression_report_path = args.stub_regression_report or Path(report["regression_report_path"])
     return build_decision_report(
         args,
@@ -574,6 +798,7 @@ def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
         candidate_mcts_report=load_json(args.stub_candidate_mcts_report),
         current_mcts_report=load_json(args.stub_current_mcts_report),
         regression_report=regression_report,
+        forensic_report=forensic_report,
         arena_report_path=args.stub_arena_report,
         hard_report_path=args.stub_hard_report,
         candidate_mcts_report_path=args.stub_candidate_mcts_report,
@@ -638,6 +863,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     candidate_mcts_report_path = Path(evaluations["candidate_vs_mcts1200"]["report_path"])
     current_mcts_report_path = Path(evaluations["current_vs_mcts1200"]["report_path"])
     hard_report_path = Path(evaluations["candidate_vs_hard_arena"]["report_path"]) if "candidate_vs_hard_arena" in evaluations else None
+    forensic_report_path = Path(evaluations["candidate_forensic_suite"]["report_path"])
     regression_report_path = Path(report["regression_report_path"])
     search_flag_map = load_search_flag_map(args.config_path)
 
@@ -702,6 +928,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             str(current_mcts_report_path),
         ]
     )
+    run_command(evaluations["candidate_forensic_suite"]["command"])
     regression_report = run_regression_check(
         [
             "script/ai/check_superhuman_regressions",
@@ -749,6 +976,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         candidate_mcts_report=load_json(candidate_mcts_report_path),
         current_mcts_report=load_json(current_mcts_report_path),
         regression_report=regression_report,
+        forensic_report=load_json(forensic_report_path),
         arena_report_path=arena_report_path,
         hard_report_path=hard_report_path,
         candidate_mcts_report_path=candidate_mcts_report_path,
@@ -766,13 +994,23 @@ def main() -> int:
     if not args.dry_run and args.config_path:
         load_search_flag_map(args.config_path)
 
-    non_hard_stub_paths = (
+    required_stub_paths = (
         args.stub_arena_report,
         args.stub_candidate_mcts_report,
         args.stub_current_mcts_report,
+        args.stub_forensic_report,
     )
-    if any(path is not None for path in non_hard_stub_paths) and not all(path is not None for path in non_hard_stub_paths):
-        raise SystemExit("provide all stub report paths or none")
+    all_stub_paths = (
+        args.stub_arena_report,
+        args.stub_candidate_mcts_report,
+        args.stub_current_mcts_report,
+        args.stub_regression_report,
+        args.stub_forensic_report,
+    )
+    if args.stub_forensic_report is not None and not all(path is not None for path in required_stub_paths[:-1]):
+        raise SystemExit("--stub-forensic-report requires full stub bundle")
+    if any(path is not None for path in all_stub_paths) and not all(path is not None for path in required_stub_paths):
+        raise SystemExit("provide arena, candidate/current mcts, and forensic stub report paths together or none")
     if args.stub_hard_report is not None and args.hard_path is None:
         raise SystemExit("--stub-hard-report requires --hard-path")
 
@@ -821,6 +1059,8 @@ def main() -> int:
             ),
         ]
     )
+    evaluations.append(forensic_evaluation(args.out.parent, candidate_path=args.candidate_path, current_path=current_path))
+    evaluations[-1]["mode"] = mode
 
     report = {
         "schema": "azlite_local_promotion_gate_v1",
@@ -830,7 +1070,8 @@ def main() -> int:
         "hard_path": args.hard_path,
         "regression_positions_path": args.regression_positions_path,
         "report_path": str(args.out),
-        "regression_report_path": str(args.stub_regression_report) if args.stub_regression_report is not None else str(args.out.parent / "candidate_regression_suite.json"),
+        "regression_report_path": str(args.out.parent / "candidate_regression_suite.json"),
+        "forensic_report_path": str(args.out.parent / "candidate_forensic_suite.json"),
         "arena_games": args.arena_games,
         "mcts_games": args.mcts_games,
         "hard_arena_games": args.hard_arena_games,
@@ -859,9 +1100,12 @@ def main() -> int:
         search_flag_map=search_flag_map,
     )
 
-    stub_reports_provided = all(path is not None for path in non_hard_stub_paths)
+    stub_reports_provided = all(path is not None for path in required_stub_paths)
 
     if stub_reports_provided:
+        if args.stub_regression_report is not None:
+            report["regression_report_path"] = str(args.stub_regression_report)
+        report["forensic_report_path"] = str(args.stub_forensic_report)
         report = build_stub_decision_report(args, report)
     elif not args.dry_run:
         report = build_real_decision_report(args, report)

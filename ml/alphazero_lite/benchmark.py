@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import importlib.machinery
+import importlib.util
 import json
 import sys
 from pathlib import Path
@@ -28,6 +30,20 @@ def opening_cache_summary_fields(summary: dict | None) -> dict | None:
         "opening_bucket_quality_delta": summary.get("opening_bucket_quality_delta"),
         "latency_delta_ms": summary.get("latency_delta_ms"),
     }
+
+def load_local_promotion_gate_module():
+    script_path = Path(__file__).resolve().parents[2] / "script/ai/local_promotion_gate"
+    spec = importlib.util.spec_from_file_location(
+        "local_promotion_gate",
+        script_path,
+        loader=importlib.machinery.SourceFileLoader("local_promotion_gate", str(script_path)),
+    )
+    if spec is None or spec.loader is None:
+        raise SystemExit(f"unable to load local promotion gate helper: {script_path}")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def mcts_integer_field(report: dict, key: str, report_name: str) -> int:
@@ -119,6 +135,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--min-confidence-lower-bound", type=float, default=None)
     parser.add_argument("--mcts-report", default=None)
     parser.add_argument("--current-baseline-mcts-report", default=None)
+    parser.add_argument("--forensic-report", default=None)
     parser.add_argument("--min-mcts-score", type=float, default=0.45)
     parser.add_argument("--dry-run", action="store_true")
     add_search_option_args(parser)
@@ -427,6 +444,7 @@ def build_report(args: argparse.Namespace) -> dict:
     arena = None
     value_trust_summary = None
     value_trust_recommendation = None
+    forensic_quality = None
     if args.mode == "promotion":
         checks = promotion_checks(args)
         if not args.dry_run and args.arena_report:
@@ -458,6 +476,20 @@ def build_report(args: argparse.Namespace) -> dict:
                 should_validate_dynamic_budget = candidate_comparison_mode is not None or candidate_dynamic_budget_enabled
                 if should_validate_dynamic_budget:
                     dynamic_budget = dynamic_budget_comparison(mcts, baseline_mcts, strict=True)
+        if not args.dry_run and args.forensic_report:
+            forensic_path = Path(args.forensic_report)
+            if not forensic_path.exists():
+                raise SystemExit(f"forensic report not found: {forensic_path}")
+
+            forensic_report = json.loads(forensic_path.read_text(encoding="utf-8"))
+            forensic_quality = load_local_promotion_gate_module().evaluate_forensic_quality(forensic_report)
+            checks.append(
+                {
+                    "id": "forensic_quality_gate",
+                    "description": "Candidate forensic quality gate",
+                    "passed": bool(forensic_quality.get("passed", False)),
+                }
+            )
 
     report = {
         "schema": "azlite_benchmark_v1",
@@ -469,6 +501,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "arena_report": args.arena_report,
         "mcts_report": args.mcts_report,
         "current_baseline_mcts_report": args.current_baseline_mcts_report,
+        "forensic_report": args.forensic_report,
         "min_score": float(args.min_score),
         "min_confidence_lower_bound": args.min_confidence_lower_bound,
         "min_mcts_score": float(args.min_mcts_score),
@@ -478,6 +511,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "classic_mcts_dynamic_budget_config": classic_mcts_dynamic_budget_config,
         "dynamic_budget_comparison": dynamic_budget,
         "opening_cache_summary": opening_cache_summary,
+        "forensic_quality": forensic_quality,
         "checks": checks,
     }
     if value_trust_summary is not None:

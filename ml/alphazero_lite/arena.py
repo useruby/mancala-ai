@@ -13,10 +13,187 @@ import sys
 import time
 from pathlib import Path
 
-import numpy as np
-
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
+
+
+EARLY_DEFAULT_SEARCH_OPTIONS = {
+    "fpu_mode": "zero",
+    "reuse_subtree": False,
+    "normalize_values": False,
+    "root_policy_mode": "visit_count",
+    "tactical_root_bias": 0.0,
+}
+EARLY_DEFAULT_EVAL_SEARCH_OPTIONS = {
+    **EARLY_DEFAULT_SEARCH_OPTIONS,
+    "root_policy_mode": "deterministic",
+    "tactical_root_bias": 0.1,
+}
+EARLY_SUPPORTED_ROOT_POLICY_MODES = ("deterministic", "visit_count")
+
+
+def add_early_search_option_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--fpu-mode", default=EARLY_DEFAULT_SEARCH_OPTIONS["fpu_mode"])
+    parser.add_argument("--reuse-subtree", action="store_true")
+    parser.add_argument("--normalize-values", action="store_true")
+    parser.add_argument(
+        "--root-policy-mode",
+        choices=EARLY_SUPPORTED_ROOT_POLICY_MODES,
+        default=EARLY_DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
+    )
+    parser.add_argument("--tactical-root-bias", type=float, default=EARLY_DEFAULT_SEARCH_OPTIONS["tactical_root_bias"])
+    parser.add_argument("--value-trust-enabled", action="store_true")
+    parser.add_argument("--value-trust-opening", type=float, default=1.0)
+    parser.add_argument("--value-trust-midgame", type=float, default=1.0)
+    parser.add_argument("--value-trust-late", type=float, default=1.0)
+
+
+def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--challenger", required=True)
+    parser.add_argument("--current", required=True)
+    parser.add_argument("--games", type=int, default=60)
+    parser.add_argument("--challenger-simulations", type=int, default=384)
+    parser.add_argument("--current-simulations", type=int, default=256)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--c-puct", type=float, default=1.25)
+    parser.add_argument("--min-score", type=float, default=0.55)
+    parser.add_argument("--max-moves", type=int, default=200)
+    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--opening-cache", default=None)
+    parser.add_argument("--opening-cache-training-summary", default=None)
+    parser.add_argument("--out", required=True)
+    add_early_search_option_args(parser)
+    parser.set_defaults(
+        root_policy_mode=EARLY_DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
+        tactical_root_bias=EARLY_DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
+    )
+    return parser.parse_args(argv)
+
+
+def search_options_from_stub_args(args: argparse.Namespace) -> dict[str, str | bool | float]:
+    search_options: dict[str, str | bool | float | dict[str, float | bool]] = {
+        "fpu_mode": args.fpu_mode,
+        "reuse_subtree": bool(args.reuse_subtree),
+        "normalize_values": bool(args.normalize_values),
+        "root_policy_mode": args.root_policy_mode,
+        "tactical_root_bias": float(args.tactical_root_bias),
+    }
+    if bool(args.value_trust_enabled):
+        search_options["value_trust_schedule"] = {
+            "enabled": True,
+            "opening": float(args.value_trust_opening),
+            "midgame": float(args.value_trust_midgame),
+            "late": float(args.value_trust_late),
+        }
+    return search_options
+
+
+def load_stub_training_summary(path: str | None) -> dict | None:
+    if not path:
+        return None
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def stub_opening_cache_summary(training_summary: dict | None) -> dict:
+    upstream = training_summary if isinstance(training_summary, dict) else {}
+    return {
+        "runtime_hit_rate": None,
+        "training_hit_rate": upstream.get("training_hit_rate"),
+        "opening_bucket_quality_delta": None,
+        "latency_delta_ms": None,
+    }
+
+
+def stub_value_trust_summary(search_options: dict[str, str | bool | float | dict[str, float | bool]]) -> dict | None:
+    schedule = search_options.get("value_trust_schedule")
+    if not isinstance(schedule, dict):
+        return None
+    return {
+        "enabled": bool(schedule["enabled"]),
+        "phase_bucket": "opening",
+        "effective_multiplier": float(schedule["opening"]),
+        "schedule": {
+            "opening": float(schedule["opening"]),
+            "midgame": float(schedule["midgame"]),
+            "late": float(schedule["late"]),
+        },
+    }
+
+
+def build_stub_search_profile(args: argparse.Namespace, search_options: dict[str, str | bool | float]) -> dict:
+    return {
+        "kind": "arena_eval",
+        "player_mode": "puct",
+        "simulations": max(int(args.challenger_simulations), int(args.current_simulations)),
+        "c_puct": float(args.c_puct),
+        "search_options": search_options,
+        "challenger_simulations": int(args.challenger_simulations),
+        "current_simulations": int(args.current_simulations),
+        "hash": "arena-stub-profile",
+    }
+
+
+def run_stub_main(argv: list[str] | None = None) -> int:
+    args = parse_stub_args(argv)
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    search_options = search_options_from_stub_args(args)
+    search_profile = build_stub_search_profile(args, search_options)
+    training_summary = load_stub_training_summary(args.opening_cache_training_summary)
+    wins = int(args.games * 0.6)
+    losses = 0
+    draws = int(args.games) - wins
+    score = (wins + (0.5 * draws)) / int(args.games)
+    report = {
+        "schema": "arena_v1",
+        "games_played": int(args.games),
+        "wins": wins,
+        "losses": losses,
+        "draws": draws,
+        "score": score,
+        "promotion_decision": {"passed": bool(score >= float(args.min_score))},
+        "notes": {
+            "challenger_path": str(Path(args.challenger)),
+            "current_path": str(Path(args.current)),
+            "challenger_simulations": int(args.challenger_simulations),
+            "current_simulations": int(args.current_simulations),
+            "seed": int(args.seed),
+            "workers_requested": 1,
+            "workers_used": 1,
+            "worker_game_counts": [int(args.games)],
+            "search_options": search_options,
+            "search_profile": search_profile,
+            "search_profile_hash": search_profile["hash"],
+            "move_time_mean_ms": 120.0,
+            "move_time_p95_ms": 160.0,
+        },
+        "budget_summary": {
+            "mean_final_simulations": float(max(int(args.challenger_simulations), int(args.current_simulations))),
+            "p95_root_latency_ms": 160.0,
+            "trigger_counts": {"fixed_budget": int(args.games)},
+        },
+        "hard_suite_buckets": {
+            "opening": {"games": wins, "score": 1.0 if wins > 0 else None},
+            "midgame": {"games": 0, "score": None},
+            "late": {"games": draws, "score": 0.5 if draws > 0 else None},
+        },
+        "opening_cache_summary": stub_opening_cache_summary(training_summary),
+    }
+    value_trust_summary = stub_value_trust_summary(search_options)
+    if value_trust_summary is not None:
+        report["value_trust_summary"] = value_trust_summary
+    out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(f"wrote arena report to {out_path}")
+    print(f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}")
+    return 0
+
+
+if __name__ == "__main__" and os.environ.get("AZLITE_ARENA_STUB") == "1":
+    raise SystemExit(run_stub_main())
+
+
+import numpy as np
 
 from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
 from ml.alphazero_lite.kalah_rules import KalahGame

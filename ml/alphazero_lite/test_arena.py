@@ -2382,6 +2382,44 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertIn("opening_cache_summary", report)
             self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
 
+    def test_stub_cli_runs_without_numpy_on_plain_python(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-stub-") as tmp:
+            tmp_path = Path(tmp)
+            challenger_dir = tmp_path / "challenger"
+            current_dir = tmp_path / "current"
+            out_path = tmp_path / "arena_report.json"
+            challenger_dir.mkdir()
+            current_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "python3",
+                    "ml/alphazero_lite/arena.py",
+                    "--challenger",
+                    str(challenger_dir),
+                    "--current",
+                    str(current_dir),
+                    "--games",
+                    "5",
+                    "--challenger-simulations",
+                    "16",
+                    "--current-simulations",
+                    "16",
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env={**os.environ, "AZLITE_ARENA_STUB": "1"},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual("arena_v1", report["schema"])
+            self.assertTrue(report["promotion_decision"]["passed"])
+
 
 if __name__ == "__main__":
     unittest.main()

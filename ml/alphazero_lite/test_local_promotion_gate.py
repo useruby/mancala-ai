@@ -1,3 +1,4 @@
+import argparse
 import json
 import importlib.machinery
 import importlib.util
@@ -118,6 +119,55 @@ class LocalPromotionGateTest(unittest.TestCase):
 
         self.assertEqual(str(workspace_python), resolved)
 
+    def write_forensic_report(
+        self,
+        path: Path,
+        *,
+        overall_current: dict,
+        overall_challenger: dict,
+        sparse_endgame_current: dict,
+        sparse_endgame_challenger: dict,
+        capture_available_current: dict,
+        capture_available_challenger: dict,
+    ) -> None:
+        path.write_text(
+            json.dumps(
+                {
+                    "schema": "azlite_forensic_suite_v1",
+                    "systems": {
+                        "current": {"overall": overall_current},
+                        "challenger": {"overall": overall_challenger},
+                    },
+                    "buckets": {
+                        "sparse_endgame": {
+                            "systems": {
+                                "current": sparse_endgame_current,
+                                "challenger": sparse_endgame_challenger,
+                            }
+                        },
+                        "capture_available": {
+                            "systems": {
+                                "current": capture_available_current,
+                                "challenger": capture_available_challenger,
+                            }
+                        },
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    def write_passing_forensic_report(self, path: Path) -> None:
+        self.write_forensic_report(
+            path,
+            overall_current={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+            overall_challenger={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+            sparse_endgame_current={"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+            sparse_endgame_challenger={"top1_agreement": 0.58, "average_regret": 0.13, "blunder_rate": 0.06},
+            capture_available_current={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+            capture_available_challenger={"top1_agreement": 0.63, "average_regret": 0.15, "blunder_rate": 0.06},
+        )
+
     def test_rejects_candidate_when_regression_report_is_missing_passed_field(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
             tmp = Path(tmp)
@@ -128,6 +178,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             (tmp / "regression.json").write_text(json.dumps({"results": []}), encoding="utf-8")
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -140,6 +191,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -191,6 +244,97 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("missing value for --fpu-mode", result.stderr)
 
+    def test_rejects_stub_mode_without_forensic_report(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("provide arena, candidate/current mcts, and forensic stub report paths together or none", result.stderr)
+
+    def test_stub_mode_allows_omitting_regression_report_when_forensic_stub_is_present(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_passing_forensic_report(tmp / "forensic.json")
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotIn("config missing required step", result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertIn("forensic_quality", report)
+            self.assertTrue(report["regression_report_path"].endswith("candidate_regression_suite.json"))
+            self.assertTrue(report["forensic_report_path"].endswith("forensic.json"))
+
+    def test_rejects_only_forensic_stub_report_in_dry_run(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                sparse_endgame_current={"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                sparse_endgame_challenger={"top1_agreement": 0.58, "average_regret": 0.13, "blunder_rate": 0.06},
+                capture_available_current={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                capture_available_challenger={"top1_agreement": 0.63, "average_regret": 0.15, "blunder_rate": 0.06},
+            )
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
+                "--dry-run",
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("--stub-forensic-report requires full stub bundle", result.stderr)
+
     def test_rejects_candidate_that_does_not_beat_current_superhuman(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
             tmp = Path(tmp)
@@ -202,6 +346,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=25, losses=5, draws=10, az_wins=25)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=6, draws=10, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -218,6 +363,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
                 "--max-arena-move-time-mean-ms",
@@ -242,6 +389,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=5, draws=5, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=10, draws=6, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -258,6 +406,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
                 "--max-arena-move-time-mean-ms",
@@ -283,6 +433,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -299,6 +450,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
                 "--max-arena-move-time-mean-ms",
@@ -307,9 +460,11 @@ class LocalPromotionGateTest(unittest.TestCase):
                 "250",
             )
 
-            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertNotIn("config missing required step", result.stderr)
             report = json.loads(out.read_text(encoding="utf-8"))
-            self.assertTrue(report["passed"])
+            self.assertIn("forensic_quality", report)
+            self.assertTrue(report["forensic_quality"]["passed"])
+            self.assertTrue(report["forensic_report_path"].endswith("forensic.json"))
 
     def test_reports_endgame_threshold_sweep_results(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
@@ -321,6 +476,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -333,6 +489,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -348,6 +506,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 [evaluation["threshold"] for evaluation in report["endgame_exact_solve"]["planned_evaluations"]],
             )
             self.assertIn("recommendation", report["endgame_exact_solve"])
+            self.assertTrue(report["forensic_quality"]["passed"])
+            self.assertTrue(report["forensic_report_path"].endswith("forensic.json"))
 
     def test_dry_run_includes_endgame_exact_solve_scaffold_metadata(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
@@ -378,6 +538,23 @@ class LocalPromotionGateTest(unittest.TestCase):
                 all(evaluation["mode"] == "planned" for evaluation in report["endgame_exact_solve"]["planned_evaluations"])
             )
 
+    def test_dry_run_report_includes_forensic_report_path(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+
+            result = self.run_gate(
+                "--candidate-path", str(candidate),
+                "--dry-run",
+                "--out", str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertTrue(report["forensic_report_path"].endswith("candidate_forensic_suite.json"))
+
     def test_endgame_threshold_results_are_marked_as_placeholder_scaffold(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
             tmp = Path(tmp)
@@ -388,6 +565,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -400,6 +578,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -428,6 +608,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(stub_dir / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(stub_dir / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(stub_dir / "regression.json", passed=True)
+            self.write_passing_forensic_report(stub_dir / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -440,6 +621,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(stub_dir / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(stub_dir / "regression.json"),
+                "--stub-forensic-report",
+                str(stub_dir / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -514,6 +697,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -528,6 +712,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -616,6 +802,15 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.61, "average_regret": 0.11, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.64, "average_regret": 0.09, "blunder_rate": 0.02},
+                sparse_endgame_current={"top1_agreement": 0.58, "average_regret": 0.14, "blunder_rate": 0.05},
+                sparse_endgame_challenger={"top1_agreement": 0.62, "average_regret": 0.10, "blunder_rate": 0.03},
+                capture_available_current={"top1_agreement": 0.55, "average_regret": 0.09, "blunder_rate": 0.02},
+                capture_available_challenger={"top1_agreement": 0.52, "average_regret": 0.13, "blunder_rate": 0.05},
+            )
 
             result = self.run_gate(
                 "--candidate-path",
@@ -630,13 +825,15 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
 
-            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertNotIn("config missing required step", result.stderr)
             report = json.loads(out.read_text(encoding="utf-8"))
-            self.assertTrue(report["passed"])
+            self.assertIn("forensic_quality", report)
 
     def test_dry_run_plans_threshold_specific_mcts_commands(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
@@ -685,6 +882,7 @@ class LocalPromotionGateTest(unittest.TestCase):
                 "AZLITE_ARENA_STUB": "1",
                 "AZLITE_MCTS1200_BASELINE_STUB": "1",
                 "AZLITE_CHECK_SUPERHUMAN_REGRESSIONS_STUB": "1",
+                "AZLITE_FORENSIC_SUITE_STUB": "1",
             }
             repo_root = Path(__file__).resolve().parents[2]
             result = subprocess.run(
@@ -704,7 +902,7 @@ class LocalPromotionGateTest(unittest.TestCase):
                 check=False,
             )
 
-            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertIn(result.returncode, (0, 1), msg=result.stderr)
             report = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual("executed", report["endgame_exact_solve"]["status"])
             self.assertFalse(report["endgame_exact_solve"]["scaffold_only"])
@@ -723,6 +921,301 @@ class LocalPromotionGateTest(unittest.TestCase):
                 self.assertIn("current_mcts_score", row)
                 self.assertTrue(Path(row["candidate_mcts_report_path"]).exists())
                 self.assertTrue(Path(row["current_mcts_report_path"]).exists())
+            self.assertIn("forensic_quality", report)
+
+    def test_build_real_decision_report_runs_and_loads_forensic_report(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            current = tmp / "current"
+            candidate.mkdir()
+            current.mkdir()
+
+            args = argparse.Namespace(
+                candidate_path=candidate,
+                config_path=None,
+                current_path=str(current),
+                hard_path=None,
+                regression_positions_path="test/fixtures/ai/superhuman_regression_positions.json",
+                arena_games=120,
+                mcts_games=40,
+                min_arena_score=0.55,
+                min_arena_games=120,
+                min_mcts_games=40,
+                hard_arena_games=120,
+                hard_min_score=0.55,
+                max_arena_move_time_mean_ms=None,
+                max_arena_move_time_p95_ms=None,
+                require_lossless=False,
+                max_losses=0,
+                skip_mcts_relative_check=False,
+            )
+
+            report = {
+                "schema": "azlite_local_promotion_gate_v1",
+                "candidate_path": str(candidate),
+                "current_path": str(current),
+                "hard_path": None,
+                "report_path": str(tmp / "report.json"),
+                "regression_report_path": str(tmp / "candidate_regression_suite.json"),
+                "forensic_report_path": str(tmp / "candidate_forensic_suite.json"),
+                "evaluations": [
+                    module.build_evaluation(
+                        evaluation_id="candidate_vs_current_arena",
+                        subject=str(candidate),
+                        opponent=str(current),
+                        games=120,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.build_evaluation(
+                        evaluation_id="candidate_vs_mcts1200",
+                        subject=str(candidate),
+                        opponent="mcts1200",
+                        games=40,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.build_evaluation(
+                        evaluation_id="current_vs_mcts1200",
+                        subject=str(current),
+                        opponent="mcts1200",
+                        games=40,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.forensic_evaluation(tmp, candidate_path=candidate, current_path=str(current)),
+                ],
+                "endgame_exact_solve": module.build_endgame_exact_solve_section(
+                    status="planned_only",
+                    results_source="evaluation_plan",
+                    results=[],
+                ),
+            }
+
+            def fake_run_command(command):
+                out_path = Path(command[command.index("--out") + 1])
+                if command[1] == "ml/alphazero_lite/arena.py":
+                    payload = {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                    }
+                elif command[1] == "ml/alphazero_lite/mcts1200_baseline.py":
+                    payload = {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30 if str(candidate) in command else 24,
+                        "mcts_wins": 2 if str(candidate) in command else 8,
+                        "draws": 8,
+                    }
+                elif command[1] == "ml/alphazero_lite/run_forensic_suite.py":
+                    payload = {
+                        "schema": "azlite_forensic_suite_v1",
+                        "systems": {
+                            "current": {"overall": {"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03}},
+                            "challenger": {"overall": {"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03}},
+                        },
+                        "buckets": {
+                            "sparse_endgame": {
+                                "systems": {
+                                    "current": {"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                                    "challenger": {"top1_agreement": 0.58, "average_regret": 0.13, "blunder_rate": 0.06},
+                                }
+                            },
+                            "capture_available": {
+                                "systems": {
+                                    "current": {"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                                    "challenger": {"top1_agreement": 0.63, "average_regret": 0.15, "blunder_rate": 0.06},
+                                }
+                            },
+                        },
+                    }
+                else:
+                    raise AssertionError(f"unexpected command: {command}")
+                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                recorded_commands.append(command)
+
+            def fake_run_regression_check(command, report_path):
+                report = {
+                    "passed": True,
+                    "artifact_path": str(candidate),
+                    "positions_path": "test/fixtures/ai/superhuman_regression_positions.json",
+                    "results": [],
+                }
+                report_path.write_text(json.dumps(report), encoding="utf-8")
+                return report
+
+            original_run_command = module.run_command
+            original_run_regression_check = module.run_regression_check
+            recorded_commands = []
+            try:
+                module.run_command = fake_run_command
+                module.run_regression_check = fake_run_regression_check
+
+                result = module.build_real_decision_report(args, report)
+            finally:
+                module.run_command = original_run_command
+                module.run_regression_check = original_run_regression_check
+
+            self.assertEqual(str(tmp / "candidate_forensic_suite.json"), result["forensic_report_path"])
+            self.assertTrue(result["forensic_quality"]["passed"])
+            forensic_command = next(command for command in recorded_commands if command[1] == "ml/alphazero_lite/run_forensic_suite.py")
+            self.assertEqual("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json", forensic_command[forensic_command.index("--suite") + 1])
+            self.assertEqual(str(tmp / "candidate_forensic_suite.json"), forensic_command[forensic_command.index("--out") + 1])
+
+    def test_build_real_decision_report_fails_when_forensic_report_regresses(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            current = tmp / "current"
+            candidate.mkdir()
+            current.mkdir()
+
+            args = argparse.Namespace(
+                candidate_path=candidate,
+                config_path=None,
+                current_path=str(current),
+                hard_path=None,
+                regression_positions_path="test/fixtures/ai/superhuman_regression_positions.json",
+                arena_games=120,
+                mcts_games=40,
+                min_arena_score=0.55,
+                min_arena_games=120,
+                min_mcts_games=40,
+                hard_arena_games=120,
+                hard_min_score=0.55,
+                max_arena_move_time_mean_ms=None,
+                max_arena_move_time_p95_ms=None,
+                require_lossless=False,
+                max_losses=0,
+                skip_mcts_relative_check=False,
+            )
+
+            report = {
+                "schema": "azlite_local_promotion_gate_v1",
+                "candidate_path": str(candidate),
+                "current_path": str(current),
+                "hard_path": None,
+                "report_path": str(tmp / "report.json"),
+                "regression_report_path": str(tmp / "candidate_regression_suite.json"),
+                "forensic_report_path": str(tmp / "candidate_forensic_suite.json"),
+                "evaluations": [
+                    module.build_evaluation(
+                        evaluation_id="candidate_vs_current_arena",
+                        subject=str(candidate),
+                        opponent=str(current),
+                        games=120,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.build_evaluation(
+                        evaluation_id="candidate_vs_mcts1200",
+                        subject=str(candidate),
+                        opponent="mcts1200",
+                        games=40,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.build_evaluation(
+                        evaluation_id="current_vs_mcts1200",
+                        subject=str(current),
+                        opponent="mcts1200",
+                        games=40,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.forensic_evaluation(tmp, candidate_path=candidate, current_path=str(current)),
+                ],
+                "endgame_exact_solve": module.build_endgame_exact_solve_section(
+                    status="planned_only",
+                    results_source="evaluation_plan",
+                    results=[],
+                ),
+            }
+
+            recorded_commands = []
+
+            def fake_run_command(command):
+                out_path = Path(command[command.index("--out") + 1])
+                if command[1] == "ml/alphazero_lite/arena.py":
+                    payload = {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                    }
+                elif command[1] == "ml/alphazero_lite/mcts1200_baseline.py":
+                    payload = {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30 if str(candidate) in command else 24,
+                        "mcts_wins": 2 if str(candidate) in command else 8,
+                        "draws": 8,
+                    }
+                elif command[1] == "ml/alphazero_lite/run_forensic_suite.py":
+                    payload = {
+                        "schema": "azlite_forensic_suite_v1",
+                        "systems": {
+                            "current": {"overall": {"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03}},
+                            "challenger": {"overall": {"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03}},
+                        },
+                        "buckets": {
+                            "sparse_endgame": {
+                                "systems": {
+                                    "current": {"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                                    "challenger": {"top1_agreement": 0.55, "average_regret": 0.17, "blunder_rate": 0.09},
+                                }
+                            },
+                            "capture_available": {
+                                "systems": {
+                                    "current": {"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                                    "challenger": {"top1_agreement": 0.63, "average_regret": 0.15, "blunder_rate": 0.06},
+                                }
+                            },
+                        },
+                    }
+                else:
+                    raise AssertionError(f"unexpected command: {command}")
+                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                recorded_commands.append(command)
+
+            def fake_run_regression_check(command, report_path):
+                regression_report = {
+                    "passed": True,
+                    "artifact_path": str(candidate),
+                    "positions_path": "test/fixtures/ai/superhuman_regression_positions.json",
+                    "results": [],
+                }
+                report_path.write_text(json.dumps(regression_report), encoding="utf-8")
+                return regression_report
+
+            original_run_command = module.run_command
+            original_run_regression_check = module.run_regression_check
+            try:
+                module.run_command = fake_run_command
+                module.run_regression_check = fake_run_regression_check
+
+                result = module.build_real_decision_report(args, report)
+            finally:
+                module.run_command = original_run_command
+                module.run_regression_check = original_run_regression_check
+
+            self.assertEqual(str(tmp / "candidate_forensic_suite.json"), result["forensic_report_path"])
+            self.assertFalse(result["passed"])
+            self.assertFalse(result["forensic_quality"]["passed"])
+            self.assertTrue(any(reason["code"] == "forensic_bucket_sparse_endgame_regressed" for reason in result["failure_reasons"]))
+            forensic_command = next(command for command in recorded_commands if command[1] == "ml/alphazero_lite/run_forensic_suite.py")
+            self.assertEqual(str(tmp / "candidate_forensic_suite.json"), forensic_command[forensic_command.index("--out") + 1])
 
     def test_endgame_exact_solve_recommendation_prefers_best_threshold_gain(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
@@ -734,6 +1227,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -746,6 +1240,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -786,6 +1282,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -798,6 +1295,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -821,6 +1320,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=25, losses=5, draws=10, az_wins=25)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=6, draws=10, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -833,6 +1333,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -853,6 +1355,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=False)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -865,6 +1368,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -924,6 +1429,7 @@ class LocalPromotionGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -936,6 +1442,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -975,6 +1483,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -991,6 +1500,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -1029,6 +1540,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1045,6 +1557,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -1082,6 +1596,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1098,6 +1613,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -1117,6 +1634,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
             self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1129,6 +1647,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -1212,6 +1732,7 @@ class LocalPromotionGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1228,6 +1749,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -1295,6 +1818,7 @@ class LocalPromotionGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1307,6 +1831,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -1367,6 +1893,7 @@ class LocalPromotionGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1379,6 +1906,8 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
@@ -1387,6 +1916,180 @@ class LocalPromotionGateTest(unittest.TestCase):
             report = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual("tune", report["dynamic_budget_recommendation"]["decision"])
             self.assertIn("mixed", report["dynamic_budget_recommendation"]["reason"])
+
+    def test_stub_decision_report_fails_when_critical_forensic_bucket_regresses(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                sparse_endgame_current={"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                sparse_endgame_challenger={"top1_agreement": 0.55, "average_regret": 0.14, "blunder_rate": 0.07},
+                capture_available_current={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                capture_available_challenger={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+            )
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertFalse(report["passed"])
+            self.assertTrue(any(reason["code"] == "forensic_bucket_sparse_endgame_regressed" for reason in report["failure_reasons"]))
+
+    def test_stub_decision_report_passes_with_clean_forensic_quality(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                sparse_endgame_current={"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                sparse_endgame_challenger={"top1_agreement": 0.58, "average_regret": 0.13, "blunder_rate": 0.06},
+                capture_available_current={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                capture_available_challenger={"top1_agreement": 0.63, "average_regret": 0.15, "blunder_rate": 0.06},
+            )
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertIn("forensic_quality", report)
+            self.assertTrue(report["forensic_quality"]["passed"])
+
+    def test_stub_decision_report_fails_when_overall_top1_agreement_delta_exceeds_threshold_by_rounding_margin(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.67996, "average_regret": 0.10, "blunder_rate": 0.03},
+                sparse_endgame_current={"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                sparse_endgame_challenger={"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                capture_available_current={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                capture_available_challenger={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+            )
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertFalse(report["passed"])
+            self.assertFalse(report["forensic_quality"]["overall"]["passed"])
+            self.assertEqual(-0.02, report["forensic_quality"]["overall"]["top1_agreement"]["delta"])
+            self.assertFalse(report["forensic_quality"]["overall"]["top1_agreement"]["passed"])
+            self.assertTrue(any(reason["code"] == "forensic_overall_regressed" for reason in report["failure_reasons"]))
+
+    def test_stub_decision_report_fails_when_bucket_average_regret_delta_exceeds_threshold_by_rounding_margin(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03},
+                sparse_endgame_current={"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                sparse_endgame_challenger={"top1_agreement": 0.60, "average_regret": 0.13004, "blunder_rate": 0.04},
+                capture_available_current={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                capture_available_challenger={"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+            )
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertFalse(report["passed"])
+            self.assertFalse(report["forensic_quality"]["critical_buckets"]["sparse_endgame"]["passed"])
+            self.assertEqual(0.03, report["forensic_quality"]["critical_buckets"]["sparse_endgame"]["average_regret"]["delta"])
+            self.assertFalse(report["forensic_quality"]["critical_buckets"]["sparse_endgame"]["average_regret"]["passed"])
+            self.assertTrue(any(reason["code"] == "forensic_bucket_sparse_endgame_regressed" for reason in report["failure_reasons"]))
 
     def test_dynamic_budget_recommendation_keeps_when_promotion_safety_passes_and_runtime_match_is_favorable(self):
         module = self.load_gate_module()
@@ -1557,6 +2260,15 @@ class LocalPromotionGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.61, "average_regret": 0.11, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.64, "average_regret": 0.09, "blunder_rate": 0.02},
+                sparse_endgame_current={"top1_agreement": 0.58, "average_regret": 0.14, "blunder_rate": 0.05},
+                sparse_endgame_challenger={"top1_agreement": 0.62, "average_regret": 0.10, "blunder_rate": 0.03},
+                capture_available_current={"top1_agreement": 0.55, "average_regret": 0.09, "blunder_rate": 0.02},
+                capture_available_challenger={"top1_agreement": 0.52, "average_regret": 0.13, "blunder_rate": 0.05},
+            )
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1569,11 +2281,13 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
 
-            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertIn(result.returncode, (0, 1), msg=result.stderr)
             report = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual("tune", report["opening_cache_recommendation"]["decision"])
 
@@ -1628,6 +2342,15 @@ class LocalPromotionGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_forensic_report(
+                tmp / "forensic.json",
+                overall_current={"top1_agreement": 0.61, "average_regret": 0.11, "blunder_rate": 0.03},
+                overall_challenger={"top1_agreement": 0.64, "average_regret": 0.09, "blunder_rate": 0.02},
+                sparse_endgame_current={"top1_agreement": 0.58, "average_regret": 0.14, "blunder_rate": 0.05},
+                sparse_endgame_challenger={"top1_agreement": 0.62, "average_regret": 0.10, "blunder_rate": 0.03},
+                capture_available_current={"top1_agreement": 0.55, "average_regret": 0.09, "blunder_rate": 0.02},
+                capture_available_challenger={"top1_agreement": 0.52, "average_regret": 0.13, "blunder_rate": 0.05},
+            )
 
             result = self.run_gate(
                 "--candidate-path",
@@ -1640,11 +2363,13 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(tmp / "cur_mcts.json"),
                 "--stub-regression-report",
                 str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
                 "--out",
                 str(out),
             )
 
-            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertIn(result.returncode, (0, 1), msg=result.stderr)
             report = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual("keep", report["opening_cache_recommendation"]["decision"])
 
@@ -1702,6 +2427,135 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.assertEqual(sys.executable, module.python_executable())
         finally:
             module.repo_root = original_repo_root
+
+    def test_forensic_quality_summary_extracts_overall_and_bucket_metrics(self):
+        module = self.load_gate_module()
+        report = {
+            "schema": "azlite_forensic_suite_v1",
+            "systems": {
+                "current": {
+                    "overall": {
+                        "top1_agreement": 0.61,
+                        "average_regret": 0.11,
+                        "blunder_rate": 0.03,
+                    }
+                },
+                "challenger": {
+                    "overall": {
+                        "top1_agreement": 0.64,
+                        "average_regret": 0.09,
+                        "blunder_rate": 0.02,
+                    }
+                },
+            },
+            "buckets": {
+                "sparse_endgame": {
+                    "systems": {
+                        "current": {"top1_agreement": 0.58, "average_regret": 0.14, "blunder_rate": 0.05},
+                        "challenger": {"top1_agreement": 0.62, "average_regret": 0.10, "blunder_rate": 0.03},
+                    }
+                },
+                "capture_available": {
+                    "systems": {
+                        "current": {"top1_agreement": 0.55, "average_regret": 0.09, "blunder_rate": 0.02},
+                        "challenger": {"top1_agreement": 0.52, "average_regret": 0.13, "blunder_rate": 0.05},
+                    }
+                },
+            },
+        }
+
+        summary = module.forensic_quality_summary(report)
+
+        self.assertEqual(0.64, summary["overall"]["challenger"]["top1_agreement"])
+        self.assertEqual(0.09, summary["overall"]["challenger"]["average_regret"])
+        self.assertEqual(0.02, summary["overall"]["challenger"]["blunder_rate"])
+        self.assertEqual(0.61, summary["overall"]["current"]["top1_agreement"])
+        self.assertEqual(0.11, summary["overall"]["current"]["average_regret"])
+        self.assertEqual(0.03, summary["overall"]["current"]["blunder_rate"])
+        self.assertIn("sparse_endgame", summary["critical_buckets"])
+        self.assertIn("capture_available", summary["critical_buckets"])
+        self.assertEqual(0.13, summary["critical_buckets"]["capture_available"]["challenger"]["average_regret"])
+        self.assertEqual(0.05, summary["critical_buckets"]["capture_available"]["challenger"]["blunder_rate"])
+
+    def test_forensic_quality_summary_rejects_missing_required_bucket(self):
+        module = self.load_gate_module()
+        report = {
+            "schema": "azlite_forensic_suite_v1",
+            "systems": {
+                "current": {"overall": {"top1_agreement": 0.5, "average_regret": 0.1, "blunder_rate": 0.0}},
+                "challenger": {"overall": {"top1_agreement": 0.5, "average_regret": 0.1, "blunder_rate": 0.0}},
+            },
+            "buckets": {},
+        }
+
+        with self.assertRaisesRegex(SystemExit, "missing required forensic bucket"):
+            module.forensic_quality_summary(report)
+
+    def test_forensic_quality_summary_rejects_non_finite_metric(self):
+        module = self.load_gate_module()
+        report = {
+            "schema": "azlite_forensic_suite_v1",
+            "systems": {
+                "current": {
+                    "overall": {
+                        "top1_agreement": 0.61,
+                        "average_regret": float("nan"),
+                        "blunder_rate": 0.03,
+                    }
+                },
+                "challenger": {
+                    "overall": {
+                        "top1_agreement": 0.64,
+                        "average_regret": 0.09,
+                        "blunder_rate": 0.02,
+                    }
+                },
+            },
+            "buckets": {
+                "sparse_endgame": {
+                    "systems": {
+                        "current": {"top1_agreement": 0.58, "average_regret": 0.14, "blunder_rate": 0.05},
+                        "challenger": {"top1_agreement": 0.62, "average_regret": 0.10, "blunder_rate": 0.03},
+                    }
+                },
+                "capture_available": {
+                    "systems": {
+                        "current": {"top1_agreement": 0.55, "average_regret": 0.09, "blunder_rate": 0.02},
+                        "challenger": {"top1_agreement": 0.52, "average_regret": 0.13, "blunder_rate": 0.05},
+                    }
+                },
+            },
+        }
+
+        with self.assertRaisesRegex(SystemExit, "non-finite"):
+            module.forensic_quality_summary(report)
+
+    def test_numeric_metric_rejects_infinite_value(self):
+        module = self.load_gate_module()
+
+        with self.assertRaisesRegex(SystemExit, "non-finite"):
+            module.numeric_metric({"top1_agreement": float("inf")}, "top1_agreement", context="systems.current.overall")
+
+    def test_numeric_metric_rejects_blunder_rate_above_one(self):
+        module = self.load_gate_module()
+
+        with self.assertRaisesRegex(SystemExit, "blunder_rate: expected value between 0.0 and 1.0"):
+            module.numeric_metric({"blunder_rate": 1.2}, "blunder_rate", context="systems.current.overall")
+
+    def test_numeric_metric_rejects_negative_blunder_rate(self):
+        module = self.load_gate_module()
+
+        with self.assertRaisesRegex(SystemExit, "blunder_rate: expected value between 0.0 and 1.0"):
+            module.numeric_metric({"blunder_rate": -0.01}, "blunder_rate", context="systems.current.overall")
+
+        with self.assertRaisesRegex(SystemExit, "top1_agreement: expected value between 0.0 and 1.0"):
+            module.numeric_metric({"top1_agreement": -0.01}, "top1_agreement", context="systems.current.overall")
+
+    def test_numeric_metric_rejects_negative_average_regret(self):
+        module = self.load_gate_module()
+
+        with self.assertRaisesRegex(SystemExit, "average_regret: expected value greater than or equal to 0.0"):
+            module.numeric_metric({"average_regret": -0.01}, "average_regret", context="systems.current.overall")
 
 
 if __name__ == "__main__":

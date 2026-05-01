@@ -249,8 +249,37 @@ Interpretation notes:
 
 - Use `top1_agreement` as the first policy signal against the classic-MCTS teacher.
 - Use `average_regret` to distinguish close misses from catastrophic move choice errors.
+- Use `blunder_rate` as the fastest tactical-risk read: if it rises in a hard bucket, treat that as a real move-quality regression even when aggregate strength still looks good.
 - Use `value_calibration_mae` to spot value-head drift even when top-1 policy agreement looks acceptable.
 - Start with `incumbent_proxy_disagreement` to inspect incumbent-style proxy disagreement states, then check `sparse_endgame` and `capture_available` for broader tactical and endgame regressions.
+
+## Interpreting `local_promotion_gate.json` Forensic Outputs
+
+The promotion report now includes a forensic quality gate in addition to arena and MCTS checks.
+
+- `forensic_quality`: top-level summary of whether the candidate cleared the hard-coded v1 forensic quality gate.
+- `forensic_quality.critical_buckets`: per-bucket forensic gate results for the critical forensic buckets that currently block promotion.
+- `hard_suite_buckets`: hard arena bucket summaries from the phase-based hard-opponent run (`opening`, `midgame`, `late`). This is separate from the forensic gate.
+
+How to read them:
+
+- `forensic_quality.passed=true` means the candidate cleared the overall forensic quality gate.
+- `forensic_quality.passed=false` means the candidate showed position-level quality regressions severe enough to block promotion even if arena and baseline-relative MCTS passed.
+- `forensic_quality.critical_buckets` is the fastest way to see where a forensic failure came from. Each bucket-level pass/fail means "did the candidate stay inside the allowed forensic envelope for this class of positions?"
+- `hard_suite_buckets` is still useful, but only for the hard arena phase split. It does **not** carry forensic pass/fail state.
+- A failed bucket is a targeted regression signal, not just noise in aggregate win rate.
+
+Current hard buckets to inspect first:
+
+- `capture_available`: tactical conversion / obvious capture handling bucket.
+- `sparse_endgame`: low-material endgame bucket.
+
+Action policy:
+
+- If a bucket fails because `blunder_rate` jumps, treat it as a move-selection regression and inspect the bucket positions before running another promotion attempt.
+- If `capture_available` fails, prioritize tactical-policy debugging and teacher-target review.
+- If `sparse_endgame` fails, prioritize endgame/value calibration review.
+- If the forensic gate fails but arena/MCTS pass, do **not** promote. Keep the artifact, inspect `forensic_quality.critical_buckets`, and treat the result as "strength looks promising but quality is not release-safe yet." Use the bucket deltas to choose the next lane or ablation.
 
 ## Next 3 Experiments
 

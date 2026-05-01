@@ -1585,6 +1585,16 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "mean_final_simulations": 128,
                             "mean_root_latency_ms": 6.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 96,
+                            "max_simulations": 128,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
+                        },
                         "dynamic_budget_comparison": {
                             "comparison_mode": "classic_dynamic_vs_fixed",
                             "runtime_target_ms": 6.3,
@@ -1710,6 +1720,16 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "source": "classic_mcts_dynamic_runtime",
                             "mean_final_simulations": 128,
                             "mean_root_latency_ms": 6.5,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 96,
+                            "max_simulations": 128,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
                         },
                         "dynamic_budget_comparison": {
                             "comparison_mode": "classic_dynamic_vs_fixed",
@@ -1837,6 +1857,16 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "mean_final_simulations": 128,
                             "mean_root_latency_ms": 6.5,
                         },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 96,
+                            "max_simulations": 128,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
+                        },
                         "dynamic_budget_comparison": {
                             "comparison_mode": "classic_dynamic_vs_fixed",
                             "runtime_target_ms": 6.3,
@@ -1928,6 +1958,560 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertNotIn("min_score", mcts_check)
             self.assertNotIn("challenger_score", mcts_check)
             self.assertNotIn("current_baseline_score", mcts_check)
+
+    def test_promotion_report_includes_forensic_quality_section(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            baseline_report = tmp_path / "baseline.json"
+            forensic_report = tmp_path / "forensic.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "dynamic",
+                        "search_profile": self.classic_mcts_dynamic_search_profile(),
+                        "search_profile_hash": "dynamic-profile-hash",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_dynamic_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 96,
+                            "max_simulations": 128,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.5,
+                            "fixed_score": 0.5,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            baseline_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "fixed",
+                        "search_profile": self.classic_mcts_fixed_search_profile(),
+                        "search_profile_hash": "fixed-profile-hash",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": False,
+                            "probe_simulations": 0,
+                            "min_simulations": 1200,
+                            "max_simulations": 1200,
+                            "entropy_weight": 0.0,
+                            "low_margin_threshold": 0.0,
+                            "low_margin_weight": 0.0,
+                            "variance_weight": 0.0,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            forensic_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_forensic_suite_v1",
+                        "systems": {
+                            "current": {
+                                "overall": {
+                                    "top1_agreement": 0.61,
+                                    "average_regret": 0.11,
+                                    "blunder_rate": 0.03,
+                                }
+                            },
+                            "challenger": {
+                                "overall": {
+                                    "top1_agreement": 0.64,
+                                    "average_regret": 0.09,
+                                    "blunder_rate": 0.02,
+                                }
+                            },
+                        },
+                        "buckets": {
+                            "sparse_endgame": {
+                                "systems": {
+                                    "current": {
+                                        "top1_agreement": 0.58,
+                                        "average_regret": 0.14,
+                                        "blunder_rate": 0.05,
+                                    },
+                                    "challenger": {
+                                        "top1_agreement": 0.62,
+                                        "average_regret": 0.10,
+                                        "blunder_rate": 0.03,
+                                    },
+                                }
+                            },
+                            "capture_available": {
+                                "systems": {
+                                    "current": {
+                                        "top1_agreement": 0.55,
+                                        "average_regret": 0.09,
+                                        "blunder_rate": 0.02,
+                                    },
+                                    "challenger": {
+                                        "top1_agreement": 0.56,
+                                        "average_regret": 0.08,
+                                        "blunder_rate": 0.02,
+                                    },
+                                }
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                    "--current-baseline-mcts-report",
+                    str(baseline_report),
+                    "--forensic-report",
+                    str(forensic_report),
+                ]
+            )
+
+            report = benchmark.build_report(args)
+
+            self.assertIn("forensic_quality", report)
+            self.assertTrue(report["forensic_quality"]["passed"])
+            forensic_check = next(check for check in report["checks"] if check["id"] == "forensic_quality_gate")
+            self.assertTrue(forensic_check["passed"])
+
+    def test_promotion_report_adds_failing_forensic_quality_check(self):
+        from ml.alphazero_lite import benchmark
+
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            arena_report = tmp_path / "arena.json"
+            mcts_report = tmp_path / "mcts.json"
+            baseline_report = tmp_path / "baseline.json"
+            forensic_report = tmp_path / "forensic.json"
+
+            arena_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "dynamic",
+                        "search_profile": self.classic_mcts_dynamic_search_profile(),
+                        "search_profile_hash": "dynamic-profile-hash",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_dynamic_runtime",
+                            "mean_final_simulations": 128,
+                            "mean_root_latency_ms": 6.5,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": True,
+                            "probe_simulations": 12,
+                            "min_simulations": 96,
+                            "max_simulations": 128,
+                            "entropy_weight": 0.8,
+                            "low_margin_threshold": 0.2,
+                            "low_margin_weight": 1.5,
+                            "variance_weight": 1.5,
+                        },
+                        "dynamic_budget_comparison": {
+                            "comparison_mode": "classic_dynamic_vs_fixed",
+                            "runtime_target_ms": 6.3,
+                            "runtime_target_matched": True,
+                            "seat_bias_neutralized": True,
+                            "dynamic_mean_final_simulations": 128.0,
+                            "dynamic_mean_root_latency_ms": 6.5,
+                            "fixed_mean_final_simulations": 96.0,
+                            "fixed_mean_root_latency_ms": 6.3,
+                            "dynamic_score": 0.5,
+                            "fixed_score": 0.5,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            baseline_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "comparison_mode": "classic_dynamic_vs_fixed",
+                        "classic_mcts_mode": "fixed",
+                        "search_profile": self.classic_mcts_fixed_search_profile(),
+                        "search_profile_hash": "fixed-profile-hash",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                        "budget_summary": {
+                            "source": "classic_mcts_fixed_runtime",
+                            "mean_final_simulations": 96,
+                            "mean_root_latency_ms": 6.3,
+                        },
+                        "classic_mcts_dynamic_budget_config": {
+                            "enabled": False,
+                            "probe_simulations": 0,
+                            "min_simulations": 1200,
+                            "max_simulations": 1200,
+                            "entropy_weight": 0.0,
+                            "low_margin_threshold": 0.0,
+                            "low_margin_weight": 0.0,
+                            "variance_weight": 0.0,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            forensic_report.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_forensic_suite_v1",
+                        "systems": {
+                            "current": {
+                                "overall": {
+                                    "top1_agreement": 0.61,
+                                    "average_regret": 0.11,
+                                    "blunder_rate": 0.03,
+                                }
+                            },
+                            "challenger": {
+                                "overall": {
+                                    "top1_agreement": 0.64,
+                                    "average_regret": 0.09,
+                                    "blunder_rate": 0.02,
+                                }
+                            },
+                        },
+                        "buckets": {
+                            "sparse_endgame": {
+                                "systems": {
+                                    "current": {
+                                        "top1_agreement": 0.58,
+                                        "average_regret": 0.14,
+                                        "blunder_rate": 0.05,
+                                    },
+                                    "challenger": {
+                                        "top1_agreement": 0.58,
+                                        "average_regret": 0.18,
+                                        "blunder_rate": 0.05,
+                                    },
+                                }
+                            },
+                            "capture_available": {
+                                "systems": {
+                                    "current": {
+                                        "top1_agreement": 0.55,
+                                        "average_regret": 0.09,
+                                        "blunder_rate": 0.02,
+                                    },
+                                    "challenger": {
+                                        "top1_agreement": 0.56,
+                                        "average_regret": 0.08,
+                                        "blunder_rate": 0.02,
+                                    },
+                                }
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            args = benchmark.parse_args(
+                [
+                    "--mode",
+                    "promotion",
+                    "--out",
+                    str(tmp_path / "out.json"),
+                    "--arena-report",
+                    str(arena_report),
+                    "--mcts-report",
+                    str(mcts_report),
+                    "--current-baseline-mcts-report",
+                    str(baseline_report),
+                    "--forensic-report",
+                    str(forensic_report),
+                ]
+            )
+
+            report = benchmark.build_report(args)
+
+            forensic_check = next(check for check in report["checks"] if check["id"] == "forensic_quality_gate")
+            self.assertFalse(forensic_check["passed"])
+
+    def test_promotion_dry_run_allows_future_forensic_report_path(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            future_forensic_report_path = tmp_path / "future_forensic_report.json"
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--dry-run",
+                    "--forensic-report",
+                    str(future_forensic_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(str(future_forensic_report_path), report["forensic_report"])
+            self.assertIsNone(report["forensic_quality"])
+            self.assertFalse(any(check["id"] == "forensic_quality_gate" for check in report["checks"]))
+
+    def test_promotion_report_rejects_missing_forensic_report_when_requested(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            missing_forensic_report_path = tmp_path / "missing_forensic_report.json"
+
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--forensic-report",
+                    str(missing_forensic_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("forensic report not found", result.stderr)
+
+    def test_promotion_report_rejects_malformed_forensic_report(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            arena_report_path = tmp_path / "arena_report.json"
+            mcts_report_path = tmp_path / "mcts1200_report.json"
+            forensic_report_path = tmp_path / "forensic_report.json"
+
+            arena_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 60,
+                        "wins": 36,
+                        "losses": 24,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            mcts_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 30,
+                        "az_wins": 15,
+                        "mcts_wins": 15,
+                        "draws": 0,
+                        "score": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            forensic_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "azlite_forensic_suite_v1",
+                        "systems": {
+                            "current": {
+                                "overall": {
+                                    "top1_agreement": 0.61,
+                                    "average_regret": 0.11,
+                                    "blunder_rate": 0.03,
+                                }
+                            },
+                            "challenger": {
+                                "overall": {
+                                    "top1_agreement": 0.64,
+                                    "average_regret": 0.09,
+                                    "blunder_rate": 0.02,
+                                }
+                            },
+                        },
+                        "buckets": {
+                            "capture_available": {
+                                "systems": {
+                                    "current": {
+                                        "top1_agreement": 0.55,
+                                        "average_regret": 0.09,
+                                        "blunder_rate": 0.02,
+                                    },
+                                    "challenger": {
+                                        "top1_agreement": 0.56,
+                                        "average_regret": 0.08,
+                                        "blunder_rate": 0.02,
+                                    },
+                                }
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/benchmark.py",
+                    "--mode",
+                    "promotion",
+                    "--games",
+                    "60",
+                    "--seed",
+                    "42",
+                    "--arena-report",
+                    str(arena_report_path),
+                    "--mcts-report",
+                    str(mcts_report_path),
+                    "--forensic-report",
+                    str(forensic_report_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("missing required forensic bucket", result.stderr)
 
     def test_promotion_report_rejects_non_classic_dynamic_budget_comparison_input(self):
         from ml.alphazero_lite import benchmark

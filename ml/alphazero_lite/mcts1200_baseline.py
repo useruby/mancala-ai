@@ -14,15 +14,81 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.classic_mcts import MCTS
-from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
-from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.self_play import (
-    add_search_option_args,
-    build_eval_search_options,
-    build_search_profile,
-    search_options_from_args,
-)
+
+EARLY_DEFAULT_SEARCH_OPTIONS = {
+    "fpu_mode": "zero",
+    "reuse_subtree": False,
+    "normalize_values": False,
+    "root_policy_mode": "visit_count",
+    "tactical_root_bias": 0.0,
+}
+EARLY_SUPPORTED_ROOT_POLICY_MODES = ("deterministic", "visit_count")
+
+
+def add_early_search_option_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--fpu-mode", default=EARLY_DEFAULT_SEARCH_OPTIONS["fpu_mode"])
+    parser.add_argument("--reuse-subtree", action="store_true")
+    parser.add_argument("--normalize-values", action="store_true")
+    parser.add_argument(
+        "--root-policy-mode",
+        choices=EARLY_SUPPORTED_ROOT_POLICY_MODES,
+        default=EARLY_DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
+    )
+    parser.add_argument("--tactical-root-bias", type=float, default=EARLY_DEFAULT_SEARCH_OPTIONS["tactical_root_bias"])
+
+
+def build_stub_search_options(args: argparse.Namespace) -> dict[str, str | bool | float]:
+    return {
+        "fpu_mode": args.fpu_mode,
+        "reuse_subtree": bool(args.reuse_subtree),
+        "normalize_values": bool(args.normalize_values),
+        "root_policy_mode": args.root_policy_mode,
+        "tactical_root_bias": float(args.tactical_root_bias),
+    }
+
+
+def build_stub_eval_search_options(**kwargs) -> dict[str, str | bool | float]:
+    return dict(kwargs)
+
+
+def build_stub_search_profile(
+    *,
+    kind: str,
+    player_mode: str,
+    simulations: int,
+    c_puct: float,
+    search_options: dict[str, str | bool | float],
+    extra_fields: dict[str, str | int | float | bool] | None = None,
+) -> dict:
+    del c_puct
+    profile = {
+        "version": "v1",
+        "kind": str(kind),
+        "player_mode": str(player_mode),
+        "classic_mcts_simulations": int(simulations),
+    }
+    if extra_fields:
+        profile.update(extra_fields)
+    profile["hash"] = "mcts1200-baseline-stub-profile"
+    return profile
+if os.environ.get("AZLITE_MCTS1200_BASELINE_STUB") != "1":
+    from ml.alphazero_lite.classic_mcts import MCTS
+    from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+    from ml.alphazero_lite.kalah_rules import KalahGame
+    from ml.alphazero_lite.self_play import (
+        add_search_option_args,
+        build_eval_search_options,
+        build_search_profile,
+        search_options_from_args,
+    )
+else:
+    add_search_option_args = add_early_search_option_args
+    build_eval_search_options = build_stub_eval_search_options
+    build_search_profile = build_stub_search_profile
+    search_options_from_args = build_stub_search_options
+    MCTS = None
+    EndgameTablebase = None
+    KalahGame = None
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,7 +118,7 @@ def parse_args() -> argparse.Namespace:
         parser.error("--exact-solve-stone-threshold requires --exact-solve-enabled")
     if args.exact_solve_stone_threshold is not None and int(args.exact_solve_stone_threshold) < 0:
         parser.error("--exact-solve-stone-threshold must be non-negative")
-    if args.exact_solve_stone_threshold is not None:
+    if args.exact_solve_stone_threshold is not None and EndgameTablebase is not None:
         args.exact_solve_stone_threshold = min(int(args.exact_solve_stone_threshold), EndgameTablebase.MAX_SOLVED_SEEDS)
     if args.dynamic_budget_enabled:
         min_simulations = args.mcts_simulations if args.dynamic_budget_min_simulations is None else int(args.dynamic_budget_min_simulations)

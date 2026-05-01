@@ -137,6 +137,51 @@ class PipelineScriptTest(unittest.TestCase):
         repo_root = Path(__file__).resolve().parents[2]
         return load_config(repo_root / "ml/alphazero_lite/configs" / filename)
 
+    def passing_forensic_report(self) -> dict:
+        return {
+            "schema": "azlite_forensic_suite_v1",
+            "systems": {
+                "current": {"overall": {"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03}},
+                "challenger": {"overall": {"top1_agreement": 0.70, "average_regret": 0.10, "blunder_rate": 0.03}},
+            },
+            "buckets": {
+                "sparse_endgame": {
+                    "systems": {
+                        "current": {"top1_agreement": 0.60, "average_regret": 0.10, "blunder_rate": 0.04},
+                        "challenger": {"top1_agreement": 0.58, "average_regret": 0.13, "blunder_rate": 0.06},
+                    }
+                },
+                "capture_available": {
+                    "systems": {
+                        "current": {"top1_agreement": 0.65, "average_regret": 0.12, "blunder_rate": 0.04},
+                        "challenger": {"top1_agreement": 0.63, "average_regret": 0.15, "blunder_rate": 0.06},
+                    }
+                },
+            },
+        }
+
+    def write_real_gate_command_output(self, command: list[str], *, candidate_path: Path | None = None) -> None:
+        out_path = Path(command[command.index("--out") + 1])
+        command_name = Path(command[0]).name
+        script_name = Path(command[1]).name if len(command) > 1 else ""
+
+        if command_name == "check_superhuman_regressions":
+            payload = {"passed": True, "results": []}
+        elif script_name == "run_forensic_suite.py":
+            payload = self.passing_forensic_report()
+        elif script_name == "arena.py":
+            payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
+        elif script_name == "mcts1200_baseline.py" and candidate_path is not None and "--challenger-path" in command:
+            challenger_path = command[command.index("--challenger-path") + 1]
+            if challenger_path == str(candidate_path):
+                payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
+            else:
+                payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
+        else:
+            raise AssertionError(f"unexpected real gate command: {command}")
+
+        out_path.write_text(json.dumps(payload), encoding="utf-8")
+
     def iter_json_pipeline_configs(self):
         repo_root = Path(__file__).resolve().parents[2]
 
@@ -866,6 +911,7 @@ class PipelineScriptTest(unittest.TestCase):
             candidate_mcts_report_path = tmp_path / "candidate_mcts_report.json"
             current_mcts_report_path = tmp_path / "current_mcts_report.json"
             regression_report_path = tmp_path / "regression_report.json"
+            forensic_report_path = tmp_path / "forensic_report.json"
 
             candidate_path.write_text("stub", encoding="utf-8")
             arena_report_path.write_text(json.dumps(arena_report), encoding="utf-8")
@@ -873,6 +919,7 @@ class PipelineScriptTest(unittest.TestCase):
             hard_report_path.write_text(json.dumps(hard_payload), encoding="utf-8")
             candidate_mcts_report_path.write_text(json.dumps(candidate_mcts_report), encoding="utf-8")
             current_mcts_report_path.write_text(json.dumps(current_mcts_report), encoding="utf-8")
+            forensic_report_path.write_text(json.dumps(self.passing_forensic_report()), encoding="utf-8")
             if regression_report is not None:
                 regression_report_path.write_text(json.dumps(regression_report), encoding="utf-8")
 
@@ -903,6 +950,8 @@ class PipelineScriptTest(unittest.TestCase):
                     str(candidate_mcts_report_path),
                     "--stub-current-mcts-report",
                     str(current_mcts_report_path),
+                    "--stub-forensic-report",
+                    str(forensic_report_path),
                     *(
                         [
                             "--stub-regression-report",
@@ -954,7 +1003,7 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             self.assertNotEqual(0, result.returncode)
-            self.assertIn("provide all stub report paths or none", result.stderr)
+            self.assertIn("provide arena, candidate/current mcts, and forensic stub report paths together or none", result.stderr)
             self.assertFalse(report_path.exists())
 
     def test_local_promotion_gate_fails_when_stub_report_json_is_malformed(self):
@@ -969,6 +1018,7 @@ class PipelineScriptTest(unittest.TestCase):
             candidate_mcts_report_path = tmp_path / "candidate_mcts_report.json"
             current_mcts_report_path = tmp_path / "current_mcts_report.json"
             regression_report_path = tmp_path / "regression_report.json"
+            forensic_report_path = tmp_path / "forensic_report.json"
 
             candidate_path.write_text("stub", encoding="utf-8")
             arena_report_path.write_text("{not-json", encoding="utf-8")
@@ -982,6 +1032,7 @@ class PipelineScriptTest(unittest.TestCase):
                 encoding="utf-8",
             )
             regression_report_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
+            forensic_report_path.write_text(json.dumps(self.passing_forensic_report()), encoding="utf-8")
 
             result = subprocess.run(
                 [
@@ -1000,6 +1051,8 @@ class PipelineScriptTest(unittest.TestCase):
                     str(current_mcts_report_path),
                     "--stub-regression-report",
                     str(regression_report_path),
+                    "--stub-forensic-report",
+                    str(forensic_report_path),
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -3973,6 +4026,17 @@ class PipelineScriptTest(unittest.TestCase):
         self.assertIn("run_forensic_suite.py", handoff)
         self.assertIn("incumbent_forensic_suite_v1.json", handoff)
 
+    def test_handoff_documents_forensic_quality_gate_outputs(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        handoff = (repo_root / "docs/alphazero-lite-ml-handoff.md").read_text(encoding="utf-8")
+
+        self.assertIn("forensic quality gate", handoff)
+        self.assertIn("forensic_quality", handoff)
+        self.assertIn("hard_suite_buckets", handoff)
+        self.assertIn("blunder_rate", handoff)
+        self.assertIn("capture_available", handoff)
+        self.assertIn("sparse_endgame", handoff)
+
     def test_bootstrap_300_config_renders_expected_dataset_step(self):
         repo_root = Path(__file__).resolve().parents[2]
         config = load_config(repo_root / "ml/alphazero_lite/configs/aggressive_v1_bootstrap_300.yaml")
@@ -4188,13 +4252,14 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual(str(candidate_path), report["candidate_path"])
             self.assertEqual("model-artifact/current", report["current_path"])
             self.assertEqual(str(report_path), report["report_path"])
-            self.assertEqual(4, len(report["evaluations"]))
+            self.assertEqual(5, len(report["evaluations"]))
             self.assertEqual(
                 [
                     "candidate_vs_current_arena",
                     "candidate_vs_hard_arena",
                     "candidate_vs_mcts1200",
                     "current_vs_mcts1200",
+                    "candidate_forensic_suite",
                 ],
                 [evaluation["id"] for evaluation in report["evaluations"]],
             )
@@ -4238,6 +4303,24 @@ class PipelineScriptTest(unittest.TestCase):
                         "report_path": evaluation["report_path"],
                     }
                     for evaluation in report["evaluations"]
+                    if "subject" in evaluation
+                ],
+            )
+            forensic_evaluation = next(evaluation for evaluation in report["evaluations"] if evaluation["id"] == "candidate_forensic_suite")
+            self.assertEqual(str(tmp_path / "candidate_forensic_suite.json"), forensic_evaluation["report_path"])
+            self.assertEqual("dry_run", forensic_evaluation["mode"])
+            self.assertEqual(
+                [
+                    str(candidate_path),
+                    "model-artifact/current",
+                    "1200",
+                    "1800",
+                ],
+                [
+                    forensic_evaluation["command"][forensic_evaluation["command"].index("--challenger-artifact") + 1],
+                    forensic_evaluation["command"][forensic_evaluation["command"].index("--current-artifact") + 1],
+                    forensic_evaluation["command"][forensic_evaluation["command"].index("--mcts-simulations") + 1],
+                    forensic_evaluation["command"][forensic_evaluation["command"].index("--teacher-simulations") + 1],
                 ],
             )
             self.assertTrue(all(evaluation["mode"] == "dry_run" for evaluation in report["evaluations"]))
@@ -4404,18 +4487,7 @@ class PipelineScriptTest(unittest.TestCase):
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
                 calls.append({"command": command, "cwd": cwd, "capture_output": capture_output, "text": text, "check": check})
-                if Path(command[0]).name == "check_superhuman_regressions":
-                    out_path = Path(command[command.index("--out") + 1])
-                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
-                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
-                out_path = Path(command[command.index("--out") + 1])
-                if command[1].endswith("arena.py"):
-                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
-                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
-                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
-                else:
-                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
-                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                self.write_real_gate_command_output(command, candidate_path=candidate_path)
                 return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
 
             argv = [
@@ -4432,13 +4504,14 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(11, len(calls))
+            self.assertEqual(12, len(calls))
             self.assertEqual(
                 [
                     str(tmp_path / "candidate_vs_current_arena.json"),
                     str(tmp_path / "candidate_vs_hard_arena.json"),
                     str(tmp_path / "candidate_vs_mcts1200.json"),
                     str(tmp_path / "current_vs_mcts1200.json"),
+                    str(tmp_path / "candidate_forensic_suite.json"),
                     str(tmp_path / "candidate_regression_suite.json"),
                     str(tmp_path / "endgame_exact_solve_threshold_8_candidate_vs_mcts1200.json"),
                     str(tmp_path / "endgame_exact_solve_threshold_8_current_vs_mcts1200.json"),
@@ -4456,6 +4529,7 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual(0.525, report["current_mcts_score"])
             self.assertTrue(report["passed"])
             self.assertEqual([], report["failure_reasons"])
+            self.assertTrue(report["forensic_report_path"].endswith("candidate_forensic_suite.json"))
 
     def test_local_promotion_gate_forwards_search_quality_flags_from_config_to_real_commands(self):
         module = self.load_local_promotion_gate_module()
@@ -4473,18 +4547,7 @@ class PipelineScriptTest(unittest.TestCase):
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
                 calls.append(command)
-                if Path(command[0]).name == "check_superhuman_regressions":
-                    out_path = Path(command[command.index("--out") + 1])
-                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
-                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
-                out_path = Path(command[command.index("--out") + 1])
-                if command[1].endswith("arena.py"):
-                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
-                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
-                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
-                else:
-                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
-                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                self.write_real_gate_command_output(command, candidate_path=candidate_path)
                 return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
 
             argv = [
@@ -4503,7 +4566,7 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(11, len(calls))
+            self.assertEqual(12, len(calls))
 
             for command in calls:
                 if Path(command[0]).name == "check_superhuman_regressions":
@@ -4516,6 +4579,22 @@ class PipelineScriptTest(unittest.TestCase):
                     self.assertIn("--tactical-root-bias", command)
                     self.assertIn("0.1", command)
                     continue
+                if len(command) > 1 and Path(command[1]).name == "run_forensic_suite.py":
+                    self.assertEqual(
+                        str(tmp_path / "candidate_forensic_suite.json"),
+                        command[command.index("--out") + 1],
+                    )
+                    self.assertEqual(
+                        str(candidate_path),
+                        command[command.index("--challenger-artifact") + 1],
+                    )
+                    self.assertEqual(
+                        str(current_path),
+                        command[command.index("--current-artifact") + 1],
+                    )
+                    self.assertEqual("1200", command[command.index("--mcts-simulations") + 1])
+                    self.assertEqual("1800", command[command.index("--teacher-simulations") + 1])
+                    continue
                 if command[1].endswith("arena.py") and "candidate_vs_hard_arena" not in command:
                     self.assertIn("--fpu-mode", command)
                     self.assertIn("parent_q", command)
@@ -4526,7 +4605,7 @@ class PipelineScriptTest(unittest.TestCase):
                     self.assertIn("--tactical-root-bias", command)
                     self.assertIn("0.1", command)
 
-    def test_local_promotion_gate_accepts_phase1_config_without_phase2_search_steps(self):
+    def test_local_promotion_gate_allows_phase1_config_without_required_real_search_steps(self):
         module = self.load_local_promotion_gate_module()
 
         with tempfile.TemporaryDirectory(prefix="local-promotion-gate-") as tmp:
@@ -4537,24 +4616,6 @@ class PipelineScriptTest(unittest.TestCase):
 
             candidate_path.mkdir()
             current_path.mkdir()
-
-            calls = []
-
-            def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
-                calls.append(command)
-                if Path(command[0]).name == "check_superhuman_regressions":
-                    out_path = Path(command[command.index("--out") + 1])
-                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
-                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
-                out_path = Path(command[command.index("--out") + 1])
-                if command[1].endswith("arena.py"):
-                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
-                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
-                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
-                else:
-                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
-                out_path.write_text(json.dumps(payload), encoding="utf-8")
-                return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
 
             argv = [
                 str(module.__file__),
@@ -4568,11 +4629,16 @@ class PipelineScriptTest(unittest.TestCase):
                 str(report_path),
             ]
 
+            def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
+                self.write_real_gate_command_output(command, candidate_path=candidate_path)
+                return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+
             with mock.patch.object(sys, "argv", argv), mock.patch.object(module.subprocess, "run", side_effect=fake_run):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(11, len(calls))
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertTrue(report["passed"])
 
     def test_local_promotion_gate_ignores_stale_regression_report_when_command_fails(self):
         module = self.load_local_promotion_gate_module()
@@ -4590,17 +4656,11 @@ class PipelineScriptTest(unittest.TestCase):
             stale_regression_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
-                out_path = Path(command[command.index("--out") + 1])
                 if Path(command[0]).name == "check_superhuman_regressions":
+                    out_path = Path(command[command.index("--out") + 1])
                     self.assertEqual(stale_regression_path, out_path)
                     return subprocess.CompletedProcess(command, 1, stdout="", stderr="regression exploded")
-                if command[1].endswith("arena.py"):
-                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
-                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
-                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
-                else:
-                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
-                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                self.write_real_gate_command_output(command, candidate_path=candidate_path)
                 return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
 
             argv = [
@@ -4638,7 +4698,9 @@ class PipelineScriptTest(unittest.TestCase):
                     out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
                     return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
                 out_path = Path(command[command.index("--out") + 1])
-                if command[1].endswith("arena.py"):
+                if len(command) > 1 and Path(command[1]).name == "run_forensic_suite.py":
+                    payload = self.passing_forensic_report()
+                elif command[1].endswith("arena.py"):
                     payload = {"wins": 54, "losses": 60, "draws": 6, "games_played": 120}
                 else:
                     payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
@@ -4680,12 +4742,7 @@ class PipelineScriptTest(unittest.TestCase):
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
                 calls.append(command)
                 out_path = Path(command[command.index("--out") + 1])
-                if Path(command[0]).name == "check_superhuman_regressions":
-                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
-                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
-                if command[1].endswith("arena.py"):
-                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
-                elif command[1].endswith("mcts1200_baseline.py") and "--exact-solve-stone-threshold" in command:
+                if len(command) > 1 and Path(command[1]).name == "mcts1200_baseline.py" and "--exact-solve-stone-threshold" in command:
                     threshold = int(command[command.index("--exact-solve-stone-threshold") + 1])
                     payload = {
                         "schema": "azlite_vs_mcts_v1",
@@ -4699,11 +4756,9 @@ class PipelineScriptTest(unittest.TestCase):
                             "exact_solve_stone_threshold": threshold,
                         },
                     }
-                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
-                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
-                else:
-                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
-                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                    out_path.write_text(json.dumps(payload), encoding="utf-8")
+                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+                self.write_real_gate_command_output(command, candidate_path=candidate_path)
                 return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
 
             argv = [
@@ -4720,7 +4775,7 @@ class PipelineScriptTest(unittest.TestCase):
                 exit_code = module.main()
 
             self.assertEqual(0, exit_code)
-            self.assertEqual(11, len(calls))
+            self.assertEqual(12, len(calls))
             threshold_calls = [
                 command
                 for command in calls
@@ -4759,17 +4814,7 @@ class PipelineScriptTest(unittest.TestCase):
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
                 calls.append(command)
-                out_path = Path(command[command.index("--out") + 1])
-                if Path(command[0]).name == "check_superhuman_regressions":
-                    out_path.write_text(json.dumps({"passed": True, "results": []}), encoding="utf-8")
-                    return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
-                if command[1].endswith("arena.py"):
-                    payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
-                elif command[command.index("--challenger-path") + 1] == str(candidate_path):
-                    payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
-                else:
-                    payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
-                out_path.write_text(json.dumps(payload), encoding="utf-8")
+                self.write_real_gate_command_output(command, candidate_path=candidate_path)
                 return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
 
             argv = [
@@ -4835,13 +4880,7 @@ class PipelineScriptTest(unittest.TestCase):
                     script_name = Path(command[1]).name
                     if script_name == failing_script:
                         return subprocess.CompletedProcess(command, 1, stdout="", stderr=stderr_text)
-                    if script_name == "arena.py":
-                        payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
-                    elif command[command.index("--challenger-path") + 1] == str(candidate_path):
-                        payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
-                    else:
-                        payload = {"az_wins": 17, "mcts_wins": 15, "draws": 8, "games": 40}
-                    out_path.write_text(json.dumps(payload), encoding="utf-8")
+                    self.write_real_gate_command_output(command, candidate_path=candidate_path)
                     return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
 
                 argv = [
