@@ -132,6 +132,30 @@ Important:
 - Do not touch `model-artifact/current` from an unvalidated RunPod download.
 - If the promotion helper rejects the tree, fix the result contract or rerun the lane; do not bypass the helper.
 
+## Hard-Bot Promotion Backlog Tracker
+
+Use the repo-owned backlog workflow when you want one tracked readiness campaign for a hard-bot candidate artifact.
+
+Initialize or advance a campaign stage with:
+
+```bash
+script/ai/run_hard_bot_promotion_backlog \
+  --manifest-path /tmp/hard-bot-campaign.json \
+  --campaign-id candidate-iter3 \
+  --candidate-path /path/to/candidate \
+  --stage promotion_gate \
+  --dry-run
+```
+
+Report the current readiness state with:
+
+```bash
+script/ai/report_hard_bot_promotion_readiness \
+  --manifest-path /tmp/hard-bot-campaign.json
+```
+
+The manifest is the audit trail for the workflow: it records the candidate artifact, generated reports, multi-seed confirmation evidence, and the final readiness state used to decide whether the candidate is promotion-ready.
+
 ## Phase 2 Ablation Workflow
 
 Use the ablation runner against a required parent artifact from a completed stronger-lane result tree. The parent artifact input is the baseline candidate directory that each variant is compared against.

@@ -3,6 +3,7 @@ import json
 import importlib.machinery
 import importlib.util
 import os
+import stat
 import sys
 import types
 import subprocess
@@ -69,6 +70,55 @@ class LocalPromotionGateTest(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+
+    def test_python_executable_uses_shared_workspace_venv_only_for_worktree_repo_root(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-worktree-") as tmp:
+            tmp_path = Path(tmp)
+            workspace_root = tmp_path / "workspace"
+            repo_root = workspace_root / ".worktrees" / "feature"
+            repo_root.mkdir(parents=True)
+            shared_python = workspace_root / ".venv/bin/python"
+            shared_python.parent.mkdir(parents=True)
+            shared_python.write_text("#!/bin/sh\n", encoding="utf-8")
+            shared_python.chmod(shared_python.stat().st_mode | stat.S_IXUSR)
+
+            with mock.patch.object(module, "repo_root", return_value=repo_root), mock.patch.object(module.sys, "executable", "/usr/bin/python3"):
+                self.assertEqual(str(shared_python), module.python_executable())
+
+    def test_python_executable_does_not_use_shared_workspace_venv_outside_worktree_repo_root(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-repo-") as tmp:
+            tmp_path = Path(tmp)
+            repo_root = tmp_path / "sandbox" / "repo"
+            workspace_root = tmp_path / "workspace"
+            repo_root.mkdir(parents=True)
+            shared_python = workspace_root / ".venv/bin/python"
+            shared_python.parent.mkdir(parents=True)
+            shared_python.write_text("#!/bin/sh\n", encoding="utf-8")
+            shared_python.chmod(shared_python.stat().st_mode | stat.S_IXUSR)
+
+            with mock.patch.object(module, "repo_root", return_value=repo_root), mock.patch.object(module.sys, "executable", "/usr/bin/python3"):
+                self.assertEqual("/usr/bin/python3", module.python_executable())
+
+    def test_python_executable_accepts_executable_without_owner_execute_bit(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-exec-") as tmp:
+            tmp_path = Path(tmp)
+            repo_root = tmp_path / "repo"
+            repo_root.mkdir(parents=True)
+            repo_python = repo_root / ".venv/bin/python"
+            repo_python.parent.mkdir(parents=True)
+            repo_python.write_text("#!/bin/sh\n", encoding="utf-8")
+            repo_python.chmod(stat.S_IRUSR | stat.S_IWUSR)
+
+            with mock.patch.object(module, "repo_root", return_value=repo_root), mock.patch.object(
+                module.os, "access", return_value=True
+            ), mock.patch.object(module.sys, "executable", "/usr/bin/python3"):
+                self.assertEqual(str(repo_python), module.python_executable())
 
     def test_run_regression_check_allows_failed_regression_report_exit_code(self):
         module = self.load_gate_module()

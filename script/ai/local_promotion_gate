@@ -186,17 +186,26 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def worktree_workspace_root(root: Path) -> Path | None:
+    if root.parent.name != ".worktrees":
+        return None
+    return root.parent.parent
+
+
 def python_executable() -> str:
     root = repo_root()
     candidates = [root / ".venv/bin/python"]
-    if root.parent.name == ".worktrees":
-        candidates.append(root.parents[1] / ".venv/bin/python")
-    for candidate in candidates:
-        if candidate.is_file() and os.access(candidate, os.X_OK):
-            return str(candidate)
-
+    workspace_root = worktree_workspace_root(root)
+    if workspace_root is not None:
+        candidates.append(workspace_root / ".venv/bin/python")
     for ancestor in root.parents:
-        candidate = ancestor / ".venv/bin/python"
+        candidates.append(ancestor / ".venv/bin/python")
+
+    seen: set[Path] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
         if candidate.is_file() and os.access(candidate, os.X_OK):
             return str(candidate)
     return sys.executable
