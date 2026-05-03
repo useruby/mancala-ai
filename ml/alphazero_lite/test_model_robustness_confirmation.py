@@ -42,6 +42,67 @@ class ModelRobustnessConfirmationTest(unittest.TestCase):
         self.assertEqual(str(output_root / "aggregate_summary.json"), plan["aggregate_summary_path"])
         self.assertEqual(5, len(plan["lanes"]))
 
+    def test_dry_run_includes_required_qualifying_seed_count(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-robustness-confirmation-") as tmp:
+            output_root = Path(tmp)
+            result = subprocess.run(
+                [
+                    "script/ai/model_robustness_confirmation",
+                    "--dry-run",
+                    "--output-root",
+                    str(output_root),
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        self.assertIn("required_qualifying_seed_count", plan)
+
+    def test_aggregate_summary_includes_qualifying_seed_count(self):
+        module = self.load_module()
+
+        lane_summaries = [
+            {"seed": 41, "benchmark_passed": True, "local_promotion_gate_passed": True},
+            {"seed": 42, "benchmark_passed": True, "local_promotion_gate_passed": True},
+            {"seed": 43, "benchmark_passed": True, "local_promotion_gate_passed": False},
+        ]
+
+        aggregate_summary = module.build_aggregate_summary(
+            parent_artifact="parent",
+            current_path="current",
+            lane_summaries=lane_summaries,
+            required_qualifying_seed_count=2,
+        )
+
+        self.assertEqual(2, aggregate_summary["qualifying_seed_count"])
+        self.assertEqual(2, aggregate_summary["required_qualifying_seed_count"])
+        self.assertTrue(aggregate_summary["passed"])
+        self.assertFalse(aggregate_summary["all_lanes_passed"])
+
+    def test_aggregate_summary_passes_when_required_qualifying_seed_count_is_met(self):
+        module = self.load_module()
+
+        lane_summaries = [
+            {"seed": 41, "benchmark_passed": True, "local_promotion_gate_passed": True},
+            {"seed": 42, "benchmark_passed": True, "local_promotion_gate_passed": True},
+            {"seed": 43, "benchmark_passed": False, "local_promotion_gate_passed": False},
+        ]
+
+        aggregate_summary = module.build_aggregate_summary(
+            parent_artifact="parent",
+            current_path="current",
+            lane_summaries=lane_summaries,
+            required_qualifying_seed_count=2,
+        )
+
+        self.assertTrue(aggregate_summary["passed"])
+
     def test_build_lane_config_overrides_runtime_current_path_and_records_parent_artifact_path(self):
         module = self.load_module()
 

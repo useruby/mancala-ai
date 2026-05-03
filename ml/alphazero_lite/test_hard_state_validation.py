@@ -128,6 +128,8 @@ class HardStateValidationTest(unittest.TestCase):
             self.assertEqual(2, run_reference_mock.call_count)
             self.assertEqual(2, evaluate_mock.call_count)
             self.assertEqual(2, build_row_mock.call_count)
+            self.assertEqual(suite[0], build_row_mock.call_args_list[0].kwargs["position"])
+            self.assertEqual(suite[1], build_row_mock.call_args_list[1].kwargs["position"])
             summarize_system_mock.assert_called_once_with(built_rows)
             summarize_bucket_matrix_mock.assert_called_once_with({"artifact": built_rows})
 

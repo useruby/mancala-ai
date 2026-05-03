@@ -103,8 +103,7 @@ def main() -> None:
         )
         rows.append(
             build_row(
-                position_id=position.id,
-                bucket=position.bucket,
+                position=position,
                 reference=reference,
                 system=system,
             )

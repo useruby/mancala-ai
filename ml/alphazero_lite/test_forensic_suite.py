@@ -317,6 +317,46 @@ class ForensicSuiteTest(unittest.TestCase):
         self.assertGreaterEqual(summary["teacher_value"], -1.0)
         self.assertLessEqual(summary["teacher_value"], 1.0)
 
+    def test_build_row_preserves_suite_state_fields_for_mining(self):
+        position = ForensicPosition(
+            id="opening-a",
+            state={
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            },
+            side_to_move=0,
+            legal_moves=(0, 1, 2, 3, 4, 5),
+            phase="opening",
+            bucket="opening_plies_1_8",
+            tags=("opening", "seed"),
+            source="seed",
+        )
+
+        row = run_forensic_suite.build_row(
+            position=position,
+            reference={
+                "selected_move": 0,
+                "child_stats": [{"move": 0, "win_rate": 0.9, "visits": 1}],
+                "teacher_value": 0.3,
+            },
+            system={
+                "selected_move": 0,
+                "value": 0.1,
+            },
+        )
+
+        self.assertEqual(position.id, row["id"])
+        self.assertEqual(position.state, row["state"])
+        self.assertEqual(position.side_to_move, row["side_to_move"])
+        self.assertEqual(list(position.legal_moves), row["legal_moves"])
+        self.assertEqual(position.phase, row["phase"])
+        self.assertEqual(position.bucket, row["bucket"])
+        self.assertEqual(list(position.tags), row["tags"])
+        self.assertEqual(position.source, row["source"])
+
     def test_cli_writes_deterministic_numeric_report_with_teacher_reference(self):
         with tempfile.TemporaryDirectory(prefix="azlite-forensic-report-") as tmp:
             temp_root = Path(tmp)

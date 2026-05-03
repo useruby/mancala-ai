@@ -97,8 +97,7 @@ def build_real_rows_by_budget_and_mode(args: argparse.Namespace) -> dict[int, di
                 )
                 rows.append(
                     build_row(
-                        position_id=position.id,
-                        bucket=position.bucket,
+                        position=position,
                         reference=references[index],
                         system=system,
                     )

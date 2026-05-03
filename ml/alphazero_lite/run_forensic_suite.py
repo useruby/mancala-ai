@@ -10,7 +10,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.forensic_suite import centered_value_from_probability, load_suite, summarize_bucket_matrix, summarize_system
+from ml.alphazero_lite.forensic_suite import ForensicPosition, centered_value_from_probability, load_suite, summarize_bucket_matrix, summarize_system
 
 if os.environ.get("AZLITE_FORENSIC_SUITE_STUB") != "1":
     from ml.alphazero_lite.arena import ArtifactEvaluator, build_eval_search_options, evaluate_artifact_position
@@ -118,12 +118,18 @@ def run_reference(state: dict, policy_simulations: int, value_simulations: int, 
     return summary
 
 
-def build_row(*, position_id: str, bucket: str, reference: dict, system: dict) -> dict:
+def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> dict:
     teacher_value = reference.get("teacher_value")
     system_value = float(system["value"])
     return {
-        "id": position_id,
-        "bucket": bucket,
+        "id": position.id,
+        "state": position.state,
+        "side_to_move": position.side_to_move,
+        "legal_moves": list(position.legal_moves),
+        "phase": position.phase,
+        "bucket": position.bucket,
+        "tags": list(position.tags),
+        "source": position.source,
         "reference_move": reference["selected_move"],
         "selected_move": system["selected_move"],
         "agrees_top1": system["selected_move"] == reference["selected_move"],
@@ -179,8 +185,7 @@ def main() -> None:
                 )
             rows.append(
                 build_row(
-                    position_id=position.id,
-                    bucket=position.bucket,
+                    position=position,
                     reference=references[index],
                     system=system,
                 )

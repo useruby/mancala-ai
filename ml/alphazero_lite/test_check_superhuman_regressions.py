@@ -29,6 +29,44 @@ class CheckSuperhumanRegressionsScriptTest(unittest.TestCase):
             self.assertTrue(report["passed"])
             self.assertEqual([], report["results"])
 
+    def test_stub_mode_accepts_runtime_search_flags(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-regressions-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            result = subprocess.run(
+                [
+                    "ruby",
+                    "script/ai/check_superhuman_regressions",
+                    "--positions",
+                    "test/fixtures/ai/superhuman_regression_positions.json",
+                    "--artifact",
+                    "model-artifact/current",
+                    "--simulations",
+                    "384",
+                    "--reuse-subtree",
+                    "--root-policy-mode",
+                    "deterministic",
+                    "--tactical-root-bias",
+                    "0.1",
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env={
+                    **os.environ,
+                    "AZLITE_CHECK_SUPERHUMAN_REGRESSIONS_STUB": "1",
+                    "BUNDLE_GEMFILE": str(tmp_path / "missing" / "Gemfile"),
+                },
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertTrue(report["passed"])
+            self.assertEqual("model-artifact/current", report["artifact_path"])
+
 
 if __name__ == "__main__":
     unittest.main()

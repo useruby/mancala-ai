@@ -1,3 +1,4 @@
+import argparse
 import json
 import importlib.machinery
 import importlib.util
@@ -123,10 +124,42 @@ class PipelineScriptTest(unittest.TestCase):
         with mock.patch.object(Path, "exists", fake_exists), mock.patch.object(Path, "is_file", fake_is_file), mock.patch("os.access", side_effect=fake_access):
             self.assertEqual(str(executable_fallback), self.executable_python())
 
+    def test_tactical_replay_launcher_python_executable_falls_back_to_workspace_venv(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = module.repo_root()
+        workspace_python = repo_root.parents[2] / ".venv/bin/python"
+
+        original_is_file = Path.is_file
+        original_access = os.access
+
+        def fake_is_file(path_self):
+            return path_self == workspace_python
+
+        def fake_access(path_value, mode):
+            return path_value == workspace_python and mode == os.X_OK
+
+        Path.is_file = fake_is_file
+        os.access = fake_access
+        try:
+            self.assertEqual(str(workspace_python), module.python_executable(repo_root))
+        finally:
+            Path.is_file = original_is_file
+            os.access = original_access
+
     def load_local_promotion_gate_module(self):
         repo_root = Path(__file__).resolve().parents[2]
         script_path = repo_root / "script/ai/local_promotion_gate"
         loader = importlib.machinery.SourceFileLoader("local_promotion_gate", str(script_path))
+        spec = importlib.util.spec_from_loader(loader.name, loader)
+        assert spec is not None
+        module = importlib.util.module_from_spec(spec)
+        loader.exec_module(module)
+        return module
+
+    def load_local_tactical_replay_experiment_module(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/run_local_tactical_replay_experiment"
+        loader = importlib.machinery.SourceFileLoader("run_local_tactical_replay_experiment", str(script_path))
         spec = importlib.util.spec_from_loader(loader.name, loader)
         assert spec is not None
         module = importlib.util.module_from_spec(spec)
@@ -1814,6 +1847,539 @@ class PipelineScriptTest(unittest.TestCase):
             "{hard_state_validation_path}",
             validation_step[validation_step.index("--validation-path") + 1],
         )
+
+    def test_tactical_replay_local_config_uses_generated_replay_dataset_and_hard_defaults(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        config_path = repo_root / "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json"
+        config = load_config(config_path)
+        steps = self.config_steps_by_name(config)
+
+        self.assertEqual("aggressive-v3-tactical-replay-local", config["run_id"])
+        self.assertEqual(1, config["iterations"])
+        self.assertEqual(1, config["start_iteration"])
+
+        train_command = steps["train"]["command"]
+        self.assertIn("{replay_data}", self.command_flag_value(train_command, "--data-files"))
+        self.assertIn("{replay_weights}", self.command_flag_value(train_command, "--replay-weights"))
+
+        hard_validation_command = steps["hard_state_validation"]["command"]
+        self.assertEqual("384", self.command_flag_value(hard_validation_command, "--artifact-simulations"))
+
+        arena_confirm_command = steps["arena_confirm_report"]["command"]
+        self.assertEqual("384", self.command_flag_value(arena_confirm_command, "--challenger-simulations"))
+
+    def test_tactical_replay_launcher_dry_run_emits_stage_plan_and_paths(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+        forensic_suite = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-launcher-") as tmp:
+            output_root = Path(tmp)
+            args = module.parse_args([
+                "--run-id",
+                "demo-run",
+                "--output-root",
+                str(output_root),
+                "--current-path",
+                "model-artifact/current",
+                "--base-config",
+                "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                "--forensic-suite",
+                forensic_suite,
+            ])
+            payload = module.build_dry_run_payload(args, repo_root)
+
+        self.assertEqual("demo-run", args.run_id)
+        self.assertEqual(
+            ["mine", "label", "train", "select"],
+            payload["stages"],
+        )
+        self.assertEqual(str(output_root / "demo-run" / "summary.json"), payload["summary_path"])
+        self.assertEqual(str(output_root / "demo-run" / "selection"), payload["paths"]["selection_dir"])
+        self.assertEqual(
+            str(output_root / "demo-run" / "inputs" / "runtime_config.json"),
+            payload["paths"]["runtime_config_path"],
+        )
+        self.assertEqual({"mine", "label", "train", "select"}, set(payload["commands"].keys()))
+
+        train_stage = payload["commands"]["train"]
+        self.assertEqual(1, len(train_stage))
+        self.assertTrue(train_stage[0][1].endswith("ml/alphazero_lite/pipeline.py"))
+        self.assertEqual(payload["paths"]["runtime_config_path"], self.command_flag_value(train_stage[0], "--config"))
+
+        mine_stage = payload["commands"]["mine"]
+        self.assertEqual(2, len(mine_stage))
+        self.assertTrue(mine_stage[0][1].endswith("ml/alphazero_lite/run_forensic_suite.py"))
+        generated_mining_input = self.command_flag_value(mine_stage[0], "--out")
+        self.assertEqual(generated_mining_input, self.command_flag_value(mine_stage[1], "--inputs"))
+        self.assertNotEqual(forensic_suite, self.command_flag_value(mine_stage[1], "--inputs"))
+
+        self.assertEqual([], payload["commands"]["select"])
+
+        self.assertEqual(
+            {
+                "base_config": str(repo_root / "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json"),
+                "current_path": "model-artifact/current",
+                "forensic_suite": forensic_suite,
+                "runtime_config_path": str(output_root / "demo-run" / "inputs" / "runtime_config.json"),
+                "exploratory_summary": str(output_root / "demo-run" / "exploratory" / "aggregate_summary.json"),
+            },
+            payload["injected_overrides"],
+        )
+        self.assertNotEqual(
+            payload["injected_overrides"]["base_config"],
+            self.command_flag_value(train_stage[0], "--config"),
+        )
+
+    def test_tactical_replay_launcher_materializes_runtime_config_with_run_local_paths(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+        base_config_path = repo_root / "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json"
+        supplied_current_path = "model-artifact/current"
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-runtime-config-") as tmp:
+            output_root = Path(tmp)
+            run_paths = module.build_run_paths(output_root, "demo-run")
+            replay_dataset_path = output_root / "inputs" / "tactical_replay.jsonl"
+            replay_dataset_path.parent.mkdir(parents=True, exist_ok=True)
+            replay_dataset_path.write_text("{}\n", encoding="utf-8")
+
+            runtime_config = module.write_runtime_config(
+                base_config_path=base_config_path,
+                destination_path=run_paths["runtime_config_path"],
+                run_id="demo-run",
+                current_path=supplied_current_path,
+                replay_dataset_path=replay_dataset_path,
+            )
+            self.assertTrue(run_paths["runtime_config_path"].exists())
+            self.assertEqual(str(run_paths["base_dir"] / "versions"), runtime_config["versions_dir"])
+            self.assertEqual(supplied_current_path, runtime_config["current_path"])
+            train_command = self.config_steps_by_name(runtime_config)["train"]["command"]
+            self.assertEqual(module.python_executable(repo_root), train_command[0])
+            self.assertEqual(
+                str(replay_dataset_path),
+                self.command_flag_value(train_command, "--data-files"),
+            )
+
+    def test_tactical_replay_launcher_builds_expected_stage_commands(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+        supplied_current_path = "model-artifact/current"
+        forensic_suite = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-stage-commands-") as tmp:
+            output_root = Path(tmp)
+            run_paths = module.build_run_paths(output_root, "demo-run")
+            commands = module.build_stage_commands(
+                root=repo_root,
+                python_bin=module.python_executable(repo_root),
+                run_id="demo-run",
+                current_path=supplied_current_path,
+                forensic_suite=forensic_suite,
+                runtime_config_path=run_paths["runtime_config_path"],
+                output_root=output_root,
+                exploratory_summary_path=output_root / "external" / "aggregate_summary.json",
+            )
+
+        self.assertTrue(commands["mine_command"][1].endswith("ml/alphazero_lite/mine_hard_states.py"))
+        self.assertTrue(commands["prepare_forensic_mining_input_command"][1].endswith("ml/alphazero_lite/run_forensic_suite.py"))
+        generated_forensic_input = self.command_flag_value(commands["prepare_forensic_mining_input_command"], "--out")
+        self.assertEqual(generated_forensic_input, self.command_flag_value(commands["mine_command"], "--inputs"))
+        self.assertTrue(commands["label_command"][1].endswith("ml/alphazero_lite/label_tactical_states.py"))
+        self.assertTrue(commands["train_command"][1].endswith("ml/alphazero_lite/pipeline.py"))
+        self.assertEqual(str(run_paths["runtime_config_path"]), self.command_flag_value(commands["train_command"], "--config"))
+
+        self.assertEqual(str(run_paths["inputs_dir"] / "mined_hard_states.jsonl"), self.command_flag_value(commands["label_command"], "--input"))
+        self.assertEqual("1200", self.command_flag_value(commands["label_command"], "--policy-simulations"))
+        self.assertEqual("1200", self.command_flag_value(commands["label_command"], "--value-simulations"))
+        self.assertEqual("42", self.command_flag_value(commands["label_command"], "--seed"))
+        self.assertEqual("sharpened", self.command_flag_value(commands["label_command"], "--policy-target-mode"))
+        self.assertEqual("sharpened", self.command_flag_value(commands["label_command"], "--value-target-mode"))
+        self.assertEqual("kalah_v3", self.command_flag_value(commands["label_command"], "--input-encoding"))
+        self.assertEqual(str(run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"), self.command_flag_value(commands["label_command"], "--out-labeled"))
+        self.assertEqual(str(run_paths["inputs_dir"] / "tactical_replay_train.jsonl"), self.command_flag_value(commands["label_command"], "--out-tactical-train"))
+        self.assertEqual(str(run_paths["inputs_dir"] / "preservation_replay_train.jsonl"), self.command_flag_value(commands["label_command"], "--out-preservation-train"))
+
+        self.assertTrue(commands["candidate_forensic_command"][1].endswith("ml/alphazero_lite/run_forensic_suite.py"))
+        self.assertEqual(forensic_suite, self.command_flag_value(commands["candidate_forensic_command"], "--suite"))
+        self.assertEqual(supplied_current_path, self.command_flag_value(commands["candidate_forensic_command"], "--current-artifact"))
+        self.assertEqual("1200", self.command_flag_value(commands["candidate_forensic_command"], "--mcts-simulations"))
+        self.assertEqual("1800", self.command_flag_value(commands["candidate_forensic_command"], "--teacher-simulations"))
+        self.assertEqual("3041", self.command_flag_value(commands["candidate_forensic_command"], "--seed"))
+        self.assertEqual(forensic_suite, self.command_flag_value(commands["current_forensic_command"], "--suite"))
+        self.assertEqual(supplied_current_path, self.command_flag_value(commands["current_forensic_command"], "--current-artifact"))
+        self.assertEqual(supplied_current_path, self.command_flag_value(commands["current_forensic_command"], "--challenger-artifact"))
+        self.assertEqual("1200", self.command_flag_value(commands["current_forensic_command"], "--mcts-simulations"))
+        self.assertEqual("1800", self.command_flag_value(commands["current_forensic_command"], "--teacher-simulations"))
+        self.assertEqual("2040", self.command_flag_value(commands["current_forensic_command"], "--seed"))
+
+        self.assertTrue(commands["arena_command"][1].endswith("ml/alphazero_lite/arena.py"))
+        self.assertEqual("120", self.command_flag_value(commands["arena_command"], "--games"))
+        self.assertEqual("1041", self.command_flag_value(commands["arena_command"], "--seed"))
+        self.assertEqual("384", self.command_flag_value(commands["arena_command"], "--challenger-simulations"))
+        self.assertEqual("384", self.command_flag_value(commands["arena_command"], "--current-simulations"))
+        self.assertIn("--reuse-subtree", commands["arena_command"])
+        self.assertEqual("deterministic", self.command_flag_value(commands["arena_command"], "--root-policy-mode"))
+        self.assertEqual("0.1", self.command_flag_value(commands["arena_command"], "--tactical-root-bias"))
+        arena_output = self.command_flag_value(commands["arena_command"], "--out")
+        candidate_mcts_output = self.command_flag_value(commands["candidate_mcts_command"], "--out")
+        current_mcts_output = self.command_flag_value(commands["current_mcts_command"], "--out")
+        self.assertEqual("40", self.command_flag_value(commands["candidate_mcts_command"], "--games"))
+        self.assertEqual("2041", self.command_flag_value(commands["candidate_mcts_command"], "--seed"))
+        self.assertEqual("384", self.command_flag_value(commands["candidate_mcts_command"], "--az-base-simulations"))
+        self.assertEqual("1200", self.command_flag_value(commands["candidate_mcts_command"], "--mcts-simulations"))
+        self.assertIn("--reuse-subtree", commands["candidate_mcts_command"])
+        self.assertEqual("deterministic", self.command_flag_value(commands["candidate_mcts_command"], "--root-policy-mode"))
+        self.assertEqual("0.1", self.command_flag_value(commands["candidate_mcts_command"], "--tactical-root-bias"))
+        self.assertEqual("40", self.command_flag_value(commands["current_mcts_command"], "--games"))
+        self.assertEqual("2041", self.command_flag_value(commands["current_mcts_command"], "--seed"))
+        self.assertEqual("384", self.command_flag_value(commands["current_mcts_command"], "--az-base-simulations"))
+        self.assertEqual("1200", self.command_flag_value(commands["current_mcts_command"], "--mcts-simulations"))
+        self.assertIn("--reuse-subtree", commands["current_mcts_command"])
+        self.assertEqual("deterministic", self.command_flag_value(commands["current_mcts_command"], "--root-policy-mode"))
+        self.assertEqual("0.1", self.command_flag_value(commands["current_mcts_command"], "--tactical-root-bias"))
+        self.assertEqual(arena_output, self.command_flag_value(commands["aggregate_holdout_command"], "--arena-inputs"))
+        self.assertEqual(candidate_mcts_output, self.command_flag_value(commands["aggregate_holdout_command"], "--candidate-mcts-inputs"))
+        self.assertEqual(current_mcts_output, self.command_flag_value(commands["aggregate_holdout_command"], "--current-mcts-inputs"))
+
+        arena_holdout_output = self.command_flag_value(commands["aggregate_holdout_command"], "--out-arena")
+        candidate_mcts_holdout_output = self.command_flag_value(commands["aggregate_holdout_command"], "--out-candidate-mcts")
+        current_mcts_holdout_output = self.command_flag_value(commands["aggregate_holdout_command"], "--out-current-mcts")
+        candidate_forensic_output = self.command_flag_value(commands["candidate_forensic_command"], "--out")
+        regression_output = self.command_flag_value(commands["regression_command"], "--out")
+        self.assertEqual(arena_holdout_output, self.command_flag_value(commands["local_promotion_gate_command"], "--stub-arena-report"))
+        self.assertEqual(candidate_mcts_holdout_output, self.command_flag_value(commands["local_promotion_gate_command"], "--stub-candidate-mcts-report"))
+        self.assertEqual(current_mcts_holdout_output, self.command_flag_value(commands["local_promotion_gate_command"], "--stub-current-mcts-report"))
+        self.assertEqual(candidate_forensic_output, self.command_flag_value(commands["local_promotion_gate_command"], "--stub-forensic-report"))
+        self.assertEqual(regression_output, self.command_flag_value(commands["local_promotion_gate_command"], "--stub-regression-report"))
+        self.assertEqual("120", self.command_flag_value(commands["local_promotion_gate_command"], "--arena-games"))
+        self.assertEqual("40", self.command_flag_value(commands["local_promotion_gate_command"], "--mcts-games"))
+        self.assertEqual("40", self.command_flag_value(commands["local_promotion_gate_command"], "--min-mcts-games"))
+        self.assertEqual("0.55", self.command_flag_value(commands["local_promotion_gate_command"], "--min-arena-score"))
+        self.assertEqual("200", self.command_flag_value(commands["local_promotion_gate_command"], "--max-arena-move-time-mean-ms"))
+        self.assertEqual("350", self.command_flag_value(commands["local_promotion_gate_command"], "--max-arena-move-time-p95-ms"))
+
+        self.assertTrue(commands["bucket_gate_command"][1].endswith("ml/alphazero_lite/check_bucket_promotion_gate.py"))
+        self.assertTrue(commands["regression_command"][0].endswith("script/ai/check_superhuman_regressions"))
+        self.assertTrue(commands["local_promotion_gate_command"][0].endswith("script/ai/local_promotion_gate"))
+        self.assertTrue(commands["decision_command"][1].endswith("ml/alphazero_lite/write_tactical_lane_decision.py"))
+
+    def test_tactical_replay_launcher_supports_explicit_exploratory_summary_path(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-exploratory-summary-") as tmp:
+            output_root = Path(tmp)
+            run_paths = module.build_run_paths(output_root, "demo-run")
+            exploratory_summary_path = output_root / "external" / "aggregate_summary.json"
+            commands = module.build_stage_commands(
+                root=repo_root,
+                python_bin=module.python_executable(repo_root),
+                run_id="demo-run",
+                current_path="model-artifact/current",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                runtime_config_path=run_paths["runtime_config_path"],
+                output_root=output_root,
+                exploratory_summary_path=exploratory_summary_path,
+            )
+
+        self.assertEqual(
+            str(exploratory_summary_path),
+            self.command_flag_value(commands["decision_command"], "--exploratory-summary"),
+        )
+
+    def test_tactical_replay_launcher_script_is_executable(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/run_local_tactical_replay_experiment"
+
+        self.assertTrue(os.access(script_path, os.X_OK), msg=f"script is not executable: {script_path}")
+
+    def test_tactical_replay_launcher_dry_run_respects_start_stage_and_skip_stage(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-dry-run-stages-") as tmp:
+            output_root = Path(tmp)
+            args = module.parse_args([
+                "--run-id",
+                "demo-run",
+                "--output-root",
+                str(output_root),
+                "--current-path",
+                "model-artifact/current",
+                "--base-config",
+                "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                "--forensic-suite",
+                "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                "--start-stage",
+                "final_holdout",
+                "--skip-stage",
+                "decision",
+                "--selected-artifact",
+                str(output_root / "provided-artifact"),
+            ])
+            (output_root / "provided-artifact").mkdir(parents=True, exist_ok=True)
+            ((output_root / "provided-artifact") / "model.npz").write_text("stub", encoding="utf-8")
+
+            payload = module.build_dry_run_payload(args, repo_root)
+
+        self.assertEqual(["final_holdout"], payload["stages"])
+        self.assertEqual(["final_holdout"], list(payload["commands"].keys()))
+
+    def test_tactical_replay_launcher_dry_run_requires_exploratory_summary_for_decision_stage(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-dry-run-decision-") as tmp:
+            output_root = Path(tmp)
+            args = module.parse_args([
+                "--run-id",
+                "demo-run",
+                "--output-root",
+                str(output_root),
+                "--current-path",
+                "model-artifact/current",
+                "--base-config",
+                "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                "--forensic-suite",
+                "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                "--start-stage",
+                "decision",
+            ])
+
+            with self.assertRaisesRegex(SystemExit, "selection/artifact"):
+                module.build_dry_run_payload(args, repo_root)
+
+    def test_tactical_replay_launcher_rejects_final_only_without_selected_artifact(self):
+        module = self.load_local_tactical_replay_experiment_module()
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-final-only-") as tmp:
+            root = Path(tmp)
+            args = argparse.Namespace(
+                run_id="demo-run",
+                output_root=str(root / "runs"),
+                current_path="model-artifact/current",
+                base_config="ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                start_stage="final_holdout",
+                skip_stage=[],
+                selected_artifact=None,
+            )
+
+            with self.assertRaisesRegex(SystemExit, "selected artifact"):
+                module.validate_args(args, root)
+
+    def test_tactical_replay_launcher_rejects_skip_stage_without_prerequisites(self):
+        module = self.load_local_tactical_replay_experiment_module()
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-skip-stage-") as tmp:
+            root = Path(tmp)
+            args = argparse.Namespace(
+                run_id="demo-run",
+                output_root=str(root / "runs"),
+                current_path="model-artifact/current",
+                base_config="ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                start_stage="mine",
+                skip_stage=["label"],
+                selected_artifact=None,
+            )
+
+            with self.assertRaisesRegex(SystemExit, "labeled_tactical_states.jsonl"):
+                module.validate_stage_prerequisites(args, root)
+
+    def test_tactical_replay_launcher_selects_exactly_one_candidate(self):
+        module = self.load_local_tactical_replay_experiment_module()
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-select-one-") as tmp:
+            train_root = Path(tmp) / "train"
+            candidate_dir = train_root / "demo-run-iter1"
+            candidate_dir.mkdir(parents=True)
+            (candidate_dir / "model.npz").write_text("stub", encoding="utf-8")
+
+            selected = module.select_candidate(train_root, Path(tmp) / "selection")
+
+        self.assertEqual(candidate_dir, selected)
+
+    def test_tactical_replay_launcher_rejects_multiple_candidates(self):
+        module = self.load_local_tactical_replay_experiment_module()
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-select-many-") as tmp:
+            train_root = Path(tmp) / "train"
+            first = train_root / "demo-run-iter1"
+            second = train_root / "demo-run-iter2"
+            first.mkdir(parents=True)
+            second.mkdir(parents=True)
+            (first / "model.npz").write_text("stub", encoding="utf-8")
+            (second / "model.npz").write_text("stub", encoding="utf-8")
+
+            with self.assertRaisesRegex(SystemExit, "multiple candidate artifacts"):
+                module.select_candidate(train_root, Path(tmp) / "selection")
+
+    def test_tactical_replay_launcher_writes_summary_after_stubbed_run(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-summary-") as tmp:
+            output_root = Path(tmp) / "runs"
+            args = argparse.Namespace(
+                run_id="demo-run",
+                output_root=str(output_root),
+                current_path="model-artifact/current",
+                base_config="ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                start_stage="train",
+                skip_stage=["mine", "label", "exploratory", "final_holdout", "decision"],
+                selected_artifact=None,
+            )
+
+            run_paths = module.build_run_paths(output_root, args.run_id)
+            run_paths["inputs_dir"].mkdir(parents=True, exist_ok=True)
+            replay_dataset_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
+            replay_dataset_path.write_text("{}\n", encoding="utf-8")
+
+            commands_run: list[tuple[list[str], Path]] = []
+
+            def fake_run_command(command, cwd):
+                commands_run.append((list(command), cwd))
+                if any(token.endswith("ml/alphazero_lite/pipeline.py") for token in command):
+                    runtime_config_path = Path(command[command.index("--config") + 1])
+                    runtime_config = json.loads(runtime_config_path.read_text(encoding="utf-8"))
+                    candidate_dir = Path(runtime_config["versions_dir"]) / f"{runtime_config['run_id']}-iter1"
+                    candidate_dir.mkdir(parents=True, exist_ok=True)
+                    (candidate_dir / "model.npz").write_text("stub", encoding="utf-8")
+                return {"command": list(command), "cwd": str(cwd), "returncode": 0}
+
+            with mock.patch.object(module, "run_command", side_effect=fake_run_command):
+                summary = module.run(args, repo_root)
+
+            summary_path = run_paths["summary_path"]
+            manifest_path = run_paths["base_dir"] / "run_manifest.json"
+            selection_artifact = run_paths["selection_dir"] / "artifact"
+            self.assertTrue(summary_path.exists())
+            self.assertTrue(manifest_path.exists())
+            self.assertEqual(summary, json.loads(summary_path.read_text(encoding="utf-8")))
+            self.assertEqual("demo-run", summary["run_id"])
+            self.assertEqual(["train", "select"], summary["executed_stages"])
+            self.assertEqual(str(selection_artifact), summary["selection_manifest"]["selected_artifact"])
+            self.assertEqual("single_candidate", summary["selection_manifest"]["selection_rule"])
+            self.assertEqual(1, summary["selection_manifest"]["candidate_count"])
+            self.assertEqual(1, len(commands_run))
+
+    def test_tactical_replay_launcher_final_holdout_with_selected_artifact_materializes_run_tree_artifact(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-final-selected-") as tmp:
+            tmp_path = Path(tmp)
+            output_root = tmp_path / "runs"
+            selected_artifact = tmp_path / "provided-artifact"
+            selected_artifact.mkdir(parents=True, exist_ok=True)
+            (selected_artifact / "model.npz").write_text("stub", encoding="utf-8")
+
+            args = argparse.Namespace(
+                run_id="demo-run",
+                output_root=str(output_root),
+                current_path="model-artifact/current",
+                base_config="ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                start_stage="final_holdout",
+                skip_stage=["decision"],
+                selected_artifact=str(selected_artifact),
+            )
+
+            run_paths = module.build_run_paths(output_root, args.run_id)
+            seen_candidate_paths: list[Path] = []
+
+            def fake_run_command(command, cwd):
+                if "--challenger-artifact" in command:
+                    candidate_path = Path(command[command.index("--challenger-artifact") + 1])
+                    seen_candidate_paths.append(candidate_path)
+                    self.assertTrue(candidate_path.exists())
+                if "--challenger" in command:
+                    candidate_path = Path(command[command.index("--challenger") + 1])
+                    seen_candidate_paths.append(candidate_path)
+                    self.assertTrue(candidate_path.exists())
+                if "--challenger-path" in command:
+                    candidate_path = Path(command[command.index("--challenger-path") + 1])
+                    seen_candidate_paths.append(candidate_path)
+                    self.assertTrue(candidate_path.exists())
+                if "--candidate-path" in command:
+                    candidate_path = Path(command[command.index("--candidate-path") + 1])
+                    seen_candidate_paths.append(candidate_path)
+                    self.assertTrue(candidate_path.exists())
+                if "--out" in command:
+                    out_path = Path(command[command.index("--out") + 1])
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+                    out_path.write_text("{}", encoding="utf-8")
+                return {"command": list(command), "cwd": str(cwd), "returncode": 0}
+
+            with mock.patch.object(module, "run_command", side_effect=fake_run_command):
+                summary = module.run(args, repo_root)
+
+            manifest = json.loads(run_paths["manifest_path"].read_text(encoding="utf-8"))
+            selection_artifact_path = run_paths["selection_dir"] / "artifact"
+            self.assertTrue(selection_artifact_path.exists())
+            self.assertEqual(str(selection_artifact_path), summary["selection_manifest"]["selected_artifact"])
+            self.assertEqual(str(selection_artifact_path), seen_candidate_paths[0].as_posix())
+            self.assertEqual(["final_holdout"], summary["executed_stages"])
+            self.assertEqual(["final_holdout"], manifest["executed_stages"])
+
+    def test_tactical_replay_launcher_materializes_relative_selected_artifact_symlink_to_existing_path(self):
+        module = self.load_local_tactical_replay_experiment_module()
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-relative-artifact-", dir=Path.cwd()) as tmp:
+            tmp_path = Path(tmp)
+            selection_dir = tmp_path / "run" / "selection"
+            selected_artifact = tmp_path / "run" / "versions" / "demo-run-iter1"
+            selected_artifact.mkdir(parents=True, exist_ok=True)
+            (selected_artifact / "model.npz").write_text("stub", encoding="utf-8")
+
+            artifact_path = module.materialize_selected_artifact(
+                selection_dir,
+                selected_artifact.relative_to(Path.cwd()),
+            )
+
+            self.assertTrue(artifact_path.exists())
+            self.assertTrue((artifact_path / "model.npz").exists())
+
+    def test_tactical_replay_launcher_does_not_report_noop_stage_as_executed(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-noop-stage-") as tmp:
+            output_root = Path(tmp) / "runs"
+            args = argparse.Namespace(
+                run_id="demo-run",
+                output_root=str(output_root),
+                current_path="model-artifact/current",
+                base_config="ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                start_stage="train",
+                skip_stage=["mine", "label", "final_holdout", "decision"],
+                selected_artifact=None,
+            )
+
+            run_paths = module.build_run_paths(output_root, args.run_id)
+            run_paths["inputs_dir"].mkdir(parents=True, exist_ok=True)
+            replay_dataset_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
+            replay_dataset_path.write_text("{}\n", encoding="utf-8")
+
+            def fake_run_command(command, cwd):
+                if any(token.endswith("ml/alphazero_lite/pipeline.py") for token in command):
+                    runtime_config_path = Path(command[command.index("--config") + 1])
+                    runtime_config = json.loads(runtime_config_path.read_text(encoding="utf-8"))
+                    candidate_dir = Path(runtime_config["versions_dir"]) / f"{runtime_config['run_id']}-iter1"
+                    candidate_dir.mkdir(parents=True, exist_ok=True)
+                    (candidate_dir / "model.npz").write_text("stub", encoding="utf-8")
+                return {"command": list(command), "cwd": str(cwd), "returncode": 0}
+
+            with mock.patch.object(module, "run_command", side_effect=fake_run_command):
+                summary = module.run(args, repo_root)
+
+            manifest = json.loads(run_paths["manifest_path"].read_text(encoding="utf-8"))
+            self.assertEqual(["train", "select"], summary["executed_stages"])
+            self.assertEqual(["train", "select"], manifest["executed_stages"])
 
     def test_pipeline_initial_iteration_uses_parent_artifact_path_for_parent_checkpoint_and_keeps_current_path_for_runtime_targets(self):
         with tempfile.TemporaryDirectory(prefix="azlite-pipeline-parent-artifact-") as tmp:
@@ -4036,6 +4602,55 @@ class PipelineScriptTest(unittest.TestCase):
         self.assertIn("blunder_rate", handoff)
         self.assertIn("capture_available", handoff)
         self.assertIn("sparse_endgame", handoff)
+
+    def test_handoff_documents_runnable_tactical_holdout_workflow(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        handoff = (repo_root / "docs/alphazero-lite-ml-handoff.md").read_text(encoding="utf-8")
+        tactical_section = handoff.split("## Tactical Hard-State Replay Lane", 1)[1]
+
+        self.assertIn("/tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json", handoff)
+        self.assertIn("current_mcts_seed_2041.json", handoff)
+        self.assertIn("--stub-forensic-report", handoff)
+        self.assertIn("baseline_candidate_forensics.json", handoff)
+        self.assertIn("--teacher-simulations 1800", handoff)
+        self.assertIn("--seed 3041", handoff)
+        self.assertIn("--seed 2040", handoff)
+        self.assertIn("--seed 1041", handoff)
+        self.assertIn("--seed 2041", handoff)
+        self.assertIn("--reuse-subtree", handoff)
+        self.assertIn("--root-policy-mode deterministic", handoff)
+        self.assertIn("--tactical-root-bias 0.1", handoff)
+        self.assertIn("--games 40", handoff)
+        self.assertIn("--min-mcts-games 40", handoff)
+        self.assertLess(
+            tactical_section.index("aggregate_holdout_reports.py"),
+            tactical_section.index("script/ai/local_promotion_gate"),
+        )
+
+    def test_handoff_documents_tactical_replay_launcher_entrypoint(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        handoff = (repo_root / "docs/alphazero-lite-ml-handoff.md").read_text(encoding="utf-8")
+        tactical_section = handoff.split("## Tactical Hard-State Replay Lane", 1)[1].split(
+            "Implementation flow:",
+            1,
+        )[0]
+        launcher_block = self.find_bash_block(
+            tactical_section,
+            containing=("script/ai/run_local_tactical_replay_experiment",),
+        )
+
+        self.assertIn("script/ai/run_local_tactical_replay_experiment", launcher_block)
+        self.assertIn("--run-id", launcher_block)
+        self.assertIn("--output-root", launcher_block)
+        self.assertIn("--current-path", launcher_block)
+        self.assertIn("--base-config", launcher_block)
+        self.assertIn("--forensic-suite", launcher_block)
+        self.assertIn("--dry-run", launcher_block)
+        self.assertIn("aggressive_v3_tactical_replay_local.json", launcher_block)
+        self.assertIn("summary.json", tactical_section)
+        self.assertIn("external prerequisite", tactical_section)
+        self.assertIn("downstream", tactical_section)
+        self.assertNotIn("exploratory/final-holdout/decision flow", tactical_section)
 
     def test_bootstrap_300_config_renders_expected_dataset_step(self):
         repo_root = Path(__file__).resolve().parents[2]

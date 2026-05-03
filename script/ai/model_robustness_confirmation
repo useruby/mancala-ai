@@ -171,6 +171,33 @@ def build_lane(seed: int, *, base_run_id: str, iteration: int, output_root: Path
     }
 
 
+def build_aggregate_summary(
+    *,
+    parent_artifact: str,
+    current_path: str,
+    lane_summaries: list[dict],
+    required_qualifying_seed_count: int,
+) -> dict:
+    qualifying_seed_count = sum(
+        1
+        for summary in lane_summaries
+        if summary.get("benchmark_passed") and summary.get("local_promotion_gate_passed")
+    )
+    all_lanes_passed = all(
+        summary.get("benchmark_passed") and summary.get("local_promotion_gate_passed")
+        for summary in lane_summaries
+    )
+    return {
+        "parent_artifact": parent_artifact,
+        "current_path": current_path,
+        "passed": qualifying_seed_count >= required_qualifying_seed_count,
+        "all_lanes_passed": all_lanes_passed,
+        "qualifying_seed_count": qualifying_seed_count,
+        "required_qualifying_seed_count": required_qualifying_seed_count,
+        "lanes": lane_summaries,
+    }
+
+
 def build_plan(args: argparse.Namespace) -> tuple[dict, dict]:
     base_config_path = resolve_repo_path(args.base_config)
     base_config = load_json(base_config_path)
@@ -197,6 +224,7 @@ def build_plan(args: argparse.Namespace) -> tuple[dict, dict]:
         "parent_artifact": args.parent_artifact,
         "current_path": args.current_path,
         "aggregate_summary_path": str(aggregate_summary_path),
+        "required_qualifying_seed_count": 2,
         "lanes": lanes,
     }
     return plan, base_config
@@ -439,15 +467,12 @@ def main() -> int:
         )
         lane_summaries.append(execute_lane(lane, lane_config, current_path=str(current_path)))
 
-    aggregate_summary = {
-        "parent_artifact": args.parent_artifact,
-        "current_path": args.current_path,
-        "passed": all(
-            summary.get("benchmark_passed") and summary.get("local_promotion_gate_passed")
-            for summary in lane_summaries
-        ),
-        "lanes": lane_summaries,
-    }
+    aggregate_summary = build_aggregate_summary(
+        parent_artifact=args.parent_artifact,
+        current_path=args.current_path,
+        lane_summaries=lane_summaries,
+        required_qualifying_seed_count=int(plan["required_qualifying_seed_count"]),
+    )
     aggregate_summary_path = Path(plan["aggregate_summary_path"])
     aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
     aggregate_summary_path.write_text(json.dumps(aggregate_summary, indent=2), encoding="utf-8")

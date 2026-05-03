@@ -359,6 +359,169 @@ Notes:
 - For lanes 1 and 2, compare against baseline with `script/ai/local_promotion_gate` before any promotion.
 - Keep `weights.json` / `metadata.json` schema unchanged unless runtime contract changes are explicitly planned.
 
+## Tactical Hard-State Replay Lane
+
+The next hard-bot strength lane is documented in this section and in the tactical-lane implementation scripts under `ml/alphazero_lite/` and `script/ai/`.
+
+Use `script/ai/run_local_tactical_replay_experiment` as the default local entrypoint for the local tactical replay run tree. The wrapper exists to run and dry-run the local mine -> label -> train -> select flow, generate the run-local runtime config automatically, and write the run summary/selection artifacts in one predictable tree.
+
+Required inputs for a normal local run:
+
+- `--run-id` for the run directory name;
+- `--output-root` for the parent run tree;
+- `--current-path` for the incumbent runtime artifact;
+- `--base-config ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json` for the tactical replay training lane;
+- `--forensic-suite ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json` for the forensic inputs.
+
+Dry-run the wrapper first to confirm the planned local stage order, generated commands, and output paths before starting a real local run:
+
+```bash
+RUN_ID="tactical-replay-$(date +%Y%m%d-%H%M%S)"
+
+script/ai/run_local_tactical_replay_experiment \
+  --run-id "$RUN_ID" \
+  --output-root /tmp/tactical-replay-runs \
+  --current-path model-artifact/current \
+  --base-config ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json \
+  --forensic-suite ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json \
+  --dry-run
+```
+
+Inspect the dry-run JSON first:
+
+- `summary_path` points at `<output-root>/<run-id>/summary.json`;
+- `paths.runtime_config_path` points at the generated run-local config under `<output-root>/<run-id>/inputs/runtime_config.json`;
+- `paths.selection_dir` points at `<output-root>/<run-id>/selection`, where the wrapper materializes `selection/artifact` plus `selection/selection_manifest.json` after candidate selection.
+
+Exploratory confirmation and the final holdout/decision workflow stay downstream of the default launcher flow. Treat multi-seed exploratory confirmation as an external prerequisite before final promotion review, then use the documented holdout commands below against the selected artifact tree.
+
+Rerun guidance:
+
+- use the default local wrapper flow when you want the lane to mine, label, train, and select a new candidate from scratch;
+- use `--start-stage final_holdout` with `--selected-artifact /path/to/artifact` only when you are re-entering the downstream holdout portion with an already chosen artifact and want the launcher to rebuild the local run tree paths for that stage;
+- use `--selected-artifact` again when you need to point the downstream stage at a manually chosen candidate artifact instead of auto-selecting from the generated `versions/` tree;
+- do not expect the default wrapper invocation to produce the exploratory confirmation artifact or tactical lane decision on its own.
+
+Implementation flow:
+
+- generate a completed forensic report first with `ml/alphazero_lite/run_forensic_suite.py --suite --current-artifact --challenger-artifact --out`, then mine hard states from that report with `ml/alphazero_lite/mine_hard_states.py --inputs --out-jsonl --out-report`;
+- label mined states with `ml/alphazero_lite/label_tactical_states.py --input --policy-simulations 1200 --value-simulations 1200 --seed 42 --policy-target-mode sharpened --value-target-mode sharpened --input-encoding kalah_v3 --out-labeled --out-tactical-train --out-preservation-train`;
+- train the local tactical replay config against the generated tactical replay dataset via the wrapper-generated runtime config;
+- export and select one candidate artifact under the wrapper run tree;
+- run final holdout forensics, bucket gate, arena aggregation, MCTS aggregation, regression report, local promotion gate, and tactical lane decision report only after exploratory confirmation exists.
+
+Hard-bot promotion uses base `384` AlphaZero-lite simulations for both candidate and current arena arms. Runs using base `640` simulations are superhuman-strength checks and do not substitute for hard-bot promotion.
+
+Final holdout workflow shape:
+
+~~~bash
+# Multi-seed exploratory confirmation must complete before final holdout.
+# Use the top-level aggregate artifact from script/ai/model_robustness_confirmation.
+script/ai/runpod_model_robustness_confirmation
+
+.venv/bin/python ml/alphazero_lite/run_forensic_suite.py \
+  --suite ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json \
+  --current-artifact model-artifact/current \
+  --challenger-artifact artifacts/tactical_lane/selected/artifact \
+  --mcts-simulations 1200 \
+  --teacher-simulations 1800 \
+  --seed 3041 \
+  --out artifacts/tactical_lane/final/selected_candidate_forensics.json
+
+.venv/bin/python ml/alphazero_lite/arena.py \
+  --challenger artifacts/tactical_lane/selected/artifact \
+  --current model-artifact/current \
+  --games 120 \
+  --seed 1041 \
+  --challenger-simulations 384 \
+  --current-simulations 384 \
+  --reuse-subtree \
+  --root-policy-mode deterministic \
+  --tactical-root-bias 0.1 \
+  --out artifacts/tactical_lane/final/arena_seed_1041.json
+
+.venv/bin/python ml/alphazero_lite/run_forensic_suite.py \
+  --suite ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json \
+  --current-artifact model-artifact/current \
+  --challenger-artifact model-artifact/current \
+  --mcts-simulations 1200 \
+  --teacher-simulations 1800 \
+  --seed 2040 \
+  --out artifacts/tactical_lane/final/baseline_candidate_forensics.json
+
+.venv/bin/python ml/alphazero_lite/mcts1200_baseline.py \
+  --challenger-path artifacts/tactical_lane/selected/artifact \
+  --games 40 \
+  --seed 2041 \
+  --az-base-simulations 384 \
+  --mcts-simulations 1200 \
+  --reuse-subtree \
+  --root-policy-mode deterministic \
+  --tactical-root-bias 0.1 \
+  --out artifacts/tactical_lane/final/candidate_mcts_seed_2041.json
+
+.venv/bin/python ml/alphazero_lite/mcts1200_baseline.py \
+  --challenger-path model-artifact/current \
+  --games 40 \
+  --seed 2041 \
+  --az-base-simulations 384 \
+  --mcts-simulations 1200 \
+  --reuse-subtree \
+  --root-policy-mode deterministic \
+  --tactical-root-bias 0.1 \
+  --out artifacts/tactical_lane/final/current_mcts_seed_2041.json
+
+script/ai/check_superhuman_regressions \
+  --positions test/fixtures/ai/superhuman_regression_positions.json \
+  --artifact artifacts/tactical_lane/selected/artifact \
+  --simulations 384 \
+  --reuse-subtree \
+  --root-policy-mode deterministic \
+  --tactical-root-bias 0.1 \
+  --out artifacts/tactical_lane/final/candidate_regression_suite.json
+
+.venv/bin/python ml/alphazero_lite/check_bucket_promotion_gate.py \
+  --baseline-forensics artifacts/tactical_lane/final/baseline_candidate_forensics.json \
+  --candidate-forensics artifacts/tactical_lane/final/selected_candidate_forensics.json \
+  --out artifacts/tactical_lane/final/bucket_gate.json
+
+.venv/bin/python ml/alphazero_lite/aggregate_holdout_reports.py \
+  --arena-inputs artifacts/tactical_lane/final/arena_seed_1041.json \
+  --candidate-mcts-inputs artifacts/tactical_lane/final/candidate_mcts_seed_2041.json \
+  --current-mcts-inputs artifacts/tactical_lane/final/current_mcts_seed_2041.json \
+  --out-arena artifacts/tactical_lane/final/arena_holdout.json \
+  --out-candidate-mcts artifacts/tactical_lane/final/candidate_mcts_holdout.json \
+  --out-current-mcts artifacts/tactical_lane/final/current_mcts_holdout.json
+
+script/ai/local_promotion_gate \
+  --candidate-path artifacts/tactical_lane/selected/artifact \
+  --current-path model-artifact/current \
+  --arena-games 120 \
+  --mcts-games 40 \
+  --min-mcts-games 40 \
+  --min-arena-score 0.55 \
+  --max-arena-move-time-mean-ms 200 \
+  --max-arena-move-time-p95-ms 350 \
+  --stub-arena-report artifacts/tactical_lane/final/arena_holdout.json \
+  --stub-candidate-mcts-report artifacts/tactical_lane/final/candidate_mcts_holdout.json \
+  --stub-current-mcts-report artifacts/tactical_lane/final/current_mcts_holdout.json \
+  --stub-regression-report artifacts/tactical_lane/final/candidate_regression_suite.json \
+  --stub-forensic-report artifacts/tactical_lane/final/selected_candidate_forensics.json \
+  --out artifacts/tactical_lane/final/local_promotion_gate.json
+
+.venv/bin/python ml/alphazero_lite/write_tactical_lane_decision.py \
+  --bucket-gate artifacts/tactical_lane/final/bucket_gate.json \
+  --promotion-gate artifacts/tactical_lane/final/local_promotion_gate.json \
+  --exploratory-summary /tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json \
+  --out artifacts/tactical_lane/final/tactical_lane_decision.json
+~~~
+
+Notes:
+
+- `script/ai/runpod_model_robustness_confirmation` downloads the required exploratory confirmation artifact to `/tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json` by default.
+- Final holdout requires both the exploratory confirmation artifact and the holdout gate artifacts above; `write_tactical_lane_decision.py` consumes both.
+- When re-entering the wrapper at `--start-stage decision`, pass `--exploratory-summary /tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json` if the confirmation artifact lives outside the run-local tree.
+
 ## Source Of Truth
 
 - Treat script behavior and defaults as source-of-truth over this document:

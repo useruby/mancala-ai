@@ -1,0 +1,675 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+STAGES = ["mine", "label", "train", "select", "final_holdout", "decision"]
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def python_executable(root: Path) -> str:
+    if os.environ.get("AZLITE_EXPERIMENT_PYTHON"):
+        return os.environ["AZLITE_EXPERIMENT_PYTHON"]
+
+    candidates = [root / ".venv/bin/python"]
+    candidates.extend(parent / ".venv/bin/python" for parent in root.parents)
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
+    return sys.executable
+
+
+def load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def set_python_bin(command, python_bin):
+    if command and command[0] == ".venv/bin/python":
+        command[0] = python_bin
+
+
+def parse_args(argv=None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--output-root", required=True)
+    parser.add_argument("--current-path", required=True)
+    parser.add_argument("--base-config", required=True)
+    parser.add_argument("--forensic-suite", required=True)
+    parser.add_argument("--start-stage", choices=STAGES, default="mine")
+    parser.add_argument("--skip-stage", action="append", default=[])
+    parser.add_argument("--selected-artifact")
+    parser.add_argument("--exploratory-summary")
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args(argv)
+
+
+def build_run_paths(output_root, run_id) -> dict[str, Path]:
+    base_dir = Path(output_root) / run_id
+    return {
+        "base_dir": base_dir,
+        "inputs_dir": base_dir / "inputs",
+        "runtime_config_path": base_dir / "inputs" / "runtime_config.json",
+        "manifest_path": base_dir / "run_manifest.json",
+        "summary_path": base_dir / "summary.json",
+        "selection_dir": base_dir / "selection",
+    }
+
+
+def resolve_path(root: Path, value: str | None) -> Path | None:
+    if value is None:
+        return None
+    path = Path(value)
+    return path if path.is_absolute() else root / path
+
+
+def planned_stages(args) -> list[str]:
+    start_index = STAGES.index(getattr(args, "start_stage", "mine"))
+    skip_stages = set(getattr(args, "skip_stage", []) or [])
+    stages = list(STAGES[start_index:])
+    if getattr(args, "start_stage", "mine") == "mine" and not getattr(args, "selected_artifact", None):
+        stages = stages[: stages.index("select") + 1]
+    return [stage for stage in stages if stage not in skip_stages]
+
+
+def validate_args(args, root) -> None:
+    if args.start_stage == "final_holdout" and not getattr(args, "selected_artifact", None):
+        raise SystemExit("final_holdout start requires a selected artifact")
+
+    if getattr(args, "selected_artifact", None):
+        selected_artifact = resolve_path(root, args.selected_artifact)
+        if selected_artifact is not None and not selected_artifact.exists():
+            raise SystemExit(f"selected artifact does not exist: {selected_artifact}")
+
+
+def validate_stage_prerequisites(args, root) -> None:
+    run_paths = build_run_paths(args.output_root, args.run_id)
+    requested_stages = planned_stages(args)
+    train_root = run_paths["base_dir"] / "versions"
+    selection_artifact = run_paths["selection_dir"] / "artifact"
+    mined_states_path = run_paths["inputs_dir"] / "mined_hard_states.jsonl"
+    labeled_states_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
+    exploratory_summary_path = resolve_path(root, getattr(args, "exploratory_summary", None))
+    if exploratory_summary_path is None:
+        exploratory_summary_path = run_paths["base_dir"] / "exploratory" / "aggregate_summary.json"
+    bucket_gate_path = run_paths["base_dir"] / "final" / "bucket_gate.json"
+    promotion_gate_path = run_paths["base_dir"] / "final" / "local_promotion_gate.json"
+
+    if "label" in requested_stages and "mine" not in requested_stages and not mined_states_path.exists():
+        raise SystemExit(f"missing prerequisite: {mined_states_path}")
+
+    if "train" in requested_stages and "label" not in requested_stages and not labeled_states_path.exists():
+        raise SystemExit(f"missing prerequisite: {labeled_states_path}")
+
+    if "select" in requested_stages and "train" not in requested_stages and not getattr(args, "selected_artifact", None):
+        if not candidate_artifact_dirs(train_root):
+            raise SystemExit(f"missing prerequisite candidate artifacts under {train_root}")
+
+    if any(stage in requested_stages for stage in ["final_holdout", "decision"]) and "select" not in requested_stages:
+        explicit_selected = resolve_path(root, getattr(args, "selected_artifact", None))
+        if explicit_selected is None and not selection_artifact.exists():
+            raise SystemExit(f"missing prerequisite: {selection_artifact}")
+
+    if "decision" in requested_stages and not exploratory_summary_path.exists():
+        raise SystemExit(f"missing prerequisite: {exploratory_summary_path}")
+
+    if "decision" in requested_stages and "final_holdout" not in requested_stages:
+        if not bucket_gate_path.exists():
+            raise SystemExit(f"missing prerequisite: {bucket_gate_path}")
+        if not promotion_gate_path.exists():
+            raise SystemExit(f"missing prerequisite: {promotion_gate_path}")
+
+
+def candidate_artifact_dirs(train_root) -> list[Path]:
+    train_root = Path(train_root)
+    if not train_root.exists():
+        return []
+
+    candidates = []
+    for path in sorted(train_root.iterdir()):
+        if path.is_dir() and (path / "model.npz").exists():
+            candidates.append(path)
+    return candidates
+
+
+def select_candidate(train_root, selection_dir) -> Path:
+    candidates = candidate_artifact_dirs(train_root)
+    if not candidates:
+        raise SystemExit(f"no candidate artifacts found under {train_root}")
+    if len(candidates) != 1:
+        raise SystemExit(f"multiple candidate artifacts found under {train_root}")
+    return candidates[0]
+
+
+def run_command(command, cwd) -> dict:
+    completed = subprocess.run(command, cwd=cwd, check=False)
+    if completed.returncode != 0:
+        raise SystemExit(f"command failed with exit code {completed.returncode}: {command}")
+    return {
+        "command": list(command),
+        "cwd": str(cwd),
+        "returncode": completed.returncode,
+    }
+
+
+def write_json(path, payload) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def materialize_selected_artifact(selection_dir: Path, selected_target: Path) -> Path:
+    selection_dir.mkdir(parents=True, exist_ok=True)
+    artifact_path = selection_dir / "artifact"
+    resolved_target = selected_target.resolve()
+
+    if artifact_path.is_symlink() or artifact_path.is_file():
+        artifact_path.unlink()
+    elif artifact_path.exists():
+        shutil.rmtree(artifact_path)
+
+    try:
+        artifact_path.symlink_to(resolved_target, target_is_directory=True)
+    except OSError:
+        shutil.copytree(resolved_target, artifact_path)
+
+    return artifact_path
+
+
+def run(args, root) -> dict:
+    validate_args(args, root)
+    validate_stage_prerequisites(args, root)
+
+    run_paths = build_run_paths(args.output_root, args.run_id)
+    run_paths["base_dir"].mkdir(parents=True, exist_ok=True)
+    config_path = resolve_path(root, args.base_config)
+    assert config_path is not None
+    replay_dataset_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
+    runtime_config = write_runtime_config(
+        base_config_path=config_path,
+        destination_path=run_paths["runtime_config_path"],
+        run_id=args.run_id,
+        current_path=args.current_path,
+        replay_dataset_path=replay_dataset_path,
+    )
+    stage_commands = build_stage_commands(
+        root=root,
+        python_bin=python_executable(root),
+        run_id=args.run_id,
+        current_path=args.current_path,
+        forensic_suite=args.forensic_suite,
+        runtime_config_path=run_paths["runtime_config_path"],
+        output_root=Path(args.output_root),
+        exploratory_summary_path=resolve_path(root, getattr(args, "exploratory_summary", None)),
+    )
+
+    executed_stages: list[str] = []
+    command_results: list[dict] = []
+    requested_stages = planned_stages(args)
+    selection_manifest = None
+    explicit_selected = resolve_path(root, getattr(args, "selected_artifact", None))
+
+    command_names_by_stage = {
+        "mine": ["prepare_forensic_mining_input_command", "mine_command"],
+        "label": ["label_command"],
+        "train": ["train_command"],
+        "final_holdout": [
+            "candidate_forensic_command",
+            "current_forensic_command",
+            "arena_command",
+            "candidate_mcts_command",
+            "current_mcts_command",
+            "aggregate_holdout_command",
+            "bucket_gate_command",
+            "regression_command",
+            "local_promotion_gate_command",
+        ],
+        "decision": ["decision_command"],
+    }
+
+    if explicit_selected is not None and any(stage in requested_stages for stage in ["final_holdout", "decision"]):
+        artifact_path = materialize_selected_artifact(run_paths["selection_dir"], explicit_selected)
+        selection_manifest = {
+            "selected_artifact": str(artifact_path),
+            "selection_rule": "explicit_artifact",
+            "candidate_count": 1,
+        }
+        write_json(run_paths["selection_dir"] / "selection_manifest.json", selection_manifest)
+
+    for stage in requested_stages:
+        if stage == "select":
+            if explicit_selected is not None:
+                selected_target = explicit_selected
+                selection_rule = "explicit_artifact"
+                candidate_count = 1
+            else:
+                selected_target = select_candidate(run_paths["base_dir"] / "versions", run_paths["selection_dir"])
+                selection_rule = "single_candidate"
+                candidate_count = len(candidate_artifact_dirs(run_paths["base_dir"] / "versions"))
+
+            artifact_path = materialize_selected_artifact(run_paths["selection_dir"], selected_target)
+            selection_manifest = {
+                "selected_artifact": str(artifact_path),
+                "selection_rule": selection_rule,
+                "candidate_count": candidate_count,
+            }
+            write_json(run_paths["selection_dir"] / "selection_manifest.json", selection_manifest)
+            executed_stages.append(stage)
+            continue
+
+        stage_command_names = command_names_by_stage.get(stage, [])
+        if not stage_command_names:
+            continue
+
+        for command_name in stage_command_names:
+            command_results.append(run_command(stage_commands[command_name], root))
+        executed_stages.append(stage)
+
+    if selection_manifest is None:
+        selection_manifest_path = run_paths["selection_dir"] / "selection_manifest.json"
+        if selection_manifest_path.exists():
+            selection_manifest = load_json(selection_manifest_path)
+
+    manifest = {
+        "schema": "tactical_replay_run_manifest_v1",
+        "run_id": args.run_id,
+        "status": "completed",
+        "executed_stages": executed_stages,
+        "runtime_config_path": str(run_paths["runtime_config_path"]),
+        "summary_path": str(run_paths["summary_path"]),
+        "selection_manifest_path": str(run_paths["selection_dir"] / "selection_manifest.json"),
+    }
+    write_json(run_paths["manifest_path"], manifest)
+
+    summary = {
+        "schema": "tactical_replay_summary_v1",
+        "run_id": args.run_id,
+        "executed_stages": executed_stages,
+        "runtime_config_path": str(run_paths["runtime_config_path"]),
+        "selection_manifest": selection_manifest,
+        "command_results": command_results,
+        "status": "completed",
+    }
+    write_json(run_paths["summary_path"], summary)
+    return summary
+
+
+def write_runtime_config(*, base_config_path: Path, destination_path: Path, run_id: str, current_path: str, replay_dataset_path: Path) -> dict:
+    config = load_json(base_config_path)
+    base_dir = destination_path.parent.parent
+    python_bin = python_executable(repo_root())
+
+    config["run_id"] = run_id
+    config["versions_dir"] = str(base_dir / "versions")
+    config["current_path"] = current_path
+
+    for step in config.get("steps", []):
+        command = list(step.get("command", []))
+        if not command:
+            continue
+        set_python_bin(command, python_bin)
+        if step.get("name") == "train" and "--data-files" in command:
+            command[command.index("--data-files") + 1] = str(replay_dataset_path)
+        step["command"] = command
+
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+    destination_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+    return config
+
+
+def build_stage_commands(
+    *,
+    root: Path,
+    python_bin: str,
+    run_id: str,
+    current_path: str,
+    forensic_suite: str,
+    runtime_config_path: Path,
+    output_root: Path,
+    exploratory_summary_path: Path | None = None,
+) -> dict[str, list[str]]:
+    run_paths = build_run_paths(output_root, run_id)
+    final_dir = run_paths["base_dir"] / "final"
+    selection_artifact = run_paths["selection_dir"] / "artifact"
+    mining_forensic_input_path = run_paths["inputs_dir"] / "mining_forensic_input.json"
+    mined_states_path = run_paths["inputs_dir"] / "mined_hard_states.jsonl"
+    mined_report_path = run_paths["inputs_dir"] / "mined_hard_states_report.json"
+    labeled_states_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
+    tactical_train_path = run_paths["inputs_dir"] / "tactical_replay_train.jsonl"
+    preservation_train_path = run_paths["inputs_dir"] / "preservation_replay_train.jsonl"
+    candidate_forensic_path = final_dir / "selected_candidate_forensics.json"
+    current_forensic_path = final_dir / "baseline_candidate_forensics.json"
+    arena_report_path = final_dir / "arena_seed_1041.json"
+    candidate_mcts_path = final_dir / "candidate_mcts_seed_2041.json"
+    current_mcts_path = final_dir / "current_mcts_seed_2041.json"
+    arena_holdout_path = final_dir / "arena_holdout.json"
+    candidate_mcts_holdout_path = final_dir / "candidate_mcts_holdout.json"
+    current_mcts_holdout_path = final_dir / "current_mcts_holdout.json"
+    bucket_gate_path = final_dir / "bucket_gate.json"
+    regression_report_path = final_dir / "candidate_regression_suite.json"
+    promotion_gate_path = final_dir / "local_promotion_gate.json"
+    decision_path = final_dir / "tactical_lane_decision.json"
+    if exploratory_summary_path is None:
+        exploratory_summary_path = run_paths["base_dir"] / "exploratory" / "aggregate_summary.json"
+
+    return {
+        "prepare_forensic_mining_input_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/run_forensic_suite.py"),
+            "--suite",
+            forensic_suite,
+            "--current-artifact",
+            current_path,
+            "--challenger-artifact",
+            current_path,
+            "--out",
+            str(mining_forensic_input_path),
+        ],
+        "mine_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/mine_hard_states.py"),
+            "--inputs",
+            str(mining_forensic_input_path),
+            "--out-jsonl",
+            str(mined_states_path),
+            "--out-report",
+            str(mined_report_path),
+        ],
+        "label_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/label_tactical_states.py"),
+            "--input",
+            str(mined_states_path),
+            "--policy-simulations",
+            "1200",
+            "--value-simulations",
+            "1200",
+            "--seed",
+            "42",
+            "--policy-target-mode",
+            "sharpened",
+            "--value-target-mode",
+            "sharpened",
+            "--input-encoding",
+            "kalah_v3",
+            "--out-labeled",
+            str(labeled_states_path),
+            "--out-tactical-train",
+            str(tactical_train_path),
+            "--out-preservation-train",
+            str(preservation_train_path),
+        ],
+        "train_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/pipeline.py"),
+            "--config",
+            str(runtime_config_path),
+        ],
+        "candidate_forensic_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/run_forensic_suite.py"),
+            "--suite",
+            forensic_suite,
+            "--current-artifact",
+            current_path,
+            "--challenger-artifact",
+            str(selection_artifact),
+            "--mcts-simulations",
+            "1200",
+            "--teacher-simulations",
+            "1800",
+            "--seed",
+            "3041",
+            "--out",
+            str(candidate_forensic_path),
+        ],
+        "current_forensic_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/run_forensic_suite.py"),
+            "--suite",
+            forensic_suite,
+            "--current-artifact",
+            current_path,
+            "--challenger-artifact",
+            current_path,
+            "--mcts-simulations",
+            "1200",
+            "--teacher-simulations",
+            "1800",
+            "--seed",
+            "2040",
+            "--out",
+            str(current_forensic_path),
+        ],
+        "arena_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/arena.py"),
+            "--challenger",
+            str(selection_artifact),
+            "--current",
+            current_path,
+            "--games",
+            "120",
+            "--seed",
+            "1041",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--reuse-subtree",
+            "--root-policy-mode",
+            "deterministic",
+            "--tactical-root-bias",
+            "0.1",
+            "--out",
+            str(arena_report_path),
+        ],
+        "candidate_mcts_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/mcts1200_baseline.py"),
+            "--challenger-path",
+            str(selection_artifact),
+            "--games",
+            "40",
+            "--seed",
+            "2041",
+            "--az-base-simulations",
+            "384",
+            "--mcts-simulations",
+            "1200",
+            "--reuse-subtree",
+            "--root-policy-mode",
+            "deterministic",
+            "--tactical-root-bias",
+            "0.1",
+            "--out",
+            str(candidate_mcts_path),
+        ],
+        "current_mcts_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/mcts1200_baseline.py"),
+            "--challenger-path",
+            current_path,
+            "--games",
+            "40",
+            "--seed",
+            "2041",
+            "--az-base-simulations",
+            "384",
+            "--mcts-simulations",
+            "1200",
+            "--reuse-subtree",
+            "--root-policy-mode",
+            "deterministic",
+            "--tactical-root-bias",
+            "0.1",
+            "--out",
+            str(current_mcts_path),
+        ],
+        "aggregate_holdout_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/aggregate_holdout_reports.py"),
+            "--arena-inputs",
+            str(arena_report_path),
+            "--candidate-mcts-inputs",
+            str(candidate_mcts_path),
+            "--current-mcts-inputs",
+            str(current_mcts_path),
+            "--out-arena",
+            str(arena_holdout_path),
+            "--out-candidate-mcts",
+            str(candidate_mcts_holdout_path),
+            "--out-current-mcts",
+            str(current_mcts_holdout_path),
+        ],
+        "bucket_gate_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/check_bucket_promotion_gate.py"),
+            "--baseline-forensics",
+            str(current_forensic_path),
+            "--candidate-forensics",
+            str(candidate_forensic_path),
+            "--out",
+            str(bucket_gate_path),
+        ],
+        "regression_command": [
+            str(root / "script/ai/check_superhuman_regressions"),
+            "--positions",
+            "test/fixtures/ai/superhuman_regression_positions.json",
+            "--artifact",
+            str(selection_artifact),
+            "--simulations",
+            "384",
+            "--reuse-subtree",
+            "--root-policy-mode",
+            "deterministic",
+            "--tactical-root-bias",
+            "0.1",
+            "--out",
+            str(regression_report_path),
+        ],
+        "local_promotion_gate_command": [
+            str(root / "script/ai/local_promotion_gate"),
+            "--candidate-path",
+            str(selection_artifact),
+            "--current-path",
+            current_path,
+            "--arena-games",
+            "120",
+            "--mcts-games",
+            "40",
+            "--min-mcts-games",
+            "40",
+            "--min-arena-score",
+            "0.55",
+            "--max-arena-move-time-mean-ms",
+            "200",
+            "--max-arena-move-time-p95-ms",
+            "350",
+            "--stub-arena-report",
+            str(arena_holdout_path),
+            "--stub-candidate-mcts-report",
+            str(candidate_mcts_holdout_path),
+            "--stub-current-mcts-report",
+            str(current_mcts_holdout_path),
+            "--stub-regression-report",
+            str(regression_report_path),
+            "--stub-forensic-report",
+            str(candidate_forensic_path),
+            "--out",
+            str(promotion_gate_path),
+        ],
+        "decision_command": [
+            python_bin,
+            str(root / "ml/alphazero_lite/write_tactical_lane_decision.py"),
+            "--bucket-gate",
+            str(bucket_gate_path),
+            "--promotion-gate",
+            str(promotion_gate_path),
+            "--exploratory-summary",
+            str(exploratory_summary_path),
+            "--out",
+            str(decision_path),
+        ],
+    }
+
+
+def build_dry_run_payload(args, root) -> dict:
+    validate_args(args, root)
+    validate_stage_prerequisites(args, root)
+    python_bin = python_executable(root)
+    paths = build_run_paths(args.output_root, args.run_id)
+    config_path = Path(args.base_config)
+    if not config_path.is_absolute():
+        config_path = root / config_path
+
+    planned_commands = build_stage_commands(
+        root=root,
+        python_bin=python_bin,
+        run_id=args.run_id,
+        current_path=args.current_path,
+        forensic_suite=args.forensic_suite,
+        runtime_config_path=paths["runtime_config_path"],
+        output_root=Path(args.output_root),
+        exploratory_summary_path=resolve_path(root, getattr(args, "exploratory_summary", None)),
+    )
+    all_commands = {
+        "mine": [planned_commands["prepare_forensic_mining_input_command"], planned_commands["mine_command"]],
+        "label": [planned_commands["label_command"]],
+        "train": [planned_commands["train_command"]],
+        "select": [],
+        "final_holdout": [
+            planned_commands["candidate_forensic_command"],
+            planned_commands["current_forensic_command"],
+            planned_commands["arena_command"],
+            planned_commands["candidate_mcts_command"],
+            planned_commands["current_mcts_command"],
+            planned_commands["aggregate_holdout_command"],
+            planned_commands["bucket_gate_command"],
+            planned_commands["regression_command"],
+            planned_commands["local_promotion_gate_command"],
+        ],
+        "decision": [planned_commands["decision_command"]],
+    }
+    stages = planned_stages(args)
+
+    return {
+        "run_id": args.run_id,
+        "current_path": args.current_path,
+        "forensic_suite": args.forensic_suite,
+        "config_path": str(config_path),
+        "injected_overrides": {
+            "base_config": str(config_path),
+            "current_path": args.current_path,
+            "forensic_suite": args.forensic_suite,
+            "runtime_config_path": str(paths["runtime_config_path"]),
+            "exploratory_summary": str(
+                resolve_path(root, getattr(args, "exploratory_summary", None))
+                or (paths["base_dir"] / "exploratory" / "aggregate_summary.json")
+            ),
+        },
+        "stages": stages,
+        "summary_path": str(paths["summary_path"]),
+        "paths": {key: str(value) for key, value in paths.items()},
+        "commands": {stage: all_commands[stage] for stage in stages},
+    }
+
+
+def main(argv=None) -> int:
+    root = repo_root()
+    args = parse_args(argv)
+    payload = build_dry_run_payload(args, root) if args.dry_run else run(args, root)
+    print(json.dumps(payload))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

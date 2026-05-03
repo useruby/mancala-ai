@@ -326,6 +326,11 @@ class RunSearchAblationTest(unittest.TestCase):
                 "opponent_store": 0,
                 "current_player": 0,
             },
+            side_to_move=0,
+            legal_moves=[0, 1, 2, 3, 4, 5],
+            phase="opening",
+            tags=["opening"],
+            source="fixture",
         )
         args = run_search_ablation.parse_args(["--out", "/tmp/report.json", "--budgets", "128,384"])
         reference_calls = []
@@ -487,6 +492,11 @@ class SearchAblationRealRunnerTest(unittest.TestCase):
                 "opponent_store": 0,
                 "current_player": 0,
             },
+            side_to_move=0,
+            legal_moves=[0, 1, 2, 3, 4, 5],
+            phase="opening",
+            tags=["opening"],
+            source="fixture",
         )
 
         def fake_run_reference(state, policy_simulations, value_simulations, seed, index):

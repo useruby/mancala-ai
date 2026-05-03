@@ -686,6 +686,28 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
             [lane["seed_sweep"] for lane in plan["lanes"]],
         )
 
+    def test_model_robustness_confirmation_writes_decision_ready_seed_summary_fields(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_root = Path(temp_dir) / "robustness"
+            result = subprocess.run(
+                [
+                    "script/ai/model_robustness_confirmation",
+                    "--dry-run",
+                    "--output-root",
+                    str(output_root),
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        self.assertIn("required_qualifying_seed_count", plan)
+
     def test_model_robustness_confirmation_dry_run_uses_base_config_override(self):
         repo_root = Path(__file__).resolve().parents[2]
 
@@ -1063,6 +1085,7 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
                 output_root=str(output_root),
                 dry_run=False,
             )
+            plan["required_qualifying_seed_count"] = 2
 
             with mock.patch.object(module, "parse_args", return_value=args), mock.patch.object(
                 module, "build_plan", return_value=(plan, base_config)
