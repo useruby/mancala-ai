@@ -16,6 +16,8 @@ import time
 import zipfile
 from pathlib import Path
 
+import numpy as np
+
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
@@ -69,11 +71,7 @@ def checkpoint_feature_count(checkpoint_path: Path) -> int | None:
 
 
 def drop_incompatible_parent_checkpoint(command: list[str], *, parent_checkpoint: Path) -> list[str]:
-    if "--checkpoint" not in command or "--input-encoding" not in command:
-        return command
-
-    checkpoint_index = command.index("--checkpoint")
-    if checkpoint_index + 1 >= len(command) or command[checkpoint_index + 1] != str(parent_checkpoint):
+    if "--input-encoding" not in command:
         return command
 
     expected_feature_count = feature_count_for(command[command.index("--input-encoding") + 1])
@@ -81,7 +79,28 @@ def drop_incompatible_parent_checkpoint(command: list[str], *, parent_checkpoint
     if actual_feature_count is None or actual_feature_count == expected_feature_count:
         return command
 
-    return command[:checkpoint_index] + command[checkpoint_index + 2 :]
+    rendered = list(command)
+    for flag in ("--checkpoint", "--init-checkpoint"):
+        search_start = 0
+        while True:
+            try:
+                checkpoint_index = rendered.index(flag, search_start)
+            except ValueError:
+                break
+            if checkpoint_index + 1 >= len(rendered) or rendered[checkpoint_index + 1] != str(parent_checkpoint):
+                search_start = checkpoint_index + 2
+                continue
+            rendered = rendered[:checkpoint_index] + rendered[checkpoint_index + 2 :]
+
+    return rendered
+
+
+def materialize_weights_json_checkpoint(*, weights_path: Path, out_path: Path) -> Path:
+    weights = json.loads(weights_path.read_text(encoding="utf-8"))
+    arrays = {name: np.asarray(value, dtype=np.float32) for name, value in weights.items()}
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(out_path, **arrays)
+    return out_path
 
 
 def render_command(
@@ -328,9 +347,10 @@ def validate_startup_paths(
 
         checkpoint_path = parent_path / "checkpoint.npz"
         model_path = parent_path / "model.npz"
-        if not checkpoint_path.exists() and not model_path.exists():
+        weights_path = parent_path / "weights.json"
+        if not checkpoint_path.exists() and not model_path.exists() and not weights_path.exists():
             raise SystemExit(
-                f"parent_artifact_path must contain checkpoint.npz or model.npz: {parent_path}"
+                f"parent_artifact_path must contain checkpoint.npz, model.npz, or weights.json: {parent_path}"
             )
 
     if "hard_state_validation_path" in config:
@@ -750,7 +770,18 @@ def main() -> None:
         )
         checkpoint_candidate = parent_model_dir / "checkpoint.npz"
         fallback_model = parent_model_dir / "model.npz"
-        parent_checkpoint = checkpoint_candidate if checkpoint_candidate.exists() else fallback_model
+        weights_json = parent_model_dir / "weights.json"
+        if checkpoint_candidate.exists():
+            parent_checkpoint = checkpoint_candidate
+        elif fallback_model.exists():
+            parent_checkpoint = fallback_model
+        elif weights_json.exists():
+            parent_checkpoint = materialize_weights_json_checkpoint(
+                weights_path=weights_json,
+                out_path=iter_dir / "parent_init_checkpoint.npz",
+            )
+        else:
+            parent_checkpoint = fallback_model
 
         manifest = build_manifest(
             run_id=run_id,

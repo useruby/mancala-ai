@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 from ml.alphazero_lite.forensic_suite import canonical_state_key
@@ -17,6 +18,8 @@ REQUIRED_CANDIDATE_FIELDS = (
     "consequence",
     "metrics",
 )
+
+PLY_TAG_PATTERN = re.compile(r"^ply_(\d+)$")
 
 REQUIRED_STATE_FIELDS = (
     "player_pits",
@@ -127,6 +130,39 @@ def _normalize_state(state: Any) -> dict[str, Any]:
     }
 
 
+def _normalize_optional_ply(candidate: dict[str, Any]) -> int | None:
+    raw_ply = candidate.get("ply")
+    raw_move_index = candidate.get("move_index")
+    if raw_ply is not None and (isinstance(raw_ply, bool) or not isinstance(raw_ply, int)):
+        raise ValueError("candidate ply must be an integer")
+    if raw_move_index is not None and (isinstance(raw_move_index, bool) or not isinstance(raw_move_index, int)):
+        raise ValueError("candidate ply must be an integer")
+    if raw_ply is not None and raw_move_index is not None and raw_ply != raw_move_index:
+        raise ValueError("candidate ply and move_index must match")
+    raw_ply = raw_ply if raw_ply is not None else raw_move_index
+    if raw_ply is None:
+        return None
+    if raw_ply < 0:
+        raise ValueError("candidate ply must be non-negative")
+    return int(raw_ply)
+
+
+def _forensic_row_ply(row: dict[str, Any]) -> int | None:
+    tags = row.get("tags")
+    if isinstance(tags, list):
+        for tag in tags:
+            if not isinstance(tag, str):
+                continue
+            match = PLY_TAG_PATTERN.fullmatch(tag)
+            if match is not None:
+                return int(match.group(1))
+
+    bucket = str(row.get("bucket", ""))
+    if bucket == "opening_plies_1_8":
+        return 8
+    return None
+
+
 def normalize_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     for field in REQUIRED_CANDIDATE_FIELDS:
         if field not in candidate:
@@ -166,6 +202,10 @@ def normalize_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(metrics, dict):
         raise ValueError("candidate metrics must be a dictionary")
     normalized_candidate["metrics"] = dict(metrics)
+
+    ply = _normalize_optional_ply(candidate)
+    if ply is not None:
+        normalized_candidate["ply"] = ply
 
     if normalized_candidate["consequence"] not in CONSEQUENCE_WEIGHTS:
         raise ValueError(f"unknown consequence: {normalized_candidate['consequence']}")
@@ -213,6 +253,10 @@ def deduplicate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, A
             if field == "consequence":
                 if CONSEQUENCE_WEIGHTS.get(str(value), 0) > CONSEQUENCE_WEIGHTS.get(str(merged_candidate[field]), 0):
                     merged_candidate[field] = value
+                continue
+
+            if field == "ply":
+                merged_candidate[field] = max(int(merged_candidate.get(field, value)), int(value))
                 continue
 
             if merged_candidate[field] != value:
@@ -362,8 +406,9 @@ def _extract_forensic_candidates(artifact: dict[str, Any]) -> list[dict[str, Any
                     raise ValueError(f"missing required row field: {field}")
 
             metrics = _forensic_row_metrics(row)
+            row_ply = _forensic_row_ply(row)
 
-            if not bool(row.get("agrees_top1", True)):
+            if row.get("agrees_top1") is False:
                 candidates.append(
                     normalize_candidate(
                         {
@@ -375,6 +420,7 @@ def _extract_forensic_candidates(artifact: dict[str, Any]) -> list[dict[str, Any
                             "source_run": source_run,
                             "consequence": "move_disagreement_in_loss",
                             "metrics": metrics,
+                            **({"ply": row_ply} if row_ply is not None else {}),
                         }
                     )
                 )
@@ -391,6 +437,7 @@ def _extract_forensic_candidates(artifact: dict[str, Any]) -> list[dict[str, Any
                             "source_run": source_run,
                             "consequence": "high_value_miscalibration",
                             "metrics": metrics,
+                            **({"ply": row_ply} if row_ply is not None else {}),
                         }
                     )
                 )
@@ -407,6 +454,7 @@ def _extract_forensic_candidates(artifact: dict[str, Any]) -> list[dict[str, Any
                             "source_run": source_run,
                             "consequence": "high_entropy_decision",
                             "metrics": metrics,
+                            **({"ply": row_ply} if row_ply is not None else {}),
                         }
                     )
                 )
@@ -423,6 +471,7 @@ def _extract_forensic_candidates(artifact: dict[str, Any]) -> list[dict[str, Any
                             "source_run": source_run,
                             "consequence": "forced_decision_gap",
                             "metrics": metrics,
+                            **({"ply": row_ply} if row_ply is not None else {}),
                         }
                     )
                 )
@@ -466,6 +515,8 @@ def extract_candidates(artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
                         "source_run": {"kind": source_kind},
                         "consequence": row["consequence"],
                         "metrics": dict(row.get("metrics", {})),
+                        **({"ply": row["ply"]} if "ply" in row else {}),
+                        **({"move_index": row["move_index"]} if "move_index" in row else {}),
                     }
                 )
             )

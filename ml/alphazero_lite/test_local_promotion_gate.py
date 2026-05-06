@@ -723,7 +723,59 @@ class LocalPromotionGateTest(unittest.TestCase):
             report = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual([8, 10, 12], [row["threshold"] for row in report["endgame_exact_solve"]["planned_evaluations"]])
 
-    def test_non_dry_run_requires_configured_search_steps(self):
+    def test_non_dry_run_rejects_partial_mcts_search_config_steps(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            candidate.mkdir()
+            out = tmp / "report.json"
+            config_path = tmp / "search_config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "steps": [
+                            {
+                                "name": "arena_confirm_report",
+                                "command": ["python", "ml/alphazero_lite/arena.py", "--fpu-mode", "parent_q"],
+                            },
+                            {
+                                "name": "mcts1200_baseline_report",
+                                "command": ["python", "ml/alphazero_lite/mcts1200_baseline.py", "--fpu-mode", "parent_q"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_report(tmp / "arena.json", games_played=120, wins=92, losses=0, draws=28)
+            self.write_report(tmp / "cand_mcts.json", games=40, wins=30, losses=2, draws=8, az_wins=30)
+            self.write_report(tmp / "cur_mcts.json", games=40, wins=24, losses=8, draws=8, az_wins=24)
+            self.write_regression_report(tmp / "regression.json", passed=True)
+            self.write_passing_forensic_report(tmp / "forensic.json")
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--config-path",
+                str(config_path),
+                "--stub-arena-report",
+                str(tmp / "arena.json"),
+                "--stub-candidate-mcts-report",
+                str(tmp / "cand_mcts.json"),
+                "--stub-current-mcts-report",
+                str(tmp / "cur_mcts.json"),
+                "--stub-regression-report",
+                str(tmp / "regression.json"),
+                "--stub-forensic-report",
+                str(tmp / "forensic.json"),
+                "--out",
+                str(out),
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("config missing required step", result.stderr)
+
+    def test_non_dry_run_allows_arena_only_search_config_without_mcts_steps(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
             tmp = Path(tmp)
             candidate = tmp / "candidate"
@@ -768,8 +820,9 @@ class LocalPromotionGateTest(unittest.TestCase):
                 str(out),
             )
 
-            self.assertNotEqual(0, result.returncode)
-            self.assertIn("config missing required step", result.stderr)
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+            self.assertTrue(report["passed"])
 
     def test_dry_run_with_phase1_config_still_plans_threshold_evaluations(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -794,7 +847,7 @@ class LocalPromotionGateTest(unittest.TestCase):
             report = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual([8, 10, 12], [row["threshold"] for row in report["endgame_exact_solve"]["planned_evaluations"]])
 
-    def test_load_search_flag_map_can_scope_missing_phase2_steps_to_threshold_planning_only(self):
+    def test_load_search_flag_map_allows_arena_only_config(self):
         module = self.load_gate_module()
 
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
@@ -819,11 +872,7 @@ class LocalPromotionGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with self.assertRaises(SystemExit) as error:
-                module.load_search_flag_map(str(config_path))
-
-            self.assertIn("config missing required step", str(error.exception))
-            scoped_flags = module.load_search_flag_map(str(config_path), require_steps=False)
+            scoped_flags = module.load_search_flag_map(str(config_path))
             self.assertEqual(["--fpu-mode", "parent_q"], scoped_flags["arena"])
             self.assertEqual([], scoped_flags["candidate_mcts"])
             self.assertEqual([], scoped_flags["current_mcts"])

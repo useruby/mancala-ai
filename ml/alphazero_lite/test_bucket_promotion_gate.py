@@ -16,6 +16,7 @@ def report(
     overall_average_regret: float = 0.08,
     overall_top1_agreement: float = 0.7,
     buckets: dict[str, dict[str, float | int | list[float]]] | None = None,
+    reference: dict | None = None,
 ) -> dict:
     bucket_defaults = {
         bucket: {
@@ -52,6 +53,17 @@ def report(
 
     return {
         "schema": "azlite_forensic_suite_v1",
+        "reference": {
+            "kind": "shared_artifact",
+            "artifact_path": "/tmp/reference_moves.json",
+            "shared_reference": {
+                "policy_simulations": 1200,
+                "value_simulations": 1200,
+                "sample_seeds": [42],
+            },
+        }
+        if reference is None
+        else reference,
         "systems": {
             "challenger": {
                 "overall": {
@@ -195,6 +207,93 @@ class BucketPromotionGateTest(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "capture_available rows must include numeric regret"):
             check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
+
+    def test_gate_rejects_mismatched_shared_reference_provenance(self):
+        baseline = report(
+            reference={
+                "kind": "shared_artifact",
+                "artifact_path": "/tmp/reference-a.json",
+                "shared_reference": {
+                    "policy_simulations": 1200,
+                    "value_simulations": 1200,
+                    "sample_seeds": [42, 99],
+                },
+            }
+        )
+        candidate = report(
+            reference={
+                "kind": "shared_artifact",
+                "artifact_path": "/tmp/reference-b.json",
+                "shared_reference": {
+                    "policy_simulations": 1200,
+                    "value_simulations": 1200,
+                    "sample_seeds": [42],
+                },
+            }
+        )
+
+        with self.assertRaisesRegex(ValueError, "shared reference provenance"):
+            check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
+
+    def test_gate_rejects_missing_shared_reference_provenance(self):
+        baseline = report(reference=None)
+        candidate = report(reference={"kind": "classic_mcts"})
+
+        with self.assertRaisesRegex(ValueError, "shared reference provenance"):
+            check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
+
+    def test_gate_rejects_boolean_bucket_metric_values(self):
+        baseline = report()
+        candidate = report()
+        candidate["buckets"]["capture_available"]["systems"]["challenger"]["average_regret"] = True
+
+        with self.assertRaisesRegex(ValueError, "capture_available missing average_regret"):
+            check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
+
+    def test_gate_rejects_boolean_overall_metric_values(self):
+        baseline = report()
+        candidate = report()
+        candidate["systems"]["challenger"]["overall"]["top1_agreement"] = False
+
+        with self.assertRaisesRegex(ValueError, "overall missing top1_agreement"):
+            check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
+
+    def test_gate_excludes_reference_unstable_rows_from_strict_capture_metrics(self):
+        baseline = report(
+            buckets={
+                "capture_available": {
+                    "positions": 20,
+                    "average_regret": 0.10,
+                    "rows": [0.05] * 20,
+                }
+            }
+        )
+        candidate = report(
+            buckets={
+                "capture_available": {
+                    "positions": 20,
+                    "average_regret": 0.105,
+                    "rows": ([0.05] * 18) + [0.25, 0.30],
+                }
+            }
+        )
+        unstable_marked = 0
+        for row in candidate["systems"]["challenger"]["rows"]:
+            if row["bucket"] != "capture_available":
+                continue
+            row["reference_unstable"] = unstable_marked < 2 and row["regret"] >= 0.20
+            if row["reference_unstable"]:
+                unstable_marked += 1
+
+        result = check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
+
+        self.assertTrue(result["passed"])
+        blunder_check = next(
+            check
+            for check in result["checks"]
+            if check["id"] == "capture_available.blunder_rate_0_20"
+        )
+        self.assertEqual(0.0, blunder_check["candidate_value"])
 
     def test_gate_fails_capture_regret_regression(self):
         baseline = report(
@@ -445,6 +544,42 @@ class BucketPromotionGateTest(unittest.TestCase):
             self.assertIn("regret", gate_report["error"]["message"])
             self.assertEqual(str(candidate_path), gate_report["error"]["path"])
             self.assertEqual("", result.stderr)
+
+    def test_cli_attributes_shared_reference_provenance_failure_to_baseline_file(self):
+        malformed_baseline = report(reference={"kind": "classic_mcts"})
+        candidate = report()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-bucket-gate-") as tmp:
+            tmp_path = Path(tmp)
+            baseline_path = tmp_path / "baseline.json"
+            candidate_path = tmp_path / "candidate.json"
+            out_path = tmp_path / "nested" / "gate.json"
+            baseline_path.write_text(json.dumps(malformed_baseline), encoding="utf-8")
+            candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    str(PYTHON_BIN),
+                    "-m",
+                    "ml.alphazero_lite.check_bucket_promotion_gate",
+                    "--baseline-forensics",
+                    str(baseline_path),
+                    "--candidate-forensics",
+                    str(candidate_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            gate_report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual("invalid_forensics", gate_report["error"]["code"])
+            self.assertIn("shared reference provenance", gate_report["error"]["message"])
+            self.assertEqual(str(baseline_path), gate_report["error"]["path"])
 
 
 if __name__ == "__main__":

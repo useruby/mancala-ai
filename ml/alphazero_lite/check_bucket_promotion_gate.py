@@ -33,6 +33,43 @@ def load_json(path: str) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def _shared_reference_provenance(report: dict[str, Any]) -> dict[str, Any]:
+    reference = report.get("reference")
+    if not isinstance(reference, dict) or reference.get("kind") != "shared_artifact":
+        raise ValueError("shared reference provenance is required")
+
+    shared_reference = reference.get("shared_reference")
+    if not isinstance(shared_reference, dict):
+        raise ValueError("shared reference provenance is required")
+
+    policy_simulations = shared_reference.get("policy_simulations")
+    value_simulations = shared_reference.get("value_simulations")
+    sample_seeds = shared_reference.get("sample_seeds")
+    if (
+        isinstance(policy_simulations, bool)
+        or not isinstance(policy_simulations, int)
+        or isinstance(value_simulations, bool)
+        or not isinstance(value_simulations, int)
+        or not isinstance(sample_seeds, list)
+        or not sample_seeds
+        or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in sample_seeds)
+    ):
+        raise ValueError("shared reference provenance is malformed")
+
+    return {
+        "policy_simulations": policy_simulations,
+        "value_simulations": value_simulations,
+        "sample_seeds": sample_seeds,
+    }
+
+
+def validate_shared_reference_provenance(baseline: dict[str, Any], candidate: dict[str, Any]) -> None:
+    baseline_provenance = _shared_reference_provenance(baseline)
+    candidate_provenance = _shared_reference_provenance(candidate)
+    if baseline_provenance != candidate_provenance:
+        raise ValueError("shared reference provenance must match between reports")
+
+
 def system_metrics(report: dict[str, Any], bucket: str, system: str = "challenger") -> dict[str, Any]:
     if bucket == "overall":
         systems = report.get("systems")
@@ -81,8 +118,15 @@ def metric(report: dict[str, Any], bucket: str, name: str) -> float:
             if isinstance(regret, bool) or not isinstance(regret, (int, float)):
                 raise ValueError(f"bucket {bucket} rows must include numeric regret")
             regret_values.append(float(regret))
-        blunders = sum(1 for regret in regret_values if regret >= 0.20)
-        return round(blunders / len(bucket_rows), 4)
+        stable_regret_values = [
+            float(row["regret"])
+            for row in bucket_rows
+            if not row.get("reference_unstable")
+        ]
+        if not stable_regret_values:
+            raise ValueError(f"bucket {bucket} requires at least one stable strict-metric row")
+        blunders = sum(1 for regret in stable_regret_values if regret >= 0.20)
+        return round(blunders / len(stable_regret_values), 4)
 
     raise ValueError(f"missing metric {bucket}.{name}")
 
@@ -142,21 +186,22 @@ def validate_report_shape(report: dict[str, Any]) -> None:
             raise ValueError(
                 f"bucket {bucket} requires at least {minimum_positions} positions"
             )
-        if not isinstance(bucket_metrics.get("average_regret"), (int, float)):
+        if isinstance(bucket_metrics.get("average_regret"), bool) or not isinstance(bucket_metrics.get("average_regret"), (int, float)):
             raise ValueError(f"bucket {bucket} missing average_regret")
-        if not isinstance(bucket_metrics.get("top1_agreement"), (int, float)):
+        if isinstance(bucket_metrics.get("top1_agreement"), bool) or not isinstance(bucket_metrics.get("top1_agreement"), (int, float)):
             raise ValueError(f"bucket {bucket} missing top1_agreement")
 
     overall = system_metrics(report, "overall")
-    if not isinstance(overall.get("average_regret"), (int, float)):
+    if isinstance(overall.get("average_regret"), bool) or not isinstance(overall.get("average_regret"), (int, float)):
         raise ValueError("overall missing average_regret")
-    if not isinstance(overall.get("top1_agreement"), (int, float)):
+    if isinstance(overall.get("top1_agreement"), bool) or not isinstance(overall.get("top1_agreement"), (int, float)):
         raise ValueError("overall missing top1_agreement")
 
 
 def evaluate_gate(baseline: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
     validate_report_shape(baseline)
     validate_report_shape(candidate)
+    validate_shared_reference_provenance(baseline, candidate)
 
     checks: list[dict[str, Any]] = []
     add_max_check(checks, baseline, candidate, "capture_available", "average_regret", 0.005)
@@ -184,6 +229,7 @@ def write_report(path: str, payload: dict[str, Any]) -> None:
 def load_and_validate_report(path: str) -> dict[str, Any]:
     report = load_json(path)
     validate_report_shape(report)
+    _shared_reference_provenance(report)
     return report
 
 

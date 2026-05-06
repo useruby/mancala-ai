@@ -138,6 +138,154 @@ class ModelRobustnessConfirmationTest(unittest.TestCase):
             lane_config["steps"][0]["command"],
         )
 
+    def test_build_lane_config_injects_replay_dataset_for_tactical_replay_train_step(self):
+        module = self.load_module()
+
+        base_config = {
+            "run_id": "tactical-replay",
+            "seed": 42,
+            "current_path": "base/current",
+            "fixed_replay_sources": [
+                {"path": "ml/alphazero_lite/tactical_capture_protection.jsonl", "weight": 8}
+            ],
+            "steps": [
+                {
+                    "name": "train",
+                    "command": [
+                        "python",
+                        "train.py",
+                        "--data-files",
+                        "{replay_data}",
+                        "--replay-weights",
+                        "{replay_weights}",
+                    ],
+                }
+            ],
+        }
+        lane = module.build_lane(41, base_run_id="tactical-replay", iteration=1, output_root=Path("/tmp/robustness"))
+
+        lane_config = module.build_lane_config(
+            base_config,
+            lane,
+            parent_artifact="parent/artifact",
+            current_path="runtime/current",
+        )
+
+        self.assertEqual(
+            [
+                {
+                    "path": str(Path(lane["lane_root"]) / "replay" / "labeled_tactical_states.jsonl"),
+                    "weight": 1,
+                },
+                {"path": "ml/alphazero_lite/tactical_capture_protection.jsonl", "weight": 8},
+            ],
+            lane_config["fixed_replay_sources"],
+        )
+        self.assertEqual("{replay_data}", lane_config["steps"][0]["command"][3])
+        self.assertEqual("{replay_weights}", lane_config["steps"][0]["command"][5])
+
+    def test_build_lane_config_allows_legacy_lane_without_replay_metadata(self):
+        module = self.load_module()
+
+        base_config = {
+            "run_id": "custom-run",
+            "seed": 42,
+            "current_path": "base/current",
+            "steps": [
+                {
+                    "name": "train",
+                    "command": [
+                        "python",
+                        "train.py",
+                        "--data-files",
+                        "existing-dataset.jsonl",
+                    ],
+                }
+            ],
+        }
+        lane = {
+            "seed": 41,
+            "seed_sweep": "41,141,241",
+            "run_id": "custom-run-robust-s41",
+            "results_dir": "/tmp/robustness/custom-run-robust-s41/versions",
+        }
+
+        lane_config = module.build_lane_config(
+            base_config,
+            lane,
+            parent_artifact="parent/artifact",
+            current_path="runtime/current",
+        )
+
+        self.assertEqual(
+            ["python", "train.py", "--data-files", "existing-dataset.jsonl"],
+            lane_config["steps"][0]["command"],
+        )
+
+    def test_build_lane_config_rejects_partial_replay_metadata(self):
+        module = self.load_module()
+
+        base_config = {
+            "run_id": "custom-run",
+            "seed": 42,
+            "current_path": "base/current",
+            "steps": [],
+        }
+        lane = {
+            "seed": 41,
+            "run_id": "custom-run-robust-s41",
+            "results_dir": "/tmp/robustness/custom-run-robust-s41/versions",
+            "replay_dir": "/tmp/robustness/custom-run-robust-s41/replay",
+        }
+
+        with self.assertRaisesRegex(SystemExit, "replay_dir and replay_source_path"):
+            module.build_lane_config(
+                base_config,
+                lane,
+                parent_artifact="parent/artifact",
+                current_path="runtime/current",
+            )
+
+    def test_main_rejects_missing_default_replay_source_before_running_lanes(self):
+        module = self.load_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-robustness-plan-") as tmp:
+            tmp_path = Path(tmp)
+            output_root = tmp_path / "run"
+            base_config_path = tmp_path / "base_config.json"
+            base_config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "custom-run",
+                        "start_iteration": 1,
+                        "iterations": 1,
+                        "steps": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            namespace = type("Args", (), {})()
+            namespace.base_config = str(base_config_path)
+            namespace.parent_artifact = "parent/artifact"
+            namespace.current_path = "model-artifact/current"
+            namespace.output_root = str(output_root)
+            namespace.dry_run = False
+
+            original_parse_args = module.parse_args
+            original_require_existing_runtime_path = module.require_existing_runtime_path
+            original_validate_output_root_safety = module.validate_output_root_safety
+            module.parse_args = lambda: namespace
+            module.require_existing_runtime_path = lambda path_value, **kwargs: Path(tmp_path / path_value.replace("/", "_"))
+            module.validate_output_root_safety = lambda **kwargs: None
+            try:
+                with self.assertRaisesRegex(SystemExit, "replay source does not exist"):
+                    module.main()
+            finally:
+                module.parse_args = original_parse_args
+                module.require_existing_runtime_path = original_require_existing_runtime_path
+                module.validate_output_root_safety = original_validate_output_root_safety
+
     def test_python_executable_falls_back_to_workspace_venv(self):
         module = self.load_module()
 
@@ -210,10 +358,14 @@ class ModelRobustnessConfirmationTest(unittest.TestCase):
                 "candidate_path": str(candidate_path),
                 "lane_root": str(gate_report_path.parent),
                 "results_dir": str(tmp_path / "versions"),
+                "replay_dir": str(tmp_path / "lane" / "replay"),
+                "replay_source_path": str(tmp_path / "source" / "labeled_tactical_states.jsonl"),
                 "config_path": str(config_path),
                 "gate_report_path": str(gate_report_path),
                 "summary_path": str(summary_path),
             }
+            Path(lane["replay_source_path"]).parent.mkdir(parents=True)
+            Path(lane["replay_source_path"]).write_text('{"row": 1}\n', encoding="utf-8")
 
             original_run_command = module.run_command
             module.run_command = lambda command, stage: None
@@ -267,10 +419,14 @@ class ModelRobustnessConfirmationTest(unittest.TestCase):
                 "candidate_path": str(candidate_path),
                 "lane_root": str(gate_report_path.parent),
                 "results_dir": str(tmp_path / "versions"),
+                "replay_dir": str(tmp_path / "lane" / "replay"),
+                "replay_source_path": str(tmp_path / "source" / "labeled_tactical_states.jsonl"),
                 "config_path": str(tmp_path / "custom-run.json"),
                 "gate_report_path": str(gate_report_path),
                 "summary_path": str(tmp_path / "lane" / "seed_summary.json"),
             }
+            Path(lane["replay_source_path"]).parent.mkdir(parents=True)
+            Path(lane["replay_source_path"]).write_text('{"row": 1}\n', encoding="utf-8")
 
             commands: list[list[str]] = []
 
@@ -290,7 +446,64 @@ class ModelRobustnessConfirmationTest(unittest.TestCase):
         local_gate_command = next(command for command in commands if "script/ai/local_promotion_gate" in command)
         self.assertEqual("/tmp/fake-repo-python", local_gate_command[0])
 
-    def test_execute_lane_passes_runtime_current_path_as_hard_path(self):
+    def test_execute_lane_stages_replay_dataset_before_pipeline(self):
+        module = self.load_module()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "versions" / "custom-run-iter4"
+            candidate_path.mkdir(parents=True)
+            replay_source = tmp_path / "source" / "labeled_tactical_states.jsonl"
+            replay_source.parent.mkdir(parents=True)
+            replay_source.write_text('{"row": 1}\n', encoding="utf-8")
+            (candidate_path / "benchmark_report.json").write_text(
+                json.dumps(
+                    {
+                        "checks": [{"id": "runtime_parity", "passed": True}],
+                        "arena_confidence_lower_bound": 0.56,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gate_report_path = tmp_path / "lane" / "local_promotion_gate.json"
+            gate_report_path.parent.mkdir(parents=True)
+            gate_report_path.write_text(
+                json.dumps(
+                    {
+                        "passed": True,
+                        "arena_score": 0.61,
+                        "candidate_mcts_score": 0.57,
+                        "current_mcts_score": 0.53,
+                        "failure_reasons": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            replay_dir = tmp_path / "lane" / "replay"
+            lane = {
+                "seed": 41,
+                "candidate_path": str(candidate_path),
+                "lane_root": str(gate_report_path.parent),
+                "results_dir": str(tmp_path / "versions"),
+                "replay_dir": str(replay_dir),
+                "replay_source_path": str(replay_source),
+                "config_path": str(tmp_path / "custom-run.json"),
+                "gate_report_path": str(gate_report_path),
+                "summary_path": str(tmp_path / "lane" / "seed_summary.json"),
+            }
+
+            original_run_command = module.run_command
+            module.run_command = lambda command, stage: None
+            try:
+                module.execute_lane(lane, {"steps": []}, current_path=str(tmp_path / "current"))
+            finally:
+                module.run_command = original_run_command
+
+            staged_replay = replay_dir / "labeled_tactical_states.jsonl"
+            self.assertTrue(staged_replay.exists())
+            self.assertEqual(replay_source.read_text(encoding="utf-8"), staged_replay.read_text(encoding="utf-8"))
+
+    def test_execute_lane_reads_benchmark_report_without_benchmark_contract_step(self):
         module = self.load_module()
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -330,6 +543,60 @@ class ModelRobustnessConfirmationTest(unittest.TestCase):
                 "summary_path": str(tmp_path / "lane" / "seed_summary.json"),
             }
 
+            original_run_command = module.run_command
+            module.run_command = lambda command, stage: None
+            try:
+                summary = module.execute_lane(lane, {"steps": []}, current_path=str(tmp_path / "current"))
+            finally:
+                module.run_command = original_run_command
+
+        self.assertTrue(summary["benchmark_passed"])
+        self.assertEqual(0.56, summary["arena_confidence_lower_bound"])
+
+    def test_execute_lane_passes_runtime_current_path_as_hard_path(self):
+        module = self.load_module()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "versions" / "custom-run-iter4"
+            candidate_path.mkdir(parents=True)
+            (candidate_path / "benchmark_report.json").write_text(
+                json.dumps(
+                    {
+                        "checks": [{"id": "runtime_parity", "passed": True}],
+                        "arena_confidence_lower_bound": 0.56,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gate_report_path = tmp_path / "lane" / "local_promotion_gate.json"
+            gate_report_path.parent.mkdir(parents=True)
+            gate_report_path.write_text(
+                json.dumps(
+                    {
+                        "passed": True,
+                        "arena_score": 0.61,
+                        "candidate_mcts_score": 0.57,
+                        "current_mcts_score": 0.53,
+                        "failure_reasons": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            lane = {
+                "seed": 41,
+                "candidate_path": str(candidate_path),
+                "lane_root": str(gate_report_path.parent),
+                "results_dir": str(tmp_path / "versions"),
+                "replay_dir": str(tmp_path / "lane" / "replay"),
+                "replay_source_path": str(tmp_path / "source" / "labeled_tactical_states.jsonl"),
+                "config_path": str(tmp_path / "custom-run.json"),
+                "gate_report_path": str(gate_report_path),
+                "summary_path": str(tmp_path / "lane" / "seed_summary.json"),
+            }
+            Path(lane["replay_source_path"]).parent.mkdir(parents=True)
+            Path(lane["replay_source_path"]).write_text('{"row": 1}\n', encoding="utf-8")
+
             commands: list[list[str]] = []
 
             def capture(command, *, stage):
@@ -355,6 +622,70 @@ class ModelRobustnessConfirmationTest(unittest.TestCase):
             str(tmp_path / "runtime-current"),
             local_gate_command[local_gate_command.index("--hard-path") + 1],
         )
+
+    def test_execute_lane_allows_tactical_lane_without_benchmark_report(self):
+        module = self.load_module()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "versions" / "custom-run-iter4"
+            candidate_path.mkdir(parents=True)
+            (candidate_path / "arena_report.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 120,
+                        "wins": 72,
+                        "losses": 24,
+                        "draws": 24,
+                        "score": 0.7,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gate_report_path = tmp_path / "lane" / "local_promotion_gate.json"
+            gate_report_path.parent.mkdir(parents=True)
+            gate_report_path.write_text(
+                json.dumps(
+                    {
+                        "passed": True,
+                        "arena_score": 0.61,
+                        "candidate_mcts_score": 0.57,
+                        "current_mcts_score": 0.53,
+                        "failure_reasons": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            replay_source = tmp_path / "source" / "labeled_tactical_states.jsonl"
+            replay_source.parent.mkdir(parents=True)
+            replay_source.write_text('{"row": 1}\n', encoding="utf-8")
+            lane = {
+                "seed": 41,
+                "candidate_path": str(candidate_path),
+                "lane_root": str(gate_report_path.parent),
+                "results_dir": str(tmp_path / "versions"),
+                "replay_dir": str(tmp_path / "lane" / "replay"),
+                "replay_source_path": str(replay_source),
+                "config_path": str(tmp_path / "custom-run.json"),
+                "gate_report_path": str(gate_report_path),
+                "summary_path": str(tmp_path / "lane" / "seed_summary.json"),
+            }
+
+            original_run_command = module.run_command
+            module.run_command = lambda command, stage: None
+            try:
+                summary = module.execute_lane(
+                    lane,
+                    {"steps": [{"name": "arena_confirm_report", "command": ["python", "arena.py"]}]},
+                    current_path=str(tmp_path / "current"),
+                )
+            finally:
+                module.run_command = original_run_command
+
+        self.assertTrue(summary["benchmark_passed"])
+        self.assertIsNone(summary["arena_confidence_lower_bound"])
 
 
 if __name__ == "__main__":

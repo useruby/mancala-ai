@@ -36,6 +36,10 @@ PRESERVATION_BUCKETS = frozenset(
 )
 
 
+class UnclassifiableMinedRowError(ValueError):
+    pass
+
+
 def _side_view(state: dict[str, Any], player: int | None = None) -> tuple[list[int], list[int], int, int]:
     current_player = int(state["current_player"] if player is None else player)
     if current_player == 0:
@@ -208,7 +212,7 @@ def label_row(
     ply = normalized_row["ply"]
     bucket = choose_bucket(raw_state, ply=ply)
     if bucket is None:
-        raise ValueError(f"unable to classify row at ply={ply}: {raw_state}")
+        raise UnclassifiableMinedRowError(f"unable to classify row at ply={ply}: {raw_state}")
 
     game = KalahGame.from_state(raw_state)
     legal_moves = normalized_row["legal_moves"]
@@ -271,18 +275,23 @@ def label_rows(
     if input_encoding not in SUPPORTED_INPUT_ENCODINGS:
         raise ValueError(f"unsupported input_encoding: {input_encoding}")
 
-    return [
-        label_row(
-            row,
-            policy_simulations=policy_simulations,
-            value_simulations=value_simulations,
-            seed=seed + index,
-            policy_target_mode=normalized_policy_target_mode,
-            value_target_mode=normalized_value_target_mode,
-            input_encoding=input_encoding,
-        )
-        for index, row in enumerate(rows)
-    ]
+    labeled_rows: list[dict[str, Any]] = []
+    for index, row in enumerate(rows):
+        try:
+            labeled_rows.append(
+                label_row(
+                    row,
+                    policy_simulations=policy_simulations,
+                    value_simulations=value_simulations,
+                    seed=seed + index,
+                    policy_target_mode=normalized_policy_target_mode,
+                    value_target_mode=normalized_value_target_mode,
+                    input_encoding=input_encoding,
+                )
+            )
+        except UnclassifiableMinedRowError:
+            continue
+    return labeled_rows
 
 
 def _train_row_from_labeled_row(row: dict[str, Any]) -> dict[str, Any]:

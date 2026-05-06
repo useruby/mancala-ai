@@ -551,6 +551,145 @@ class HardStateMiningTest(unittest.TestCase):
             set(deduplicated[0]["selection_reasons"]),
         )
 
+    def test_forensic_candidates_preserve_ply_from_tags_through_deduplication(self):
+        from ml.alphazero_lite import hard_state_mining
+
+        artifacts = [
+            {
+                "path": "reports/forensic.json",
+                "schema": "azlite_forensic_suite_v1",
+                "systems": {
+                    "challenger": {
+                        "artifact_path": "challenger.pt",
+                        "rows": [
+                            {
+                                "id": "opening-1",
+                                "bucket": "high_value_swing",
+                                "tags": ["high_value_swing", "seed", "ply_2"],
+                                "state": self.sample_state(player_store=1),
+                                "side_to_move": 0,
+                                "legal_moves": [0, 1],
+                                "selected_move": 1,
+                                "reference_move": 0,
+                                "agrees_top1": False,
+                                "regret": 0.4,
+                                "teacher_value": 0.1,
+                                "system_value": -0.2,
+                                "value_error": 0.8,
+                                "entropy": 0.9,
+                                "best_second_gap": 0.7,
+                            }
+                        ],
+                    }
+                },
+            }
+        ]
+
+        candidates = hard_state_mining.extract_candidates(artifacts)
+
+        self.assertTrue(candidates)
+        self.assertEqual({2}, {candidate["ply"] for candidate in candidates})
+
+        deduplicated = hard_state_mining.deduplicate_candidates(candidates)
+
+        self.assertEqual(1, len(deduplicated))
+        self.assertEqual(2, deduplicated[0]["ply"])
+
+    def test_forensic_candidates_fallback_to_opening_ply_when_tags_omit_it(self):
+        from ml.alphazero_lite import hard_state_mining
+
+        artifacts = [
+            {
+                "path": "reports/forensic.json",
+                "schema": "azlite_forensic_suite_v1",
+                "systems": {
+                    "challenger": {
+                        "artifact_path": "challenger.pt",
+                        "rows": [
+                            {
+                                "id": "opening-0",
+                                "bucket": "opening_plies_1_8",
+                                "phase": "opening",
+                                "tags": ["opening_plies_1_8", "seed"],
+                                "state": self.sample_state(),
+                                "side_to_move": 0,
+                                "legal_moves": [0, 1],
+                                "selected_move": 1,
+                                "reference_move": 0,
+                                "agrees_top1": False,
+                                "regret": 0.4,
+                                "teacher_value": 0.1,
+                                "system_value": -0.2,
+                                "value_error": 0.8,
+                                "entropy": 0.9,
+                                "best_second_gap": 0.7,
+                            }
+                        ],
+                    }
+                },
+            }
+        ]
+
+        candidates = hard_state_mining.extract_candidates(artifacts)
+
+        self.assertTrue(candidates)
+        self.assertEqual({8}, {candidate["ply"] for candidate in candidates})
+
+    def test_forensic_candidates_skip_unstable_reference_rows_for_disagreement_mining(self):
+        from ml.alphazero_lite import hard_state_mining
+
+        artifacts = [
+            {
+                "path": "reports/forensic.json",
+                "schema": "azlite_forensic_suite_v1",
+                "systems": {
+                    "challenger": {
+                        "artifact_path": "challenger.pt",
+                        "rows": [
+                            {
+                                "id": "unstable-1",
+                                "bucket": "capture_available",
+                                "tags": ["capture_available", "seed", "ply_4"],
+                                "state": self.sample_state(),
+                                "side_to_move": 0,
+                                "legal_moves": [0, 1],
+                                "selected_move": 1,
+                                "reference_move": None,
+                                "reference_unstable": True,
+                                "agrees_top1": None,
+                                "regret": None,
+                                "teacher_value": None,
+                                "system_value": -0.2,
+                                "value_error": 0.8,
+                                "entropy": 0.9,
+                                "best_second_gap": 0.7,
+                            }
+                        ],
+                    }
+                },
+            }
+        ]
+
+        rows = hard_state_mining.extract_candidates(artifacts)
+
+        self.assertNotIn("student_teacher_disagreement", {row["selection_reason"] for row in rows})
+        self.assertEqual(
+            {"large_value_error", "high_search_entropy", "large_best_second_gap"},
+            {row["selection_reason"] for row in rows},
+        )
+
+    def test_normalize_candidate_rejects_conflicting_ply_and_move_index(self):
+        from ml.alphazero_lite import hard_state_mining
+
+        with self.assertRaisesRegex(ValueError, "candidate ply and move_index must match"):
+            hard_state_mining.normalize_candidate(self.make_candidate(ply=8, move_index=9))
+
+    def test_normalize_candidate_rejects_non_integer_move_index_before_mismatch_check(self):
+        from ml.alphazero_lite import hard_state_mining
+
+        with self.assertRaisesRegex(ValueError, "candidate ply must be an integer"):
+            hard_state_mining.normalize_candidate(self.make_candidate(ply=8, move_index="8"))
+
     def test_cli_writes_jsonl_and_summary_report(self):
         repo_root = Path(__file__).resolve().parents[2]
         with tempfile.TemporaryDirectory(prefix="azlite-hard-mining-") as tmp:

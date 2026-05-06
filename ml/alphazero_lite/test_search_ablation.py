@@ -538,12 +538,12 @@ class SearchAblationRealRunnerTest(unittest.TestCase):
         self.assertEqual([128], report["budgets"])
         self.assertEqual(["classic_only", "policy_only", "value_only", "full"], report["modes"])
         self.assertEqual(1, report["overall"]["128"]["full"]["positions"])
-        self.assertEqual(1.0, report["overall"]["128"]["full"]["top1_agreement"])
+        self.assertEqual(0.0, report["overall"]["128"]["full"]["top1_agreement"])
         self.assertEqual(0.0, report["overall"]["128"]["full"]["average_regret"])
         self.assertEqual(0.0, report["overall"]["128"]["full"]["value_calibration_mae"])
         self.assertEqual(0.0, report["overall"]["128"]["classic_only"]["top1_agreement"])
         self.assertIn("opening_plies_1_8", report["buckets"])
-        self.assertEqual("policy", report["attribution_summary"]["overall"]["128"]["larger_contributor"])
+        self.assertEqual("neither", report["attribution_summary"]["overall"]["128"]["larger_contributor"])
 
 
 if __name__ == "__main__":

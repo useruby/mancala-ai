@@ -154,6 +154,8 @@ def build_lane(seed: int, *, base_run_id: str, iteration: int, output_root: Path
     run_id = build_lane_run_id(base_run_id, seed)
     lane_root = output_root / run_id
     results_dir = lane_root / "versions"
+    replay_dir = lane_root / "replay"
+    replay_source_path = output_root.parent / "inputs" / "labeled_tactical_states.jsonl"
     config_path = output_root / f"{run_id}.json"
     candidate_path = results_dir / f"{run_id}-iter{iteration}"
     gate_report_path = lane_root / "local_promotion_gate.json"
@@ -164,6 +166,8 @@ def build_lane(seed: int, *, base_run_id: str, iteration: int, output_root: Path
         "run_id": run_id,
         "lane_root": str(lane_root),
         "results_dir": str(results_dir),
+        "replay_dir": str(replay_dir),
+        "replay_source_path": str(replay_source_path),
         "config_path": str(config_path),
         "candidate_path": str(candidate_path),
         "gate_report_path": str(gate_report_path),
@@ -208,6 +212,7 @@ def build_plan(args: argparse.Namespace) -> tuple[dict, dict]:
     final_iteration = start_iteration + iterations - 1
     output_root = resolve_repo_path(args.output_root)
     aggregate_summary_path = output_root / "aggregate_summary.json"
+    replay_source_path = output_root.parent / "inputs" / "labeled_tactical_states.jsonl"
     seeds = validate_unique_seeds(list(DEFAULT_SEEDS))
 
     lanes = [
@@ -224,6 +229,7 @@ def build_plan(args: argparse.Namespace) -> tuple[dict, dict]:
         "parent_artifact": args.parent_artifact,
         "current_path": args.current_path,
         "aggregate_summary_path": str(aggregate_summary_path),
+        "replay_source_path": str(replay_source_path),
         "required_qualifying_seed_count": 2,
         "lanes": lanes,
     }
@@ -237,6 +243,14 @@ def build_lane_config(base_config: dict, lane: dict, *, parent_artifact: str, cu
     lane_config["versions_dir"] = lane["results_dir"]
     lane_config["current_path"] = current_path
     lane_config["parent_artifact_path"] = parent_artifact
+    replay_dir = lane.get("replay_dir")
+    replay_source_path = lane.get("replay_source_path")
+    if (replay_dir is None) != (replay_source_path is None):
+        raise SystemExit("lane replay metadata must provide both replay_dir and replay_source_path")
+    replay_data_path = None if replay_dir is None else str(Path(replay_dir) / "labeled_tactical_states.jsonl")
+    if replay_data_path is not None:
+        fixed_replay_sources = list(lane_config.get("fixed_replay_sources", []))
+        lane_config["fixed_replay_sources"] = [{"path": replay_data_path, "weight": 1}, *fixed_replay_sources]
 
     for step in lane_config.get("steps", []):
         if step.get("name") == "benchmark_contract":
@@ -352,6 +366,23 @@ def load_hard_state_summary(candidate_path: Path) -> dict:
     }
 
 
+def lane_requires_benchmark_report(lane_config: dict) -> bool:
+    return any(step.get("name") == "benchmark_contract" for step in lane_config.get("steps", []))
+
+
+def stage_replay_dataset(lane: dict) -> None:
+    replay_dir = lane.get("replay_dir")
+    replay_source_path = lane.get("replay_source_path")
+    if replay_dir is None and replay_source_path is None:
+        return
+    if replay_dir is None or replay_source_path is None:
+        raise SystemExit("lane replay metadata must provide both replay_dir and replay_source_path")
+
+    replay_dir_path = Path(replay_dir)
+    replay_dir_path.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(Path(replay_source_path), replay_dir_path / "labeled_tactical_states.jsonl")
+
+
 def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
     lane_root = Path(lane["lane_root"])
     results_dir = Path(lane["results_dir"])
@@ -362,6 +393,7 @@ def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
 
     lane_root.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
+    stage_replay_dataset(lane)
     config_path.write_text(json.dumps(lane_config, indent=2), encoding="utf-8")
 
     try:
@@ -405,13 +437,25 @@ def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
         if not gate_report_path.exists():
             raise
 
-    benchmark_report_path = candidate_path / "benchmark_report.json"
-    benchmark_report = load_json(benchmark_report_path)
     gate_report = load_json(gate_report_path)
-    benchmark_checks = benchmark_report.get("checks", [])
-    benchmark_passed = bool(benchmark_checks) and all(
-        isinstance(check, dict) and bool(check.get("passed")) for check in benchmark_checks
-    )
+    benchmark_report_path = candidate_path / "benchmark_report.json"
+    if benchmark_report_path.exists():
+        benchmark_report = load_json(benchmark_report_path)
+        benchmark_checks = benchmark_report.get("checks", [])
+        benchmark_passed = bool(benchmark_checks) and all(
+            isinstance(check, dict) and bool(check.get("passed")) for check in benchmark_checks
+        )
+        arena_confidence_lower_bound = benchmark_report.get("arena_confidence_lower_bound")
+    elif lane_requires_benchmark_report(lane_config):
+        benchmark_report = load_json(candidate_path / "benchmark_report.json")
+        benchmark_checks = benchmark_report.get("checks", [])
+        benchmark_passed = bool(benchmark_checks) and all(
+            isinstance(check, dict) and bool(check.get("passed")) for check in benchmark_checks
+        )
+        arena_confidence_lower_bound = benchmark_report.get("arena_confidence_lower_bound")
+    else:
+        benchmark_passed = True
+        arena_confidence_lower_bound = None
     summary = {
         "seed": lane["seed"],
         "candidate_path": lane["candidate_path"],
@@ -419,7 +463,7 @@ def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
         "benchmark_passed": benchmark_passed,
         "local_promotion_gate_passed": bool(gate_report.get("passed")),
         "arena_score": gate_report.get("arena_score"),
-        "arena_confidence_lower_bound": benchmark_report.get("arena_confidence_lower_bound"),
+        "arena_confidence_lower_bound": arena_confidence_lower_bound,
         "candidate_mcts_score": gate_report.get("candidate_mcts_score"),
         "current_mcts_score": gate_report.get("current_mcts_score"),
         "failure_reasons": gate_report.get("failure_reasons", []),
@@ -453,12 +497,21 @@ def main() -> int:
         parent_artifact=parent_artifact_path,
         current_path=current_path,
     )
+
+    replay_source_value = plan.get("replay_source_path")
+    if replay_source_value is not None:
+        replay_source_path = Path(replay_source_value)
+        if not replay_source_path.exists():
+            raise SystemExit(f"replay source does not exist: {replay_source_path}")
+
     shutil.rmtree(output_root, ignore_errors=True)
     output_root.mkdir(parents=True, exist_ok=True)
 
     lane_summaries = []
     for lane in plan["lanes"]:
         Path(lane["lane_root"]).mkdir(parents=True, exist_ok=True)
+        if "replay_source_path" in plan:
+            lane["replay_source_path"] = plan["replay_source_path"]
         lane_config = build_lane_config(
             base_config,
             lane,

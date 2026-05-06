@@ -1,16 +1,16 @@
 {
-  "run_id": "aggressive-v3-tactical-replay-local",
+  "run_id": "aggressive-v3-tactical-replay-local-weight4",
   "seed": 42,
   "iterations": 1,
   "start_iteration": 1,
   "replay_window": 1,
-  "versions_dir": "/tmp/azlite_v3_tactical_replay_local_versions",
+  "versions_dir": "/tmp/azlite_v3_tactical_replay_local_weight4_versions",
   "current_path": "model-artifact/current",
   "hard_state_validation_path": "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
   "fixed_replay_sources": [
     {
       "path": "ml/alphazero_lite/tactical_capture_protection.jsonl",
-      "weight": 8
+      "weight": 4
     }
   ],
   "steps": [

@@ -264,6 +264,120 @@ class LabelTacticalStatesTest(unittest.TestCase):
                 input_encoding="kalah_v1",
             )
 
+    def test_label_rows_accepts_mined_rows_with_ply_field(self):
+        raw_state = self._opening_state()
+        mined_rows = [
+            {
+                "canonical_state": canonical_state_key(raw_state),
+                "state": raw_state,
+                "side_to_move": raw_state["current_player"],
+                "legal_moves": KalahGame.from_state(raw_state).possible_moves(),
+                "ply": 8,
+                "selection_reasons": ["large_value_error"],
+                "source_artifacts": ["forensics.json"],
+                "source_runs": [{"kind": "forensic_suite"}],
+                "priority_score": 8.0,
+            }
+        ]
+
+        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+            labeled_rows = label_tactical_states.label_rows(
+                mined_rows,
+                policy_simulations=12,
+                value_simulations=18,
+                seed=7,
+                policy_target_mode="default",
+                value_target_mode="default",
+                input_encoding="kalah_v1",
+            )
+
+        self.assertEqual(1, len(labeled_rows))
+        self.assertEqual("opening_plies_1_8", labeled_rows[0]["bucket"])
+
+    def test_label_rows_skips_unclassifiable_forensic_states(self):
+        unclassifiable_state = {
+            "player_pits": [0, 2, 1, 8, 0, 7],
+            "opponent_pits": [0, 9, 6, 6, 0, 5],
+            "player_store": 3,
+            "opponent_store": 1,
+            "current_player": 0,
+        }
+        mined_rows = [
+            {
+                "canonical_state": canonical_state_key(unclassifiable_state),
+                "state": unclassifiable_state,
+                "side_to_move": unclassifiable_state["current_player"],
+                "legal_moves": KalahGame.from_state(unclassifiable_state).possible_moves(),
+                "ply": 9,
+                "selection_reasons": ["student_teacher_disagreement"],
+                "source_artifacts": ["forensics.json"],
+                "source_runs": [{"kind": "forensic_suite"}],
+                "priority_score": 10.0,
+            }
+        ]
+
+        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+            labeled_rows = label_tactical_states.label_rows(
+                mined_rows,
+                policy_simulations=12,
+                value_simulations=18,
+                seed=7,
+                policy_target_mode="default",
+                value_target_mode="default",
+                input_encoding="kalah_v1",
+            )
+
+        self.assertEqual([], labeled_rows)
+
+    def test_label_rows_skips_unclassifiable_rows_without_disrupting_neighboring_rows(self):
+        valid_state = self._opening_state()
+        unclassifiable_state = {
+            "player_pits": [0, 2, 1, 8, 0, 7],
+            "opponent_pits": [0, 9, 6, 6, 0, 5],
+            "player_store": 3,
+            "opponent_store": 1,
+            "current_player": 0,
+        }
+        mined_rows = [
+            {
+                "canonical_state": canonical_state_key(valid_state),
+                "state": valid_state,
+                "side_to_move": valid_state["current_player"],
+                "legal_moves": KalahGame.from_state(valid_state).possible_moves(),
+                "ply": 8,
+                "selection_reasons": ["large_value_error"],
+                "source_artifacts": ["forensics-a.json"],
+                "source_runs": [{"kind": "forensic_suite"}],
+                "priority_score": 8.0,
+            },
+            {
+                "canonical_state": canonical_state_key(unclassifiable_state),
+                "state": unclassifiable_state,
+                "side_to_move": unclassifiable_state["current_player"],
+                "legal_moves": KalahGame.from_state(unclassifiable_state).possible_moves(),
+                "ply": 9,
+                "selection_reasons": ["student_teacher_disagreement"],
+                "source_artifacts": ["forensics-b.json"],
+                "source_runs": [{"kind": "forensic_suite"}],
+                "priority_score": 10.0,
+            },
+        ]
+
+        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+            labeled_rows = label_tactical_states.label_rows(
+                mined_rows,
+                policy_simulations=12,
+                value_simulations=18,
+                seed=7,
+                policy_target_mode="default",
+                value_target_mode="default",
+                input_encoding="kalah_v1",
+            )
+
+        self.assertEqual(1, len(labeled_rows))
+        self.assertEqual(canonical_state_key(valid_state), labeled_rows[0]["canonical_state"])
+        self.assertEqual(7, labeled_rows[0]["teacher_seed"])
+
     def test_label_rows_rejects_missing_teacher_coverage_for_legal_move(self):
         raw_state = self._early_extra_turn_state()
         mined_rows = [

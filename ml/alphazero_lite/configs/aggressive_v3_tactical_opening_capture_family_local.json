@@ -1,15 +1,15 @@
 {
-  "run_id": "aggressive-v3-tactical-replay-local",
+  "run_id": "aggressive-v3-tactical-opening-capture-family-local",
   "seed": 42,
   "iterations": 1,
   "start_iteration": 1,
   "replay_window": 1,
-  "versions_dir": "/tmp/azlite_v3_tactical_replay_local_versions",
+  "versions_dir": "/tmp/azlite_v3_tactical_opening_capture_family_local_versions",
   "current_path": "model-artifact/current",
   "hard_state_validation_path": "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
   "fixed_replay_sources": [
     {
-      "path": "ml/alphazero_lite/tactical_capture_protection.jsonl",
+      "path": "ml/alphazero_lite/tactical_opening_capture_family_replay.jsonl",
       "weight": 8
     }
   ],

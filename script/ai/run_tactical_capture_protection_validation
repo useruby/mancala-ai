@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+
+DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json"
+DEFAULT_FORENSIC_SUITE = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def python_executable(root: Path) -> str:
+    if os.environ.get("AZLITE_EXPERIMENT_PYTHON"):
+        return os.environ["AZLITE_EXPERIMENT_PYTHON"]
+
+    candidates = [root / ".venv/bin/python"]
+    candidates.extend(parent / ".venv/bin/python" for parent in root.parents)
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+    return sys.executable
+
+
+def parse_args(argv=None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="script/ai/run_tactical_capture_protection_validation",
+        description="Run the tactical capture protection validation wrapper.",
+    )
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--output-root", required=True)
+    parser.add_argument("--current-path", required=True)
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args(argv)
+
+
+def build_run_paths(output_root: str | Path, run_id: str) -> dict[str, Path]:
+    base_dir = Path(output_root) / run_id
+    final_dir = base_dir / "final"
+    return {
+        "base_dir": base_dir,
+        "final_dir": final_dir,
+        "selection_artifact": base_dir / "selection" / "artifact",
+        "verdict_path": final_dir / "tactical_validation_verdict.json",
+        "launcher_summary_path": base_dir / "summary.json",
+        "wrapper_summary_path": base_dir / "tactical_capture_protection_validation_summary.json",
+    }
+
+
+def resolve_repo_path(root: Path, path_value: str) -> Path:
+    path = Path(path_value)
+    return path if path.is_absolute() else root / path
+
+
+def pinned_sources(root: Path, run_paths: dict[str, Path]) -> dict[str, str]:
+    return {
+        "base-config": str(resolve_repo_path(root, DEFAULT_BASE_CONFIG)),
+        "forensic-suite": str(resolve_repo_path(root, DEFAULT_FORENSIC_SUITE)),
+        "selected-artifact": str(run_paths["selection_artifact"]),
+        "baseline-forensics": str(run_paths["final_dir"] / "baseline_candidate_forensics.json"),
+        "candidate-forensics": str(run_paths["final_dir"] / "selected_candidate_forensics.json"),
+        "baseline-arena": str(run_paths["final_dir"] / "arena_seed_1041.json"),
+        "bucket-gate": str(run_paths["final_dir"] / "bucket_gate.json"),
+        "regression-report": str(run_paths["final_dir"] / "candidate_regression_suite.json"),
+    }
+
+
+def build_commands(args: argparse.Namespace, root: Path, run_paths: dict[str, Path]) -> dict[str, list[str]]:
+    python_bin = python_executable(root)
+    pins = pinned_sources(root, run_paths)
+    launcher_path = str(root / "script/ai/run_local_tactical_replay_experiment")
+
+    select_command = [
+        python_bin,
+        launcher_path,
+        "--run-id",
+        args.run_id,
+        "--output-root",
+        str(args.output_root),
+        "--current-path",
+        args.current_path,
+        "--base-config",
+        pins["base-config"],
+        "--forensic-suite",
+        pins["forensic-suite"],
+    ]
+    validation_command = [
+        python_bin,
+        launcher_path,
+        "--run-id",
+        args.run_id,
+        "--output-root",
+        str(args.output_root),
+        "--current-path",
+        args.current_path,
+        "--base-config",
+        pins["base-config"],
+        "--forensic-suite",
+        pins["forensic-suite"],
+        "--start-stage",
+        "validation_pack",
+        "--skip-stage",
+        "final_holdout",
+        "--skip-stage",
+        "decision",
+        "--selected-artifact",
+        pins["selected-artifact"],
+    ]
+    verdict_command = [
+        python_bin,
+        "-m",
+        "ml.alphazero_lite.write_tactical_validation_verdict",
+        "--run-dir",
+        str(run_paths["final_dir"]),
+        "--selected-artifact",
+        pins["selected-artifact"],
+        "--baseline-forensics",
+        pins["baseline-forensics"],
+        "--candidate-forensics",
+        pins["candidate-forensics"],
+        "--bucket-gate",
+        pins["bucket-gate"],
+        "--regression-report",
+        pins["regression-report"],
+        "--arena-report",
+        pins["baseline-arena"],
+        "--out",
+        str(run_paths["verdict_path"]),
+    ]
+    return {
+        "select": select_command,
+        "validation_pack": validation_command,
+        "write_verdict": verdict_command,
+    }
+
+
+def build_dry_run_payload(args: argparse.Namespace, root: Path) -> dict[str, Any]:
+    run_paths = build_run_paths(args.output_root, args.run_id)
+    commands = build_commands(args, root, run_paths)
+    return {
+        "run_id": args.run_id,
+        "current_path": args.current_path,
+        "stages": ["select", "validation_pack", "write_verdict"],
+        "pinned_sources": pinned_sources(root, run_paths),
+        "commands": commands,
+        "summary_path": str(run_paths["wrapper_summary_path"]),
+        "verdict_path": str(run_paths["verdict_path"]),
+    }
+
+
+def run_command(command: list[str], cwd: Path, allowed_returncodes: tuple[int, ...] = (0,)) -> dict[str, Any]:
+    completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True, check=False)
+    if completed.returncode not in allowed_returncodes:
+        details = (completed.stderr or completed.stdout).strip()
+        raise SystemExit(details or f"command failed with exit code {completed.returncode}: {command}")
+    return {
+        "command": list(command),
+        "cwd": str(cwd),
+        "returncode": completed.returncode,
+        "stdout": completed.stdout,
+        "stderr": completed.stderr,
+    }
+
+
+def load_json(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def remove_existing_verdict(path: Path) -> None:
+    if path.exists() or path.is_symlink():
+        path.unlink()
+
+
+def remove_existing_summary(path: Path) -> None:
+    if path.exists() or path.is_symlink():
+        path.unlink()
+
+
+def load_fresh_verdict(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise SystemExit(f"verdict writer did not produce a fresh verdict artifact: {path}")
+    verdict = load_json(path)
+    if not isinstance(verdict, dict):
+        raise SystemExit(f"verdict writer produced an invalid verdict artifact: {path}")
+    return verdict
+
+
+def run(args: argparse.Namespace, root: Path) -> dict[str, Any]:
+    run_paths = build_run_paths(args.output_root, args.run_id)
+    commands = build_commands(args, root, run_paths)
+    pins = pinned_sources(root, run_paths)
+
+    command_results = [run_command(commands["select"], root)]
+    remove_existing_verdict(run_paths["verdict_path"])
+    remove_existing_summary(run_paths["wrapper_summary_path"])
+    command_results.append(run_command(commands["validation_pack"], root))
+    command_results.append(run_command(commands["write_verdict"], root, allowed_returncodes=(0, 1)))
+    verdict = load_fresh_verdict(run_paths["verdict_path"])
+    summary = {
+        "schema": "azlite_tactical_capture_protection_validation_summary_v1",
+        "run_id": args.run_id,
+        "current_path": args.current_path,
+        "executed_stages": ["select", "validation_pack", "write_verdict"],
+        "selected_artifact": pins["selected-artifact"],
+        "pinned_sources": pins,
+        "verdict_path": str(run_paths["verdict_path"]),
+        "verdict": verdict,
+        "command_results": command_results,
+    }
+    write_json(run_paths["wrapper_summary_path"], summary)
+    return summary
+
+
+def main(argv=None) -> int:
+    root = repo_root()
+    args = parse_args(argv)
+    payload = build_dry_run_payload(args, root) if args.dry_run else run(args, root)
+    print(json.dumps(payload))
+    if args.dry_run:
+        return 0
+    return 0 if payload["verdict"].get("passed") else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
