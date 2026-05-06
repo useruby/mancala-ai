@@ -94,27 +94,30 @@ def enrich_suite_rows_with_reference_moves(rows: list[dict], reference_moves: di
     return enriched_rows
 
 
+def is_opening_capture_family_row(row: dict) -> bool:
+    row_id = row.get("id")
+    return (
+        isinstance(row_id, str)
+        and row_id.startswith("capture_available-")
+        and row.get("bucket") == "capture_available"
+        and row.get("phase") == "opening"
+        and row.get("legal_moves") == [0, 1, 2, 3, 4]
+    )
+
+
+def has_stable_reference_move(row: dict) -> bool:
+    reference_move = row.get("reference_move")
+    return isinstance(reference_move, int) and not isinstance(reference_move, bool)
+
+
 def is_tracked_family_row(row: dict) -> bool:
-    return _tracked_family_reference_status(row) == "tracked"
+    return is_opening_capture_family_row(row) and has_stable_reference_move(row)
 
 
 def _tracked_family_reference_status(row: dict) -> str | None:
-    row_id = row.get("id")
-    return (
-        None
-        if not (
-            isinstance(row_id, str)
-            and row_id.startswith("capture_available-")
-            and row.get("bucket") == "capture_available"
-            and row.get("phase") == "opening"
-            and row.get("legal_moves") == [0, 1, 2, 3, 4]
-        )
-        else "tracked"
-        if row.get("reference_move") == 3
-        else "missing"
-        if row.get("reference_move") is None
-        else "invalid"
-    )
+    if not is_opening_capture_family_row(row):
+        return None
+    return "tracked" if has_stable_reference_move(row) else "missing"
 
 
 def select_tracked_family_rows(rows: list[dict]) -> list[dict]:
@@ -155,13 +158,13 @@ def _summarize_distribution(
     distribution: list[float], *, selected_move: int | None, reference_move: int, value: float
 ) -> dict:
     early_mass = float(distribution[0]) + float(distribution[1])
-    move_three_mass = float(distribution[3]) if len(distribution) > 3 else 0.0
+    reference_mass = float(distribution[reference_move]) if 0 <= reference_move < len(distribution) else 0.0
     return {
         "selected_move": None if selected_move is None else int(selected_move),
         "value": float(value),
         "early_mass": round(early_mass, 4),
-        "move_3_mass": round(move_three_mass, 4),
-        "move_3_margin": round(move_three_mass - early_mass, 4),
+        "reference_mass": round(reference_mass, 4),
+        "reference_margin": round(reference_mass - early_mass, 4),
         "reference_move": int(reference_move),
     }
 

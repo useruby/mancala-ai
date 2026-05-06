@@ -22,13 +22,13 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             "reference_move": reference_move,
         }
 
-    def test_select_tracked_family_rows_enforces_task_three_signature(self):
+    def test_select_tracked_family_rows_enforces_opening_capture_family_structure(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
 
         rows = [
             self.opening_row("capture_available-017"),
             self.opening_row("capture_available-019", legal_moves=[0, 1, 2, 3]),
-            self.opening_row("capture_available-024", reference_move=2),
+            self.opening_row("capture_available-024", reference_move=4),
             self.opening_row("capture_available-031", phase="midgame"),
             self.opening_row("high_imbalance-001"),
             self.opening_row("capture_available-099"),
@@ -36,7 +36,7 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
 
         selected = module.select_tracked_family_rows(rows)
 
-        self.assertEqual(["capture_available-017", "capture_available-099"], [row["id"] for row in selected])
+        self.assertEqual(["capture_available-017", "capture_available-024", "capture_available-099"], [row["id"] for row in selected])
 
     def test_build_report_includes_current_and_candidate_prior_and_search_summaries(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
@@ -114,20 +114,20 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         self.assertEqual(3, first_row["reference_move"])
         self.assertEqual([0, 1, 2, 3, 4], first_row["legal_moves"])
         self.assertEqual(
-            {"selected_move", "value", "early_mass", "move_3_mass", "move_3_margin", "reference_move"},
+            {"selected_move", "value", "early_mass", "reference_mass", "reference_margin", "reference_move"},
             set(first_row["current_prior_summary"]),
         )
         self.assertEqual(0.2, first_row["current_prior_summary"]["early_mass"])
-        self.assertEqual(0.3, first_row["current_prior_summary"]["move_3_margin"])
+        self.assertEqual(0.3, first_row["current_prior_summary"]["reference_margin"])
         self.assertEqual(1, first_row["current_searched_summary"]["selected_move"])
         self.assertEqual(0.16, first_row["current_searched_summary"]["early_mass"])
-        self.assertEqual(0.46, first_row["current_searched_summary"]["move_3_margin"])
+        self.assertEqual(0.46, first_row["current_searched_summary"]["reference_margin"])
         self.assertEqual(3, first_row["candidate_prior_summary"]["selected_move"])
         self.assertEqual(0.2, first_row["candidate_prior_summary"]["early_mass"])
-        self.assertEqual(0.25, first_row["candidate_prior_summary"]["move_3_margin"])
+        self.assertEqual(0.25, first_row["candidate_prior_summary"]["reference_margin"])
         self.assertEqual(3, first_row["candidate_searched_summary"]["selected_move"])
         self.assertEqual(0.1905, first_row["candidate_searched_summary"]["early_mass"])
-        self.assertEqual(0.2857, first_row["candidate_searched_summary"]["move_3_margin"])
+        self.assertEqual(0.2857, first_row["candidate_searched_summary"]["reference_margin"])
 
     def test_summarize_prior_uses_prior_best_move_not_search_selected_move(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
@@ -158,9 +158,25 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            {"selected_move", "value", "early_mass", "move_3_mass", "move_3_margin", "reference_move"},
+            {"selected_move", "value", "early_mass", "reference_mass", "reference_margin", "reference_move"},
             set(summary),
         )
+
+    def test_summarize_prior_uses_reference_move_mass_for_non_three_reference(self):
+        from ml.alphazero_lite import write_opening_capture_family_report as module
+
+        summary = module.summarize_prior(
+            {
+                "selected_move": 4,
+                "value": 0.25,
+                "policy": [0.05, 0.15, 0.1, 0.2, 0.5, 0.0],
+            },
+            reference_move=4,
+            legal_moves=[0, 1, 2, 3, 4],
+        )
+
+        self.assertEqual(0.5, summary["reference_mass"])
+        self.assertEqual(0.3, summary["reference_margin"])
 
     def test_write_report_persists_json_payload(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
@@ -238,6 +254,115 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         )
 
         self.assertEqual(3, enriched[0]["reference_move"])
+
+    def test_stable_reference_move_four_row_is_tracked_not_invalid(self):
+        from ml.alphazero_lite import write_opening_capture_family_report as module
+
+        tracked_state = {
+            "player_pits": [5, 1, 5, 5, 5, 0],
+            "opponent_pits": [1, 6, 0, 7, 6, 5],
+            "player_store": 1,
+            "opponent_store": 1,
+            "current_player": 0,
+        }
+        row = {
+            "id": "capture_available-016",
+            "state": tracked_state,
+            "legal_moves": [0, 1, 2, 3, 4],
+            "bucket": "capture_available",
+            "phase": "opening",
+            "reference_move": 4,
+        }
+
+        self.assertTrue(module.is_tracked_family_row(row))
+        self.assertEqual([], module.missing_tracked_family_references([row]))
+
+    def test_structural_family_membership_does_not_require_reference_move(self):
+        from ml.alphazero_lite import write_opening_capture_family_report as module
+
+        row = self.opening_row("capture_available-016", reference_move=None)
+
+        self.assertTrue(module.is_opening_capture_family_row(row))
+        self.assertFalse(module.has_stable_reference_move(row))
+        self.assertEqual([], module.select_tracked_family_rows([row]))
+        self.assertEqual(
+            [{"code": "missing_reference_move", "id": "capture_available-016"}],
+            module.missing_tracked_family_references([row]),
+        )
+
+    def test_build_report_includes_stable_reference_move_four_row_in_rows(self):
+        from ml.alphazero_lite import write_opening_capture_family_report as module
+
+        current_artifact = Path("/tmp/current-artifact")
+        candidate_artifact = Path("/tmp/candidate-artifact")
+        tracked_state = {
+            "player_pits": [5, 1, 5, 5, 5, 0],
+            "opponent_pits": [1, 6, 0, 7, 6, 5],
+            "player_store": 1,
+            "opponent_store": 1,
+            "current_player": 0,
+        }
+
+        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode="full"):
+            del evaluator, state, simulations, seed, c_puct, search_options, ablation_mode
+            if artifact_path == current_artifact:
+                return {
+                    "selected_move": 4,
+                    "legal_moves": [0, 1, 2, 3, 4],
+                    "policy": [0.05, 0.1, 0.1, 0.2, 0.55, 0.0],
+                    "visits": [2.0, 3.0, 3.0, 8.0, 24.0, 0.0],
+                    "value": 0.2,
+                }
+            return {
+                "selected_move": 4,
+                "legal_moves": [0, 1, 2, 3, 4],
+                "policy": [0.04, 0.08, 0.08, 0.22, 0.58, 0.0],
+                "visits": [1.0, 2.0, 2.0, 9.0, 26.0, 0.0],
+                "value": 0.3,
+            }
+
+        fake_arena = type(
+            "FakeArena",
+            (),
+            {
+                "ArtifactEvaluator": staticmethod(lambda path: path),
+                "build_eval_search_options": staticmethod(lambda: {"root_policy_mode": "deterministic"}),
+                "evaluate_artifact_position": staticmethod(fake_evaluate_artifact_position),
+            },
+        )
+
+        with mock.patch(
+            "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
+            return_value=[
+                {
+                    "id": "capture_available-016",
+                    "state": tracked_state,
+                    "legal_moves": [0, 1, 2, 3, 4],
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": None,
+                }
+            ],
+        ), mock.patch(
+            "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
+            return_value={module.canonical_state_key(tracked_state): 4},
+        ), mock.patch(
+            "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
+            return_value=fake_arena,
+        ):
+            report = module.build_report(
+                suite_path=Path("/tmp/opening-suite.json"),
+                reference_path=Path("/tmp/reference_moves.json"),
+                current_artifact_path=current_artifact,
+                candidate_artifact_path=candidate_artifact,
+                artifact_simulations=64,
+                c_puct=1.25,
+                seed=7,
+            )
+
+        self.assertEqual(["capture_available-016"], [row["id"] for row in report["rows"]])
+        self.assertEqual([], report["missing_references"])
+        self.assertEqual(4, report["rows"][0]["reference_move"])
 
     def test_build_report_uses_same_seed_for_current_and_candidate_search(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
@@ -331,7 +456,7 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             report["missing_references"],
         )
 
-    def test_build_report_records_invalid_reference_move_failure_when_tracked_row_has_stale_value_without_shared_reference(self):
+    def test_build_report_keeps_structurally_tracked_row_with_stale_suite_reference_move(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
 
         tracked_state = {
@@ -341,6 +466,26 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             "opponent_store": 0,
             "current_player": 0,
         }
+
+        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode="full"):
+            del artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode
+            return {
+                "selected_move": 1,
+                "legal_moves": [0, 1, 2, 3, 4],
+                "policy": [0.05, 0.35, 0.2, 0.15, 0.25, 0.0],
+                "visits": [2.0, 20.0, 8.0, 4.0, 10.0, 0.0],
+                "value": 0.1,
+            }
+
+        fake_arena = type(
+            "FakeArena",
+            (),
+            {
+                "ArtifactEvaluator": staticmethod(lambda path: path),
+                "build_eval_search_options": staticmethod(lambda: {"root_policy_mode": "deterministic"}),
+                "evaluate_artifact_position": staticmethod(fake_evaluate_artifact_position),
+            },
+        )
 
         with mock.patch(
             "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
@@ -357,6 +502,9 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         ), mock.patch(
             "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
             return_value={},
+        ), mock.patch(
+            "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
+            return_value=fake_arena,
         ):
             report = module.build_report(
                 suite_path=Path("/tmp/opening-suite.json"),
@@ -367,11 +515,9 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                 seed=7,
             )
 
-        self.assertEqual([], report["rows"])
-        self.assertEqual(
-            [{"code": "invalid_reference_move", "id": "capture_available-017", "reference_move": 1}],
-            report["missing_references"],
-        )
+        self.assertEqual(["capture_available-017"], [row["id"] for row in report["rows"]])
+        self.assertEqual([], report["missing_references"])
+        self.assertEqual(1, report["rows"][0]["reference_move"])
 
     def test_load_reference_moves_reads_shared_reference_artifact_rows(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
