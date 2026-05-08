@@ -9,6 +9,13 @@ from ml.alphazero_lite.diagnose_search_interaction import build_matrix_from_runs
 
 SEARCH_INTERACTION_SCHEMA = "azlite_search_interaction_diagnostic_v1"
 SEARCH_VALUE_INTERACTION_SCHEMA = "azlite_search_value_interaction_diagnostic_v1"
+SEARCH_VALUE_BACKUP_ABLATION_SCHEMA = "azlite_search_value_backup_ablation_v1"
+SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_SCHEMA = "azlite_search_value_backup_ablation_fixture_manifest_v1"
+SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR = (
+    Path(__file__).resolve().parent / "fixtures" / "diagnostics" / "search_value_backup_ablation"
+)
+SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_PATH = SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR / "manifest.json"
+LOW_OPENING_VALUE_TRUST_SCHEDULE = {"enabled": True, "opening": 0.25, "midgame": 1.0, "late": 1.0}
 SEARCH_VALUE_PRIMARY_ROW_IDS = [
     "capture_available-002",
     "capture_available-003",
@@ -33,6 +40,172 @@ def _load_json(path: Path) -> dict:
 
 def _rows_by_id(rows: list[dict]) -> dict[str, dict]:
     return {row["id"]: row for row in rows}
+
+
+def _load_search_value_backup_fixture_payload(*, fixture_dir: Path, manifest_entry: dict) -> dict:
+    payload_path = fixture_dir / Path(manifest_entry["path"]).name
+    return {
+        "path": payload_path,
+        "manifest_entry": manifest_entry,
+        "payload": _load_json(payload_path),
+    }
+
+
+def _supported_parent_fpu_metadata(fpu_mode: str) -> dict:
+    if fpu_mode in {"parent_q", "parent_value"}:
+        return {
+            "is_supported": True,
+            "support_tier": "native",
+            "resolved_mode": fpu_mode,
+        }
+    return {
+        "is_supported": False,
+        "support_tier": "unsupported",
+        "requested_mode": fpu_mode,
+    }
+
+
+def _validated_ablation_row_ids(search_value_payload: dict) -> tuple[list[str], list[str]]:
+    def validate_subset(row_ids: list[str], approved_row_ids: list[str], field_name: str) -> list[str]:
+        approved_iter = iter(approved_row_ids)
+        for row_id in row_ids:
+            for approved_row_id in approved_iter:
+                if approved_row_id == row_id:
+                    break
+            else:
+                raise ValueError(
+                    f"search value backup ablation fixture {field_name} drifted from approved constants"
+                )
+        return row_ids
+
+    primary_row_ids = list(search_value_payload.get("primary_row_ids") or [])
+    comparator_row_ids = list(search_value_payload.get("comparator_row_ids") or [])
+    return (
+        validate_subset(primary_row_ids, SEARCH_VALUE_PRIMARY_ROW_IDS, "primary_row_ids"),
+        validate_subset(comparator_row_ids, SEARCH_VALUE_COMPARATOR_ROW_IDS, "comparator_row_ids"),
+    )
+
+
+def load_search_value_backup_fixture_metadata(
+    *, fixture_dir: Path = SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR
+) -> dict:
+    fixture_manifest_path = fixture_dir / "manifest.json"
+    fixture_manifest = _load_json(fixture_manifest_path)
+    if fixture_manifest.get("schema") != SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_SCHEMA:
+        raise ValueError(f"unexpected search value backup fixture manifest schema: {fixture_manifest_path}")
+    return {
+        "fixture_dir": fixture_dir,
+        "fixture_manifest_path": fixture_manifest_path,
+        "fixture_manifest": fixture_manifest,
+    }
+
+
+def build_search_value_backup_source_artifacts(
+    *, fixture_dir: Path = SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR
+) -> dict:
+    source_artifacts = load_search_value_backup_fixture_metadata(fixture_dir=fixture_dir)
+    fixtures = source_artifacts["fixture_manifest"]["fixtures"]
+    return {
+        **source_artifacts,
+        "search_interaction_diagnostic": _load_search_value_backup_fixture_payload(
+            fixture_dir=fixture_dir,
+            manifest_entry=fixtures["search_interaction_diagnostic"],
+        ),
+        "search_value_interaction_diagnostic": _load_search_value_backup_fixture_payload(
+            fixture_dir=fixture_dir,
+            manifest_entry=fixtures["search_value_interaction_diagnostic"],
+        ),
+    }
+
+
+def build_search_value_backup_ablation_matrix(*, source_artifacts: dict) -> list[dict]:
+    search_value_payload = source_artifacts["search_value_interaction_diagnostic"]["payload"]
+    primary_row_ids, comparator_row_ids = _validated_ablation_row_ids(search_value_payload)
+    return [
+        {
+            "stable_key": "full_default",
+            "name": "Full Default",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "full",
+            "search_options_overrides": {},
+            "target_row_ids": primary_row_ids,
+        },
+        {
+            "stable_key": "policy_only_default",
+            "name": "Policy Only Default",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "policy_only",
+            "search_options_overrides": {},
+            "target_row_ids": primary_row_ids,
+        },
+        {
+            "stable_key": "value_only_default",
+            "name": "Value Only Default",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "value_only",
+            "search_options_overrides": {},
+            "target_row_ids": primary_row_ids,
+        },
+        {
+            "stable_key": "full_fpu_zero",
+            "name": "Full FPU Zero",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "full",
+            "search_options_overrides": {"fpu_mode": "zero"},
+            "target_row_ids": primary_row_ids,
+            "support_metadata": {"is_supported": True, "support_tier": "native", "resolved_mode": "zero"},
+        },
+        {
+            "stable_key": "full_fpu_parent_q",
+            "name": "Full FPU Parent Q",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "full",
+            "search_options_overrides": {"fpu_mode": "parent_q"},
+            "target_row_ids": primary_row_ids,
+            "support_metadata": _supported_parent_fpu_metadata("parent_q"),
+        },
+        {
+            "stable_key": "full_root_visit_count",
+            "name": "Full Root Visit Count",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "full",
+            "search_options_overrides": {"root_policy_mode": "visit_count", "tactical_root_bias": 0.0},
+            "target_row_ids": primary_row_ids,
+        },
+        {
+            "stable_key": "full_normalize_values",
+            "name": "Full Normalize Values",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "full",
+            "search_options_overrides": {"normalize_values": True},
+            "target_row_ids": primary_row_ids,
+        },
+        {
+            "stable_key": "full_value_trust_low_opening",
+            "name": "Full Value Trust Low Opening",
+            "classification_role": "candidate",
+            "search_family": "puct",
+            "ablation_mode": "full",
+            "search_options_overrides": {"value_trust_schedule": dict(LOW_OPENING_VALUE_TRUST_SCHEDULE)},
+            "target_row_ids": primary_row_ids,
+        },
+        {
+            "stable_key": "classic_only_comparator",
+            "name": "Classic Only Comparator",
+            "classification_role": "comparator_only",
+            "search_family": "classic_mcts",
+            "ablation_mode": "classic_only",
+            "search_options_overrides": {},
+            "target_row_ids": comparator_row_ids,
+        },
+    ]
 
 
 def build_matrix_payload(*, original_run_dir: Path, rebalanced_run_dir: Path) -> dict:
@@ -106,6 +279,10 @@ def search_value_interaction_diagnostic_out_path(*, rebalanced_run_dir: Path) ->
     return rebalanced_run_dir / "final" / "search_value_interaction_diagnostic.json"
 
 
+def search_value_backup_ablation_out_path(*, rebalanced_run_dir: Path) -> Path:
+    return rebalanced_run_dir / "final" / "search_value_backup_ablation_diagnostic.json"
+
+
 def _distribution_from_policy(policy: list[float], legal_moves: list[int]) -> dict[str, float]:
     return {str(move): round(float(policy[move]) if move < len(policy) else 0.0, 4) for move in legal_moves}
 
@@ -172,7 +349,7 @@ def _selection_breakdown_top_move(artifact: dict, key: str, fallback) -> int | N
 
 
 def summarize_row_mechanism(row_payload: dict) -> str:
-    artifact = row_payload["rebalanced_challenger"]
+    artifact = row_payload.get("rebalanced_challenger") or row_payload
     policy_top_move = _selection_breakdown_top_move(
         artifact,
         "policy_top_move",
@@ -193,6 +370,214 @@ def summarize_row_mechanism(row_payload: dict) -> str:
         f"policy leans to {policy_top_move}, visits finish on {visit_top_move}, "
         f"q-values favor {q_top_move}, snapshots {snapshot_status}"
     )
+
+
+def _unwrap_diagnostic_wrapper(value, *, field_name: str):
+    if isinstance(value, dict) and field_name in value:
+        return value[field_name]
+    return value
+
+
+def _merge_search_options(*, base_search_options: dict, overrides: dict | None) -> dict:
+    merged = dict(base_search_options)
+    if overrides:
+        merged.update(overrides)
+    return merged
+
+
+def _unsupported_configuration_entries(*, row_id: str, config: dict) -> list[dict]:
+    unsupported = []
+    if row_id not in config.get("target_row_ids", []):
+        unsupported.append({"kind": "row_out_of_scope", "reason": "row not approved for this configuration"})
+
+    support_metadata = config.get("support_metadata") or {}
+    if support_metadata and not support_metadata.get("is_supported", True):
+        entry = {
+            "kind": "configuration_unsupported",
+            "reason": "configuration is unsupported for probing",
+        }
+        if "requested_mode" in support_metadata:
+            entry["requested_mode"] = support_metadata["requested_mode"]
+        unsupported.append(entry)
+    return unsupported
+
+
+def _build_ablation_observability(artifact: dict) -> dict:
+    selection_breakdown = artifact.get("selection_breakdown") or {}
+    return {
+        "selected_move": artifact.get("selected_move"),
+        "probe_value": artifact.get("probe_value"),
+        "probe_value_error": artifact.get("probe_value_error"),
+        "visit_top_move": _selection_breakdown_top_move(
+            artifact,
+            "visit_top_move",
+            _top_distribution_key(artifact.get("searched_visit_distribution")),
+        ),
+        "q_top_move": _selection_breakdown_top_move(
+            artifact,
+            "q_top_move",
+            _top_q_value_key(artifact.get("per_move_q_values")),
+        ),
+        "policy_top_move": _selection_breakdown_top_move(
+            artifact,
+            "policy_top_move",
+            _top_distribution_key(artifact.get("raw_policy_distribution")),
+        ),
+        **(
+            {
+                "fpu_mode": selection_breakdown["fpu_mode"],
+                "value_trust_multiplier": selection_breakdown["value_trust_multiplier"],
+            }
+            if "fpu_mode" in selection_breakdown and "value_trust_multiplier" in selection_breakdown
+            else {}
+        ),
+    }
+
+
+def _build_matrix_configuration_metadata(config: dict) -> dict:
+    return {
+        "stable_key": config["stable_key"],
+        "name": config["name"],
+        "classification_role": config["classification_role"],
+        "search_family": config.get("search_family"),
+        "ablation_mode": config["ablation_mode"],
+        "search_options_overrides": dict(config.get("search_options_overrides") or {}),
+        "support_metadata": config.get("support_metadata"),
+        "target_row_ids": list(config.get("target_row_ids") or []),
+    }
+
+
+def _build_search_value_backup_top_level_source_artifacts(*, source_artifacts: dict) -> dict:
+    top_level_source_artifacts = {
+        "search_interaction_diagnostic": str(source_artifacts["search_interaction_diagnostic"]["path"]),
+        "search_value_interaction_diagnostic": str(source_artifacts["search_value_interaction_diagnostic"]["path"]),
+    }
+    fixture_manifest_path = source_artifacts.get("fixture_manifest_path")
+    if fixture_manifest_path is not None:
+        top_level_source_artifacts["fixture_manifest"] = str(fixture_manifest_path)
+    return top_level_source_artifacts
+
+
+def build_search_value_backup_ablation_payload(
+    *,
+    source_artifacts: dict,
+    artifact_simulations: int = 384,
+    c_puct: float = 1.25,
+    seed: int = 42,
+) -> dict:
+    source_payload = source_artifacts["search_interaction_diagnostic"]["payload"]
+    sibling_payload = source_artifacts["search_value_interaction_diagnostic"]["payload"]
+    resolved_payload = {**source_payload, **sibling_payload}
+    resolved_source_artifacts = {
+        **source_artifacts,
+        "search_value_interaction_diagnostic": {
+            **source_artifacts["search_value_interaction_diagnostic"],
+            "payload": resolved_payload,
+        },
+    }
+    matrix = build_search_value_backup_ablation_matrix(source_artifacts=resolved_source_artifacts)
+    payload = {
+        "schema": SEARCH_VALUE_BACKUP_ABLATION_SCHEMA,
+        "source_artifacts": _build_search_value_backup_top_level_source_artifacts(
+            source_artifacts=source_artifacts
+        ),
+        "primary_row_ids": list(resolved_payload.get("primary_row_ids") or []),
+        "comparator_row_ids": list(resolved_payload.get("comparator_row_ids") or []),
+        "matrix_configurations": [_build_matrix_configuration_metadata(config) for config in matrix],
+        "rows": {},
+        "unsupported_comparisons": [],
+    }
+
+    if "original_run_dir" not in resolved_payload or "rebalanced_run_dir" not in resolved_payload:
+        return payload
+
+    original_run_dir = Path(resolved_payload["original_run_dir"])
+    rebalanced_run_dir = Path(resolved_payload["rebalanced_run_dir"])
+    arena = load_arena_module()
+    selected_rebalanced_artifact = load_selected_artifact_path(rebalanced_run_dir)
+    selected_evaluator = arena.ArtifactEvaluator(Path(selected_rebalanced_artifact))
+    base_search_options = dict(arena.build_eval_search_options())
+    rows = {}
+    top_level_unsupported_comparisons = []
+    ordered_row_ids = [*payload["primary_row_ids"], *payload["comparator_row_ids"]]
+
+    for row_index, row_id in enumerate(ordered_row_ids):
+        sibling_row = resolved_payload["rows"][row_id]
+        context = load_row_context(row_id=row_id, original_run_dir=original_run_dir, rebalanced_run_dir=rebalanced_run_dir)
+        legal_moves = list(context["current_row"]["legal_moves"])
+        state = context["current_row"]["state"]
+        configurations = {}
+
+        for config_index, config in enumerate(matrix):
+            merged_search_options = _merge_search_options(
+                base_search_options=base_search_options,
+                overrides=config.get("search_options_overrides"),
+            )
+            unsupported_comparisons = _unsupported_configuration_entries(row_id=row_id, config=config)
+            configuration_entry = {
+                "stable_key": config["stable_key"],
+                "classification_role": config["classification_role"],
+                "ablation_mode": config["ablation_mode"],
+                "search_options": merged_search_options,
+                "support_metadata": config.get("support_metadata"),
+                "unsupported_comparisons": unsupported_comparisons,
+            }
+
+            if not unsupported_comparisons:
+                probe_summary = probe_artifact_position(
+                    artifact_path=selected_rebalanced_artifact,
+                    state=state,
+                    simulations=artifact_simulations,
+                    seed=seed + (row_index * 100) + config_index,
+                    c_puct=c_puct,
+                    evaluator=selected_evaluator,
+                    search_options={"stable_key": config["stable_key"], "search_options": merged_search_options},
+                    ablation_mode={"stable_key": config["stable_key"], "ablation_mode": config["ablation_mode"]},
+                )
+                artifact_row = build_artifact_row(
+                    artifact_path=selected_rebalanced_artifact,
+                    row_id=row_id,
+                    bucket=context["bucket"],
+                    phase=context["phase"],
+                    reference_move=context["reference_move"],
+                    system_value=context["rebalanced_row"]["system_value"],
+                    teacher_value=context["teacher_value"],
+                    value_error=context["rebalanced_row"]["value_error"],
+                    probe_summary=probe_summary,
+                    legal_moves=legal_moves,
+                )
+                configuration_entry["observability"] = _build_ablation_observability(artifact_row)
+
+            configurations[config["stable_key"]] = configuration_entry
+            for unsupported in unsupported_comparisons:
+                top_level_unsupported_comparisons.append(
+                    {
+                        "row_id": row_id,
+                        "stable_key": config["stable_key"],
+                        **unsupported,
+                    }
+                )
+
+        rows[row_id] = {
+            "row_role": "primary" if row_id in payload["primary_row_ids"] else "comparator",
+            "classification_outcome": sibling_row["decision"],
+            "row_mechanism_summary": sibling_row.get("row_mechanism_summary") or summarize_row_mechanism(sibling_row),
+            "bucket": context["bucket"],
+            "phase": context["phase"],
+            "reference_move": context["reference_move"],
+            "teacher_value": round(float(context["teacher_value"]), 4),
+            "source_artifacts": {
+                "current": sibling_row["current"]["artifact_path"],
+                "original_challenger": sibling_row["original_challenger"]["artifact_path"],
+                "rebalanced_challenger": sibling_row["rebalanced_challenger"]["artifact_path"],
+                "selected_rebalanced_artifact": selected_rebalanced_artifact,
+            },
+            "configurations": configurations,
+        }
+
+    payload["rows"] = rows
+    payload["unsupported_comparisons"] = top_level_unsupported_comparisons
+    return payload
 
 
 def _search_value_row_ids(resolved_rows: list[str]) -> tuple[list[str], list[str]]:
@@ -319,10 +704,23 @@ def load_arena_module():
     return importlib.import_module("ml.alphazero_lite.arena")
 
 
-def probe_artifact_position(*, artifact_path: str, state: dict, simulations: int, seed: int, c_puct: float, evaluator=None) -> dict:
+def probe_artifact_position(
+    *,
+    artifact_path: str,
+    state: dict,
+    simulations: int,
+    seed: int,
+    c_puct: float,
+    evaluator=None,
+    search_options=None,
+    ablation_mode="full",
+) -> dict:
     arena = load_arena_module()
     if evaluator is None:
         evaluator = arena.ArtifactEvaluator(Path(artifact_path))
+    resolved_ablation_mode = _unwrap_diagnostic_wrapper(ablation_mode, field_name="ablation_mode")
+    if not isinstance(resolved_ablation_mode, str):
+        raise TypeError("ablation_mode must resolve to a string")
     return arena.evaluate_artifact_position(
         artifact_path=Path(artifact_path),
         evaluator=evaluator,
@@ -330,7 +728,11 @@ def probe_artifact_position(*, artifact_path: str, state: dict, simulations: int
         simulations=simulations,
         seed=seed,
         c_puct=c_puct,
-        search_options=arena.build_eval_search_options(),
+        search_options=_unwrap_diagnostic_wrapper(
+            arena.build_eval_search_options() if search_options is None else search_options,
+            field_name="search_options",
+        ),
+        ablation_mode=resolved_ablation_mode,
     )
 
 
@@ -563,6 +965,25 @@ def main(argv: list[str] | None = None) -> int:
     )
     sibling_out_path = search_value_interaction_diagnostic_out_path(rebalanced_run_dir=rebalanced_run_dir)
     _write_payload(sibling_out_path, sibling_payload)
+
+    ablation_payload = build_search_value_backup_ablation_payload(
+        source_artifacts={
+            "search_interaction_diagnostic": {
+                "path": out_path,
+                "payload": payload,
+            },
+            "search_value_interaction_diagnostic": {
+                "path": sibling_out_path,
+                "payload": sibling_payload,
+            },
+        },
+        artifact_simulations=args.artifact_simulations,
+        c_puct=args.c_puct,
+        seed=args.seed,
+    )
+    ablation_out_path = search_value_backup_ablation_out_path(rebalanced_run_dir=rebalanced_run_dir)
+    _write_payload(ablation_out_path, ablation_payload)
+
     print(
         json.dumps(
             {
@@ -570,6 +991,7 @@ def main(argv: list[str] | None = None) -> int:
                 "schema": payload["schema"],
                 "rows": payload["row_source"]["resolved_rows"],
                 "search_value_interaction_artifact_path": str(sibling_out_path),
+                "search_value_backup_ablation_artifact_path": str(ablation_out_path),
             }
         )
     )

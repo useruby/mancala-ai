@@ -1,0 +1,2932 @@
+{
+  "comparator_row_ids": [
+    "opening_plies_1_8-057"
+  ],
+  "current_artifact_path": "model-artifact/current",
+  "original_run_dir": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-20260506",
+  "primary_row_ids": [
+    "capture_available-002",
+    "capture_available-003",
+    "incumbent_proxy_disagreement-031",
+    "incumbent_proxy_disagreement-033"
+  ],
+  "rebalanced_run_dir": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508",
+  "row_source": {
+    "explicit_rows": null,
+    "kind": "matrix_summary_priority_rows",
+    "matrix_summary_path": null,
+    "resolved_rows": [
+      "capture_available-002",
+      "capture_available-003",
+      "incumbent_proxy_disagreement-031",
+      "incumbent_proxy_disagreement-033",
+      "opening_plies_1_8-057"
+    ]
+  },
+  "rows": {
+    "capture_available-002": {
+      "bucket": "capture_available",
+      "current": {
+        "artifact_path": "model-artifact/current",
+        "bucket": "capture_available",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": -0.0647,
+            "visits": 72
+          },
+          {
+            "move": 1,
+            "q_value": -0.0151,
+            "visits": 97
+          },
+          {
+            "move": 2,
+            "q_value": 0.0348,
+            "visits": 155
+          },
+          {
+            "move": 3,
+            "q_value": 0.016,
+            "visits": 26
+          },
+          {
+            "move": 4,
+            "q_value": -0.0046,
+            "visits": 34
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.1135,
+        "forensic_value_error": 0.3893,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": -0.0647,
+          "1": -0.0151,
+          "2": 0.0348,
+          "3": 0.016,
+          "4": -0.0046
+        },
+        "per_move_visits": {
+          "0": 72,
+          "1": 97,
+          "2": 155,
+          "3": 26,
+          "4": 34
+        },
+        "phase": "opening",
+        "probe_value": 0.1135,
+        "probe_value_error": 0.3893,
+        "raw_policy_distribution": {
+          "0": 0.3799,
+          "1": 0.3095,
+          "2": 0.1768,
+          "3": 0.0491,
+          "4": 0.0847
+        },
+        "reference_move": 2,
+        "row_id": "capture_available-002",
+        "searched_visit_distribution": {
+          "0": 0.1875,
+          "1": 0.2526,
+          "2": 0.4036,
+          "3": 0.0677,
+          "4": 0.0885
+        },
+        "selected_move": 2,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 0,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.37992629408836365,
+              "q_component": -0.06473752345158977,
+              "q_value": -0.06473752345158977,
+              "selection_q_value": -0.06473752345158977,
+              "selection_score": 0.06274543002554338,
+              "u_component": 0.12748295347713315,
+              "used_fpu": false,
+              "visit_count": 72
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.3094508647918701,
+              "q_component": -0.015109993440588726,
+              "q_value": -0.015109993440588726,
+              "selection_q_value": -0.015109993440588726,
+              "selection_score": 0.06223661055972452,
+              "u_component": 0.07734660400031325,
+              "used_fpu": false,
+              "visit_count": 97
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.17682692408561707,
+              "q_component": 0.03482209697155462,
+              "q_value": 0.03482209697155462,
+              "selection_q_value": 0.03482209697155462,
+              "selection_score": 0.0625872083046071,
+              "u_component": 0.02776511133305248,
+              "used_fpu": false,
+              "visit_count": 155
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.04908380284905434,
+              "q_component": 0.015950440930632446,
+              "q_value": 0.015950440930632446,
+              "selection_q_value": 0.015950440930632446,
+              "selection_score": 0.06048017115861404,
+              "u_component": 0.044529730227981595,
+              "used_fpu": false,
+              "visit_count": 26
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.0847121849656105,
+              "q_component": -0.004629903490079895,
+              "q_value": -0.004629903490079895,
+              "selection_q_value": -0.004629903490079895,
+              "selection_score": 0.054656275984781316,
+              "u_component": 0.059286179474861214,
+              "used_fpu": false,
+              "visit_count": 34
+            }
+          ],
+          "next_simulation_move": 0,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": -0.0012293001982470741,
+          "reference_move": 0,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 2,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.5028,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              1.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              39.0,
+              52.0,
+              66.0,
+              13.0,
+              22.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              72.0,
+              97.0,
+              155.0,
+              26.0,
+              34.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "decision": "mixed",
+      "notes": [
+        "multiple mechanisms remain plausible"
+      ],
+      "original_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-20260506/selection/artifact",
+        "bucket": "capture_available",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.019,
+            "visits": 143
+          },
+          {
+            "move": 1,
+            "q_value": -0.008,
+            "visits": 56
+          },
+          {
+            "move": 2,
+            "q_value": 0.0107,
+            "visits": 90
+          },
+          {
+            "move": 3,
+            "q_value": 0.0176,
+            "visits": 41
+          },
+          {
+            "move": 4,
+            "q_value": 0.0687,
+            "visits": 54
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.5441,
+        "forensic_value_error": 0.0413,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.019,
+          "1": -0.008,
+          "2": 0.0107,
+          "3": 0.0176,
+          "4": 0.0687
+        },
+        "per_move_visits": {
+          "0": 143,
+          "1": 56,
+          "2": 90,
+          "3": 41,
+          "4": 54
+        },
+        "phase": "opening",
+        "probe_value": 0.5441,
+        "probe_value_error": 0.0413,
+        "raw_policy_distribution": {
+          "0": 0.3598,
+          "1": 0.2047,
+          "2": 0.2587,
+          "3": 0.089,
+          "4": 0.0878
+        },
+        "reference_move": 2,
+        "row_id": "capture_available-002",
+        "searched_visit_distribution": {
+          "0": 0.3724,
+          "1": 0.1458,
+          "2": 0.2344,
+          "3": 0.1068,
+          "4": 0.1406
+        },
+        "selected_move": 0,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 0,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.3598427176475525,
+              "q_component": 0.01895774046441058,
+              "q_value": 0.01895774046441058,
+              "selection_q_value": 0.01895774046441058,
+              "selection_score": 0.08016822976252885,
+              "u_component": 0.061210489298118266,
+              "used_fpu": false,
+              "visit_count": 143
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.20468926429748535,
+              "q_component": -0.00800528989306518,
+              "q_value": -0.00800528989306518,
+              "selection_q_value": -0.00800528989306518,
+              "selection_score": 0.07995685981825505,
+              "u_component": 0.08796214971132023,
+              "used_fpu": false,
+              "visit_count": 56
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.25865861773490906,
+              "q_component": 0.010710351831383176,
+              "q_value": 0.010710351831383176,
+              "selection_q_value": 0.010710351831383176,
+              "selection_score": 0.08033470688898041,
+              "u_component": 0.06962435505759723,
+              "used_fpu": false,
+              "visit_count": 90
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.08904135972261429,
+              "q_component": 0.01764877758375028,
+              "q_value": 0.01764877758375028,
+              "selection_q_value": 0.01764877758375028,
+              "selection_score": 0.0695787531370862,
+              "u_component": 0.05192997555333592,
+              "used_fpu": false,
+              "visit_count": 41
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.08776799589395523,
+              "q_component": 0.06872163988925793,
+              "q_value": 0.06872163988925793,
+              "selection_q_value": 0.06872163988925793,
+              "selection_score": 0.1078101500141451,
+              "u_component": 0.03908851012488717,
+              "used_fpu": false,
+              "visit_count": 54
+            }
+          ],
+          "next_simulation_move": 4,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.019950939458794892,
+          "reference_move": 0,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 0,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.5028,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              61.0,
+              26.0,
+              58.0,
+              25.0,
+              22.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              143.0,
+              56.0,
+              90.0,
+              41.0,
+              54.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "phase": "opening",
+      "rebalanced_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/versions/tactical-stable-failure-family-rebalance-20260508-iter1",
+        "bucket": "capture_available",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.0323,
+            "visits": 120
+          },
+          {
+            "move": 1,
+            "q_value": 0.0077,
+            "visits": 65
+          },
+          {
+            "move": 2,
+            "q_value": 0.0142,
+            "visits": 114
+          },
+          {
+            "move": 3,
+            "q_value": 0.0182,
+            "visits": 34
+          },
+          {
+            "move": 4,
+            "q_value": 0.041,
+            "visits": 51
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.5681,
+        "forensic_value_error": 0.0653,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.0323,
+          "1": 0.0077,
+          "2": 0.0142,
+          "3": 0.0182,
+          "4": 0.041
+        },
+        "per_move_visits": {
+          "0": 120,
+          "1": 65,
+          "2": 114,
+          "3": 34,
+          "4": 51
+        },
+        "phase": "opening",
+        "probe_value": 0.5681,
+        "probe_value_error": 0.0653,
+        "raw_policy_distribution": {
+          "0": 0.2703,
+          "1": 0.232,
+          "2": 0.3335,
+          "3": 0.0822,
+          "4": 0.0819
+        },
+        "reference_move": 2,
+        "row_id": "capture_available-002",
+        "searched_visit_distribution": {
+          "0": 0.3125,
+          "1": 0.1693,
+          "2": 0.2969,
+          "3": 0.0885,
+          "4": 0.1328
+        },
+        "selected_move": 0,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 2,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.2703087329864502,
+              "q_component": 0.03225500335295995,
+              "q_value": 0.03225500335295995,
+              "selection_q_value": 0.03225500335295995,
+              "selection_score": 0.08697553796742497,
+              "u_component": 0.05472053461446501,
+              "used_fpu": false,
+              "visit_count": 120
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.23204895853996277,
+              "q_component": 0.007740484980436472,
+              "q_value": 0.007740484980436472,
+              "selection_q_value": 0.007740484980436472,
+              "selection_score": 0.0938619310057634,
+              "u_component": 0.08612144602532693,
+              "used_fpu": false,
+              "visit_count": 65
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.3335222005844116,
+              "q_component": 0.014171784907056574,
+              "q_value": 0.014171784907056574,
+              "selection_q_value": 0.014171784907056574,
+              "selection_score": 0.085211716152447,
+              "u_component": 0.07103993124539043,
+              "used_fpu": false,
+              "visit_count": 114
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.08219999819993973,
+              "q_component": 0.018160004826153025,
+              "q_value": 0.018160004826153025,
+              "selection_q_value": 0.018160004826153025,
+              "selection_score": 0.07568801981116675,
+              "u_component": 0.057528014985013726,
+              "used_fpu": false,
+              "visit_count": 34
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.08192011713981628,
+              "q_component": 0.04096428728571125,
+              "q_value": 0.04096428728571125,
+              "selection_q_value": 0.04096428728571125,
+              "selection_score": 0.0795532270283221,
+              "u_component": 0.038588939742610844,
+              "used_fpu": false,
+              "visit_count": 51
+            }
+          ],
+          "next_simulation_move": 1,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.02264566203424086,
+          "reference_move": 2,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 0,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.5028,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              2.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              34.0,
+              44.0,
+              61.0,
+              25.0,
+              28.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              120.0,
+              65.0,
+              114.0,
+              34.0,
+              51.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "reference_move": 2,
+      "row_mechanism_summary": "policy leans to 2, visits finish on 0, q-values favor 4, snapshots available",
+      "teacher_value": 0.5028
+    },
+    "capture_available-003": {
+      "bucket": "capture_available",
+      "current": {
+        "artifact_path": "model-artifact/current",
+        "bucket": "capture_available",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": -0.0507,
+            "visits": 16
+          },
+          {
+            "move": 1,
+            "q_value": 0.0315,
+            "visits": 144
+          },
+          {
+            "move": 2,
+            "q_value": 0.1038,
+            "visits": 182
+          },
+          {
+            "move": 3,
+            "q_value": -0.0127,
+            "visits": 13
+          },
+          {
+            "move": 4,
+            "q_value": 0.0358,
+            "visits": 29
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.1493,
+        "forensic_value_error": 0.3974,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": -0.0507,
+          "1": 0.0315,
+          "2": 0.1038,
+          "3": -0.0127,
+          "4": 0.0358
+        },
+        "per_move_visits": {
+          "0": 16,
+          "1": 144,
+          "2": 182,
+          "3": 13,
+          "4": 29
+        },
+        "phase": "opening",
+        "probe_value": 0.1493,
+        "probe_value_error": 0.3974,
+        "raw_policy_distribution": {
+          "0": 0.1065,
+          "1": 0.5505,
+          "2": 0.1577,
+          "3": 0.0789,
+          "4": 0.1064
+        },
+        "reference_move": 2,
+        "row_id": "capture_available-003",
+        "searched_visit_distribution": {
+          "0": 0.0417,
+          "1": 0.375,
+          "2": 0.474,
+          "3": 0.0339,
+          "4": 0.0755
+        },
+        "selected_move": 2,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 1,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.1064712181687355,
+              "q_component": -0.05067126844369341,
+              "q_value": -0.05067126844369341,
+              "selection_q_value": -0.05067126844369341,
+              "selection_score": 0.10274058850098161,
+              "u_component": 0.15341185694467502,
+              "used_fpu": false,
+              "visit_count": 16
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.5505221486091614,
+              "q_component": 0.03151820321201942,
+              "q_value": 0.03151820321201942,
+              "selection_q_value": 0.03151820321201942,
+              "selection_score": 0.12451808984602611,
+              "u_component": 0.0929998866340067,
+              "used_fpu": false,
+              "visit_count": 144
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.15769971907138824,
+              "q_component": 0.103840397933759,
+              "q_value": 0.103840397933759,
+              "selection_q_value": 0.103840397933759,
+              "selection_score": 0.12494880472639038,
+              "u_component": 0.021108406792631377,
+              "used_fpu": false,
+              "visit_count": 182
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.07888209819793701,
+              "q_component": -0.012700346119415302,
+              "q_value": -0.012700346119415302,
+              "selection_q_value": -0.012700346119415302,
+              "selection_score": 0.12531457561277193,
+              "u_component": 0.13801492173218724,
+              "used_fpu": false,
+              "visit_count": 13
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.10642480105161667,
+              "q_component": 0.035835170893576636,
+              "q_value": 0.035835170893576636,
+              "selection_q_value": 0.035835170893576636,
+              "selection_score": 0.1227306570781351,
+              "u_component": 0.08689548618455847,
+              "used_fpu": false,
+              "visit_count": 29
+            }
+          ],
+          "next_simulation_move": 3,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.06120038762431553,
+          "reference_move": 1,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 2,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.5467,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              2.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              9.0,
+              83.0,
+              73.0,
+              8.0,
+              19.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              16.0,
+              144.0,
+              182.0,
+              13.0,
+              29.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "decision": "mixed",
+      "notes": [
+        "multiple mechanisms remain plausible"
+      ],
+      "original_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-20260506/selection/artifact",
+        "bucket": "capture_available",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": -0.0657,
+            "visits": 27
+          },
+          {
+            "move": 1,
+            "q_value": 0.0642,
+            "visits": 104
+          },
+          {
+            "move": 2,
+            "q_value": 0.0703,
+            "visits": 185
+          },
+          {
+            "move": 3,
+            "q_value": -0.0041,
+            "visits": 37
+          },
+          {
+            "move": 4,
+            "q_value": 0.0039,
+            "visits": 31
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.571,
+        "forensic_value_error": 0.0243,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": -0.0657,
+          "1": 0.0642,
+          "2": 0.0703,
+          "3": -0.0041,
+          "4": 0.0039
+        },
+        "per_move_visits": {
+          "0": 27,
+          "1": 104,
+          "2": 185,
+          "3": 37,
+          "4": 31
+        },
+        "phase": "opening",
+        "probe_value": 0.571,
+        "probe_value_error": 0.0243,
+        "raw_policy_distribution": {
+          "0": 0.1989,
+          "1": 0.2128,
+          "2": 0.2942,
+          "3": 0.1595,
+          "4": 0.1345
+        },
+        "reference_move": 2,
+        "row_id": "capture_available-003",
+        "searched_visit_distribution": {
+          "0": 0.0703,
+          "1": 0.2708,
+          "2": 0.4818,
+          "3": 0.0964,
+          "4": 0.0807
+        },
+        "selected_move": 2,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 2,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.19890381395816803,
+              "q_component": -0.06571497354242536,
+              "q_value": -0.06571497354242536,
+              "selection_q_value": -0.06571497354242536,
+              "selection_score": 0.10828961649006968,
+              "u_component": 0.17400459003249505,
+              "used_fpu": false,
+              "visit_count": 27
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.2128230780363083,
+              "q_component": 0.06416469898361427,
+              "q_value": 0.06416469898361427,
+              "selection_q_value": 0.06416469898361427,
+              "selection_score": 0.11381307485766007,
+              "u_component": 0.0496483758740458,
+              "used_fpu": false,
+              "visit_count": 104
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.29423239827156067,
+              "q_component": 0.07034357020983825,
+              "q_value": 0.07034357020983825,
+              "selection_q_value": 0.07034357020983825,
+              "selection_score": 0.10909191653030506,
+              "u_component": 0.038748346320466816,
+              "used_fpu": false,
+              "visit_count": 185
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.15949389338493347,
+              "q_component": -0.004086490015725832,
+              "q_value": -0.004086490015725832,
+              "selection_q_value": -0.004086490015725832,
+              "selection_score": 0.09872368258505003,
+              "u_component": 0.10281017260077586,
+              "used_fpu": false,
+              "visit_count": 37
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.13454672694206238,
+              "q_component": 0.003940650532322545,
+              "q_value": 0.003940650532322545,
+              "selection_q_value": 0.003940650532322545,
+              "selection_score": 0.10693153414783219,
+              "u_component": 0.10299088361550963,
+              "used_fpu": false,
+              "visit_count": 31
+            }
+          ],
+          "next_simulation_move": 1,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.046571210764038064,
+          "reference_move": 2,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 2,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.5467,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              2.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              15.0,
+              61.0,
+              70.0,
+              26.0,
+              20.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              27.0,
+              104.0,
+              185.0,
+              37.0,
+              31.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "phase": "opening",
+      "rebalanced_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/versions/tactical-stable-failure-family-rebalance-20260508-iter1",
+        "bucket": "capture_available",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.0052,
+            "visits": 22
+          },
+          {
+            "move": 1,
+            "q_value": 0.1059,
+            "visits": 156
+          },
+          {
+            "move": 2,
+            "q_value": 0.0671,
+            "visits": 150
+          },
+          {
+            "move": 3,
+            "q_value": 0.0113,
+            "visits": 30
+          },
+          {
+            "move": 4,
+            "q_value": 0.0469,
+            "visits": 26
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.5709,
+        "forensic_value_error": 0.0242,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.0052,
+          "1": 0.1059,
+          "2": 0.0671,
+          "3": 0.0113,
+          "4": 0.0469
+        },
+        "per_move_visits": {
+          "0": 22,
+          "1": 156,
+          "2": 150,
+          "3": 30,
+          "4": 26
+        },
+        "phase": "opening",
+        "probe_value": 0.5709,
+        "probe_value_error": 0.0242,
+        "raw_policy_distribution": {
+          "0": 0.1155,
+          "1": 0.2086,
+          "2": 0.434,
+          "3": 0.1395,
+          "4": 0.1024
+        },
+        "reference_move": 2,
+        "row_id": "capture_available-003",
+        "searched_visit_distribution": {
+          "0": 0.0573,
+          "1": 0.4062,
+          "2": 0.3906,
+          "3": 0.0781,
+          "4": 0.0677
+        },
+        "selected_move": 1,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 2,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.11554857343435287,
+              "q_component": 0.005233975973996249,
+              "q_value": 0.005233975973996249,
+              "selection_q_value": 0.005233975973996249,
+              "selection_score": 0.12829269137429025,
+              "u_component": 0.12305871540029399,
+              "used_fpu": false,
+              "visit_count": 22
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.20855093002319336,
+              "q_component": 0.10592321936900799,
+              "q_value": 0.10592321936900799,
+              "selection_q_value": 0.10592321936900799,
+              "selection_score": 0.13846101325051782,
+              "u_component": 0.03253779388150984,
+              "used_fpu": false,
+              "visit_count": 156
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.4339839220046997,
+              "q_component": 0.06713780472675959,
+              "q_value": 0.06713780472675959,
+              "selection_q_value": 0.06713780472675959,
+              "selection_score": 0.13753774946075473,
+              "u_component": 0.07039994473399513,
+              "used_fpu": false,
+              "visit_count": 150
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.13953500986099243,
+              "q_component": 0.011302393178145092,
+              "q_value": 0.011302393178145092,
+              "selection_q_value": 0.011302393178145092,
+              "selection_score": 0.12155709492448397,
+              "u_component": 0.11025470174633888,
+              "used_fpu": false,
+              "visit_count": 30
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.1023816391825676,
+              "q_component": 0.046924178990033955,
+              "q_value": 0.046924178990033955,
+              "selection_q_value": 0.046924178990033955,
+              "selection_score": 0.13980668825930345,
+              "u_component": 0.0928825092692695,
+              "used_fpu": false,
+              "visit_count": 26
+            }
+          ],
+          "next_simulation_move": 4,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.0736170334663863,
+          "reference_move": 2,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 1,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.5467,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              2.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              13.0,
+              37.0,
+              105.0,
+              16.0,
+              21.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              22.0,
+              156.0,
+              150.0,
+              30.0,
+              26.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "reference_move": 2,
+      "row_mechanism_summary": "policy leans to 2, visits finish on 1, q-values favor 1, snapshots available",
+      "teacher_value": 0.5467
+    },
+    "incumbent_proxy_disagreement-031": {
+      "bucket": "incumbent_proxy_disagreement",
+      "current": {
+        "artifact_path": "model-artifact/current",
+        "bucket": "incumbent_proxy_disagreement",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.1697,
+            "visits": 72
+          },
+          {
+            "move": 1,
+            "q_value": -0.0788,
+            "visits": 1
+          },
+          {
+            "move": 2,
+            "q_value": 0.1101,
+            "visits": 11
+          },
+          {
+            "move": 3,
+            "q_value": 0.1583,
+            "visits": 92
+          },
+          {
+            "move": 4,
+            "q_value": 0.0982,
+            "visits": 208
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.1698,
+        "forensic_value_error": 0.4863,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.1697,
+          "1": -0.0788,
+          "2": 0.1101,
+          "3": 0.1583,
+          "4": 0.0982
+        },
+        "per_move_visits": {
+          "0": 72,
+          "1": 1,
+          "2": 11,
+          "3": 92,
+          "4": 208
+        },
+        "phase": "mid",
+        "probe_value": 0.1698,
+        "probe_value_error": 0.4863,
+        "raw_policy_distribution": {
+          "0": 0.0517,
+          "1": 0.0131,
+          "2": 0.0319,
+          "3": 0.1115,
+          "4": 0.7919
+        },
+        "reference_move": 4,
+        "row_id": "incumbent_proxy_disagreement-031",
+        "searched_visit_distribution": {
+          "0": 0.1875,
+          "1": 0.0026,
+          "2": 0.0286,
+          "3": 0.2396,
+          "4": 0.5417
+        },
+        "selected_move": 4,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 4,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.051744915544986725,
+              "q_component": 0.16972473129216167,
+              "q_value": 0.16972473129216167,
+              "selection_q_value": 0.16972473129216167,
+              "selection_score": 0.18708755867142562,
+              "u_component": 0.017362827379263944,
+              "used_fpu": false,
+              "visit_count": 72
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.013052191585302353,
+              "q_component": -0.0787871778011322,
+              "q_value": -0.0787871778011322,
+              "selection_q_value": -0.0787871778011322,
+              "selection_score": 0.0810688692440629,
+              "u_component": 0.1598560470451951,
+              "used_fpu": false,
+              "visit_count": 1
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.03187987580895424,
+              "q_component": 0.11013360863382166,
+              "q_value": 0.11013360863382166,
+              "selection_q_value": 0.11013360863382166,
+              "selection_score": 0.1752081326298508,
+              "u_component": 0.06507452399602914,
+              "used_fpu": false,
+              "visit_count": 11
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.11145530641078949,
+              "q_component": 0.1583064780165644,
+              "q_value": 0.1583064780165644,
+              "selection_q_value": 0.1583064780165644,
+              "selection_score": 0.18766224466516493,
+              "u_component": 0.02935576664860054,
+              "used_fpu": false,
+              "visit_count": 92
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.791867733001709,
+              "q_component": 0.09819217236229004,
+              "q_value": 0.09819217236229004,
+              "selection_q_value": 0.09819217236229004,
+              "selection_score": 0.19099943980863715,
+              "u_component": 0.0928072674463471,
+              "used_fpu": false,
+              "visit_count": 208
+            }
+          ],
+          "next_simulation_move": 4,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.12588810156012187,
+          "reference_move": 4,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 4,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.6561,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              2.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              9.0,
+              1.0,
+              1.0,
+              44.0,
+              137.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              72.0,
+              1.0,
+              11.0,
+              92.0,
+              208.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "decision": "search_overrides_prior",
+      "notes": [
+        "prior corrected but searched move still wrong"
+      ],
+      "original_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-20260506/selection/artifact",
+        "bucket": "incumbent_proxy_disagreement",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.0459,
+            "visits": 51
+          },
+          {
+            "move": 1,
+            "q_value": -0.4273,
+            "visits": 1
+          },
+          {
+            "move": 2,
+            "q_value": 0.0891,
+            "visits": 119
+          },
+          {
+            "move": 3,
+            "q_value": 0.0519,
+            "visits": 70
+          },
+          {
+            "move": 4,
+            "q_value": 0.0157,
+            "visits": 143
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.5348,
+        "forensic_value_error": 0.1213,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.0459,
+          "1": -0.4273,
+          "2": 0.0891,
+          "3": 0.0519,
+          "4": 0.0157
+        },
+        "per_move_visits": {
+          "0": 51,
+          "1": 1,
+          "2": 119,
+          "3": 70,
+          "4": 143
+        },
+        "phase": "mid",
+        "probe_value": 0.5348,
+        "probe_value_error": 0.1213,
+        "raw_policy_distribution": {
+          "0": 0.134,
+          "1": 0.026,
+          "2": 0.1184,
+          "3": 0.1636,
+          "4": 0.5579
+        },
+        "reference_move": 4,
+        "row_id": "incumbent_proxy_disagreement-031",
+        "searched_visit_distribution": {
+          "0": 0.1328,
+          "1": 0.0026,
+          "2": 0.3099,
+          "3": 0.1823,
+          "4": 0.3724
+        },
+        "selected_move": 4,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 4,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.13401813805103302,
+              "q_component": 0.045910810723024255,
+              "q_value": 0.045910810723024255,
+              "selection_q_value": 0.045910810723024255,
+              "selection_score": 0.10904082120435221,
+              "u_component": 0.06313001048132795,
+              "used_fpu": false,
+              "visit_count": 51
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.026048269122838974,
+              "q_component": -0.42730697989463806,
+              "q_value": -0.42730697989463806,
+              "selection_q_value": -0.42730697989463806,
+              "selection_score": -0.10828213972638889,
+              "u_component": 0.31902484016824917,
+              "used_fpu": false,
+              "visit_count": 1
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.11843471229076385,
+              "q_component": 0.08909830175528005,
+              "q_value": 0.08909830175528005,
+              "selection_q_value": 0.08909830175528005,
+              "selection_score": 0.11327368616742195,
+              "u_component": 0.0241753844121419,
+              "used_fpu": false,
+              "visit_count": 119
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.1636086404323578,
+              "q_component": 0.05190297365188599,
+              "q_value": 0.05190297365188599,
+              "selection_q_value": 0.05190297365188599,
+              "selection_score": 0.10834771823917634,
+              "u_component": 0.05644474458729035,
+              "used_fpu": false,
+              "visit_count": 70
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.5578902363777161,
+              "q_component": 0.01572717413618848,
+              "q_value": 0.01572717413618848,
+              "selection_q_value": 0.01572717413618848,
+              "selection_score": 0.11062623049772305,
+              "u_component": 0.09489905636153458,
+              "used_fpu": false,
+              "visit_count": 143
+            }
+          ],
+          "next_simulation_move": 2,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.04791415711709609,
+          "reference_move": 4,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 4,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.6561,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              44.0,
+              1.0,
+              48.0,
+              54.0,
+              45.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              51.0,
+              1.0,
+              119.0,
+              70.0,
+              143.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "phase": "mid",
+      "rebalanced_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/versions/tactical-stable-failure-family-rebalance-20260508-iter1",
+        "bucket": "incumbent_proxy_disagreement",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.0582,
+            "visits": 33
+          },
+          {
+            "move": 1,
+            "q_value": -0.4447,
+            "visits": 1
+          },
+          {
+            "move": 2,
+            "q_value": 0.0906,
+            "visits": 136
+          },
+          {
+            "move": 3,
+            "q_value": 0.1064,
+            "visits": 119
+          },
+          {
+            "move": 4,
+            "q_value": -0.0339,
+            "visits": 95
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.5682,
+        "forensic_value_error": 0.0879,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.0582,
+          "1": -0.4447,
+          "2": 0.0906,
+          "3": 0.1064,
+          "4": -0.0339
+        },
+        "per_move_visits": {
+          "0": 33,
+          "1": 1,
+          "2": 136,
+          "3": 119,
+          "4": 95
+        },
+        "phase": "mid",
+        "probe_value": 0.5682,
+        "probe_value_error": 0.0879,
+        "raw_policy_distribution": {
+          "0": 0.0849,
+          "1": 0.022,
+          "2": 0.1457,
+          "3": 0.1626,
+          "4": 0.5849
+        },
+        "reference_move": 4,
+        "row_id": "incumbent_proxy_disagreement-031",
+        "searched_visit_distribution": {
+          "0": 0.0859,
+          "1": 0.0026,
+          "2": 0.3542,
+          "3": 0.3099,
+          "4": 0.2474
+        },
+        "selected_move": 2,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 4,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.08489272743463516,
+              "q_component": 0.05817241515174056,
+              "q_value": 0.05817241515174056,
+              "selection_q_value": 0.05817241515174056,
+              "selection_score": 0.11933237547174846,
+              "u_component": 0.06115996032000791,
+              "used_fpu": false,
+              "visit_count": 33
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.021951723843812943,
+              "q_component": -0.4446813464164734,
+              "q_value": -0.4446813464164734,
+              "selection_q_value": -0.4446813464164734,
+              "selection_score": -0.17582873445732983,
+              "u_component": 0.26885261195914356,
+              "used_fpu": false,
+              "visit_count": 1
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.145685076713562,
+              "q_component": 0.0905664829427705,
+              "q_value": 0.0905664829427705,
+              "selection_q_value": 0.0905664829427705,
+              "selection_score": 0.11661422754762091,
+              "u_component": 0.026047744604850404,
+              "used_fpu": false,
+              "visit_count": 136
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.16259171068668365,
+              "q_component": 0.10640191468371063,
+              "q_value": 0.10640191468371063,
+              "selection_q_value": 0.10640191468371063,
+              "selection_score": 0.13959080864942744,
+              "u_component": 0.0331888939657168,
+              "used_fpu": false,
+              "visit_count": 119
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.5848788022994995,
+              "q_component": -0.033874933029475966,
+              "q_value": -0.033874933029475966,
+              "selection_q_value": -0.033874933029475966,
+              "selection_score": 0.1153599239501005,
+              "u_component": 0.14923485697957647,
+              "used_fpu": false,
+              "visit_count": 95
+            }
+          ],
+          "next_simulation_move": 3,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.06050978969627371,
+          "reference_move": 4,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 2,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.6561,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              24.0,
+              1.0,
+              68.0,
+              51.0,
+              48.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              33.0,
+              1.0,
+              136.0,
+              119.0,
+              95.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "reference_move": 4,
+      "row_mechanism_summary": "policy leans to 4, visits finish on 2, q-values favor 3, snapshots available",
+      "teacher_value": 0.6561
+    },
+    "incumbent_proxy_disagreement-033": {
+      "bucket": "incumbent_proxy_disagreement",
+      "current": {
+        "artifact_path": "model-artifact/current",
+        "bucket": "incumbent_proxy_disagreement",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.2361,
+            "visits": 164
+          },
+          {
+            "move": 1,
+            "q_value": 0.1432,
+            "visits": 28
+          },
+          {
+            "move": 2,
+            "q_value": 0.199,
+            "visits": 13
+          },
+          {
+            "move": 3,
+            "q_value": 0.1799,
+            "visits": 34
+          },
+          {
+            "move": 4,
+            "q_value": 0.1644,
+            "visits": 145
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.2584,
+        "forensic_value_error": 0.3916,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.2361,
+          "1": 0.1432,
+          "2": 0.199,
+          "3": 0.1799,
+          "4": 0.1644
+        },
+        "per_move_visits": {
+          "0": 164,
+          "1": 28,
+          "2": 13,
+          "3": 34,
+          "4": 145
+        },
+        "phase": "mid",
+        "probe_value": 0.2584,
+        "probe_value_error": 0.3916,
+        "raw_policy_distribution": {
+          "0": 0.184,
+          "1": 0.1246,
+          "2": 0.0304,
+          "3": 0.1079,
+          "4": 0.5531
+        },
+        "reference_move": 4,
+        "row_id": "incumbent_proxy_disagreement-033",
+        "searched_visit_distribution": {
+          "0": 0.4271,
+          "1": 0.0729,
+          "2": 0.0339,
+          "3": 0.0885,
+          "4": 0.3776
+        },
+        "selected_move": 0,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 4,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.18397486209869385,
+              "q_component": 0.23612110803550446,
+              "q_value": 0.23612110803550446,
+              "selection_q_value": 0.23612110803550446,
+              "selection_score": 0.2634328981955469,
+              "u_component": 0.027311790160042437,
+              "used_fpu": false,
+              "visit_count": 164
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.12459427863359451,
+              "q_component": 0.14322378004934372,
+              "q_value": 0.14322378004934372,
+              "selection_q_value": 0.14322378004934372,
+              "selection_score": 0.24846254126398476,
+              "u_component": 0.10523876121464104,
+              "used_fpu": false,
+              "visit_count": 28
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.03044859878718853,
+              "q_component": 0.1989755316731484,
+              "q_value": 0.1989755316731484,
+              "selection_q_value": 0.1989755316731484,
+              "selection_score": 0.25224948196696173,
+              "u_component": 0.0532739502938133,
+              "used_fpu": false,
+              "visit_count": 13
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.10788100212812424,
+              "q_component": 0.17985536716878414,
+              "q_value": 0.17985536716878414,
+              "selection_q_value": 0.17985536716878414,
+              "selection_score": 0.2553563409270728,
+              "u_component": 0.07550097375828871,
+              "used_fpu": false,
+              "visit_count": 34
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.5531012415885925,
+              "q_component": 0.16437939289025963,
+              "q_value": 0.16437939289025963,
+              "selection_q_value": 0.16437939289025963,
+              "selection_score": 0.25717499686230744,
+              "u_component": 0.0927956039720478,
+              "used_fpu": false,
+              "visit_count": 145
+            }
+          ],
+          "next_simulation_move": 0,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.1960179789681812,
+          "reference_move": 4,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 0,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.65,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              2.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              35.0,
+              25.0,
+              12.0,
+              26.0,
+              94.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              164.0,
+              28.0,
+              13.0,
+              34.0,
+              145.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "decision": "mixed",
+      "notes": [
+        "multiple mechanisms remain plausible"
+      ],
+      "original_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-20260506/selection/artifact",
+        "bucket": "incumbent_proxy_disagreement",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.0097,
+            "visits": 102
+          },
+          {
+            "move": 1,
+            "q_value": 0.0335,
+            "visits": 53
+          },
+          {
+            "move": 2,
+            "q_value": 0.0674,
+            "visits": 36
+          },
+          {
+            "move": 3,
+            "q_value": 0.0586,
+            "visits": 74
+          },
+          {
+            "move": 4,
+            "q_value": 0.0513,
+            "visits": 119
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.5675,
+        "forensic_value_error": 0.0825,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.0097,
+          "1": 0.0335,
+          "2": 0.0674,
+          "3": 0.0586,
+          "4": 0.0513
+        },
+        "per_move_visits": {
+          "0": 102,
+          "1": 53,
+          "2": 36,
+          "3": 74,
+          "4": 119
+        },
+        "phase": "mid",
+        "probe_value": 0.5675,
+        "probe_value_error": 0.0825,
+        "raw_policy_distribution": {
+          "0": 0.4198,
+          "1": 0.151,
+          "2": 0.0421,
+          "3": 0.1326,
+          "4": 0.2546
+        },
+        "reference_move": 4,
+        "row_id": "incumbent_proxy_disagreement-033",
+        "searched_visit_distribution": {
+          "0": 0.2656,
+          "1": 0.138,
+          "2": 0.0938,
+          "3": 0.1927,
+          "4": 0.3099
+        },
+        "selected_move": 4,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 0,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.41982540488243103,
+              "q_component": 0.009743470917729771,
+              "q_value": 0.009743470917729771,
+              "selection_q_value": 0.009743470917729771,
+              "selection_score": 0.10958405567688603,
+              "u_component": 0.09984058475915626,
+              "used_fpu": false,
+              "visit_count": 102
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.150950625538826,
+              "q_component": 0.03348080842000133,
+              "q_value": 0.03348080842000133,
+              "selection_q_value": 0.03348080842000133,
+              "selection_score": 0.1019534026651974,
+              "u_component": 0.06847259424519606,
+              "used_fpu": false,
+              "visit_count": 53
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.04205954074859619,
+              "q_component": 0.06740075887905227,
+              "q_value": 0.06740075887905227,
+              "selection_q_value": 0.06740075887905227,
+              "selection_score": 0.09524519500063537,
+              "u_component": 0.027844436121583105,
+              "used_fpu": false,
+              "visit_count": 36
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.13258127868175507,
+              "q_component": 0.05864267554637548,
+              "q_value": 0.05864267554637548,
+              "selection_q_value": 0.05864267554637548,
+              "selection_score": 0.10194353984184709,
+              "u_component": 0.04330086429547161,
+              "used_fpu": false,
+              "visit_count": 74
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.2545831501483917,
+              "q_component": 0.0513205261541014,
+              "q_value": 0.0513205261541014,
+              "selection_q_value": 0.0513205261541014,
+              "selection_score": 0.10328709406859432,
+              "u_component": 0.05196656791449293,
+              "used_fpu": false,
+              "visit_count": 119
+            }
+          ],
+          "next_simulation_move": 0,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.04073292917261521,
+          "reference_move": 0,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 4,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.65,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              45.0,
+              26.0,
+              1.0,
+              60.0,
+              60.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              102.0,
+              53.0,
+              36.0,
+              74.0,
+              119.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "phase": "mid",
+      "rebalanced_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/versions/tactical-stable-failure-family-rebalance-20260508-iter1",
+        "bucket": "incumbent_proxy_disagreement",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": 0.0447,
+            "visits": 132
+          },
+          {
+            "move": 1,
+            "q_value": 0.0637,
+            "visits": 77
+          },
+          {
+            "move": 2,
+            "q_value": 0.0653,
+            "visits": 30
+          },
+          {
+            "move": 3,
+            "q_value": 0.0376,
+            "visits": 48
+          },
+          {
+            "move": 4,
+            "q_value": 0.0519,
+            "visits": 97
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.5799,
+        "forensic_value_error": 0.0701,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": 0.0447,
+          "1": 0.0637,
+          "2": 0.0653,
+          "3": 0.0376,
+          "4": 0.0519
+        },
+        "per_move_visits": {
+          "0": 132,
+          "1": 77,
+          "2": 30,
+          "3": 48,
+          "4": 97
+        },
+        "phase": "mid",
+        "probe_value": 0.5799,
+        "probe_value_error": 0.0701,
+        "raw_policy_distribution": {
+          "0": 0.3981,
+          "1": 0.1642,
+          "2": 0.0486,
+          "3": 0.1422,
+          "4": 0.2469
+        },
+        "reference_move": 4,
+        "row_id": "incumbent_proxy_disagreement-033",
+        "searched_visit_distribution": {
+          "0": 0.3438,
+          "1": 0.2005,
+          "2": 0.0781,
+          "3": 0.125,
+          "4": 0.2526
+        },
+        "selected_move": 0,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 0,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.3980875611305237,
+              "q_component": 0.0447378804286321,
+              "q_value": 0.0447378804286321,
+              "selection_q_value": 0.0447378804286321,
+              "selection_score": 0.11805452687365384,
+              "u_component": 0.07331664644502173,
+              "used_fpu": false,
+              "visit_count": 132
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.16419148445129395,
+              "q_component": 0.06369280505489994,
+              "q_value": 0.06369280505489994,
+              "selection_q_value": 0.06369280505489994,
+              "selection_score": 0.11525503031333431,
+              "u_component": 0.05156222525843438,
+              "used_fpu": false,
+              "visit_count": 77
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.04863681644201279,
+              "q_component": 0.0653033564488093,
+              "q_value": 0.0653033564488093,
+              "selection_q_value": 0.0653033564488093,
+              "selection_score": 0.10373412515730561,
+              "u_component": 0.03843076870849631,
+              "used_fpu": false,
+              "visit_count": 30
+            },
+            {
+              "fpu_value": null,
+              "move": 3,
+              "prior": 0.14215922355651855,
+              "q_component": 0.03756082430481911,
+              "q_value": 0.03756082430481911,
+              "selection_q_value": 0.03756082430481911,
+              "selection_score": 0.10862563245659725,
+              "u_component": 0.07106480815177814,
+              "used_fpu": false,
+              "visit_count": 48
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.2469249814748764,
+              "q_component": 0.05188086506017705,
+              "q_value": 0.05188086506017705,
+              "selection_q_value": 0.05188086506017705,
+              "selection_score": 0.11359925377034398,
+              "u_component": 0.06171838871016693,
+              "used_fpu": false,
+              "visit_count": 97
+            }
+          ],
+          "next_simulation_move": 0,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.05105263118942579,
+          "reference_move": 0,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 0,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.65,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              63.0,
+              41.0,
+              1.0,
+              25.0,
+              62.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              132.0,
+              77.0,
+              30.0,
+              48.0,
+              97.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "reference_move": 4,
+      "row_mechanism_summary": "policy leans to 0, visits finish on 0, q-values favor 2, snapshots available",
+      "teacher_value": 0.65
+    },
+    "opening_plies_1_8-057": {
+      "bucket": "opening_plies_1_8",
+      "current": {
+        "artifact_path": "model-artifact/current",
+        "bucket": "opening_plies_1_8",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": -0.1186,
+            "visits": 1
+          },
+          {
+            "move": 1,
+            "q_value": 0.0208,
+            "visits": 8
+          },
+          {
+            "move": 2,
+            "q_value": 0.082,
+            "visits": 188
+          },
+          {
+            "move": 4,
+            "q_value": 0.0806,
+            "visits": 16
+          },
+          {
+            "move": 5,
+            "q_value": 0.1255,
+            "visits": 171
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.1667,
+        "forensic_value_error": 0.2839,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": -0.1186,
+          "1": 0.0208,
+          "2": 0.082,
+          "4": 0.0806,
+          "5": 0.1255
+        },
+        "per_move_visits": {
+          "0": 1,
+          "1": 8,
+          "2": 188,
+          "4": 16,
+          "5": 171
+        },
+        "phase": "opening",
+        "probe_value": 0.1667,
+        "probe_value_error": 0.2839,
+        "raw_policy_distribution": {
+          "0": 0.02,
+          "1": 0.039,
+          "2": 0.6298,
+          "4": 0.0453,
+          "5": 0.2659
+        },
+        "reference_move": 5,
+        "row_id": "opening_plies_1_8-057",
+        "searched_visit_distribution": {
+          "0": 0.0026,
+          "1": 0.0208,
+          "2": 0.4896,
+          "4": 0.0417,
+          "5": 0.4453
+        },
+        "selected_move": 2,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 2,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.020012110471725464,
+              "q_component": -0.11863875389099121,
+              "q_value": -0.11863875389099121,
+              "selection_q_value": -0.11863875389099121,
+              "selection_score": 0.1264585427686855,
+              "u_component": 0.24509729665967672,
+              "used_fpu": false,
+              "visit_count": 1
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.038973528891801834,
+              "q_component": 0.020844364538788795,
+              "q_value": 0.020844364538788795,
+              "selection_q_value": 0.020844364538788795,
+              "selection_score": 0.12691687482826927,
+              "u_component": 0.10607251028948048,
+              "used_fpu": false,
+              "visit_count": 8
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.6297591328620911,
+              "q_component": 0.0820106428495529,
+              "q_value": 0.0820106428495529,
+              "selection_q_value": 0.0820106428495529,
+              "selection_score": 0.1636290839273159,
+              "u_component": 0.081618441077763,
+              "used_fpu": false,
+              "visit_count": 188
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.04534539580345154,
+              "q_component": 0.08060946129262447,
+              "q_value": 0.08060946129262447,
+              "selection_q_value": 0.08060946129262447,
+              "selection_score": 0.14594656829438796,
+              "u_component": 0.06533710700176347,
+              "used_fpu": false,
+              "visit_count": 16
+            },
+            {
+              "fpu_value": null,
+              "move": 5,
+              "prior": 0.2659097909927368,
+              "q_component": 0.12549580552898434,
+              "q_value": 0.12549580552898434,
+              "selection_q_value": 0.12549580552898434,
+              "selection_score": 0.1633646023628406,
+              "u_component": 0.03786879683385625,
+              "used_fpu": false,
+              "visit_count": 171
+            }
+          ],
+          "next_simulation_move": 2,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.09951992485487911,
+          "reference_move": 2,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 2,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.4506,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              2.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              1.0,
+              2.0,
+              122.0,
+              0.0,
+              7.0,
+              60.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              1.0,
+              8.0,
+              188.0,
+              0.0,
+              16.0,
+              171.0
+            ]
+          }
+        ]
+      },
+      "decision": "bad_priors",
+      "notes": [
+        "reference move remains underweighted in raw policy"
+      ],
+      "original_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-20260506/selection/artifact",
+        "bucket": "opening_plies_1_8",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": -0.0584,
+            "visits": 37
+          },
+          {
+            "move": 1,
+            "q_value": -0.0072,
+            "visits": 32
+          },
+          {
+            "move": 2,
+            "q_value": 0.1074,
+            "visits": 112
+          },
+          {
+            "move": 4,
+            "q_value": 0.0419,
+            "visits": 73
+          },
+          {
+            "move": 5,
+            "q_value": 0.0562,
+            "visits": 130
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.4515,
+        "forensic_value_error": 0.0009,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": -0.0584,
+          "1": -0.0072,
+          "2": 0.1074,
+          "4": 0.0419,
+          "5": 0.0562
+        },
+        "per_move_visits": {
+          "0": 37,
+          "1": 32,
+          "2": 112,
+          "4": 73,
+          "5": 130
+        },
+        "phase": "opening",
+        "probe_value": 0.4515,
+        "probe_value_error": 0.0009,
+        "raw_policy_distribution": {
+          "0": 0.2377,
+          "1": 0.1262,
+          "2": 0.31,
+          "4": 0.1489,
+          "5": 0.1772
+        },
+        "reference_move": 5,
+        "row_id": "opening_plies_1_8-057",
+        "searched_visit_distribution": {
+          "0": 0.0964,
+          "1": 0.0833,
+          "2": 0.2917,
+          "4": 0.1901,
+          "5": 0.3385
+        },
+        "selected_move": 5,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 2,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.23769459128379822,
+              "q_component": -0.05843114772358456,
+              "q_value": -0.05843114772358456,
+              "selection_q_value": -0.05843114772358456,
+              "selection_score": 0.09478739524081109,
+              "u_component": 0.15321854296439566,
+              "used_fpu": false,
+              "visit_count": 37
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.12623660266399384,
+              "q_component": -0.007178241387009621,
+              "q_value": -0.007178241387009621,
+              "selection_q_value": -0.007178241387009621,
+              "selection_score": 0.08652335357942931,
+              "u_component": 0.09370159496643893,
+              "used_fpu": false,
+              "visit_count": 32
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.31002292037010193,
+              "q_component": 0.10738309765500682,
+              "q_value": 0.10738309765500682,
+              "selection_q_value": 0.10738309765500682,
+              "selection_score": 0.174586457254498,
+              "u_component": 0.0672033595994912,
+              "used_fpu": false,
+              "visit_count": 112
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.14889512956142426,
+              "q_component": 0.04185336562868667,
+              "q_value": 0.04185336562868667,
+              "selection_q_value": 0.04185336562868667,
+              "selection_score": 0.0911394592247787,
+              "u_component": 0.04928609359609203,
+              "used_fpu": false,
+              "visit_count": 73
+            },
+            {
+              "fpu_value": null,
+              "move": 5,
+              "prior": 0.1771506667137146,
+              "q_component": 0.05617037220643117,
+              "q_value": 0.05617037220643117,
+              "selection_q_value": 0.05617037220643117,
+              "selection_score": 0.08929470358371706,
+              "u_component": 0.0331243313772859,
+              "used_fpu": false,
+              "visit_count": 130
+            }
+          ],
+          "next_simulation_move": 2,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.05206430943993231,
+          "reference_move": 2,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 5,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.4506,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              2.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              36.0,
+              22.0,
+              23.0,
+              0.0,
+              36.0,
+              75.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              37.0,
+              32.0,
+              112.0,
+              0.0,
+              73.0,
+              130.0
+            ]
+          }
+        ]
+      },
+      "phase": "opening",
+      "rebalanced_challenger": {
+        "artifact_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/versions/tactical-stable-failure-family-rebalance-20260508-iter1",
+        "bucket": "opening_plies_1_8",
+        "child_stats": [
+          {
+            "move": 0,
+            "q_value": -0.0309,
+            "visits": 16
+          },
+          {
+            "move": 1,
+            "q_value": 0.0329,
+            "visits": 23
+          },
+          {
+            "move": 2,
+            "q_value": 0.0992,
+            "visits": 167
+          },
+          {
+            "move": 4,
+            "q_value": 0.0955,
+            "visits": 122
+          },
+          {
+            "move": 5,
+            "q_value": 0.0585,
+            "visits": 56
+          }
+        ],
+        "child_stats_available": true,
+        "forensic_system_value": 0.4607,
+        "forensic_value_error": 0.0101,
+        "missing_fields": [],
+        "per_move_q_values": {
+          "0": -0.0309,
+          "1": 0.0329,
+          "2": 0.0992,
+          "4": 0.0955,
+          "5": 0.0585
+        },
+        "per_move_visits": {
+          "0": 16,
+          "1": 23,
+          "2": 167,
+          "4": 122,
+          "5": 56
+        },
+        "phase": "opening",
+        "probe_value": 0.4607,
+        "probe_value_error": 0.0101,
+        "raw_policy_distribution": {
+          "0": 0.114,
+          "1": 0.0852,
+          "2": 0.402,
+          "4": 0.2174,
+          "5": 0.1813
+        },
+        "reference_move": 5,
+        "row_id": "opening_plies_1_8-057",
+        "searched_visit_distribution": {
+          "0": 0.0417,
+          "1": 0.0599,
+          "2": 0.4349,
+          "4": 0.3177,
+          "5": 0.1458
+        },
+        "selected_move": 2,
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "highest_prior_move": 2,
+          "moves": [
+            {
+              "fpu_value": null,
+              "move": 0,
+              "prior": 0.11403441429138184,
+              "q_component": -0.030854184180498123,
+              "q_value": -0.030854184180498123,
+              "selection_q_value": -0.030854184180498123,
+              "selection_score": 0.13345530295540023,
+              "u_component": 0.16430948713589835,
+              "used_fpu": false,
+              "visit_count": 16
+            },
+            {
+              "fpu_value": null,
+              "move": 1,
+              "prior": 0.08520698547363281,
+              "q_component": 0.03286105135212774,
+              "q_value": 0.03286105135212774,
+              "selection_q_value": 0.03286105135212774,
+              "selection_score": 0.11982506674010224,
+              "u_component": 0.0869640153879745,
+              "used_fpu": false,
+              "visit_count": 23
+            },
+            {
+              "fpu_value": null,
+              "move": 2,
+              "prior": 0.4020325541496277,
+              "q_component": 0.09916606741751026,
+              "q_value": 0.09916606741751026,
+              "selection_q_value": 0.09916606741751026,
+              "selection_score": 0.15778360418265525,
+              "u_component": 0.05861753676514497,
+              "used_fpu": false,
+              "visit_count": 167
+            },
+            {
+              "fpu_value": null,
+              "move": 4,
+              "prior": 0.21738313138484955,
+              "q_component": 0.0955091767379495,
+              "q_value": 0.0955091767379495,
+              "selection_q_value": 0.0955091767379495,
+              "selection_score": 0.1388000507689476,
+              "u_component": 0.04329087403099812,
+              "used_fpu": false,
+              "visit_count": 122
+            },
+            {
+              "fpu_value": null,
+              "move": 5,
+              "prior": 0.18134288489818573,
+              "q_component": 0.05847562822912421,
+              "q_value": 0.05847562822912421,
+              "selection_q_value": 0.05847562822912421,
+              "selection_score": 0.13640502059488147,
+              "u_component": 0.07792939236575727,
+              "used_fpu": false,
+              "visit_count": 56
+            }
+          ],
+          "next_simulation_move": 2,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "parent_q_value": 0.08268131571821868,
+          "reference_move": 2,
+          "reference_move_kind": "highest_prior_move",
+          "selected_move": 2,
+          "value_trust_multiplier": 1.0
+        },
+        "teacher_value": 0.4506,
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              2.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              15.0,
+              2.0,
+              31.0,
+              0.0,
+              91.0,
+              53.0
+            ]
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              16.0,
+              23.0,
+              167.0,
+              0.0,
+              122.0,
+              56.0
+            ]
+          }
+        ]
+      },
+      "reference_move": 5,
+      "row_mechanism_summary": "policy leans to 2, visits finish on 2, q-values favor 2, snapshots available",
+      "teacher_value": 0.4506
+    }
+  },
+  "schema": "azlite_search_value_interaction_diagnostic_v1",
+  "source_diagnostic_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/final/search_interaction_diagnostic.json",
+  "summary": {
+    "comparator_row_count": 1,
+    "decision_counts": {
+      "bad_priors": 1,
+      "insufficient_child_stats": 0,
+      "mixed": 3,
+      "q_value_backup_issue": 0,
+      "search_overrides_prior": 1
+    },
+    "next_branch": "search_value_interaction_investigation",
+    "primary_row_count": 4
+  }
+}

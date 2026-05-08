@@ -1,0 +1,15 @@
+{
+  "schema": "azlite_search_value_backup_ablation_fixture_manifest_v1",
+  "fixtures": {
+    "search_interaction_diagnostic": {
+      "path": "ml/alphazero_lite/fixtures/diagnostics/search_value_backup_ablation/search_interaction_diagnostic.json",
+      "original_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/final/search_interaction_diagnostic.json",
+      "sha256": "4d5ed4ce0adf4f5a51886bdbd915df35d41a534a9399f5a5d5fa8180a05dea51"
+    },
+    "search_value_interaction_diagnostic": {
+      "path": "ml/alphazero_lite/fixtures/diagnostics/search_value_backup_ablation/search_value_interaction_diagnostic.json",
+      "original_path": "/tmp/opencode/stable-failure-family-runs/tactical-stable-failure-family-rebalance-20260508/final/search_value_interaction_diagnostic.json",
+      "sha256": "2f8a3af418820e87ed2a6c7530b486bc6b1d9985af6daf4b5220bdd8cee07271"
+    }
+  }
+}
