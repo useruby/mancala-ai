@@ -1,0 +1,407 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import os
+import subprocess
+import sys
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
+from typing import Any
+
+
+DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_tactical_stable_failure_family_local.json"
+DEFAULT_FORENSIC_SUITE = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+FAMILY_REPORT_SCHEMA = "opening_capture_family_report_v1"
+REPLAY_SUMMARY_SCHEMA = "azlite_tactical_stable_failure_family_replay_summary_v1"
+STABLE_FAMILY_SUMMARY_SCHEMA = "azlite_stable_failure_family_summary_v1"
+VERDICT_SCHEMA = "azlite_tactical_validation_verdict_v1"
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def python_executable(root: Path) -> str:
+    if os.environ.get("AZLITE_EXPERIMENT_PYTHON"):
+        return os.environ["AZLITE_EXPERIMENT_PYTHON"]
+
+    candidates = [root / ".venv/bin/python"]
+    candidates.extend(parent / ".venv/bin/python" for parent in root.parents)
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+    return sys.executable
+
+
+def parse_args(argv=None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="script/ai/run_tactical_stable_failure_family_validation",
+        description="Run the tactical stable failure family validation wrapper.",
+    )
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--output-root", required=True)
+    parser.add_argument("--current-path", required=True)
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args(argv)
+
+
+def build_run_paths(output_root: str | Path, run_id: str) -> dict[str, Path]:
+    base_dir = Path(output_root) / run_id
+    final_dir = base_dir / "final"
+    return {
+        "base_dir": base_dir,
+        "final_dir": final_dir,
+        "selection_artifact": base_dir / "selection" / "artifact",
+        "replay_summary_path": base_dir / "inputs" / "tactical_stable_failure_family_replay_summary.json",
+        "family_report_path": final_dir / "opening_capture_family_report.json",
+        "stable_family_summary_path": final_dir / "stable_failure_family_summary.json",
+        "verdict_path": final_dir / "tactical_validation_verdict.json",
+        "wrapper_summary_path": base_dir / "tactical_stable_failure_family_validation_summary.json",
+    }
+
+
+def resolve_repo_path(root: Path, path_value: str) -> Path:
+    path = Path(path_value)
+    return path if path.is_absolute() else root / path
+
+
+def selected_artifact_source(run_paths: dict[str, Path]) -> Path:
+    selection_manifest_path = run_paths["base_dir"] / "selection" / "selection_manifest.json"
+    if selection_manifest_path.exists():
+        manifest = load_json(selection_manifest_path)
+        selected_target = manifest.get("selected_target")
+        if isinstance(selected_target, str) and selected_target:
+            return Path(selected_target)
+    return run_paths["selection_artifact"]
+
+
+def pinned_sources(root: Path, run_paths: dict[str, Path]) -> dict[str, str]:
+    reference_artifact = run_paths["base_dir"] / "inputs" / "reference_moves.json"
+    selected_artifact = selected_artifact_source(run_paths)
+    return {
+        "base-config": str(resolve_repo_path(root, DEFAULT_BASE_CONFIG)),
+        "forensic-suite": str(resolve_repo_path(root, DEFAULT_FORENSIC_SUITE)),
+        "selected-artifact": str(selected_artifact),
+        "reference-artifact": str(reference_artifact),
+        "baseline-forensics": str(run_paths["final_dir"] / "baseline_candidate_forensics.json"),
+        "reference-forensics": str(reference_artifact),
+        "candidate-forensics": str(run_paths["final_dir"] / "selected_candidate_forensics.json"),
+        "bucket-gate": str(run_paths["final_dir"] / "bucket_gate.json"),
+        "regression-report": str(run_paths["final_dir"] / "candidate_regression_suite.json"),
+        "arena-report": str(run_paths["final_dir"] / "arena_seed_1041.json"),
+        "replay-summary": str(run_paths["replay_summary_path"]),
+        "family-report": str(run_paths["family_report_path"]),
+        "stable-family-summary": str(run_paths["stable_family_summary_path"]),
+    }
+
+
+def build_commands(args: argparse.Namespace, root: Path, run_paths: dict[str, Path]) -> dict[str, list[str]]:
+    python_bin = python_executable(root)
+    pins = pinned_sources(root, run_paths)
+    launcher_path = str(root / "script/ai/run_local_tactical_replay_experiment")
+
+    select_command = [
+        python_bin,
+        launcher_path,
+        "--run-id",
+        args.run_id,
+        "--output-root",
+        str(args.output_root),
+        "--current-path",
+        args.current_path,
+        "--base-config",
+        pins["base-config"],
+        "--forensic-suite",
+        pins["forensic-suite"],
+        "--reference-artifact",
+        pins["reference-artifact"],
+    ]
+    validation_command = [
+        python_bin,
+        launcher_path,
+        "--run-id",
+        args.run_id,
+        "--output-root",
+        str(args.output_root),
+        "--current-path",
+        args.current_path,
+        "--base-config",
+        pins["base-config"],
+        "--forensic-suite",
+        pins["forensic-suite"],
+        "--start-stage",
+        "validation_pack",
+        "--skip-stage",
+        "final_holdout",
+        "--skip-stage",
+        "decision",
+        "--selected-artifact",
+        pins["selected-artifact"],
+        "--reference-artifact",
+        pins["reference-artifact"],
+    ]
+    family_report_command = [
+        python_bin,
+        "-m",
+        "ml.alphazero_lite.write_opening_capture_family_report",
+        "--suite",
+        pins["forensic-suite"],
+        "--reference",
+        pins["reference-forensics"],
+        "--current-artifact",
+        args.current_path,
+        "--candidate-artifact",
+        pins["selected-artifact"],
+        "--out",
+        pins["family-report"],
+    ]
+    stable_summary_command = [
+        python_bin,
+        "-m",
+        "ml.alphazero_lite.write_stable_failure_family_summary",
+        "--candidate-forensics",
+        pins["candidate-forensics"],
+        "--opening-family-report",
+        pins["family-report"],
+        "--out",
+        pins["stable-family-summary"],
+    ]
+    verdict_command = [
+        python_bin,
+        "-m",
+        "ml.alphazero_lite.write_tactical_validation_verdict",
+        "--run-dir",
+        str(run_paths["final_dir"]),
+        "--selected-artifact",
+        pins["selected-artifact"],
+        "--baseline-forensics",
+        pins["baseline-forensics"],
+        "--candidate-forensics",
+        pins["candidate-forensics"],
+        "--bucket-gate",
+        pins["bucket-gate"],
+        "--regression-report",
+        pins["regression-report"],
+        "--arena-report",
+        pins["arena-report"],
+        "--out",
+        str(run_paths["verdict_path"]),
+    ]
+    return {
+        "select": select_command,
+        "validation_pack": validation_command,
+        "write_family_report": family_report_command,
+        "write_stable_family_summary": stable_summary_command,
+        "write_verdict": verdict_command,
+    }
+
+
+def build_dry_run_payload(args: argparse.Namespace, root: Path) -> dict[str, Any]:
+    run_paths = build_run_paths(args.output_root, args.run_id)
+    commands = build_commands(args, root, run_paths)
+    return {
+        "run_id": args.run_id,
+        "current_path": args.current_path,
+        "stages": ["select", "validation_pack", "write_family_report", "write_stable_family_summary", "write_verdict"],
+        "pinned_sources": pinned_sources(root, run_paths),
+        "commands": commands,
+        "summary_path": str(run_paths["wrapper_summary_path"]),
+        "family_report_path": str(run_paths["family_report_path"]),
+        "stable_family_summary_path": str(run_paths["stable_family_summary_path"]),
+        "verdict_path": str(run_paths["verdict_path"]),
+    }
+
+
+def run_command(
+    command: list[str],
+    cwd: Path,
+    allowed_returncodes: tuple[int, ...] = (0,),
+    log_path: Path | None = None,
+) -> dict[str, Any]:
+    if log_path is None:
+        log_path = cwd / "command.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("w", encoding="utf-8") as log_file, redirect_stdout(log_file), redirect_stderr(log_file):
+        completed = subprocess.run(command, cwd=cwd, stdout=log_file, stderr=subprocess.STDOUT, text=True, check=False)
+    if completed.returncode not in allowed_returncodes:
+        details = log_path.read_text(encoding="utf-8").strip()
+        raise SystemExit(details or f"command failed with exit code {completed.returncode}: {command}")
+    return {
+        "command": list(command),
+        "cwd": str(cwd),
+        "returncode": completed.returncode,
+        "log_path": str(log_path),
+    }
+
+
+def load_json(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def remove_existing_file(path: Path) -> None:
+    if path.exists() or path.is_symlink():
+        path.unlink()
+
+
+def load_fresh_family_report(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise SystemExit(f"family report writer did not produce a fresh family report artifact: {path}")
+    report = load_json(path)
+    if not isinstance(report, dict):
+        raise SystemExit(f"family report writer produced an invalid family report artifact: {path}")
+    if report.get("schema") != FAMILY_REPORT_SCHEMA:
+        raise SystemExit(
+            f"family report writer produced schema {report.get('schema')!r}; expected {FAMILY_REPORT_SCHEMA}: {path}"
+        )
+    return report
+
+
+def load_fresh_replay_summary(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise SystemExit(f"replay builder did not produce a fresh replay summary artifact: {path}")
+    summary = load_json(path)
+    if not isinstance(summary, dict):
+        raise SystemExit(f"replay builder produced an invalid replay summary artifact: {path}")
+    if summary.get("schema") != REPLAY_SUMMARY_SCHEMA:
+        raise SystemExit(
+            f"replay builder produced schema {summary.get('schema')!r}; expected {REPLAY_SUMMARY_SCHEMA}: {path}"
+        )
+    return summary
+
+
+def load_fresh_stable_family_summary(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise SystemExit(f"stable family summary writer did not produce a fresh stable family summary artifact: {path}")
+    summary = load_json(path)
+    if not isinstance(summary, dict):
+        raise SystemExit(f"stable family summary writer produced an invalid stable family summary artifact: {path}")
+    if summary.get("schema") != STABLE_FAMILY_SUMMARY_SCHEMA:
+        raise SystemExit(
+            f"stable family summary writer produced schema {summary.get('schema')!r}; expected {STABLE_FAMILY_SUMMARY_SCHEMA}: {path}"
+        )
+    validate_stable_family_summary(summary, path)
+    return summary
+
+
+def validate_stable_family_summary(summary: dict[str, Any], path: Path) -> None:
+    def require_section(section_name: str) -> dict[str, Any]:
+        section = summary.get(section_name)
+        if not isinstance(section, dict):
+            raise SystemExit(f"stable family summary missing section {section_name}: {path}")
+        return section
+
+    def require_int(section_name: str, section: dict[str, Any], key: str) -> None:
+        value = section.get(key)
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise SystemExit(f"stable family summary missing integer {section_name}.{key}: {path}")
+
+    def require_number(section_name: str, section: dict[str, Any], key: str) -> None:
+        value = section.get(key)
+        if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(float(value)):
+            raise SystemExit(f"stable family summary missing numeric {section_name}.{key}: {path}")
+
+    def require_list(section_name: str, section: dict[str, Any], key: str) -> None:
+        if not isinstance(section.get(key), list):
+            raise SystemExit(f"stable family summary missing list {section_name}.{key}: {path}")
+
+    capture = require_section("capture_available")
+    require_int("capture_available", capture, "tracked_rows")
+    require_number("capture_available", capture, "average_regret")
+    require_number("capture_available", capture, "blunder_rate_0_20")
+    require_list("capture_available", capture, "blunder_ids")
+    require_int("capture_available", capture, "search_flipped_rows")
+    require_list("capture_available", capture, "search_flipped_ids")
+    require_list("capture_available", capture, "missing_opening_family_rows")
+
+    high_imbalance = require_section("high_imbalance")
+    require_int("high_imbalance", high_imbalance, "stable_rows")
+    require_number("high_imbalance", high_imbalance, "average_regret")
+    require_number("high_imbalance", high_imbalance, "blunder_rate_0_20")
+    require_list("high_imbalance", high_imbalance, "blunder_ids")
+
+
+def load_fresh_verdict(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise SystemExit(f"verdict writer did not produce a fresh verdict artifact: {path}")
+    verdict = load_json(path)
+    if not isinstance(verdict, dict):
+        raise SystemExit(f"verdict writer produced an invalid verdict artifact: {path}")
+    if verdict.get("schema") != VERDICT_SCHEMA:
+        raise SystemExit(
+            f"verdict writer produced schema {verdict.get('schema')!r}; expected {VERDICT_SCHEMA}: {path}"
+        )
+    if not isinstance(verdict.get("passed"), bool):
+        raise SystemExit(f"verdict writer produced an invalid verdict artifact with non-boolean passed field: {path}")
+    return verdict
+
+
+def run(args: argparse.Namespace, root: Path) -> dict[str, Any]:
+    run_paths = build_run_paths(args.output_root, args.run_id)
+    commands = build_commands(args, root, run_paths)
+
+    remove_existing_file(run_paths["replay_summary_path"])
+    command_results = [run_command(commands["select"], root)]
+    replay_summary = load_fresh_replay_summary(run_paths["replay_summary_path"])
+    commands = build_commands(args, root, run_paths)
+    pins = pinned_sources(root, run_paths)
+    remove_existing_file(Path(pins["baseline-forensics"]))
+    remove_existing_file(Path(pins["candidate-forensics"]))
+    remove_existing_file(Path(pins["bucket-gate"]))
+    remove_existing_file(Path(pins["regression-report"]))
+    remove_existing_file(Path(pins["arena-report"]))
+    remove_existing_file(run_paths["family_report_path"])
+    remove_existing_file(run_paths["stable_family_summary_path"])
+    remove_existing_file(run_paths["verdict_path"])
+    remove_existing_file(run_paths["wrapper_summary_path"])
+    validation_pack_result = run_command(commands["validation_pack"], root, allowed_returncodes=(0, 1))
+    command_results.append(validation_pack_result)
+    if validation_pack_result["returncode"] != 0:
+        raise SystemExit(f"validation_pack failed with exit code {validation_pack_result['returncode']}")
+    command_results.append(run_command(commands["write_family_report"], root))
+    family_report = load_fresh_family_report(run_paths["family_report_path"])
+    command_results.append(run_command(commands["write_stable_family_summary"], root))
+    stable_family_summary = load_fresh_stable_family_summary(run_paths["stable_family_summary_path"])
+    command_results.append(run_command(commands["write_verdict"], root, allowed_returncodes=(0, 1)))
+    verdict = load_fresh_verdict(run_paths["verdict_path"])
+    summary = {
+        "schema": "azlite_tactical_stable_failure_family_validation_summary_v1",
+        "run_id": args.run_id,
+        "current_path": args.current_path,
+        "executed_stages": ["select", "validation_pack", "write_family_report", "write_stable_family_summary", "write_verdict"],
+        "selected_artifact": pins["selected-artifact"],
+        "pinned_sources": pins,
+        "replay_summary_path": str(run_paths["replay_summary_path"]),
+        "replay_summary": replay_summary,
+        "family_report_path": str(run_paths["family_report_path"]),
+        "family_report": family_report,
+        "stable_family_summary_path": str(run_paths["stable_family_summary_path"]),
+        "stable_family_summary": stable_family_summary,
+        "verdict_path": str(run_paths["verdict_path"]),
+        "verdict": verdict,
+        "command_results": command_results,
+    }
+    write_json(run_paths["wrapper_summary_path"], summary)
+    return summary
+
+
+def main(argv=None) -> int:
+    root = repo_root()
+    args = parse_args(argv)
+    payload = build_dry_run_payload(args, root) if args.dry_run else run(args, root)
+    print(json.dumps(payload))
+    if args.dry_run:
+        return 0
+    return 0 if payload["verdict"].get("passed") else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

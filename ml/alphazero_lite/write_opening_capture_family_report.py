@@ -117,7 +117,10 @@ def is_tracked_family_row(row: dict) -> bool:
 def _tracked_family_reference_status(row: dict) -> str | None:
     if not is_opening_capture_family_row(row):
         return None
-    return "tracked" if has_stable_reference_move(row) else "missing"
+    reference_move = row.get("reference_move")
+    if reference_move is None:
+        return "missing"
+    return "tracked" if has_stable_reference_move(row) else "invalid"
 
 
 def select_tracked_family_rows(rows: list[dict]) -> list[dict]:

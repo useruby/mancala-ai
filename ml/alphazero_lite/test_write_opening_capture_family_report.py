@@ -290,6 +290,17 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             module.missing_tracked_family_references([row]),
         )
 
+    def test_missing_tracked_family_references_marks_invalid_reference_move(self):
+        from ml.alphazero_lite import write_opening_capture_family_report as module
+
+        row = self.opening_row("capture_available-016", reference_move=True)
+
+        self.assertFalse(module.has_stable_reference_move(row))
+        self.assertEqual(
+            [{"code": "invalid_reference_move", "id": "capture_available-016", "reference_move": True}],
+            module.missing_tracked_family_references([row]),
+        )
+
     def test_build_report_includes_stable_reference_move_four_row_in_rows(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
 

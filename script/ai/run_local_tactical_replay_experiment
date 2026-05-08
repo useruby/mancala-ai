@@ -32,12 +32,43 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def selection_manifest_payload(*, artifact_path: Path, selected_target: Path, selection_rule: str, candidate_count: int) -> dict:
+    return {
+        "selected_artifact": str(artifact_path),
+        "selected_target": str(selected_target.resolve()),
+        "selection_rule": selection_rule,
+        "candidate_count": candidate_count,
+    }
+
+
 def default_fixed_replay_sources() -> list[dict[str, int | str]]:
     return [{"path": "ml/alphazero_lite/tactical_opening_capture_family_replay.jsonl", "weight": 8}]
 
 
+def default_stable_failure_family_replay_sources() -> list[dict[str, int | str]]:
+    return [{"path": "ml/alphazero_lite/tactical_stable_failure_family_replay.jsonl", "weight": 8}]
+
+
 def opening_capture_family_replay_path(run_paths: dict[str, Path]) -> Path:
     return run_paths["inputs_dir"] / "tactical_opening_capture_family_replay.jsonl"
+
+
+def stable_failure_family_replay_path(run_paths: dict[str, Path]) -> Path:
+    return run_paths["inputs_dir"] / "tactical_stable_failure_family_replay.jsonl"
+
+
+def stable_failure_family_replay_summary_path(run_paths: dict[str, Path]) -> Path:
+    return run_paths["inputs_dir"] / "tactical_stable_failure_family_replay_summary.json"
+
+
+def fixed_replay_artifact_path_for_sources(
+    fixed_replay_sources: list[dict[str, int | str]], run_paths: dict[str, Path]
+) -> Path | None:
+    if fixed_replay_sources == default_fixed_replay_sources():
+        return opening_capture_family_replay_path(run_paths)
+    if fixed_replay_sources == default_stable_failure_family_replay_sources():
+        return stable_failure_family_replay_path(run_paths)
+    return None
 
 
 def runtime_fixed_replay_sources(config: dict, *, fixed_replay_artifact_path: Path | None = None) -> list[dict]:
@@ -46,9 +77,16 @@ def runtime_fixed_replay_sources(config: dict, *, fixed_replay_artifact_path: Pa
         fixed_replay_sources = list(default_fixed_replay_sources())
     if fixed_replay_artifact_path is None:
         return fixed_replay_sources
+    artifact_source = None
+    if fixed_replay_sources == default_fixed_replay_sources():
+        artifact_source = default_fixed_replay_sources()[0]
+    elif fixed_replay_sources == default_stable_failure_family_replay_sources():
+        artifact_source = default_stable_failure_family_replay_sources()[0]
+    if artifact_source is None:
+        return fixed_replay_sources
     return [
         {**source, "path": str(fixed_replay_artifact_path)}
-        if source == default_fixed_replay_sources()[0]
+        if source == artifact_source
         else source
         for source in fixed_replay_sources
     ]
@@ -103,7 +141,7 @@ def planned_stages(args) -> list[str]:
     return [stage for stage in stages if stage not in skip_stages]
 
 
-def command_names_by_stage_for(requested_stages: list[str], *, include_fixed_replay_build: bool = False) -> dict[str, list[str]]:
+def command_names_by_stage_for(requested_stages: list[str]) -> dict[str, list[str]]:
     validation_pack_commands = [
         "build_forensic_references_command",
         "candidate_forensic_command",
@@ -132,14 +170,10 @@ def command_names_by_stage_for(requested_stages: list[str], *, include_fixed_rep
             "local_promotion_gate_command",
         ]
 
-    train_commands = ["train_command"]
-    if include_fixed_replay_build:
-        train_commands.insert(0, "build_opening_capture_family_replay_command")
-
     return {
         "mine": ["prepare_forensic_mining_input_command", "mine_command"],
         "label": ["label_command"],
-        "train": train_commands,
+        "train": ["train_command"],
         "validation_pack": validation_pack_commands,
         "final_holdout": final_holdout_commands,
         "decision": ["decision_command"],
@@ -278,8 +312,8 @@ def run(args, root) -> dict:
     assert config_path is not None
     replay_dataset_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
     fixed_replay_artifact_path = None
-    if should_build_opening_capture_family_replay(config_path):
-        fixed_replay_artifact_path = opening_capture_family_replay_path(run_paths)
+    fixed_replay_sources = runtime_fixed_replay_sources(load_json(config_path))
+    fixed_replay_artifact_path = fixed_replay_artifact_path_for_sources(fixed_replay_sources, run_paths)
     runtime_config = write_runtime_config(
         base_config_path=config_path,
         destination_path=run_paths["runtime_config_path"],
@@ -307,18 +341,17 @@ def run(args, root) -> dict:
     selection_manifest = None
     explicit_selected = resolve_path(root, getattr(args, "selected_artifact", None))
 
-    command_names_by_stage = command_names_by_stage_for(
-        requested_stages,
-        include_fixed_replay_build="build_opening_capture_family_replay_command" in stage_commands,
-    )
+    command_names_by_stage = command_names_by_stage_for(requested_stages)
+    command_names_by_stage["train"] = build_train_command_names(config_path)
 
     if explicit_selected is not None and any(stage in requested_stages for stage in ["validation_pack", "final_holdout", "decision"]):
         artifact_path = materialize_selected_artifact(run_paths["selection_dir"], explicit_selected)
-        selection_manifest = {
-            "selected_artifact": str(artifact_path),
-            "selection_rule": "explicit_artifact",
-            "candidate_count": 1,
-        }
+        selection_manifest = selection_manifest_payload(
+            artifact_path=artifact_path,
+            selected_target=explicit_selected,
+            selection_rule="explicit_artifact",
+            candidate_count=1,
+        )
         write_json(run_paths["selection_dir"] / "selection_manifest.json", selection_manifest)
 
     for stage in requested_stages:
@@ -333,11 +366,12 @@ def run(args, root) -> dict:
                 candidate_count = len(candidate_artifact_dirs(run_paths["base_dir"] / "versions"))
 
             artifact_path = materialize_selected_artifact(run_paths["selection_dir"], selected_target)
-            selection_manifest = {
-                "selected_artifact": str(artifact_path),
-                "selection_rule": selection_rule,
-                "candidate_count": candidate_count,
-            }
+            selection_manifest = selection_manifest_payload(
+                artifact_path=artifact_path,
+                selected_target=selected_target,
+                selection_rule=selection_rule,
+                candidate_count=candidate_count,
+            )
             write_json(run_paths["selection_dir"] / "selection_manifest.json", selection_manifest)
             executed_stages.append(stage)
             continue
@@ -423,6 +457,52 @@ def write_runtime_config(
 def should_build_opening_capture_family_replay(base_config_path: Path) -> bool:
     fixed_replay_sources = runtime_fixed_replay_sources(load_json(base_config_path))
     return fixed_replay_sources == default_fixed_replay_sources()
+
+
+def should_build_stable_failure_family_replay(base_config_path: Path) -> bool:
+    fixed_replay_sources = runtime_fixed_replay_sources(load_json(base_config_path))
+    return fixed_replay_sources == default_stable_failure_family_replay_sources()
+
+
+def build_train_command_names(base_config_path: Path) -> list[str]:
+    train_commands = ["train_command"]
+    if should_build_opening_capture_family_replay(base_config_path):
+        train_commands.insert(0, "build_fixed_replay_command")
+    elif should_build_stable_failure_family_replay(base_config_path):
+        train_commands.insert(0, "build_fixed_replay_command")
+        train_commands.insert(0, "build_forensic_references_command")
+    return train_commands
+
+
+def build_fixed_replay_command(
+    *,
+    root: Path,
+    python_bin: str,
+    base_config_path: Path,
+    run_paths: dict[str, Path],
+    reference_artifact_path: Path,
+) -> list[str] | None:
+    if should_build_opening_capture_family_replay(base_config_path):
+        return [
+            python_bin,
+            str(root / "ml/alphazero_lite/build_tactical_opening_capture_family_replay.py"),
+            "--out",
+            str(opening_capture_family_replay_path(run_paths)),
+        ]
+
+    if should_build_stable_failure_family_replay(base_config_path):
+        return [
+            python_bin,
+            str(root / "ml/alphazero_lite/build_tactical_stable_failure_family_replay.py"),
+            "--reference",
+            str(reference_artifact_path),
+            "--out",
+            str(stable_failure_family_replay_path(run_paths)),
+            "--summary-out",
+            str(stable_failure_family_replay_summary_path(run_paths)),
+        ]
+
+    return None
 
 
 def build_stage_commands(
@@ -723,13 +803,15 @@ def build_stage_commands(
         ],
     }
 
-    if should_build_opening_capture_family_replay(base_config_path):
-        commands["build_opening_capture_family_replay_command"] = [
-            python_bin,
-            str(root / "ml/alphazero_lite/build_tactical_opening_capture_family_replay.py"),
-            "--out",
-            str(opening_capture_family_replay_path(run_paths)),
-        ]
+    fixed_replay_command = build_fixed_replay_command(
+        root=root,
+        python_bin=python_bin,
+        base_config_path=base_config_path,
+        run_paths=run_paths,
+        reference_artifact_path=reference_artifact_path,
+    )
+    if fixed_replay_command is not None:
+        commands["build_fixed_replay_command"] = fixed_replay_command
 
     return commands
 
@@ -756,10 +838,8 @@ def build_dry_run_payload(args, root) -> dict:
         exploratory_summary_path=resolve_path(root, getattr(args, "exploratory_summary", None)),
     )
     stages = planned_stages(args)
-    command_names_by_stage = command_names_by_stage_for(
-        stages,
-        include_fixed_replay_build="build_opening_capture_family_replay_command" in planned_commands,
-    )
+    command_names_by_stage = command_names_by_stage_for(stages)
+    command_names_by_stage["train"] = build_train_command_names(config_path)
     all_commands = {
         stage: [planned_commands[command_name] for command_name in command_names_by_stage.get(stage, [])]
         for stage in ["mine", "label", "train", "select", "validation_pack", "final_holdout", "decision"]

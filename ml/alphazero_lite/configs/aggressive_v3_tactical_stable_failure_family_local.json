@@ -1,0 +1,122 @@
+{
+  "run_id": "aggressive-v3-tactical-stable-failure-family-local",
+  "seed": 42,
+  "iterations": 1,
+  "start_iteration": 1,
+  "replay_window": 1,
+  "versions_dir": "/tmp/azlite_v3_tactical_stable_failure_family_local_versions",
+  "current_path": "model-artifact/current",
+  "hard_state_validation_path": "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+  "fixed_replay_sources": [
+    {
+      "path": "ml/alphazero_lite/tactical_stable_failure_family_replay.jsonl",
+      "weight": 8
+    }
+  ],
+  "steps": [
+    {
+      "name": "train",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/train.py",
+        "--data-files",
+        "{replay_data}",
+        "--replay-weights",
+        "{replay_weights}",
+        "--init-checkpoint",
+        "{parent_checkpoint}",
+        "--out",
+        "{iter_dir}/checkpoint.npz",
+        "--epochs",
+        "4",
+        "--batch-size",
+        "512",
+        "--device",
+        "auto",
+        "--hidden-sizes",
+        "96,3",
+        "--model-type",
+        "residual_v3",
+        "--input-encoding",
+        "kalah_v3",
+        "--value-loss",
+        "huber",
+        "--huber-delta",
+        "1.0",
+        "--value-loss-weight",
+        "0.3",
+        "--val-split",
+        "0.1",
+        "--grad-clip",
+        "1.0",
+        "--save-top-k",
+        "3",
+        "--policy-target-mode",
+        "sharpened",
+        "--value-target-mode",
+        "sharpened"
+      ]
+    },
+    {
+      "name": "export_artifact",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/export_artifact.py",
+        "--checkpoint",
+        "{iter_dir}/checkpoint.npz",
+        "--out-dir",
+        "{iter_dir}",
+        "--version",
+        "{run_id}-iter{iteration}",
+        "--model-type",
+        "residual_v3",
+        "--rules-version",
+        "kalah_v1",
+        "--input-encoding",
+        "kalah_v3"
+      ]
+    },
+    {
+      "name": "hard_state_validation",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/hard_state_validation.py",
+        "--artifact-path",
+        "{iter_dir}",
+        "--validation-path",
+        "{hard_state_validation_path}",
+        "--teacher-simulations",
+        "1200",
+        "--artifact-simulations",
+        "384",
+        "--seed",
+        "42",
+        "--out",
+        "{iter_dir}/hard_state_validation.json"
+      ]
+    },
+    {
+      "name": "arena_confirm_report",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/arena.py",
+        "--challenger",
+        "{iter_dir}",
+        "--current",
+        "{current_path}",
+        "--games",
+        "120",
+        "--challenger-simulations",
+        "384",
+        "--current-simulations",
+        "256",
+        "--workers",
+        "6",
+        "--out",
+        "{iter_dir}/arena_report.json",
+        "--min-score",
+        "0.55"
+      ]
+    }
+  ]
+}

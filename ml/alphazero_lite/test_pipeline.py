@@ -47,6 +47,7 @@ class PipelineScriptTest(unittest.TestCase):
     V3_SUPERHUMAN_PHASE2_ABLATION_PHASE1_ARCH_CONFIG = "aggressive_v3_superhuman_phase2_ablation_phase1_arch.json"
     HYBRID_VALUE_TARGET_LOCAL_CONFIG = "aggressive_v3_hybrid_value_target_local.json"
     PHASE_AWARE_VALUE_TARGET_LOCAL_CONFIG = "aggressive_v3_phase_aware_value_target_local.json"
+    TACTICAL_STABLE_FAILURE_FAMILY_LOCAL_CONFIG = "aggressive_v3_tactical_stable_failure_family_local.json"
     TACTICAL_OPENING_CAPTURE_FAMILY_LOCAL_CONFIG = "aggressive_v3_tactical_opening_capture_family_local.json"
     V2_LOCAL_CONFIG_EXPECTATIONS = {
         "aggressive_v2_budget_up_local.json": {
@@ -2037,6 +2038,14 @@ class PipelineScriptTest(unittest.TestCase):
             config["fixed_replay_sources"],
         )
 
+    def test_tactical_stable_failure_family_local_config_uses_new_artifact_with_weight_eight(self):
+        config = self.load_v2_local_config(self.TACTICAL_STABLE_FAILURE_FAMILY_LOCAL_CONFIG)
+
+        self.assertEqual(
+            [{"path": "ml/alphazero_lite/tactical_stable_failure_family_replay.jsonl", "weight": 8}],
+            config["fixed_replay_sources"],
+        )
+
     def test_runtime_config_keeps_dynamic_replay_weight_one_and_prepends_fixed_opening_family_source(self):
         module = self.load_local_tactical_replay_experiment_module()
         repo_root = Path(__file__).resolve().parents[2]
@@ -2049,6 +2058,38 @@ class PipelineScriptTest(unittest.TestCase):
             run_paths = module.build_run_paths(output_root, "demo-run")
             replay_dataset_path = output_root / "inputs" / "tactical_replay.jsonl"
             fixed_replay_artifact_path = run_paths["inputs_dir"] / "tactical_opening_capture_family_replay.jsonl"
+            replay_dataset_path.parent.mkdir(parents=True, exist_ok=True)
+            replay_dataset_path.write_text("{}\n", encoding="utf-8")
+
+            runtime_config = module.write_runtime_config(
+                base_config_path=base_config_path,
+                destination_path=run_paths["runtime_config_path"],
+                run_id="demo-run",
+                current_path="model-artifact/current",
+                replay_dataset_path=replay_dataset_path,
+                fixed_replay_artifact_path=fixed_replay_artifact_path,
+            )
+
+        self.assertEqual(
+            [
+                {"path": str(replay_dataset_path), "weight": 1},
+                {"path": str(fixed_replay_artifact_path), "weight": 8},
+            ],
+            runtime_config["fixed_replay_sources"],
+        )
+
+    def test_runtime_config_keeps_dynamic_replay_weight_one_and_prepends_fixed_stable_failure_source(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+        base_config_path = (
+            repo_root / "ml/alphazero_lite/configs/aggressive_v3_tactical_stable_failure_family_local.json"
+        )
+
+        with tempfile.TemporaryDirectory(prefix="tactical-stable-failure-runtime-config-") as tmp:
+            output_root = Path(tmp)
+            run_paths = module.build_run_paths(output_root, "demo-run")
+            replay_dataset_path = output_root / "inputs" / "tactical_replay.jsonl"
+            fixed_replay_artifact_path = run_paths["inputs_dir"] / "tactical_stable_failure_family_replay.jsonl"
             replay_dataset_path.parent.mkdir(parents=True, exist_ok=True)
             replay_dataset_path.write_text("{}\n", encoding="utf-8")
 
@@ -2087,7 +2128,7 @@ class PipelineScriptTest(unittest.TestCase):
                 base_config_path=repo_root / "ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
             )
 
-        build_command = commands["build_opening_capture_family_replay_command"]
+        build_command = commands["build_fixed_replay_command"]
         self.assertTrue(
             build_command[1].endswith("ml/alphazero_lite/build_tactical_opening_capture_family_replay.py")
         )
@@ -2095,6 +2136,91 @@ class PipelineScriptTest(unittest.TestCase):
             str(run_paths["inputs_dir"] / "tactical_opening_capture_family_replay.jsonl"),
             self.command_flag_value(build_command, "--out"),
         )
+
+    def test_tactical_replay_launcher_builds_stable_failure_family_replay_with_custom_reference_override(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-stable-failure-stage-commands-") as tmp:
+            output_root = Path(tmp)
+            run_paths = module.build_run_paths(output_root, "demo-run")
+            custom_reference_artifact_path = output_root / "shared" / "custom_reference_moves.json"
+            commands = module.build_stage_commands(
+                root=repo_root,
+                python_bin=module.python_executable(repo_root),
+                run_id="demo-run",
+                current_path="model-artifact/current",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                runtime_config_path=run_paths["runtime_config_path"],
+                output_root=output_root,
+                base_config_path=repo_root
+                / "ml/alphazero_lite/configs/aggressive_v3_tactical_stable_failure_family_local.json",
+                reference_artifact_path=custom_reference_artifact_path,
+            )
+
+        reference_command = commands["build_forensic_references_command"]
+        build_command = commands["build_fixed_replay_command"]
+        self.assertEqual(
+            str(custom_reference_artifact_path),
+            self.command_flag_value(reference_command, "--out"),
+        )
+        self.assertTrue(
+            build_command[1].endswith("ml/alphazero_lite/build_tactical_stable_failure_family_replay.py")
+        )
+        self.assertEqual(
+            str(run_paths["inputs_dir"] / "tactical_stable_failure_family_replay.jsonl"),
+            self.command_flag_value(build_command, "--out"),
+        )
+        self.assertEqual(
+            str(run_paths["inputs_dir"] / "tactical_stable_failure_family_replay_summary.json"),
+            self.command_flag_value(build_command, "--summary-out"),
+        )
+        self.assertEqual(
+            str(custom_reference_artifact_path),
+            self.command_flag_value(build_command, "--reference"),
+        )
+        self.assertNotIn("--high-imbalance-id", build_command)
+
+    def test_tactical_stable_failure_dry_run_builds_reference_artifact_before_fixed_replay(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+        forensic_suite = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+
+        with tempfile.TemporaryDirectory(prefix="tactical-stable-failure-dry-run-") as tmp:
+            output_root = Path(tmp)
+            args = module.parse_args([
+                "--run-id",
+                "stable-failure-demo",
+                "--output-root",
+                str(output_root),
+                "--current-path",
+                "model-artifact/current",
+                "--base-config",
+                "ml/alphazero_lite/configs/aggressive_v3_tactical_stable_failure_family_local.json",
+                "--forensic-suite",
+                forensic_suite,
+                "--dry-run",
+            ])
+            payload = module.build_dry_run_payload(args, repo_root)
+
+        train_stage = payload["commands"]["train"]
+        self.assertEqual(3, len(train_stage))
+        self.assertTrue(train_stage[0][1].endswith("ml/alphazero_lite/build_forensic_references.py"))
+        self.assertTrue(train_stage[1][1].endswith("ml/alphazero_lite/build_tactical_stable_failure_family_replay.py"))
+        self.assertTrue(train_stage[2][1].endswith("ml/alphazero_lite/pipeline.py"))
+        self.assertEqual(
+            self.command_flag_value(train_stage[0], "--out"),
+            self.command_flag_value(train_stage[1], "--reference"),
+        )
+
+    def test_command_names_by_stage_for_does_not_inject_fixed_replay_into_train_stage(self):
+        module = self.load_local_tactical_replay_experiment_module()
+
+        command_names_by_stage = module.command_names_by_stage_for(
+            ["train", "validation_pack"],
+        )
+
+        self.assertEqual(["train_command"], command_names_by_stage["train"])
 
     def test_tactical_balanced_replay_launcher_does_not_rebuild_fixed_replay_artifact(self):
         module = self.load_local_tactical_replay_experiment_module()
@@ -2115,7 +2241,7 @@ class PipelineScriptTest(unittest.TestCase):
                 / "ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json",
             )
 
-        self.assertNotIn("build_opening_capture_family_replay_command", commands)
+        self.assertNotIn("build_fixed_replay_command", commands)
 
     def test_tactical_replay_launcher_builds_expected_stage_commands(self):
         module = self.load_local_tactical_replay_experiment_module()
@@ -2985,6 +3111,49 @@ class PipelineScriptTest(unittest.TestCase):
 
             self.assertTrue(artifact_path.exists())
             self.assertTrue((artifact_path / "model.npz").exists())
+
+    def test_tactical_replay_launcher_records_original_selected_target_when_copy_materialization_is_reused(self):
+        module = self.load_local_tactical_replay_experiment_module()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="tactical-replay-copy-materialization-") as tmp:
+            tmp_path = Path(tmp)
+            output_root = tmp_path / "runs"
+            selected_artifact = tmp_path / "provided-artifact"
+            selected_artifact.mkdir(parents=True, exist_ok=True)
+            (selected_artifact / "model.npz").write_text("stub", encoding="utf-8")
+
+            args = argparse.Namespace(
+                run_id="demo-run",
+                output_root=str(output_root),
+                current_path="model-artifact/current",
+                base_config="ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json",
+                forensic_suite="ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+                start_stage="validation_pack",
+                skip_stage=["final_holdout", "decision"],
+                selected_artifact=str(selected_artifact),
+                exploratory_summary=None,
+            )
+
+            def fake_run_command(command, cwd, allowed_returncodes=(0,)):
+                if "--out" in command:
+                    out_path = Path(command[command.index("--out") + 1])
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+                    out_path.write_text("{}", encoding="utf-8")
+                return {"command": list(command), "cwd": str(cwd), "returncode": 0}
+
+            with mock.patch.object(module, "run_command", side_effect=fake_run_command), mock.patch.object(
+                Path,
+                "symlink_to",
+                side_effect=OSError("symlinks unavailable"),
+            ):
+                summary = module.run(args, repo_root)
+
+            selection_artifact_path = module.build_run_paths(output_root, args.run_id)["selection_dir"] / "artifact"
+            self.assertTrue(selection_artifact_path.exists())
+            self.assertFalse(selection_artifact_path.is_symlink())
+            self.assertEqual(str(selection_artifact_path), summary["selection_manifest"]["selected_artifact"])
+            self.assertEqual(str(selected_artifact.resolve()), summary["selection_manifest"]["selected_target"])
 
     def test_tactical_replay_launcher_does_not_report_noop_stage_as_executed(self):
         module = self.load_local_tactical_replay_experiment_module()
