@@ -2095,6 +2095,120 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertIs(high_q_child, default_search._select_child(parent))
         self.assertIs(high_u_child, scheduled_search._select_child(parent))
 
+    def test_select_child_uses_fast_path_without_building_telemetry_entries(self):
+        class FakeGame:
+            current_player = 0
+            pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+
+        parent = self_play.Node(game=FakeGame(), expanded=True, visit_count=10)
+        best_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=1, value_sum=0.0)
+        other_child = self_play.Node(game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4)
+        parent.children = {0: other_child, 1: best_child}
+
+        search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+        )
+
+        with mock.patch.object(search, "_selection_entries", side_effect=AssertionError("telemetry path should not run")):
+            selected_child = search._select_child(parent)
+
+        self.assertIs(best_child, selected_child)
+
+    def test_root_summary_includes_selection_breakdown(self):
+        class FakeGame:
+            current_player = 0
+            pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+
+        root = self_play.Node(game=FakeGame(), expanded=True, visit_count=12, value_sum=6.0)
+        visited_child = self_play.Node(game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4)
+        unvisited_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=0, value_sum=0.0)
+        tied_prior_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=0, value_sum=0.0)
+        root.children = {2: tied_prior_child, 1: unvisited_child, 0: visited_child}
+
+        search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+            fpu_mode="parent_q",
+        )
+        search._last_root = root
+
+        summary = search.root_summary()
+
+        self.assertIn("selection_breakdown", summary)
+        breakdown = summary["selection_breakdown"]
+        self.assertEqual("parent_q", breakdown["fpu_mode"])
+        self.assertEqual(1.0, breakdown["value_trust_multiplier"])
+        self.assertEqual(0.5, breakdown["parent_q_value"])
+        self.assertEqual(0, breakdown["selected_move"])
+        self.assertEqual(1, breakdown["reference_move"])
+        self.assertEqual(1, breakdown["highest_prior_move"])
+        self.assertEqual("highest_prior_move", breakdown["reference_move_kind"])
+        self.assertEqual("highest current PUCT selection score using deterministic telemetry ordering", breakdown["next_simulation_move_kind"])
+        self.assertEqual(1, breakdown["next_simulation_move"])
+        self.assertEqual(1, breakdown["policy_top_move"])
+        self.assertEqual(0, breakdown["visit_top_move"])
+        self.assertEqual(0, breakdown["q_top_move"])
+
+        self.assertEqual([0, 1, 2], [entry["move"] for entry in breakdown["moves"]])
+
+        moves = {entry["move"]: entry for entry in breakdown["moves"]}
+        self.assertEqual({0, 1, 2}, set(moves))
+        self.assertAlmostEqual(0.7, moves[0]["q_value"])
+        self.assertAlmostEqual(0.7, moves[0]["selection_q_value"])
+        self.assertFalse(moves[0]["used_fpu"])
+        self.assertIsNone(moves[0]["fpu_value"])
+        self.assertEqual(0.0, moves[1]["q_value"])
+        self.assertEqual(0.5, moves[1]["selection_q_value"])
+        self.assertTrue(moves[1]["used_fpu"])
+        self.assertEqual(0.5, moves[1]["fpu_value"])
+        self.assertEqual(0.9, moves[2]["prior"])
+        self.assertEqual(moves[1]["selection_score"], moves[2]["selection_score"])
+
+    def test_root_summary_includes_sparse_visit_snapshots(self):
+        class DeterministicEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+        search = self_play.PUCT(
+            evaluator=DeterministicEvaluator(),
+            simulations=8,
+            c_puct=1.25,
+            rng=random.Random(7),
+        )
+
+        visits, _root = search.run(game)
+        summary = search.root_summary()
+
+        self.assertIn("visit_snapshots", summary)
+        self.assertEqual(4, len(summary["visit_snapshots"]))
+        self.assertEqual(
+            [
+                {"simulation": 1, "visits": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
+                {"simulation": 2, "visits": [2.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
+                {"simulation": 4, "visits": [4.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
+                {"simulation": 8, "visits": [8.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
+            ],
+            summary["visit_snapshots"],
+        )
+        self.assertEqual([8.0, 0.0, 0.0, 0.0, 0.0, 0.0], visits.tolist())
+
     def test_run_self_play_worker_sharpened_row_preserves_winner_sign_when_search_disagrees(self):
         default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=-0.4, winner=0)
 

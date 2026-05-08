@@ -769,6 +769,7 @@ class PUCT:
         self.value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
         self.ablation_mode = build_mode_config(ablation_mode or "full")
         self._last_root: Node | None = None
+        self._last_visit_snapshots: list[dict] = []
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -778,6 +779,16 @@ class PUCT:
             value_trust_schedule=self.value_trust_schedule,
         )
 
+    def _visit_snapshot_checkpoints(self) -> set[int]:
+        if self.simulations <= 0:
+            return set()
+        return {
+            1,
+            min(2, self.simulations),
+            max(1, self.simulations // 2),
+            self.simulations,
+        }
+
     def run(
         self,
         root_game: KalahGame,
@@ -786,6 +797,8 @@ class PUCT:
         dirichlet_epsilon: float = 0.25,
     ) -> tuple[np.ndarray, Node]:
         root = self._root_for(root_game)
+        self._last_visit_snapshots = []
+        visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
             apply_dirichlet=dirichlet_alpha is not None,
@@ -794,10 +807,20 @@ class PUCT:
             is_root=True,
         )
 
-        for _ in range(self.simulations):
+        for simulation_index in range(1, self.simulations + 1):
             value = self._search(root)
             root.visit_count += 1
             root.value_sum += value
+            if simulation_index in visit_snapshot_checkpoints:
+                snapshot_visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
+                for move, child in root.children.items():
+                    snapshot_visits[move] = child.visit_count
+                self._last_visit_snapshots.append(
+                    {
+                        "simulation": simulation_index,
+                        "visits": [float(visit) for visit in snapshot_visits.tolist()],
+                    }
+                )
 
         visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         for move, child in root.children.items():
@@ -818,12 +841,44 @@ class PUCT:
                     "q_value": float(child.q_value) if child.visit_count else 0.0,
                 }
             )
-        legal_moves = sorted(self._last_root.children)
-        selected_move = None if not legal_moves else int(self.select_root_move(self._last_root, legal_moves))
+        selection_breakdown = self._root_selection_breakdown(self._last_root)
         return {
-            "selected_move": selected_move,
+            "selected_move": selection_breakdown["selected_move"],
             "child_stats": child_stats,
             "value_trust": self._value_trust_summary_for(self._last_root.game),
+            "selection_breakdown": selection_breakdown,
+            "visit_snapshots": list(self._last_visit_snapshots),
+        }
+
+    def _root_selection_breakdown(self, root: Node) -> dict:
+        legal_moves = sorted(root.children)
+        selected_move = None if not legal_moves else int(self.select_root_move(root, legal_moves))
+        _live_entries, _live_next_simulation_move, _reference_child, value_trust_multiplier = self._selection_entries(
+            root, sort_moves=False
+        )
+        selection_entries, telemetry_next_simulation_move, _telemetry_reference_child, _telemetry_value_trust_multiplier = (
+            self._selection_entries(root, sort_moves=True)
+        )
+        highest_prior_move = None if not legal_moves else int(max(legal_moves, key=lambda move: (root.children[move].prior, -move)))
+        policy_top_move = highest_prior_move
+        visit_top_move = None if selected_move is None else int(selected_move)
+        q_top_move = None
+        if selection_entries:
+            q_top_move = int(max(selection_entries, key=lambda entry: (entry["selection_q_value"], -entry["move"]))["move"])
+        return {
+            "fpu_mode": self.fpu_mode,
+            "value_trust_multiplier": float(value_trust_multiplier),
+            "parent_q_value": float(root.q_value),
+            "selected_move": selected_move,
+            "reference_move": highest_prior_move,
+            "reference_move_kind": "highest_prior_move",
+            "highest_prior_move": highest_prior_move,
+            "policy_top_move": policy_top_move,
+            "visit_top_move": visit_top_move,
+            "q_top_move": q_top_move,
+            "next_simulation_move": None if telemetry_next_simulation_move is None else int(telemetry_next_simulation_move),
+            "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+            "moves": selection_entries,
         }
 
     def _value_trust_summary_for(self, game: KalahGame) -> dict:
@@ -905,26 +960,61 @@ class PUCT:
         return value
 
     def _select_child(self, node: Node) -> Node:
-        total_visits = sum(child.visit_count for child in node.children.values())
-        total_visits = max(1, total_visits)
+        total_visits = max(1, sum(child.visit_count for child in node.children.values()))
         items = list(node.children.items())
-        q_values = [self._child_q_value(node, child) for _move, child in items]
-        if self.normalize_values:
-            q_values = self._normalize_child_values(q_values)
+        raw_q_values = [self._child_q_value(node, child) for _move, child in items]
+        selection_q_values = self._normalize_child_values(raw_q_values) if self.normalize_values else raw_q_values
         value_trust_multiplier = self._effective_value_trust_multiplier_for(node.game)
 
         best_child = None
         best_score = -float("inf")
-
-        for (move, child), q_value in zip(items, q_values):
-            u_score = self.c_puct * child.prior * math.sqrt(total_visits) / (1 + child.visit_count)
-            score = (q_value * value_trust_multiplier) + u_score
-            if score > best_score:
-                best_score = score
+        for (_move, child), selection_q_value in zip(items, selection_q_values):
+            selection_score = float(selection_q_value * value_trust_multiplier) + float(
+                self.c_puct * child.prior * math.sqrt(total_visits) / (1 + child.visit_count)
+            )
+            if selection_score > best_score:
+                best_score = selection_score
                 best_child = child
-
         assert best_child is not None
         return best_child
+
+    def _selection_entries(self, node: Node, *, sort_moves: bool) -> tuple[list[dict], int | None, Node | None, float]:
+        total_visits = max(1, sum(child.visit_count for child in node.children.values()))
+        items = sorted(node.children.items()) if sort_moves else list(node.children.items())
+        raw_q_values = [self._child_q_value(node, child) for _move, child in items]
+        selection_q_values = self._normalize_child_values(raw_q_values) if self.normalize_values else list(raw_q_values)
+        value_trust_multiplier = self._effective_value_trust_multiplier_for(node.game)
+
+        selection_entries = []
+        next_simulation_move = None
+        best_child = None
+        best_score = -float("inf")
+
+        for (move, child), raw_q_value, selection_q_value in zip(items, raw_q_values, selection_q_values):
+            used_fpu = child.visit_count == 0
+            q_component = float(selection_q_value * value_trust_multiplier)
+            u_component = float(self.c_puct * child.prior * math.sqrt(total_visits) / (1 + child.visit_count))
+            selection_score = q_component + u_component
+            selection_entries.append(
+                {
+                    "move": int(move),
+                    "prior": float(child.prior),
+                    "visit_count": int(child.visit_count),
+                    "q_value": float(child.q_value) if child.visit_count else 0.0,
+                    "selection_q_value": float(selection_q_value),
+                    "q_component": q_component,
+                    "u_component": u_component,
+                    "selection_score": float(selection_score),
+                    "used_fpu": used_fpu,
+                    "fpu_value": float(raw_q_value) if used_fpu else None,
+                }
+            )
+            if selection_score > best_score:
+                best_score = selection_score
+                next_simulation_move = int(move)
+                best_child = child
+
+        return selection_entries, next_simulation_move, best_child, value_trust_multiplier
 
     def _child_q_value(self, parent: Node, child: Node) -> float:
         if child.visit_count > 0:

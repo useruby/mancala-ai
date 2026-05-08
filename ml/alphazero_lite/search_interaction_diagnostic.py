@@ -8,6 +8,14 @@ from ml.alphazero_lite.diagnose_search_interaction import build_matrix_from_runs
 
 
 SEARCH_INTERACTION_SCHEMA = "azlite_search_interaction_diagnostic_v1"
+SEARCH_VALUE_INTERACTION_SCHEMA = "azlite_search_value_interaction_diagnostic_v1"
+SEARCH_VALUE_PRIMARY_ROW_IDS = [
+    "capture_available-002",
+    "capture_available-003",
+    "incumbent_proxy_disagreement-031",
+    "incumbent_proxy_disagreement-033",
+]
+SEARCH_VALUE_COMPARATOR_ROW_IDS = ["opening_plies_1_8-057"]
 DECISION_LABELS = [
     "bad_priors",
     "search_overrides_prior",
@@ -94,6 +102,10 @@ def diagnostic_out_path(*, rebalanced_run_dir: Path) -> Path:
     return rebalanced_run_dir / "final" / "search_interaction_diagnostic.json"
 
 
+def search_value_interaction_diagnostic_out_path(*, rebalanced_run_dir: Path) -> Path:
+    return rebalanced_run_dir / "final" / "search_value_interaction_diagnostic.json"
+
+
 def _distribution_from_policy(policy: list[float], legal_moves: list[int]) -> dict[str, float]:
     return {str(move): round(float(policy[move]) if move < len(policy) else 0.0, 4) for move in legal_moves}
 
@@ -127,6 +139,117 @@ def _per_move_child_stats(child_stats: list[dict]) -> tuple[dict[str, int] | Non
         for child in child_stats
     ]
     return visits, q_values or None, normalized_children
+
+
+def _top_distribution_key(distribution: dict[str, float] | None) -> int | None:
+    if not distribution:
+        return None
+    move, _ = max(distribution.items(), key=lambda item: (float(item[1]), -int(item[0])))
+    return int(move)
+
+
+def _top_q_value_key(q_values: dict[str, float] | None) -> int | None:
+    if not q_values:
+        return None
+    move, _ = max(q_values.items(), key=lambda item: (float(item[1]), -int(item[0])))
+    return int(move)
+
+
+def _snapshot_status(visit_snapshots) -> str:
+    if visit_snapshots is None:
+        return "missing"
+    if len(visit_snapshots) == 0:
+        return "empty"
+    return "available"
+
+
+def _selection_breakdown_top_move(artifact: dict, key: str, fallback) -> int | None:
+    breakdown = artifact.get("selection_breakdown") or {}
+    top_move = breakdown.get(key)
+    if top_move is None:
+        return fallback
+    return int(top_move)
+
+
+def summarize_row_mechanism(row_payload: dict) -> str:
+    artifact = row_payload["rebalanced_challenger"]
+    policy_top_move = _selection_breakdown_top_move(
+        artifact,
+        "policy_top_move",
+        _top_distribution_key(artifact.get("raw_policy_distribution")),
+    )
+    visit_top_move = _selection_breakdown_top_move(
+        artifact,
+        "visit_top_move",
+        _top_distribution_key(artifact.get("searched_visit_distribution")),
+    )
+    q_top_move = _selection_breakdown_top_move(
+        artifact,
+        "q_top_move",
+        _top_q_value_key(artifact.get("per_move_q_values")),
+    )
+    snapshot_status = _snapshot_status(artifact.get("visit_snapshots"))
+    return (
+        f"policy leans to {policy_top_move}, visits finish on {visit_top_move}, "
+        f"q-values favor {q_top_move}, snapshots {snapshot_status}"
+    )
+
+
+def _search_value_row_ids(resolved_rows: list[str]) -> tuple[list[str], list[str]]:
+    primary = [row_id for row_id in SEARCH_VALUE_PRIMARY_ROW_IDS if row_id in resolved_rows]
+    comparator = [row_id for row_id in SEARCH_VALUE_COMPARATOR_ROW_IDS if row_id in resolved_rows]
+    return primary, comparator
+
+
+def _build_search_value_rows(rows: dict[str, dict]) -> dict[str, dict]:
+    def sibling_decision(row_payload: dict) -> str:
+        rebalanced = row_payload["rebalanced_challenger"]
+        reference_key = str(row_payload["reference_move"])
+        selected_move = rebalanced.get("selected_move")
+        if selected_move is None:
+            return "insufficient_child_stats"
+        selected_key = str(selected_move)
+        raw_policy = rebalanced.get("raw_policy_distribution") or {}
+        searched = rebalanced.get("searched_visit_distribution") or {}
+        q_values = rebalanced.get("per_move_q_values") or {}
+        if {reference_key, selected_key}.issubset(raw_policy) and {reference_key, selected_key}.issubset(searched) and {reference_key, selected_key}.issubset(q_values):
+            return row_payload["decision"]
+        return "insufficient_child_stats"
+
+    search_value_rows = {}
+    for row_id, row_payload in rows.items():
+        decision = sibling_decision(row_payload)
+        search_value_rows[row_id] = {
+            **row_payload,
+            "decision": decision,
+            "notes": {
+                "search_overrides_prior": ["prior corrected but searched move still wrong"],
+                "q_value_backup_issue": ["backup values favor the wrong child"],
+                "bad_priors": ["reference move remains underweighted in raw policy"],
+                "insufficient_child_stats": ["child stats unavailable for one or more compared artifacts"],
+                "mixed": ["multiple mechanisms remain plausible"],
+            }[decision],
+            "row_mechanism_summary": summarize_row_mechanism(row_payload),
+        }
+    return search_value_rows
+
+
+def build_search_value_interaction_payload_from_source_payload(*, payload: dict, source_diagnostic_path: str) -> dict:
+    primary_row_ids, comparator_row_ids = _search_value_row_ids(payload["row_source"]["resolved_rows"])
+    sibling_rows = _build_search_value_rows(payload["rows"])
+    return {
+        **payload,
+        "schema": SEARCH_VALUE_INTERACTION_SCHEMA,
+        "source_diagnostic_path": source_diagnostic_path,
+        "primary_row_ids": primary_row_ids,
+        "comparator_row_ids": comparator_row_ids,
+        "rows": sibling_rows,
+        "summary": {
+            **build_summary(sibling_rows),
+            "primary_row_count": len(primary_row_ids),
+            "comparator_row_count": len(comparator_row_ids),
+        },
+    }
 
 
 def build_artifact_row(
@@ -182,6 +305,10 @@ def build_artifact_row(
         "per_move_q_values": per_move_q_values,
         "child_stats_available": child_stats is not None,
         "child_stats": child_stats,
+        "selection_breakdown": probe_summary.get("selection_breakdown"),
+        "visit_snapshots": (
+            None if "visit_snapshots" not in probe_summary else list(probe_summary.get("visit_snapshots") or [])
+        ),
         "missing_fields": missing_fields,
     }
 
@@ -373,6 +500,36 @@ def build_search_interaction_payload(
     }
 
 
+def build_search_value_interaction_payload(
+    *,
+    original_run_dir: Path,
+    rebalanced_run_dir: Path,
+    current_artifact_path: str,
+    explicit_rows: list[str] | None,
+    artifact_simulations: int = 384,
+    c_puct: float = 1.25,
+    seed: int = 42,
+) -> dict:
+    payload = build_search_interaction_payload(
+        original_run_dir=original_run_dir,
+        rebalanced_run_dir=rebalanced_run_dir,
+        current_artifact_path=current_artifact_path,
+        explicit_rows=explicit_rows,
+        artifact_simulations=artifact_simulations,
+        c_puct=c_puct,
+        seed=seed,
+    )
+    return build_search_value_interaction_payload_from_source_payload(
+        payload=payload,
+        source_diagnostic_path=str(diagnostic_out_path(rebalanced_run_dir=rebalanced_run_dir)),
+    )
+
+
+def _write_payload(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--original-run", required=True)
@@ -387,17 +544,37 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    rebalanced_run_dir = Path(args.rebalanced_run)
     payload = build_search_interaction_payload(
         original_run_dir=Path(args.original_run),
-        rebalanced_run_dir=Path(args.rebalanced_run),
+        rebalanced_run_dir=rebalanced_run_dir,
         current_artifact_path=args.current_artifact,
         explicit_rows=args.rows,
         artifact_simulations=args.artifact_simulations,
         c_puct=args.c_puct,
         seed=args.seed,
     )
-    out_path = diagnostic_out_path(rebalanced_run_dir=Path(args.rebalanced_run))
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"artifact_path": str(out_path), "schema": payload["schema"], "rows": payload["row_source"]["resolved_rows"]}))
+    out_path = diagnostic_out_path(rebalanced_run_dir=rebalanced_run_dir)
+    _write_payload(out_path, payload)
+
+    sibling_payload = build_search_value_interaction_payload_from_source_payload(
+        payload=payload,
+        source_diagnostic_path=str(out_path),
+    )
+    sibling_out_path = search_value_interaction_diagnostic_out_path(rebalanced_run_dir=rebalanced_run_dir)
+    _write_payload(sibling_out_path, sibling_payload)
+    print(
+        json.dumps(
+            {
+                "artifact_path": str(out_path),
+                "schema": payload["schema"],
+                "rows": payload["row_source"]["resolved_rows"],
+                "search_value_interaction_artifact_path": str(sibling_out_path),
+            }
+        )
+    )
     return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

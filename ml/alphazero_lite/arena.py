@@ -491,13 +491,20 @@ def evaluate_artifact_position(
         selected_move = choose_best_move(np.asarray(visits, dtype=np.float32), legal_moves)
     else:
         selected_move = None
+    root_summary = search.root_summary() if hasattr(search, "root_summary") else None
     root_value_trust = None
-    if "value_trust_schedule" in search_options and hasattr(search, "root_summary"):
-        root_summary = search.root_summary()
-        if isinstance(root_summary, dict):
-            candidate_value_trust = root_summary.get("value_trust")
-            if isinstance(candidate_value_trust, dict):
-                root_value_trust = candidate_value_trust
+    root_selection_breakdown = None
+    root_visit_snapshots = None
+    if isinstance(root_summary, dict):
+        candidate_value_trust = root_summary.get("value_trust")
+        if isinstance(candidate_value_trust, dict) and "value_trust_schedule" in search_options:
+            root_value_trust = candidate_value_trust
+        candidate_selection_breakdown = root_summary.get("selection_breakdown")
+        if isinstance(candidate_selection_breakdown, dict):
+            root_selection_breakdown = candidate_selection_breakdown
+        candidate_visit_snapshots = root_summary.get("visit_snapshots")
+        if isinstance(candidate_visit_snapshots, list):
+            root_visit_snapshots = candidate_visit_snapshots
     policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
     child_stats = []
     for move in legal_moves:
@@ -522,6 +529,10 @@ def evaluate_artifact_position(
     }
     if root_value_trust is not None:
         result["value_trust"] = root_value_trust
+    if root_selection_breakdown is not None:
+        result["selection_breakdown"] = root_selection_breakdown
+    if root_visit_snapshots is not None:
+        result["visit_snapshots"] = root_visit_snapshots
     return result
 
 

@@ -133,6 +133,66 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
 
         self.assertEqual(root_value_trust, summary["value_trust"])
 
+    def test_evaluate_artifact_position_puct_preserves_selection_breakdown_and_visit_snapshots(self):
+        selection_breakdown = {
+            "selected_move": 0,
+            "moves": [{"move": 0, "selection_score": 1.25}],
+        }
+        visit_snapshots = [
+            {"simulation": 1, "visits": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
+            {"simulation": 2, "visits": [2.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
+        ]
+
+        class FakeEvaluator:
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        class FakeRoot:
+            def __init__(self):
+                self.children = {}
+
+        class FakePUCT:
+            def __init__(self, **kwargs):
+                del kwargs
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, FakeRoot()
+
+            def select_root_move(self, root, legal_moves):
+                del root, legal_moves
+                return 0
+
+            def root_summary(self):
+                return {
+                    "selection_breakdown": selection_breakdown,
+                    "visit_snapshots": visit_snapshots,
+                }
+
+        with mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT):
+            summary = arena.evaluate_artifact_position(
+                evaluator=FakeEvaluator(),
+                state={
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                },
+                simulations=32,
+                seed=42,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(),
+            )
+
+        self.assertEqual(selection_breakdown, summary["selection_breakdown"])
+        self.assertEqual(visit_snapshots, summary["visit_snapshots"])
+
     def test_evaluate_artifact_position_puct_omits_value_trust_when_root_summary_lacks_it(self):
         class FakeEvaluator:
             def evaluate(self, game):
