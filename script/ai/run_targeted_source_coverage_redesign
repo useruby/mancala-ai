@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def python_executable() -> Path | None:
+    if os.environ.get("AZLITE_EXPERIMENT_PYTHON"):
+        return Path(os.environ["AZLITE_EXPERIMENT_PYTHON"])
+
+    candidates = [REPO_ROOT / ".venv/bin/python"]
+    candidates.extend(parent / ".venv/bin/python" for parent in REPO_ROOT.parents)
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return candidate
+
+    return None
+
+
+def bootstrap_python() -> None:
+    candidate = python_executable()
+    if candidate is None or Path(sys.executable).absolute() == candidate.absolute():
+        return
+
+    os.execv(str(candidate), [str(candidate), str(Path(__file__).resolve()), *sys.argv[1:]])
+
+
+bootstrap_python()
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from ml.alphazero_lite.run_targeted_source_coverage_redesign import main as run_redesign_main
+
+
+def main() -> None:
+    os.chdir(REPO_ROOT)
+    run_redesign_main()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
