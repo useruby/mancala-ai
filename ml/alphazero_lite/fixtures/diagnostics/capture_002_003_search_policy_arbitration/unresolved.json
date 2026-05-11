@@ -1,0 +1,76 @@
+{
+  "rows": {
+    "capture_available-002": {
+      "policy_view": {
+        "top_move": 2
+      },
+      "search_view": {
+        "searched_selected_move": 0,
+        "reference_move_visit_share": 0.41,
+        "selected_move_visit_share": 0.5,
+        "missing_fields": []
+      },
+      "value_view": {
+        "selected_minus_reference_q_margin": 0.08
+      },
+      "rule_features": {
+        "forced_reply_window": false
+      }
+    },
+    "capture_available-003": {
+      "policy_view": {
+        "top_move": 2
+      },
+      "search_view": {
+        "searched_selected_move": 2,
+        "reference_move_visit_share": 0.52,
+        "selected_move_visit_share": 0.52,
+        "missing_fields": []
+      },
+      "value_view": {
+        "selected_minus_reference_q_margin": 0.06
+      },
+      "rule_features": {
+        "forced_reply_window": false
+      }
+    }
+  },
+  "expected_comparison": {
+    "row_ids": [
+      "capture_available-002",
+      "capture_available-003"
+    ],
+    "policy_top_moves": {
+      "capture_available-002": 2,
+      "capture_available-003": 2
+    },
+    "searched_selected_moves": {
+      "capture_available-002": 0,
+      "capture_available-003": 2
+    },
+    "q_margins": {
+      "capture_available-002": 0.08,
+      "capture_available-003": 0.06
+    },
+    "visit_shares": {
+      "capture_available-002": {
+        "reference": 0.41,
+        "selected": 0.5
+      },
+      "capture_available-003": {
+        "reference": 0.52,
+        "selected": 0.52
+      }
+    },
+    "rule_feature_differences": {},
+    "missing_child_stats": {
+      "capture_available-002": [],
+      "capture_available-003": []
+    }
+  },
+  "expected_classification": {
+    "classification": "unresolved",
+    "evidence_summary": "Required data is present, but the paired evidence does not isolate a supported failure mechanism."
+  },
+  "expected_decision": "stop_unresolved"
+}
