@@ -1078,6 +1078,22 @@ class Capture002003RowSplitFollowupLane002ClassificationTest(Capture002003RowSpl
     def test_selection_score_overtake_fixture(self):
         self.assert_fixture_classification("002_selection_score_overtake")
 
+    def test_selection_score_trace_fixture_records_selection_score_before_q_supports_move_zero(self):
+        fixture = self.load_fixture("002_selection_score_overtake")
+
+        metrics = fixture["lane"]["derived_metrics"]
+
+        self.assertEqual(2, metrics["reference_move"])
+        self.assertEqual(0, metrics["full_search_selected_move"])
+        self.assertLess(
+            metrics["first_selected_selection_score_overtake_snapshot"],
+            metrics["first_selected_q_overtake_snapshot"],
+        )
+        self.assertEqual(
+            "write_002_selection_score_trace_spec",
+            fixture["expected_classification"]["decision"],
+        )
+
     def test_early_fpu_pressure_fixture(self):
         self.assert_fixture_classification("002_early_fpu_pressure")
 
@@ -1169,6 +1185,21 @@ class Capture002003RowSplitFollowupLane003ClassificationTest(Capture002003RowSpl
 
     def test_policy_value_conflict_fixture(self):
         self.assert_fixture_classification("003_policy_value_conflict")
+
+    def test_policy_value_conflict_fixture_keeps_policy_on_reference_while_value_only_visits_move_one(self):
+        fixture = self.load_fixture("003_policy_value_conflict")
+
+        metrics = fixture["lane"]["derived_metrics"]
+
+        self.assertEqual(2, metrics["reference_move"])
+        self.assertEqual(2, metrics["policy_only_selected_move"])
+        self.assertEqual(1, metrics["value_only_selected_move"])
+        self.assertGreater(metrics["policy_reference_prior"], metrics["policy_value_selected_prior"])
+        self.assertGreater(metrics["value_only_selected_minus_reference_visit_share"], 0.0)
+        self.assertEqual(
+            "write_003_policy_value_conflict_spec",
+            fixture["expected_classification"]["decision"],
+        )
 
     def test_policy_value_conflict_allows_visit_share_without_meaningful_q_when_policy_still_favors_reference(self):
         lane = {
