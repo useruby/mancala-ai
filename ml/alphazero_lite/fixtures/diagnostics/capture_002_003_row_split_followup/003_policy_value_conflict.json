@@ -1,0 +1,32 @@
+{
+  "lane": {
+    "row_id": "capture_available-003",
+    "missing_fields": [],
+    "derived_metrics": {
+      "reference_move": 2,
+      "value_only_selected_move": 1,
+      "full_search_selected_move": 2,
+      "policy_only_selected_move": 2,
+      "value_only_selected_minus_reference_q_margin": 0.04,
+      "value_only_selected_minus_reference_visit_share": 0.02,
+      "full_search_selected_minus_reference_q_margin": -0.01,
+      "full_search_selected_minus_reference_visit_share": 0.0,
+      "policy_reference_prior": 0.46,
+      "policy_value_selected_prior": 0.18,
+      "rule_features": {
+        "player_empty_pits": [],
+        "opponent_empty_pits": [],
+        "reference_pit_stones": 5
+      },
+      "value_only_first_selected_visit_overtake_snapshot": 18.0,
+      "value_only_first_selected_q_overtake_snapshot": 6.0,
+      "value_only_first_selected_selection_score_overtake_snapshot": 12.0,
+      "missing_fields": []
+    }
+  },
+  "expected_classification": {
+    "classification": "policy_value_conflict",
+    "decision": "write_003_policy_value_conflict_spec",
+    "evidence_summary": "Policy keeps the reference move on top while value-only evidence prefers a different move, indicating a policy-value conflict in 003."
+  }
+}

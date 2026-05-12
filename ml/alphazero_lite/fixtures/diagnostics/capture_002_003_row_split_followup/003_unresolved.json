@@ -1,0 +1,32 @@
+{
+  "lane": {
+    "row_id": "capture_available-003",
+    "missing_fields": [],
+    "derived_metrics": {
+      "reference_move": 2,
+      "value_only_selected_move": 1,
+      "full_search_selected_move": 1,
+      "policy_only_selected_move": 1,
+      "value_only_selected_minus_reference_q_margin": 0.02,
+      "value_only_selected_minus_reference_visit_share": 0.03,
+      "full_search_selected_minus_reference_q_margin": 0.02,
+      "full_search_selected_minus_reference_visit_share": 0.03,
+      "policy_reference_prior": 0.26,
+      "policy_value_selected_prior": 0.25,
+      "rule_features": {
+        "player_empty_pits": [],
+        "opponent_empty_pits": [],
+        "reference_pit_stones": 3
+      },
+      "value_only_first_selected_visit_overtake_snapshot": 24.0,
+      "value_only_first_selected_q_overtake_snapshot": 22.0,
+      "value_only_first_selected_selection_score_overtake_snapshot": 20.0,
+      "missing_fields": []
+    }
+  },
+  "expected_classification": {
+    "classification": "unresolved",
+    "decision": "stop_003_unresolved",
+    "evidence_summary": "Lane 003 evidence does not isolate one supported mechanism."
+  }
+}

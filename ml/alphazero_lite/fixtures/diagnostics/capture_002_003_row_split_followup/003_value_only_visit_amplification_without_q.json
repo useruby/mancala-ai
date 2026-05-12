@@ -1,0 +1,32 @@
+{
+  "lane": {
+    "row_id": "capture_available-003",
+    "missing_fields": [],
+    "derived_metrics": {
+      "reference_move": 2,
+      "value_only_selected_move": 1,
+      "full_search_selected_move": 1,
+      "policy_only_selected_move": 1,
+      "value_only_selected_minus_reference_q_margin": 0.01,
+      "value_only_selected_minus_reference_visit_share": 0.11,
+      "full_search_selected_minus_reference_q_margin": 0.02,
+      "full_search_selected_minus_reference_visit_share": 0.09,
+      "policy_reference_prior": 0.23,
+      "policy_value_selected_prior": 0.24,
+      "rule_features": {
+        "player_empty_pits": [],
+        "opponent_empty_pits": [],
+        "reference_pit_stones": 3
+      },
+      "value_only_first_selected_visit_overtake_snapshot": 10.0,
+      "value_only_first_selected_q_overtake_snapshot": null,
+      "value_only_first_selected_selection_score_overtake_snapshot": 14.0,
+      "missing_fields": []
+    }
+  },
+  "expected_classification": {
+    "classification": "value_only_visit_amplification_without_q",
+    "decision": "write_003_value_only_visit_trace_spec",
+    "evidence_summary": "Value-only search amplifies visits toward the wrong move without a meaningful Q advantage over the reference move."
+  }
+}

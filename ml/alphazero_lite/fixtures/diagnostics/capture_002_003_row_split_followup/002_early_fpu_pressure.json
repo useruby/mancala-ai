@@ -1,0 +1,35 @@
+{
+  "lane": {
+    "row_id": "capture_available-002",
+    "trace_inputs": {
+      "full_search": {
+        "snapshots": [
+          {"simulation": 4.0},
+          {"simulation": 64.0}
+        ]
+      }
+    },
+    "derived_metrics": {
+      "reference_move": 2,
+      "full_search_selected_move": 0,
+      "root_start_reference_rank_by_selection_score": 2,
+      "root_start_selected_rank_by_selection_score": 3,
+      "root_start_reference_q": 0.18,
+      "root_start_selected_q": 0.1,
+      "root_start_reference_selection_score": 0.35,
+      "root_start_selected_selection_score": 0.33,
+      "first_selected_visit_overtake_snapshot": 4.0,
+      "first_selected_q_overtake_snapshot": 20.0,
+      "first_selected_selection_score_overtake_snapshot": 24.0,
+      "final_selected_minus_reference_visit_share": 0.07,
+      "final_selected_minus_reference_q_margin": 0.01,
+      "final_selected_minus_reference_prior_margin": 0.01,
+      "missing_fields": []
+    }
+  },
+  "expected_classification": {
+    "classification": "early_fpu_pressure",
+    "decision": "write_002_fpu_pressure_ablation_spec",
+    "evidence_summary": "The selected move overtakes visits early while Q stays small, consistent with early FPU pressure rather than value evidence."
+  }
+}

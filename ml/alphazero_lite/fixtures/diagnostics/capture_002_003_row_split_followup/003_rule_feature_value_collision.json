@@ -1,0 +1,32 @@
+{
+  "lane": {
+    "row_id": "capture_available-003",
+    "missing_fields": [],
+    "derived_metrics": {
+      "reference_move": 2,
+      "value_only_selected_move": 1,
+      "full_search_selected_move": 1,
+      "policy_only_selected_move": 2,
+      "value_only_selected_minus_reference_q_margin": 0.04,
+      "value_only_selected_minus_reference_visit_share": 0.01,
+      "full_search_selected_minus_reference_q_margin": 0.03,
+      "full_search_selected_minus_reference_visit_share": 0.05,
+      "policy_reference_prior": 0.24,
+      "policy_value_selected_prior": 0.23,
+      "rule_features": {
+        "player_empty_pits": [2],
+        "opponent_empty_pits": [5],
+        "reference_pit_stones": 0
+      },
+      "value_only_first_selected_visit_overtake_snapshot": 20.0,
+      "value_only_first_selected_q_overtake_snapshot": 8.0,
+      "value_only_first_selected_selection_score_overtake_snapshot": 10.0,
+      "missing_fields": []
+    }
+  },
+  "expected_classification": {
+    "classification": "rule_feature_value_collision",
+    "decision": "write_003_rule_value_collision_spec",
+    "evidence_summary": "003 carries state-specific rule features that can collide with value evidence around the reference move."
+  }
+}

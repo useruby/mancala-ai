@@ -1,0 +1,36 @@
+{
+  "lane": {
+    "row_id": "capture_available-003",
+    "missing_fields": [
+      "value_only.root_start"
+    ],
+    "derived_metrics": {
+      "reference_move": 2,
+      "value_only_selected_move": 1,
+      "full_search_selected_move": 1,
+      "policy_only_selected_move": 2,
+      "value_only_selected_minus_reference_q_margin": null,
+      "value_only_selected_minus_reference_visit_share": null,
+      "full_search_selected_minus_reference_q_margin": 0.04,
+      "full_search_selected_minus_reference_visit_share": 0.07,
+      "policy_reference_prior": 0.41,
+      "policy_value_selected_prior": 0.27,
+      "rule_features": {
+        "player_empty_pits": [2],
+        "opponent_empty_pits": [5],
+        "reference_pit_stones": 0
+      },
+      "value_only_first_selected_visit_overtake_snapshot": null,
+      "value_only_first_selected_q_overtake_snapshot": null,
+      "value_only_first_selected_selection_score_overtake_snapshot": null,
+      "missing_fields": [
+        "value_only.root_start"
+      ]
+    }
+  },
+  "expected_classification": {
+    "classification": "insufficient_value_trace",
+    "decision": "write_003_value_trace_capture_spec",
+    "evidence_summary": "003 is missing value-only trace fields needed to interpret whether value evidence or visit amplification caused the divergence."
+  }
+}
