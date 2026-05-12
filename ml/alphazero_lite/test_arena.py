@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from copy import deepcopy
 from pathlib import Path
 from unittest import mock
 
@@ -134,13 +135,141 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
         self.assertEqual(root_value_trust, summary["value_trust"])
 
     def test_evaluate_artifact_position_puct_preserves_selection_breakdown_and_visit_snapshots(self):
-        selection_breakdown = {
+        expected_selection_breakdown = {
             "selected_move": 0,
-            "moves": [{"move": 0, "selection_score": 1.25}],
+            "reference_move": 1,
+            "highest_prior_move": 1,
+            "reference_move_kind": "highest_prior_move",
+            "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+            "next_simulation_move": 0,
+            "policy_top_move": 1,
+            "visit_top_move": 0,
+            "q_top_move": 0,
+            "moves": [
+                {
+                    "move": 0,
+                    "prior": 0.2,
+                    "visit_count": 2,
+                    "q_value": 0.7,
+                    "selection_q_value": 0.7,
+                    "u_component": 0.55,
+                    "selection_score": 1.25,
+                    "used_fpu": False,
+                    "fpu_value": None,
+                },
+                {
+                    "move": 1,
+                    "prior": 0.6,
+                    "visit_count": 1,
+                    "q_value": 0.6,
+                    "selection_q_value": 0.6,
+                    "u_component": 0.4,
+                    "selection_score": 1.0,
+                    "used_fpu": False,
+                    "fpu_value": None,
+                },
+                {
+                    "move": 2,
+                    "prior": 0.2,
+                    "visit_count": 0,
+                    "q_value": 0.0,
+                    "selection_q_value": 0.5,
+                    "u_component": 0.25,
+                    "selection_score": 0.75,
+                    "used_fpu": True,
+                    "fpu_value": 0.5,
+                },
+            ],
         }
-        visit_snapshots = [
-            {"simulation": 1, "visits": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
-            {"simulation": 2, "visits": [2.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
+        expected_visit_snapshots = [
+            {
+                "simulation": 1,
+                "visits": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "moves": [
+                    {
+                        "move": 0,
+                        "prior": 0.2,
+                        "visit_count": 1,
+                        "q_value": 0.8,
+                        "selection_q_value": 0.8,
+                        "u_component": 0.125,
+                        "selection_score": 0.925,
+                        "used_fpu": False,
+                        "fpu_value": None,
+                    },
+                    {
+                        "move": 1,
+                        "prior": 0.6,
+                        "visit_count": 0,
+                        "q_value": 0.0,
+                        "selection_q_value": 0.5,
+                        "u_component": 0.75,
+                        "selection_score": 1.25,
+                        "used_fpu": True,
+                        "fpu_value": 0.5,
+                    },
+                    {
+                        "move": 2,
+                        "prior": 0.2,
+                        "visit_count": 0,
+                        "q_value": 0.0,
+                        "selection_q_value": 0.5,
+                        "u_component": 0.25,
+                        "selection_score": 0.75,
+                        "used_fpu": True,
+                        "fpu_value": 0.5,
+                    }
+                ],
+                "selected_move": 0,
+                "reference_move_by_prior": 1,
+                "reference_move_rank_by_visits": 2,
+                "reference_move_rank_by_q": 2,
+                "reference_move_rank_by_selection_score": 1,
+            },
+            {
+                "simulation": 4,
+                "visits": [1.0, 2.0, 1.0, 0.0, 0.0, 0.0],
+                "moves": [
+                    {
+                        "move": 0,
+                        "prior": 0.2,
+                        "visit_count": 1,
+                        "q_value": 0.8,
+                        "selection_q_value": 0.8,
+                        "u_component": 0.3125,
+                        "selection_score": 1.1125,
+                        "used_fpu": False,
+                        "fpu_value": None,
+                    },
+                    {
+                        "move": 1,
+                        "prior": 0.6,
+                        "visit_count": 2,
+                        "q_value": 0.5,
+                        "selection_q_value": 0.5,
+                        "u_component": 0.625,
+                        "selection_score": 1.125,
+                        "used_fpu": False,
+                        "fpu_value": None,
+                    },
+                    {
+                        "move": 2,
+                        "prior": 0.2,
+                        "visit_count": 1,
+                        "q_value": -0.2,
+                        "selection_q_value": -0.2,
+                        "u_component": 0.3125,
+                        "selection_score": 0.1125,
+                        "used_fpu": False,
+                        "fpu_value": None,
+                    }
+                ],
+                "selected_move": 1,
+                "reference_move_by_prior": 1,
+                "reference_move_rank_by_visits": 1,
+                "reference_move_rank_by_q": 2,
+                "reference_move_rank_by_selection_score": 2,
+            },
         ]
 
         class FakeEvaluator:
@@ -158,6 +287,9 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
             def __init__(self, **kwargs):
                 del kwargs
 
+                self._selection_breakdown = deepcopy(expected_selection_breakdown)
+                self._visit_snapshots = deepcopy(expected_visit_snapshots)
+
             def run(self, game):
                 del game
                 visits = np.zeros(6, dtype=np.float32)
@@ -170,8 +302,8 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
 
             def root_summary(self):
                 return {
-                    "selection_breakdown": selection_breakdown,
-                    "visit_snapshots": visit_snapshots,
+                    "selection_breakdown": self._selection_breakdown,
+                    "visit_snapshots": self._visit_snapshots,
                 }
 
         with mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT):
@@ -190,8 +322,14 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
                 search_options=arena.build_eval_search_options(),
             )
 
-        self.assertEqual(selection_breakdown, summary["selection_breakdown"])
-        self.assertEqual(visit_snapshots, summary["visit_snapshots"])
+        self.assertEqual(expected_selection_breakdown, summary["selection_breakdown"])
+        self.assertEqual(expected_visit_snapshots, summary["visit_snapshots"])
+
+        summary["selection_breakdown"]["moves"][0]["selection_score"] = -1.0
+        summary["visit_snapshots"][0]["moves"][0]["selection_score"] = -1.0
+
+        self.assertEqual(1.25, expected_selection_breakdown["moves"][0]["selection_score"])
+        self.assertEqual(0.925, expected_visit_snapshots[0]["moves"][0]["selection_score"])
 
     def test_evaluate_artifact_position_puct_omits_value_trust_when_root_summary_lacks_it(self):
         class FakeEvaluator:

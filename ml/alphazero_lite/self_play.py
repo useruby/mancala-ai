@@ -812,15 +812,7 @@ class PUCT:
             root.visit_count += 1
             root.value_sum += value
             if simulation_index in visit_snapshot_checkpoints:
-                snapshot_visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
-                for move, child in root.children.items():
-                    snapshot_visits[move] = child.visit_count
-                self._last_visit_snapshots.append(
-                    {
-                        "simulation": simulation_index,
-                        "visits": [float(visit) for visit in snapshot_visits.tolist()],
-                    }
-                )
+                self._last_visit_snapshots.append(self._build_root_visit_snapshot(root, simulation_index=simulation_index))
 
         visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         for move, child in root.children.items():
@@ -849,6 +841,85 @@ class PUCT:
             "selection_breakdown": selection_breakdown,
             "visit_snapshots": list(self._last_visit_snapshots),
         }
+
+    def _build_root_visit_snapshot(self, root: Node, *, simulation_index: int) -> dict:
+        snapshot_visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
+        for move, child in root.children.items():
+            snapshot_visits[move] = child.visit_count
+
+        selection_entries, _next_simulation_move, _reference_child, _value_trust_multiplier = self._selection_entries(
+            root, sort_moves=True
+        )
+        legal_moves = sorted(root.children)
+        selected_move = None if not legal_moves else int(self.select_root_move(root, legal_moves))
+        reference_move_by_prior = None
+        if legal_moves:
+            reference_move_by_prior = int(max(legal_moves, key=lambda move: (root.children[move].prior, -move)))
+
+        return {
+            "simulation": int(simulation_index),
+            "visits": [float(visit) for visit in snapshot_visits.tolist()],
+            "moves": selection_entries,
+            "selected_move": selected_move,
+            "reference_move_by_prior": reference_move_by_prior,
+            "reference_move_rank_by_visits": self._rank_root_move_by_visits(root, reference_move_by_prior),
+            "reference_move_rank_by_q": self._rank_root_move_by_q(selection_entries, reference_move_by_prior),
+            "reference_move_rank_by_selection_score": self._rank_root_move_by_selection_score(
+                selection_entries, reference_move_by_prior
+            ),
+        }
+
+    def _rank_root_move_by_visits(self, root: Node, move: int | None) -> int | None:
+        if move is None:
+            return None
+
+        legal_moves = sorted(root.children)
+        if self.root_policy_mode == "deterministic":
+            ranked_moves = sorted(
+                legal_moves,
+                key=lambda candidate_move: (
+                    -int(root.children[candidate_move].visit_count),
+                    -float(root.children[candidate_move].q_value),
+                    -float(root.children[candidate_move].prior),
+                    int(candidate_move),
+                ),
+            )
+        else:
+            ranked_moves = sorted(
+                legal_moves,
+                key=lambda candidate_move: (-int(root.children[candidate_move].visit_count), int(candidate_move)),
+            )
+
+        for index, candidate_move in enumerate(ranked_moves, start=1):
+            if int(candidate_move) == int(move):
+                return index
+        return None
+
+    def _rank_root_move_by_q(self, selection_entries: list[dict], move: int | None) -> int | None:
+        if move is None:
+            return None
+
+        ranked_entries = sorted(
+            selection_entries,
+            key=lambda entry: (-float(entry["q_value"]), int(entry["move"])),
+        )
+        for index, entry in enumerate(ranked_entries, start=1):
+            if int(entry["move"]) == int(move):
+                return index
+        return None
+
+    def _rank_root_move_by_selection_score(self, selection_entries: list[dict], move: int | None) -> int | None:
+        if move is None:
+            return None
+
+        ranked_entries = sorted(
+            selection_entries,
+            key=lambda entry: (-float(entry["selection_score"]), int(entry["move"])),
+        )
+        for index, entry in enumerate(ranked_entries, start=1):
+            if int(entry["move"]) == int(move):
+                return index
+        return None
 
     def _root_selection_breakdown(self, root: Node) -> dict:
         legal_moves = sorted(root.children)

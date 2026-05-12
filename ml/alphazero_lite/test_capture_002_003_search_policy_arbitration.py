@@ -524,6 +524,52 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
         self.assertTrue(row_views["search_view"]["child_stats_complete"])
         self.assertEqual([], row_views["search_view"]["missing_fields"])
 
+    def test_build_row_views_preserves_root_telemetry(self):
+        row_views = module.build_row_views(
+            row={
+                "id": "capture_available-002",
+                "canonical_state": "state-002",
+                "legal_moves": [0, 2, 4],
+                "reference_move": 2,
+            },
+            probe_summary={
+                "selected_move": 0,
+                "value": 0.41,
+                "policy": [0.45, 0.0, 0.35, 0.0, 0.20, 0.0],
+                "visits": [28, 0, 20, 0, 12, 0],
+                "child_stats": [
+                    {"move": 0, "visits": 28, "q_value": 0.63},
+                    {"move": 2, "visits": 20, "q_value": 0.51},
+                    {"move": 4, "visits": 12, "q_value": 0.49},
+                ],
+                "selection_breakdown": {
+                    "policy_top_move": 2,
+                    "visit_top_move": 0,
+                    "q_top_move": 0,
+                },
+                "visit_snapshots": [
+                    {"simulation": 1, "selected_move": 2, "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]},
+                    {"simulation": 64, "selected_move": 0, "visits": [28.0, 0.0, 20.0, 0.0, 12.0, 0.0]},
+                ],
+            },
+        )
+
+        self.assertEqual(
+            {
+                "policy_top_move": 2,
+                "visit_top_move": 0,
+                "q_top_move": 0,
+            },
+            row_views["search_view"]["selection_breakdown"],
+        )
+        self.assertEqual(
+            [
+                {"simulation": 1, "selected_move": 2, "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]},
+                {"simulation": 64, "selected_move": 0, "visits": [28.0, 0.0, 20.0, 0.0, 12.0, 0.0]},
+            ],
+            row_views["search_view"]["visit_snapshots"],
+        )
+
     def test_build_row_views_preserves_nulls_and_missing_fields_when_child_stats_are_missing(self):
         row_views = module.build_row_views(
             row={

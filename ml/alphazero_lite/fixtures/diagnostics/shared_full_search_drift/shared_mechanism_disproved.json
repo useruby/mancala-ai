@@ -1,0 +1,54 @@
+{
+  "rows": {
+    "capture_available-002": {
+      "policy_only": {"selected_move": 2},
+      "value_only": {"selected_move": 2},
+      "full_search": {
+        "selected_move": 0,
+        "prior_reference_move": 2,
+        "prior_selected_move": 0,
+        "selected_minus_reference_q_margin": 0.22,
+        "selected_minus_reference_visit_share": 0.18,
+        "visit_snapshots": [
+          {"simulation": 8, "visits": [0.0, 0.0, 4.0, 0.0, 0.0, 0.0]},
+          {"simulation": 64, "visits": [14.0, 0.0, 4.0, 0.0, 0.0, 0.0]}
+        ],
+        "child_stats": [
+          {"move": 0, "q_value": 0.72, "visits": 14.0},
+          {"move": 2, "q_value": 0.50, "visits": 4.0}
+        ]
+      }
+    },
+    "capture_available-003": {
+      "policy_only": {"selected_move": 4},
+      "value_only": {"selected_move": 1},
+      "full_search": {
+        "selected_move": 3,
+        "prior_reference_move": 4,
+        "prior_selected_move": 3,
+        "selected_minus_reference_q_margin": 0.24,
+        "selected_minus_reference_visit_share": 0.21,
+        "visit_snapshots": [
+          {"simulation": 8, "visits": [0.0, 0.0, 0.0, 4.0, 0.0, 0.0]},
+          {"simulation": 64, "visits": [0.0, 1.0, 0.0, 15.0, 4.0, 0.0]}
+        ],
+        "child_stats": [
+          {"move": 3, "q_value": 0.71, "visits": 15.0},
+          {"move": 4, "q_value": 0.47, "visits": 4.0}
+        ]
+      }
+    }
+  },
+  "paired_summary": {
+    "probe_mode_failure_paths": {
+      "capture_available-002": "full_search_drift",
+      "capture_available-003": "diverged_before_full_search"
+    },
+    "shared_mechanism_supported": false
+  },
+  "expected_classification": {
+    "classification": "shared_mechanism_disproved",
+    "evidence_summary": "The paired rows do not share the same failure path, so a single shared full-search drift mechanism is not supported."
+  },
+  "expected_decision": "write_row_split_followup_spec"
+}

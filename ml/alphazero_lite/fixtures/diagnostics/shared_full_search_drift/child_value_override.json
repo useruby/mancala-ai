@@ -1,0 +1,54 @@
+{
+  "rows": {
+    "capture_available-002": {
+      "policy_only": {"selected_move": 2},
+      "value_only": {"selected_move": 2},
+      "full_search": {
+        "selected_move": 0,
+        "prior_reference_move": 2,
+        "prior_selected_move": 2,
+        "selected_minus_reference_q_margin": 0.16,
+        "selected_minus_reference_visit_share": 0.12,
+        "visit_snapshots": [
+          {"simulation": 6, "visits": [1.0, 0.0, 5.0, 0.0, 0.0, 0.0]},
+          {"simulation": 64, "visits": [13.0, 0.0, 5.0, 0.0, 0.0, 0.0]}
+        ],
+        "child_stats": [
+          {"move": 0, "q_value": 0.73, "visits": 13.0},
+          {"move": 2, "q_value": 0.51, "visits": 5.0}
+        ]
+      }
+    },
+    "capture_available-003": {
+      "policy_only": {"selected_move": 4},
+      "value_only": {"selected_move": 4},
+      "full_search": {
+        "selected_move": 1,
+        "prior_reference_move": 4,
+        "prior_selected_move": 4,
+        "selected_minus_reference_q_margin": 0.11,
+        "selected_minus_reference_visit_share": 0.10,
+        "visit_snapshots": [
+          {"simulation": 6, "visits": [0.0, 1.0, 0.0, 0.0, 5.0, 0.0]},
+          {"simulation": 64, "visits": [0.0, 12.0, 0.0, 0.0, 5.0, 0.0]}
+        ],
+        "child_stats": [
+          {"move": 1, "q_value": 0.68, "visits": 12.0},
+          {"move": 4, "q_value": 0.52, "visits": 5.0}
+        ]
+      }
+    }
+  },
+  "paired_summary": {
+    "probe_mode_failure_paths": {
+      "capture_available-002": "full_search_drift",
+      "capture_available-003": "full_search_drift"
+    },
+    "shared_mechanism_supported": true
+  },
+  "expected_classification": {
+    "classification": "child_value_override",
+    "evidence_summary": "Both rows preserve the prior reference move early, but child Q margins exceed the meaningful threshold and ultimately override it."
+  },
+  "expected_decision": "write_child_value_override_spec"
+}

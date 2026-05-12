@@ -2205,9 +2205,144 @@ class SelfPlayScriptTest(unittest.TestCase):
                 {"simulation": 4, "visits": [4.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
                 {"simulation": 8, "visits": [8.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
             ],
-            summary["visit_snapshots"],
+            [{"simulation": snapshot["simulation"], "visits": snapshot["visits"]} for snapshot in summary["visit_snapshots"]],
         )
         self.assertEqual([8.0, 0.0, 0.0, 0.0, 0.0, 0.0], visits.tolist())
+
+    def test_root_summary_visit_snapshots_include_per_move_root_telemetry(self):
+        class FakeGame:
+            current_player = 0
+            pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+
+            def clone(self):
+                return self
+
+        root = self_play.Node(game=FakeGame(), expanded=True)
+        root.children = {
+            0: self_play.Node(game=FakeGame(), prior=0.2),
+            1: self_play.Node(game=FakeGame(), prior=0.6),
+            2: self_play.Node(game=FakeGame(), prior=0.2),
+        }
+
+        search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=4,
+            c_puct=1.25,
+            rng=random.Random(7),
+            fpu_mode="parent_q",
+        )
+
+        def scripted_search(node):
+            self.assertIs(root, node)
+            simulation_index = root.visit_count + 1
+            if simulation_index == 1:
+                root.children[0].visit_count = 1
+                root.children[0].value_sum = 0.8
+            elif simulation_index == 2:
+                root.children[1].visit_count = 1
+                root.children[1].value_sum = 0.6
+            elif simulation_index == 3:
+                root.children[1].visit_count = 2
+                root.children[1].value_sum = 1.0
+            elif simulation_index == 4:
+                root.children[2].visit_count = 1
+                root.children[2].value_sum = -0.2
+            else:
+                self.fail(f"unexpected simulation index {simulation_index}")
+            return 0.5
+
+        with (
+            mock.patch.object(search, "_root_for", return_value=root),
+            mock.patch.object(search, "_expand", return_value=(np.zeros(6, dtype=np.float32), 0.0)),
+            mock.patch.object(search, "_search", side_effect=scripted_search),
+        ):
+            visits, _returned_root = search.run(root.game)
+
+        self.assertEqual([1.0, 2.0, 1.0, 0.0, 0.0, 0.0], visits.tolist())
+
+        summary = search.root_summary()
+        snapshots = summary["visit_snapshots"]
+
+        self.assertEqual([1, 2, 4], [snapshot["simulation"] for snapshot in snapshots])
+
+        first_snapshot = snapshots[0]
+        self.assertEqual(0, first_snapshot["selected_move"])
+        self.assertEqual(1, first_snapshot["reference_move_by_prior"])
+        self.assertEqual(2, first_snapshot["reference_move_rank_by_visits"])
+        self.assertEqual(2, first_snapshot["reference_move_rank_by_q"])
+        self.assertEqual(1, first_snapshot["reference_move_rank_by_selection_score"])
+        self.assertEqual([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], first_snapshot["visits"])
+
+        first_snapshot_moves = {entry["move"]: entry for entry in first_snapshot["moves"]}
+        self.assertEqual({0, 1, 2}, set(first_snapshot_moves))
+        self.assertEqual(0.2, first_snapshot_moves[0]["prior"])
+        self.assertEqual(1, first_snapshot_moves[0]["visit_count"])
+        self.assertAlmostEqual(0.8, first_snapshot_moves[0]["q_value"])
+        self.assertAlmostEqual(0.8, first_snapshot_moves[0]["selection_q_value"])
+        self.assertAlmostEqual(0.125, first_snapshot_moves[0]["u_component"])
+        self.assertAlmostEqual(0.925, first_snapshot_moves[0]["selection_score"])
+        self.assertFalse(first_snapshot_moves[0]["used_fpu"])
+        self.assertEqual(0.6, first_snapshot_moves[1]["prior"])
+        self.assertEqual(0, first_snapshot_moves[1]["visit_count"])
+        self.assertEqual(0.0, first_snapshot_moves[1]["q_value"])
+        self.assertAlmostEqual(0.5, first_snapshot_moves[1]["selection_q_value"])
+        self.assertAlmostEqual(0.75, first_snapshot_moves[1]["u_component"])
+        self.assertAlmostEqual(1.25, first_snapshot_moves[1]["selection_score"])
+        self.assertTrue(first_snapshot_moves[1]["used_fpu"])
+        self.assertEqual(0.2, first_snapshot_moves[2]["prior"])
+        self.assertEqual(0, first_snapshot_moves[2]["visit_count"])
+        self.assertEqual(0.0, first_snapshot_moves[2]["q_value"])
+        self.assertAlmostEqual(0.5, first_snapshot_moves[2]["selection_q_value"])
+        self.assertAlmostEqual(0.25, first_snapshot_moves[2]["u_component"])
+        self.assertAlmostEqual(0.75, first_snapshot_moves[2]["selection_score"])
+        self.assertTrue(first_snapshot_moves[2]["used_fpu"])
+
+        final_snapshot = snapshots[-1]
+        self.assertEqual(1, final_snapshot["selected_move"])
+        self.assertEqual(1, final_snapshot["reference_move_by_prior"])
+        self.assertEqual(1, final_snapshot["reference_move_rank_by_visits"])
+        self.assertEqual(2, final_snapshot["reference_move_rank_by_q"])
+        self.assertEqual(2, final_snapshot["reference_move_rank_by_selection_score"])
+        self.assertEqual([1.0, 2.0, 1.0, 0.0, 0.0, 0.0], final_snapshot["visits"])
+
+    def test_root_summary_visit_snapshot_ranks_follow_engine_tiebreakers(self):
+        class FakeGame:
+            current_player = 0
+            pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+
+        root = self_play.Node(game=FakeGame(), expanded=True, visit_count=3, value_sum=1.5)
+        root.children = {
+            0: self_play.Node(game=FakeGame(), prior=0.2, visit_count=1, value_sum=0.6),
+            1: self_play.Node(game=FakeGame(), prior=0.5, visit_count=1, value_sum=-0.2),
+            2: self_play.Node(game=FakeGame(), prior=0.8, visit_count=1, value_sum=-0.049519052838329),
+        }
+
+        default_search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=3,
+            c_puct=1.25,
+            rng=random.Random(7),
+            root_policy_mode="visit_count",
+        )
+        default_snapshot = default_search._build_root_visit_snapshot(root, simulation_index=3)
+
+        self.assertEqual(2, default_snapshot["reference_move_by_prior"])
+        self.assertEqual(3, default_snapshot["reference_move_rank_by_visits"])
+        self.assertEqual(2, default_snapshot["reference_move_rank_by_selection_score"])
+        self.assertEqual(0, default_search.select_root_move(root, [0, 1, 2]))
+
+        deterministic_search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=3,
+            c_puct=1.25,
+            rng=random.Random(7),
+            root_policy_mode="deterministic",
+        )
+        deterministic_snapshot = deterministic_search._build_root_visit_snapshot(root, simulation_index=3)
+
+        self.assertEqual(2, deterministic_snapshot["reference_move_by_prior"])
+        self.assertEqual(2, deterministic_snapshot["reference_move_rank_by_visits"])
+        self.assertEqual(0, deterministic_search.select_root_move(root, [0, 1, 2]))
 
     def test_run_self_play_worker_sharpened_row_preserves_winner_sign_when_search_disagrees(self):
         default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=-0.4, winner=0)

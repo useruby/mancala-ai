@@ -455,6 +455,21 @@ def build_row_views(*, row: dict, probe_summary: dict) -> dict:
             else round(search_distribution.get(selected_key, 0.0) / total_visits, 4)
         )
 
+    search_view = {
+        "searched_selected_move": selected_move,
+        "visit_distribution": search_distribution,
+        "reference_move_visit_share": reference_move_visit_share,
+        "selected_move_visit_share": selected_move_visit_share,
+        "child_stats": child_stats,
+        "child_stats_complete": child_stats is not None,
+        "missing_fields": missing_fields,
+    }
+    selection_breakdown = probe_summary.get("selection_breakdown")
+    if isinstance(selection_breakdown, dict):
+        search_view["selection_breakdown"] = selection_breakdown
+    if "visit_snapshots" in probe_summary:
+        search_view["visit_snapshots"] = probe_summary.get("visit_snapshots")
+
     return {
         "row_id": row["id"],
         "canonical_state": row["canonical_state"],
@@ -481,15 +496,7 @@ def build_row_views(*, row: dict, probe_summary: dict) -> dict:
                 else round(q_selected - q_reference, 4)
             ),
         },
-        "search_view": {
-            "searched_selected_move": selected_move,
-            "visit_distribution": search_distribution,
-            "reference_move_visit_share": reference_move_visit_share,
-            "selected_move_visit_share": selected_move_visit_share,
-            "child_stats": child_stats,
-            "child_stats_complete": child_stats is not None,
-            "missing_fields": missing_fields,
-        },
+        "search_view": search_view,
     }
 
 
