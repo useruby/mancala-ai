@@ -1,0 +1,12 @@
+{
+  "expected_decision": "write_002_trace_capture_spec",
+  "payload": {
+    "classification": {
+      "classification": "trace_insufficient",
+      "evidence_summary": "Selection-score trace is incomplete for a machine-checkable 002 diagnostic."
+    },
+    "decision": "write_002_trace_capture_spec",
+    "schema": "azlite_capture_002_selection_score_trace_v1",
+    "trace_origin": "insufficient"
+  }
+}

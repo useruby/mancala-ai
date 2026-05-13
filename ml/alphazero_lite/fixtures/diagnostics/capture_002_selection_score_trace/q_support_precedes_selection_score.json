@@ -1,0 +1,21 @@
+{
+  "expected_decision": "write_002_child_value_audit_spec",
+  "payload": {
+    "classification": {
+      "classification": "q_support_precedes_selection_score",
+      "evidence_summary": "Meaningful child-Q support appears before any material selection-score overtake."
+    },
+    "decision": "write_002_child_value_audit_spec",
+    "first_selected_material_visit_share_snapshot": {
+      "simulation": 16.0
+    },
+    "first_selected_meaningful_q_support_snapshot": {
+      "simulation": 8.0
+    },
+    "first_selected_selection_score_overtake_snapshot": {
+      "simulation": 16.0
+    },
+    "schema": "azlite_capture_002_selection_score_trace_v1",
+    "trace_origin": "extracted"
+  }
+}

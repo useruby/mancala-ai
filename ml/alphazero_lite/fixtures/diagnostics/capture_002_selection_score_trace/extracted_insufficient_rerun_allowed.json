@@ -1,0 +1,21 @@
+{
+  "expected_decision": "write_002_selection_pressure_ablation_spec",
+  "payload": {
+    "classification": {
+      "classification": "selection_score_pressure_confirmed",
+      "evidence_summary": "Selection-score pressure appears before meaningful child-Q support and the visit share follows."
+    },
+    "decision": "write_002_selection_pressure_ablation_spec",
+    "first_selected_material_visit_share_snapshot": {
+      "simulation": 18.0
+    },
+    "first_selected_meaningful_q_support_snapshot": {
+      "simulation": 24.0
+    },
+    "first_selected_selection_score_overtake_snapshot": {
+      "simulation": 12.0
+    },
+    "schema": "azlite_capture_002_selection_score_trace_v1",
+    "trace_origin": "rerun"
+  }
+}
