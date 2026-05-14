@@ -121,6 +121,15 @@ def _validate_trace_point(point, *, context: str, legal_moves: list[int]):
     return normalized_point
 
 
+def adapt_trace_points_for_downstream_shared_drift_artifact(trace_points, *, legal_moves: list[int]):
+    if not isinstance(trace_points, list):
+        raise ValueError("trace_points must be a list")
+    return [
+        _validate_trace_point(trace_point, context=f"trace_points[{index}]", legal_moves=legal_moves)
+        for index, trace_point in enumerate(trace_points)
+    ]
+
+
 def _validate_settings(settings, *, legal_moves: list[int]):
     if settings is None:
         return None
@@ -168,8 +177,7 @@ def _validate_settings(settings, *, legal_moves: list[int]):
     return normalized_settings
 
 
-def load_source_shared_drift_artifact(path):
-    artifact = load_json(path)
+def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
     if not isinstance(artifact, dict):
         raise ValueError("source shared drift artifact must be a JSON object")
     if artifact.get("schema") != SOURCE_SHARED_DRIFT_SCHEMA:
@@ -236,7 +244,7 @@ def load_source_shared_drift_artifact(path):
     settings = _validate_settings(artifact.get("settings"), legal_moves=normalized_legal_moves)
 
     return {
-        "artifact_path": str(path),
+        "artifact_path": artifact_path,
         "schema": artifact["schema"],
         "decision": decision,
         "classification": artifact.get("classification"),
@@ -249,6 +257,16 @@ def load_source_shared_drift_artifact(path):
             "snapshots": normalized_snapshots,
         },
     }
+
+
+def load_source_shared_drift_artifact(path):
+    artifact = load_json(path)
+    return load_source_shared_drift_artifact_document(artifact, artifact_path=str(path))
+
+
+def classify_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
+    loaded_artifact = load_source_shared_drift_artifact_document(artifact, artifact_path=artifact_path)
+    return build_payload(loaded_artifact)
 
 
 def parse_args(argv=None):
