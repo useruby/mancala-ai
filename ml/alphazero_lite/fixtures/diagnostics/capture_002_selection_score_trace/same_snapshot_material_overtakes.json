@@ -1,11 +1,11 @@
 {
-  "expected_decision": "stop_002_unresolved",
+  "expected_decision": "write_002_unresolved_trace_review_spec",
   "payload": {
     "classification": {
       "classification": "unresolved",
       "evidence_summary": "Selection-score and Q-support timing do not cleanly separate for capture 002."
     },
-    "decision": "stop_002_unresolved",
+    "decision": "write_002_unresolved_trace_review_spec",
     "first_selected_material_visit_share_snapshot": {
       "simulation": 12.0
     },

@@ -33,7 +33,7 @@ class Capture002SelectionScoreTraceContractTest(unittest.TestCase):
                 "selection_score_pressure_confirmed": "write_002_selection_pressure_ablation_spec",
                 "q_support_precedes_selection_score": "write_002_child_value_audit_spec",
                 "trace_insufficient": "write_002_trace_capture_spec",
-                "unresolved": "stop_002_unresolved",
+                "unresolved": "write_002_unresolved_trace_review_spec",
             },
             module.CLASSIFICATION_DECISIONS,
         )
@@ -327,6 +327,39 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "visits"):
                 module.load_source_shared_drift_artifact(source_path)
 
+    def test_load_source_shared_drift_artifact_rejects_null_reference_move(self):
+        artifact = self.valid_source_artifact()
+        artifact["rows"]["capture_available-002"]["reference_move"] = None
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
+            self.write_json(source_path, artifact)
+
+            with self.assertRaisesRegex(ValueError, "reference_move must be a legal move int"):
+                module.load_source_shared_drift_artifact(source_path)
+
+    def test_load_source_shared_drift_artifact_rejects_wrong_type_full_search_selected_move(self):
+        artifact = self.valid_source_artifact()
+        artifact["rows"]["capture_available-002"]["full_search_selected_move"] = "0"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
+            self.write_json(source_path, artifact)
+
+            with self.assertRaisesRegex(ValueError, "full_search_selected_move must be a legal move int"):
+                module.load_source_shared_drift_artifact(source_path)
+
+    def test_load_source_shared_drift_artifact_rejects_illegal_reference_move(self):
+        artifact = self.valid_source_artifact()
+        artifact["rows"]["capture_available-002"]["reference_move"] = 9
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
+            self.write_json(source_path, artifact)
+
+            with self.assertRaisesRegex(ValueError, "reference_move must be a legal move int"):
+                module.load_source_shared_drift_artifact(source_path)
+
 
 class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
     def write_json(self, path: Path, payload) -> None:
@@ -448,6 +481,18 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             module.CLASSIFICATION_DECISIONS["selection_score_pressure_confirmed"],
             payload["decision"],
         )
+        self.assertEqual(
+            {
+                "artifact_path": "/tmp/source-artifacts/shared_drift.json",
+                "schema": module.SOURCE_SHARED_DRIFT_SCHEMA,
+                "decision": module.EXPECTED_SOURCE_DECISION,
+                "classification": {"classification": "shared_mechanism_disproved"},
+                "row_id": module.ROW_ID,
+                "reference_move": 2,
+                "full_search_selected_move": 0,
+            },
+            payload["source_artifact"],
+        )
         self.assertEqual(16.0, payload["first_selected_selection_score_overtake_snapshot"]["simulation"])
         self.assertEqual(32.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"])
         self.assertAlmostEqual(0.16, payload["final_selected_minus_reference_selection_score"])
@@ -555,6 +600,55 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         self.assertEqual("unresolved", payload["classification"]["classification"])
         self.assertEqual(module.CLASSIFICATION_DECISIONS["unresolved"], payload["decision"])
 
+    def test_build_payload_routes_unresolved_trace_to_review_spec(self):
+        root_start = self.trace_point(
+            simulation=1.0,
+            selected_move=2,
+            reference_move_by_prior=2,
+            visits=[0.0, 0.0, 1.0, 0.0, 0.0],
+            moves=[
+                {"move": 0, "selection_score": 0.40, "q_value": 0.01},
+                {"move": 2, "selection_score": 0.44, "q_value": 0.00},
+            ],
+        )
+        snapshots = [
+            self.trace_point(
+                simulation=12.0,
+                selected_move=0,
+                reference_move_by_prior=2,
+                visits=[7.0, 0.0, 5.0, 0.0, 0.0],
+                moves=[
+                    {"move": 0, "selection_score": 0.48, "q_value": 0.01},
+                    {"move": 2, "selection_score": 0.46, "q_value": 0.00},
+                ],
+            ),
+            self.trace_point(
+                simulation=16.0,
+                selected_move=0,
+                reference_move_by_prior=2,
+                visits=[11.0, 0.0, 5.0, 0.0, 0.0],
+                moves=[
+                    {"move": 0, "selection_score": 0.56, "q_value": -0.01},
+                    {"move": 2, "selection_score": 0.45, "q_value": -0.03},
+                ],
+            ),
+            self.trace_point(
+                simulation=32.0,
+                selected_move=0,
+                reference_move_by_prior=2,
+                visits=[23.0, 0.0, 9.0, 0.0, 0.0],
+                moves=[
+                    {"move": 0, "selection_score": 0.59, "q_value": 0.04},
+                    {"move": 2, "selection_score": 0.43, "q_value": 0.00},
+                ],
+            ),
+        ]
+
+        payload = module.build_payload(self.source_artifact(root_start=root_start, snapshots=snapshots))
+
+        self.assertEqual("unresolved", payload["classification"]["classification"])
+        self.assertEqual("write_002_unresolved_trace_review_spec", payload["decision"])
+
     def test_build_payload_uses_loaded_extracted_trace_metrics(self):
         root_start = self.trace_point(
             simulation=1.0,
@@ -643,6 +737,9 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         self.assertEqual("insufficient", payload["trace_origin"])
         self.assertEqual("trace_insufficient", payload["classification"]["classification"])
         self.assertEqual(module.CLASSIFICATION_DECISIONS["trace_insufficient"], payload["decision"])
+        self.assertEqual(module.ROW_ID, payload["source_artifact"]["row_id"])
+        self.assertEqual(2, payload["source_artifact"]["reference_move"])
+        self.assertEqual(0, payload["source_artifact"]["full_search_selected_move"])
         self.assertEqual(selected_artifact, payload["source_artifact"]["selected_artifact"])
         self.assertEqual(1.0, payload["trace_points"][0]["simulation"])
         self.assertEqual(8.0, payload["trace_points"][1]["simulation"])
@@ -1058,6 +1155,14 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
         classification = module.classify_fixture_payload(fixture["payload"], module.THRESHOLDS)
 
         self.assertEqual("unresolved", classification["classification"]["classification"])
+
+    def test_unresolved_fixture_routes_to_review_spec(self):
+        fixture = self.load_fixture("unresolved")
+
+        classification = module.classify_fixture_payload(fixture["payload"], module.THRESHOLDS)
+
+        self.assertEqual("unresolved", classification["classification"]["classification"])
+        self.assertEqual("write_002_unresolved_trace_review_spec", classification["decision"])
 
     def test_fixture_classifier_tracks_runtime_classification_logic(self):
         payload = {

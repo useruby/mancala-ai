@@ -26,7 +26,7 @@ CLASSIFICATION_DECISIONS = {
     "selection_score_pressure_confirmed": "write_002_selection_pressure_ablation_spec",
     "q_support_precedes_selection_score": "write_002_child_value_audit_spec",
     "trace_insufficient": "write_002_trace_capture_spec",
-    "unresolved": "stop_002_unresolved",
+    "unresolved": "write_002_unresolved_trace_review_spec",
 }
 TRACE_ORIGINS = {"extracted", "rerun", "insufficient"}
 
@@ -177,6 +177,12 @@ def _validate_settings(settings, *, legal_moves: list[int]):
     return normalized_settings
 
 
+def _validate_row_move_identity(value, *, field: str, legal_moves: list[int]) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value not in legal_moves:
+        raise ValueError(f"source shared drift artifact row {ROW_ID} {field} must be a legal move int")
+    return int(value)
+
+
 def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
     if not isinstance(artifact, dict):
         raise ValueError("source shared drift artifact must be a JSON object")
@@ -207,6 +213,16 @@ def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
     if len(set(legal_moves)) != len(legal_moves):
         raise ValueError(f"source shared drift artifact row {ROW_ID} legal_moves must be unique")
     normalized_legal_moves = [int(move) for move in legal_moves]
+    reference_move = _validate_row_move_identity(
+        row.get("reference_move"),
+        field="reference_move",
+        legal_moves=normalized_legal_moves,
+    )
+    full_search_selected_move = _validate_row_move_identity(
+        row.get("full_search_selected_move"),
+        field="full_search_selected_move",
+        legal_moves=normalized_legal_moves,
+    )
 
     snapshots = row.get("snapshots")
     if not isinstance(snapshots, list):
@@ -253,6 +269,8 @@ def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
         "row": {
             **dict(row),
             "legal_moves": normalized_legal_moves,
+            "reference_move": reference_move,
+            "full_search_selected_move": full_search_selected_move,
             "root_start": root_start,
             "snapshots": normalized_snapshots,
         },
@@ -338,12 +356,15 @@ def _visit_share_delta(trace_point, *, target_move, reference_move):
 
 def _insufficient_payload(source_artifact, trace_points, insufficiency_reasons, *, thresholds, settings=None):
     selected_artifact = source_artifact.get("selected_artifact")
+    row = source_artifact.get("row") or {}
     source_artifact_payload = {
         "artifact_path": source_artifact.get("artifact_path"),
         "schema": source_artifact.get("schema"),
         "decision": source_artifact.get("decision"),
         "classification": copy.deepcopy(source_artifact.get("classification")),
-        "row_id": source_artifact.get("row", {}).get("row_id"),
+        "row_id": row.get("row_id"),
+        "reference_move": row.get("reference_move"),
+        "full_search_selected_move": row.get("full_search_selected_move"),
     }
     if selected_artifact is not None:
         source_artifact_payload["selected_artifact"] = copy.deepcopy(selected_artifact)
@@ -636,6 +657,8 @@ def build_payload(
         "decision": source_artifact.get("decision"),
         "classification": copy.deepcopy(source_artifact.get("classification")),
         "row_id": row.get("row_id"),
+        "reference_move": row.get("reference_move"),
+        "full_search_selected_move": row.get("full_search_selected_move"),
     }
     if selected_artifact is not None:
         source_artifact_payload["selected_artifact"] = copy.deepcopy(selected_artifact)
