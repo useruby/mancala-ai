@@ -95,6 +95,11 @@ def _selection_source_identity(artifact: dict, *, context: str) -> dict:
     }
 
 
+def _validated_selection_source_artifact(artifact: dict, *, context: str) -> dict:
+    _selection_source_identity(artifact, context=context)
+    return copy.deepcopy(artifact["source_artifact"])
+
+
 def validate_selection_score_artifact_contract(
     artifact: dict,
     *,
@@ -435,7 +440,7 @@ def build_payload(
         first_support_summary=first_support_summary,
         relaxed_thresholds=threshold_review_artifact["thresholds"],
     )
-    source_identity = _selection_source_identity(
+    source_artifact = _validated_selection_source_artifact(
         default_selection_score_artifact,
         context="default selection score artifact",
     )
@@ -453,7 +458,7 @@ def build_payload(
             "source_threshold_review_artifact_path": source_threshold_review_artifact_path,
             "source_nonseparable_review_artifact_path": source_nonseparable_review_artifact_path,
         },
-        "source_artifact": source_identity,
+        "source_artifact": source_artifact,
         "thresholds_evaluated": {
             "default": copy.deepcopy(default_selection_score_artifact["thresholds"]),
             "relaxed": copy.deepcopy(threshold_review_artifact["thresholds"]),

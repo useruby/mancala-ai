@@ -253,6 +253,13 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
         self.assertIsNotNone(payload["first_support_summary"]["selection_score_overtake_snapshot"])
         self.assertEqual("capture_available-002", payload["source_artifact"]["row_id"])
 
+    def test_build_payload_preserves_full_source_artifact_provenance(self):
+        default = self.default_selection_score_artifact()
+
+        payload = self.build_payload(default=default)
+
+        self.assertEqual(default["source_artifact"], payload["source_artifact"])
+
     def test_build_payload_classifies_threshold_boundary_ambiguity_near_relaxed_visit_threshold(self):
         default = self.default_selection_score_artifact(
             final_selected_minus_reference_q=-0.002,

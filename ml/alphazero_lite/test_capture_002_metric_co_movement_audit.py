@@ -708,6 +708,49 @@ class Capture002MetricCoMovementAuditBuildPayloadTest(unittest.TestCase):
             default["trace_points"][1]["moves"],
         )
 
+    def test_build_payload_accepts_regenerated_decomposition_with_full_provenance(self):
+        decomposition, default, relaxed = self.valid_inputs()
+        full_source_artifact = self.source_artifact_with_provenance()
+        decomposition["source_artifact"] = copy.deepcopy(full_source_artifact)
+        default["source_artifact"] = copy.deepcopy(full_source_artifact)
+        relaxed["source_artifact"] = copy.deepcopy(full_source_artifact)
+
+        default["trace_points"] = self.material_selection_score_trace()
+        relaxed["trace_points"] = copy.deepcopy(default["trace_points"])
+        default["trace_points"][0]["simulation"] = 1
+        relaxed["trace_points"][0]["simulation"] = 1
+        duplicate_default_point = copy.deepcopy(default["trace_points"][0])
+        duplicate_relaxed_point = copy.deepcopy(relaxed["trace_points"][0])
+        default["trace_points"] = [default["trace_points"][0], duplicate_default_point, default["trace_points"][1]]
+        relaxed["trace_points"] = [relaxed["trace_points"][0], duplicate_relaxed_point, relaxed["trace_points"][1]]
+        canonicalization = self.canonicalization_artifact(
+            source_artifact=full_source_artifact,
+            default_sequence=[1.0, 2.0],
+            relaxed_sequence=[1.0, 2.0],
+        )
+
+        payload = self.build_payload(
+            decomposition=decomposition,
+            default=default,
+            relaxed=relaxed,
+            canonicalization=canonicalization,
+            source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
+        )
+
+        self.assertEqual("early_selection_score_only", payload["classification"]["classification"])
+        self.assertEqual("write_002_selection_score_component_audit_spec", payload["decision"])
+
+    def test_build_payload_preserves_full_source_artifact_provenance(self):
+        decomposition, default, relaxed = self.valid_inputs()
+        full_source_artifact = self.source_artifact_with_provenance()
+        decomposition["source_artifact"] = copy.deepcopy(full_source_artifact)
+        default["source_artifact"] = copy.deepcopy(full_source_artifact)
+        relaxed["source_artifact"] = copy.deepcopy(full_source_artifact)
+
+        payload = self.build_payload(decomposition=decomposition, default=default, relaxed=relaxed)
+
+        self.assertEqual(full_source_artifact, payload["source_artifact"])
+
     def test_build_payload_rejects_non_equivalent_skipped_duplicate_even_when_canonicalization_claims_safe(self):
         decomposition, default, relaxed = self.valid_inputs()
         duplicate_default_point = copy.deepcopy(default["trace_points"][0])

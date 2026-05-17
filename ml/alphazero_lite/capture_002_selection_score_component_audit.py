@@ -6,33 +6,22 @@ import json
 import math
 from pathlib import Path
 
-SCHEMA = "azlite_capture_002_metric_co_movement_audit_v1"
-SOURCE_DECOMPOSITION_SCHEMA = "azlite_capture_002_nonseparable_decomposition_v1"
+SCHEMA = "azlite_capture_002_selection_score_component_audit_v1"
+SOURCE_METRIC_AUDIT_SCHEMA = "azlite_capture_002_metric_co_movement_audit_v1"
 SOURCE_SELECTION_SCORE_SCHEMA = "azlite_capture_002_selection_score_trace_v1"
 SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA = "azlite_capture_002_trace_checkpoint_canonicalization_v1"
 ROW_ID = "capture_available-002"
-EXPECTED_DECOMPOSITION_CLASSIFICATION = "metric_co_movement"
-EXPECTED_DECOMPOSITION_DECISION = "stop_002_mechanism_not_isolated"
+EXPECTED_METRIC_AUDIT_CLASSIFICATION = "early_selection_score_only"
+EXPECTED_METRIC_AUDIT_DECISION = "write_002_selection_score_component_audit_spec"
 EXPECTED_TRACE_CLASSIFICATION = "unresolved"
 EXPECTED_TRACE_DECISION = "write_002_unresolved_trace_review_spec"
 EXPECTED_CANONICALIZATION_DECISION = "write_002_metric_audit_canonical_input_spec"
 FLOAT_TOLERANCE = 1e-12
-METRIC_THRESHOLDS = {
-    "q": "meaningful_q_margin",
-    "selection_score": "material_selection_score_margin",
-    "visit_share": "material_visit_share_margin",
-}
 CLASSIFICATION_DECISIONS = {
-    "weak_aligned_drift": "write_002_low_confidence_policy_value_interaction_spec",
-    "early_selection_score_only": "write_002_selection_score_component_audit_spec",
-    "late_visit_share_only": "write_002_visit_accumulation_audit_spec",
-    "mixed_low_confidence_signal": "write_002_low_confidence_trace_comparison_spec",
-    "metric_audit_inconclusive": "stop_002_metric_audit_inconclusive",
-}
-MARGIN_KEYS = {
-    "q": "selected_minus_reference_q",
-    "selection_score": "selected_minus_reference_selection_score",
-    "visit_share": "selected_minus_reference_visit_share",
+    "prior_pressure_lead": "write_002_prior_pressure_component_spec",
+    "child_q_lift_lead": "write_002_child_q_lift_component_spec",
+    "mixed_selection_score_signal": "write_002_mixed_selection_score_component_spec",
+    "selection_score_component_inconclusive": "stop_002_selection_score_component_inconclusive",
 }
 
 
@@ -42,19 +31,15 @@ def load_json(path: Path) -> dict:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Audit capture 002 metric co-movement")
-    parser.add_argument("--source-decomposition-artifact", type=Path, required=True)
+    parser = argparse.ArgumentParser(description="Audit capture 002 selection-score support signatures")
+    parser.add_argument("--source-metric-audit-artifact", type=Path, required=True)
     parser.add_argument("--source-selection-score-artifact", type=Path, required=True)
     parser.add_argument(
         "--source-threshold-relaxed-selection-score-artifact",
         type=Path,
         required=True,
     )
-    parser.add_argument(
-        "--source-checkpoint-canonicalization-artifact",
-        type=Path,
-        required=False,
-    )
+    parser.add_argument("--source-checkpoint-canonicalization-artifact", type=Path, required=False)
     parser.add_argument("--out", type=Path, required=True)
     return parser.parse_args(argv)
 
@@ -85,15 +70,20 @@ def _finite_non_negative_number(value, *, context: str) -> float:
 def _validate_thresholds(thresholds, *, context: str) -> dict:
     if not isinstance(thresholds, dict):
         raise ValueError(f"{context} thresholds must be an object")
-    normalized = {}
-    for key in METRIC_THRESHOLDS.values():
-        if key not in thresholds:
-            raise ValueError(f"{context} thresholds must contain {key}")
-        normalized[key] = _finite_non_negative_number(
-            thresholds[key],
-            context=f"{context} thresholds.{key}",
-        )
-    return normalized
+    return {
+        "meaningful_q_margin": _finite_non_negative_number(
+            thresholds.get("meaningful_q_margin"),
+            context=f"{context} thresholds.meaningful_q_margin",
+        ),
+        "material_selection_score_margin": _finite_non_negative_number(
+            thresholds.get("material_selection_score_margin"),
+            context=f"{context} thresholds.material_selection_score_margin",
+        ),
+        "material_visit_share_margin": _finite_non_negative_number(
+            thresholds.get("material_visit_share_margin"),
+            context=f"{context} thresholds.material_visit_share_margin",
+        ),
+    }
 
 
 def _source_identity(artifact: dict, *, context: str) -> dict:
@@ -132,34 +122,51 @@ def _validated_source_artifact(source_artifact, *, context: str) -> dict:
     return copy.deepcopy(source_artifact)
 
 
-def _validate_decomposition_artifact(
+def _validate_metric_audit_artifact(
     artifact: dict,
     *,
     source_selection_score_artifact_path: str,
     source_threshold_relaxed_selection_score_artifact_path: str,
-) -> tuple[dict, dict]:
-    if artifact.get("schema") != SOURCE_DECOMPOSITION_SCHEMA:
-        raise ValueError(f"decomposition artifact has wrong schema: expected {SOURCE_DECOMPOSITION_SCHEMA}")
-    if _classification_name(artifact, context="decomposition artifact") != EXPECTED_DECOMPOSITION_CLASSIFICATION:
-        raise ValueError("decomposition artifact classification must be metric_co_movement")
-    if artifact.get("decision") != EXPECTED_DECOMPOSITION_DECISION:
-        raise ValueError("decomposition artifact decision must be stop_002_mechanism_not_isolated")
+    source_checkpoint_canonicalization_artifact_path: str | None,
+) -> tuple[dict, dict, dict]:
+    if artifact.get("schema") != SOURCE_METRIC_AUDIT_SCHEMA:
+        raise ValueError(f"metric audit artifact has wrong schema: expected {SOURCE_METRIC_AUDIT_SCHEMA}")
+    if _classification_name(artifact, context="metric audit artifact") != EXPECTED_METRIC_AUDIT_CLASSIFICATION:
+        raise ValueError(f"metric audit artifact classification must be {EXPECTED_METRIC_AUDIT_CLASSIFICATION}")
+    if artifact.get("decision") != EXPECTED_METRIC_AUDIT_DECISION:
+        raise ValueError(f"metric audit artifact decision must be {EXPECTED_METRIC_AUDIT_DECISION}")
     input_artifacts = artifact.get("input_artifacts")
     if not isinstance(input_artifacts, dict):
-        raise ValueError("decomposition input_artifacts must be an object")
+        raise ValueError("metric audit input_artifacts must be an object")
     if input_artifacts.get("source_selection_score_artifact_path") != source_selection_score_artifact_path:
-        raise ValueError("decomposition input_artifacts source_selection_score_artifact_path must match source path")
+        raise ValueError("metric audit input_artifacts source_selection_score_artifact_path must match source path")
     if (
-        input_artifacts.get("source_threshold_review_artifact_path")
+        input_artifacts.get("source_threshold_relaxed_selection_score_artifact_path")
         != source_threshold_relaxed_selection_score_artifact_path
     ):
-        raise ValueError("decomposition input_artifacts source_threshold_review_artifact_path must match source path")
+        raise ValueError(
+            "metric audit input_artifacts source_threshold_relaxed_selection_score_artifact_path must match source path"
+        )
+    metric_canonicalization_path = input_artifacts.get("source_checkpoint_canonicalization_artifact_path")
+    if metric_canonicalization_path != source_checkpoint_canonicalization_artifact_path:
+        raise ValueError(
+            "metric audit input_artifacts source_checkpoint_canonicalization_artifact_path must match source path"
+        )
     thresholds_evaluated = artifact.get("thresholds_evaluated")
     if not isinstance(thresholds_evaluated, dict):
-        raise ValueError("decomposition thresholds_evaluated must be an object")
+        raise ValueError("metric audit thresholds_evaluated must be an object")
+    default_thresholds = _validate_thresholds(
+        thresholds_evaluated.get("default"),
+        context="metric audit artifact thresholds_evaluated.default",
+    )
+    relaxed_thresholds = _validate_thresholds(
+        thresholds_evaluated.get("relaxed"),
+        context="metric audit artifact thresholds_evaluated.relaxed",
+    )
     return (
-        _source_identity(artifact, context="decomposition artifact"),
-        _validated_source_artifact(artifact.get("source_artifact"), context="decomposition artifact"),
+        _source_identity(artifact, context="metric audit artifact"),
+        _validated_source_artifact(artifact.get("source_artifact"), context="metric audit artifact"),
+        {"default": default_thresholds, "relaxed": relaxed_thresholds},
     )
 
 
@@ -277,9 +284,7 @@ def _validate_canonicalization_artifact(
             f"canonicalization artifact has wrong schema: expected {SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA}"
         )
     if artifact.get("decision") != EXPECTED_CANONICALIZATION_DECISION:
-        raise ValueError(
-            f"canonicalization artifact decision must be {EXPECTED_CANONICALIZATION_DECISION}"
-        )
+        raise ValueError(f"canonicalization artifact decision must be {EXPECTED_CANONICALIZATION_DECISION}")
     input_artifacts = artifact.get("input_artifacts")
     if not isinstance(input_artifacts, dict):
         raise ValueError("canonicalization input_artifacts must be an object")
@@ -332,7 +337,7 @@ def _validate_canonicalization_artifact(
 
 
 def validate_input_chain(
-    decomposition_artifact: dict,
+    metric_audit_artifact: dict,
     default_trace_artifact: dict,
     relaxed_trace_artifact: dict,
     *,
@@ -341,10 +346,15 @@ def validate_input_chain(
     checkpoint_canonicalization_artifact: dict | None = None,
     source_checkpoint_canonicalization_artifact_path: str | None = None,
 ) -> dict:
-    decomposition_identity, full_decomposition_source_artifact = _validate_decomposition_artifact(
-        decomposition_artifact,
+    if checkpoint_canonicalization_artifact is None and source_checkpoint_canonicalization_artifact_path is not None:
+        raise ValueError("canonical mode requires checkpoint_canonicalization_artifact")
+    if checkpoint_canonicalization_artifact is not None and source_checkpoint_canonicalization_artifact_path is None:
+        raise ValueError("canonical mode requires source_checkpoint_canonicalization_artifact_path")
+    metric_audit_identity, full_metric_audit_source_artifact, metric_thresholds = _validate_metric_audit_artifact(
+        metric_audit_artifact,
         source_selection_score_artifact_path=source_selection_score_artifact_path,
         source_threshold_relaxed_selection_score_artifact_path=source_threshold_relaxed_selection_score_artifact_path,
+        source_checkpoint_canonicalization_artifact_path=source_checkpoint_canonicalization_artifact_path,
     )
     default_identity, default_thresholds, default_trace_origin, default_trace_points = _validate_trace_artifact(
         default_trace_artifact,
@@ -354,7 +364,7 @@ def validate_input_chain(
         relaxed_trace_artifact,
         context="relaxed trace artifact",
     )
-    if decomposition_identity != default_identity or decomposition_identity != relaxed_identity:
+    if metric_audit_identity != default_identity or metric_audit_identity != relaxed_identity:
         raise ValueError("source artifacts must match")
     full_default_source_artifact = _validated_source_artifact(
         default_trace_artifact.get("source_artifact"),
@@ -364,15 +374,14 @@ def validate_input_chain(
         relaxed_trace_artifact.get("source_artifact"),
         context="relaxed trace artifact",
     )
-    if full_decomposition_source_artifact != full_default_source_artifact:
+    if full_metric_audit_source_artifact != full_default_source_artifact:
         raise ValueError("source artifacts must match")
     if full_default_source_artifact != full_relaxed_source_artifact:
         raise ValueError("source artifacts must match")
-    thresholds_evaluated = decomposition_artifact["thresholds_evaluated"]
-    if thresholds_evaluated.get("default") != default_thresholds:
-        raise ValueError("decomposition thresholds_evaluated.default must match default thresholds")
-    if thresholds_evaluated.get("relaxed") != relaxed_thresholds:
-        raise ValueError("decomposition thresholds_evaluated.relaxed must match relaxed thresholds")
+    if metric_thresholds["default"] != default_thresholds:
+        raise ValueError("metric audit thresholds_evaluated.default must match default thresholds")
+    if metric_thresholds["relaxed"] != relaxed_thresholds:
+        raise ValueError("metric audit thresholds_evaluated.relaxed must match relaxed thresholds")
     if default_trace_origin != relaxed_trace_origin:
         raise ValueError("default and relaxed trace_origin must match")
     if checkpoint_canonicalization_artifact is None:
@@ -388,12 +397,8 @@ def validate_input_chain(
             relaxed_thresholds=relaxed_thresholds,
             trace_origin=default_trace_origin,
             source_selection_score_artifact_path=source_selection_score_artifact_path,
-            source_threshold_relaxed_selection_score_artifact_path=(
-                source_threshold_relaxed_selection_score_artifact_path
-            ),
-            source_checkpoint_canonicalization_artifact_path=(
-                source_checkpoint_canonicalization_artifact_path
-            ),
+            source_threshold_relaxed_selection_score_artifact_path=source_threshold_relaxed_selection_score_artifact_path,
+            source_checkpoint_canonicalization_artifact_path=source_checkpoint_canonicalization_artifact_path,
         )
         default_trace_points = _select_canonical_trace_points(
             default_trace_points,
@@ -412,8 +417,8 @@ def validate_input_chain(
         if default_sequence != canonical_sequence:
             raise ValueError("collapsed original checkpoint sequence must match canonical checkpoint sequence")
     return {
-        "source_artifact": full_decomposition_source_artifact,
-        "source_artifact_identity": decomposition_identity,
+        "source_artifact_identity": metric_audit_identity,
+        "source_artifact": full_metric_audit_source_artifact,
         "default_thresholds": default_thresholds,
         "relaxed_thresholds": relaxed_thresholds,
         "trace_origin": default_trace_origin,
@@ -421,6 +426,13 @@ def validate_input_chain(
         "relaxed_trace_points": relaxed_trace_points,
         "checkpoint_sequence": default_sequence,
         "preserve_original_simulation_representation": checkpoint_canonicalization_artifact is not None,
+        "source_snapshots": {
+            "metric_audit_classification": copy.deepcopy(metric_audit_artifact.get("classification")),
+            "default_trace_classification": copy.deepcopy(default_trace_artifact.get("classification")),
+            "relaxed_trace_classification": copy.deepcopy(relaxed_trace_artifact.get("classification")),
+            "default_trace_origin": default_trace_artifact.get("trace_origin"),
+            "relaxed_trace_origin": relaxed_trace_artifact.get("trace_origin"),
+        },
     }
 
 
@@ -450,70 +462,223 @@ def _metric_margin(trace_point: dict, *, selected_move: int, reference_move: int
     return float(selected_value) - float(reference_value)
 
 
-def _visit_share_margin(trace_point: dict, *, selected_move: int, reference_move: int) -> float | None:
-    visits = trace_point.get("visits")
-    if not isinstance(visits, list) or len(visits) <= max(selected_move, reference_move):
-        return None
-    selected_visits = visits[selected_move]
-    reference_visits = visits[reference_move]
-    if isinstance(selected_visits, bool) or isinstance(reference_visits, bool):
-        return None
-    if not isinstance(selected_visits, (int, float)) or not isinstance(reference_visits, (int, float)):
-        return None
-    if not math.isfinite(selected_visits) or not math.isfinite(reference_visits):
-        return None
-    total_visits = 0.0
-    for visit in visits:
-        if isinstance(visit, bool) or not isinstance(visit, (int, float)) or not math.isfinite(visit):
-            return None
-        total_visits += float(visit)
-    if total_visits <= 0:
-        return None
-    return (float(selected_visits) / total_visits) - (float(reference_visits) / total_visits)
+def _selection_score_margin(trace_point: dict, *, selected_move: int, reference_move: int) -> float | None:
+    return _metric_margin(
+        trace_point,
+        selected_move=selected_move,
+        reference_move=reference_move,
+        metric_key="selection_score",
+    )
 
 
-def _checkpoint_margins(trace_point: dict, *, source_artifact: dict) -> dict:
-    selected_move = source_artifact["full_search_selected_move"]
-    reference_move = source_artifact["reference_move"]
+def _q_margin(trace_point: dict, *, selected_move: int, reference_move: int) -> float | None:
+    return _metric_margin(
+        trace_point,
+        selected_move=selected_move,
+        reference_move=reference_move,
+        metric_key="q_value",
+    )
+
+
+def _prior_pressure_support(trace_point: dict, *, selected_move: int, reference_move: int, thresholds: dict) -> dict | None:
+    selection_score_margin = _selection_score_margin(
+        trace_point,
+        selected_move=selected_move,
+        reference_move=reference_move,
+    )
+    q_margin = _q_margin(trace_point, selected_move=selected_move, reference_move=reference_move)
+    if selection_score_margin is None:
+        return None
+    if selection_score_margin < thresholds["material_selection_score_margin"] - FLOAT_TOLERANCE:
+        return None
+    if q_margin is not None and q_margin >= thresholds["meaningful_q_margin"] - FLOAT_TOLERANCE:
+        return None
     return {
-        "selected_minus_reference_q": _metric_margin(
-            trace_point,
-            selected_move=selected_move,
-            reference_move=reference_move,
-            metric_key="q_value",
-        ),
-        "selected_minus_reference_selection_score": _metric_margin(
-            trace_point,
-            selected_move=selected_move,
-            reference_move=reference_move,
-            metric_key="selection_score",
-        ),
-        "selected_minus_reference_visit_share": _visit_share_margin(
-            trace_point,
-            selected_move=selected_move,
-            reference_move=reference_move,
-        ),
+        "simulation": trace_point["simulation"],
+        "selection_score_margin": selection_score_margin,
+        "q_margin": q_margin,
     }
 
 
+def _child_q_lift_support(trace_point: dict, *, selected_move: int, reference_move: int, thresholds: dict) -> dict | None:
+    selection_score_margin = _selection_score_margin(
+        trace_point,
+        selected_move=selected_move,
+        reference_move=reference_move,
+    )
+    q_margin = _q_margin(trace_point, selected_move=selected_move, reference_move=reference_move)
+    if selection_score_margin is None or q_margin is None:
+        return None
+    if selection_score_margin < thresholds["material_selection_score_margin"] - FLOAT_TOLERANCE:
+        return None
+    if q_margin < thresholds["meaningful_q_margin"] - FLOAT_TOLERANCE:
+        return None
+    return {
+        "simulation": trace_point["simulation"],
+        "selection_score_margin": selection_score_margin,
+        "q_margin": q_margin,
+    }
+
+
+def _positive_prior_pressure_support(
+    trace_point: dict,
+    *,
+    selected_move: int,
+    reference_move: int,
+) -> dict | None:
+    selection_score_margin = _selection_score_margin(
+        trace_point,
+        selected_move=selected_move,
+        reference_move=reference_move,
+    )
+    q_margin = _q_margin(trace_point, selected_move=selected_move, reference_move=reference_move)
+    if selection_score_margin is None or selection_score_margin <= FLOAT_TOLERANCE:
+        return None
+    if q_margin is not None and q_margin > FLOAT_TOLERANCE:
+        return None
+    return {
+        "simulation": trace_point["simulation"],
+        "selection_score_margin": selection_score_margin,
+        "q_margin": q_margin,
+    }
+
+
+def _positive_child_q_lift_support(
+    trace_point: dict,
+    *,
+    selected_move: int,
+    reference_move: int,
+) -> dict | None:
+    selection_score_margin = _selection_score_margin(
+        trace_point,
+        selected_move=selected_move,
+        reference_move=reference_move,
+    )
+    q_margin = _q_margin(trace_point, selected_move=selected_move, reference_move=reference_move)
+    if selection_score_margin is None or selection_score_margin <= FLOAT_TOLERANCE:
+        return None
+    if q_margin is None or q_margin <= FLOAT_TOLERANCE:
+        return None
+    return {
+        "simulation": trace_point["simulation"],
+        "selection_score_margin": selection_score_margin,
+        "q_margin": q_margin,
+    }
+
+
+def _support_summary_for_branch(trace_points: list[dict], *, source_artifact: dict, thresholds: dict) -> dict:
+    selected_move = source_artifact["full_search_selected_move"]
+    reference_move = source_artifact["reference_move"]
+    summary = {
+        "first_positive_prior_pressure_support": None,
+        "first_positive_child_q_lift_support": None,
+        "first_material_prior_pressure_support": None,
+        "first_material_child_q_lift_support": None,
+    }
+    for trace_point in trace_points:
+        if summary["first_positive_prior_pressure_support"] is None:
+            summary["first_positive_prior_pressure_support"] = _positive_prior_pressure_support(
+                trace_point,
+                selected_move=selected_move,
+                reference_move=reference_move,
+            )
+        if summary["first_positive_child_q_lift_support"] is None:
+            summary["first_positive_child_q_lift_support"] = _positive_child_q_lift_support(
+                trace_point,
+                selected_move=selected_move,
+                reference_move=reference_move,
+            )
+        if summary["first_material_prior_pressure_support"] is None:
+            summary["first_material_prior_pressure_support"] = _prior_pressure_support(
+                trace_point,
+                selected_move=selected_move,
+                reference_move=reference_move,
+                thresholds=thresholds,
+            )
+        if summary["first_material_child_q_lift_support"] is None:
+            summary["first_material_child_q_lift_support"] = _child_q_lift_support(
+                trace_point,
+                selected_move=selected_move,
+                reference_move=reference_move,
+                thresholds=thresholds,
+            )
+    return summary
+
+
+def _signature_from_checkpoints(summary: dict) -> str | None:
+    prior = summary["prior_pressure"]
+    child = summary["child_q_lift"]
+    candidates = []
+    if prior is not None:
+        candidates.append((prior["simulation"], "prior_pressure_lead"))
+    if child is not None:
+        candidates.append((child["simulation"], "child_q_lift_lead"))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0])
+    return candidates[0][1]
+
+
 def build_checkpoint_audit(chain: dict) -> list[dict]:
+    source_artifact = chain["source_artifact_identity"]
     if chain["preserve_original_simulation_representation"]:
         return [
             {
                 "simulation": default_point.get("simulation"),
-                "default": _checkpoint_margins(default_point, source_artifact=chain["source_artifact"]),
-                "relaxed": _checkpoint_margins(relaxed_point, source_artifact=chain["source_artifact"]),
+                "default": {
+                    "selection_score_margin": _selection_score_margin(
+                        default_point,
+                        selected_move=source_artifact["full_search_selected_move"],
+                        reference_move=source_artifact["reference_move"],
+                    ),
+                    "q_margin": _q_margin(
+                        default_point,
+                        selected_move=source_artifact["full_search_selected_move"],
+                        reference_move=source_artifact["reference_move"],
+                    ),
+                },
+                "relaxed": {
+                    "selection_score_margin": _selection_score_margin(
+                        relaxed_point,
+                        selected_move=source_artifact["full_search_selected_move"],
+                        reference_move=source_artifact["reference_move"],
+                    ),
+                    "q_margin": _q_margin(
+                        relaxed_point,
+                        selected_move=source_artifact["full_search_selected_move"],
+                        reference_move=source_artifact["reference_move"],
+                    ),
+                },
             }
-            for default_point, relaxed_point in zip(
-                chain["default_trace_points"],
-                chain["relaxed_trace_points"],
-            )
+            for default_point, relaxed_point in zip(chain["default_trace_points"], chain["relaxed_trace_points"])
         ]
     return [
         {
             "simulation": simulation,
-            "default": _checkpoint_margins(default_point, source_artifact=chain["source_artifact"]),
-            "relaxed": _checkpoint_margins(relaxed_point, source_artifact=chain["source_artifact"]),
+            "default": {
+                "selection_score_margin": _selection_score_margin(
+                    default_point,
+                    selected_move=source_artifact["full_search_selected_move"],
+                    reference_move=source_artifact["reference_move"],
+                ),
+                "q_margin": _q_margin(
+                    default_point,
+                    selected_move=source_artifact["full_search_selected_move"],
+                    reference_move=source_artifact["reference_move"],
+                ),
+            },
+            "relaxed": {
+                "selection_score_margin": _selection_score_margin(
+                    relaxed_point,
+                    selected_move=source_artifact["full_search_selected_move"],
+                    reference_move=source_artifact["reference_move"],
+                ),
+                "q_margin": _q_margin(
+                    relaxed_point,
+                    selected_move=source_artifact["full_search_selected_move"],
+                    reference_move=source_artifact["reference_move"],
+                ),
+            },
         }
         for simulation, default_point, relaxed_point in zip(
             chain["checkpoint_sequence"],
@@ -523,151 +688,95 @@ def build_checkpoint_audit(chain: dict) -> list[dict]:
     ]
 
 
-def _first_positive_for_branch(checkpoint_audit: list[dict], *, branch: str) -> dict:
-    result = {"q": None, "selection_score": None, "visit_share": None}
-    for row in checkpoint_audit:
-        for metric, margin_key in MARGIN_KEYS.items():
-            if result[metric] is not None:
-                continue
-            margin = row[branch][margin_key]
-            if margin is not None and margin > FLOAT_TOLERANCE:
-                result[metric] = {"simulation": row["simulation"], "margin": margin}
-    return result
-
-
-def _first_material_for_branch(checkpoint_audit: list[dict], *, branch: str, thresholds: dict) -> dict:
-    result = {"q": None, "selection_score": None, "visit_share": None}
-    for row in checkpoint_audit:
-        for metric, margin_key in MARGIN_KEYS.items():
-            if result[metric] is not None:
-                continue
-            margin = row[branch][margin_key]
-            threshold = thresholds[METRIC_THRESHOLDS[metric]]
-            if margin is not None and margin >= threshold - FLOAT_TOLERANCE:
-                result[metric] = {"simulation": row["simulation"], "margin": margin}
-    return result
-
-
-def first_positive_checkpoints(checkpoint_audit: list[dict]) -> dict:
+def first_positive_checkpoints(support_summary: dict) -> dict:
     return {
-        "default": _first_positive_for_branch(checkpoint_audit, branch="default"),
-        "relaxed": _first_positive_for_branch(checkpoint_audit, branch="relaxed"),
+        branch: {
+            "prior_pressure": copy.deepcopy(values["first_positive_prior_pressure_support"]),
+            "child_q_lift": copy.deepcopy(values["first_positive_child_q_lift_support"]),
+        }
+        for branch, values in support_summary.items()
     }
 
 
-def first_material_checkpoints(
-    checkpoint_audit: list[dict],
-    *,
-    default_thresholds: dict,
-    relaxed_thresholds: dict,
-) -> dict:
+def first_material_checkpoints(support_summary: dict) -> dict:
     return {
-        "default": _first_material_for_branch(
-            checkpoint_audit,
-            branch="default",
-            thresholds=default_thresholds,
+        branch: {
+            "prior_pressure": copy.deepcopy(values["first_material_prior_pressure_support"]),
+            "child_q_lift": copy.deepcopy(values["first_material_child_q_lift_support"]),
+        }
+        for branch, values in support_summary.items()
+    }
+
+
+def classify_component_audit(*, first_positive: dict, first_material: dict) -> tuple[str, str, dict]:
+    first_positive_signatures = {
+        branch: _signature_from_checkpoints(values)
+        for branch, values in first_positive.items()
+    }
+    first_material_signatures = {
+        branch: _signature_from_checkpoints(values)
+        for branch, values in first_material.items()
+    }
+    disagreement_summary = {
+        "branch_signature_disagreement": (
+            first_material_signatures["default"] != first_material_signatures["relaxed"]
         ),
-        "relaxed": _first_material_for_branch(
-            checkpoint_audit,
-            branch="relaxed",
-            thresholds=relaxed_thresholds,
+        "first_positive_first_material_conflict": any(
+            first_positive_signatures[branch] is not None
+            and first_material_signatures[branch] is not None
+            and first_positive_signatures[branch] != first_material_signatures[branch]
+            for branch in ("default", "relaxed")
         ),
+        "first_positive_signatures": first_positive_signatures,
+        "first_material_signatures": first_material_signatures,
     }
-
-
-def _final_margin_summary(checkpoint_audit: list[dict]) -> dict:
-    final_row = checkpoint_audit[-1]
-    return {
-        "default_q_margin": final_row["default"]["selected_minus_reference_q"],
-        "default_selection_score_margin": final_row["default"]["selected_minus_reference_selection_score"],
-        "default_visit_share_margin": final_row["default"]["selected_minus_reference_visit_share"],
-        "relaxed_q_margin": final_row["relaxed"]["selected_minus_reference_q"],
-        "relaxed_selection_score_margin": final_row["relaxed"]["selected_minus_reference_selection_score"],
-        "relaxed_visit_share_margin": final_row["relaxed"]["selected_minus_reference_visit_share"],
+    if disagreement_summary["branch_signature_disagreement"]:
+        return (
+            "mixed_selection_score_signal",
+            "Default and relaxed branches disagree on the earliest material selection-score support signature.",
+            disagreement_summary,
+        )
+    if disagreement_summary["first_positive_first_material_conflict"]:
+        return (
+            "mixed_selection_score_signal",
+            "First-positive and first-material ordering imply conflicting selection-score support signatures.",
+            disagreement_summary,
+        )
+    material_signatures = {
+        signature for signature in first_material_signatures.values() if signature is not None
     }
-
-
-def _first_material_metrics(first_material: dict) -> list[str]:
-    material = {metric: value for metric, value in first_material["relaxed"].items() if value is not None}
-    if not material:
-        return []
-    earliest = min(value["simulation"] for value in material.values())
-    return [metric for metric, value in material.items() if value["simulation"] == earliest]
-
-
-def _non_material_at_first_lead(metric: str, first_material: dict) -> bool:
-    first = first_material["relaxed"][metric]
-    if first is None:
-        return False
-    for other_metric, other_first in first_material["relaxed"].items():
-        if other_metric == metric:
-            continue
-        if other_first is not None and other_first["simulation"] <= first["simulation"]:
-            return False
-    return True
-
-
-def _weak_aligned_drift(final_margin_summary: dict, *, relaxed_thresholds: dict, first_material: dict) -> bool:
-    relaxed_margins = {
-        "q": final_margin_summary["relaxed_q_margin"],
-        "selection_score": final_margin_summary["relaxed_selection_score_margin"],
-        "visit_share": final_margin_summary["relaxed_visit_share_margin"],
-    }
-    if any(margin is None or margin <= FLOAT_TOLERANCE for margin in relaxed_margins.values()):
-        return False
-    if any(
-        relaxed_margins[metric] >= relaxed_thresholds[threshold_key] - FLOAT_TOLERANCE
-        for metric, threshold_key in METRIC_THRESHOLDS.items()
-    ):
-        return False
-    return not any(value is not None for value in first_material["relaxed"].values())
-
-
-def classify_audit(*, final_margin_summary: dict, first_material: dict, relaxed_thresholds: dict) -> tuple[str, str]:
-    first_material_metrics = _first_material_metrics(first_material)
-    if first_material_metrics == ["selection_score"] and _non_material_at_first_lead("selection_score", first_material):
+    if material_signatures == {"prior_pressure_lead"}:
         return (
-            "early_selection_score_only",
-            "Selection score becomes materially favorable before Q or visit share under the relaxed trace.",
+            "prior_pressure_lead",
+            "The earliest material selection-score support appears before meaningful child-Q support across both branches.",
+            disagreement_summary,
         )
-    if first_material_metrics == ["visit_share"] and _non_material_at_first_lead("visit_share", first_material):
+    if material_signatures == {"child_q_lift_lead"}:
         return (
-            "late_visit_share_only",
-            "Visit share is the unique first material metric, indicating delayed visit accumulation rather than early Q or selection-score support.",
-        )
-    if _weak_aligned_drift(
-        final_margin_summary,
-        relaxed_thresholds=relaxed_thresholds,
-        first_material=first_material,
-    ):
-        return (
-            "weak_aligned_drift",
-            "All three final relaxed margins drift toward the selected move, but none reaches embedded material support strongly enough to isolate a narrower mechanism.",
-        )
-    if len(first_material_metrics) >= 2 or any(value is not None for value in first_material["relaxed"].values()):
-        return (
-            "mixed_low_confidence_signal",
-            "The trace contains material or split low-confidence signal but no unique first-material lead or clean weak-drift interpretation.",
+            "child_q_lift_lead",
+            "The earliest material selection-score support arrives with meaningful child-Q lift across both branches.",
+            disagreement_summary,
         )
     return (
-        "metric_audit_inconclusive",
-        "The chain is valid, but the trace does not supply enough usable signal to justify a narrower follow-up.",
+        "selection_score_component_inconclusive",
+        "The validated chain does not expose one stable earliest selection-score support signature.",
+        disagreement_summary,
     )
 
 
 def build_payload(
-    decomposition_artifact: dict,
+    metric_audit_artifact: dict,
     default_trace_artifact: dict,
     relaxed_trace_artifact: dict,
     *,
-    source_decomposition_artifact_path: str,
+    source_metric_audit_artifact_path: str,
     source_selection_score_artifact_path: str,
     source_threshold_relaxed_selection_score_artifact_path: str,
     checkpoint_canonicalization_artifact: dict | None = None,
     source_checkpoint_canonicalization_artifact_path: str | None = None,
 ) -> dict:
     chain = validate_input_chain(
-        decomposition_artifact,
+        metric_audit_artifact,
         default_trace_artifact,
         relaxed_trace_artifact,
         source_selection_score_artifact_path=source_selection_score_artifact_path,
@@ -676,20 +785,26 @@ def build_payload(
         source_checkpoint_canonicalization_artifact_path=source_checkpoint_canonicalization_artifact_path,
     )
     checkpoint_audit = build_checkpoint_audit(chain)
-    first_positive = first_positive_checkpoints(checkpoint_audit)
-    first_material = first_material_checkpoints(
-        checkpoint_audit,
-        default_thresholds=chain["default_thresholds"],
-        relaxed_thresholds=chain["relaxed_thresholds"],
-    )
-    final_margin_summary = _final_margin_summary(checkpoint_audit)
-    classification_name, evidence_summary = classify_audit(
-        final_margin_summary=final_margin_summary,
+    support_summary = {
+        "default": _support_summary_for_branch(
+            chain["default_trace_points"],
+            source_artifact=chain["source_artifact_identity"],
+            thresholds=chain["default_thresholds"],
+        ),
+        "relaxed": _support_summary_for_branch(
+            chain["relaxed_trace_points"],
+            source_artifact=chain["source_artifact_identity"],
+            thresholds=chain["relaxed_thresholds"],
+        ),
+    }
+    first_positive = first_positive_checkpoints(support_summary)
+    first_material = first_material_checkpoints(support_summary)
+    classification_name, evidence_summary, disagreement_summary = classify_component_audit(
+        first_positive=first_positive,
         first_material=first_material,
-        relaxed_thresholds=chain["relaxed_thresholds"],
     )
     input_artifacts = {
-        "source_decomposition_artifact_path": source_decomposition_artifact_path,
+        "source_metric_audit_artifact_path": source_metric_audit_artifact_path,
         "source_selection_score_artifact_path": source_selection_score_artifact_path,
         "source_threshold_relaxed_selection_score_artifact_path": source_threshold_relaxed_selection_score_artifact_path,
     }
@@ -699,7 +814,7 @@ def build_payload(
         )
     return {
         "schema": SCHEMA,
-        "hypothesis": "metric_co_movement_audit",
+        "hypothesis": "selection_score_component_audit",
         "classification": {
             "classification": classification_name,
             "evidence_summary": evidence_summary,
@@ -708,36 +823,33 @@ def build_payload(
         "input_artifacts": input_artifacts,
         "source_artifact": chain["source_artifact"],
         "thresholds_evaluated": {
-            "default": chain["default_thresholds"],
-            "relaxed": chain["relaxed_thresholds"],
+            "selection_score": chain["default_thresholds"]["material_selection_score_margin"],
+            "meaningful_q": chain["default_thresholds"]["meaningful_q_margin"],
         },
         "checkpoint_audit": checkpoint_audit,
         "first_positive_checkpoints": first_positive,
         "first_material_checkpoints": first_material,
-        "final_margin_summary": final_margin_summary,
-        "source_snapshots": {
-            "decomposition_classification": copy.deepcopy(decomposition_artifact.get("classification")),
-            "default_trace_classification": copy.deepcopy(default_trace_artifact.get("classification")),
-            "relaxed_trace_classification": copy.deepcopy(relaxed_trace_artifact.get("classification")),
-            "default_trace_origin": default_trace_artifact.get("trace_origin"),
-            "relaxed_trace_origin": relaxed_trace_artifact.get("trace_origin"),
+        "selection_score_support_signatures": {
+            **copy.deepcopy(support_summary),
+            "branch_level_disagreement": disagreement_summary,
         },
+        "source_snapshots": chain["source_snapshots"],
     }
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    decomposition_artifact = load_json(args.source_decomposition_artifact)
+    metric_audit_artifact = load_json(args.source_metric_audit_artifact)
     default_trace_artifact = load_json(args.source_selection_score_artifact)
     relaxed_trace_artifact = load_json(args.source_threshold_relaxed_selection_score_artifact)
     checkpoint_canonicalization_artifact = None
     if args.source_checkpoint_canonicalization_artifact is not None:
         checkpoint_canonicalization_artifact = load_json(args.source_checkpoint_canonicalization_artifact)
     payload = build_payload(
-        decomposition_artifact,
+        metric_audit_artifact,
         default_trace_artifact,
         relaxed_trace_artifact,
-        source_decomposition_artifact_path=str(args.source_decomposition_artifact),
+        source_metric_audit_artifact_path=str(args.source_metric_audit_artifact),
         source_selection_score_artifact_path=str(args.source_selection_score_artifact),
         source_threshold_relaxed_selection_score_artifact_path=str(
             args.source_threshold_relaxed_selection_score_artifact
