@@ -12,7 +12,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json"
-DEFAULT_PARENT_ARTIFACT = "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1"
+DEFAULT_PARENT_ARTIFACT = (
+    "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1"
+)
 DEFAULT_CURRENT_PATH = "model-artifact/current"
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_v3_robustness_confirmation"
 DEFAULT_SEEDS = (41, 42, 43, 44, 45)
@@ -59,7 +61,9 @@ def resolve_repo_path(path_value: str) -> Path:
     return REPO_ROOT / path
 
 
-def require_existing_runtime_path(path_value: str, *, label: str, require_directory: bool = False) -> Path:
+def require_existing_runtime_path(
+    path_value: str, *, label: str, require_directory: bool = False
+) -> Path:
     path = resolve_repo_path(path_value)
     if not path.exists():
         raise SystemExit(f"{label} does not exist: {path}")
@@ -74,7 +78,9 @@ def paths_overlap(first: Path, second: Path) -> bool:
     return first in second.parents or second in first.parents
 
 
-def validate_output_root_safety(*, output_root: Path, parent_artifact: Path, current_path: Path) -> None:
+def validate_output_root_safety(
+    *, output_root: Path, parent_artifact: Path, current_path: Path
+) -> None:
     protected_paths = (
         (REPO_ROOT.resolve(), "repo root"),
         (parent_artifact.resolve(), "parent artifact"),
@@ -127,9 +133,15 @@ def require_config_steps(config: dict) -> list[dict]:
             raise SystemExit(f"Base config step at index {index} must be an object")
         command = step.get("command")
         if command is not None and not isinstance(command, list):
-            raise SystemExit(f"Base config step at index {index} has a non-list command")
-        if isinstance(command, list) and any(not isinstance(part, str) for part in command):
-            raise SystemExit(f"Base config step at index {index} has a command with non-string entries")
+            raise SystemExit(
+                f"Base config step at index {index} has a non-list command"
+            )
+        if isinstance(command, list) and any(
+            not isinstance(part, str) for part in command
+        ):
+            raise SystemExit(
+                f"Base config step at index {index} has a command with non-string entries"
+            )
     return steps
 
 
@@ -150,7 +162,9 @@ def build_seed_sweep(seed: int) -> str:
     return f"{seed},{seed + 100},{seed + 200}"
 
 
-def build_lane(seed: int, *, base_run_id: str, iteration: int, output_root: Path) -> dict:
+def build_lane(
+    seed: int, *, base_run_id: str, iteration: int, output_root: Path
+) -> dict:
     run_id = build_lane_run_id(base_run_id, seed)
     lane_root = output_root / run_id
     results_dir = lane_root / "versions"
@@ -185,7 +199,8 @@ def build_aggregate_summary(
     qualifying_seed_count = sum(
         1
         for summary in lane_summaries
-        if summary.get("benchmark_passed") and summary.get("local_promotion_gate_passed")
+        if summary.get("benchmark_passed")
+        and summary.get("local_promotion_gate_passed")
     )
     all_lanes_passed = all(
         summary.get("benchmark_passed") and summary.get("local_promotion_gate_passed")
@@ -236,7 +251,9 @@ def build_plan(args: argparse.Namespace) -> tuple[dict, dict]:
     return plan, base_config
 
 
-def build_lane_config(base_config: dict, lane: dict, *, parent_artifact: str, current_path: str) -> dict:
+def build_lane_config(
+    base_config: dict, lane: dict, *, parent_artifact: str, current_path: str
+) -> dict:
     lane_config = copy.deepcopy(base_config)
     lane_config["run_id"] = lane["run_id"]
     lane_config["seed"] = lane["seed"]
@@ -246,16 +263,28 @@ def build_lane_config(base_config: dict, lane: dict, *, parent_artifact: str, cu
     replay_dir = lane.get("replay_dir")
     replay_source_path = lane.get("replay_source_path")
     if (replay_dir is None) != (replay_source_path is None):
-        raise SystemExit("lane replay metadata must provide both replay_dir and replay_source_path")
-    replay_data_path = None if replay_dir is None else str(Path(replay_dir) / "labeled_tactical_states.jsonl")
+        raise SystemExit(
+            "lane replay metadata must provide both replay_dir and replay_source_path"
+        )
+    replay_data_path = (
+        None
+        if replay_dir is None
+        else str(Path(replay_dir) / "labeled_tactical_states.jsonl")
+    )
     if replay_data_path is not None:
         fixed_replay_sources = list(lane_config.get("fixed_replay_sources", []))
-        lane_config["fixed_replay_sources"] = [{"path": replay_data_path, "weight": 1}, *fixed_replay_sources]
+        lane_config["fixed_replay_sources"] = [
+            {"path": replay_data_path, "weight": 1},
+            *fixed_replay_sources,
+        ]
 
     for step in lane_config.get("steps", []):
         if step.get("name") == "benchmark_contract":
             command = step.get("command")
-            if isinstance(command, list) and "--min-confidence-lower-bound" not in command:
+            if (
+                isinstance(command, list)
+                and "--min-confidence-lower-bound" not in command
+            ):
                 command.extend(["--min-confidence-lower-bound", "0.55"])
 
         command = step.get("command")
@@ -278,7 +307,9 @@ def run_command(command: list[str], *, stage: str) -> None:
             check=False,
         )
     except OSError as error:
-        raise SystemExit(f"{stage} failed to launch ({command_text}): {error}") from error
+        raise SystemExit(
+            f"{stage} failed to launch ({command_text}): {error}"
+        ) from error
     if result.returncode == 0:
         return
 
@@ -311,7 +342,10 @@ def classify_pipeline_failure(lane: dict) -> dict | None:
     except ValueError:
         return None
 
-    if manifest.get("run_id") != lane.get("run_id") or manifest.get("run_id") != expected_run_id:
+    if (
+        manifest.get("run_id") != lane.get("run_id")
+        or manifest.get("run_id") != expected_run_id
+    ):
         return None
     if manifest.get("seed") != lane.get("seed"):
         return None
@@ -330,7 +364,9 @@ def classify_pipeline_failure(lane: dict) -> dict | None:
         failed_steps = []
 
     failed_steps = [
-        step for step in failed_steps if isinstance(step, dict) and step.get("status") == "failed"
+        step
+        for step in failed_steps
+        if isinstance(step, dict) and step.get("status") == "failed"
     ]
     failure_reasons = gate_failures or failed_steps
     if not failure_reasons:
@@ -367,7 +403,10 @@ def load_hard_state_summary(candidate_path: Path) -> dict:
 
 
 def lane_requires_benchmark_report(lane_config: dict) -> bool:
-    return any(step.get("name") == "benchmark_contract" for step in lane_config.get("steps", []))
+    return any(
+        step.get("name") == "benchmark_contract"
+        for step in lane_config.get("steps", [])
+    )
 
 
 def stage_replay_dataset(lane: dict) -> None:
@@ -376,11 +415,15 @@ def stage_replay_dataset(lane: dict) -> None:
     if replay_dir is None and replay_source_path is None:
         return
     if replay_dir is None or replay_source_path is None:
-        raise SystemExit("lane replay metadata must provide both replay_dir and replay_source_path")
+        raise SystemExit(
+            "lane replay metadata must provide both replay_dir and replay_source_path"
+        )
 
     replay_dir_path = Path(replay_dir)
     replay_dir_path.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(Path(replay_source_path), replay_dir_path / "labeled_tactical_states.jsonl")
+    shutil.copy2(
+        Path(replay_source_path), replay_dir_path / "labeled_tactical_states.jsonl"
+    )
 
 
 def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
@@ -443,16 +486,22 @@ def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
         benchmark_report = load_json(benchmark_report_path)
         benchmark_checks = benchmark_report.get("checks", [])
         benchmark_passed = bool(benchmark_checks) and all(
-            isinstance(check, dict) and bool(check.get("passed")) for check in benchmark_checks
+            isinstance(check, dict) and bool(check.get("passed"))
+            for check in benchmark_checks
         )
-        arena_confidence_lower_bound = benchmark_report.get("arena_confidence_lower_bound")
+        arena_confidence_lower_bound = benchmark_report.get(
+            "arena_confidence_lower_bound"
+        )
     elif lane_requires_benchmark_report(lane_config):
         benchmark_report = load_json(candidate_path / "benchmark_report.json")
         benchmark_checks = benchmark_report.get("checks", [])
         benchmark_passed = bool(benchmark_checks) and all(
-            isinstance(check, dict) and bool(check.get("passed")) for check in benchmark_checks
+            isinstance(check, dict) and bool(check.get("passed"))
+            for check in benchmark_checks
         )
-        arena_confidence_lower_bound = benchmark_report.get("arena_confidence_lower_bound")
+        arena_confidence_lower_bound = benchmark_report.get(
+            "arena_confidence_lower_bound"
+        )
     else:
         benchmark_passed = True
         arena_confidence_lower_bound = None
@@ -518,7 +567,9 @@ def main() -> int:
             parent_artifact=str(parent_artifact_path),
             current_path=str(current_path),
         )
-        lane_summaries.append(execute_lane(lane, lane_config, current_path=str(current_path)))
+        lane_summaries.append(
+            execute_lane(lane, lane_config, current_path=str(current_path))
+        )
 
     aggregate_summary = build_aggregate_summary(
         parent_artifact=args.parent_artifact,
@@ -528,7 +579,9 @@ def main() -> int:
     )
     aggregate_summary_path = Path(plan["aggregate_summary_path"])
     aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
-    aggregate_summary_path.write_text(json.dumps(aggregate_summary, indent=2), encoding="utf-8")
+    aggregate_summary_path.write_text(
+        json.dumps(aggregate_summary, indent=2), encoding="utf-8"
+    )
     print(json.dumps(aggregate_summary, indent=2))
     if aggregate_summary["passed"]:
         return 0

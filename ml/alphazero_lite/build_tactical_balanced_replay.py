@@ -22,7 +22,9 @@ from ml.alphazero_lite.build_tactical_capture_protection import (
 )
 
 
-DEFAULT_BALANCED_REPLAY_SOURCE = Path(__file__).resolve().with_name("tactical_balanced_replay_source.jsonl")
+DEFAULT_BALANCED_REPLAY_SOURCE = (
+    Path(__file__).resolve().with_name("tactical_balanced_replay_source.jsonl")
+)
 CAPTURE_PROTECTION_COUNT = 2
 CAPTURE_PRESERVATION_TARGET = 2
 CAPTURE_PRESERVATION_MINIMUM = 2
@@ -31,12 +33,17 @@ NEARBY_PER_BUCKET = 2
 TARGETED_SOURCE_ROW_ID = "incumbent_proxy_disagreement-033"
 TARGETED_SOURCE_BUCKET = "incumbent_proxy_disagreement"
 TARGETED_SOURCE_REPLAY_ROLE = "targeted_source_coverage"
-TARGETED_SOURCE_SUMMARY_FILENAME = "targeted_source_coverage_for_incumbent_proxy_033_summary.json"
+TARGETED_SOURCE_SUMMARY_FILENAME = (
+    "targeted_source_coverage_for_incumbent_proxy_033_summary.json"
+)
 SUPPORTED_VARIANTS = {
     "capped_11": "targeted-source-coverage-033-capped-11",
     "expanded_12_guard_reinforced": "targeted-source-coverage-033-expanded-12-guard-002",
 }
-TARGETED_SOURCE_VARIANT_ROW_COUNTS = {"capped_11": 11, "expanded_12_guard_reinforced": 12}
+TARGETED_SOURCE_VARIANT_ROW_COUNTS = {
+    "capped_11": 11,
+    "expanded_12_guard_reinforced": 12,
+}
 GUARD_REINFORCEMENT_ROW_ID = "capture_available-002"
 GUARD_REINFORCEMENT_REPLAY_ROLE = "guard_reinforcement"
 REPLAY_ROW_REQUIRED_FIELDS = (
@@ -111,7 +118,9 @@ def _load_jsonl(path: Path) -> list[dict]:
 
 def _write_summary(summary: dict, *, summary_out_path: Path) -> None:
     summary_out_path.parent.mkdir(parents=True, exist_ok=True)
-    summary_out_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    summary_out_path.write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def _targeted_source_summary_out_path(out_path: Path) -> Path:
@@ -133,7 +142,9 @@ def _require_source_counts(rows: list[dict]) -> None:
         if counts[bucket] < NEARBY_PER_BUCKET:
             missing.append(f"{bucket}={counts[bucket]}")
     if missing:
-        raise ValueError(f"balanced replay source lacks required bucket counts: {', '.join(missing)}")
+        raise ValueError(
+            f"balanced replay source lacks required bucket counts: {', '.join(missing)}"
+        )
 
 
 def _normalized_capture_row(row: dict) -> dict | None:
@@ -143,7 +154,8 @@ def _normalized_capture_row(row: dict) -> dict | None:
         return None
     normalized.setdefault(
         "raw_state",
-        row.get("raw_state") or raw_state_from_canonical_state(normalized.get("canonical_state")),
+        row.get("raw_state")
+        or raw_state_from_canonical_state(normalized.get("canonical_state")),
     )
     if not normalized.get("raw_state"):
         return None
@@ -165,7 +177,9 @@ def _sanitize_source_artifacts(row: dict) -> dict:
     for item in source_artifacts:
         if isinstance(item, str) and item:
             sanitized.append(Path(item).name if Path(item).is_absolute() else item)
-    row["source_artifacts"] = list(dict.fromkeys(sanitized)) or [CAPTURE_PROTECTION_SOURCE_ARTIFACT]
+    row["source_artifacts"] = list(dict.fromkeys(sanitized)) or [
+        CAPTURE_PROTECTION_SOURCE_ARTIFACT
+    ]
     return row
 
 
@@ -179,7 +193,10 @@ def _normalized_canonical_state_structure(candidate_state):
 
 
 def _targeted_source_state_matches(candidate_state) -> bool:
-    return _normalized_canonical_state_structure(candidate_state) == TARGETED_SOURCE_STATE_STRUCTURE
+    return (
+        _normalized_canonical_state_structure(candidate_state)
+        == TARGETED_SOURCE_STATE_STRUCTURE
+    )
 
 
 def _normalized_targeted_source_row_id(row_id) -> str:
@@ -190,12 +207,16 @@ def _normalized_targeted_source_row_id(row_id) -> str:
     return str(row_id)
 
 
-def _select_capture_protection_rows(regression_position: dict, source_rows: list[dict]) -> list[dict]:
+def _select_capture_protection_rows(
+    regression_position: dict, source_rows: list[dict]
+) -> list[dict]:
     exact_row = build_regression_row(
         regression_position=regression_position,
         teacher_labeler=lambda raw_state: teacher_label_regression_row(
             raw_state,
-            source_id=str(regression_position.get("id", "capture_protection_regression")),
+            source_id=str(
+                regression_position.get("id", "capture_protection_regression")
+            ),
             move_number=regression_position.get("move_number"),
         ),
     )
@@ -209,7 +230,9 @@ def _select_capture_protection_rows(regression_position: dict, source_rows: list
         if row.get("bucket") != "capture_available":
             continue
         normalized = _normalized_capture_row(row)
-        if normalized is None or normalized.get("canonical_state") == exact_row.get("canonical_state"):
+        if normalized is None or normalized.get("canonical_state") == exact_row.get(
+            "canonical_state"
+        ):
             continue
         try:
             scored = score_candidate_support_row(normalized, signature)
@@ -235,7 +258,9 @@ def _select_capture_protection_rows(regression_position: dict, source_rows: list
     return [exact_row, support_rows[0]]
 
 
-def _select_capture_preservation_rows(source_rows: list[dict], protection_rows: list[dict]) -> list[dict]:
+def _select_capture_preservation_rows(
+    source_rows: list[dict], protection_rows: list[dict]
+) -> list[dict]:
     protected_states = {str(row.get("canonical_state")) for row in protection_rows}
     protected_shapes = set()
     for row in protection_rows:
@@ -299,19 +324,28 @@ def _select_capture_preservation_rows(source_rows: list[dict], protection_rows: 
 
 
 def _select_capture_preservation_rows_excluding(
-    source_rows: list[dict], protection_rows: list[dict], *, excluded_row_ids: set[str] | None = None
+    source_rows: list[dict],
+    protection_rows: list[dict],
+    *,
+    excluded_row_ids: set[str] | None = None,
 ) -> list[dict]:
     selected_rows = _select_capture_preservation_rows(source_rows, protection_rows)
     if not excluded_row_ids:
         return selected_rows
 
-    filtered_rows = [row for row in selected_rows if str(row.get("id", "")) not in excluded_row_ids]
+    filtered_rows = [
+        row for row in selected_rows if str(row.get("id", "")) not in excluded_row_ids
+    ]
     if len(filtered_rows) == len(selected_rows):
         return selected_rows
 
     protected_states = {str(row.get("canonical_state")) for row in protection_rows}
     selected_states = {str(row.get("canonical_state")) for row in filtered_rows}
-    selected_shapes = {row.get("capture_shape_key") for row in filtered_rows if row.get("capture_shape_key") is not None}
+    selected_shapes = {
+        row.get("capture_shape_key")
+        for row in filtered_rows
+        if row.get("capture_shape_key") is not None
+    }
 
     candidates = []
     for row in source_rows:
@@ -359,7 +393,11 @@ def _select_capture_preservation_rows_excluding(
 def _select_nearby_preservation_rows(source_rows: list[dict]) -> list[dict]:
     selected_rows = []
     for bucket in NEARBY_BUCKETS:
-        bucket_rows = [_sanitize_source_artifacts(dict(row)) for row in source_rows if row.get("bucket") == bucket]
+        bucket_rows = [
+            _sanitize_source_artifacts(dict(row))
+            for row in source_rows
+            if row.get("bucket") == bucket
+        ]
         bucket_rows.sort(
             key=lambda row: (
                 -float(row.get("priority_score", 0.0)),
@@ -414,7 +452,9 @@ def _select_guard_reinforcement_row(source_rows: list[dict]) -> dict:
         candidates.append(_sanitize_source_artifacts(dict(normalized)))
 
     if not candidates:
-        raise ValueError(f"guard reinforcement row missing for {GUARD_REINFORCEMENT_ROW_ID}")
+        raise ValueError(
+            f"guard reinforcement row missing for {GUARD_REINFORCEMENT_ROW_ID}"
+        )
 
     candidates.sort(
         key=lambda row: (
@@ -431,22 +471,34 @@ def _guard_canonical_states_present(source_rows: list[dict]) -> dict[str, bool]:
     present_states = {
         json.dumps(normalized_state, separators=(",", ":"), sort_keys=True)
         for row in source_rows
-        if (normalized_state := _normalized_canonical_state_structure(row.get("canonical_state"))) is not None
+        if (
+            normalized_state := _normalized_canonical_state_structure(
+                row.get("canonical_state")
+            )
+        )
+        is not None
     }
     return {
-        row_id: json.dumps(canonical_state, separators=(",", ":"), sort_keys=True) in present_states
+        row_id: json.dumps(canonical_state, separators=(",", ":"), sort_keys=True)
+        in present_states
         for row_id, canonical_state in TARGETED_SOURCE_GUARD_STATE_STRUCTURES.items()
     }
 
 
 def _guard_reinforcement_matches_expected(rows: list[dict]) -> bool:
-    guard_rows = [row for row in rows if row.get("replay_role") == GUARD_REINFORCEMENT_REPLAY_ROLE]
+    guard_rows = [
+        row for row in rows if row.get("replay_role") == GUARD_REINFORCEMENT_REPLAY_ROLE
+    ]
     if len(guard_rows) != 1:
         return False
 
-    expected_canonical_state = TARGETED_SOURCE_GUARD_CANONICAL_STATES[GUARD_REINFORCEMENT_ROW_ID]
+    expected_canonical_state = TARGETED_SOURCE_GUARD_CANONICAL_STATES[
+        GUARD_REINFORCEMENT_ROW_ID
+    ]
     actual_canonical_state = guard_rows[0].get("canonical_state")
-    normalized_actual_state = _normalized_canonical_state_structure(actual_canonical_state)
+    normalized_actual_state = _normalized_canonical_state_structure(
+        actual_canonical_state
+    )
     if normalized_actual_state is None:
         return False
     return (
@@ -477,10 +529,16 @@ def _replay_rows_training_ready(rows: list[dict]) -> bool:
     return all(_replay_row_training_ready(row) for row in rows)
 
 
-def _build_targeted_source_summary(*, rows: list[dict], source_rows: list[dict], out_path: Path, variant: str) -> dict:
+def _build_targeted_source_summary(
+    *, rows: list[dict], source_rows: list[dict], out_path: Path, variant: str
+) -> dict:
     summary_out_path = _targeted_source_summary_out_path(out_path)
-    targeted_rows = [row for row in rows if row.get("replay_role") == TARGETED_SOURCE_REPLAY_ROLE]
-    guard_rows = [row for row in rows if row.get("replay_role") == GUARD_REINFORCEMENT_REPLAY_ROLE]
+    targeted_rows = [
+        row for row in rows if row.get("replay_role") == TARGETED_SOURCE_REPLAY_ROLE
+    ]
+    guard_rows = [
+        row for row in rows if row.get("replay_role") == GUARD_REINFORCEMENT_REPLAY_ROLE
+    ]
     guard_presence = _guard_canonical_states_present(source_rows)
     role_order = [str(row.get("replay_role", "")) for row in rows]
     role_counts = {}
@@ -489,7 +547,9 @@ def _build_targeted_source_summary(*, rows: list[dict], source_rows: list[dict],
     expected_row_count = TARGETED_SOURCE_VARIANT_ROW_COUNTS[variant]
     guard_reinforcement_required = variant == "expanded_12_guard_reinforced"
     guard_reinforcement_present = (
-        _guard_reinforcement_matches_expected(rows) if guard_reinforcement_required else len(guard_rows) == 0
+        _guard_reinforcement_matches_expected(rows)
+        if guard_reinforcement_required
+        else len(guard_rows) == 0
     )
     pass_flags = {
         "targeted_row_selected": len(targeted_rows) == 1,
@@ -522,14 +582,22 @@ def _build_targeted_source_summary(*, rows: list[dict], source_rows: list[dict],
 
 
 def build_balanced_replay_dataset(
-    *, regression_positions_path: Path, tactical_replay_path: Path, out_path: Path, variant: str = "capped_11"
+    *,
+    regression_positions_path: Path,
+    tactical_replay_path: Path,
+    out_path: Path,
+    variant: str = "capped_11",
 ):
     if variant not in SUPPORTED_VARIANTS:
         supported = ", ".join(sorted(SUPPORTED_VARIANTS))
-        raise ValueError(f"unsupported targeted source coverage variant: {variant}; supported variants: {supported}")
+        raise ValueError(
+            f"unsupported targeted source coverage variant: {variant}; supported variants: {supported}"
+        )
 
     if not tactical_replay_path.exists():
-        raise FileNotFoundError(f"balanced replay source not found: {tactical_replay_path}")
+        raise FileNotFoundError(
+            f"balanced replay source not found: {tactical_replay_path}"
+        )
 
     regression_positions = _load_json(regression_positions_path)
     if not regression_positions:
@@ -540,7 +608,11 @@ def build_balanced_replay_dataset(
     _require_source_counts(source_rows)
 
     protection_rows = _select_capture_protection_rows(regression_position, source_rows)
-    excluded_preservation_ids = {GUARD_REINFORCEMENT_ROW_ID} if variant == "expanded_12_guard_reinforced" else None
+    excluded_preservation_ids = (
+        {GUARD_REINFORCEMENT_ROW_ID}
+        if variant == "expanded_12_guard_reinforced"
+        else None
+    )
     preservation_rows = _select_capture_preservation_rows_excluding(
         source_rows,
         protection_rows,
@@ -561,8 +633,13 @@ def build_balanced_replay_dataset(
     ]
     if targeted_row is not None:
         rows.append(_role_labeled(targeted_row, TARGETED_SOURCE_REPLAY_ROLE))
-    if variant == "expanded_12_guard_reinforced" and guard_reinforcement_row is not None:
-        rows.append(_role_labeled(guard_reinforcement_row, GUARD_REINFORCEMENT_REPLAY_ROLE))
+    if (
+        variant == "expanded_12_guard_reinforced"
+        and guard_reinforcement_row is not None
+    ):
+        rows.append(
+            _role_labeled(guard_reinforcement_row, GUARD_REINFORCEMENT_REPLAY_ROLE)
+        )
 
     expected_row_count = TARGETED_SOURCE_VARIANT_ROW_COUNTS[variant]
     if len(rows) != expected_row_count:
@@ -590,9 +667,13 @@ def build_balanced_replay_dataset(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--regression-positions", required=True)
-    parser.add_argument("--tactical-replay", default=str(DEFAULT_BALANCED_REPLAY_SOURCE))
+    parser.add_argument(
+        "--tactical-replay", default=str(DEFAULT_BALANCED_REPLAY_SOURCE)
+    )
     parser.add_argument("--out", required=True)
-    parser.add_argument("--variant", choices=sorted(SUPPORTED_VARIANTS), default="capped_11")
+    parser.add_argument(
+        "--variant", choices=sorted(SUPPORTED_VARIANTS), default="capped_11"
+    )
     return parser.parse_args()
 
 

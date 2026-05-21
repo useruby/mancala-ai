@@ -4,18 +4,33 @@ import argparse
 import json
 from pathlib import Path
 
-from ml.alphazero_lite.diagnose_search_interaction import build_matrix_from_runs, choose_next_branch
+from ml.alphazero_lite.diagnose_search_interaction import (
+    build_matrix_from_runs,
+    choose_next_branch,
+)
 
 
 SEARCH_INTERACTION_SCHEMA = "azlite_search_interaction_diagnostic_v1"
 SEARCH_VALUE_INTERACTION_SCHEMA = "azlite_search_value_interaction_diagnostic_v1"
 SEARCH_VALUE_BACKUP_ABLATION_SCHEMA = "azlite_search_value_backup_ablation_v1"
-SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_SCHEMA = "azlite_search_value_backup_ablation_fixture_manifest_v1"
-SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR = (
-    Path(__file__).resolve().parent / "fixtures" / "diagnostics" / "search_value_backup_ablation"
+SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_SCHEMA = (
+    "azlite_search_value_backup_ablation_fixture_manifest_v1"
 )
-SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_PATH = SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR / "manifest.json"
-LOW_OPENING_VALUE_TRUST_SCHEDULE = {"enabled": True, "opening": 0.25, "midgame": 1.0, "late": 1.0}
+SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR = (
+    Path(__file__).resolve().parent
+    / "fixtures"
+    / "diagnostics"
+    / "search_value_backup_ablation"
+)
+SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_PATH = (
+    SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR / "manifest.json"
+)
+LOW_OPENING_VALUE_TRUST_SCHEDULE = {
+    "enabled": True,
+    "opening": 0.25,
+    "midgame": 1.0,
+    "late": 1.0,
+}
 SEARCH_VALUE_PRIMARY_ROW_IDS = [
     "capture_available-002",
     "capture_available-003",
@@ -42,7 +57,9 @@ def _rows_by_id(rows: list[dict]) -> dict[str, dict]:
     return {row["id"]: row for row in rows}
 
 
-def _load_search_value_backup_fixture_payload(*, fixture_dir: Path, manifest_entry: dict) -> dict:
+def _load_search_value_backup_fixture_payload(
+    *, fixture_dir: Path, manifest_entry: dict
+) -> dict:
     payload_path = fixture_dir / Path(manifest_entry["path"]).name
     return {
         "path": payload_path,
@@ -65,8 +82,12 @@ def _supported_parent_fpu_metadata(fpu_mode: str) -> dict:
     }
 
 
-def _validated_ablation_row_ids(search_value_payload: dict) -> tuple[list[str], list[str]]:
-    def validate_subset(row_ids: list[str], approved_row_ids: list[str], field_name: str) -> list[str]:
+def _validated_ablation_row_ids(
+    search_value_payload: dict,
+) -> tuple[list[str], list[str]]:
+    def validate_subset(
+        row_ids: list[str], approved_row_ids: list[str], field_name: str
+    ) -> list[str]:
         approved_iter = iter(approved_row_ids)
         for row_id in row_ids:
             for approved_row_id in approved_iter:
@@ -81,8 +102,12 @@ def _validated_ablation_row_ids(search_value_payload: dict) -> tuple[list[str], 
     primary_row_ids = list(search_value_payload.get("primary_row_ids") or [])
     comparator_row_ids = list(search_value_payload.get("comparator_row_ids") or [])
     return (
-        validate_subset(primary_row_ids, SEARCH_VALUE_PRIMARY_ROW_IDS, "primary_row_ids"),
-        validate_subset(comparator_row_ids, SEARCH_VALUE_COMPARATOR_ROW_IDS, "comparator_row_ids"),
+        validate_subset(
+            primary_row_ids, SEARCH_VALUE_PRIMARY_ROW_IDS, "primary_row_ids"
+        ),
+        validate_subset(
+            comparator_row_ids, SEARCH_VALUE_COMPARATOR_ROW_IDS, "comparator_row_ids"
+        ),
     )
 
 
@@ -91,8 +116,13 @@ def load_search_value_backup_fixture_metadata(
 ) -> dict:
     fixture_manifest_path = fixture_dir / "manifest.json"
     fixture_manifest = _load_json(fixture_manifest_path)
-    if fixture_manifest.get("schema") != SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_SCHEMA:
-        raise ValueError(f"unexpected search value backup fixture manifest schema: {fixture_manifest_path}")
+    if (
+        fixture_manifest.get("schema")
+        != SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_MANIFEST_SCHEMA
+    ):
+        raise ValueError(
+            f"unexpected search value backup fixture manifest schema: {fixture_manifest_path}"
+        )
     return {
         "fixture_dir": fixture_dir,
         "fixture_manifest_path": fixture_manifest_path,
@@ -103,7 +133,9 @@ def load_search_value_backup_fixture_metadata(
 def build_search_value_backup_source_artifacts(
     *, fixture_dir: Path = SEARCH_VALUE_BACKUP_ABLATION_FIXTURE_DIR
 ) -> dict:
-    source_artifacts = load_search_value_backup_fixture_metadata(fixture_dir=fixture_dir)
+    source_artifacts = load_search_value_backup_fixture_metadata(
+        fixture_dir=fixture_dir
+    )
     fixtures = source_artifacts["fixture_manifest"]["fixtures"]
     return {
         **source_artifacts,
@@ -119,8 +151,12 @@ def build_search_value_backup_source_artifacts(
 
 
 def build_search_value_backup_ablation_matrix(*, source_artifacts: dict) -> list[dict]:
-    search_value_payload = source_artifacts["search_value_interaction_diagnostic"]["payload"]
-    primary_row_ids, comparator_row_ids = _validated_ablation_row_ids(search_value_payload)
+    search_value_payload = source_artifacts["search_value_interaction_diagnostic"][
+        "payload"
+    ]
+    primary_row_ids, comparator_row_ids = _validated_ablation_row_ids(
+        search_value_payload
+    )
     return [
         {
             "stable_key": "full_default",
@@ -157,7 +193,11 @@ def build_search_value_backup_ablation_matrix(*, source_artifacts: dict) -> list
             "ablation_mode": "full",
             "search_options_overrides": {"fpu_mode": "zero"},
             "target_row_ids": primary_row_ids,
-            "support_metadata": {"is_supported": True, "support_tier": "native", "resolved_mode": "zero"},
+            "support_metadata": {
+                "is_supported": True,
+                "support_tier": "native",
+                "resolved_mode": "zero",
+            },
         },
         {
             "stable_key": "full_fpu_parent_q",
@@ -175,7 +215,10 @@ def build_search_value_backup_ablation_matrix(*, source_artifacts: dict) -> list
             "classification_role": "candidate",
             "search_family": "puct",
             "ablation_mode": "full",
-            "search_options_overrides": {"root_policy_mode": "visit_count", "tactical_root_bias": 0.0},
+            "search_options_overrides": {
+                "root_policy_mode": "visit_count",
+                "tactical_root_bias": 0.0,
+            },
             "target_row_ids": primary_row_ids,
         },
         {
@@ -193,7 +236,9 @@ def build_search_value_backup_ablation_matrix(*, source_artifacts: dict) -> list
             "classification_role": "candidate",
             "search_family": "puct",
             "ablation_mode": "full",
-            "search_options_overrides": {"value_trust_schedule": dict(LOW_OPENING_VALUE_TRUST_SCHEDULE)},
+            "search_options_overrides": {
+                "value_trust_schedule": dict(LOW_OPENING_VALUE_TRUST_SCHEDULE)
+            },
             "target_row_ids": primary_row_ids,
         },
         {
@@ -209,7 +254,9 @@ def build_search_value_backup_ablation_matrix(*, source_artifacts: dict) -> list
 
 
 def build_matrix_payload(*, original_run_dir: Path, rebalanced_run_dir: Path) -> dict:
-    matrix = build_matrix_from_runs(original_run=original_run_dir, rebalanced_run=rebalanced_run_dir)
+    matrix = build_matrix_from_runs(
+        original_run=original_run_dir, rebalanced_run=rebalanced_run_dir
+    )
     return {"matrix": matrix, "summary": choose_next_branch(matrix)}
 
 
@@ -217,14 +264,18 @@ def _is_excluded_row(row_id: str) -> bool:
     return row_id.startswith(EXCLUDED_ROW_PREFIXES) or row_id in EXCLUDED_ROW_IDS
 
 
-def resolve_target_rows(*, original_run_dir: Path, rebalanced_run_dir: Path, explicit_rows: list[str] | None) -> list[str]:
+def resolve_target_rows(
+    *, original_run_dir: Path, rebalanced_run_dir: Path, explicit_rows: list[str] | None
+) -> list[str]:
     if explicit_rows:
         resolved = [row_id for row_id in explicit_rows if not _is_excluded_row(row_id)]
         if not resolved:
             raise ValueError("search interaction diagnostic resolved no target rows")
         return resolved
 
-    payload = build_matrix_payload(original_run_dir=original_run_dir, rebalanced_run_dir=rebalanced_run_dir)
+    payload = build_matrix_payload(
+        original_run_dir=original_run_dir, rebalanced_run_dir=rebalanced_run_dir
+    )
     rows = payload["summary"].get("priority_rows") or []
     resolved = [row_id for row_id in rows if not _is_excluded_row(row_id)]
     if not resolved:
@@ -244,11 +295,21 @@ def load_selected_artifact_path(run_dir: Path) -> str:
     return selected_artifact
 
 
-def load_row_context(*, row_id: str, original_run_dir: Path, rebalanced_run_dir: Path) -> dict:
-    original_forensics = _load_json(original_run_dir / "final" / "selected_candidate_forensics.json")
-    rebalanced_forensics = _load_json(rebalanced_run_dir / "final" / "selected_candidate_forensics.json")
-    original_opening = _load_json(original_run_dir / "final" / "opening_capture_family_report.json")
-    rebalanced_opening = _load_json(rebalanced_run_dir / "final" / "opening_capture_family_report.json")
+def load_row_context(
+    *, row_id: str, original_run_dir: Path, rebalanced_run_dir: Path
+) -> dict:
+    original_forensics = _load_json(
+        original_run_dir / "final" / "selected_candidate_forensics.json"
+    )
+    rebalanced_forensics = _load_json(
+        rebalanced_run_dir / "final" / "selected_candidate_forensics.json"
+    )
+    original_opening = _load_json(
+        original_run_dir / "final" / "opening_capture_family_report.json"
+    )
+    rebalanced_opening = _load_json(
+        rebalanced_run_dir / "final" / "opening_capture_family_report.json"
+    )
 
     current_rows = _rows_by_id(original_forensics["systems"]["current"]["rows"])
     original_rows = _rows_by_id(original_forensics["systems"]["challenger"]["rows"])
@@ -283,24 +344,37 @@ def search_value_backup_ablation_out_path(*, rebalanced_run_dir: Path) -> Path:
     return rebalanced_run_dir / "final" / "search_value_backup_ablation_diagnostic.json"
 
 
-def _distribution_from_policy(policy: list[float], legal_moves: list[int]) -> dict[str, float]:
-    return {str(move): round(float(policy[move]) if move < len(policy) else 0.0, 4) for move in legal_moves}
-
-
-def _distribution_from_visits(visits: list[float], legal_moves: list[int]) -> dict[str, float] | None:
-    legal_total = sum(float(visits[move]) for move in legal_moves if move < len(visits))
-    if legal_total <= 0:
-        return None
+def _distribution_from_policy(
+    policy: list[float], legal_moves: list[int]
+) -> dict[str, float]:
     return {
-        str(move): round((float(visits[move]) if move < len(visits) else 0.0) / legal_total, 4)
+        str(move): round(float(policy[move]) if move < len(policy) else 0.0, 4)
         for move in legal_moves
     }
 
 
-def _per_move_child_stats(child_stats: list[dict]) -> tuple[dict[str, int] | None, dict[str, float] | None, list[dict] | None]:
+def _distribution_from_visits(
+    visits: list[float], legal_moves: list[int]
+) -> dict[str, float] | None:
+    legal_total = sum(float(visits[move]) for move in legal_moves if move < len(visits))
+    if legal_total <= 0:
+        return None
+    return {
+        str(move): round(
+            (float(visits[move]) if move < len(visits) else 0.0) / legal_total, 4
+        )
+        for move in legal_moves
+    }
+
+
+def _per_move_child_stats(
+    child_stats: list[dict],
+) -> tuple[dict[str, int] | None, dict[str, float] | None, list[dict] | None]:
     if not child_stats:
         return None, None, None
-    visits = {str(int(child["move"])): int(child.get("visits", 0)) for child in child_stats}
+    visits = {
+        str(int(child["move"])): int(child.get("visits", 0)) for child in child_stats
+    }
     q_values = {
         str(int(child["move"])): round(float(child["q_value"]), 4)
         for child in child_stats
@@ -310,8 +384,16 @@ def _per_move_child_stats(child_stats: list[dict]) -> tuple[dict[str, int] | Non
         {
             "move": int(child["move"]),
             "visits": int(child.get("visits", 0)),
-            **({"q_value": round(float(child["q_value"]), 4)} if "q_value" in child else {}),
-            **({"win_rate": round(float(child["win_rate"]), 4)} if "win_rate" in child else {}),
+            **(
+                {"q_value": round(float(child["q_value"]), 4)}
+                if "q_value" in child
+                else {}
+            ),
+            **(
+                {"win_rate": round(float(child["win_rate"]), 4)}
+                if "win_rate" in child
+                else {}
+            ),
         }
         for child in child_stats
     ]
@@ -321,7 +403,9 @@ def _per_move_child_stats(child_stats: list[dict]) -> tuple[dict[str, int] | Non
 def _top_distribution_key(distribution: dict[str, float] | None) -> int | None:
     if not distribution:
         return None
-    move, _ = max(distribution.items(), key=lambda item: (float(item[1]), -int(item[0])))
+    move, _ = max(
+        distribution.items(), key=lambda item: (float(item[1]), -int(item[0]))
+    )
     return int(move)
 
 
@@ -388,7 +472,12 @@ def _merge_search_options(*, base_search_options: dict, overrides: dict | None) 
 def _unsupported_configuration_entries(*, row_id: str, config: dict) -> list[dict]:
     unsupported = []
     if row_id not in config.get("target_row_ids", []):
-        unsupported.append({"kind": "row_out_of_scope", "reason": "row not approved for this configuration"})
+        unsupported.append(
+            {
+                "kind": "row_out_of_scope",
+                "reason": "row not approved for this configuration",
+            }
+        )
 
     support_metadata = config.get("support_metadata") or {}
     if support_metadata and not support_metadata.get("is_supported", True):
@@ -428,7 +517,8 @@ def _build_ablation_observability(artifact: dict) -> dict:
                 "fpu_mode": selection_breakdown["fpu_mode"],
                 "value_trust_multiplier": selection_breakdown["value_trust_multiplier"],
             }
-            if "fpu_mode" in selection_breakdown and "value_trust_multiplier" in selection_breakdown
+            if "fpu_mode" in selection_breakdown
+            and "value_trust_multiplier" in selection_breakdown
             else {}
         ),
     }
@@ -447,10 +537,16 @@ def _build_matrix_configuration_metadata(config: dict) -> dict:
     }
 
 
-def _build_search_value_backup_top_level_source_artifacts(*, source_artifacts: dict) -> dict:
+def _build_search_value_backup_top_level_source_artifacts(
+    *, source_artifacts: dict
+) -> dict:
     top_level_source_artifacts = {
-        "search_interaction_diagnostic": str(source_artifacts["search_interaction_diagnostic"]["path"]),
-        "search_value_interaction_diagnostic": str(source_artifacts["search_value_interaction_diagnostic"]["path"]),
+        "search_interaction_diagnostic": str(
+            source_artifacts["search_interaction_diagnostic"]["path"]
+        ),
+        "search_value_interaction_diagnostic": str(
+            source_artifacts["search_value_interaction_diagnostic"]["path"]
+        ),
     }
     fixture_manifest_path = source_artifacts.get("fixture_manifest_path")
     if fixture_manifest_path is not None:
@@ -475,7 +571,9 @@ def build_search_value_backup_ablation_payload(
             "payload": resolved_payload,
         },
     }
-    matrix = build_search_value_backup_ablation_matrix(source_artifacts=resolved_source_artifacts)
+    matrix = build_search_value_backup_ablation_matrix(
+        source_artifacts=resolved_source_artifacts
+    )
     payload = {
         "schema": SEARCH_VALUE_BACKUP_ABLATION_SCHEMA,
         "source_artifacts": _build_search_value_backup_top_level_source_artifacts(
@@ -483,12 +581,17 @@ def build_search_value_backup_ablation_payload(
         ),
         "primary_row_ids": list(resolved_payload.get("primary_row_ids") or []),
         "comparator_row_ids": list(resolved_payload.get("comparator_row_ids") or []),
-        "matrix_configurations": [_build_matrix_configuration_metadata(config) for config in matrix],
+        "matrix_configurations": [
+            _build_matrix_configuration_metadata(config) for config in matrix
+        ],
         "rows": {},
         "unsupported_comparisons": [],
     }
 
-    if "original_run_dir" not in resolved_payload or "rebalanced_run_dir" not in resolved_payload:
+    if (
+        "original_run_dir" not in resolved_payload
+        or "rebalanced_run_dir" not in resolved_payload
+    ):
         return payload
 
     original_run_dir = Path(resolved_payload["original_run_dir"])
@@ -503,7 +606,11 @@ def build_search_value_backup_ablation_payload(
 
     for row_index, row_id in enumerate(ordered_row_ids):
         sibling_row = resolved_payload["rows"][row_id]
-        context = load_row_context(row_id=row_id, original_run_dir=original_run_dir, rebalanced_run_dir=rebalanced_run_dir)
+        context = load_row_context(
+            row_id=row_id,
+            original_run_dir=original_run_dir,
+            rebalanced_run_dir=rebalanced_run_dir,
+        )
         legal_moves = list(context["current_row"]["legal_moves"])
         state = context["current_row"]["state"]
         configurations = {}
@@ -513,7 +620,9 @@ def build_search_value_backup_ablation_payload(
                 base_search_options=base_search_options,
                 overrides=config.get("search_options_overrides"),
             )
-            unsupported_comparisons = _unsupported_configuration_entries(row_id=row_id, config=config)
+            unsupported_comparisons = _unsupported_configuration_entries(
+                row_id=row_id, config=config
+            )
             configuration_entry = {
                 "stable_key": config["stable_key"],
                 "classification_role": config["classification_role"],
@@ -531,8 +640,14 @@ def build_search_value_backup_ablation_payload(
                     seed=seed + (row_index * 100) + config_index,
                     c_puct=c_puct,
                     evaluator=selected_evaluator,
-                    search_options={"stable_key": config["stable_key"], "search_options": merged_search_options},
-                    ablation_mode={"stable_key": config["stable_key"], "ablation_mode": config["ablation_mode"]},
+                    search_options={
+                        "stable_key": config["stable_key"],
+                        "search_options": merged_search_options,
+                    },
+                    ablation_mode={
+                        "stable_key": config["stable_key"],
+                        "ablation_mode": config["ablation_mode"],
+                    },
                 )
                 artifact_row = build_artifact_row(
                     artifact_path=selected_rebalanced_artifact,
@@ -546,7 +661,9 @@ def build_search_value_backup_ablation_payload(
                     probe_summary=probe_summary,
                     legal_moves=legal_moves,
                 )
-                configuration_entry["observability"] = _build_ablation_observability(artifact_row)
+                configuration_entry["observability"] = _build_ablation_observability(
+                    artifact_row
+                )
 
             configurations[config["stable_key"]] = configuration_entry
             for unsupported in unsupported_comparisons:
@@ -559,17 +676,24 @@ def build_search_value_backup_ablation_payload(
                 )
 
         rows[row_id] = {
-            "row_role": "primary" if row_id in payload["primary_row_ids"] else "comparator",
+            "row_role": "primary"
+            if row_id in payload["primary_row_ids"]
+            else "comparator",
             "classification_outcome": sibling_row["decision"],
-            "row_mechanism_summary": sibling_row.get("row_mechanism_summary") or summarize_row_mechanism(sibling_row),
+            "row_mechanism_summary": sibling_row.get("row_mechanism_summary")
+            or summarize_row_mechanism(sibling_row),
             "bucket": context["bucket"],
             "phase": context["phase"],
             "reference_move": context["reference_move"],
             "teacher_value": round(float(context["teacher_value"]), 4),
             "source_artifacts": {
                 "current": sibling_row["current"]["artifact_path"],
-                "original_challenger": sibling_row["original_challenger"]["artifact_path"],
-                "rebalanced_challenger": sibling_row["rebalanced_challenger"]["artifact_path"],
+                "original_challenger": sibling_row["original_challenger"][
+                    "artifact_path"
+                ],
+                "rebalanced_challenger": sibling_row["rebalanced_challenger"][
+                    "artifact_path"
+                ],
                 "selected_rebalanced_artifact": selected_rebalanced_artifact,
             },
             "configurations": configurations,
@@ -581,8 +705,12 @@ def build_search_value_backup_ablation_payload(
 
 
 def _search_value_row_ids(resolved_rows: list[str]) -> tuple[list[str], list[str]]:
-    primary = [row_id for row_id in SEARCH_VALUE_PRIMARY_ROW_IDS if row_id in resolved_rows]
-    comparator = [row_id for row_id in SEARCH_VALUE_COMPARATOR_ROW_IDS if row_id in resolved_rows]
+    primary = [
+        row_id for row_id in SEARCH_VALUE_PRIMARY_ROW_IDS if row_id in resolved_rows
+    ]
+    comparator = [
+        row_id for row_id in SEARCH_VALUE_COMPARATOR_ROW_IDS if row_id in resolved_rows
+    ]
     return primary, comparator
 
 
@@ -597,7 +725,11 @@ def _build_search_value_rows(rows: dict[str, dict]) -> dict[str, dict]:
         raw_policy = rebalanced.get("raw_policy_distribution") or {}
         searched = rebalanced.get("searched_visit_distribution") or {}
         q_values = rebalanced.get("per_move_q_values") or {}
-        if {reference_key, selected_key}.issubset(raw_policy) and {reference_key, selected_key}.issubset(searched) and {reference_key, selected_key}.issubset(q_values):
+        if (
+            {reference_key, selected_key}.issubset(raw_policy)
+            and {reference_key, selected_key}.issubset(searched)
+            and {reference_key, selected_key}.issubset(q_values)
+        ):
             return row_payload["decision"]
         return "insufficient_child_stats"
 
@@ -608,10 +740,14 @@ def _build_search_value_rows(rows: dict[str, dict]) -> dict[str, dict]:
             **row_payload,
             "decision": decision,
             "notes": {
-                "search_overrides_prior": ["prior corrected but searched move still wrong"],
+                "search_overrides_prior": [
+                    "prior corrected but searched move still wrong"
+                ],
                 "q_value_backup_issue": ["backup values favor the wrong child"],
                 "bad_priors": ["reference move remains underweighted in raw policy"],
-                "insufficient_child_stats": ["child stats unavailable for one or more compared artifacts"],
+                "insufficient_child_stats": [
+                    "child stats unavailable for one or more compared artifacts"
+                ],
                 "mixed": ["multiple mechanisms remain plausible"],
             }[decision],
             "row_mechanism_summary": summarize_row_mechanism(row_payload),
@@ -619,8 +755,12 @@ def _build_search_value_rows(rows: dict[str, dict]) -> dict[str, dict]:
     return search_value_rows
 
 
-def build_search_value_interaction_payload_from_source_payload(*, payload: dict, source_diagnostic_path: str) -> dict:
-    primary_row_ids, comparator_row_ids = _search_value_row_ids(payload["row_source"]["resolved_rows"])
+def build_search_value_interaction_payload_from_source_payload(
+    *, payload: dict, source_diagnostic_path: str
+) -> dict:
+    primary_row_ids, comparator_row_ids = _search_value_row_ids(
+        payload["row_source"]["resolved_rows"]
+    )
     sibling_rows = _build_search_value_rows(payload["rows"])
     return {
         **payload,
@@ -651,13 +791,23 @@ def build_artifact_row(
     legal_moves: list[int],
 ) -> dict:
     probe_value = probe_summary.get("value")
-    normalized_probe_value = round(float(probe_value), 4) if probe_value is not None else None
-    normalized_probe_value_error = (
-        round(abs(float(probe_value) - float(teacher_value)), 4) if probe_value is not None else None
+    normalized_probe_value = (
+        round(float(probe_value), 4) if probe_value is not None else None
     )
-    raw_policy_distribution = _distribution_from_policy(list(probe_summary.get("policy") or []), legal_moves)
-    searched_visit_distribution = _distribution_from_visits(list(probe_summary.get("visits") or []), legal_moves)
-    per_move_visits, per_move_q_values, child_stats = _per_move_child_stats(list(probe_summary.get("child_stats") or []))
+    normalized_probe_value_error = (
+        round(abs(float(probe_value) - float(teacher_value)), 4)
+        if probe_value is not None
+        else None
+    )
+    raw_policy_distribution = _distribution_from_policy(
+        list(probe_summary.get("policy") or []), legal_moves
+    )
+    searched_visit_distribution = _distribution_from_visits(
+        list(probe_summary.get("visits") or []), legal_moves
+    )
+    per_move_visits, per_move_q_values, child_stats = _per_move_child_stats(
+        list(probe_summary.get("child_stats") or [])
+    )
 
     missing_fields = [
         field_name
@@ -692,7 +842,9 @@ def build_artifact_row(
         "child_stats": child_stats,
         "selection_breakdown": probe_summary.get("selection_breakdown"),
         "visit_snapshots": (
-            None if "visit_snapshots" not in probe_summary else list(probe_summary.get("visit_snapshots") or [])
+            None
+            if "visit_snapshots" not in probe_summary
+            else list(probe_summary.get("visit_snapshots") or [])
         ),
         "missing_fields": missing_fields,
     }
@@ -718,7 +870,9 @@ def probe_artifact_position(
     arena = load_arena_module()
     if evaluator is None:
         evaluator = arena.ArtifactEvaluator(Path(artifact_path))
-    resolved_ablation_mode = _unwrap_diagnostic_wrapper(ablation_mode, field_name="ablation_mode")
+    resolved_ablation_mode = _unwrap_diagnostic_wrapper(
+        ablation_mode, field_name="ablation_mode"
+    )
     if not isinstance(resolved_ablation_mode, str):
         raise TypeError("ablation_mode must resolve to a string")
     return arena.evaluate_artifact_position(
@@ -729,7 +883,9 @@ def probe_artifact_position(
         seed=seed,
         c_puct=c_puct,
         search_options=_unwrap_diagnostic_wrapper(
-            arena.build_eval_search_options() if search_options is None else search_options,
+            arena.build_eval_search_options()
+            if search_options is None
+            else search_options,
             field_name="search_options",
         ),
         ablation_mode=resolved_ablation_mode,
@@ -753,7 +909,10 @@ def decide_row(row_payload: dict) -> str:
     selected_key = str(selected_move)
     q_gap = q_values.get(selected_key, -1.0) - q_values.get(reference_key, -1.0)
 
-    if raw_policy.get(reference_key, 0.0) >= 0.4 and searched.get(reference_key, 0.0) < 0.3:
+    if (
+        raw_policy.get(reference_key, 0.0) >= 0.4
+        and searched.get(reference_key, 0.0) < 0.3
+    ):
         if q_gap > 0.3:
             return "q_value_backup_issue"
         return "search_overrides_prior"
@@ -772,7 +931,10 @@ def build_summary(rows: dict[str, dict]) -> dict:
     for row in rows.values():
         decision_counts[row["decision"]] += 1
 
-    if decision_counts["search_overrides_prior"] or decision_counts["q_value_backup_issue"]:
+    if (
+        decision_counts["search_overrides_prior"]
+        or decision_counts["q_value_backup_issue"]
+    ):
         next_branch = "search_value_interaction_investigation"
     elif decision_counts["bad_priors"]:
         next_branch = "replay_source_coverage_investigation"
@@ -801,12 +963,20 @@ def build_search_interaction_payload(
     rebalanced_selected_artifact = load_selected_artifact_path(rebalanced_run_dir)
     evaluators = {
         current_artifact_path: arena.ArtifactEvaluator(Path(current_artifact_path)),
-        original_selected_artifact: arena.ArtifactEvaluator(Path(original_selected_artifact)),
-        rebalanced_selected_artifact: arena.ArtifactEvaluator(Path(rebalanced_selected_artifact)),
+        original_selected_artifact: arena.ArtifactEvaluator(
+            Path(original_selected_artifact)
+        ),
+        rebalanced_selected_artifact: arena.ArtifactEvaluator(
+            Path(rebalanced_selected_artifact)
+        ),
     }
     rows = {}
     for index, row_id in enumerate(resolved_rows):
-        context = load_row_context(row_id=row_id, original_run_dir=original_run_dir, rebalanced_run_dir=rebalanced_run_dir)
+        context = load_row_context(
+            row_id=row_id,
+            original_run_dir=original_run_dir,
+            rebalanced_run_dir=rebalanced_run_dir,
+        )
         state = context["current_row"]["state"]
         legal_moves = list(context["current_row"]["legal_moves"])
         current = build_artifact_row(
@@ -881,7 +1051,9 @@ def build_search_interaction_payload(
             "search_overrides_prior": ["prior corrected but searched move still wrong"],
             "q_value_backup_issue": ["backup values favor the wrong child"],
             "bad_priors": ["reference move remains underweighted in raw policy"],
-            "insufficient_child_stats": ["child stats unavailable for one or more compared artifacts"],
+            "insufficient_child_stats": [
+                "child stats unavailable for one or more compared artifacts"
+            ],
             "mixed": ["multiple mechanisms remain plausible"],
         }[row_payload["decision"]]
         rows[row_id] = row_payload
@@ -892,7 +1064,9 @@ def build_search_interaction_payload(
         "rebalanced_run_dir": str(rebalanced_run_dir),
         "current_artifact_path": current_artifact_path,
         "row_source": {
-            "kind": "explicit_rows" if explicit_rows else "matrix_summary_priority_rows",
+            "kind": "explicit_rows"
+            if explicit_rows
+            else "matrix_summary_priority_rows",
             "matrix_summary_path": None,
             "explicit_rows": explicit_rows,
             "resolved_rows": resolved_rows,
@@ -923,13 +1097,17 @@ def build_search_value_interaction_payload(
     )
     return build_search_value_interaction_payload_from_source_payload(
         payload=payload,
-        source_diagnostic_path=str(diagnostic_out_path(rebalanced_run_dir=rebalanced_run_dir)),
+        source_diagnostic_path=str(
+            diagnostic_out_path(rebalanced_run_dir=rebalanced_run_dir)
+        ),
     )
 
 
 def _write_payload(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -963,7 +1141,9 @@ def main(argv: list[str] | None = None) -> int:
         payload=payload,
         source_diagnostic_path=str(out_path),
     )
-    sibling_out_path = search_value_interaction_diagnostic_out_path(rebalanced_run_dir=rebalanced_run_dir)
+    sibling_out_path = search_value_interaction_diagnostic_out_path(
+        rebalanced_run_dir=rebalanced_run_dir
+    )
     _write_payload(sibling_out_path, sibling_payload)
 
     ablation_payload = build_search_value_backup_ablation_payload(
@@ -981,7 +1161,9 @@ def main(argv: list[str] | None = None) -> int:
         c_puct=args.c_puct,
         seed=args.seed,
     )
-    ablation_out_path = search_value_backup_ablation_out_path(rebalanced_run_dir=rebalanced_run_dir)
+    ablation_out_path = search_value_backup_ablation_out_path(
+        rebalanced_run_dir=rebalanced_run_dir
+    )
     _write_payload(ablation_out_path, ablation_payload)
 
     print(

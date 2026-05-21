@@ -5,15 +5,22 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from ml.alphazero_lite import capture_002_selection_score_trace as selection_score_module
+from ml.alphazero_lite import (
+    capture_002_selection_score_trace as selection_score_module,
+)
 from ml.alphazero_lite import capture_002_trace_cadence_review as module
 
 
 class Capture002TraceCadenceReviewContractTest(unittest.TestCase):
     def test_contract_constants_are_stable(self):
         self.assertEqual("azlite_capture_002_trace_cadence_review_v1", module.SCHEMA)
-        self.assertEqual("azlite_capture_002_trace_capture_v1", module.SOURCE_TRACE_CAPTURE_SCHEMA)
-        self.assertEqual("azlite_capture_002_selection_score_trace_v1", module.SOURCE_SELECTION_SCORE_SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_trace_capture_v1", module.SOURCE_TRACE_CAPTURE_SCHEMA
+        )
+        self.assertEqual(
+            "azlite_capture_002_selection_score_trace_v1",
+            module.SOURCE_SELECTION_SCORE_SCHEMA,
+        )
         self.assertEqual(
             {
                 "trace_too_sparse": "write_002_trace_cadence_capture_spec",
@@ -45,9 +52,23 @@ class Capture002TraceCadenceReviewContractTest(unittest.TestCase):
 
     def test_parse_args_requires_all_paths(self):
         with self.assertRaises(SystemExit):
-            module.parse_args(["--source-selection-score-artifact", "/tmp/selection.json", "--out", "/tmp/out.json"])
+            module.parse_args(
+                [
+                    "--source-selection-score-artifact",
+                    "/tmp/selection.json",
+                    "--out",
+                    "/tmp/out.json",
+                ]
+            )
         with self.assertRaises(SystemExit):
-            module.parse_args(["--source-trace-capture-artifact", "/tmp/trace.json", "--out", "/tmp/out.json"])
+            module.parse_args(
+                [
+                    "--source-trace-capture-artifact",
+                    "/tmp/trace.json",
+                    "--out",
+                    "/tmp/out.json",
+                ]
+            )
         with self.assertRaises(SystemExit):
             module.parse_args(
                 [
@@ -96,7 +117,9 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             "insufficiency_reasons": [],
         }
 
-    def selection_score_artifact(self, *, visit_share: float, unresolved: bool = True) -> dict:
+    def selection_score_artifact(
+        self, *, visit_share: float, unresolved: bool = True
+    ) -> dict:
         return {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
             "trace_origin": "extracted",
@@ -106,7 +129,9 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
                 "full_search_selected_move": 0,
             },
             "classification": {
-                "classification": "unresolved" if unresolved else "selection_score_pressure_confirmed",
+                "classification": "unresolved"
+                if unresolved
+                else "selection_score_pressure_confirmed",
                 "evidence_summary": "Selection-score and Q-support timing do not cleanly separate for capture 002.",
             },
             "decision": "write_002_unresolved_trace_review_spec"
@@ -179,15 +204,25 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             "full_search_selected_move": 0,
             "trace_points": trace_points,
             "insufficiency_reasons": [],
-            "trace_points_summary": default_trace_points_summary if trace_points_summary is None else trace_points_summary,
+            "trace_points_summary": default_trace_points_summary
+            if trace_points_summary is None
+            else trace_points_summary,
             "provenance_guard": {
                 "passed": provenance_passed,
-                "failures": [] if provenance_passed else ["selected_artifact_provenance_mismatch"],
+                "failures": []
+                if provenance_passed
+                else ["selected_artifact_provenance_mismatch"],
             },
         }
 
     def generated_selection_score_artifact(self) -> dict:
-        def trace_point(*, simulation: float, selected_move: int, visits: list[float], moves: list[dict]) -> dict:
+        def trace_point(
+            *,
+            simulation: float,
+            selected_move: int,
+            visits: list[float],
+            moves: list[dict],
+        ) -> dict:
             return {
                 "simulation": simulation,
                 "selected_move": selected_move,
@@ -249,7 +284,9 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             }
         )
 
-    def test_build_payload_classifies_sparse_trace_when_only_root_and_final_checkpoints_exist(self):
+    def test_build_payload_classifies_sparse_trace_when_only_root_and_final_checkpoints_exist(
+        self,
+    ):
         payload = module.build_payload(
             self.trace_capture_artifact(simulations=[1.0, 1.0, 16.0]),
             self.selection_score_artifact(visit_share=0.04545454545454547),
@@ -257,14 +294,23 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             selection_score_artifact_path="/tmp/selection_score.json",
         )
 
-        self.assertEqual("trace_too_sparse", payload["classification"]["classification"])
+        self.assertEqual(
+            "trace_too_sparse", payload["classification"]["classification"]
+        )
         self.assertEqual("write_002_trace_cadence_capture_spec", payload["decision"])
         self.assertEqual([1.0, 16.0], payload["unique_simulation_checkpoints"])
         self.assertEqual(2, payload["unique_simulation_checkpoint_count"])
-        self.assertIn("selected_move_changed_without_captured_crossing", payload["ambiguity_signals"])
-        self.assertIn("near_material_visit_share_threshold", payload["ambiguity_signals"])
+        self.assertIn(
+            "selected_move_changed_without_captured_crossing",
+            payload["ambiguity_signals"],
+        )
+        self.assertIn(
+            "near_material_visit_share_threshold", payload["ambiguity_signals"]
+        )
 
-    def test_build_payload_marks_cadence_adequate_when_intermediate_checkpoints_exist(self):
+    def test_build_payload_marks_cadence_adequate_when_intermediate_checkpoints_exist(
+        self,
+    ):
         payload = module.build_payload(
             self.trace_capture_artifact(simulations=[1.0, 8.0, 12.0, 16.0]),
             self.selection_score_artifact(visit_share=0.02),
@@ -272,9 +318,13 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             selection_score_artifact_path="/tmp/selection_score.json",
         )
 
-        self.assertEqual("cadence_adequate", payload["classification"]["classification"])
+        self.assertEqual(
+            "cadence_adequate", payload["classification"]["classification"]
+        )
         self.assertEqual("continue_002_threshold_too_strict_check", payload["decision"])
-        self.assertEqual([1.0, 8.0, 12.0, 16.0], payload["unique_simulation_checkpoints"])
+        self.assertEqual(
+            [1.0, 8.0, 12.0, 16.0], payload["unique_simulation_checkpoints"]
+        )
         self.assertEqual(4, payload["unique_simulation_checkpoint_count"])
 
     def test_load_selection_score_artifact_requires_finite_visit_share(self):
@@ -297,17 +347,25 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             del artifact["source_artifact"]
             self.write_json(path, artifact)
 
-            with self.assertRaisesRegex(ValueError, r"selection score artifact source_artifact must be an object"):
+            with self.assertRaisesRegex(
+                ValueError,
+                r"selection score artifact source_artifact must be an object",
+            ):
                 module.load_selection_score_artifact(path)
 
-    def test_load_selection_score_artifact_requires_source_artifact_identity_fields(self):
+    def test_load_selection_score_artifact_requires_source_artifact_identity_fields(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "selection_score.json"
             artifact = self.selection_score_artifact(visit_share=0.02)
             del artifact["source_artifact"]["row_id"]
             self.write_json(path, artifact)
 
-            with self.assertRaisesRegex(ValueError, r"selection score artifact source_artifact.row_id is required"):
+            with self.assertRaisesRegex(
+                ValueError,
+                r"selection score artifact source_artifact.row_id is required",
+            ):
                 module.load_selection_score_artifact(path)
 
     def test_load_selection_score_artifact_rejects_null_source_identity_fields(self):
@@ -317,7 +375,10 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             artifact["source_artifact"]["reference_move"] = None
             self.write_json(path, artifact)
 
-            with self.assertRaisesRegex(ValueError, r"selection score artifact source_artifact.reference_move must be an integer"):
+            with self.assertRaisesRegex(
+                ValueError,
+                r"selection score artifact source_artifact.reference_move must be an integer",
+            ):
                 module.load_selection_score_artifact(path)
 
     def test_load_selection_score_artifact_rejects_non_002_source_identity(self):
@@ -327,10 +388,15 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             artifact["source_artifact"]["row_id"] = "capture_available-003"
             self.write_json(path, artifact)
 
-            with self.assertRaisesRegex(ValueError, r"selection score artifact source_artifact.row_id must be capture_available-002"):
+            with self.assertRaisesRegex(
+                ValueError,
+                r"selection score artifact source_artifact.row_id must be capture_available-002",
+            ):
                 module.load_selection_score_artifact(path)
 
-    def test_load_selection_score_artifact_accepts_generated_artifact_shape_with_move_identity_fields(self):
+    def test_load_selection_score_artifact_accepts_generated_artifact_shape_with_move_identity_fields(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "selection_score.json"
             self.write_json(path, self.generated_selection_score_artifact())
@@ -346,7 +412,9 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             trace_capture_artifact_path="/tmp/trace_capture.json",
             selection_score_artifact_path="/tmp/selection_score.json",
         )
-        self.assertEqual("cadence_adequate", payload["classification"]["classification"])
+        self.assertEqual(
+            "cadence_adequate", payload["classification"]["classification"]
+        )
 
     def test_load_selection_score_artifact_rejects_boolean_visit_share(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -387,7 +455,9 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             ):
                 module.load_trace_capture_artifact(path)
 
-    def test_load_trace_capture_artifact_rejects_dense_cadence_capture_with_failed_provenance_guard(self):
+    def test_load_trace_capture_artifact_rejects_dense_cadence_capture_with_failed_provenance_guard(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "trace_capture.json"
             artifact = self.dense_cadence_capture_artifact(provenance_passed=False)
@@ -396,7 +466,9 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, r"provenance_guard"):
                 module.load_trace_capture_artifact(path)
 
-    def test_load_trace_capture_artifact_accepts_valid_dense_cadence_capture_schema(self):
+    def test_load_trace_capture_artifact_accepts_valid_dense_cadence_capture_schema(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "trace_capture.json"
             artifact = self.dense_cadence_capture_artifact()
@@ -404,11 +476,15 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
 
             loaded = module.load_trace_capture_artifact(path)
 
-        self.assertEqual("azlite_capture_002_trace_cadence_capture_v1", loaded["schema"])
+        self.assertEqual(
+            "azlite_capture_002_trace_cadence_capture_v1", loaded["schema"]
+        )
         self.assertEqual("dense_rerun", loaded["trace_origin"])
         self.assertEqual(5, len(loaded["trace_points"]))
 
-    def test_load_trace_capture_artifact_rejects_forged_dense_summary_without_actual_intermediate_checkpoint(self):
+    def test_load_trace_capture_artifact_rejects_forged_dense_summary_without_actual_intermediate_checkpoint(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "trace_capture.json"
             artifact = self.dense_cadence_capture_artifact(
@@ -463,8 +539,14 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             trace_capture_path = Path(tmp) / "trace_capture.json"
             selection_score_path = Path(tmp) / "selection_score.json"
             out_path = Path(tmp) / "trace_cadence_review.json"
-            self.write_json(trace_capture_path, self.trace_capture_artifact(simulations=[1.0, 1.0, 16.0]))
-            self.write_json(selection_score_path, self.selection_score_artifact(visit_share=0.04545454545454547))
+            self.write_json(
+                trace_capture_path,
+                self.trace_capture_artifact(simulations=[1.0, 1.0, 16.0]),
+            )
+            self.write_json(
+                selection_score_path,
+                self.selection_score_artifact(visit_share=0.04545454545454547),
+            )
 
             stdout = io.StringIO()
             with redirect_stdout(stdout):
@@ -492,5 +574,7 @@ class Capture002TraceCadenceReviewBuildPayloadTest(unittest.TestCase):
             "decision": "write_002_trace_cadence_capture_spec",
         }
         self.assertEqual(expected_printed, printed)
-        self.assertEqual(json.dumps(written, indent=2, sort_keys=True) + "\n", written_text)
+        self.assertEqual(
+            json.dumps(written, indent=2, sort_keys=True) + "\n", written_text
+        )
         self.assertEqual(json.dumps(expected_printed) + "\n", printed_text)

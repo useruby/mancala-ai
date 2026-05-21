@@ -110,13 +110,18 @@ class DiagnoseSearchInteractionTest(unittest.TestCase):
             {"mechanism": "search_overrides_prior", "row_id": "capture_available-002"},
             {"mechanism": "search_overrides_prior", "row_id": "capture_available-003"},
             {"mechanism": "value_sign_miscalibration", "row_id": "high_imbalance-010"},
-            {"mechanism": "persistent_late_game_weakness", "row_id": "sparse_endgame-009"},
+            {
+                "mechanism": "persistent_late_game_weakness",
+                "row_id": "sparse_endgame-009",
+            },
         ]
 
         summary = module.choose_next_branch(matrix)
 
         self.assertEqual("search_interaction_diagnostic", summary["next_branch"])
-        self.assertEqual(["capture_available-002", "capture_available-003"], summary["priority_rows"])
+        self.assertEqual(
+            ["capture_available-002", "capture_available-003"], summary["priority_rows"]
+        )
         self.assertIn("high_imbalance-010", summary["followup_rows"])
         self.assertIn("sparse_endgame-009", summary["separate_track_rows"])
 
@@ -130,12 +135,17 @@ class DiagnoseSearchInteractionTest(unittest.TestCase):
 
         self.assertEqual("value_calibration_diagnostic", summary["next_branch"])
         self.assertEqual([], summary["priority_rows"])
-        self.assertEqual(["high_imbalance-010", "high_imbalance-011"], summary["followup_rows"])
+        self.assertEqual(
+            ["high_imbalance-010", "high_imbalance-011"], summary["followup_rows"]
+        )
         self.assertEqual([], summary["separate_track_rows"])
 
     def test_choose_next_branch_uses_endgame_branch_for_late_only_matrix(self):
         matrix = [
-            {"mechanism": "persistent_late_game_weakness", "row_id": "sparse_endgame-009"},
+            {
+                "mechanism": "persistent_late_game_weakness",
+                "row_id": "sparse_endgame-009",
+            },
         ]
 
         summary = module.choose_next_branch(matrix)
@@ -154,79 +164,513 @@ class DiagnoseSearchInteractionTest(unittest.TestCase):
             (rebalanced_run / "final").mkdir(parents=True)
 
             current_rows = [
-                {"id": "capture_available-002", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 2, "teacher_value": 0.50, "system_value": 0.11, "value_error": 0.39},
-                {"id": "capture_available-003", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 2, "teacher_value": 0.54, "system_value": 0.15, "value_error": 0.40},
-                {"id": "capture_available-007", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 2, "teacher_value": 0.57, "system_value": 0.12, "value_error": 0.41},
-                {"id": "early_extra_turn-014", "bucket": "early_extra_turn", "phase": "mid", "reference_move": 1, "selected_move": 5, "teacher_value": -0.29, "system_value": -0.01, "value_error": 0.29},
-                {"id": "high_imbalance-010", "bucket": "high_imbalance", "phase": "opening", "reference_move": 1, "selected_move": 1, "teacher_value": -0.31, "system_value": -0.03, "value_error": 0.29},
-                {"id": "high_imbalance-011", "bucket": "high_imbalance", "phase": "opening", "reference_move": 1, "selected_move": 1, "teacher_value": -0.10, "system_value": -0.20, "value_error": 0.09},
-                {"id": "high_imbalance-019", "bucket": "high_imbalance", "phase": "opening", "reference_move": 3, "selected_move": 4, "teacher_value": -0.75, "system_value": -0.16, "value_error": 0.59},
-                {"id": "incumbent_proxy_disagreement-031", "bucket": "incumbent_proxy_disagreement", "phase": "mid", "reference_move": 4, "selected_move": 4, "teacher_value": 0.65, "system_value": 0.17, "value_error": 0.49},
-                {"id": "incumbent_proxy_disagreement-033", "bucket": "incumbent_proxy_disagreement", "phase": "mid", "reference_move": 4, "selected_move": 0, "teacher_value": 0.65, "system_value": 0.26, "value_error": 0.39},
-                {"id": "opening_plies_1_8-010", "bucket": "opening_plies_1_8", "phase": "opening", "reference_move": 1, "selected_move": 2, "teacher_value": 0.41, "system_value": 0.06, "value_error": 0.35},
-                {"id": "opening_plies_1_8-057", "bucket": "opening_plies_1_8", "phase": "opening", "reference_move": 5, "selected_move": 2, "teacher_value": 0.45, "system_value": 0.17, "value_error": 0.28},
-                {"id": "sparse_endgame-009", "bucket": "sparse_endgame", "phase": "late", "reference_move": 5, "selected_move": 2, "teacher_value": 0.70, "system_value": -0.12, "value_error": 0.81},
-                {"id": "sparse_endgame-024", "bucket": "sparse_endgame", "phase": "late", "reference_move": 1, "selected_move": 5, "teacher_value": 0.30, "system_value": 0.05, "value_error": 0.25},
+                {
+                    "id": "capture_available-002",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 2,
+                    "teacher_value": 0.50,
+                    "system_value": 0.11,
+                    "value_error": 0.39,
+                },
+                {
+                    "id": "capture_available-003",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 2,
+                    "teacher_value": 0.54,
+                    "system_value": 0.15,
+                    "value_error": 0.40,
+                },
+                {
+                    "id": "capture_available-007",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 2,
+                    "teacher_value": 0.57,
+                    "system_value": 0.12,
+                    "value_error": 0.41,
+                },
+                {
+                    "id": "early_extra_turn-014",
+                    "bucket": "early_extra_turn",
+                    "phase": "mid",
+                    "reference_move": 1,
+                    "selected_move": 5,
+                    "teacher_value": -0.29,
+                    "system_value": -0.01,
+                    "value_error": 0.29,
+                },
+                {
+                    "id": "high_imbalance-010",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 1,
+                    "teacher_value": -0.31,
+                    "system_value": -0.03,
+                    "value_error": 0.29,
+                },
+                {
+                    "id": "high_imbalance-011",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 1,
+                    "teacher_value": -0.10,
+                    "system_value": -0.20,
+                    "value_error": 0.09,
+                },
+                {
+                    "id": "high_imbalance-019",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 3,
+                    "selected_move": 4,
+                    "teacher_value": -0.75,
+                    "system_value": -0.16,
+                    "value_error": 0.59,
+                },
+                {
+                    "id": "incumbent_proxy_disagreement-031",
+                    "bucket": "incumbent_proxy_disagreement",
+                    "phase": "mid",
+                    "reference_move": 4,
+                    "selected_move": 4,
+                    "teacher_value": 0.65,
+                    "system_value": 0.17,
+                    "value_error": 0.49,
+                },
+                {
+                    "id": "incumbent_proxy_disagreement-033",
+                    "bucket": "incumbent_proxy_disagreement",
+                    "phase": "mid",
+                    "reference_move": 4,
+                    "selected_move": 0,
+                    "teacher_value": 0.65,
+                    "system_value": 0.26,
+                    "value_error": 0.39,
+                },
+                {
+                    "id": "opening_plies_1_8-010",
+                    "bucket": "opening_plies_1_8",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 2,
+                    "teacher_value": 0.41,
+                    "system_value": 0.06,
+                    "value_error": 0.35,
+                },
+                {
+                    "id": "opening_plies_1_8-057",
+                    "bucket": "opening_plies_1_8",
+                    "phase": "opening",
+                    "reference_move": 5,
+                    "selected_move": 2,
+                    "teacher_value": 0.45,
+                    "system_value": 0.17,
+                    "value_error": 0.28,
+                },
+                {
+                    "id": "sparse_endgame-009",
+                    "bucket": "sparse_endgame",
+                    "phase": "late",
+                    "reference_move": 5,
+                    "selected_move": 2,
+                    "teacher_value": 0.70,
+                    "system_value": -0.12,
+                    "value_error": 0.81,
+                },
+                {
+                    "id": "sparse_endgame-024",
+                    "bucket": "sparse_endgame",
+                    "phase": "late",
+                    "reference_move": 1,
+                    "selected_move": 5,
+                    "teacher_value": 0.30,
+                    "system_value": 0.05,
+                    "value_error": 0.25,
+                },
             ]
 
             original_challenger_rows = [
-                {"id": "capture_available-002", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 0, "teacher_value": 0.50, "system_value": 0.54, "value_error": 0.04},
-                {"id": "capture_available-003", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 2, "teacher_value": 0.54, "system_value": 0.57, "value_error": 0.02},
-                {"id": "capture_available-007", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 2, "teacher_value": 0.57, "system_value": 0.58, "value_error": 0.03},
-                {"id": "early_extra_turn-014", "bucket": "early_extra_turn", "phase": "mid", "reference_move": 1, "selected_move": 1, "teacher_value": -0.29, "system_value": 0.39, "value_error": 0.68},
-                {"id": "high_imbalance-010", "bucket": "high_imbalance", "phase": "opening", "reference_move": 1, "selected_move": 1, "teacher_value": -0.31, "system_value": 0.31, "value_error": 0.62},
-                {"id": "high_imbalance-011", "bucket": "high_imbalance", "phase": "opening", "reference_move": 1, "selected_move": 1, "teacher_value": -0.10, "system_value": 0.24, "value_error": 0.34},
-                {"id": "high_imbalance-019", "bucket": "high_imbalance", "phase": "opening", "reference_move": 3, "selected_move": 3, "teacher_value": -0.75, "system_value": 0.28, "value_error": 1.03},
-                {"id": "incumbent_proxy_disagreement-031", "bucket": "incumbent_proxy_disagreement", "phase": "mid", "reference_move": 4, "selected_move": 4, "teacher_value": 0.65, "system_value": 0.53, "value_error": 0.12},
-                {"id": "incumbent_proxy_disagreement-033", "bucket": "incumbent_proxy_disagreement", "phase": "mid", "reference_move": 4, "selected_move": 4, "teacher_value": 0.65, "system_value": 0.57, "value_error": 0.08},
-                {"id": "opening_plies_1_8-010", "bucket": "opening_plies_1_8", "phase": "opening", "reference_move": 1, "selected_move": 1, "teacher_value": 0.41, "system_value": 0.30, "value_error": 0.11},
-                {"id": "opening_plies_1_8-057", "bucket": "opening_plies_1_8", "phase": "opening", "reference_move": 5, "selected_move": 5, "teacher_value": 0.45, "system_value": 0.45, "value_error": 0.00},
-                {"id": "sparse_endgame-009", "bucket": "sparse_endgame", "phase": "late", "reference_move": 5, "selected_move": 0, "teacher_value": 0.70, "system_value": 0.32, "value_error": 0.37},
-                {"id": "sparse_endgame-024", "bucket": "sparse_endgame", "phase": "late", "reference_move": 1, "selected_move": 5, "teacher_value": 0.30, "system_value": 0.33, "value_error": 0.02},
+                {
+                    "id": "capture_available-002",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 0,
+                    "teacher_value": 0.50,
+                    "system_value": 0.54,
+                    "value_error": 0.04,
+                },
+                {
+                    "id": "capture_available-003",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 2,
+                    "teacher_value": 0.54,
+                    "system_value": 0.57,
+                    "value_error": 0.02,
+                },
+                {
+                    "id": "capture_available-007",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 2,
+                    "teacher_value": 0.57,
+                    "system_value": 0.58,
+                    "value_error": 0.03,
+                },
+                {
+                    "id": "early_extra_turn-014",
+                    "bucket": "early_extra_turn",
+                    "phase": "mid",
+                    "reference_move": 1,
+                    "selected_move": 1,
+                    "teacher_value": -0.29,
+                    "system_value": 0.39,
+                    "value_error": 0.68,
+                },
+                {
+                    "id": "high_imbalance-010",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 1,
+                    "teacher_value": -0.31,
+                    "system_value": 0.31,
+                    "value_error": 0.62,
+                },
+                {
+                    "id": "high_imbalance-011",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 1,
+                    "teacher_value": -0.10,
+                    "system_value": 0.24,
+                    "value_error": 0.34,
+                },
+                {
+                    "id": "high_imbalance-019",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 3,
+                    "selected_move": 3,
+                    "teacher_value": -0.75,
+                    "system_value": 0.28,
+                    "value_error": 1.03,
+                },
+                {
+                    "id": "incumbent_proxy_disagreement-031",
+                    "bucket": "incumbent_proxy_disagreement",
+                    "phase": "mid",
+                    "reference_move": 4,
+                    "selected_move": 4,
+                    "teacher_value": 0.65,
+                    "system_value": 0.53,
+                    "value_error": 0.12,
+                },
+                {
+                    "id": "incumbent_proxy_disagreement-033",
+                    "bucket": "incumbent_proxy_disagreement",
+                    "phase": "mid",
+                    "reference_move": 4,
+                    "selected_move": 4,
+                    "teacher_value": 0.65,
+                    "system_value": 0.57,
+                    "value_error": 0.08,
+                },
+                {
+                    "id": "opening_plies_1_8-010",
+                    "bucket": "opening_plies_1_8",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 1,
+                    "teacher_value": 0.41,
+                    "system_value": 0.30,
+                    "value_error": 0.11,
+                },
+                {
+                    "id": "opening_plies_1_8-057",
+                    "bucket": "opening_plies_1_8",
+                    "phase": "opening",
+                    "reference_move": 5,
+                    "selected_move": 5,
+                    "teacher_value": 0.45,
+                    "system_value": 0.45,
+                    "value_error": 0.00,
+                },
+                {
+                    "id": "sparse_endgame-009",
+                    "bucket": "sparse_endgame",
+                    "phase": "late",
+                    "reference_move": 5,
+                    "selected_move": 0,
+                    "teacher_value": 0.70,
+                    "system_value": 0.32,
+                    "value_error": 0.37,
+                },
+                {
+                    "id": "sparse_endgame-024",
+                    "bucket": "sparse_endgame",
+                    "phase": "late",
+                    "reference_move": 1,
+                    "selected_move": 5,
+                    "teacher_value": 0.30,
+                    "system_value": 0.33,
+                    "value_error": 0.02,
+                },
             ]
 
             rebalanced_challenger_rows = [
-                {"id": "capture_available-002", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 0, "teacher_value": 0.50, "system_value": 0.57, "value_error": 0.07},
-                {"id": "capture_available-003", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 1, "teacher_value": 0.54, "system_value": 0.57, "value_error": 0.02},
-                {"id": "capture_available-007", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "selected_move": 0, "teacher_value": 0.57, "system_value": 0.58, "value_error": 0.03},
-                {"id": "early_extra_turn-014", "bucket": "early_extra_turn", "phase": "mid", "reference_move": 1, "selected_move": 0, "teacher_value": -0.29, "system_value": 0.38, "value_error": 0.67},
-                {"id": "high_imbalance-010", "bucket": "high_imbalance", "phase": "opening", "reference_move": 1, "selected_move": 5, "teacher_value": -0.31, "system_value": 0.34, "value_error": 0.65},
-                {"id": "high_imbalance-011", "bucket": "high_imbalance", "phase": "opening", "reference_move": 1, "selected_move": 3, "teacher_value": -0.10, "system_value": 0.25, "value_error": 0.36},
-                {"id": "high_imbalance-019", "bucket": "high_imbalance", "phase": "opening", "reference_move": 3, "selected_move": 2, "teacher_value": -0.75, "system_value": 0.29, "value_error": 1.05},
-                {"id": "incumbent_proxy_disagreement-031", "bucket": "incumbent_proxy_disagreement", "phase": "mid", "reference_move": 4, "selected_move": 2, "teacher_value": 0.65, "system_value": 0.57, "value_error": 0.09},
-                {"id": "incumbent_proxy_disagreement-033", "bucket": "incumbent_proxy_disagreement", "phase": "mid", "reference_move": 4, "selected_move": 0, "teacher_value": 0.65, "system_value": 0.58, "value_error": 0.07},
-                {"id": "opening_plies_1_8-010", "bucket": "opening_plies_1_8", "phase": "opening", "reference_move": 1, "selected_move": 5, "teacher_value": 0.41, "system_value": 0.33, "value_error": 0.08},
-                {"id": "opening_plies_1_8-057", "bucket": "opening_plies_1_8", "phase": "opening", "reference_move": 5, "selected_move": 2, "teacher_value": 0.45, "system_value": 0.46, "value_error": 0.01},
-                {"id": "sparse_endgame-009", "bucket": "sparse_endgame", "phase": "late", "reference_move": 5, "selected_move": 2, "teacher_value": 0.70, "system_value": 0.33, "value_error": 0.37},
-                {"id": "sparse_endgame-024", "bucket": "sparse_endgame", "phase": "late", "reference_move": 1, "selected_move": 4, "teacher_value": 0.30, "system_value": 0.33, "value_error": 0.03},
+                {
+                    "id": "capture_available-002",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 0,
+                    "teacher_value": 0.50,
+                    "system_value": 0.57,
+                    "value_error": 0.07,
+                },
+                {
+                    "id": "capture_available-003",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 1,
+                    "teacher_value": 0.54,
+                    "system_value": 0.57,
+                    "value_error": 0.02,
+                },
+                {
+                    "id": "capture_available-007",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "selected_move": 0,
+                    "teacher_value": 0.57,
+                    "system_value": 0.58,
+                    "value_error": 0.03,
+                },
+                {
+                    "id": "early_extra_turn-014",
+                    "bucket": "early_extra_turn",
+                    "phase": "mid",
+                    "reference_move": 1,
+                    "selected_move": 0,
+                    "teacher_value": -0.29,
+                    "system_value": 0.38,
+                    "value_error": 0.67,
+                },
+                {
+                    "id": "high_imbalance-010",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 5,
+                    "teacher_value": -0.31,
+                    "system_value": 0.34,
+                    "value_error": 0.65,
+                },
+                {
+                    "id": "high_imbalance-011",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 3,
+                    "teacher_value": -0.10,
+                    "system_value": 0.25,
+                    "value_error": 0.36,
+                },
+                {
+                    "id": "high_imbalance-019",
+                    "bucket": "high_imbalance",
+                    "phase": "opening",
+                    "reference_move": 3,
+                    "selected_move": 2,
+                    "teacher_value": -0.75,
+                    "system_value": 0.29,
+                    "value_error": 1.05,
+                },
+                {
+                    "id": "incumbent_proxy_disagreement-031",
+                    "bucket": "incumbent_proxy_disagreement",
+                    "phase": "mid",
+                    "reference_move": 4,
+                    "selected_move": 2,
+                    "teacher_value": 0.65,
+                    "system_value": 0.57,
+                    "value_error": 0.09,
+                },
+                {
+                    "id": "incumbent_proxy_disagreement-033",
+                    "bucket": "incumbent_proxy_disagreement",
+                    "phase": "mid",
+                    "reference_move": 4,
+                    "selected_move": 0,
+                    "teacher_value": 0.65,
+                    "system_value": 0.58,
+                    "value_error": 0.07,
+                },
+                {
+                    "id": "opening_plies_1_8-010",
+                    "bucket": "opening_plies_1_8",
+                    "phase": "opening",
+                    "reference_move": 1,
+                    "selected_move": 5,
+                    "teacher_value": 0.41,
+                    "system_value": 0.33,
+                    "value_error": 0.08,
+                },
+                {
+                    "id": "opening_plies_1_8-057",
+                    "bucket": "opening_plies_1_8",
+                    "phase": "opening",
+                    "reference_move": 5,
+                    "selected_move": 2,
+                    "teacher_value": 0.45,
+                    "system_value": 0.46,
+                    "value_error": 0.01,
+                },
+                {
+                    "id": "sparse_endgame-009",
+                    "bucket": "sparse_endgame",
+                    "phase": "late",
+                    "reference_move": 5,
+                    "selected_move": 2,
+                    "teacher_value": 0.70,
+                    "system_value": 0.33,
+                    "value_error": 0.37,
+                },
+                {
+                    "id": "sparse_endgame-024",
+                    "bucket": "sparse_endgame",
+                    "phase": "late",
+                    "reference_move": 1,
+                    "selected_move": 4,
+                    "teacher_value": 0.30,
+                    "system_value": 0.33,
+                    "value_error": 0.03,
+                },
             ]
 
             original_opening_rows = [
-                {"id": "capture_available-002", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "current_prior_summary": {"selected_move": 0}, "current_searched_summary": {"selected_move": 2}, "candidate_prior_summary": {"selected_move": 0}, "candidate_searched_summary": {"selected_move": 0}},
-                {"id": "capture_available-003", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "current_prior_summary": {"selected_move": 1}, "current_searched_summary": {"selected_move": 2}, "candidate_prior_summary": {"selected_move": 2}, "candidate_searched_summary": {"selected_move": 2}},
-                {"id": "capture_available-007", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "current_prior_summary": {"selected_move": 1}, "current_searched_summary": {"selected_move": 2}, "candidate_prior_summary": {"selected_move": 2}, "candidate_searched_summary": {"selected_move": 2}},
+                {
+                    "id": "capture_available-002",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "current_prior_summary": {"selected_move": 0},
+                    "current_searched_summary": {"selected_move": 2},
+                    "candidate_prior_summary": {"selected_move": 0},
+                    "candidate_searched_summary": {"selected_move": 0},
+                },
+                {
+                    "id": "capture_available-003",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "current_prior_summary": {"selected_move": 1},
+                    "current_searched_summary": {"selected_move": 2},
+                    "candidate_prior_summary": {"selected_move": 2},
+                    "candidate_searched_summary": {"selected_move": 2},
+                },
+                {
+                    "id": "capture_available-007",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "current_prior_summary": {"selected_move": 1},
+                    "current_searched_summary": {"selected_move": 2},
+                    "candidate_prior_summary": {"selected_move": 2},
+                    "candidate_searched_summary": {"selected_move": 2},
+                },
             ]
             rebalanced_opening_rows = [
-                {"id": "capture_available-002", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "current_prior_summary": {"selected_move": 0}, "current_searched_summary": {"selected_move": 2}, "candidate_prior_summary": {"selected_move": 2}, "candidate_searched_summary": {"selected_move": 0}},
-                {"id": "capture_available-003", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "current_prior_summary": {"selected_move": 1}, "current_searched_summary": {"selected_move": 2}, "candidate_prior_summary": {"selected_move": 2}, "candidate_searched_summary": {"selected_move": 1}},
-                {"id": "capture_available-007", "bucket": "capture_available", "phase": "opening", "reference_move": 2, "current_prior_summary": {"selected_move": 1}, "current_searched_summary": {"selected_move": 2}, "candidate_prior_summary": {"selected_move": 2}, "candidate_searched_summary": {"selected_move": 0}},
+                {
+                    "id": "capture_available-002",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "current_prior_summary": {"selected_move": 0},
+                    "current_searched_summary": {"selected_move": 2},
+                    "candidate_prior_summary": {"selected_move": 2},
+                    "candidate_searched_summary": {"selected_move": 0},
+                },
+                {
+                    "id": "capture_available-003",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "current_prior_summary": {"selected_move": 1},
+                    "current_searched_summary": {"selected_move": 2},
+                    "candidate_prior_summary": {"selected_move": 2},
+                    "candidate_searched_summary": {"selected_move": 1},
+                },
+                {
+                    "id": "capture_available-007",
+                    "bucket": "capture_available",
+                    "phase": "opening",
+                    "reference_move": 2,
+                    "current_prior_summary": {"selected_move": 1},
+                    "current_searched_summary": {"selected_move": 2},
+                    "candidate_prior_summary": {"selected_move": 2},
+                    "candidate_searched_summary": {"selected_move": 0},
+                },
             ]
 
             stable_summary = {
                 "schema": "azlite_stable_failure_family_summary_v1",
-                "capture_available": {"search_flipped_ids": ["capture_available-002", "capture_available-003"]},
+                "capture_available": {
+                    "search_flipped_ids": [
+                        "capture_available-002",
+                        "capture_available-003",
+                    ]
+                },
             }
 
-            original_forensics = {"systems": {"current": {"rows": current_rows}, "challenger": {"rows": original_challenger_rows}}}
-            rebalanced_forensics = {"systems": {"current": {"rows": current_rows}, "challenger": {"rows": rebalanced_challenger_rows}}}
+            original_forensics = {
+                "systems": {
+                    "current": {"rows": current_rows},
+                    "challenger": {"rows": original_challenger_rows},
+                }
+            }
+            rebalanced_forensics = {
+                "systems": {
+                    "current": {"rows": current_rows},
+                    "challenger": {"rows": rebalanced_challenger_rows},
+                }
+            }
 
-            (original_run / "final" / "selected_candidate_forensics.json").write_text(json.dumps(original_forensics), encoding="utf-8")
-            (rebalanced_run / "final" / "selected_candidate_forensics.json").write_text(json.dumps(rebalanced_forensics), encoding="utf-8")
-            (original_run / "final" / "opening_capture_family_report.json").write_text(json.dumps({"rows": original_opening_rows}), encoding="utf-8")
-            (rebalanced_run / "final" / "opening_capture_family_report.json").write_text(json.dumps({"rows": rebalanced_opening_rows}), encoding="utf-8")
-            (rebalanced_run / "final" / "stable_failure_family_summary.json").write_text(json.dumps(stable_summary), encoding="utf-8")
+            (original_run / "final" / "selected_candidate_forensics.json").write_text(
+                json.dumps(original_forensics), encoding="utf-8"
+            )
+            (rebalanced_run / "final" / "selected_candidate_forensics.json").write_text(
+                json.dumps(rebalanced_forensics), encoding="utf-8"
+            )
+            (original_run / "final" / "opening_capture_family_report.json").write_text(
+                json.dumps({"rows": original_opening_rows}), encoding="utf-8"
+            )
+            (
+                rebalanced_run / "final" / "opening_capture_family_report.json"
+            ).write_text(
+                json.dumps({"rows": rebalanced_opening_rows}), encoding="utf-8"
+            )
+            (
+                rebalanced_run / "final" / "stable_failure_family_summary.json"
+            ).write_text(json.dumps(stable_summary), encoding="utf-8")
 
-            matrix = module.build_matrix_from_runs(original_run=original_run, rebalanced_run=rebalanced_run)
+            matrix = module.build_matrix_from_runs(
+                original_run=original_run, rebalanced_run=rebalanced_run
+            )
             summary = module.choose_next_branch(matrix)
 
         self.assertEqual(
@@ -253,5 +697,8 @@ class DiagnoseSearchInteractionTest(unittest.TestCase):
             ],
             summary["priority_rows"],
         )
-        self.assertEqual(["high_imbalance-010", "high_imbalance-011", "high_imbalance-019"], summary["followup_rows"])
+        self.assertEqual(
+            ["high_imbalance-010", "high_imbalance-011", "high_imbalance-019"],
+            summary["followup_rows"],
+        )
         self.assertEqual(["sparse_endgame-009"], summary["separate_track_rows"])

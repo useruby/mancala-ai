@@ -44,14 +44,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--source-selection-score-artifact", type=Path, required=True)
     parser.add_argument("--source-threshold-review-artifact", type=Path, required=True)
-    parser.add_argument("--source-trace-cadence-review-artifact", type=Path, required=True)
-    parser.add_argument("--source-nonseparable-review-artifact", type=Path, required=True)
+    parser.add_argument(
+        "--source-trace-cadence-review-artifact", type=Path, required=True
+    )
+    parser.add_argument(
+        "--source-nonseparable-review-artifact", type=Path, required=True
+    )
     parser.add_argument("--out", type=Path, required=True)
     return parser.parse_args(argv)
 
 
 def _finite_number(value, *, context: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+    ):
         raise ValueError(f"{context} must be finite numeric")
     return float(value)
 
@@ -80,7 +88,9 @@ def _selection_source_identity(artifact: dict, *, context: str) -> dict:
         raise ValueError(f"{context} source_artifact.row_id must be {ROW_ID}")
     selected_artifact = source_artifact.get("selected_artifact")
     if not isinstance(selected_artifact, dict):
-        raise ValueError(f"{context} source_artifact.selected_artifact must be an object")
+        raise ValueError(
+            f"{context} source_artifact.selected_artifact must be an object"
+        )
     return {
         "row_id": source_artifact.get("row_id"),
         "reference_move": _integer(
@@ -117,7 +127,9 @@ def validate_selection_score_artifact_contract(
     if _classification_name(artifact, context=context) != "unresolved":
         raise ValueError(f"{context} must remain unresolved")
     if artifact.get("decision") != UNRESOLVED_SELECTION_DECISION:
-        raise ValueError(f"{context} unresolved decision must be {UNRESOLVED_SELECTION_DECISION}")
+        raise ValueError(
+            f"{context} unresolved decision must be {UNRESOLVED_SELECTION_DECISION}"
+        )
     _selection_source_identity(artifact, context=context)
     for field in (
         "final_selected_minus_reference_q",
@@ -132,16 +144,27 @@ def validate_trace_cadence_review_artifact_contract(artifact: dict) -> None:
         raise ValueError(
             f"trace cadence review artifact has wrong schema: expected {SOURCE_TRACE_CADENCE_REVIEW_SCHEMA}"
         )
-    if _classification_name(artifact, context="trace cadence review artifact") != "cadence_adequate":
-        raise ValueError("trace cadence review artifact must represent adequate cadence")
+    if (
+        _classification_name(artifact, context="trace cadence review artifact")
+        != "cadence_adequate"
+    ):
+        raise ValueError(
+            "trace cadence review artifact must represent adequate cadence"
+        )
     if artifact.get("decision") != ADEQUATE_CADENCE_DECISION:
-        raise ValueError("trace cadence review artifact must represent adequate cadence")
+        raise ValueError(
+            "trace cadence review artifact must represent adequate cadence"
+        )
     count = artifact.get("unique_simulation_checkpoint_count")
     if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
-        raise ValueError("trace cadence review artifact unique_simulation_checkpoint_count must be positive int")
+        raise ValueError(
+            "trace cadence review artifact unique_simulation_checkpoint_count must be positive int"
+        )
     checkpoints = artifact.get("unique_simulation_checkpoints")
     if not isinstance(checkpoints, list) or not checkpoints:
-        raise ValueError("trace cadence review artifact unique_simulation_checkpoints must be a non-empty list")
+        raise ValueError(
+            "trace cadence review artifact unique_simulation_checkpoints must be a non-empty list"
+        )
     for index, checkpoint in enumerate(checkpoints):
         _finite_number(
             checkpoint,
@@ -154,25 +177,39 @@ def validate_nonseparable_review_artifact_contract(artifact: dict) -> None:
         raise ValueError(
             f"nonseparable review artifact has wrong schema: expected {SOURCE_NONSEPARABLE_REVIEW_SCHEMA}"
         )
-    if _classification_name(artifact, context="nonseparable review artifact") != "genuinely_not_separable":
+    if (
+        _classification_name(artifact, context="nonseparable review artifact")
+        != "genuinely_not_separable"
+    ):
         raise ValueError("nonseparable review artifact must stop unresolved")
     if artifact.get("decision") != NONSEPARABLE_DECISION:
         raise ValueError("nonseparable review artifact must stop unresolved")
     if artifact.get("hypothesis") != "genuinely_not_separable":
-        raise ValueError("nonseparable review artifact hypothesis must be genuinely_not_separable")
+        raise ValueError(
+            "nonseparable review artifact hypothesis must be genuinely_not_separable"
+        )
 
 
-def _validate_trace_excerpt(trace_cadence_review_artifact: dict, source_identity: dict) -> None:
+def _validate_trace_excerpt(
+    trace_cadence_review_artifact: dict, source_identity: dict
+) -> None:
     trace_capture_excerpt = trace_cadence_review_artifact.get("trace_capture_excerpt")
     if not isinstance(trace_capture_excerpt, dict):
-        raise ValueError("trace cadence review artifact trace_capture_excerpt must be an object")
+        raise ValueError(
+            "trace cadence review artifact trace_capture_excerpt must be an object"
+        )
     if trace_capture_excerpt.get("row_id") != source_identity["row_id"]:
-        raise ValueError("trace cadence review artifact trace_capture_excerpt row_id must match selection source")
+        raise ValueError(
+            "trace cadence review artifact trace_capture_excerpt row_id must match selection source"
+        )
     for field in ("reference_move", "full_search_selected_move"):
-        if _integer(
-            trace_capture_excerpt.get(field),
-            context=f"trace cadence review artifact trace_capture_excerpt.{field}",
-        ) != source_identity[field]:
+        if (
+            _integer(
+                trace_capture_excerpt.get(field),
+                context=f"trace cadence review artifact trace_capture_excerpt.{field}",
+            )
+            != source_identity[field]
+        ):
             raise ValueError(
                 f"trace cadence review artifact trace_capture_excerpt {field} must match selection source"
             )
@@ -182,16 +219,22 @@ def _validate_selection_score_excerpt(
     trace_cadence_review_artifact: dict,
     default_selection_score_artifact: dict,
 ) -> None:
-    selection_score_excerpt = trace_cadence_review_artifact.get("selection_score_excerpt")
+    selection_score_excerpt = trace_cadence_review_artifact.get(
+        "selection_score_excerpt"
+    )
     if not isinstance(selection_score_excerpt, dict):
-        raise ValueError("trace cadence review artifact selection_score_excerpt must be an object")
+        raise ValueError(
+            "trace cadence review artifact selection_score_excerpt must be an object"
+        )
     for field in (
         "final_selected_minus_reference_visit_share",
         "first_selected_material_visit_share_snapshot",
         "first_selected_meaningful_q_support_snapshot",
         "first_selected_selection_score_overtake_snapshot",
     ):
-        if selection_score_excerpt.get(field) != default_selection_score_artifact.get(field):
+        if selection_score_excerpt.get(field) != default_selection_score_artifact.get(
+            field
+        ):
             raise ValueError(
                 f"trace cadence review artifact selection_score_excerpt {field} must match default selection score artifact"
             )
@@ -204,8 +247,13 @@ def _validate_cadence_input_path(
 ) -> None:
     input_artifacts = trace_cadence_review_artifact.get("input_artifacts")
     if not isinstance(input_artifacts, dict):
-        raise ValueError("trace cadence review artifact input_artifacts must be an object")
-    if input_artifacts.get("selection_score_artifact_path") != source_selection_score_artifact_path:
+        raise ValueError(
+            "trace cadence review artifact input_artifacts must be an object"
+        )
+    if (
+        input_artifacts.get("selection_score_artifact_path")
+        != source_selection_score_artifact_path
+    ):
         raise ValueError(
             "trace cadence review artifact input_artifacts selection_score_artifact_path must match source path"
         )
@@ -220,7 +268,9 @@ def _validate_nonseparable_paths(
 ) -> None:
     input_artifacts = nonseparable_review_artifact.get("input_artifacts")
     if not isinstance(input_artifacts, dict):
-        raise ValueError("nonseparable review artifact input_artifacts must be an object")
+        raise ValueError(
+            "nonseparable review artifact input_artifacts must be an object"
+        )
     expected_paths = {
         "source_selection_score_artifact_path": source_selection_score_artifact_path,
         "source_trace_cadence_review_artifact_path": source_trace_cadence_review_artifact_path,
@@ -228,7 +278,9 @@ def _validate_nonseparable_paths(
     }
     for key, expected_path in expected_paths.items():
         if input_artifacts.get(key) != expected_path:
-            raise ValueError(f"nonseparable review artifact input_artifacts {key} must match source path")
+            raise ValueError(
+                f"nonseparable review artifact input_artifacts {key} must match source path"
+            )
 
 
 def _validate_nonseparable_summaries(
@@ -239,24 +291,30 @@ def _validate_nonseparable_summaries(
 ) -> None:
     thresholds_evaluated = nonseparable_review_artifact.get("thresholds_evaluated")
     if thresholds_evaluated != {
-        "default_material_visit_share_margin": default_selection_score_artifact["thresholds"][
-            "material_visit_share_margin"
-        ],
+        "default_material_visit_share_margin": default_selection_score_artifact[
+            "thresholds"
+        ]["material_visit_share_margin"],
         "relaxed_material_visit_share_margin": threshold_review_artifact["thresholds"][
             "material_visit_share_margin"
         ],
     }:
-        raise ValueError("nonseparable review artifact thresholds_evaluated must match input thresholds")
+        raise ValueError(
+            "nonseparable review artifact thresholds_evaluated must match input thresholds"
+        )
 
     expected_final_margin_summary = {
-        "default_q_margin": default_selection_score_artifact["final_selected_minus_reference_q"],
+        "default_q_margin": default_selection_score_artifact[
+            "final_selected_minus_reference_q"
+        ],
         "default_selection_score_margin": default_selection_score_artifact[
             "final_selected_minus_reference_selection_score"
         ],
         "default_visit_share_margin": default_selection_score_artifact[
             "final_selected_minus_reference_visit_share"
         ],
-        "relaxed_q_margin": threshold_review_artifact["final_selected_minus_reference_q"],
+        "relaxed_q_margin": threshold_review_artifact[
+            "final_selected_minus_reference_q"
+        ],
         "relaxed_selection_score_margin": threshold_review_artifact[
             "final_selected_minus_reference_selection_score"
         ],
@@ -264,16 +322,26 @@ def _validate_nonseparable_summaries(
             "final_selected_minus_reference_visit_share"
         ],
     }
-    if nonseparable_review_artifact.get("final_margin_summary") != expected_final_margin_summary:
-        raise ValueError("nonseparable review artifact final_margin_summary must match input margins")
+    if (
+        nonseparable_review_artifact.get("final_margin_summary")
+        != expected_final_margin_summary
+    ):
+        raise ValueError(
+            "nonseparable review artifact final_margin_summary must match input margins"
+        )
 
     expected_source_snapshots = {
         "default_classification": default_selection_score_artifact["classification"],
         "cadence_classification": trace_cadence_review_artifact["classification"],
         "threshold_classification": threshold_review_artifact["classification"],
     }
-    if nonseparable_review_artifact.get("source_snapshots") != expected_source_snapshots:
-        raise ValueError("nonseparable review artifact source_snapshots must match input classifications")
+    if (
+        nonseparable_review_artifact.get("source_snapshots")
+        != expected_source_snapshots
+    ):
+        raise ValueError(
+            "nonseparable review artifact source_snapshots must match input classifications"
+        )
 
 
 def validate_input_chain_identity(
@@ -298,7 +366,9 @@ def validate_input_chain_identity(
         raise ValueError("selection score source identities must match")
 
     _validate_trace_excerpt(trace_cadence_review_artifact, default_identity)
-    _validate_selection_score_excerpt(trace_cadence_review_artifact, default_selection_score_artifact)
+    _validate_selection_score_excerpt(
+        trace_cadence_review_artifact, default_selection_score_artifact
+    )
     _validate_cadence_input_path(
         trace_cadence_review_artifact,
         source_selection_score_artifact_path=source_selection_score_artifact_path,
@@ -320,13 +390,19 @@ def validate_input_chain_identity(
 def _first_support_summary(default_selection_score_artifact: dict) -> dict:
     return {
         "material_visit_share_snapshot": copy.deepcopy(
-            default_selection_score_artifact.get("first_selected_material_visit_share_snapshot")
+            default_selection_score_artifact.get(
+                "first_selected_material_visit_share_snapshot"
+            )
         ),
         "meaningful_q_support_snapshot": copy.deepcopy(
-            default_selection_score_artifact.get("first_selected_meaningful_q_support_snapshot")
+            default_selection_score_artifact.get(
+                "first_selected_meaningful_q_support_snapshot"
+            )
         ),
         "selection_score_overtake_snapshot": copy.deepcopy(
-            default_selection_score_artifact.get("first_selected_selection_score_overtake_snapshot")
+            default_selection_score_artifact.get(
+                "first_selected_selection_score_overtake_snapshot"
+            )
         ),
     }
 
@@ -342,7 +418,9 @@ def classify_decomposition(
     relaxed_thresholds: dict,
 ) -> tuple[str, str]:
     relaxed_q_margin = final_margin_summary["relaxed_q_margin"]
-    relaxed_selection_score_margin = final_margin_summary["relaxed_selection_score_margin"]
+    relaxed_selection_score_margin = final_margin_summary[
+        "relaxed_selection_score_margin"
+    ]
     relaxed_visit_share_margin = final_margin_summary["relaxed_visit_share_margin"]
     relaxed_visit_share_threshold = relaxed_thresholds["material_visit_share_margin"]
 
@@ -363,7 +441,9 @@ def classify_decomposition(
     no_first_support = _no_first_support(first_support_summary)
     if (
         no_first_support
-        and relaxed_visit_share_threshold - BOUNDARY_BAND <= relaxed_visit_share_margin < relaxed_visit_share_threshold
+        and relaxed_visit_share_threshold - BOUNDARY_BAND
+        <= relaxed_visit_share_margin
+        < relaxed_visit_share_threshold
     ):
         return (
             "threshold_boundary_ambiguity",
@@ -420,14 +500,18 @@ def build_payload(
 
     first_support_summary = _first_support_summary(default_selection_score_artifact)
     final_margin_summary = {
-        "default_q_margin": default_selection_score_artifact["final_selected_minus_reference_q"],
+        "default_q_margin": default_selection_score_artifact[
+            "final_selected_minus_reference_q"
+        ],
         "default_selection_score_margin": default_selection_score_artifact[
             "final_selected_minus_reference_selection_score"
         ],
         "default_visit_share_margin": default_selection_score_artifact[
             "final_selected_minus_reference_visit_share"
         ],
-        "relaxed_q_margin": threshold_review_artifact["final_selected_minus_reference_q"],
+        "relaxed_q_margin": threshold_review_artifact[
+            "final_selected_minus_reference_q"
+        ],
         "relaxed_selection_score_margin": threshold_review_artifact[
             "final_selected_minus_reference_selection_score"
         ],
@@ -467,7 +551,9 @@ def build_payload(
         "final_margin_summary": final_margin_summary,
         "first_support_summary": first_support_summary,
         "cadence_summary": {
-            "classification": trace_cadence_review_artifact["classification"]["classification"],
+            "classification": trace_cadence_review_artifact["classification"][
+                "classification"
+            ],
             "decision": trace_cadence_review_artifact["decision"],
             "unique_simulation_checkpoint_count": trace_cadence_review_artifact[
                 "unique_simulation_checkpoint_count"
@@ -477,10 +563,18 @@ def build_payload(
             ),
         },
         "source_snapshots": {
-            "default_classification": copy.deepcopy(default_selection_score_artifact["classification"]),
-            "cadence_classification": copy.deepcopy(trace_cadence_review_artifact["classification"]),
-            "threshold_classification": copy.deepcopy(threshold_review_artifact["classification"]),
-            "nonseparable_classification": copy.deepcopy(nonseparable_review_artifact["classification"]),
+            "default_classification": copy.deepcopy(
+                default_selection_score_artifact["classification"]
+            ),
+            "cadence_classification": copy.deepcopy(
+                trace_cadence_review_artifact["classification"]
+            ),
+            "threshold_classification": copy.deepcopy(
+                threshold_review_artifact["classification"]
+            ),
+            "nonseparable_classification": copy.deepcopy(
+                nonseparable_review_artifact["classification"]
+            ),
         },
     }
 
@@ -497,12 +591,20 @@ def main(argv: list[str] | None = None) -> int:
         threshold_review_artifact,
         nonseparable_review_artifact,
         source_selection_score_artifact_path=str(args.source_selection_score_artifact),
-        source_trace_cadence_review_artifact_path=str(args.source_trace_cadence_review_artifact),
-        source_threshold_review_artifact_path=str(args.source_threshold_review_artifact),
-        source_nonseparable_review_artifact_path=str(args.source_nonseparable_review_artifact),
+        source_trace_cadence_review_artifact_path=str(
+            args.source_trace_cadence_review_artifact
+        ),
+        source_threshold_review_artifact_path=str(
+            args.source_threshold_review_artifact
+        ),
+        source_nonseparable_review_artifact_path=str(
+            args.source_nonseparable_review_artifact
+        ),
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

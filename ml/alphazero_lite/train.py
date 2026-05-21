@@ -16,7 +16,11 @@ from torch import nn
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING, SUPPORTED_INPUT_ENCODINGS, feature_count_for
+from ml.alphazero_lite.input_encodings import (
+    DEFAULT_INPUT_ENCODING,
+    SUPPORTED_INPUT_ENCODINGS,
+    feature_count_for,
+)
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 
@@ -29,7 +33,12 @@ SUPPORTED_POLICY_TARGET_MODES = [DEFAULT_POLICY_TARGET_MODE, "sharpened"]
 DEFAULT_VALUE_TARGET_MODE = "default"
 PHASE_AWARE_VALUE_TARGET_MODE = "phase_aware_sharpened"
 HYBRID_VALUE_TARGET_MODE = "hybrid"
-SUPPORTED_VALUE_TARGET_MODES = [DEFAULT_VALUE_TARGET_MODE, "sharpened", PHASE_AWARE_VALUE_TARGET_MODE, HYBRID_VALUE_TARGET_MODE]
+SUPPORTED_VALUE_TARGET_MODES = [
+    DEFAULT_VALUE_TARGET_MODE,
+    "sharpened",
+    PHASE_AWARE_VALUE_TARGET_MODE,
+    HYBRID_VALUE_TARGET_MODE,
+]
 STATE_NORMALIZATION_DENOMINATOR = 48.0
 
 
@@ -56,14 +65,22 @@ def validate_input_features(x: np.ndarray, *, input_encoding: str) -> None:
     if x.ndim != 2:
         raise ValueError("training data states must be a 2D matrix")
     if x.shape[1] != expected:
-        raise ValueError(f"training data feature_count must be {expected} for {input_encoding}, got {x.shape[1]}")
+        raise ValueError(
+            f"training data feature_count must be {expected} for {input_encoding}, got {x.shape[1]}"
+        )
 
 
-def derive_legal_moves_from_encoded_state(state: np.ndarray | list[float]) -> list[int] | None:
+def derive_legal_moves_from_encoded_state(
+    state: np.ndarray | list[float],
+) -> list[int] | None:
     encoded_state = np.asarray(state, dtype=np.float32)
     if encoded_state.ndim != 1:
         return None
-    if encoded_state.shape[0] not in {feature_count_for("kalah_v1"), feature_count_for("kalah_v2"), feature_count_for("kalah_v3")}:
+    if encoded_state.shape[0] not in {
+        feature_count_for("kalah_v1"),
+        feature_count_for("kalah_v2"),
+        feature_count_for("kalah_v3"),
+    }:
         return None
 
     base_state = encoded_state[:15]
@@ -77,8 +94,13 @@ def derive_legal_moves_from_encoded_state(state: np.ndarray | list[float]) -> li
     if current_player_int not in (0, 1):
         return None
 
-    player_pits = [int(round(value * STATE_NORMALIZATION_DENOMINATOR)) for value in base_state[:6]]
-    opponent_pits = [int(round(value * STATE_NORMALIZATION_DENOMINATOR)) for value in base_state[6:12]]
+    player_pits = [
+        int(round(value * STATE_NORMALIZATION_DENOMINATOR)) for value in base_state[:6]
+    ]
+    opponent_pits = [
+        int(round(value * STATE_NORMALIZATION_DENOMINATOR))
+        for value in base_state[6:12]
+    ]
     player_store = int(round(float(base_state[12]) * STATE_NORMALIZATION_DENOMINATOR))
     opponent_store = int(round(float(base_state[13]) * STATE_NORMALIZATION_DENOMINATOR))
 
@@ -94,7 +116,10 @@ def derive_legal_moves_from_encoded_state(state: np.ndarray | list[float]) -> li
     )
     if not np.allclose(decoded_values, base_state, atol=1e-6):
         return None
-    if any(value < 0 for value in [*player_pits, *opponent_pits, player_store, opponent_store]):
+    if any(
+        value < 0
+        for value in [*player_pits, *opponent_pits, player_store, opponent_store]
+    ):
         return None
 
     game = KalahGame.from_state(
@@ -123,23 +148,37 @@ def validate_policy_target(
     if not np.all(np.isfinite(policy)):
         raise ValueError(f"{path}:{row_number} policy must be finite")
     if np.any(policy < 0.0):
-        raise ValueError(f"{path}:{row_number} policy must be a legal normalized policy target")
+        raise ValueError(
+            f"{path}:{row_number} policy must be a legal normalized policy target"
+        )
 
     total = float(np.sum(policy, dtype=np.float64))
     if not np.isclose(total, 1.0, atol=1e-6):
-        raise ValueError(f"{path}:{row_number} policy must be a legal normalized policy target")
+        raise ValueError(
+            f"{path}:{row_number} policy must be a legal normalized policy target"
+        )
 
     legal_moves = derive_legal_moves_from_encoded_state(state)
     if legal_moves is not None:
         if not legal_moves:
-            raise ValueError(f"{path}:{row_number} policy state does not expose any legal moves")
-        illegal_moves = [move for move in range(POLICY_SIZE) if move not in legal_moves and policy[move] > 1e-6]
+            raise ValueError(
+                f"{path}:{row_number} policy state does not expose any legal moves"
+            )
+        illegal_moves = [
+            move
+            for move in range(POLICY_SIZE)
+            if move not in legal_moves and policy[move] > 1e-6
+        ]
         if illegal_moves:
-            raise ValueError(f"{path}:{row_number} policy assigns probability to illegal moves: {illegal_moves}")
+            raise ValueError(
+                f"{path}:{row_number} policy assigns probability to illegal moves: {illegal_moves}"
+            )
 
     if declared_mode is None:
         if policy_target_mode != DEFAULT_POLICY_TARGET_MODE:
-            raise ValueError(f"{path}:{row_number} must declare policy_target_mode={policy_target_mode}")
+            raise ValueError(
+                f"{path}:{row_number} must declare policy_target_mode={policy_target_mode}"
+            )
         return
 
     normalized_declared_mode = normalize_policy_target_mode(declared_mode)
@@ -168,7 +207,9 @@ def validate_value_target_mode(
 ) -> None:
     if declared_mode is None:
         if value_target_mode != DEFAULT_VALUE_TARGET_MODE:
-            raise ValueError(f"{path}:{row_number} must declare value_target_mode={value_target_mode}")
+            raise ValueError(
+                f"{path}:{row_number} must declare value_target_mode={value_target_mode}"
+            )
         return
 
     normalized_declared_mode = normalize_value_target_mode(declared_mode)
@@ -217,7 +258,9 @@ def load_jsonl(
                 value_target_mode=value_target_mode,
                 declared_mode=row.get("value_target_mode"),
             )
-            value = validate_value_target(row["value"], path=path, row_number=row_number)
+            value = validate_value_target(
+                row["value"], path=path, row_number=row_number
+            )
             states.append(row["state"])
             policies.append(policy)
             values.append(value)
@@ -255,7 +298,11 @@ def load_jsonl_replay(
     row_offset = 0
 
     for path, weight in zip(paths, weights):
-        x, p, v = load_jsonl(path, policy_target_mode=policy_target_mode, value_target_mode=value_target_mode)
+        x, p, v = load_jsonl(
+            path,
+            policy_target_mode=policy_target_mode,
+            value_target_mode=value_target_mode,
+        )
         x_chunks.append(x)
         p_chunks.append(p)
         v_chunks.append(v)
@@ -303,7 +350,8 @@ class PolicyValueNet(nn.Module):
 
             layer_sizes = [input_size, *hidden_sizes]
             self.hidden_layers = nn.ModuleList(
-                nn.Linear(layer_sizes[i], layer_sizes[i + 1]) for i in range(len(layer_sizes) - 1)
+                nn.Linear(layer_sizes[i], layer_sizes[i + 1])
+                for i in range(len(layer_sizes) - 1)
             )
             policy_head_input_size = hidden_sizes[-1]
             value_head_input_size = hidden_sizes[-1]
@@ -436,7 +484,9 @@ def train(
     else:
         replay_indexes_array = replay_indexes.astype(np.int64, copy=False)
 
-    train_positions, val_positions = split_replay_positions_by_source_row(replay_indexes_array, val_split=val_split)
+    train_positions, val_positions = split_replay_positions_by_source_row(
+        replay_indexes_array, val_split=val_split
+    )
     val_count = int(val_positions.shape[0])
 
     x_all = torch.from_numpy(x).to(device)
@@ -447,7 +497,9 @@ def train(
     val_replay_indexes = replay_index_tensor[val_positions] if val_count > 0 else None
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max(1, epochs))
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=max(1, epochs)
+    )
 
     policy_loss_value = 0.0
     value_loss_value = 0.0
@@ -506,15 +558,24 @@ def train(
                 val_log_probs = torch.log_softmax(val_logits, dim=1)
                 val_policy_loss = -(p_val * val_log_probs).sum(dim=1).mean()
                 val_value_loss = compute_value_loss(val_value_pred, v_val)
-                val_total = float((val_policy_loss + (value_loss_weight * val_value_loss)).cpu().item())
+                val_total = float(
+                    (val_policy_loss + (value_loss_weight * val_value_loss))
+                    .cpu()
+                    .item()
+                )
                 if val_total < best_val_loss:
                     best_val_loss = val_total
-                    best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+                    best_state = {
+                        k: v.detach().cpu().clone()
+                        for k, v in model.state_dict().items()
+                    }
                 maybe_record_top_state(val_total)
             model.train()
 
         if val_count == 0:
-            maybe_record_top_state(policy_loss_value + (value_loss_weight * value_loss_value))
+            maybe_record_top_state(
+                policy_loss_value + (value_loss_weight * value_loss_value)
+            )
 
     if best_state is not None:
         model.load_state_dict(best_state)
@@ -534,22 +595,50 @@ def checkpoint_from_model(model: PolicyValueNet) -> dict[str, np.ndarray]:
 
 def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.ndarray]:
     checkpoint: dict[str, np.ndarray] = {
-        "w_policy": state["policy_head.weight"].detach().cpu().numpy().T.astype(np.float32),
+        "w_policy": state["policy_head.weight"]
+        .detach()
+        .cpu()
+        .numpy()
+        .T.astype(np.float32),
         "b_policy": state["policy_head.bias"].detach().cpu().numpy().astype(np.float32),
-        "w_value": state["value_head.weight"].detach().cpu().numpy().T.astype(np.float32),
+        "w_value": state["value_head.weight"]
+        .detach()
+        .cpu()
+        .numpy()
+        .T.astype(np.float32),
         "b_value": state["value_head.bias"].detach().cpu().numpy().astype(np.float32),
     }
 
     if "policy_hidden_layer.weight" in state:
-        checkpoint["w_policy_hidden"] = state["policy_hidden_layer.weight"].detach().cpu().numpy().T.astype(np.float32)
-        checkpoint["b_policy_hidden"] = state["policy_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        checkpoint["w_policy_hidden"] = (
+            state["policy_hidden_layer.weight"]
+            .detach()
+            .cpu()
+            .numpy()
+            .T.astype(np.float32)
+        )
+        checkpoint["b_policy_hidden"] = (
+            state["policy_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        )
     if "value_hidden_layer.weight" in state:
-        checkpoint["w_value_hidden"] = state["value_hidden_layer.weight"].detach().cpu().numpy().T.astype(np.float32)
-        checkpoint["b_value_hidden"] = state["value_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        checkpoint["w_value_hidden"] = (
+            state["value_hidden_layer.weight"]
+            .detach()
+            .cpu()
+            .numpy()
+            .T.astype(np.float32)
+        )
+        checkpoint["b_value_hidden"] = (
+            state["value_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        )
 
     if "input_layer.weight" in state:
-        checkpoint["w_input"] = state["input_layer.weight"].detach().cpu().numpy().T.astype(np.float32)
-        checkpoint["b_input"] = state["input_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        checkpoint["w_input"] = (
+            state["input_layer.weight"].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint["b_input"] = (
+            state["input_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        )
 
         block_index = 1
         while f"residual_layers.{block_index - 1}.0.weight" in state:
@@ -557,10 +646,18 @@ def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.n
             first_bias_key = f"residual_layers.{block_index - 1}.0.bias"
             second_weight_key = f"residual_layers.{block_index - 1}.1.weight"
             second_bias_key = f"residual_layers.{block_index - 1}.1.bias"
-            checkpoint[f"w_residual_{block_index}_1"] = state[first_weight_key].detach().cpu().numpy().T.astype(np.float32)
-            checkpoint[f"b_residual_{block_index}_1"] = state[first_bias_key].detach().cpu().numpy().astype(np.float32)
-            checkpoint[f"w_residual_{block_index}_2"] = state[second_weight_key].detach().cpu().numpy().T.astype(np.float32)
-            checkpoint[f"b_residual_{block_index}_2"] = state[second_bias_key].detach().cpu().numpy().astype(np.float32)
+            checkpoint[f"w_residual_{block_index}_1"] = (
+                state[first_weight_key].detach().cpu().numpy().T.astype(np.float32)
+            )
+            checkpoint[f"b_residual_{block_index}_1"] = (
+                state[first_bias_key].detach().cpu().numpy().astype(np.float32)
+            )
+            checkpoint[f"w_residual_{block_index}_2"] = (
+                state[second_weight_key].detach().cpu().numpy().T.astype(np.float32)
+            )
+            checkpoint[f"b_residual_{block_index}_2"] = (
+                state[second_bias_key].detach().cpu().numpy().astype(np.float32)
+            )
             block_index += 1
         return checkpoint
 
@@ -568,8 +665,12 @@ def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.n
     while f"hidden_layers.{hidden_index - 1}.weight" in state:
         weight_key = f"hidden_layers.{hidden_index - 1}.weight"
         bias_key = f"hidden_layers.{hidden_index - 1}.bias"
-        checkpoint[f"w_hidden_{hidden_index}"] = state[weight_key].detach().cpu().numpy().T.astype(np.float32)
-        checkpoint[f"b_hidden_{hidden_index}"] = state[bias_key].detach().cpu().numpy().astype(np.float32)
+        checkpoint[f"w_hidden_{hidden_index}"] = (
+            state[weight_key].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint[f"b_hidden_{hidden_index}"] = (
+            state[bias_key].detach().cpu().numpy().astype(np.float32)
+        )
         hidden_index += 1
 
     # Backward-compatible aliases for legacy 2-layer Ruby evaluator paths.
@@ -587,41 +688,76 @@ def load_checkpoint_into_model(model: PolicyValueNet, checkpoint_path: Path) -> 
     state_dict = model.state_dict()
 
     if "w_input" in checkpoint and "b_input" in checkpoint:
-        state_dict["input_layer.weight"] = torch.from_numpy(checkpoint["w_input"].T.copy())
+        state_dict["input_layer.weight"] = torch.from_numpy(
+            checkpoint["w_input"].T.copy()
+        )
         state_dict["input_layer.bias"] = torch.from_numpy(checkpoint["b_input"].copy())
 
         block_index = 1
-        while f"w_residual_{block_index}_1" in checkpoint and f"b_residual_{block_index}_1" in checkpoint:
+        while (
+            f"w_residual_{block_index}_1" in checkpoint
+            and f"b_residual_{block_index}_1" in checkpoint
+        ):
             first_weight_key = f"residual_layers.{block_index - 1}.0.weight"
             first_bias_key = f"residual_layers.{block_index - 1}.0.bias"
             second_weight_key = f"residual_layers.{block_index - 1}.1.weight"
             second_bias_key = f"residual_layers.{block_index - 1}.1.bias"
-            state_dict[first_weight_key] = torch.from_numpy(checkpoint[f"w_residual_{block_index}_1"].T.copy())
-            state_dict[first_bias_key] = torch.from_numpy(checkpoint[f"b_residual_{block_index}_1"].copy())
-            state_dict[second_weight_key] = torch.from_numpy(checkpoint[f"w_residual_{block_index}_2"].T.copy())
-            state_dict[second_bias_key] = torch.from_numpy(checkpoint[f"b_residual_{block_index}_2"].copy())
+            state_dict[first_weight_key] = torch.from_numpy(
+                checkpoint[f"w_residual_{block_index}_1"].T.copy()
+            )
+            state_dict[first_bias_key] = torch.from_numpy(
+                checkpoint[f"b_residual_{block_index}_1"].copy()
+            )
+            state_dict[second_weight_key] = torch.from_numpy(
+                checkpoint[f"w_residual_{block_index}_2"].T.copy()
+            )
+            state_dict[second_bias_key] = torch.from_numpy(
+                checkpoint[f"b_residual_{block_index}_2"].copy()
+            )
             block_index += 1
 
-        if "policy_hidden_layer.weight" in state_dict and "w_policy_hidden" in checkpoint:
-            state_dict["policy_hidden_layer.weight"] = torch.from_numpy(checkpoint["w_policy_hidden"].T.copy())
-            state_dict["policy_hidden_layer.bias"] = torch.from_numpy(checkpoint["b_policy_hidden"].copy())
+        if (
+            "policy_hidden_layer.weight" in state_dict
+            and "w_policy_hidden" in checkpoint
+        ):
+            state_dict["policy_hidden_layer.weight"] = torch.from_numpy(
+                checkpoint["w_policy_hidden"].T.copy()
+            )
+            state_dict["policy_hidden_layer.bias"] = torch.from_numpy(
+                checkpoint["b_policy_hidden"].copy()
+            )
         if "value_hidden_layer.weight" in state_dict and "w_value_hidden" in checkpoint:
-            state_dict["value_hidden_layer.weight"] = torch.from_numpy(checkpoint["w_value_hidden"].T.copy())
-            state_dict["value_hidden_layer.bias"] = torch.from_numpy(checkpoint["b_value_hidden"].copy())
+            state_dict["value_hidden_layer.weight"] = torch.from_numpy(
+                checkpoint["w_value_hidden"].T.copy()
+            )
+            state_dict["value_hidden_layer.bias"] = torch.from_numpy(
+                checkpoint["b_value_hidden"].copy()
+            )
 
-        state_dict["policy_head.weight"] = torch.from_numpy(checkpoint["w_policy"].T.copy())
+        state_dict["policy_head.weight"] = torch.from_numpy(
+            checkpoint["w_policy"].T.copy()
+        )
         state_dict["policy_head.bias"] = torch.from_numpy(checkpoint["b_policy"].copy())
-        state_dict["value_head.weight"] = torch.from_numpy(checkpoint["w_value"].T.copy())
+        state_dict["value_head.weight"] = torch.from_numpy(
+            checkpoint["w_value"].T.copy()
+        )
         state_dict["value_head.bias"] = torch.from_numpy(checkpoint["b_value"].copy())
         model.load_state_dict(state_dict)
         return
 
     hidden_index = 1
-    while f"w_hidden_{hidden_index}" in checkpoint and f"b_hidden_{hidden_index}" in checkpoint:
+    while (
+        f"w_hidden_{hidden_index}" in checkpoint
+        and f"b_hidden_{hidden_index}" in checkpoint
+    ):
         weight_key = f"hidden_layers.{hidden_index - 1}.weight"
         bias_key = f"hidden_layers.{hidden_index - 1}.bias"
-        state_dict[weight_key] = torch.from_numpy(checkpoint[f"w_hidden_{hidden_index}"].T.copy())
-        state_dict[bias_key] = torch.from_numpy(checkpoint[f"b_hidden_{hidden_index}"].copy())
+        state_dict[weight_key] = torch.from_numpy(
+            checkpoint[f"w_hidden_{hidden_index}"].T.copy()
+        )
+        state_dict[bias_key] = torch.from_numpy(
+            checkpoint[f"b_hidden_{hidden_index}"].copy()
+        )
         hidden_index += 1
 
     state_dict["policy_head.weight"] = torch.from_numpy(checkpoint["w_policy"].T.copy())
@@ -634,17 +770,23 @@ def load_checkpoint_into_model(model: PolicyValueNet, checkpoint_path: Path) -> 
 def parse_hidden_sizes(text: str) -> tuple[int, ...]:
     parts = [part.strip() for part in text.split(",") if part.strip()]
     if len(parts) < 2:
-        raise ValueError("--hidden-sizes must provide at least two comma-separated integers")
+        raise ValueError(
+            "--hidden-sizes must provide at least two comma-separated integers"
+        )
     hidden_sizes = tuple(int(part) for part in parts)
     if any(size <= 0 for size in hidden_sizes):
         raise ValueError("hidden sizes must be positive")
     return hidden_sizes
 
 
-def resolve_hidden_sizes(model_type: str, hidden_sizes: tuple[int, ...]) -> tuple[int, ...]:
+def resolve_hidden_sizes(
+    model_type: str, hidden_sizes: tuple[int, ...]
+) -> tuple[int, ...]:
     if model_type in RESIDUAL_MODEL_TYPES:
         if len(hidden_sizes) != 2:
-            raise ValueError(f"--hidden-sizes for {model_type} must provide trunk_size,residual_block_count")
+            raise ValueError(
+                f"--hidden-sizes for {model_type} must provide trunk_size,residual_block_count"
+            )
         trunk_size, residual_block_count = hidden_sizes
         if residual_block_count <= 0:
             raise ValueError("residual_block_count must be positive")
@@ -657,11 +799,17 @@ def resolve_hidden_sizes(model_type: str, hidden_sizes: tuple[int, ...]) -> tupl
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=False, help="JSONL training data path")
-    parser.add_argument("--data-files", default=None, help="Comma-separated JSONL training data paths")
-    parser.add_argument("--replay-weights", default=None, help="Comma-separated integer replay weights")
+    parser.add_argument(
+        "--data-files", default=None, help="Comma-separated JSONL training data paths"
+    )
+    parser.add_argument(
+        "--replay-weights", default=None, help="Comma-separated integer replay weights"
+    )
     parser.add_argument("--out", required=True, help="Checkpoint .npz output path")
     parser.add_argument("--epochs", type=int, default=8)
-    parser.add_argument("--steps", type=int, default=None, help="Deprecated alias for --epochs")
+    parser.add_argument(
+        "--steps", type=int, default=None, help="Deprecated alias for --epochs"
+    )
     parser.add_argument("--batch-size", type=int, default=512)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--seed", type=int, default=42)
@@ -671,14 +819,32 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--huber-delta", type=float, default=1.0)
     parser.add_argument("--val-split", type=float, default=0.1)
     parser.add_argument("--grad-clip", type=float, default=1.0)
-    parser.add_argument("--hidden-sizes", default="64,64", help="Two comma-separated hidden layer sizes")
+    parser.add_argument(
+        "--hidden-sizes", default="64,64", help="Two comma-separated hidden layer sizes"
+    )
     parser.add_argument("--model-type", choices=SUPPORTED_MODEL_TYPES, default="mlp_v1")
-    parser.add_argument("--input-encoding", choices=SUPPORTED_INPUT_ENCODINGS, default=DEFAULT_INPUT_ENCODING)
-    parser.add_argument("--policy-target-mode", choices=SUPPORTED_POLICY_TARGET_MODES, default=DEFAULT_POLICY_TARGET_MODE)
-    parser.add_argument("--value-target-mode", choices=SUPPORTED_VALUE_TARGET_MODES, default=DEFAULT_VALUE_TARGET_MODE)
+    parser.add_argument(
+        "--input-encoding",
+        choices=SUPPORTED_INPUT_ENCODINGS,
+        default=DEFAULT_INPUT_ENCODING,
+    )
+    parser.add_argument(
+        "--policy-target-mode",
+        choices=SUPPORTED_POLICY_TARGET_MODES,
+        default=DEFAULT_POLICY_TARGET_MODE,
+    )
+    parser.add_argument(
+        "--value-target-mode",
+        choices=SUPPORTED_VALUE_TARGET_MODES,
+        default=DEFAULT_VALUE_TARGET_MODE,
+    )
     parser.add_argument("--save-top-k", type=int, default=0)
     parser.add_argument("--top-k-dir", default=None)
-    parser.add_argument("--init-checkpoint", default=None, help="Optional checkpoint to load before training")
+    parser.add_argument(
+        "--init-checkpoint",
+        default=None,
+        help="Optional checkpoint to load before training",
+    )
     return parser
 
 
@@ -694,7 +860,9 @@ def main() -> None:
 
     set_seed(args.seed)
     device = select_device(args.device)
-    hidden_sizes = resolve_hidden_sizes(args.model_type, parse_hidden_sizes(args.hidden_sizes))
+    hidden_sizes = resolve_hidden_sizes(
+        args.model_type, parse_hidden_sizes(args.hidden_sizes)
+    )
 
     replay_paths = parse_replay_paths(args.data_files)
     replay_weights = parse_replay_weights(args.replay_weights)

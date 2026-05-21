@@ -44,7 +44,10 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 policy_simulations=1200,
                 value_simulations=1800,
                 seed=500,
-                reference_runner=lambda *_args: {"selected_move": 3, "teacher_value": 0.4183},
+                reference_runner=lambda *_args: {
+                    "selected_move": 3,
+                    "teacher_value": 0.4183,
+                },
             )
 
             artifact = json.loads(out_path.read_text(encoding="utf-8"))
@@ -56,7 +59,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
             self.assertIn("reference_move", rows[0])
             self.assertEqual(rows, artifact["rows"])
 
-    def test_reference_artifact_marks_explicit_instability_when_same_state_disagrees_across_seed_samples(self):
+    def test_reference_artifact_marks_explicit_instability_when_same_state_disagrees_across_seed_samples(
+        self,
+    ):
         from ml.alphazero_lite import build_forensic_references as module
 
         disagreement = module.finalize_reference_row(
@@ -102,7 +107,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
         self.assertEqual("capture_available-016", rows[0]["id"])
         self.assertEqual(3, rows[0]["reference_move"])
 
-    def test_build_reference_artifact_does_not_recompute_duplicate_canonical_states(self):
+    def test_build_reference_artifact_does_not_recompute_duplicate_canonical_states(
+        self,
+    ):
         from ml.alphazero_lite import build_forensic_references as module
 
         state = self.suite_rows()[0]["state"]
@@ -150,10 +157,15 @@ class BuildForensicReferencesTest(unittest.TestCase):
                     value_simulations=1800,
                     seed=500,
                     sample_seeds=[],
-                    reference_runner=lambda *_args: {"selected_move": 3, "teacher_value": 0.4183},
+                    reference_runner=lambda *_args: {
+                        "selected_move": 3,
+                        "teacher_value": 0.4183,
+                    },
                 )
 
-    def test_build_reference_artifact_stable_multi_seed_rows_use_deterministic_teacher_value(self):
+    def test_build_reference_artifact_stable_multi_seed_rows_use_deterministic_teacher_value(
+        self,
+    ):
         from ml.alphazero_lite import build_forensic_references as module
 
         references_by_seed = {
@@ -161,7 +173,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
             3101: {"selected_move": 3, "teacher_value": 0.4367},
         }
 
-        def fake_reference_runner(_state, _policy_simulations, _value_simulations, sample_seed, _index):
+        def fake_reference_runner(
+            _state, _policy_simulations, _value_simulations, sample_seed, _index
+        ):
             return references_by_seed[sample_seed]
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -191,7 +205,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
             rows[0]["seed_samples"],
         )
 
-    def test_build_reference_artifact_marks_multi_seed_move_disagreement_as_unstable(self):
+    def test_build_reference_artifact_marks_multi_seed_move_disagreement_as_unstable(
+        self,
+    ):
         from ml.alphazero_lite import build_forensic_references as module
 
         references_by_seed = {
@@ -199,7 +215,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
             3101: {"selected_move": 4, "teacher_value": 0.4367},
         }
 
-        def fake_reference_runner(_state, _policy_simulations, _value_simulations, sample_seed, _index):
+        def fake_reference_runner(
+            _state, _policy_simulations, _value_simulations, sample_seed, _index
+        ):
             return references_by_seed[sample_seed]
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -252,7 +270,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
 
         self.assertEqual(child_stats, rows[0]["child_stats"])
 
-    def test_capture_available_016_mismatch_stabilization_emits_one_shared_unstable_reference_row(self):
+    def test_capture_available_016_mismatch_stabilization_emits_one_shared_unstable_reference_row(
+        self,
+    ):
         from ml.alphazero_lite import build_forensic_references as module
 
         references_by_seed = {
@@ -260,7 +280,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
             3101: {"selected_move": 4, "teacher_value": 0.4367},
         }
 
-        def fake_reference_runner(_state, _policy_simulations, _value_simulations, sample_seed, _index):
+        def fake_reference_runner(
+            _state, _policy_simulations, _value_simulations, sample_seed, _index
+        ):
             return references_by_seed[sample_seed]
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -284,14 +306,19 @@ class BuildForensicReferencesTest(unittest.TestCase):
         self.assertEqual(1, len(rows))
         self.assertEqual(1, len(artifact["rows"]))
         self.assertEqual("capture_available-016", rows[0]["id"])
-        self.assertEqual(module.canonical_state_key(self.suite_rows()[0]["state"]), rows[0]["canonical_state"])
+        self.assertEqual(
+            module.canonical_state_key(self.suite_rows()[0]["state"]),
+            rows[0]["canonical_state"],
+        )
         self.assertTrue(rows[0]["reference_unstable"])
         self.assertIsNone(rows[0]["reference_move"])
         self.assertIsNone(rows[0]["teacher_value"])
         self.assertEqual([3, 4], rows[0]["observed_reference_moves"])
         self.assertEqual(rows, artifact["rows"])
 
-    def test_run_forensic_suite_reuses_shared_reference_artifact_across_report_seeds(self):
+    def test_run_forensic_suite_reuses_shared_reference_artifact_across_report_seeds(
+        self,
+    ):
         import importlib
 
         from ml.alphazero_lite import build_forensic_references as reference_module
@@ -322,10 +349,15 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 value_simulations=1800,
                 seed=500,
                 sample_seeds=[2100, 3101],
-                reference_runner=lambda *_args: {"selected_move": 3, "teacher_value": 0.4183},
+                reference_runner=lambda *_args: {
+                    "selected_move": 3,
+                    "teacher_value": 0.4183,
+                },
             )
 
-            def fake_run_reference(_state, _policy_simulations, _value_simulations, seed, _index):
+            def fake_run_reference(
+                _state, _policy_simulations, _value_simulations, seed, _index
+            ):
                 selected_move = 4 if seed >= 3000 else 1
                 return {
                     "selected_move": selected_move,
@@ -338,7 +370,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
 
             def fake_evaluate_artifact_position(*, artifact_path, **_kwargs):
                 return {
-                    "selected_move": 3 if str(artifact_path).endswith("candidate-artifact") else 1,
+                    "selected_move": 3
+                    if str(artifact_path).endswith("candidate-artifact")
+                    else 1,
                     "value": 0.15,
                 }
 
@@ -364,22 +398,32 @@ class BuildForensicReferencesTest(unittest.TestCase):
 
                 return json.loads(out_path.read_text(encoding="utf-8"))
 
-            run_reference_mock = None
-            with patch.object(suite_module, "ArtifactEvaluator", side_effect=lambda path: {"artifact": str(path)}), patch.object(
-                suite_module,
-                "build_eval_search_options",
-                return_value={},
-            ), patch.object(
-                suite_module,
-                "evaluate_artifact_position",
-                side_effect=fake_evaluate_artifact_position,
-            ), patch.object(
-                suite_module,
-                "run_reference",
-                side_effect=fake_run_reference,
-            ) as run_reference_mock:
+            with (
+                patch.object(
+                    suite_module,
+                    "ArtifactEvaluator",
+                    side_effect=lambda path: {"artifact": str(path)},
+                ),
+                patch.object(
+                    suite_module,
+                    "build_eval_search_options",
+                    return_value={},
+                ),
+                patch.object(
+                    suite_module,
+                    "evaluate_artifact_position",
+                    side_effect=fake_evaluate_artifact_position,
+                ),
+                patch.object(
+                    suite_module,
+                    "run_reference",
+                    side_effect=fake_run_reference,
+                ) as run_reference_mock,
+            ):
                 baseline_report = run_suite(2040, current_artifact, baseline_out_path)
-                candidate_report = run_suite(3041, candidate_artifact, candidate_out_path)
+                candidate_report = run_suite(
+                    3041, candidate_artifact, candidate_out_path
+                )
 
         baseline_row = baseline_report["systems"]["challenger"]["rows"][0]
         candidate_row = candidate_report["systems"]["challenger"]["rows"][0]
@@ -388,22 +432,67 @@ class BuildForensicReferencesTest(unittest.TestCase):
         self.assertEqual(3, candidate_row["reference_move"])
         self.assertIsNone(baseline_row["regret"])
         self.assertIsNone(candidate_row["regret"])
-        self.assertIsNone(baseline_report["systems"]["challenger"]["overall"]["average_regret"])
-        self.assertIsNone(candidate_report["systems"]["challenger"]["overall"]["average_regret"])
-        self.assertIsNone(baseline_report["systems"]["challenger"]["overall"]["blunder_rate"])
-        self.assertIsNone(candidate_report["systems"]["challenger"]["overall"]["blunder_rate"])
-        self.assertIsNone(baseline_report["systems"]["challenger"]["buckets"]["capture_available"]["average_regret"])
-        self.assertIsNone(candidate_report["systems"]["challenger"]["buckets"]["capture_available"]["average_regret"])
-        self.assertIsNone(baseline_report["systems"]["challenger"]["buckets"]["capture_available"]["blunder_rate"])
-        self.assertIsNone(candidate_report["systems"]["challenger"]["buckets"]["capture_available"]["blunder_rate"])
-        self.assertIsNone(baseline_report["buckets"]["capture_available"]["systems"]["challenger"]["average_regret"])
-        self.assertIsNone(candidate_report["buckets"]["capture_available"]["systems"]["challenger"]["average_regret"])
-        self.assertIsNone(baseline_report["buckets"]["capture_available"]["systems"]["challenger"]["blunder_rate"])
-        self.assertIsNone(candidate_report["buckets"]["capture_available"]["systems"]["challenger"]["blunder_rate"])
+        self.assertIsNone(
+            baseline_report["systems"]["challenger"]["overall"]["average_regret"]
+        )
+        self.assertIsNone(
+            candidate_report["systems"]["challenger"]["overall"]["average_regret"]
+        )
+        self.assertIsNone(
+            baseline_report["systems"]["challenger"]["overall"]["blunder_rate"]
+        )
+        self.assertIsNone(
+            candidate_report["systems"]["challenger"]["overall"]["blunder_rate"]
+        )
+        self.assertIsNone(
+            baseline_report["systems"]["challenger"]["buckets"]["capture_available"][
+                "average_regret"
+            ]
+        )
+        self.assertIsNone(
+            candidate_report["systems"]["challenger"]["buckets"]["capture_available"][
+                "average_regret"
+            ]
+        )
+        self.assertIsNone(
+            baseline_report["systems"]["challenger"]["buckets"]["capture_available"][
+                "blunder_rate"
+            ]
+        )
+        self.assertIsNone(
+            candidate_report["systems"]["challenger"]["buckets"]["capture_available"][
+                "blunder_rate"
+            ]
+        )
+        self.assertIsNone(
+            baseline_report["buckets"]["capture_available"]["systems"]["challenger"][
+                "average_regret"
+            ]
+        )
+        self.assertIsNone(
+            candidate_report["buckets"]["capture_available"]["systems"]["challenger"][
+                "average_regret"
+            ]
+        )
+        self.assertIsNone(
+            baseline_report["buckets"]["capture_available"]["systems"]["challenger"][
+                "blunder_rate"
+            ]
+        )
+        self.assertIsNone(
+            candidate_report["buckets"]["capture_available"]["systems"]["challenger"][
+                "blunder_rate"
+            ]
+        )
         self.assertEqual(0.4183, baseline_row["teacher_value"])
         self.assertEqual(0.4183, candidate_row["teacher_value"])
-        self.assertEqual(reference_module.canonical_state_key(state), baseline_row["canonical_state"])
-        self.assertEqual(reference_module.canonical_state_key(state), candidate_row["canonical_state"])
+        self.assertEqual(
+            reference_module.canonical_state_key(state), baseline_row["canonical_state"]
+        )
+        self.assertEqual(
+            reference_module.canonical_state_key(state),
+            candidate_row["canonical_state"],
+        )
         self.assertEqual(
             [
                 {"seed": 2100, "reference_move": 3, "teacher_value": 0.4183},
@@ -413,11 +502,15 @@ class BuildForensicReferencesTest(unittest.TestCase):
         )
         self.assertEqual(baseline_row["seed_samples"], candidate_row["seed_samples"])
         self.assertEqual("shared_artifact", baseline_report["reference"]["kind"])
-        self.assertEqual(str(reference_path), baseline_report["reference"]["artifact_path"])
+        self.assertEqual(
+            str(reference_path), baseline_report["reference"]["artifact_path"]
+        )
         self.assertEqual(baseline_report["reference"], candidate_report["reference"])
         self.assertEqual(0, run_reference_mock.call_count)
 
-    def test_run_forensic_suite_excludes_unstable_shared_references_from_top1_agreement(self):
+    def test_run_forensic_suite_excludes_unstable_shared_references_from_top1_agreement(
+        self,
+    ):
         import importlib
 
         from ml.alphazero_lite import build_forensic_references as reference_module
@@ -461,24 +554,40 @@ class BuildForensicReferencesTest(unittest.TestCase):
 
             reference_artifact = {
                 "schema": "azlite_forensic_references_v1",
-                "reference": {"policy_simulations": 1200, "value_simulations": 1800, "sample_seeds": [2100, 3101]},
+                "reference": {
+                    "policy_simulations": 1200,
+                    "value_simulations": 1800,
+                    "sample_seeds": [2100, 3101],
+                },
                 "rows": [
                     {
                         "id": "capture_available-016",
-                        "canonical_state": reference_module.canonical_state_key(stable_state),
+                        "canonical_state": reference_module.canonical_state_key(
+                            stable_state
+                        ),
                         "state": stable_state,
                         "reference_move": 3,
                         "teacher_value": 0.4183,
                         "reference_unstable": False,
                         "observed_reference_moves": [3],
                         "seed_samples": [
-                            {"seed": 2100, "reference_move": 3, "teacher_value": 0.4183},
-                            {"seed": 3101, "reference_move": 3, "teacher_value": 0.4183},
+                            {
+                                "seed": 2100,
+                                "reference_move": 3,
+                                "teacher_value": 0.4183,
+                            },
+                            {
+                                "seed": 3101,
+                                "reference_move": 3,
+                                "teacher_value": 0.4183,
+                            },
                         ],
                     },
                     {
                         "id": "sparse_endgame-101",
-                        "canonical_state": reference_module.canonical_state_key(unstable_state),
+                        "canonical_state": reference_module.canonical_state_key(
+                            unstable_state
+                        ),
                         "state": unstable_state,
                         "reference_move": None,
                         "teacher_value": None,
@@ -512,26 +621,61 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 str(out_path),
             ]
 
-            with patch.object(sys, "argv", argv), patch.object(
-                suite_module, "ArtifactEvaluator", side_effect=lambda path: {"artifact": str(path)}
-            ), patch.object(suite_module, "build_eval_search_options", return_value={}), patch.object(
-                suite_module, "evaluate_artifact_position", side_effect=fake_evaluate_artifact_position
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(
+                    suite_module,
+                    "ArtifactEvaluator",
+                    side_effect=lambda path: {"artifact": str(path)},
+                ),
+                patch.object(
+                    suite_module, "build_eval_search_options", return_value={}
+                ),
+                patch.object(
+                    suite_module,
+                    "evaluate_artifact_position",
+                    side_effect=fake_evaluate_artifact_position,
+                ),
             ):
                 suite_module.main()
 
             report = json.loads(out_path.read_text(encoding="utf-8"))
 
         challenger_rows = report["systems"]["challenger"]["rows"]
-        stable_row = next(row for row in challenger_rows if row["id"] == "capture_available-016")
-        unstable_row = next(row for row in challenger_rows if row["id"] == "sparse_endgame-101")
+        stable_row = next(
+            row for row in challenger_rows if row["id"] == "capture_available-016"
+        )
+        unstable_row = next(
+            row for row in challenger_rows if row["id"] == "sparse_endgame-101"
+        )
 
         self.assertTrue(stable_row["agrees_top1"])
         self.assertIsNone(unstable_row["agrees_top1"])
-        self.assertEqual(1.0, report["systems"]["challenger"]["overall"]["top1_agreement"])
-        self.assertEqual(1.0, report["systems"]["challenger"]["buckets"]["capture_available"]["top1_agreement"])
-        self.assertIsNone(report["systems"]["challenger"]["buckets"]["sparse_endgame"]["top1_agreement"])
-        self.assertEqual(1.0, report["buckets"]["capture_available"]["systems"]["challenger"]["top1_agreement"])
-        self.assertIsNone(report["buckets"]["sparse_endgame"]["systems"]["challenger"]["top1_agreement"])
+        self.assertEqual(
+            1.0, report["systems"]["challenger"]["overall"]["top1_agreement"]
+        )
+        self.assertEqual(
+            1.0,
+            report["systems"]["challenger"]["buckets"]["capture_available"][
+                "top1_agreement"
+            ],
+        )
+        self.assertIsNone(
+            report["systems"]["challenger"]["buckets"]["sparse_endgame"][
+                "top1_agreement"
+            ]
+        )
+        self.assertEqual(
+            1.0,
+            report["buckets"]["capture_available"]["systems"]["challenger"][
+                "top1_agreement"
+            ],
+        )
+        self.assertIsNone(
+            report["buckets"]["sparse_endgame"]["systems"]["challenger"][
+                "top1_agreement"
+            ]
+        )
 
     def test_run_forensic_suite_rejects_report_shaped_shared_reference_artifact(self):
         import importlib
@@ -587,10 +731,15 @@ class BuildForensicReferencesTest(unittest.TestCase):
                     str(out_path),
                 ]
 
-                with patch.object(sys, "argv", argv), self.assertRaisesRegex(SystemExit, "shared reference artifact"):
+                with (
+                    patch.object(sys, "argv", argv),
+                    self.assertRaisesRegex(SystemExit, "shared reference artifact"),
+                ):
                     suite_module.main()
 
-    def test_run_forensic_suite_rejects_shared_reference_rows_missing_required_fields(self):
+    def test_run_forensic_suite_rejects_shared_reference_rows_missing_required_fields(
+        self,
+    ):
         import importlib
 
         with patch.dict(os.environ, {"AZLITE_FORENSIC_SUITE_STUB": "1"}):
@@ -612,7 +761,11 @@ class BuildForensicReferencesTest(unittest.TestCase):
                     json.dumps(
                         {
                             "schema": "azlite_forensic_references_v1",
-                            "reference": {"policy_simulations": 1200, "value_simulations": 1800, "sample_seeds": [2100]},
+                            "reference": {
+                                "policy_simulations": 1200,
+                                "value_simulations": 1800,
+                                "sample_seeds": [2100],
+                            },
                             "rows": [
                                 {
                                     "id": "capture_available-016",
@@ -639,10 +792,15 @@ class BuildForensicReferencesTest(unittest.TestCase):
                     str(out_path),
                 ]
 
-                with patch.object(sys, "argv", argv), self.assertRaisesRegex(SystemExit, "missing required fields"):
+                with (
+                    patch.object(sys, "argv", argv),
+                    self.assertRaisesRegex(SystemExit, "missing required fields"),
+                ):
                     suite_module.main()
 
-    def test_run_forensic_suite_rejects_duplicate_shared_reference_canonical_states(self):
+    def test_run_forensic_suite_rejects_duplicate_shared_reference_canonical_states(
+        self,
+    ):
         import importlib
 
         from ml.alphazero_lite.build_forensic_references import canonical_state_key
@@ -669,7 +827,11 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_forensic_references_v1",
-                        "reference": {"policy_simulations": 1200, "value_simulations": 1800, "sample_seeds": [2100]},
+                        "reference": {
+                            "policy_simulations": 1200,
+                            "value_simulations": 1800,
+                            "sample_seeds": [2100],
+                        },
                         "rows": [
                             {
                                 "id": "capture_available-016",
@@ -679,7 +841,13 @@ class BuildForensicReferencesTest(unittest.TestCase):
                                 "teacher_value": 0.4183,
                                 "reference_unstable": False,
                                 "observed_reference_moves": [3],
-                                "seed_samples": [{"seed": 2100, "reference_move": 3, "teacher_value": 0.4183}],
+                                "seed_samples": [
+                                    {
+                                        "seed": 2100,
+                                        "reference_move": 3,
+                                        "teacher_value": 0.4183,
+                                    }
+                                ],
                             },
                             {
                                 "id": "capture_available-099",
@@ -689,7 +857,13 @@ class BuildForensicReferencesTest(unittest.TestCase):
                                 "teacher_value": 0.4183,
                                 "reference_unstable": False,
                                 "observed_reference_moves": [3],
-                                "seed_samples": [{"seed": 2100, "reference_move": 3, "teacher_value": 0.4183}],
+                                "seed_samples": [
+                                    {
+                                        "seed": 2100,
+                                        "reference_move": 3,
+                                        "teacher_value": 0.4183,
+                                    }
+                                ],
                             },
                         ],
                     }
@@ -711,9 +885,11 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 str(out_path),
             ]
 
-            with patch.dict(os.environ, {"AZLITE_FORENSIC_SUITE_STUB": "1"}), patch.object(
-                sys, "argv", argv
-            ), self.assertRaisesRegex(SystemExit, "duplicate canonical_state"):
+            with (
+                patch.dict(os.environ, {"AZLITE_FORENSIC_SUITE_STUB": "1"}),
+                patch.object(sys, "argv", argv),
+                self.assertRaisesRegex(SystemExit, "duplicate canonical_state"),
+            ):
                 suite_module.main()
 
     def test_run_forensic_suite_rejects_shared_reference_canonical_state_mismatch(self):
@@ -744,7 +920,11 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "azlite_forensic_references_v1",
-                        "reference": {"policy_simulations": 1200, "value_simulations": 1800, "sample_seeds": [2100]},
+                        "reference": {
+                            "policy_simulations": 1200,
+                            "value_simulations": 1800,
+                            "sample_seeds": [2100],
+                        },
                         "rows": [
                             {
                                 "id": "capture_available-016",
@@ -754,7 +934,13 @@ class BuildForensicReferencesTest(unittest.TestCase):
                                 "teacher_value": 0.4183,
                                 "reference_unstable": False,
                                 "observed_reference_moves": [3],
-                                "seed_samples": [{"seed": 2100, "reference_move": 3, "teacher_value": 0.4183}],
+                                "seed_samples": [
+                                    {
+                                        "seed": 2100,
+                                        "reference_move": 3,
+                                        "teacher_value": 0.4183,
+                                    }
+                                ],
                             }
                         ],
                     }
@@ -776,9 +962,13 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 str(out_path),
             ]
 
-            with patch.dict(os.environ, {"AZLITE_FORENSIC_SUITE_STUB": "1"}), patch.object(
-                sys, "argv", argv
-            ), self.assertRaisesRegex(SystemExit, "canonical_state.*does not match state"):
+            with (
+                patch.dict(os.environ, {"AZLITE_FORENSIC_SUITE_STUB": "1"}),
+                patch.object(sys, "argv", argv),
+                self.assertRaisesRegex(
+                    SystemExit, "canonical_state.*does not match state"
+                ),
+            ):
                 suite_module.main()
 
     def test_run_forensic_suite_keeps_regret_summaries_for_rows_with_child_stats(self):
@@ -825,7 +1015,11 @@ class BuildForensicReferencesTest(unittest.TestCase):
 
             reference_artifact = {
                 "schema": "azlite_forensic_references_v1",
-                "reference": {"policy_simulations": 1200, "value_simulations": 1800, "sample_seeds": [2100]},
+                "reference": {
+                    "policy_simulations": 1200,
+                    "value_simulations": 1800,
+                    "sample_seeds": [2100],
+                },
                 "rows": [
                     {
                         "id": "capture_available-016",
@@ -835,7 +1029,9 @@ class BuildForensicReferencesTest(unittest.TestCase):
                         "teacher_value": 0.4183,
                         "reference_unstable": False,
                         "observed_reference_moves": [3],
-                        "seed_samples": [{"seed": 2100, "reference_move": 3, "teacher_value": 0.4183}],
+                        "seed_samples": [
+                            {"seed": 2100, "reference_move": 3, "teacher_value": 0.4183}
+                        ],
                         "child_stats": [
                             {"move": 3, "visits": 10, "win_rate": 0.7},
                             {"move": 1, "visits": 8, "win_rate": 0.3},
@@ -843,13 +1039,17 @@ class BuildForensicReferencesTest(unittest.TestCase):
                     },
                     {
                         "id": "sparse_endgame-101",
-                        "canonical_state": reference_module.canonical_state_key(second_state),
+                        "canonical_state": reference_module.canonical_state_key(
+                            second_state
+                        ),
                         "state": second_state,
                         "reference_move": 4,
                         "teacher_value": 0.2,
                         "reference_unstable": False,
                         "observed_reference_moves": [4],
-                        "seed_samples": [{"seed": 2100, "reference_move": 4, "teacher_value": 0.2}],
+                        "seed_samples": [
+                            {"seed": 2100, "reference_move": 4, "teacher_value": 0.2}
+                        ],
                     },
                 ],
             }
@@ -874,10 +1074,21 @@ class BuildForensicReferencesTest(unittest.TestCase):
                 str(out_path),
             ]
 
-            with patch.object(sys, "argv", argv), patch.object(
-                suite_module, "ArtifactEvaluator", side_effect=lambda path: {"artifact": str(path)}
-            ), patch.object(suite_module, "build_eval_search_options", return_value={}), patch.object(
-                suite_module, "evaluate_artifact_position", side_effect=fake_evaluate_artifact_position
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(
+                    suite_module,
+                    "ArtifactEvaluator",
+                    side_effect=lambda path: {"artifact": str(path)},
+                ),
+                patch.object(
+                    suite_module, "build_eval_search_options", return_value={}
+                ),
+                patch.object(
+                    suite_module,
+                    "evaluate_artifact_position",
+                    side_effect=fake_evaluate_artifact_position,
+                ),
             ):
                 suite_module.main()
 
@@ -893,10 +1104,24 @@ class BuildForensicReferencesTest(unittest.TestCase):
         self.assertEqual(1.0, challenger_buckets["capture_available"]["blunder_rate"])
         self.assertIsNone(challenger_buckets["sparse_endgame"]["average_regret"])
         self.assertIsNone(challenger_buckets["sparse_endgame"]["blunder_rate"])
-        self.assertEqual(0.4, matrix_buckets["capture_available"]["systems"]["challenger"]["average_regret"])
-        self.assertEqual(1.0, matrix_buckets["capture_available"]["systems"]["challenger"]["blunder_rate"])
-        self.assertIsNone(matrix_buckets["sparse_endgame"]["systems"]["challenger"]["average_regret"])
-        self.assertIsNone(matrix_buckets["sparse_endgame"]["systems"]["challenger"]["blunder_rate"])
+        self.assertEqual(
+            0.4,
+            matrix_buckets["capture_available"]["systems"]["challenger"][
+                "average_regret"
+            ],
+        )
+        self.assertEqual(
+            1.0,
+            matrix_buckets["capture_available"]["systems"]["challenger"][
+                "blunder_rate"
+            ],
+        )
+        self.assertIsNone(
+            matrix_buckets["sparse_endgame"]["systems"]["challenger"]["average_regret"]
+        )
+        self.assertIsNone(
+            matrix_buckets["sparse_endgame"]["systems"]["challenger"]["blunder_rate"]
+        )
 
 
 if __name__ == "__main__":

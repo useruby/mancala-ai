@@ -8,10 +8,6 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from ml.alphazero_lite.promotion_backlog import evaluate_readiness
 
 
 def parse_args() -> argparse.Namespace:
@@ -24,6 +20,10 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from ml.alphazero_lite.promotion_backlog import evaluate_readiness
+
     args = parse_args()
     readiness = evaluate_readiness(manifest_path=args.manifest_path)
     print(json.dumps(readiness))

@@ -9,7 +9,9 @@ from pathlib import Path
 import subprocess
 import sys
 
-from ml.alphazero_lite.build_tactical_balanced_replay import build_balanced_replay_dataset
+from ml.alphazero_lite.build_tactical_balanced_replay import (
+    build_balanced_replay_dataset,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -52,9 +54,13 @@ def _python_bin() -> Path:
     return Path(sys.executable)
 
 
-def _write_variant_runtime_config(*, run_id: str, output_root: Path, base_config_path: Path) -> Path:
+def _write_variant_runtime_config(
+    *, run_id: str, output_root: Path, base_config_path: Path
+) -> Path:
     config = _load_json(base_config_path)
-    replay_artifact_path = _variant_replay_artifact_path(output_root=output_root, run_id=run_id)
+    replay_artifact_path = _variant_replay_artifact_path(
+        output_root=output_root, run_id=run_id
+    )
     fixed_replay_sources = list(config.get("fixed_replay_sources") or [])
     if not fixed_replay_sources:
         raise ValueError("base config must define fixed_replay_sources")
@@ -65,7 +71,9 @@ def _write_variant_runtime_config(*, run_id: str, output_root: Path, base_config
         else:
             rewritten_sources.append(dict(source))
     config["fixed_replay_sources"] = rewritten_sources
-    runtime_config_path = _variant_runtime_config_path(output_root=output_root, run_id=run_id)
+    runtime_config_path = _variant_runtime_config_path(
+        output_root=output_root, run_id=run_id
+    )
     _write_json(path=runtime_config_path, payload=config)
     return runtime_config_path
 
@@ -75,7 +83,9 @@ def build_variant_artifact_summaries(
 ) -> dict[str, dict]:
     summaries = {}
     for variant, run_id in VARIANT_RUN_IDS.items():
-        replay_artifact_path = _variant_replay_artifact_path(output_root=output_root, run_id=run_id)
+        replay_artifact_path = _variant_replay_artifact_path(
+            output_root=output_root, run_id=run_id
+        )
         _, summary = build_balanced_replay_dataset(
             regression_positions_path=regression_positions_path,
             tactical_replay_path=tactical_replay_path,
@@ -125,15 +135,25 @@ def run_variant_training(
     return json.loads(stdout_lines[-1])
 
 
-def run_redesign(*, output_root: Path, base_config_path: Path, current_path: str, forensic_suite_path: Path) -> dict:
+def run_redesign(
+    *,
+    output_root: Path,
+    base_config_path: Path,
+    current_path: str,
+    forensic_suite_path: Path,
+) -> dict:
     artifact_summaries = build_variant_artifact_summaries(
         output_root=output_root,
-        regression_positions_path=REPO_ROOT / "test/fixtures/ai/superhuman_regression_positions.json",
-        tactical_replay_path=REPO_ROOT / "ml/alphazero_lite/tactical_balanced_replay_source.jsonl",
+        regression_positions_path=REPO_ROOT
+        / "test/fixtures/ai/superhuman_regression_positions.json",
+        tactical_replay_path=REPO_ROOT
+        / "ml/alphazero_lite/tactical_balanced_replay_source.jsonl",
     )
     expected_variants = set(VARIANT_RUN_IDS)
     if set(artifact_summaries) != expected_variants or not all(
-        artifact_summaries[variant].get("pass_flags", {}).get("structurally_valid", False)
+        artifact_summaries[variant]
+        .get("pass_flags", {})
+        .get("structurally_valid", False)
         for variant in VARIANT_RUN_IDS
     ):
         return {

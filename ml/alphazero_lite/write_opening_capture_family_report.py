@@ -81,7 +81,9 @@ def load_reference_moves(path: Path | None) -> dict[str, int]:
     return reference_moves
 
 
-def enrich_suite_rows_with_reference_moves(rows: list[dict], reference_moves: dict[str, int]) -> list[dict]:
+def enrich_suite_rows_with_reference_moves(
+    rows: list[dict], reference_moves: dict[str, int]
+) -> list[dict]:
     enriched_rows = []
     for row in rows:
         enriched_row = dict(row)
@@ -151,17 +153,27 @@ def load_arena_module():
     return importlib.import_module("ml.alphazero_lite.arena")
 
 
-def _select_from_distribution(distribution: list[float], legal_moves: list[int]) -> int | None:
+def _select_from_distribution(
+    distribution: list[float], legal_moves: list[int]
+) -> int | None:
     if not legal_moves:
         return None
     return min(legal_moves, key=lambda move: (-float(distribution[move]), move))
 
 
 def _summarize_distribution(
-    distribution: list[float], *, selected_move: int | None, reference_move: int, value: float
+    distribution: list[float],
+    *,
+    selected_move: int | None,
+    reference_move: int,
+    value: float,
 ) -> dict:
     early_mass = float(distribution[0]) + float(distribution[1])
-    reference_mass = float(distribution[reference_move]) if 0 <= reference_move < len(distribution) else 0.0
+    reference_mass = (
+        float(distribution[reference_move])
+        if 0 <= reference_move < len(distribution)
+        else 0.0
+    )
     return {
         "selected_move": None if selected_move is None else int(selected_move),
         "value": float(value),
@@ -172,7 +184,9 @@ def _summarize_distribution(
     }
 
 
-def summarize_prior(position_summary: dict, *, reference_move: int, legal_moves: list[int]) -> dict:
+def summarize_prior(
+    position_summary: dict, *, reference_move: int, legal_moves: list[int]
+) -> dict:
     policy = list(position_summary.get("policy") or [])
     distribution = [0.0] * 6
     for move in legal_moves:
@@ -186,7 +200,9 @@ def summarize_prior(position_summary: dict, *, reference_move: int, legal_moves:
     )
 
 
-def summarize_search(position_summary: dict, *, reference_move: int, legal_moves: list[int]) -> dict:
+def summarize_search(
+    position_summary: dict, *, reference_move: int, legal_moves: list[int]
+) -> dict:
     visits = list(position_summary.get("visits") or [])
     distribution = [0.0] * 6
     legal_total = sum(float(visits[move]) for move in legal_moves if move < len(visits))
@@ -221,7 +237,9 @@ def build_report(
     seed: int,
 ) -> dict:
     suite_rows = load_suite_rows(suite_path)
-    enriched_rows = enrich_suite_rows_with_reference_moves(suite_rows, load_reference_moves(reference_path))
+    enriched_rows = enrich_suite_rows_with_reference_moves(
+        suite_rows, load_reference_moves(reference_path)
+    )
     tracked_rows = select_tracked_family_rows(enriched_rows)
     missing_references = missing_tracked_family_references(enriched_rows)
 

@@ -9,12 +9,52 @@ import json
 import os
 import random
 import statistics
-import sys
 import time
 from pathlib import Path
 
-if __package__ in (None, ""):
-    sys.path.append(str(Path(__file__).resolve().parents[2]))
+import numpy as np
+
+try:
+    from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
+    from ml.alphazero_lite.kalah_rules import KalahGame
+    from ml.alphazero_lite.opening_cache import (
+        load_opening_cache,
+        state_qualifies_for_opening_cache,
+    )
+    from ml.alphazero_lite.search_ablation import build_mode_config, neutral_value
+    from ml.alphazero_lite.self_play import (
+        ClassicMCTS,
+        PUCT,
+        DEFAULT_EVAL_SEARCH_OPTIONS,
+        DEFAULT_SEARCH_OPTIONS,
+        add_search_option_args,
+        build_eval_search_options,
+        build_search_profile,
+        build_search_options,
+        encode_state,
+        search_options_from_args,
+        value_from_classic_mcts_root,
+        visits_from_classic_mcts_root,
+    )
+except ModuleNotFoundError:
+    from input_encodings import DEFAULT_INPUT_ENCODING
+    from kalah_rules import KalahGame
+    from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
+    from search_ablation import build_mode_config, neutral_value
+    from self_play import (
+        ClassicMCTS,
+        PUCT,
+        DEFAULT_EVAL_SEARCH_OPTIONS,
+        DEFAULT_SEARCH_OPTIONS,
+        add_search_option_args,
+        build_eval_search_options,
+        build_search_profile,
+        build_search_options,
+        encode_state,
+        search_options_from_args,
+        value_from_classic_mcts_root,
+        visits_from_classic_mcts_root,
+    )
 
 
 EARLY_DEFAULT_SEARCH_OPTIONS = {
@@ -41,7 +81,11 @@ def add_early_search_option_args(parser: argparse.ArgumentParser) -> None:
         choices=EARLY_SUPPORTED_ROOT_POLICY_MODES,
         default=EARLY_DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
     )
-    parser.add_argument("--tactical-root-bias", type=float, default=EARLY_DEFAULT_SEARCH_OPTIONS["tactical_root_bias"])
+    parser.add_argument(
+        "--tactical-root-bias",
+        type=float,
+        default=EARLY_DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+    )
     parser.add_argument("--value-trust-enabled", action="store_true")
     parser.add_argument("--value-trust-opening", type=float, default=1.0)
     parser.add_argument("--value-trust-midgame", type=float, default=1.0)
@@ -71,7 +115,9 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def search_options_from_stub_args(args: argparse.Namespace) -> dict[str, str | bool | float]:
+def search_options_from_stub_args(
+    args: argparse.Namespace,
+) -> dict[str, str | bool | float]:
     search_options: dict[str, str | bool | float | dict[str, float | bool]] = {
         "fpu_mode": args.fpu_mode,
         "reuse_subtree": bool(args.reuse_subtree),
@@ -105,7 +151,9 @@ def stub_opening_cache_summary(training_summary: dict | None) -> dict:
     }
 
 
-def stub_value_trust_summary(search_options: dict[str, str | bool | float | dict[str, float | bool]]) -> dict | None:
+def stub_value_trust_summary(
+    search_options: dict[str, str | bool | float | dict[str, float | bool]],
+) -> dict | None:
     schedule = search_options.get("value_trust_schedule")
     if not isinstance(schedule, dict):
         return None
@@ -121,11 +169,15 @@ def stub_value_trust_summary(search_options: dict[str, str | bool | float | dict
     }
 
 
-def build_stub_search_profile(args: argparse.Namespace, search_options: dict[str, str | bool | float]) -> dict:
+def build_stub_search_profile(
+    args: argparse.Namespace, search_options: dict[str, str | bool | float]
+) -> dict:
     return {
         "kind": "arena_eval",
         "player_mode": "puct",
-        "simulations": max(int(args.challenger_simulations), int(args.current_simulations)),
+        "simulations": max(
+            int(args.challenger_simulations), int(args.current_simulations)
+        ),
         "c_puct": float(args.c_puct),
         "search_options": search_options,
         "challenger_simulations": int(args.challenger_simulations),
@@ -169,7 +221,9 @@ def run_stub_main(argv: list[str] | None = None) -> int:
             "move_time_p95_ms": 160.0,
         },
         "budget_summary": {
-            "mean_final_simulations": float(max(int(args.challenger_simulations), int(args.current_simulations))),
+            "mean_final_simulations": float(
+                max(int(args.challenger_simulations), int(args.current_simulations))
+            ),
             "p95_root_latency_ms": 160.0,
             "trigger_counts": {"fixed_budget": int(args.games)},
         },
@@ -185,34 +239,10 @@ def run_stub_main(argv: list[str] | None = None) -> int:
         report["value_trust_summary"] = value_trust_summary
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"wrote arena report to {out_path}")
-    print(f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}")
+    print(
+        f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}"
+    )
     return 0
-
-
-if __name__ == "__main__" and os.environ.get("AZLITE_ARENA_STUB") == "1":
-    raise SystemExit(run_stub_main())
-
-
-import numpy as np
-
-from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
-from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.opening_cache import load_opening_cache, state_qualifies_for_opening_cache
-from ml.alphazero_lite.self_play import (
-    ClassicMCTS,
-    PUCT,
-    DEFAULT_EVAL_SEARCH_OPTIONS,
-    DEFAULT_SEARCH_OPTIONS,
-    add_search_option_args,
-    build_eval_search_options,
-    build_search_profile,
-    build_search_options,
-    encode_state,
-    search_options_from_args,
-    value_from_classic_mcts_root,
-    visits_from_classic_mcts_root,
-)
-from ml.alphazero_lite.search_ablation import build_mode_config, neutral_value
 
 
 PITS_PER_PLAYER = 6
@@ -259,7 +289,9 @@ class ArtifactEvaluator:
         metadata_path = artifact_dir / "metadata.json"
         weights_path = artifact_dir / "weights.json"
         if not weights_path.exists():
-            raise FileNotFoundError(f"missing weights.json in artifact directory: {artifact_dir}")
+            raise FileNotFoundError(
+                f"missing weights.json in artifact directory: {artifact_dir}"
+            )
 
         metadata = {}
         if metadata_path.exists():
@@ -270,9 +302,19 @@ class ArtifactEvaluator:
         self.model_type = architecture.get("model_type", "mlp_v1")
         self.input_encoding = metadata.get("input_encoding", DEFAULT_INPUT_ENCODING)
         self.residual_blocks = self._extract_residual_blocks(weights)
-        self.hidden_layers = [] if self.residual_blocks else self._extract_hidden_layers(weights)
-        self.w_input = np.asarray(weights["w_input"], dtype=np.float32) if "w_input" in weights else None
-        self.b_input = np.asarray(weights["b_input"], dtype=np.float32) if "b_input" in weights else None
+        self.hidden_layers = (
+            [] if self.residual_blocks else self._extract_hidden_layers(weights)
+        )
+        self.w_input = (
+            np.asarray(weights["w_input"], dtype=np.float32)
+            if "w_input" in weights
+            else None
+        )
+        self.b_input = (
+            np.asarray(weights["b_input"], dtype=np.float32)
+            if "b_input" in weights
+            else None
+        )
         self.w_policy = np.asarray(weights["w_policy"], dtype=np.float32)
         self.b_policy = np.asarray(weights["b_policy"], dtype=np.float32)
         self.w_value = np.asarray(weights["w_value"], dtype=np.float32)
@@ -282,17 +324,34 @@ class ArtifactEvaluator:
         self.w_value_hidden = None
         self.b_value_hidden = None
         if self.model_type == "residual_v3":
-            required_keys = ["w_policy_hidden", "b_policy_hidden", "w_value_hidden", "b_value_hidden"]
+            required_keys = [
+                "w_policy_hidden",
+                "b_policy_hidden",
+                "w_value_hidden",
+                "b_value_hidden",
+            ]
             missing_keys = [key for key in required_keys if key not in weights]
             if missing_keys:
                 missing = ", ".join(missing_keys)
-                raise ValueError(f"residual_v3 artifact is missing specialized head weights: {missing}")
-            self.w_policy_hidden = np.asarray(weights["w_policy_hidden"], dtype=np.float32)
-            self.b_policy_hidden = np.asarray(weights["b_policy_hidden"], dtype=np.float32)
-            self.w_value_hidden = np.asarray(weights["w_value_hidden"], dtype=np.float32)
-            self.b_value_hidden = np.asarray(weights["b_value_hidden"], dtype=np.float32)
+                raise ValueError(
+                    f"residual_v3 artifact is missing specialized head weights: {missing}"
+                )
+            self.w_policy_hidden = np.asarray(
+                weights["w_policy_hidden"], dtype=np.float32
+            )
+            self.b_policy_hidden = np.asarray(
+                weights["b_policy_hidden"], dtype=np.float32
+            )
+            self.w_value_hidden = np.asarray(
+                weights["w_value_hidden"], dtype=np.float32
+            )
+            self.b_value_hidden = np.asarray(
+                weights["b_value_hidden"], dtype=np.float32
+            )
 
-    def _extract_residual_blocks(self, weights: dict) -> list[tuple[tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]]:
+    def _extract_residual_blocks(
+        self, weights: dict
+    ) -> list[tuple[tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]]:
         if "w_input" not in weights or "b_input" not in weights:
             return []
 
@@ -314,7 +373,9 @@ class ArtifactEvaluator:
             index += 1
         return blocks
 
-    def _extract_hidden_layers(self, weights: dict) -> list[tuple[np.ndarray, np.ndarray]]:
+    def _extract_hidden_layers(
+        self, weights: dict
+    ) -> list[tuple[np.ndarray, np.ndarray]]:
         indexed_layers: list[tuple[np.ndarray, np.ndarray]] = []
         index = 1
         while f"w_hidden_{index}" in weights and f"b_hidden_{index}" in weights:
@@ -327,12 +388,21 @@ class ArtifactEvaluator:
             return indexed_layers
 
         return [
-            (np.asarray(weights["w1"], dtype=np.float32), np.asarray(weights["b1"], dtype=np.float32)),
-            (np.asarray(weights["w2"], dtype=np.float32), np.asarray(weights["b2"], dtype=np.float32)),
+            (
+                np.asarray(weights["w1"], dtype=np.float32),
+                np.asarray(weights["b1"], dtype=np.float32),
+            ),
+            (
+                np.asarray(weights["w2"], dtype=np.float32),
+                np.asarray(weights["b2"], dtype=np.float32),
+            ),
         ]
 
     def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
-        x = np.asarray(encode_state(game.to_state(), input_encoding=self.input_encoding), dtype=np.float32)
+        x = np.asarray(
+            encode_state(game.to_state(), input_encoding=self.input_encoding),
+            dtype=np.float32,
+        )
 
         if self.residual_blocks:
             assert self.w_input is not None
@@ -354,8 +424,12 @@ class ArtifactEvaluator:
             assert self.b_policy_hidden is not None
             assert self.w_value_hidden is not None
             assert self.b_value_hidden is not None
-            policy_hidden = np.maximum(0.0, (hidden @ self.w_policy_hidden) + self.b_policy_hidden)
-            value_hidden = np.maximum(0.0, (hidden @ self.w_value_hidden) + self.b_value_hidden)
+            policy_hidden = np.maximum(
+                0.0, (hidden @ self.w_policy_hidden) + self.b_policy_hidden
+            )
+            value_hidden = np.maximum(
+                0.0, (hidden @ self.w_value_hidden) + self.b_value_hidden
+            )
 
         logits = (policy_hidden @ self.w_policy) + self.b_policy
         logits = logits - np.max(logits)
@@ -372,7 +446,9 @@ class ArtifactEvaluator:
             else:
                 masked /= total
 
-        value = float(np.tanh((value_hidden @ self.w_value + self.b_value).reshape(-1)[0]))
+        value = float(
+            np.tanh((value_hidden @ self.w_value + self.b_value).reshape(-1)[0])
+        )
         return masked, value
 
 
@@ -400,8 +476,12 @@ def evaluate_artifact_position(
     if normalized_mode["use_classic"]:
         classic_kwargs = {}
         if "value_trust_schedule" in search_options:
-            classic_kwargs["value_trust_schedule"] = search_options["value_trust_schedule"]
-        search = ClassicMCTS(game.clone(), simulations=simulations, seed=seed, **classic_kwargs)
+            classic_kwargs["value_trust_schedule"] = search_options[
+                "value_trust_schedule"
+            ]
+        search = ClassicMCTS(
+            game.clone(), simulations=simulations, seed=seed, **classic_kwargs
+        )
         root = search.search_root()
         visits = np.asarray(visits_from_classic_mcts_root(root), dtype=np.float32)
         legal_moves = game.possible_moves()
@@ -448,7 +528,10 @@ def evaluate_artifact_position(
                 },
             ),
         }
-        if "value_trust_schedule" in search_options and summary.get("value_trust") is not None:
+        if (
+            "value_trust_schedule" in search_options
+            and summary.get("value_trust") is not None
+        ):
             result["value_trust"] = summary.get("value_trust")
         return result
 
@@ -464,7 +547,9 @@ def evaluate_artifact_position(
             nonlocal root_value
             policy, value = evaluator.evaluate(position_game)
             if root_value is None:
-                root_value = float(value) if normalized_mode["use_value"] else neutral_value()
+                root_value = (
+                    float(value) if normalized_mode["use_value"] else neutral_value()
+                )
             return policy, value
 
     puct_kwargs = {}
@@ -488,7 +573,9 @@ def evaluate_artifact_position(
     if legal_moves and root is not None:
         selected_move = search.select_root_move(root, legal_moves)
     elif legal_moves:
-        selected_move = choose_best_move(np.asarray(visits, dtype=np.float32), legal_moves)
+        selected_move = choose_best_move(
+            np.asarray(visits, dtype=np.float32), legal_moves
+        )
     else:
         selected_move = None
     root_summary = search.root_summary() if hasattr(search, "root_summary") else None
@@ -497,7 +584,10 @@ def evaluate_artifact_position(
     root_visit_snapshots = None
     if isinstance(root_summary, dict):
         candidate_value_trust = root_summary.get("value_trust")
-        if isinstance(candidate_value_trust, dict) and "value_trust_schedule" in search_options:
+        if (
+            isinstance(candidate_value_trust, dict)
+            and "value_trust_schedule" in search_options
+        ):
             root_value_trust = candidate_value_trust
         candidate_selection_breakdown = root_summary.get("selection_breakdown")
         if isinstance(candidate_selection_breakdown, dict):
@@ -515,7 +605,11 @@ def evaluate_artifact_position(
             {
                 "move": int(move),
                 "visits": int(child.visit_count if child is not None else visits[move]),
-                "q_value": float(child.q_value if child is not None and child.visit_count > 0 else 0.0),
+                "q_value": float(
+                    child.q_value
+                    if child is not None and child.visit_count > 0
+                    else 0.0
+                ),
             }
         )
 
@@ -568,7 +662,9 @@ def record_hard_suite_bucket(buckets: dict[str, dict], game: KalahGame) -> None:
     buckets[label]["games"] += 1
 
 
-def record_completed_game_bucket(buckets: dict[str, dict], seen_phase_buckets: set[str]) -> None:
+def record_completed_game_bucket(
+    buckets: dict[str, dict], seen_phase_buckets: set[str]
+) -> None:
     if not seen_phase_buckets:
         label = HARD_SUITE_BUCKET_LABELS["early"]
     elif "late" in seen_phase_buckets:
@@ -586,7 +682,11 @@ def merge_hard_suite_buckets(bucket_summaries: list[dict | None]) -> dict[str, d
         if not isinstance(summary, dict):
             continue
         for label in merged:
-            row = summary.get(label, {}) if isinstance(summary.get(label, {}), dict) else {}
+            row = (
+                summary.get(label, {})
+                if isinstance(summary.get(label, {}), dict)
+                else {}
+            )
             merged[label]["games"] += int(row.get("games", 0))
     return merged
 
@@ -626,17 +726,27 @@ def budget_summary_for(report: dict) -> dict:
                 trigger_counts[str(trigger)] = trigger_counts.get(str(trigger), 0) + 1
 
         summary = {
-            "mean_final_simulations": round(statistics.fmean(final_simulations), 2) if final_simulations else None,
-            "p95_root_latency_ms": round(percentile(root_latencies, 95), 2) if root_latencies else None,
+            "mean_final_simulations": round(statistics.fmean(final_simulations), 2)
+            if final_simulations
+            else None,
+            "p95_root_latency_ms": round(percentile(root_latencies, 95), 2)
+            if root_latencies
+            else None,
             "trigger_counts": trigger_counts,
         }
         return summary
 
     notes = report.get("notes", {}) if isinstance(report.get("notes"), dict) else {}
     return {
-        "mean_final_simulations": float(notes.get("challenger_simulations")) if notes.get("challenger_simulations") is not None else None,
+        "mean_final_simulations": float(notes.get("challenger_simulations"))
+        if notes.get("challenger_simulations") is not None
+        else None,
         "p95_root_latency_ms": float(notes.get("move_time_p95_ms", 0.0)),
-        "trigger_counts": ({"fixed_budget": int(report.get("games_played", 0))} if report.get("games_played") is not None else {}),
+        "trigger_counts": (
+            {"fixed_budget": int(report.get("games_played", 0))}
+            if report.get("games_played") is not None
+            else {}
+        ),
     }
 
 
@@ -649,7 +759,11 @@ def attach_budget_summary(report: dict) -> dict:
 
 
 def configured_value_trust_summary(search_options: dict) -> dict | None:
-    schedule = search_options.get("value_trust_schedule") if isinstance(search_options, dict) else None
+    schedule = (
+        search_options.get("value_trust_schedule")
+        if isinstance(search_options, dict)
+        else None
+    )
     if not isinstance(schedule, dict):
         return None
     return {
@@ -682,7 +796,9 @@ def aggregate_worker_reports(
     wins = sum(int(result["wins"]) for result in results)
     losses = sum(int(result["losses"]) for result in results)
     draws = sum(int(result["draws"]) for result in results)
-    move_durations_ms = [duration for result in results for duration in result["move_durations_ms"]]
+    move_durations_ms = [
+        duration for result in results for duration in result["move_durations_ms"]
+    ]
 
     score = (wins + (0.5 * draws)) / float(games)
     fallback_search_profile = build_search_profile(
@@ -696,10 +812,20 @@ def aggregate_worker_reports(
             "current_simulations": int(current_simulations),
         },
     )
-    emitted_search_profile = results[0]["search_profile"] if results else fallback_search_profile
-    emitted_search_profile_hash = results[0]["search_profile_hash"] if results else fallback_search_profile["hash"]
+    emitted_search_profile = (
+        results[0]["search_profile"] if results else fallback_search_profile
+    )
+    emitted_search_profile_hash = (
+        results[0]["search_profile_hash"]
+        if results
+        else fallback_search_profile["hash"]
+    )
     emitted_value_trust_summary = next(
-        (result.get("value_trust_summary") for result in results if isinstance(result.get("value_trust_summary"), dict)),
+        (
+            result.get("value_trust_summary")
+            for result in results
+            if isinstance(result.get("value_trust_summary"), dict)
+        ),
         None,
     )
     if emitted_value_trust_summary is None:
@@ -720,16 +846,25 @@ def aggregate_worker_reports(
             "seed": int(seed),
             "workers_requested": int(workers),
             "workers_used": len(results),
-            "worker_game_counts": [int(result["wins"] + result["losses"] + result["draws"]) for result in results],
+            "worker_game_counts": [
+                int(result["wins"] + result["losses"] + result["draws"])
+                for result in results
+            ],
             "search_options": search_options,
             "search_profile": emitted_search_profile,
             "search_profile_hash": emitted_search_profile_hash,
-            "move_time_mean_ms": round(statistics.fmean(move_durations_ms), 2) if move_durations_ms else 0.0,
+            "move_time_mean_ms": round(statistics.fmean(move_durations_ms), 2)
+            if move_durations_ms
+            else 0.0,
             "move_time_p95_ms": round(percentile(move_durations_ms, 95), 2),
         },
-        "hard_suite_buckets": merge_hard_suite_buckets([result.get("hard_suite_buckets") for result in results]),
+        "hard_suite_buckets": merge_hard_suite_buckets(
+            [result.get("hard_suite_buckets") for result in results]
+        ),
     }
-    report["opening_cache_summary"] = opening_cache_summary_for(results=results, training_summary=training_summary)
+    report["opening_cache_summary"] = opening_cache_summary_for(
+        results=results, training_summary=training_summary
+    )
     if emitted_value_trust_summary is not None:
         report["value_trust_summary"] = emitted_value_trust_summary
     attach_budget_summary(report)
@@ -737,22 +872,44 @@ def aggregate_worker_reports(
     return report
 
 
-def opening_cache_summary_for(*, results: list[dict], training_summary: dict | None = None) -> dict:
+def opening_cache_summary_for(
+    *, results: list[dict], training_summary: dict | None = None
+) -> dict:
     hits = sum(int(result.get("opening_cache_hits", 0)) for result in results)
     misses = sum(int(result.get("opening_cache_misses", 0)) for result in results)
-    hit_quality_sum = sum(float(result.get("opening_cache_hit_quality_sum", 0.0)) for result in results)
-    miss_quality_sum = sum(float(result.get("opening_cache_miss_quality_sum", 0.0)) for result in results)
-    hit_latencies = [value for result in results for value in result.get("opening_cache_hit_latency_ms", [])]
-    miss_latencies = [value for result in results for value in result.get("opening_cache_miss_latency_ms", [])]
+    hit_quality_sum = sum(
+        float(result.get("opening_cache_hit_quality_sum", 0.0)) for result in results
+    )
+    miss_quality_sum = sum(
+        float(result.get("opening_cache_miss_quality_sum", 0.0)) for result in results
+    )
+    hit_latencies = [
+        value
+        for result in results
+        for value in result.get("opening_cache_hit_latency_ms", [])
+    ]
+    miss_latencies = [
+        value
+        for result in results
+        for value in result.get("opening_cache_miss_latency_ms", [])
+    ]
 
     runtime_total = hits + misses
     runtime_hit_rate = None if runtime_total <= 0 else round(hits / runtime_total, 4)
     hit_quality_mean = None if hits <= 0 else hit_quality_sum / hits
     miss_quality_mean = None if misses <= 0 else miss_quality_sum / misses
-    quality_delta = None if hit_quality_mean is None or miss_quality_mean is None else round(hit_quality_mean - miss_quality_mean, 4)
+    quality_delta = (
+        None
+        if hit_quality_mean is None or miss_quality_mean is None
+        else round(hit_quality_mean - miss_quality_mean, 4)
+    )
     hit_latency_mean = None if not hit_latencies else statistics.fmean(hit_latencies)
     miss_latency_mean = None if not miss_latencies else statistics.fmean(miss_latencies)
-    latency_delta_ms = None if hit_latency_mean is None or miss_latency_mean is None else round(hit_latency_mean - miss_latency_mean, 2)
+    latency_delta_ms = (
+        None
+        if hit_latency_mean is None or miss_latency_mean is None
+        else round(hit_latency_mean - miss_latency_mean, 2)
+    )
 
     upstream = training_summary if isinstance(training_summary, dict) else {}
     return {
@@ -881,7 +1038,11 @@ def run_arena_worker(
             lookup_duration_ms = 0.0
             if opening_cache is not None and acting_player == challenger_player:
                 state = game.to_state()
-                if state_qualifies_for_opening_cache(state, ply=ply, opening_gate=getattr(opening_cache, "opening_gate", None)):
+                if state_qualifies_for_opening_cache(
+                    state,
+                    ply=ply,
+                    opening_gate=getattr(opening_cache, "opening_gate", None),
+                ):
                     lookup_started = time.perf_counter()
                     cached_entry = opening_cache.lookup(state, ply=ply)
                     lookup_duration_ms = (time.perf_counter() - lookup_started) * 1000.0
@@ -895,7 +1056,9 @@ def run_arena_worker(
                             if normalized_selected_move in legal_moves:
                                 cached_move = normalized_selected_move
                                 opening_cache_hits += 1
-                                opening_cache_hit_quality_sum += float(cached_entry.get("value", 0.0))
+                                opening_cache_hit_quality_sum += float(
+                                    cached_entry.get("value", 0.0)
+                                )
                                 opening_cache_hit_latency_ms.append(lookup_duration_ms)
                                 move_durations_ms.append(lookup_duration_ms)
                             else:
@@ -907,7 +1070,9 @@ def run_arena_worker(
             if cached_move is None:
                 puct_kwargs = {}
                 if "value_trust_schedule" in normalized_search_options:
-                    puct_kwargs["value_trust_schedule"] = normalized_search_options["value_trust_schedule"]
+                    puct_kwargs["value_trust_schedule"] = normalized_search_options[
+                        "value_trust_schedule"
+                    ]
                 search = PUCT(
                     evaluator=evaluator,
                     simulations=sims,
@@ -916,9 +1081,13 @@ def run_arena_worker(
                     root=reusable_roots[acting_player],
                     fpu_mode=str(normalized_search_options["fpu_mode"]),
                     reuse_subtree=bool(normalized_search_options["reuse_subtree"]),
-                    normalize_values=bool(normalized_search_options["normalize_values"]),
+                    normalize_values=bool(
+                        normalized_search_options["normalize_values"]
+                    ),
                     root_policy_mode=str(normalized_search_options["root_policy_mode"]),
-                    tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
+                    tactical_root_bias=float(
+                        normalized_search_options["tactical_root_bias"]
+                    ),
                     **puct_kwargs,
                 )
                 started = time.perf_counter()
@@ -928,7 +1097,9 @@ def run_arena_worker(
                 move_durations_ms.append(total_duration_ms)
 
                 if opening_cache is not None and acting_player == challenger_player:
-                    opening_cache_miss_quality_sum += float(getattr(root, "q_value", 0.0) if root is not None else 0.0)
+                    opening_cache_miss_quality_sum += float(
+                        getattr(root, "q_value", 0.0) if root is not None else 0.0
+                    )
                     opening_cache_miss_latency_ms.append(total_duration_ms)
 
                 if hasattr(search, "select_root_move") and root is not None:
@@ -950,7 +1121,11 @@ def run_arena_worker(
                 move = cached_move
             if not game.move(game.pit_index(move)):
                 break
-            if reuse_subtree and root is not None and game.current_player == acting_player:
+            if (
+                reuse_subtree
+                and root is not None
+                and game.current_player == acting_player
+            ):
                 reusable_roots[acting_player] = root.child_for_action(move)
             else:
                 reusable_roots[acting_player] = None
@@ -999,7 +1174,9 @@ def main() -> None:
         search_profile = build_search_profile(
             kind="arena_eval",
             player_mode="puct",
-            simulations=max(int(args.challenger_simulations), int(args.current_simulations)),
+            simulations=max(
+                int(args.challenger_simulations), int(args.current_simulations)
+            ),
             c_puct=args.c_puct,
             search_options=search_options,
             extra_fields={
@@ -1022,7 +1199,11 @@ def main() -> None:
             "losses": losses,
             "draws": draws,
             "score": (wins + (0.5 * draws)) / int(args.games),
-            "promotion_decision": {"passed": bool(((wins + (0.5 * draws)) / int(args.games)) >= args.min_score)},
+            "promotion_decision": {
+                "passed": bool(
+                    ((wins + (0.5 * draws)) / int(args.games)) >= args.min_score
+                )
+            },
             "notes": {
                 "challenger_path": str(Path(args.challenger)),
                 "current_path": str(Path(args.current)),
@@ -1044,7 +1225,9 @@ def main() -> None:
             report["value_trust_summary"] = {
                 "enabled": bool(search_options["value_trust_schedule"]["enabled"]),
                 "phase_bucket": "opening",
-                "effective_multiplier": float(search_options["value_trust_schedule"]["opening"])
+                "effective_multiplier": float(
+                    search_options["value_trust_schedule"]["opening"]
+                )
                 if bool(search_options["value_trust_schedule"]["enabled"])
                 else 1.0,
                 "schedule": {
@@ -1053,11 +1236,15 @@ def main() -> None:
                     "late": float(search_options["value_trust_schedule"]["late"]),
                 },
             }
-        report["opening_cache_summary"] = opening_cache_summary_for(results=[], training_summary=training_summary)
+        report["opening_cache_summary"] = opening_cache_summary_for(
+            results=[], training_summary=training_summary
+        )
         attach_budget_summary(report)
         out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"wrote arena report to {out_path}")
-        print(f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}")
+        print(
+            f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}"
+        )
         return
 
     challenger_path = Path(args.challenger)
@@ -1077,7 +1264,9 @@ def main() -> None:
     futures = []
     results = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
-        for worker_id, (start_index, count) in enumerate(zip(starts, counts, strict=True)):
+        for worker_id, (start_index, count) in enumerate(
+            zip(starts, counts, strict=True)
+        ):
             if count <= 0:
                 continue
             futures.append(
@@ -1120,7 +1309,9 @@ def main() -> None:
 
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"wrote arena report to {out_path}")
-    print(f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}")
+    print(
+        f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}"
+    )
 
 
 if __name__ == "__main__":

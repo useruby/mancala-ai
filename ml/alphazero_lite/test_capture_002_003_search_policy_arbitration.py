@@ -44,7 +44,9 @@ class Capture002003SearchPolicyArbitrationContractTest(unittest.TestCase):
 
     def test_default_out_path_uses_rebalanced_final_directory(self):
         self.assertEqual(
-            Path("/tmp/rebalanced/final/capture_002_003_search_policy_arbitration.json"),
+            Path(
+                "/tmp/rebalanced/final/capture_002_003_search_policy_arbitration.json"
+            ),
             module.default_out_path(rebalanced_run_dir=Path("/tmp/rebalanced")),
         )
 
@@ -117,7 +119,9 @@ class Capture002003SearchPolicyArbitrationResolutionTest(unittest.TestCase):
             resolved,
         )
 
-    def test_load_selected_artifact_rejects_conflicting_selected_target_and_selected_artifact(self):
+    def test_load_selected_artifact_rejects_conflicting_selected_target_and_selected_artifact(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             run_dir = Path(tmp) / "run"
             target_path = Path(tmp) / "artifacts" / "candidate-a.bin"
@@ -328,7 +332,9 @@ class Capture002003SearchPolicyArbitrationResolutionTest(unittest.TestCase):
                 {"systems": {"current": {"rows": ["capture_available-002"]}}},
             )
 
-            with self.assertRaisesRegex(ValueError, "forensic rows entries must be dicts"):
+            with self.assertRaisesRegex(
+                ValueError, "forensic rows entries must be dicts"
+            ):
                 module.load_rows_from_run(run_dir=run_dir)
 
     def test_load_rows_from_run_rejects_empty_row_id(self):
@@ -359,7 +365,9 @@ class Capture002003SearchPolicyArbitrationResolutionTest(unittest.TestCase):
                 },
             )
 
-            with self.assertRaisesRegex(ValueError, "duplicate forensic row id: capture_available-002"):
+            with self.assertRaisesRegex(
+                ValueError, "duplicate forensic row id: capture_available-002"
+            ):
                 module.load_rows_from_run(run_dir=run_dir)
 
     def test_resolve_rows_rejects_non_list_legal_moves(self):
@@ -443,7 +451,9 @@ class Capture002003SearchPolicyArbitrationResolutionTest(unittest.TestCase):
             },
         }
 
-        with self.assertRaisesRegex(ValueError, "legal_moves entries must be non-negative"):
+        with self.assertRaisesRegex(
+            ValueError, "legal_moves entries must be non-negative"
+        ):
             module.resolve_rows(rows_by_id=rows)
 
     def test_resolve_rows_rejects_non_integer_reference_move(self):
@@ -513,11 +523,15 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
 
         self.assertEqual(0, row_views["policy_view"]["top_move"])
         self.assertEqual(0.35, row_views["policy_view"]["reference_move_probability"])
-        self.assertEqual(0.1, row_views["policy_view"]["selected_minus_reference_margin"])
+        self.assertEqual(
+            0.1, row_views["policy_view"]["selected_minus_reference_margin"]
+        )
         self.assertEqual(0.41, row_views["value_view"]["root_value_estimate"])
         self.assertEqual(0.51, row_views["value_view"]["reference_move_q_value"])
         self.assertEqual(0.63, row_views["value_view"]["selected_move_q_value"])
-        self.assertEqual(0.12, row_views["value_view"]["selected_minus_reference_q_margin"])
+        self.assertEqual(
+            0.12, row_views["value_view"]["selected_minus_reference_q_margin"]
+        )
         self.assertEqual(0, row_views["search_view"]["searched_selected_move"])
         self.assertEqual(0.3333, row_views["search_view"]["reference_move_visit_share"])
         self.assertEqual(0.4667, row_views["search_view"]["selected_move_visit_share"])
@@ -548,8 +562,16 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
                     "q_top_move": 0,
                 },
                 "visit_snapshots": [
-                    {"simulation": 1, "selected_move": 2, "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]},
-                    {"simulation": 64, "selected_move": 0, "visits": [28.0, 0.0, 20.0, 0.0, 12.0, 0.0]},
+                    {
+                        "simulation": 1,
+                        "selected_move": 2,
+                        "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                    },
+                    {
+                        "simulation": 64,
+                        "selected_move": 0,
+                        "visits": [28.0, 0.0, 20.0, 0.0, 12.0, 0.0],
+                    },
                 ],
             },
         )
@@ -564,13 +586,23 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
         )
         self.assertEqual(
             [
-                {"simulation": 1, "selected_move": 2, "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]},
-                {"simulation": 64, "selected_move": 0, "visits": [28.0, 0.0, 20.0, 0.0, 12.0, 0.0]},
+                {
+                    "simulation": 1,
+                    "selected_move": 2,
+                    "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                },
+                {
+                    "simulation": 64,
+                    "selected_move": 0,
+                    "visits": [28.0, 0.0, 20.0, 0.0, 12.0, 0.0],
+                },
             ],
             row_views["search_view"]["visit_snapshots"],
         )
 
-    def test_build_row_views_preserves_nulls_and_missing_fields_when_child_stats_are_missing(self):
+    def test_build_row_views_preserves_nulls_and_missing_fields_when_child_stats_are_missing(
+        self,
+    ):
         row_views = module.build_row_views(
             row={
                 "id": "capture_available-003",
@@ -648,7 +680,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             )
 
     def test_build_row_views_rejects_visits_container_with_non_numeric_entries(self):
-        with self.assertRaisesRegex(ValueError, "visits entries must be numeric or None"):
+        with self.assertRaisesRegex(
+            ValueError, "visits entries must be numeric or None"
+        ):
             module.build_row_views(
                 row={
                     "id": "capture_available-002",
@@ -709,7 +743,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             )
 
     def test_build_row_views_rejects_selected_move_outside_legal_moves(self):
-        with self.assertRaisesRegex(ValueError, "selected_move must be present in legal_moves"):
+        with self.assertRaisesRegex(
+            ValueError, "selected_move must be present in legal_moves"
+        ):
             module.build_row_views(
                 row={
                     "id": "capture_available-002",
@@ -775,7 +811,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             )
 
     def test_build_row_views_rejects_boolean_child_stat_visits(self):
-        with self.assertRaisesRegex(ValueError, "child_stats entry at index 0 visits must be an integer"):
+        with self.assertRaisesRegex(
+            ValueError, "child_stats entry at index 0 visits must be an integer"
+        ):
             module.build_row_views(
                 row={
                     "id": "capture_available-002",
@@ -797,7 +835,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             )
 
     def test_build_row_views_rejects_fractional_child_stat_visits(self):
-        with self.assertRaisesRegex(ValueError, "child_stats entry at index 0 visits must be an integer"):
+        with self.assertRaisesRegex(
+            ValueError, "child_stats entry at index 0 visits must be an integer"
+        ):
             module.build_row_views(
                 row={
                     "id": "capture_available-002",
@@ -819,7 +859,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             )
 
     def test_build_row_views_rejects_negative_child_stat_visits(self):
-        with self.assertRaisesRegex(ValueError, "child_stats entry at index 0 visits must be non-negative"):
+        with self.assertRaisesRegex(
+            ValueError, "child_stats entry at index 0 visits must be non-negative"
+        ):
             module.build_row_views(
                 row={
                     "id": "capture_available-002",
@@ -841,7 +883,10 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             )
 
     def test_build_row_views_rejects_child_stat_move_outside_legal_moves(self):
-        with self.assertRaisesRegex(ValueError, "child_stats entry at index 1 move must be present in legal_moves"):
+        with self.assertRaisesRegex(
+            ValueError,
+            "child_stats entry at index 1 move must be present in legal_moves",
+        ):
             module.build_row_views(
                 row={
                     "id": "capture_available-002",
@@ -884,8 +929,13 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
 
         self.assertFalse(row_views["search_view"]["child_stats_complete"])
         self.assertIsNone(row_views["search_view"]["child_stats"])
-        self.assertIn("search_view.child_stats", row_views["search_view"]["missing_fields"])
-        self.assertIn("search_view.child_stats_partial", row_views["search_view"]["missing_fields"])
+        self.assertIn(
+            "search_view.child_stats", row_views["search_view"]["missing_fields"]
+        )
+        self.assertIn(
+            "search_view.child_stats_partial",
+            row_views["search_view"]["missing_fields"],
+        )
 
     def test_build_row_views_rejects_duplicate_child_stat_moves(self):
         row_views = module.build_row_views(
@@ -910,7 +960,10 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
 
         self.assertFalse(row_views["search_view"]["child_stats_complete"])
         self.assertIsNone(row_views["search_view"]["child_stats"])
-        self.assertIn("search_view.child_stats_partial", row_views["search_view"]["missing_fields"])
+        self.assertIn(
+            "search_view.child_stats_partial",
+            row_views["search_view"]["missing_fields"],
+        )
 
     def test_build_row_views_preserves_nulls_when_visit_totals_are_zero(self):
         row_views = module.build_row_views(
@@ -933,7 +986,10 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             },
         )
 
-        self.assertEqual({"0": 0.0, "2": 0.0, "4": 0.0}, row_views["search_view"]["visit_distribution"])
+        self.assertEqual(
+            {"0": 0.0, "2": 0.0, "4": 0.0},
+            row_views["search_view"]["visit_distribution"],
+        )
         self.assertIsNone(row_views["search_view"]["reference_move_visit_share"])
         self.assertIsNone(row_views["search_view"]["selected_move_visit_share"])
         self.assertEqual(
@@ -944,7 +1000,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             row_views["search_view"]["missing_fields"],
         )
 
-    def test_build_row_views_preserves_nulls_when_policy_or_visits_are_missing_or_short(self):
+    def test_build_row_views_preserves_nulls_when_policy_or_visits_are_missing_or_short(
+        self,
+    ):
         row_views = module.build_row_views(
             row={
                 "id": "capture_available-003",
@@ -1052,7 +1110,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
             )
 
     def test_build_row_views_rejects_non_finite_policy_entries(self):
-        with self.assertRaisesRegex(ValueError, "policy entries must be numeric or None"):
+        with self.assertRaisesRegex(
+            ValueError, "policy entries must be numeric or None"
+        ):
             module.build_row_views(
                 row={
                     "id": "capture_available-002",
@@ -1075,7 +1135,9 @@ class Capture002003SearchPolicyArbitrationViewsTest(unittest.TestCase):
 
 
 class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
-    def test_validated_diagnostic_state_rejects_invalid_embedded_current_player_override(self):
+    def test_validated_diagnostic_state_rejects_invalid_embedded_current_player_override(
+        self,
+    ):
         row = {
             "id": "capture_available-002",
             "canonical_state": json.dumps(
@@ -1094,7 +1156,9 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
         ):
             module.validated_diagnostic_state(row=row)
 
-    def test_validated_diagnostic_state_rejects_invalid_embedded_non_empty_pit_override(self):
+    def test_validated_diagnostic_state_rejects_invalid_embedded_non_empty_pit_override(
+        self,
+    ):
         row = {
             "id": "capture_available-002",
             "canonical_state": json.dumps(
@@ -1113,7 +1177,9 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
         ):
             module.validated_diagnostic_state(row=row)
 
-    def test_validated_diagnostic_state_rejects_explicit_empty_embedded_player_pits_override(self):
+    def test_validated_diagnostic_state_rejects_explicit_empty_embedded_player_pits_override(
+        self,
+    ):
         row = {
             "id": "capture_available-002",
             "canonical_state": json.dumps(
@@ -1132,7 +1198,9 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
         ):
             module.validated_diagnostic_state(row=row)
 
-    def test_validated_diagnostic_state_rejects_explicit_empty_embedded_opponent_pits_override(self):
+    def test_validated_diagnostic_state_rejects_explicit_empty_embedded_opponent_pits_override(
+        self,
+    ):
         row = {
             "id": "capture_available-002",
             "canonical_state": json.dumps(
@@ -1249,7 +1317,9 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
         ]
 
         with (
-            patch.object(module, "probe_artifact_position", side_effect=probe_summaries) as probe,
+            patch.object(
+                module, "probe_artifact_position", side_effect=probe_summaries
+            ) as probe,
             patch.object(
                 module,
                 "compute_rule_features",
@@ -1352,7 +1422,10 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
             ],
             [call.kwargs for call in probe.call_args_list],
         )
-        self.assertEqual([{"row": rows[0]}, {"row": rows[1]}], [call.kwargs for call in compute.call_args_list])
+        self.assertEqual(
+            [{"row": rows[0]}, {"row": rows[1]}],
+            [call.kwargs for call in compute.call_args_list],
+        )
         self.assertEqual(
             {
                 "capture_available-002": {
@@ -1393,7 +1466,11 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
                             "legal_moves": [0, 2, 4],
                             "reference_move": 2,
                             "policy_view": {
-                                "raw_policy_distribution": {"0": 0.45, "2": 0.35, "4": 0.2},
+                                "raw_policy_distribution": {
+                                    "0": 0.45,
+                                    "2": 0.35,
+                                    "4": 0.2,
+                                },
                                 "top_move": 0,
                                 "reference_move_probability": 0.35,
                                 "selected_minus_reference_margin": 0.1,
@@ -1425,7 +1502,11 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
                             "legal_moves": [0, 2, 4],
                             "reference_move": 2,
                             "policy_view": {
-                                "raw_policy_distribution": {"0": 0.45, "2": 0.35, "4": 0.2},
+                                "raw_policy_distribution": {
+                                    "0": 0.45,
+                                    "2": 0.35,
+                                    "4": 0.2,
+                                },
                                 "top_move": 0,
                                 "reference_move_probability": 0.35,
                                 "selected_minus_reference_margin": 0.1,
@@ -1457,7 +1538,11 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
                             "legal_moves": [0, 2, 4],
                             "reference_move": 2,
                             "policy_view": {
-                                "raw_policy_distribution": {"0": 0.45, "2": 0.35, "4": 0.2},
+                                "raw_policy_distribution": {
+                                    "0": 0.45,
+                                    "2": 0.35,
+                                    "4": 0.2,
+                                },
                                 "top_move": 0,
                                 "reference_move_probability": 0.35,
                                 "selected_minus_reference_margin": 0.1,
@@ -1524,7 +1609,11 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
                             "legal_moves": [1, 2, 5],
                             "reference_move": 2,
                             "policy_view": {
-                                "raw_policy_distribution": {"1": 0.25, "2": 0.5, "5": 0.25},
+                                "raw_policy_distribution": {
+                                    "1": 0.25,
+                                    "2": 0.5,
+                                    "5": 0.25,
+                                },
                                 "top_move": 2,
                                 "reference_move_probability": 0.5,
                                 "selected_minus_reference_margin": 0.0,
@@ -1556,7 +1645,11 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
                             "legal_moves": [1, 2, 5],
                             "reference_move": 2,
                             "policy_view": {
-                                "raw_policy_distribution": {"1": 0.1, "2": 0.75, "5": 0.15},
+                                "raw_policy_distribution": {
+                                    "1": 0.1,
+                                    "2": 0.75,
+                                    "5": 0.15,
+                                },
                                 "top_move": 2,
                                 "reference_move_probability": 0.75,
                                 "selected_minus_reference_margin": 0.0,
@@ -1588,7 +1681,11 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
                             "legal_moves": [1, 2, 5],
                             "reference_move": 2,
                             "policy_view": {
-                                "raw_policy_distribution": {"1": 0.25, "2": 0.5, "5": 0.25},
+                                "raw_policy_distribution": {
+                                    "1": 0.25,
+                                    "2": 0.5,
+                                    "5": 0.25,
+                                },
                                 "top_move": 2,
                                 "reference_move_probability": 0.5,
                                 "selected_minus_reference_margin": 0.0,
@@ -1621,7 +1718,9 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
             payload,
         )
 
-    def test_build_rows_payload_resolves_partial_embedded_state_from_canonical_state(self):
+    def test_build_rows_payload_resolves_partial_embedded_state_from_canonical_state(
+        self,
+    ):
         row = {
             "id": "capture_available-002",
             "canonical_state": json.dumps(
@@ -1675,7 +1774,9 @@ class Capture002003SearchPolicyArbitrationProbePayloadTest(unittest.TestCase):
             payload["capture_available-002"]["rule_features"],
         )
 
-    def test_build_rows_payload_rejects_rows_without_usable_board_state_before_probing(self):
+    def test_build_rows_payload_rejects_rows_without_usable_board_state_before_probing(
+        self,
+    ):
         row = {
             "id": "capture_available-002",
             "canonical_state": json.dumps({"current_player": 1}),
@@ -1725,7 +1826,9 @@ class Capture002003SearchPolicyArbitrationRuleFeaturesTest(unittest.TestCase):
             features,
         )
 
-    def test_compute_rule_features_uses_canonical_state_to_record_capture_and_starvation(self):
+    def test_compute_rule_features_uses_canonical_state_to_record_capture_and_starvation(
+        self,
+    ):
         features = module.compute_rule_features(
             row={
                 "reference_move": 1,
@@ -1750,7 +1853,9 @@ class Capture002003SearchPolicyArbitrationRuleFeaturesTest(unittest.TestCase):
             features,
         )
 
-    def test_compute_rule_features_uses_state_when_present_to_record_extra_turn_window(self):
+    def test_compute_rule_features_uses_state_when_present_to_record_extra_turn_window(
+        self,
+    ):
         features = module.compute_rule_features(
             row={
                 "reference_move": 1,
@@ -1826,7 +1931,9 @@ class Capture002003SearchPolicyArbitrationRuleFeaturesTest(unittest.TestCase):
             features,
         )
 
-    def test_compute_rule_features_rejects_incomplete_state_when_no_source_has_board_shape(self):
+    def test_compute_rule_features_rejects_incomplete_state_when_no_source_has_board_shape(
+        self,
+    ):
         with self.assertRaisesRegex(
             ValueError,
             "usable state.*current_player.*player_pits.*opponent_pits",
@@ -1835,7 +1942,9 @@ class Capture002003SearchPolicyArbitrationRuleFeaturesTest(unittest.TestCase):
                 row={
                     "reference_move": 1,
                     "state": {"current_player": 0, "player_pits": []},
-                    "canonical_state": json.dumps({"opponent_pits": [0, 0, 0, 0, 0, 0]}),
+                    "canonical_state": json.dumps(
+                        {"opponent_pits": [0, 0, 0, 0, 0, 0]}
+                    ),
                 }
             )
 
@@ -1849,7 +1958,9 @@ class Capture002003SearchPolicyArbitrationClassificationTest(unittest.TestCase):
     )
 
     def load_fixture(self, name: str) -> dict:
-        return json.loads((self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8"))
+        return json.loads(
+            (self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8")
+        )
 
     def fixture_rows_with_reference_moves(self, fixture: dict) -> dict:
         return {
@@ -1884,7 +1995,9 @@ class Capture002003SearchPolicyArbitrationClassificationTest(unittest.TestCase):
             module.decision_for_classification(classification["classification"]),
         )
 
-    def test_classification_returns_unresolved_when_search_visit_shares_are_missing(self):
+    def test_classification_returns_unresolved_when_search_visit_shares_are_missing(
+        self,
+    ):
         comparison = {
             "row_ids": ["capture_available-002", "capture_available-003"],
             "reference_moves": {
@@ -2016,7 +2129,9 @@ class Capture002003SearchPolicyArbitrationClassificationTest(unittest.TestCase):
             module.classify_paired_comparison(comparison=comparison),
         )
 
-    def test_search_amplification_gap_requires_003_control_to_not_show_same_amplification(self):
+    def test_search_amplification_gap_requires_003_control_to_not_show_same_amplification(
+        self,
+    ):
         comparison = {
             "row_ids": ["capture_available-002", "capture_available-003"],
             "reference_moves": {
@@ -2318,7 +2433,10 @@ class Capture002003SearchPolicyArbitrationCliTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             stderr = io.StringIO()
 
-            with self.assertRaisesRegex(ValueError, "base config.*readable"), redirect_stderr(stderr):
+            with (
+                self.assertRaisesRegex(ValueError, "base config.*readable"),
+                redirect_stderr(stderr),
+            ):
                 module.main(
                     [
                         "--run-dir",
@@ -2525,7 +2643,9 @@ class Capture002003SearchPolicyArbitrationCliTest(unittest.TestCase):
                 },
                 artifact["selected_artifact"],
             )
-            self.assertEqual({"base_config": str(base_config)}, artifact["source_artifacts"])
+            self.assertEqual(
+                {"base_config": str(base_config)}, artifact["source_artifacts"]
+            )
             self.assertEqual(
                 {
                     "base_config_path": str(base_config),
@@ -2609,12 +2729,22 @@ class Capture002003SearchPolicyArbitrationCliTest(unittest.TestCase):
                 }
 
             with (
-                patch.object(module, "load_selected_artifact", return_value={"path": "/tmp/artifacts/selected.bin"}),
+                patch.object(
+                    module,
+                    "load_selected_artifact",
+                    return_value={"path": "/tmp/artifacts/selected.bin"},
+                ),
                 patch.object(module, "load_rows_from_run", return_value={}),
                 patch.object(module, "resolve_rows", return_value=[]),
                 patch.object(module, "load_arena_module", return_value=fake_arena),
-                patch.object(module, "build_rows_payload", side_effect=fake_build_rows_payload),
-                patch.object(module, "build_payload", return_value={"decision": "stop_unresolved"}),
+                patch.object(
+                    module, "build_rows_payload", side_effect=fake_build_rows_payload
+                ),
+                patch.object(
+                    module,
+                    "build_payload",
+                    return_value={"decision": "stop_unresolved"},
+                ),
             ):
                 exit_code = module.main(
                     [

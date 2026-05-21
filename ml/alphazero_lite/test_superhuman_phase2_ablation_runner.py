@@ -2,7 +2,6 @@ import json
 import os
 import stat
 import subprocess
-import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -33,7 +32,9 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
             for variant, expected in expected_configs.items():
                 result = subprocess.run(
                     [
-                        str(repo_root / "script/ai/run_local_superhuman_phase2_ablation"),
+                        str(
+                            repo_root / "script/ai/run_local_superhuman_phase2_ablation"
+                        ),
                         "--variant",
                         variant,
                         "--parent-artifact",
@@ -50,20 +51,40 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
                 self.assertEqual(0, result.returncode, msg=result.stderr)
                 report = json.loads(result.stdout)
                 runtime_config_path = Path(report["config_path"])
-                runtime_config = json.loads(runtime_config_path.read_text(encoding="utf-8"))
-                self.assertTrue(all(step["command"][0] == report["pipeline_command"][0] for step in runtime_config["steps"] if step.get("command")))
+                runtime_config = json.loads(
+                    runtime_config_path.read_text(encoding="utf-8")
+                )
+                self.assertTrue(
+                    all(
+                        step["command"][0] == report["pipeline_command"][0]
+                        for step in runtime_config["steps"]
+                        if step.get("command")
+                    )
+                )
 
                 self.assertEqual(variant, report["variant"])
                 self.assertTrue(report["config_path"].endswith("pipeline_config.json"))
                 self.assertTrue(Path(report["pipeline_command"][0]).exists())
-                self.assertIn("ml/alphazero_lite/pipeline.py", report["pipeline_command"])
-                self.assertTrue(report["pipeline_command"][report["pipeline_command"].index("--config") + 1].endswith("pipeline_config.json"))
+                self.assertIn(
+                    "ml/alphazero_lite/pipeline.py", report["pipeline_command"]
+                )
+                self.assertTrue(
+                    report["pipeline_command"][
+                        report["pipeline_command"].index("--config") + 1
+                    ].endswith("pipeline_config.json")
+                )
                 self.assertIn(
                     f"tmp/local_superhuman_phase2_ablation/{variant}/pipeline_config.json",
-                    report["gate_command"][report["gate_command"].index("--config-path") + 1],
+                    report["gate_command"][
+                        report["gate_command"].index("--config-path") + 1
+                    ],
                 )
-                self.assertEqual(Path(report["pipeline_command"][0]), Path(report["gate_command"][0]))
-                self.assertEqual(report["pipeline_command"][0], report["gate_command"][0])
+                self.assertEqual(
+                    Path(report["pipeline_command"][0]), Path(report["gate_command"][0])
+                )
+                self.assertEqual(
+                    report["pipeline_command"][0], report["gate_command"][0]
+                )
                 self.assertEqual(
                     str(repo_root / "script/ai/compare_superhuman_regressions"),
                     report["current_comparison_command"][0],
@@ -72,9 +93,17 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
                     str(repo_root / "script/ai/compare_superhuman_regressions"),
                     report["parent_comparison_command"][0],
                 )
-                self.assertIn("script/ai/local_promotion_gate", report["gate_command"][1])
-                self.assertNotEqual(report["pipeline_command"][0], report["current_comparison_command"][0])
-                self.assertNotEqual(report["pipeline_command"][0], report["parent_comparison_command"][0])
+                self.assertIn(
+                    "script/ai/local_promotion_gate", report["gate_command"][1]
+                )
+                self.assertNotEqual(
+                    report["pipeline_command"][0],
+                    report["current_comparison_command"][0],
+                )
+                self.assertNotEqual(
+                    report["pipeline_command"][0],
+                    report["parent_comparison_command"][0],
+                )
                 self.assertEqual(expected["run_id"], runtime_config["run_id"])
 
     def test_non_dry_run_executes_pipeline_gate_and_both_comparisons(self):
@@ -85,11 +114,15 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
             (repo_root / "script/ai").mkdir(parents=True)
             (repo_root / "ml/alphazero_lite/configs").mkdir(parents=True)
             (repo_root / "model-artifact/current").mkdir(parents=True)
-            (repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1").mkdir(parents=True)
+            (
+                repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+            ).mkdir(parents=True)
 
             runner_path = repo_root / "script/ai/run_local_superhuman_phase2_ablation"
             runner_path.write_text(
-                (source_repo_root / "script/ai/run_local_superhuman_phase2_ablation").read_text(encoding="utf-8"),
+                (
+                    source_repo_root / "script/ai/run_local_superhuman_phase2_ablation"
+                ).read_text(encoding="utf-8"),
                 encoding="utf-8",
             )
             runner_path.chmod(0o755)
@@ -102,7 +135,10 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
                 "current_path": "/tmp/placeholder-parent",
                 "steps": [],
             }
-            (repo_root / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2_ablation_replay_balanced.json").write_text(
+            (
+                repo_root
+                / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2_ablation_replay_balanced.json"
+            ).write_text(
                 json.dumps(config),
                 encoding="utf-8",
             )
@@ -146,7 +182,10 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
             )
             (repo_root / "script/ai/compare_superhuman_regressions").chmod(0o755)
 
-            (repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1/self_play.jsonl").write_text(
+            (
+                repo_root
+                / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1/self_play.jsonl"
+            ).write_text(
                 '{"game": 1}\n',
                 encoding="utf-8",
             )
@@ -157,7 +196,10 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
                     "--variant",
                     "replay_balanced",
                     "--parent-artifact",
-                    str(repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"),
+                    str(
+                        repo_root
+                        / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+                    ),
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -175,16 +217,32 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
             self.assertTrue(Path(report["parent_comparison_path"]).exists())
             self.assertTrue(report["config_path"].endswith("pipeline_config.json"))
 
-            gate_report = json.loads(Path(report["gate_report_path"]).read_text(encoding="utf-8"))
-            current_comparison = json.loads(Path(report["current_comparison_path"]).read_text(encoding="utf-8"))
-            parent_comparison = json.loads(Path(report["parent_comparison_path"]).read_text(encoding="utf-8"))
+            gate_report = json.loads(
+                Path(report["gate_report_path"]).read_text(encoding="utf-8")
+            )
+            current_comparison = json.loads(
+                Path(report["current_comparison_path"]).read_text(encoding="utf-8")
+            )
+            parent_comparison = json.loads(
+                Path(report["parent_comparison_path"]).read_text(encoding="utf-8")
+            )
 
             self.assertEqual(report["candidate_path"], gate_report["candidate_path"])
-            self.assertEqual(report["candidate_path"], current_comparison["candidate_artifact_path"])
-            self.assertEqual(report["candidate_path"], parent_comparison["candidate_artifact_path"])
-            self.assertEqual(str(repo_root / "model-artifact/current"), current_comparison["baseline_artifact_path"])
             self.assertEqual(
-                str(repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"),
+                report["candidate_path"], current_comparison["candidate_artifact_path"]
+            )
+            self.assertEqual(
+                report["candidate_path"], parent_comparison["candidate_artifact_path"]
+            )
+            self.assertEqual(
+                str(repo_root / "model-artifact/current"),
+                current_comparison["baseline_artifact_path"],
+            )
+            self.assertEqual(
+                str(
+                    repo_root
+                    / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+                ),
                 parent_comparison["baseline_artifact_path"],
             )
 
@@ -221,13 +279,19 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
                 str(repo_root / "script/ai/compare_superhuman_regressions"),
                 report["parent_comparison_command"][0],
             )
-            self.assertNotEqual(report["pipeline_command"][0], report["current_comparison_command"][0])
-            self.assertNotEqual(report["pipeline_command"][0], report["parent_comparison_command"][0])
+            self.assertNotEqual(
+                report["pipeline_command"][0], report["current_comparison_command"][0]
+            )
+            self.assertNotEqual(
+                report["pipeline_command"][0], report["parent_comparison_command"][0]
+            )
 
     def test_dry_run_skips_non_executable_repo_python_candidate(self):
         source_repo_root = Path(__file__).resolve().parents[2]
 
-        with tempfile.TemporaryDirectory(prefix="azlite-phase2-ablation-python-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-phase2-ablation-python-"
+        ) as tmp:
             repo_root = Path(tmp) / "repo"
             (repo_root / "script/ai").mkdir(parents=True)
             (repo_root / "ml/alphazero_lite/configs").mkdir(parents=True)
@@ -236,17 +300,30 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
 
             runner_path = repo_root / "script/ai/run_local_superhuman_phase2_ablation"
             runner_path.write_text(
-                (source_repo_root / "script/ai/run_local_superhuman_phase2_ablation").read_text(encoding="utf-8"),
+                (
+                    source_repo_root / "script/ai/run_local_superhuman_phase2_ablation"
+                ).read_text(encoding="utf-8"),
                 encoding="utf-8",
             )
             runner_path.chmod(0o755)
 
-            (repo_root / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2_ablation_replay_balanced.json").write_text(
-                json.dumps({"run_id": "aggressive-v3-superhuman-ablation-replay-balanced", "start_iteration": 2, "steps": []}),
+            (
+                repo_root
+                / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2_ablation_replay_balanced.json"
+            ).write_text(
+                json.dumps(
+                    {
+                        "run_id": "aggressive-v3-superhuman-ablation-replay-balanced",
+                        "start_iteration": 2,
+                        "steps": [],
+                    }
+                ),
                 encoding="utf-8",
             )
 
-            parent_artifact = repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+            parent_artifact = (
+                repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+            )
             parent_artifact.mkdir(parents=True)
 
             repo_python = repo_root / ".venv/bin/python"

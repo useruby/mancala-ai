@@ -78,7 +78,9 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
 
         self.assertEqual(0.0, summary["value"])
 
-    def test_evaluate_artifact_position_puct_preserves_value_trust_root_summary_metadata(self):
+    def test_evaluate_artifact_position_puct_preserves_value_trust_root_summary_metadata(
+        self,
+    ):
         root_value_trust = {
             "enabled": True,
             "phase_bucket": "opening",
@@ -128,13 +130,20 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
                 seed=42,
                 c_puct=1.25,
                 search_options=arena.build_eval_search_options(
-                    value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+                    value_trust_schedule={
+                        "enabled": True,
+                        "opening": 0.8,
+                        "midgame": 1.0,
+                        "late": 1.15,
+                    }
                 ),
             )
 
         self.assertEqual(root_value_trust, summary["value_trust"])
 
-    def test_evaluate_artifact_position_puct_preserves_selection_breakdown_and_visit_snapshots(self):
+    def test_evaluate_artifact_position_puct_preserves_selection_breakdown_and_visit_snapshots(
+        self,
+    ):
         expected_selection_breakdown = {
             "selected_move": 0,
             "reference_move": 1,
@@ -218,7 +227,7 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
                         "selection_score": 0.75,
                         "used_fpu": True,
                         "fpu_value": 0.5,
-                    }
+                    },
                 ],
                 "selected_move": 0,
                 "reference_move_by_prior": 1,
@@ -262,7 +271,7 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
                         "selection_score": 0.1125,
                         "used_fpu": False,
                         "fpu_value": None,
-                    }
+                    },
                 ],
                 "selected_move": 1,
                 "reference_move_by_prior": 1,
@@ -328,10 +337,16 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
         summary["selection_breakdown"]["moves"][0]["selection_score"] = -1.0
         summary["visit_snapshots"][0]["moves"][0]["selection_score"] = -1.0
 
-        self.assertEqual(1.25, expected_selection_breakdown["moves"][0]["selection_score"])
-        self.assertEqual(0.925, expected_visit_snapshots[0]["moves"][0]["selection_score"])
+        self.assertEqual(
+            1.25, expected_selection_breakdown["moves"][0]["selection_score"]
+        )
+        self.assertEqual(
+            0.925, expected_visit_snapshots[0]["moves"][0]["selection_score"]
+        )
 
-    def test_evaluate_artifact_position_puct_omits_value_trust_when_root_summary_lacks_it(self):
+    def test_evaluate_artifact_position_puct_omits_value_trust_when_root_summary_lacks_it(
+        self,
+    ):
         class FakeEvaluator:
             def evaluate(self, game):
                 del game
@@ -412,8 +427,14 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
                     ],
                 }
 
-        with mock.patch("ml.alphazero_lite.arena.PUCT", side_effect=AssertionError("classic_only should not use PUCT")), mock.patch(
-            "ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.PUCT",
+                side_effect=AssertionError("classic_only should not use PUCT"),
+            ),
+            mock.patch(
+                "ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True
+            ),
         ):
             summary = arena.evaluate_artifact_position(
                 artifact_path="ignored",
@@ -435,6 +456,7 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
         self.assertEqual([(64, 17)], captured)
         self.assertEqual(4, summary["selected_move"])
         self.assertAlmostEqual(0.5, summary["value"])
+
 
 class ArenaScriptTest(unittest.TestCase):
     def executable_python(self) -> str:
@@ -476,9 +498,15 @@ class ArenaScriptTest(unittest.TestCase):
         (artifact_dir / "weights.json").write_text(
             json.dumps(
                 {
-                    "w1": [[0.1, 0.0, 0.0, 0.0], [0.0, 0.1, 0.0, 0.0]] + [[0.0, 0.0, 0.0, 0.0]] * 13,
+                    "w1": [[0.1, 0.0, 0.0, 0.0], [0.0, 0.1, 0.0, 0.0]]
+                    + [[0.0, 0.0, 0.0, 0.0]] * 13,
                     "b1": [0.0, 0.0, 0.0, 0.0],
-                    "w2": [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
+                    "w2": [
+                        [1.0, 0.0, 0.0, 0.0],
+                        [0.0, 1.0, 0.0, 0.0],
+                        [0.0, 0.0, 1.0, 0.0],
+                        [0.0, 0.0, 0.0, 1.0],
+                    ],
                     "b2": [0.0, 0.0, 0.0, 0.0],
                     "w_policy": [
                         [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -564,7 +592,9 @@ class ArenaScriptTest(unittest.TestCase):
                     },
                 }
 
-        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+        with unittest.mock.patch(
+            "ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True
+        ):
             result = arena.evaluate_artifact_position(
                 artifact_path=None,
                 evaluator=None,
@@ -581,7 +611,9 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual("mid_high_entropy_low_margin", result["budget"]["trigger"])
         self.assertEqual(7.5, result["budget"]["root_latency_ms"])
 
-    def test_real_arena_report_includes_budget_summary_when_classic_only_probe_data_present(self):
+    def test_real_arena_report_includes_budget_summary_when_classic_only_probe_data_present(
+        self,
+    ):
         report = {
             "schema": "arena_v1",
             "games_played": 2,
@@ -688,9 +720,13 @@ class ArenaScriptTest(unittest.TestCase):
 
         self.assertEqual(144.0, summary["mean_final_simulations"])
         self.assertEqual(7.0, summary["p95_root_latency_ms"])
-        self.assertEqual({"fixed_budget": 1, "late_high_entropy": 1}, summary["trigger_counts"])
+        self.assertEqual(
+            {"fixed_budget": 1, "late_high_entropy": 1}, summary["trigger_counts"]
+        )
 
-    def test_budget_summary_does_not_infer_hard_suite_buckets_from_synthetic_positions(self):
+    def test_budget_summary_does_not_infer_hard_suite_buckets_from_synthetic_positions(
+        self,
+    ):
         report = {
             "positions": [
                 {
@@ -731,7 +767,9 @@ class ArenaScriptTest(unittest.TestCase):
 
         self.assertNotIn("hard_suite_buckets", summary)
 
-    def test_attach_budget_summary_emits_stable_empty_hard_suite_bucket_schema_without_worker_data(self):
+    def test_attach_budget_summary_emits_stable_empty_hard_suite_bucket_schema_without_worker_data(
+        self,
+    ):
         report = {
             "positions": [
                 {
@@ -759,7 +797,9 @@ class ArenaScriptTest(unittest.TestCase):
             emitted["hard_suite_buckets"],
         )
 
-    def test_evaluate_artifact_position_classic_only_synthesizes_fixed_budget_metadata(self):
+    def test_evaluate_artifact_position_classic_only_synthesizes_fixed_budget_metadata(
+        self,
+    ):
         from ml.alphazero_lite import arena
 
         state = {
@@ -792,7 +832,9 @@ class ArenaScriptTest(unittest.TestCase):
                     "child_stats": [{"move": 3, "visits": 10, "win_rate": 0.6}],
                 }
 
-        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+        with unittest.mock.patch(
+            "ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True
+        ):
             result = arena.evaluate_artifact_position(
                 artifact_path=None,
                 evaluator=None,
@@ -843,14 +885,18 @@ class ArenaScriptTest(unittest.TestCase):
             "current_player": 0,
         }
 
-        with mock.patch("ml.alphazero_lite.arena.encode_state", return_value=[1.0] * 15):
+        with mock.patch(
+            "ml.alphazero_lite.arena.encode_state", return_value=[1.0] * 15
+        ):
             summary = arena.evaluate_artifact_position(
                 artifact_path=artifact_dir,
                 state=position,
                 simulations=0,
                 seed=7,
                 c_puct=1.25,
-                search_options=arena.build_eval_search_options(root_policy_mode="deterministic", tactical_root_bias=2.0),
+                search_options=arena.build_eval_search_options(
+                    root_policy_mode="deterministic", tactical_root_bias=2.0
+                ),
             )
 
         self.assertEqual(0, summary["selected_move"])
@@ -869,7 +915,10 @@ class ArenaScriptTest(unittest.TestCase):
         }
         evaluator = arena.ArtifactEvaluator(artifact_dir)
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", side_effect=AssertionError("should not reload artifact")):
+        with mock.patch(
+            "ml.alphazero_lite.arena.ArtifactEvaluator",
+            side_effect=AssertionError("should not reload artifact"),
+        ):
             summary = arena.evaluate_artifact_position(
                 artifact_path=artifact_dir,
                 evaluator=evaluator,
@@ -913,7 +962,9 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual(1, evaluate_calls)
         self.assertEqual(0.25, summary["value"])
 
-    def test_deterministic_root_policy_breaks_tied_root_visits_using_search_signal(self):
+    def test_deterministic_root_policy_breaks_tied_root_visits_using_search_signal(
+        self,
+    ):
         root = arena.PUCT(
             evaluator=arena.ArtifactEvaluator,
             simulations=1,
@@ -930,8 +981,18 @@ class ArenaScriptTest(unittest.TestCase):
                 }
             )
         )
-        root.children[0] = self_play.Node(game=self_play.KalahGame.from_state(root.game.to_state()), prior=0.2, visit_count=5, value_sum=1.0)
-        root.children[1] = self_play.Node(game=self_play.KalahGame.from_state(root.game.to_state()), prior=0.6, visit_count=5, value_sum=3.0)
+        root.children[0] = self_play.Node(
+            game=self_play.KalahGame.from_state(root.game.to_state()),
+            prior=0.2,
+            visit_count=5,
+            value_sum=1.0,
+        )
+        root.children[1] = self_play.Node(
+            game=self_play.KalahGame.from_state(root.game.to_state()),
+            prior=0.6,
+            visit_count=5,
+            value_sum=3.0,
+        )
 
         visit_count_search = self_play.PUCT(
             evaluator=self_play.HeuristicEvaluator(),
@@ -985,7 +1046,16 @@ class ArenaScriptTest(unittest.TestCase):
                 pass
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root
                 captured_search_options.append(dict(search_options))
 
@@ -995,8 +1065,11 @@ class ArenaScriptTest(unittest.TestCase):
                 visits[0] = 1.0
                 return visits, None
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
         ):
             result = arena.run_arena_worker(
                 worker_id=0,
@@ -1016,9 +1089,13 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual([result["search_options"]], captured_search_options)
         self.assertEqual("v1", result["search_profile"]["version"])
         self.assertEqual("arena_eval", result["search_profile"]["kind"])
-        self.assertEqual(result["search_profile"]["hash"], result["search_profile_hash"])
+        self.assertEqual(
+            result["search_profile"]["hash"], result["search_profile_hash"]
+        )
 
-    def test_artifact_evaluator_loads_residual_v2_weights_and_selected_input_encoding(self):
+    def test_artifact_evaluator_loads_residual_v2_weights_and_selected_input_encoding(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-arena-unit-") as tmp:
             artifact_dir = Path(tmp)
             (artifact_dir / "metadata.json").write_text(
@@ -1041,7 +1118,10 @@ class ArenaScriptTest(unittest.TestCase):
                         "b_residual_1_1": [0.0, 0.0],
                         "w_residual_1_2": [[1.0, 0.0], [0.0, 1.0]],
                         "b_residual_1_2": [0.0, 0.0],
-                        "w_policy": [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0, 0.0, 0.0]],
+                        "w_policy": [
+                            [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                            [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+                        ],
                         "b_policy": [0.0, 0.0, -1.0, -1.0, -1.0, -1.0],
                         "w_value": [[0.25], [0.25]],
                         "b_value": [0.0],
@@ -1062,7 +1142,9 @@ class ArenaScriptTest(unittest.TestCase):
             )
             encoded_state = [0.2] * 15
 
-            with mock.patch("ml.alphazero_lite.arena.encode_state", return_value=encoded_state) as encode_state:
+            with mock.patch(
+                "ml.alphazero_lite.arena.encode_state", return_value=encoded_state
+            ) as encode_state:
                 priors, value = evaluator.evaluate(game)
 
             self.assertEqual("kalah_v2", evaluator.input_encoding)
@@ -1071,7 +1153,9 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertAlmostEqual(1.0, float(np.sum(priors)), places=5)
             self.assertGreaterEqual(value, -1.0)
             self.assertLessEqual(value, 1.0)
-            encode_state.assert_called_once_with(game.to_state(), input_encoding="kalah_v2")
+            encode_state.assert_called_once_with(
+                game.to_state(), input_encoding="kalah_v2"
+            )
 
     def test_artifact_evaluator_uses_specialized_residual_v3_heads(self):
         with tempfile.TemporaryDirectory(prefix="azlite-arena-unit-") as tmp:
@@ -1124,10 +1208,14 @@ class ArenaScriptTest(unittest.TestCase):
                 }
             )
 
-            with mock.patch("ml.alphazero_lite.arena.encode_state", return_value=[1.0, 2.0]):
+            with mock.patch(
+                "ml.alphazero_lite.arena.encode_state", return_value=[1.0, 2.0]
+            ):
                 priors, value = evaluator.evaluate(game)
 
-            expected_logits = np.array([2.0, 6.0, 1.0, -10.0, -10.0, -10.0], dtype=np.float32)
+            expected_logits = np.array(
+                [2.0, 6.0, 1.0, -10.0, -10.0, -10.0], dtype=np.float32
+            )
             expected_logits = expected_logits - np.max(expected_logits)
             expected_priors = np.exp(expected_logits)
             expected_priors /= np.sum(expected_priors)
@@ -1143,7 +1231,16 @@ class ArenaScriptTest(unittest.TestCase):
                 pass
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root
                 captured_search_options.append(search_options)
 
@@ -1153,8 +1250,11 @@ class ArenaScriptTest(unittest.TestCase):
                 visits[0] = 1.0
                 return visits, None
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
         ):
             result = arena.run_arena_worker(
                 worker_id=0,
@@ -1188,14 +1288,28 @@ class ArenaScriptTest(unittest.TestCase):
 
     def test_run_arena_worker_preserves_value_trust_schedule_in_search_options(self):
         captured_search_options = []
-        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+        value_trust_schedule = {
+            "enabled": True,
+            "opening": 0.8,
+            "midgame": 1.0,
+            "late": 1.15,
+        }
 
         class FakeArtifactEvaluator:
             def __init__(self, _artifact_dir):
                 pass
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root
                 captured_search_options.append(search_options)
 
@@ -1205,8 +1319,11 @@ class ArenaScriptTest(unittest.TestCase):
                 visits[0] = 1.0
                 return visits, None
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
         ):
             result = arena.run_arena_worker(
                 worker_id=0,
@@ -1222,11 +1339,20 @@ class ArenaScriptTest(unittest.TestCase):
                 value_trust_schedule=value_trust_schedule,
             )
 
-        self.assertEqual(value_trust_schedule, result["search_options"]["value_trust_schedule"])
-        self.assertEqual(value_trust_schedule, captured_search_options[0]["value_trust_schedule"])
+        self.assertEqual(
+            value_trust_schedule, result["search_options"]["value_trust_schedule"]
+        )
+        self.assertEqual(
+            value_trust_schedule, captured_search_options[0]["value_trust_schedule"]
+        )
 
     def test_run_arena_worker_emits_root_summary_value_trust_not_raw_schedule(self):
-        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+        value_trust_schedule = {
+            "enabled": True,
+            "opening": 0.8,
+            "midgame": 1.0,
+            "late": 1.15,
+        }
         root_value_trust = {
             "enabled": True,
             "phase_bucket": "opening",
@@ -1239,7 +1365,16 @@ class ArenaScriptTest(unittest.TestCase):
                 pass
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game):
@@ -1263,8 +1398,11 @@ class ArenaScriptTest(unittest.TestCase):
             def root_summary(self):
                 return {"value_trust": root_value_trust}
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
         ):
             result = arena.run_arena_worker(
                 worker_id=0,
@@ -1284,7 +1422,12 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertNotEqual(value_trust_schedule, result["value_trust_summary"])
 
     def test_real_puct_run_arena_worker_emits_value_trust_summary(self):
-        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+        value_trust_schedule = {
+            "enabled": True,
+            "opening": 0.8,
+            "midgame": 1.0,
+            "late": 1.15,
+        }
 
         class TinyDeterministicEvaluator(self_play.Evaluator):
             def __init__(self, _artifact_dir):
@@ -1296,7 +1439,9 @@ class ArenaScriptTest(unittest.TestCase):
                 priors[0] = 1.0
                 return priors, 0.25
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", TinyDeterministicEvaluator):
+        with mock.patch(
+            "ml.alphazero_lite.arena.ArtifactEvaluator", TinyDeterministicEvaluator
+        ):
             result = arena.run_arena_worker(
                 worker_id=0,
                 start_index=0,
@@ -1332,7 +1477,9 @@ class ArenaScriptTest(unittest.TestCase):
                 priors[0] = 1.0
                 return priors, 0.25
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", TinyDeterministicEvaluator):
+        with mock.patch(
+            "ml.alphazero_lite.arena.ArtifactEvaluator", TinyDeterministicEvaluator
+        ):
             result = arena.run_arena_worker(
                 worker_id=0,
                 start_index=0,
@@ -1348,7 +1495,9 @@ class ArenaScriptTest(unittest.TestCase):
 
         self.assertIsNone(result["value_trust_summary"])
 
-    def test_evaluate_artifact_position_classic_only_preserves_value_trust_root_summary_metadata(self):
+    def test_evaluate_artifact_position_classic_only_preserves_value_trust_root_summary_metadata(
+        self,
+    ):
         state = {
             "player_pits": [4, 4, 4, 4, 4, 4],
             "opponent_pits": [4, 4, 4, 4, 4, 4],
@@ -1386,7 +1535,9 @@ class ArenaScriptTest(unittest.TestCase):
                     "value_trust": value_trust,
                 }
 
-        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+        with unittest.mock.patch(
+            "ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True
+        ):
             result = arena.evaluate_artifact_position(
                 artifact_path=None,
                 evaluator=None,
@@ -1395,7 +1546,8 @@ class ArenaScriptTest(unittest.TestCase):
                 seed=7,
                 c_puct=1.25,
                 search_options=arena.build_eval_search_options(
-                    value_trust_schedule=value_trust["schedule"] | {"enabled": value_trust["enabled"]}
+                    value_trust_schedule=value_trust["schedule"]
+                    | {"enabled": value_trust["enabled"]}
                 ),
                 ablation_mode="classic_only",
             )
@@ -1440,7 +1592,9 @@ class ArenaScriptTest(unittest.TestCase):
                     "value_trust": root_value_trust,
                 }
 
-        with unittest.mock.patch("ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True):
+        with unittest.mock.patch(
+            "ml.alphazero_lite.arena.ClassicMCTS", FakeClassicMCTS, create=True
+        ):
             result = arena.evaluate_artifact_position(
                 artifact_path=None,
                 evaluator=None,
@@ -1497,7 +1651,16 @@ class ArenaScriptTest(unittest.TestCase):
         roots_to_return = [first_root, second_root]
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, search_options
                 created_roots.append(root)
 
@@ -1508,9 +1671,15 @@ class ArenaScriptTest(unittest.TestCase):
                 visits[0] = 1.0
                 return visits, root
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
-        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()):
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            mock.patch(
+                "ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()
+            ),
+        ):
             arena.run_arena_worker(
                 worker_id=0,
                 start_index=0,
@@ -1570,7 +1739,16 @@ class ArenaScriptTest(unittest.TestCase):
         roots_to_return = [first_root, second_root]
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del simulations, c_puct, rng, search_options
                 created.append((evaluator.name, root))
 
@@ -1581,9 +1759,15 @@ class ArenaScriptTest(unittest.TestCase):
                 visits[0] = 1.0
                 return visits, root
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
-        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()):
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            mock.patch(
+                "ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()
+            ),
+        ):
             arena.run_arena_worker(
                 worker_id=0,
                 start_index=0,
@@ -1630,7 +1814,16 @@ class ArenaScriptTest(unittest.TestCase):
                 return True
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game):
@@ -1639,9 +1832,15 @@ class ArenaScriptTest(unittest.TestCase):
                 visits[0] = 1.0
                 return visits, None
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
-        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()):
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            mock.patch(
+                "ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()
+            ),
+        ):
             result = arena.run_arena_worker(
                 worker_id=0,
                 start_index=0,
@@ -1655,10 +1854,18 @@ class ArenaScriptTest(unittest.TestCase):
                 max_moves=4,
             )
 
-        self.assertEqual(1, sum(bucket["games"] for bucket in result["hard_suite_buckets"].values()))
-        self.assertEqual({"games": 0, "score": None}, result["hard_suite_buckets"]["opening"])
-        self.assertEqual({"games": 1, "score": None}, result["hard_suite_buckets"]["midgame"])
-        self.assertEqual({"games": 0, "score": None}, result["hard_suite_buckets"]["late"])
+        self.assertEqual(
+            1, sum(bucket["games"] for bucket in result["hard_suite_buckets"].values())
+        )
+        self.assertEqual(
+            {"games": 0, "score": None}, result["hard_suite_buckets"]["opening"]
+        )
+        self.assertEqual(
+            {"games": 1, "score": None}, result["hard_suite_buckets"]["midgame"]
+        )
+        self.assertEqual(
+            {"games": 0, "score": None}, result["hard_suite_buckets"]["late"]
+        )
 
     def test_record_completed_game_bucket_prefers_deepest_phase_reached(self):
         buckets = arena.empty_hard_suite_buckets()
@@ -1669,7 +1876,9 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual({"games": 0, "score": None}, buckets["midgame"])
         self.assertEqual({"games": 1, "score": None}, buckets["late"])
 
-    def test_run_arena_worker_emits_runtime_opening_cache_metrics_from_real_hits_and_misses(self):
+    def test_run_arena_worker_emits_runtime_opening_cache_metrics_from_real_hits_and_misses(
+        self,
+    ):
         class FakeArtifactEvaluator:
             def __init__(self, artifact_dir):
                 self.name = str(artifact_dir)
@@ -1711,7 +1920,9 @@ class ArenaScriptTest(unittest.TestCase):
 
             def to_state(self):
                 return {
-                    "player_pits": [4, 4, 4, 4, 4, 4] if self.moves_played == 0 else [3, 4, 4, 4, 4, 4],
+                    "player_pits": [4, 4, 4, 4, 4, 4]
+                    if self.moves_played == 0
+                    else [3, 4, 4, 4, 4, 4],
                     "opponent_pits": [4, 4, 4, 4, 4, 4],
                     "player_store": 0,
                     "opponent_store": 0,
@@ -1739,7 +1950,16 @@ class ArenaScriptTest(unittest.TestCase):
         class FakePUCT:
             run_calls = 0
 
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game):
@@ -1753,10 +1973,18 @@ class ArenaScriptTest(unittest.TestCase):
                 del root
                 return legal_moves[0]
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
-        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()), mock.patch(
-            "ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.003, 2.0, 2.001, 3.0, 3.011]
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            mock.patch(
+                "ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()
+            ),
+            mock.patch(
+                "ml.alphazero_lite.arena.time.perf_counter",
+                side_effect=[1.0, 1.003, 2.0, 2.001, 3.0, 3.011],
+            ),
         ):
             result = arena.run_arena_worker(
                 worker_id=0,
@@ -1778,9 +2006,13 @@ class ArenaScriptTest(unittest.TestCase):
         self.assertEqual(0.8, result["opening_cache_hit_quality_sum"])
         self.assertEqual(0.3, result["opening_cache_miss_quality_sum"])
         self.assertAlmostEqual(3.0, result["opening_cache_hit_latency_ms"][0], places=6)
-        self.assertAlmostEqual(12.0, result["opening_cache_miss_latency_ms"][0], places=6)
+        self.assertAlmostEqual(
+            12.0, result["opening_cache_miss_latency_ms"][0], places=6
+        )
 
-    def test_run_arena_worker_miss_latency_includes_lookup_overhead_in_total_runtime_cost(self):
+    def test_run_arena_worker_miss_latency_includes_lookup_overhead_in_total_runtime_cost(
+        self,
+    ):
         class FakeArtifactEvaluator:
             def __init__(self, artifact_dir):
                 self.name = str(artifact_dir)
@@ -1809,7 +2041,16 @@ class ArenaScriptTest(unittest.TestCase):
                 return None
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game):
@@ -1822,9 +2063,16 @@ class ArenaScriptTest(unittest.TestCase):
                 del root
                 return legal_moves[0]
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
-        ), mock.patch("ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.002, 2.0, 2.011]):
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            mock.patch(
+                "ml.alphazero_lite.arena.time.perf_counter",
+                side_effect=[1.0, 1.002, 2.0, 2.011],
+            ),
+        ):
             result = arena.run_arena_worker(
                 worker_id=0,
                 start_index=0,
@@ -1840,10 +2088,14 @@ class ArenaScriptTest(unittest.TestCase):
             )
 
         self.assertEqual(1, result["opening_cache_misses"])
-        self.assertAlmostEqual(13.0, result["opening_cache_miss_latency_ms"][0], places=6)
+        self.assertAlmostEqual(
+            13.0, result["opening_cache_miss_latency_ms"][0], places=6
+        )
         self.assertAlmostEqual(13.0, result["move_durations_ms"][0], places=6)
 
-    def test_run_arena_worker_does_not_count_gate_rejected_positions_as_opening_cache_misses(self):
+    def test_run_arena_worker_does_not_count_gate_rejected_positions_as_opening_cache_misses(
+        self,
+    ):
         class FakeArtifactEvaluator:
             def __init__(self, artifact_dir):
                 self.name = str(artifact_dir)
@@ -1877,7 +2129,16 @@ class ArenaScriptTest(unittest.TestCase):
                 return None
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game):
@@ -1891,9 +2152,16 @@ class ArenaScriptTest(unittest.TestCase):
                 return legal_moves[0]
 
         cache = FakeOpeningCache()
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
-        ), mock.patch("ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.001, 2.0, 2.011]):
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            mock.patch(
+                "ml.alphazero_lite.arena.time.perf_counter",
+                side_effect=[1.0, 1.001, 2.0, 2.011],
+            ),
+        ):
             result = arena.run_arena_worker(
                 worker_id=0,
                 start_index=0,
@@ -1959,7 +2227,16 @@ class ArenaScriptTest(unittest.TestCase):
         class FakePUCT:
             run_calls = 0
 
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game):
@@ -1973,10 +2250,18 @@ class ArenaScriptTest(unittest.TestCase):
                 del root
                 return legal_moves[0]
 
-        with mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator), mock.patch(
-            "ml.alphazero_lite.arena.PUCT", FakePUCT
-        ), mock.patch("ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()), mock.patch(
-            "ml.alphazero_lite.arena.time.perf_counter", side_effect=[1.0, 1.003, 2.0, 2.011]
+        with (
+            mock.patch(
+                "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+            ),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            mock.patch(
+                "ml.alphazero_lite.arena.KalahGame.from_state", return_value=FakeGame()
+            ),
+            mock.patch(
+                "ml.alphazero_lite.arena.time.perf_counter",
+                side_effect=[1.0, 1.003, 2.0, 2.011],
+            ),
         ):
             result = arena.run_arena_worker(
                 worker_id=0,
@@ -2046,7 +2331,9 @@ class ArenaScriptTest(unittest.TestCase):
             report["hard_suite_buckets"],
         )
 
-    def test_aggregate_worker_reports_emits_opening_cache_summary_from_runtime_metrics(self):
+    def test_aggregate_worker_reports_emits_opening_cache_summary_from_runtime_metrics(
+        self,
+    ):
         report = arena.aggregate_worker_reports(
             games=4,
             min_score=0.55,
@@ -2093,10 +2380,14 @@ class ArenaScriptTest(unittest.TestCase):
 
         self.assertEqual(0.5, report["opening_cache_summary"]["runtime_hit_rate"])
         self.assertIsNone(report["opening_cache_summary"]["training_hit_rate"])
-        self.assertEqual(0.2, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(
+            0.2, report["opening_cache_summary"]["opening_bucket_quality_delta"]
+        )
         self.assertEqual(-8.0, report["opening_cache_summary"]["latency_delta_ms"])
 
-    def test_aggregate_worker_reports_falls_back_to_configured_value_trust_schedule_when_runtime_summary_is_missing(self):
+    def test_aggregate_worker_reports_falls_back_to_configured_value_trust_schedule_when_runtime_summary_is_missing(
+        self,
+    ):
         configured_schedule = {
             "enabled": True,
             "opening": 0.8,
@@ -2113,7 +2404,9 @@ class ArenaScriptTest(unittest.TestCase):
             current_simulations=16,
             seed=42,
             workers=1,
-            search_options=arena.build_eval_search_options(value_trust_schedule=configured_schedule),
+            search_options=arena.build_eval_search_options(
+                value_trust_schedule=configured_schedule
+            ),
             results=[
                 {
                     "wins": 1,
@@ -2158,7 +2451,9 @@ class ArenaScriptTest(unittest.TestCase):
                 "policy": [0.0, 0.5, 0.0, 0.5, 0.0, 0.0],
                 "value": 1.0,
             }
-            data_path.write_text("\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8"
+            )
 
             train = subprocess.run(
                 [
@@ -2182,7 +2477,10 @@ class ArenaScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, train.returncode, msg=train.stderr)
 
-            for out_dir, version in ((challenger_dir, "azlite-challenger"), (current_dir, "azlite-current")):
+            for out_dir, version in (
+                (challenger_dir, "azlite-challenger"),
+                (current_dir, "azlite-current"),
+            ):
                 export = subprocess.run(
                     [
                         python,
@@ -2235,8 +2533,12 @@ class ArenaScriptTest(unittest.TestCase):
             report = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertIn("budget_summary", report)
             self.assertEqual(32.0, report["budget_summary"]["mean_final_simulations"])
-            self.assertEqual({"fixed_budget": 6}, report["budget_summary"]["trigger_counts"])
-            self.assertGreaterEqual(report["budget_summary"]["p95_root_latency_ms"], 0.0)
+            self.assertEqual(
+                {"fixed_budget": 6}, report["budget_summary"]["trigger_counts"]
+            )
+            self.assertGreaterEqual(
+                report["budget_summary"]["p95_root_latency_ms"], 0.0
+            )
             validate = subprocess.run(
                 [
                     python,
@@ -2269,7 +2571,9 @@ class ArenaScriptTest(unittest.TestCase):
                 "policy": [0.0, 0.5, 0.0, 0.5, 0.0, 0.0],
                 "value": 1.0,
             }
-            data_path.write_text("\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8"
+            )
 
             train = subprocess.run(
                 [
@@ -2293,7 +2597,10 @@ class ArenaScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, train.returncode, msg=train.stderr)
 
-            for out_dir, version in ((challenger_dir, "azlite-challenger"), (current_dir, "azlite-current")):
+            for out_dir, version in (
+                (challenger_dir, "azlite-challenger"),
+                (current_dir, "azlite-current"),
+            ):
                 export = subprocess.run(
                     [
                         python,
@@ -2386,8 +2693,15 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertIn("budget_summary", report)
             self.assertEqual(0.8, report["score"])
             self.assertEqual(16.0, report["budget_summary"]["mean_final_simulations"])
-            self.assertEqual({"fixed_budget": 5}, report["budget_summary"]["trigger_counts"])
-            self.assertEqual(5, sum(bucket["games"] for bucket in report["hard_suite_buckets"].values()))
+            self.assertEqual(
+                {"fixed_budget": 5}, report["budget_summary"]["trigger_counts"]
+            )
+            self.assertEqual(
+                5,
+                sum(
+                    bucket["games"] for bucket in report["hard_suite_buckets"].values()
+                ),
+            )
 
     def test_stub_cli_records_value_trust_schedule_in_search_options(self):
         python = self.executable_python()
@@ -2547,7 +2861,9 @@ class ArenaScriptTest(unittest.TestCase):
             out_path = tmp_path / "arena_report.json"
             challenger_dir.mkdir()
             current_dir.mkdir()
-            training_summary_path.write_text(json.dumps({"training_hit_rate": 0.4}), encoding="utf-8")
+            training_summary_path.write_text(
+                json.dumps({"training_hit_rate": 0.4}), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [

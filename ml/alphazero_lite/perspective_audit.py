@@ -33,7 +33,9 @@ def expected_value(winner: int | None, player: int) -> float:
     return 1.0 if winner == player else -1.0
 
 
-def value_matches_perspective(value: float, *, winner: int | None, player: int, value_target_mode: str) -> bool:
+def value_matches_perspective(
+    value: float, *, winner: int | None, player: int, value_target_mode: str
+) -> bool:
     expected = expected_value(winner, player)
     if value_target_mode not in SIGNED_VALUE_TARGET_MODES:
         return abs(value - expected) <= 1e-6
@@ -43,8 +45,14 @@ def value_matches_perspective(value: float, *, winner: int | None, player: int, 
     return value * expected > 0.0
 
 
-def signed_value_requires_winner(*, value: float, winner: int | None, value_target_mode: str) -> bool:
-    return value_target_mode in SIGNED_VALUE_TARGET_MODES and winner is None and abs(value) > 1e-6
+def signed_value_requires_winner(
+    *, value: float, winner: int | None, value_target_mode: str
+) -> bool:
+    return (
+        value_target_mode in SIGNED_VALUE_TARGET_MODES
+        and winner is None
+        and abs(value) > 1e-6
+    )
 
 
 def main() -> None:
@@ -80,23 +88,35 @@ def main() -> None:
 
             player_pits, opponent_pits, current_player = decode_state(state)
             active_pits = player_pits if current_player == 0 else opponent_pits
-            legal_moves = [idx for idx in range(PITS_PER_PLAYER) if active_pits[idx] > 0]
+            legal_moves = [
+                idx for idx in range(PITS_PER_PLAYER) if active_pits[idx] > 0
+            ]
 
             if abs(sum(policy) - 1.0) <= 1e-3:
                 checks["policy_sum"] += 1
             else:
-                errors.append({"line": line_no, "code": "policy_sum", "detail": sum(policy)})
+                errors.append(
+                    {"line": line_no, "code": "policy_sum", "detail": sum(policy)}
+                )
 
             if all(prob >= -1e-8 for prob in policy):
                 checks["policy_non_negative"] += 1
             else:
                 errors.append({"line": line_no, "code": "policy_negative"})
 
-            illegal_mass = sum(policy[idx] for idx in range(PITS_PER_PLAYER) if idx not in legal_moves)
+            illegal_mass = sum(
+                policy[idx] for idx in range(PITS_PER_PLAYER) if idx not in legal_moves
+            )
             if illegal_mass <= 1e-3:
                 checks["policy_legal_support"] += 1
             else:
-                errors.append({"line": line_no, "code": "illegal_policy_mass", "detail": illegal_mass})
+                errors.append(
+                    {
+                        "line": line_no,
+                        "code": "illegal_policy_mass",
+                        "detail": illegal_mass,
+                    }
+                )
 
             if -1.0 <= value <= 1.0:
                 checks["value_range"] += 1
@@ -108,7 +128,9 @@ def main() -> None:
             else:
                 winner_int = int(winner)
 
-            if signed_value_requires_winner(value=value, winner=winner_int, value_target_mode=value_target_mode):
+            if signed_value_requires_winner(
+                value=value, winner=winner_int, value_target_mode=value_target_mode
+            ):
                 errors.append(
                     {
                         "line": line_no,
@@ -121,7 +143,12 @@ def main() -> None:
                         },
                     }
                 )
-            elif value_matches_perspective(value, winner=winner_int, player=player, value_target_mode=value_target_mode):
+            elif value_matches_perspective(
+                value,
+                winner=winner_int,
+                player=player,
+                value_target_mode=value_target_mode,
+            ):
                 checks["value_perspective"] += 1
             else:
                 errors.append(
@@ -144,14 +171,19 @@ def main() -> None:
                     {
                         "line": line_no,
                         "code": "player_feature_consistency",
-                        "detail": {"player": player, "state_current_player": current_player},
+                        "detail": {
+                            "player": player,
+                            "state_current_player": current_player,
+                        },
                     }
                 )
 
             if len(errors) >= args.max_errors:
                 break
 
-    passed = all(count == checks["rows"] for key, count in checks.items() if key != "rows")
+    passed = all(
+        count == checks["rows"] for key, count in checks.items() if key != "rows"
+    )
     report = {
         "schema": "perspective_audit_v1",
         "rows": checks["rows"],

@@ -111,10 +111,23 @@ class BucketPromotionGateTest(unittest.TestCase):
                     "average_regret": 0.10,
                     "rows": baseline_capture_rows,
                 },
-                "high_imbalance": {"average_regret": 0.12, "rows": repeated_rows(0.1, 20)},
-                "high_value_swing": {"average_regret": 0.11, "rows": repeated_rows(0.1, 20)},
-                "sparse_endgame": {"top1_agreement": 0.74, "rows": repeated_rows(0.1, 20)},
-                "opening_plies_1_8": {"average_regret": 0.09, "positions": 40, "rows": repeated_rows(0.1, 40)},
+                "high_imbalance": {
+                    "average_regret": 0.12,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "high_value_swing": {
+                    "average_regret": 0.11,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "sparse_endgame": {
+                    "top1_agreement": 0.74,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "opening_plies_1_8": {
+                    "average_regret": 0.09,
+                    "positions": 40,
+                    "rows": repeated_rows(0.1, 40),
+                },
             },
         )
         candidate = report(
@@ -126,10 +139,23 @@ class BucketPromotionGateTest(unittest.TestCase):
                     "average_regret": 0.105,
                     "rows": candidate_capture_rows,
                 },
-                "high_imbalance": {"average_regret": 0.125, "rows": repeated_rows(0.1, 20)},
-                "high_value_swing": {"average_regret": 0.115, "rows": repeated_rows(0.1, 20)},
-                "sparse_endgame": {"top1_agreement": 0.71, "rows": repeated_rows(0.1, 20)},
-                "opening_plies_1_8": {"average_regret": 0.095, "positions": 40, "rows": repeated_rows(0.1, 40)},
+                "high_imbalance": {
+                    "average_regret": 0.125,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "high_value_swing": {
+                    "average_regret": 0.115,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "sparse_endgame": {
+                    "top1_agreement": 0.71,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "opening_plies_1_8": {
+                    "average_regret": 0.095,
+                    "positions": 40,
+                    "rows": repeated_rows(0.1, 40),
+                },
             },
         )
 
@@ -147,10 +173,23 @@ class BucketPromotionGateTest(unittest.TestCase):
                     "average_regret": 0.10,
                     "rows": [0.05, 0.10, 0.15, 0.19, 0.10] + repeated_rows(0.05, 15),
                 },
-                "high_imbalance": {"average_regret": 0.12, "rows": repeated_rows(0.1, 20)},
-                "high_value_swing": {"average_regret": 0.11, "rows": repeated_rows(0.1, 20)},
-                "sparse_endgame": {"top1_agreement": 0.74, "rows": repeated_rows(0.1, 20)},
-                "opening_plies_1_8": {"average_regret": 0.09, "positions": 40, "rows": repeated_rows(0.1, 40)},
+                "high_imbalance": {
+                    "average_regret": 0.12,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "high_value_swing": {
+                    "average_regret": 0.11,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "sparse_endgame": {
+                    "top1_agreement": 0.74,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "opening_plies_1_8": {
+                    "average_regret": 0.09,
+                    "positions": 40,
+                    "rows": repeated_rows(0.1, 40),
+                },
             },
         )
         candidate = report(
@@ -161,10 +200,23 @@ class BucketPromotionGateTest(unittest.TestCase):
                     "average_regret": 0.105,
                     "rows": [0.05, 0.10, 0.15, 0.19, 0.10] + repeated_rows(0.05, 15),
                 },
-                "high_imbalance": {"average_regret": 0.125, "rows": repeated_rows(0.1, 20)},
-                "high_value_swing": {"average_regret": 0.115, "rows": repeated_rows(0.1, 20)},
-                "sparse_endgame": {"top1_agreement": 0.71, "rows": repeated_rows(0.1, 20)},
-                "opening_plies_1_8": {"average_regret": 0.095, "positions": 40, "rows": repeated_rows(0.1, 40)},
+                "high_imbalance": {
+                    "average_regret": 0.125,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "high_value_swing": {
+                    "average_regret": 0.115,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "sparse_endgame": {
+                    "top1_agreement": 0.71,
+                    "rows": repeated_rows(0.1, 20),
+                },
+                "opening_plies_1_8": {
+                    "average_regret": 0.095,
+                    "positions": 40,
+                    "rows": repeated_rows(0.1, 40),
+                },
             },
         )
 
@@ -197,7 +249,9 @@ class BucketPromotionGateTest(unittest.TestCase):
             }
         )
 
-        with self.assertRaisesRegex(ValueError, "capture_available rows must match positions"):
+        with self.assertRaisesRegex(
+            ValueError, "capture_available rows must match positions"
+        ):
             check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
 
     def test_gate_rejects_missing_regret_in_bucket_rows_for_blunder_metric(self):
@@ -205,7 +259,9 @@ class BucketPromotionGateTest(unittest.TestCase):
         candidate = report()
         remove_bucket_row_regret(candidate, "capture_available")
 
-        with self.assertRaisesRegex(ValueError, "capture_available rows must include numeric regret"):
+        with self.assertRaisesRegex(
+            ValueError, "capture_available rows must include numeric regret"
+        ):
             check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
 
     def test_gate_rejects_mismatched_shared_reference_provenance(self):
@@ -245,9 +301,13 @@ class BucketPromotionGateTest(unittest.TestCase):
     def test_gate_rejects_boolean_bucket_metric_values(self):
         baseline = report()
         candidate = report()
-        candidate["buckets"]["capture_available"]["systems"]["challenger"]["average_regret"] = True
+        candidate["buckets"]["capture_available"]["systems"]["challenger"][
+            "average_regret"
+        ] = True
 
-        with self.assertRaisesRegex(ValueError, "capture_available missing average_regret"):
+        with self.assertRaisesRegex(
+            ValueError, "capture_available missing average_regret"
+        ):
             check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
 
     def test_gate_rejects_boolean_overall_metric_values(self):
@@ -375,7 +435,12 @@ class BucketPromotionGateTest(unittest.TestCase):
         baseline = report()
         malformed_candidate = {
             "schema": "azlite_forensic_suite_v1",
-            "systems": {"challenger": {"overall": {"average_regret": 0.08, "top1_agreement": 0.7}, "rows": repeated_rows(0.1, 120)}},
+            "systems": {
+                "challenger": {
+                    "overall": {"average_regret": 0.08, "top1_agreement": 0.7},
+                    "rows": repeated_rows(0.1, 120),
+                }
+            },
             "buckets": {},
         }
 
@@ -416,10 +481,17 @@ class BucketPromotionGateTest(unittest.TestCase):
             self.assertEqual(str(candidate_path), gate_report["error"]["path"])
             self.assertEqual("", result.stderr)
 
-    def test_cli_writes_structured_failure_report_for_malformed_baseline_forensics(self):
+    def test_cli_writes_structured_failure_report_for_malformed_baseline_forensics(
+        self,
+    ):
         malformed_baseline = {
             "schema": "azlite_forensic_suite_v1",
-            "systems": {"challenger": {"overall": {"average_regret": 0.08, "top1_agreement": 0.7}, "rows": repeated_rows(0.1, 120)}},
+            "systems": {
+                "challenger": {
+                    "overall": {"average_regret": 0.08, "top1_agreement": 0.7},
+                    "rows": repeated_rows(0.1, 120),
+                }
+            },
             "buckets": {},
         }
         candidate = report()
@@ -578,7 +650,9 @@ class BucketPromotionGateTest(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             gate_report = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertEqual("invalid_forensics", gate_report["error"]["code"])
-            self.assertIn("shared reference provenance", gate_report["error"]["message"])
+            self.assertIn(
+                "shared reference provenance", gate_report["error"]["message"]
+            )
             self.assertEqual(str(baseline_path), gate_report["error"]["path"])
 
 

@@ -59,7 +59,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
         finally:
             sys.argv = original_argv
 
-        self.assertEqual(EndgameTablebase.MAX_SOLVED_SEEDS, args.exact_solve_stone_threshold)
+        self.assertEqual(
+            EndgameTablebase.MAX_SOLVED_SEEDS, args.exact_solve_stone_threshold
+        )
 
     def test_parse_args_requires_threshold_when_exact_solve_enabled(self):
         from ml.alphazero_lite.mcts1200_baseline import parse_args
@@ -138,7 +140,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
         finally:
             sys.argv = original_argv
 
-    def test_parse_args_rejects_probe_greater_than_or_equal_to_max_when_dynamic_budget_enabled(self):
+    def test_parse_args_rejects_probe_greater_than_or_equal_to_max_when_dynamic_budget_enabled(
+        self,
+    ):
         from ml.alphazero_lite.mcts1200_baseline import parse_args
 
         original_argv = list(sys.argv)
@@ -308,20 +312,31 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             self.assertEqual(1200, report["mcts_simulations"])
             self.assertEqual("v1", report["search_profile"]["version"])
             self.assertEqual("mcts1200_baseline_eval", report["search_profile"]["kind"])
-            self.assertEqual(report["search_profile"]["hash"], report["search_profile_hash"])
+            self.assertEqual(
+                report["search_profile"]["hash"], report["search_profile_hash"]
+            )
             self.assertNotIn("comparison_mode", report)
             self.assertNotIn("dynamic_budget_comparison", report)
-            self.assertEqual("fixed_classic_mcts", report["search_profile"]["simulation_budget_policy"])
+            self.assertEqual(
+                "fixed_classic_mcts",
+                report["search_profile"]["simulation_budget_policy"],
+            )
             self.assertEqual(1200, report["search_profile"]["simulation_budget_min"])
             self.assertEqual(1200, report["search_profile"]["simulation_budget_max"])
-            self.assertEqual("fixed:constant", report["search_profile"]["simulation_budget_multipliers"])
+            self.assertEqual(
+                "fixed:constant",
+                report["search_profile"]["simulation_budget_multipliers"],
+            )
             self.assertIn("search_option_notes", report)
             self.assertIn("ignored by ClassicMCTS", report["search_option_notes"])
             self.assertIn("mean_final_simulations", report["budget_summary"])
             self.assertIn("mean_root_latency_ms", report["budget_summary"])
 
     def test_partitioning_preserves_global_game_indexes(self):
-        from ml.alphazero_lite.mcts1200_baseline import partition_counts, partition_starts
+        from ml.alphazero_lite.mcts1200_baseline import (
+            partition_counts,
+            partition_starts,
+        )
 
         self.assertEqual([5, 5, 5, 5, 5, 5], partition_counts(30, 6))
         self.assertEqual([0, 5, 10, 15, 20, 25], partition_starts([5, 5, 5, 5, 5, 5]))
@@ -499,7 +514,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
         self.assertEqual(96.0, report["budget_summary"]["mean_final_simulations"])
         self.assertEqual(6.4, report["budget_summary"]["mean_root_latency_ms"])
 
-    def test_build_report_marks_budget_summary_source_and_preserves_classic_mcts_dynamic_budget_config(self):
+    def test_build_report_marks_budget_summary_source_and_preserves_classic_mcts_dynamic_budget_config(
+        self,
+    ):
         from ml.alphazero_lite.mcts1200_baseline import build_report
 
         report = build_report(
@@ -545,7 +562,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             exact_solve_stone_threshold=None,
         )
 
-        self.assertEqual("classic_mcts_dynamic_runtime", report["budget_summary"]["source"])
+        self.assertEqual(
+            "classic_mcts_dynamic_runtime", report["budget_summary"]["source"]
+        )
         self.assertEqual("classic_dynamic_vs_fixed", report["comparison_mode"])
         self.assertEqual("dynamic", report["classic_mcts_mode"])
         self.assertEqual(
@@ -578,7 +597,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             report["dynamic_budget_comparison"],
         )
 
-    def test_build_report_marks_fixed_classic_mcts_runtime_for_runtime_matched_comparison(self):
+    def test_build_report_marks_fixed_classic_mcts_runtime_for_runtime_matched_comparison(
+        self,
+    ):
         from ml.alphazero_lite.mcts1200_baseline import build_report
 
         report = build_report(
@@ -618,13 +639,17 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
         )
 
         self.assertEqual("fixed", report["classic_mcts_mode"])
-        self.assertEqual("classic_mcts_fixed_runtime", report["budget_summary"]["source"])
+        self.assertEqual(
+            "classic_mcts_fixed_runtime", report["budget_summary"]["source"]
+        )
         self.assertEqual(96.0, report["budget_summary"]["mean_final_simulations"])
         self.assertEqual(6.3, report["budget_summary"]["mean_root_latency_ms"])
         self.assertNotIn("comparison_mode", report)
         self.assertNotIn("dynamic_budget_comparison", report)
 
-    def test_build_report_does_not_label_fixed_only_run_as_dynamic_vs_fixed_comparison(self):
+    def test_build_report_does_not_label_fixed_only_run_as_dynamic_vs_fixed_comparison(
+        self,
+    ):
         from ml.alphazero_lite.mcts1200_baseline import build_report
 
         report = build_report(
@@ -709,14 +734,24 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             exact_solve_stone_threshold=None,
         )
 
-        self.assertEqual(1200, report["classic_mcts_dynamic_budget_config"]["min_simulations"])
-        self.assertEqual(1200, report["classic_mcts_dynamic_budget_config"]["max_simulations"])
+        self.assertEqual(
+            1200, report["classic_mcts_dynamic_budget_config"]["min_simulations"]
+        )
+        self.assertEqual(
+            1200, report["classic_mcts_dynamic_budget_config"]["max_simulations"]
+        )
         self.assertEqual(1200, report["search_profile"]["simulation_budget_min"])
         self.assertEqual(1200, report["search_profile"]["simulation_budget_max"])
-        self.assertEqual(1200, report["search_profile"]["dynamic_budget_min_simulations"])
-        self.assertEqual(1200, report["search_profile"]["dynamic_budget_max_simulations"])
+        self.assertEqual(
+            1200, report["search_profile"]["dynamic_budget_min_simulations"]
+        )
+        self.assertEqual(
+            1200, report["search_profile"]["dynamic_budget_max_simulations"]
+        )
 
-    def test_build_report_emits_canonical_fixed_only_dynamic_budget_config_metadata(self):
+    def test_build_report_emits_canonical_fixed_only_dynamic_budget_config_metadata(
+        self,
+    ):
         from ml.alphazero_lite.mcts1200_baseline import build_report
 
         report = build_report(
@@ -818,12 +853,22 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             exact_solve_stone_threshold=None,
         )
 
-        self.assertEqual(1200, report["classic_mcts_dynamic_budget_config"]["min_simulations"])
-        self.assertEqual(1200, report["classic_mcts_dynamic_budget_config"]["max_simulations"])
-        self.assertEqual(1200, report["search_profile"]["dynamic_budget_min_simulations"])
-        self.assertEqual(1200, report["search_profile"]["dynamic_budget_max_simulations"])
+        self.assertEqual(
+            1200, report["classic_mcts_dynamic_budget_config"]["min_simulations"]
+        )
+        self.assertEqual(
+            1200, report["classic_mcts_dynamic_budget_config"]["max_simulations"]
+        )
+        self.assertEqual(
+            1200, report["search_profile"]["dynamic_budget_min_simulations"]
+        )
+        self.assertEqual(
+            1200, report["search_profile"]["dynamic_budget_max_simulations"]
+        )
 
-    def test_stub_cli_budget_summary_uses_configured_mcts_simulations_for_fixed_mode(self):
+    def test_stub_cli_budget_summary_uses_configured_mcts_simulations_for_fixed_mode(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-mcts1200-") as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "mcts1200_report.json"
@@ -858,7 +903,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             report = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertEqual(1200.0, report["budget_summary"]["mean_final_simulations"])
 
-    def test_stub_cli_budget_summary_uses_configured_mcts_simulations_for_dynamic_mode(self):
+    def test_stub_cli_budget_summary_uses_configured_mcts_simulations_for_dynamic_mode(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-mcts1200-") as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "mcts1200_report.json"
@@ -894,7 +941,10 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             report = json.loads(out_path.read_text(encoding="utf-8"))
-            self.assertEqual(700.0, report["dynamic_budget_comparison"]["fixed_mean_final_simulations"])
+            self.assertEqual(
+                700.0,
+                report["dynamic_budget_comparison"]["fixed_mean_final_simulations"],
+            )
 
     def test_cli_rejects_missing_challenger_path(self):
         with tempfile.TemporaryDirectory(prefix="azlite-mcts1200-") as tmp:
@@ -928,7 +978,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("challenger path not found", result.stderr)
 
-    def test_run_worker_collects_actual_fixed_and_dynamic_classic_mcts_budget_metrics(self):
+    def test_run_worker_collects_actual_fixed_and_dynamic_classic_mcts_budget_metrics(
+        self,
+    ):
         from ml.alphazero_lite import mcts1200_baseline
         from ml.alphazero_lite.mcts1200_baseline import run_worker
 
@@ -979,7 +1031,12 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             artifact_dir = Path(tmp) / "artifact"
             artifact_dir.mkdir()
             (artifact_dir / "metadata.json").write_text(
-                json.dumps({"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}),
+                json.dumps(
+                    {
+                        "input_encoding": "kalah_v1",
+                        "architecture": {"model_type": "mlp_v1"},
+                    }
+                ),
                 encoding="utf-8",
             )
             (artifact_dir / "weights.json").write_text(
@@ -998,10 +1055,13 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with mock.patch.object(mcts1200_baseline, "MCTS", FakeMCTS), mock.patch.object(
-                mcts1200_baseline,
-                "initial_game",
-                side_effect=lambda: FakeGame(),
+            with (
+                mock.patch.object(mcts1200_baseline, "MCTS", FakeMCTS),
+                mock.patch.object(
+                    mcts1200_baseline,
+                    "initial_game",
+                    side_effect=lambda: FakeGame(),
+                ),
             ):
                 result = run_worker(
                     challenger_path=str(artifact_dir),
@@ -1060,7 +1120,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
 
         class FakeMCTS:
             def __init__(self, game, **kwargs):
-                game_players.append((bool(kwargs["dynamic_budget_enabled"]), game.current_player))
+                game_players.append(
+                    (bool(kwargs["dynamic_budget_enabled"]), game.current_player)
+                )
 
             def root_summary(self):
                 return {
@@ -1072,7 +1134,12 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             artifact_dir = Path(tmp) / "artifact"
             artifact_dir.mkdir()
             (artifact_dir / "metadata.json").write_text(
-                json.dumps({"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}),
+                json.dumps(
+                    {
+                        "input_encoding": "kalah_v1",
+                        "architecture": {"model_type": "mlp_v1"},
+                    }
+                ),
                 encoding="utf-8",
             )
             (artifact_dir / "weights.json").write_text(
@@ -1091,10 +1158,13 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with mock.patch.object(mcts1200_baseline, "MCTS", FakeMCTS), mock.patch.object(
-                mcts1200_baseline,
-                "initial_game",
-                side_effect=lambda: FakeGame(),
+            with (
+                mock.patch.object(mcts1200_baseline, "MCTS", FakeMCTS),
+                mock.patch.object(
+                    mcts1200_baseline,
+                    "initial_game",
+                    side_effect=lambda: FakeGame(),
+                ),
             ):
                 run_worker(
                     challenger_path=str(artifact_dir),
@@ -1139,7 +1209,12 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             artifact_dir = Path(tmp) / "artifact"
             artifact_dir.mkdir()
             (artifact_dir / "metadata.json").write_text(
-                json.dumps({"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}),
+                json.dumps(
+                    {
+                        "input_encoding": "kalah_v1",
+                        "architecture": {"model_type": "mlp_v1"},
+                    }
+                ),
                 encoding="utf-8",
             )
             (artifact_dir / "weights.json").write_text(
@@ -1195,7 +1270,12 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             artifact_dir = Path(tmp) / "artifact"
             artifact_dir.mkdir()
             (artifact_dir / "metadata.json").write_text(
-                json.dumps({"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}),
+                json.dumps(
+                    {
+                        "input_encoding": "kalah_v1",
+                        "architecture": {"model_type": "mlp_v1"},
+                    }
+                ),
                 encoding="utf-8",
             )
             (artifact_dir / "weights.json").write_text(
@@ -1276,7 +1356,12 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
             artifact_dir = Path(tmp) / "artifact"
             artifact_dir.mkdir()
             (artifact_dir / "metadata.json").write_text(
-                json.dumps({"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}),
+                json.dumps(
+                    {
+                        "input_encoding": "kalah_v1",
+                        "architecture": {"model_type": "mlp_v1"},
+                    }
+                ),
                 encoding="utf-8",
             )
             (artifact_dir / "weights.json").write_text(
@@ -1295,10 +1380,13 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with mock.patch.object(mcts1200_baseline, "MCTS", FakeMCTS), mock.patch.object(
-                mcts1200_baseline,
-                "initial_game",
-                side_effect=lambda: FakeGame(),
+            with (
+                mock.patch.object(mcts1200_baseline, "MCTS", FakeMCTS),
+                mock.patch.object(
+                    mcts1200_baseline,
+                    "initial_game",
+                    side_effect=lambda: FakeGame(),
+                ),
             ):
                 run_worker(
                     challenger_path=str(artifact_dir),
@@ -1325,7 +1413,9 @@ class MCTS1200BaselineScriptTest(unittest.TestCase):
                 )
 
         self.assertEqual(2, len(constructed))
-        dynamic_kwargs = next(kwargs for kwargs in constructed if kwargs["dynamic_budget_enabled"])
+        dynamic_kwargs = next(
+            kwargs for kwargs in constructed if kwargs["dynamic_budget_enabled"]
+        )
         self.assertEqual(12, dynamic_kwargs["dynamic_budget_probe_simulations"])
         self.assertEqual(24, dynamic_kwargs["dynamic_budget_min_simulations"])
         self.assertEqual(96, dynamic_kwargs["dynamic_budget_max_simulations"])

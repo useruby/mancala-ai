@@ -39,7 +39,10 @@ class BenchmarkScriptTest(unittest.TestCase):
         def fake_access(path, mode):
             return path == executable_fallback and mode == os.X_OK
 
-        with mock.patch.object(Path, "is_file", fake_is_file), mock.patch("os.access", side_effect=fake_access):
+        with (
+            mock.patch.object(Path, "is_file", fake_is_file),
+            mock.patch("os.access", side_effect=fake_access),
+        ):
             self.assertEqual(str(executable_fallback), self.executable_python())
 
     def test_executable_python_falls_back_to_sys_executable(self):
@@ -59,7 +62,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             }
         )
 
-    def classic_mcts_dynamic_search_profile(self, *, exact_solve_enabled=False, exact_solve_stone_threshold=None):
+    def classic_mcts_dynamic_search_profile(
+        self, *, exact_solve_enabled=False, exact_solve_stone_threshold=None
+    ):
         return {
             "kind": "mcts1200_baseline_eval",
             "player_mode": "classic_mcts",
@@ -71,7 +76,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts",
         }
 
-    def classic_mcts_fixed_search_profile(self, *, exact_solve_enabled=False, exact_solve_stone_threshold=None):
+    def classic_mcts_fixed_search_profile(
+        self, *, exact_solve_enabled=False, exact_solve_stone_threshold=None
+    ):
         return {
             "kind": "mcts1200_baseline_eval",
             "player_mode": "classic_mcts",
@@ -99,7 +106,9 @@ class BenchmarkScriptTest(unittest.TestCase):
 
     def test_parent_value_fpu_selection_prefers_unvisited_child_using_parent_q(self):
         root = self_play.Node(game=self.seeded_game(), visit_count=4, value_sum=2.4)
-        visited_child = self_play.Node(game=self.seeded_game(), prior=0.1, visit_count=3, value_sum=0.3)
+        visited_child = self_play.Node(
+            game=self.seeded_game(), prior=0.1, visit_count=3, value_sum=0.3
+        )
         unvisited_child = self_play.Node(game=self.seeded_game(), prior=0.7)
         root.children[0] = visited_child
         root.children[1] = unvisited_child
@@ -141,7 +150,9 @@ class BenchmarkScriptTest(unittest.TestCase):
         class ScriptedEvaluator(self_play.Evaluator):
             def evaluate(self, game):
                 if game.state == "root":
-                    return np.array([0.6, 0.4, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), 0.0
+                    return np.array(
+                        [0.6, 0.4, 0.0, 0.0, 0.0, 0.0], dtype=np.float32
+                    ), 0.0
                 return np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), -0.3
 
         zero_search = self_play.PUCT(
@@ -183,8 +194,12 @@ class BenchmarkScriptTest(unittest.TestCase):
 
     def test_normalized_values_are_used_in_child_selection_when_enabled(self):
         root = self_play.Node(game=self.seeded_game(), visit_count=6)
-        high_prior_child = self_play.Node(game=self.seeded_game(), prior=0.8, visit_count=1, value_sum=0.13)
-        high_value_child = self_play.Node(game=self.seeded_game(), prior=0.2, visit_count=5, value_sum=0.7)
+        high_prior_child = self_play.Node(
+            game=self.seeded_game(), prior=0.8, visit_count=1, value_sum=0.13
+        )
+        high_value_child = self_play.Node(
+            game=self.seeded_game(), prior=0.2, visit_count=5, value_sum=0.7
+        )
         root.children[0] = high_prior_child
         root.children[1] = high_value_child
 
@@ -366,7 +381,9 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             report = json.loads(out_path.read_text(encoding="utf-8"))
-            self.assertEqual("deterministic", report["search_options"]["root_policy_mode"])
+            self.assertEqual(
+                "deterministic", report["search_options"]["root_policy_mode"]
+            )
             self.assertEqual(0.1, report["search_options"]["tactical_root_bias"])
 
     def test_cli_records_value_trust_schedule_in_report(self):
@@ -480,7 +497,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             report["value_trust_summary"],
         )
 
-    def test_promotion_build_report_marks_scheduled_value_trust_as_experimental_when_checks_pass(self):
+    def test_promotion_build_report_marks_scheduled_value_trust_as_experimental_when_checks_pass(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -537,13 +556,19 @@ class BenchmarkScriptTest(unittest.TestCase):
             )
             report = benchmark.build_report(args)
 
-        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertEqual(
+            "stay_experimental", report["value_trust_recommendation"]["decision"]
+        )
         self.assertTrue(report["value_trust_recommendation"]["scheduled_trust_active"])
-        self.assertIn("remain experimental", report["value_trust_recommendation"]["summary"])
+        self.assertIn(
+            "remain experimental", report["value_trust_recommendation"]["summary"]
+        )
         self.assertEqual(0.6, report["value_trust_recommendation"]["arena_score"])
         self.assertEqual(0.5, report["value_trust_recommendation"]["mcts_score"])
 
-    def test_promotion_build_report_recommends_ship_for_uniform_value_trust_when_checks_pass(self):
+    def test_promotion_build_report_recommends_ship_for_uniform_value_trust_when_checks_pass(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -720,10 +745,14 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertEqual("drop", report["value_trust_recommendation"]["decision"])
         self.assertFalse(report["value_trust_recommendation"]["arena_passed"])
-        self.assertFalse(report["value_trust_recommendation"]["arena_confidence_passed"])
+        self.assertFalse(
+            report["value_trust_recommendation"]["arena_confidence_passed"]
+        )
         self.assertTrue(report["value_trust_recommendation"]["mcts_passed"])
 
-    def test_promotion_build_report_omits_value_trust_summary_when_arena_report_lacks_it(self):
+    def test_promotion_build_report_omits_value_trust_summary_when_arena_report_lacks_it(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -797,7 +826,12 @@ class BenchmarkScriptTest(unittest.TestCase):
             seed=42,
             workers=1,
             search_options=arena.build_eval_search_options(
-                value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+                value_trust_schedule={
+                    "enabled": True,
+                    "opening": 0.8,
+                    "midgame": 1.0,
+                    "late": 1.15,
+                }
             ),
             results=[
                 {
@@ -812,7 +846,12 @@ class BenchmarkScriptTest(unittest.TestCase):
                         simulations=96,
                         c_puct=1.25,
                         search_options=arena.build_eval_search_options(
-                            value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+                            value_trust_schedule={
+                                "enabled": True,
+                                "opening": 0.8,
+                                "midgame": 1.0,
+                                "late": 1.15,
+                            }
                         ),
                     ),
                     "search_profile_hash": "placeholder",
@@ -829,15 +868,21 @@ class BenchmarkScriptTest(unittest.TestCase):
             "score": 0.5,
         }
 
-        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report, mcts_report=mcts_report
+        )
 
-        self.assertEqual(root_value_trust, report["arena_report"]["value_trust_summary"])
+        self.assertEqual(
+            root_value_trust, report["arena_report"]["value_trust_summary"]
+        )
         self.assertNotEqual(
             {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15},
             report["arena_report"]["value_trust_summary"],
         )
 
-    def test_build_report_from_inputs_omits_value_trust_summary_when_arena_report_lacks_it(self):
+    def test_build_report_from_inputs_omits_value_trust_summary_when_arena_report_lacks_it(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         arena_report = {
@@ -858,11 +903,15 @@ class BenchmarkScriptTest(unittest.TestCase):
             "score": 0.5,
         }
 
-        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report, mcts_report=mcts_report
+        )
 
         self.assertNotIn("value_trust_summary", report)
 
-    def test_build_report_from_inputs_uses_configured_schedule_to_keep_scheduled_recommendation_without_runtime_summary(self):
+    def test_build_report_from_inputs_uses_configured_schedule_to_keep_scheduled_recommendation_without_runtime_summary(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         arena_report = {
@@ -893,12 +942,18 @@ class BenchmarkScriptTest(unittest.TestCase):
             "score": 0.5,
         }
 
-        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report, mcts_report=mcts_report
+        )
 
-        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertEqual(
+            "stay_experimental", report["value_trust_recommendation"]["decision"]
+        )
         self.assertTrue(report["value_trust_recommendation"]["scheduled_trust_active"])
 
-    def test_build_report_from_inputs_marks_scheduled_value_trust_as_experimental_when_checks_pass(self):
+    def test_build_report_from_inputs_marks_scheduled_value_trust_as_experimental_when_checks_pass(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         arena_report = {
@@ -925,14 +980,20 @@ class BenchmarkScriptTest(unittest.TestCase):
             "score": 0.5,
         }
 
-        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report, mcts_report=mcts_report
+        )
 
-        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertEqual(
+            "stay_experimental", report["value_trust_recommendation"]["decision"]
+        )
         self.assertTrue(report["value_trust_recommendation"]["scheduled_trust_active"])
         self.assertTrue(report["value_trust_recommendation"]["arena_passed"])
         self.assertTrue(report["value_trust_recommendation"]["mcts_passed"])
 
-    def test_build_report_from_inputs_recommends_ship_for_uniform_value_trust_when_checks_pass(self):
+    def test_build_report_from_inputs_recommends_ship_for_uniform_value_trust_when_checks_pass(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         arena_report = {
@@ -953,7 +1014,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             "score": 0.5,
         }
 
-        report = benchmark.build_report_from_inputs(arena_report=arena_report, mcts_report=mcts_report)
+        report = benchmark.build_report_from_inputs(
+            arena_report=arena_report, mcts_report=mcts_report
+        )
 
         self.assertEqual("ship", report["value_trust_recommendation"]["decision"])
         self.assertFalse(report["value_trust_recommendation"]["scheduled_trust_active"])
@@ -997,10 +1060,14 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertEqual("drop", report["value_trust_recommendation"]["decision"])
         self.assertFalse(report["value_trust_recommendation"]["arena_passed"])
-        self.assertFalse(report["value_trust_recommendation"]["arena_confidence_passed"])
+        self.assertFalse(
+            report["value_trust_recommendation"]["arena_confidence_passed"]
+        )
         self.assertFalse(report["value_trust_recommendation"]["mcts_passed"])
 
-    def test_build_report_from_inputs_recommends_drop_when_current_baseline_outscores_candidate(self):
+    def test_build_report_from_inputs_recommends_drop_when_current_baseline_outscores_candidate(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         arena_report = {
@@ -1044,10 +1111,18 @@ class BenchmarkScriptTest(unittest.TestCase):
         self.assertEqual("drop", report["value_trust_recommendation"]["decision"])
         self.assertTrue(report["value_trust_recommendation"]["arena_passed"])
         self.assertFalse(report["value_trust_recommendation"]["mcts_passed"])
-        self.assertEqual("current_baseline", report["value_trust_recommendation"]["mcts_comparison"])
-        self.assertEqual(0.6, report["value_trust_recommendation"]["mcts_baseline_score"])
-        self.assertIn("current baseline", report["value_trust_recommendation"]["summary"])
-        mcts_check = next(check for check in report["checks"] if check["id"] == "mcts1200_gate")
+        self.assertEqual(
+            "current_baseline", report["value_trust_recommendation"]["mcts_comparison"]
+        )
+        self.assertEqual(
+            0.6, report["value_trust_recommendation"]["mcts_baseline_score"]
+        )
+        self.assertIn(
+            "current baseline", report["value_trust_recommendation"]["summary"]
+        )
+        mcts_check = next(
+            check for check in report["checks"] if check["id"] == "mcts1200_gate"
+        )
         self.assertEqual("current_baseline", mcts_check["comparison"])
         self.assertEqual(0.6, mcts_check["baseline_score"])
         self.assertNotIn("min_score", mcts_check)
@@ -1096,7 +1171,9 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             arena_report_path.write_text(json.dumps(arena_report), encoding="utf-8")
             mcts_report_path.write_text(json.dumps(mcts_report), encoding="utf-8")
-            baseline_report_path.write_text(json.dumps(baseline_report), encoding="utf-8")
+            baseline_report_path.write_text(
+                json.dumps(baseline_report), encoding="utf-8"
+            )
 
             args = benchmark.parse_args(
                 [
@@ -1124,9 +1201,14 @@ class BenchmarkScriptTest(unittest.TestCase):
             )
 
         self.assertEqual(production_report["checks"], helper_report["checks"])
-        self.assertEqual(production_report["value_trust_recommendation"], helper_report["value_trust_recommendation"])
+        self.assertEqual(
+            production_report["value_trust_recommendation"],
+            helper_report["value_trust_recommendation"],
+        )
 
-    def test_build_report_from_inputs_keeps_baseline_tie_when_raw_scores_match_before_rounding(self):
+    def test_build_report_from_inputs_keeps_baseline_tie_when_raw_scores_match_before_rounding(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         arena_report = {
@@ -1167,9 +1249,13 @@ class BenchmarkScriptTest(unittest.TestCase):
             current_baseline_mcts_report=current_baseline_mcts_report,
         )
 
-        self.assertEqual("stay_experimental", report["value_trust_recommendation"]["decision"])
+        self.assertEqual(
+            "stay_experimental", report["value_trust_recommendation"]["decision"]
+        )
         self.assertTrue(report["value_trust_recommendation"]["mcts_passed"])
-        mcts_check = next(check for check in report["checks"] if check["id"] == "mcts1200_gate")
+        mcts_check = next(
+            check for check in report["checks"] if check["id"] == "mcts1200_gate"
+        )
         self.assertTrue(mcts_check["passed"])
         self.assertEqual(0.5, mcts_check["score"])
         self.assertEqual(0.5, mcts_check["baseline_score"])
@@ -1246,7 +1332,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertTrue(mcts_check["passed"])
             self.assertEqual(0.5, mcts_check["score"])
 
-    def test_promotion_mode_rejects_missing_current_baseline_report_with_explicit_error(self):
+    def test_promotion_mode_rejects_missing_current_baseline_report_with_explicit_error(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "report.json"
@@ -1307,9 +1395,14 @@ class BenchmarkScriptTest(unittest.TestCase):
             )
 
             self.assertNotEqual(0, result.returncode)
-            self.assertIn(f"current baseline mcts report not found: {missing_baseline_path}", result.stderr)
+            self.assertIn(
+                f"current baseline mcts report not found: {missing_baseline_path}",
+                result.stderr,
+            )
 
-    def test_promotion_mode_includes_confidence_fields_when_confidence_gate_is_set(self):
+    def test_promotion_mode_includes_confidence_fields_when_confidence_gate_is_set(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "report.json"
@@ -1422,7 +1515,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(0, mcts_result.returncode, msg=mcts_result.stderr)
-            mcts_source_report = json.loads(mcts_report_path.read_text(encoding="utf-8"))
+            mcts_source_report = json.loads(
+                mcts_report_path.read_text(encoding="utf-8")
+            )
 
             result = subprocess.run(
                 [
@@ -1507,7 +1602,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(0, mcts_result.returncode, msg=mcts_result.stderr)
-            mcts_source_report = json.loads(mcts_report_path.read_text(encoding="utf-8"))
+            mcts_source_report = json.loads(
+                mcts_report_path.read_text(encoding="utf-8")
+            )
 
             result = subprocess.run(
                 [
@@ -1552,7 +1649,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             out_path = tmp_path / "report.json"
             arena_report_path = tmp_path / "arena_report.json"
             challenger_mcts_report_path = tmp_path / "challenger_mcts1200_report.json"
-            current_baseline_mcts_report_path = tmp_path / "current_baseline_mcts1200_report.json"
+            current_baseline_mcts_report_path = (
+                tmp_path / "current_baseline_mcts1200_report.json"
+            )
 
             arena_report_path.write_text(
                 json.dumps(
@@ -1607,7 +1706,6 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.5,
                             "fixed_score": 0.5,
                         },
-                        "classic_mcts_dynamic_budget_config": {"enabled": True},
                     }
                 ),
                 encoding="utf-8",
@@ -1688,7 +1786,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             out_path = tmp_path / "report.json"
             arena_report_path = tmp_path / "arena_report.json"
             challenger_mcts_report_path = tmp_path / "challenger_mcts1200_report.json"
-            current_baseline_mcts_report_path = tmp_path / "current_baseline_mcts1200_report.json"
+            current_baseline_mcts_report_path = (
+                tmp_path / "current_baseline_mcts1200_report.json"
+            )
 
             arena_report_path.write_text(
                 json.dumps(
@@ -1743,7 +1843,6 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.4,
                             "fixed_score": 0.5,
                         },
-                        "classic_mcts_dynamic_budget_config": {"enabled": True},
                     }
                 ),
                 encoding="utf-8",
@@ -1824,7 +1923,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             out_path = tmp_path / "report.json"
             arena_report_path = tmp_path / "arena_report.json"
             challenger_mcts_report_path = tmp_path / "challenger_mcts1200_report.json"
-            current_baseline_mcts_report_path = tmp_path / "current_baseline_mcts1200_report.json"
+            current_baseline_mcts_report_path = (
+                tmp_path / "current_baseline_mcts1200_report.json"
+            )
 
             arena_report_path.write_text(
                 json.dumps(
@@ -1879,7 +1980,6 @@ class BenchmarkScriptTest(unittest.TestCase):
                             "dynamic_score": 0.4,
                             "fixed_score": 0.5,
                         },
-                        "classic_mcts_dynamic_budget_config": {"enabled": True},
                     }
                 ),
                 encoding="utf-8",
@@ -2134,7 +2234,11 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             self.assertIn("forensic_quality", report)
             self.assertTrue(report["forensic_quality"]["passed"])
-            forensic_check = next(check for check in report["checks"] if check["id"] == "forensic_quality_gate")
+            forensic_check = next(
+                check
+                for check in report["checks"]
+                if check["id"] == "forensic_quality_gate"
+            )
             self.assertTrue(forensic_check["passed"])
 
     def test_promotion_report_adds_failing_forensic_quality_check(self):
@@ -2310,7 +2414,11 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             report = benchmark.build_report(args)
 
-            forensic_check = next(check for check in report["checks"] if check["id"] == "forensic_quality_gate")
+            forensic_check = next(
+                check
+                for check in report["checks"]
+                if check["id"] == "forensic_quality_gate"
+            )
             self.assertFalse(forensic_check["passed"])
 
     def test_promotion_dry_run_allows_future_forensic_report_path(self):
@@ -2343,9 +2451,15 @@ class BenchmarkScriptTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             report = json.loads(out_path.read_text(encoding="utf-8"))
-            self.assertEqual(str(future_forensic_report_path), report["forensic_report"])
+            self.assertEqual(
+                str(future_forensic_report_path), report["forensic_report"]
+            )
             self.assertIsNone(report["forensic_quality"])
-            self.assertFalse(any(check["id"] == "forensic_quality_gate" for check in report["checks"]))
+            self.assertFalse(
+                any(
+                    check["id"] == "forensic_quality_gate" for check in report["checks"]
+                )
+            )
 
     def test_promotion_report_rejects_missing_forensic_report_when_requested(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -2531,7 +2645,10 @@ class BenchmarkScriptTest(unittest.TestCase):
                         "draws": 12,
                         "games_played": 60,
                         "promotion_decision": {"passed": True},
-                        "budget_summary": {"mean_final_simulations": 128, "p95_root_latency_ms": 8.0},
+                        "budget_summary": {
+                            "mean_final_simulations": 128,
+                            "p95_root_latency_ms": 8.0,
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -2608,7 +2725,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, "candidate comparison_mode"):
                 benchmark.build_report(args)
 
-    def test_promotion_report_skips_dynamic_budget_comparison_for_fixed_vs_fixed_baseline_inputs(self):
+    def test_promotion_report_skips_dynamic_budget_comparison_for_fixed_vs_fixed_baseline_inputs(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -2711,19 +2830,33 @@ class BenchmarkScriptTest(unittest.TestCase):
         self.assertEqual(0.6167, mcts_check["baseline_score"])
         self.assertTrue(mcts_check["passed"])
         self.assertIsNone(report["dynamic_budget_comparison"])
-        self.assertEqual("classic_mcts_fixed_runtime", report["dynamic_budget_metric_source"]["candidate"])
-        self.assertEqual("classic_mcts_fixed_runtime", report["dynamic_budget_metric_source"]["baseline"])
+        self.assertEqual(
+            "classic_mcts_fixed_runtime",
+            report["dynamic_budget_metric_source"]["candidate"],
+        )
+        self.assertEqual(
+            "classic_mcts_fixed_runtime",
+            report["dynamic_budget_metric_source"]["baseline"],
+        )
 
-    def test_dynamic_budget_comparison_requires_explicit_fixed_vs_dynamic_classic_mcts_reports(self):
+    def test_dynamic_budget_comparison_requires_explicit_fixed_vs_dynamic_classic_mcts_reports(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with self.assertRaisesRegex(SystemExit, "comparison_mode"):
             benchmark.dynamic_budget_comparison(
                 {
-                    "budget_summary": {"mean_final_simulations": 128, "mean_root_latency_ms": 6.5},
+                    "budget_summary": {
+                        "mean_final_simulations": 128,
+                        "mean_root_latency_ms": 6.5,
+                    },
                 },
                 {
-                    "budget_summary": {"mean_final_simulations": 96, "mean_root_latency_ms": 6.3},
+                    "budget_summary": {
+                        "mean_final_simulations": 96,
+                        "mean_root_latency_ms": 6.3,
+                    },
                 },
             )
 
@@ -2746,7 +2879,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                         "mean_final_simulations": 128,
                         "mean_root_latency_ms": 6.5,
                     },
-                    "dynamic_budget_comparison": {"comparison_mode": "classic_dynamic_vs_fixed"},
+                    "dynamic_budget_comparison": {
+                        "comparison_mode": "classic_dynamic_vs_fixed"
+                    },
                     "classic_mcts_dynamic_budget_config": {"enabled": True},
                 },
                 {
@@ -2768,7 +2903,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 strict=True,
             )
 
-    def test_dynamic_budget_comparison_reports_runtime_target_match_for_fixed_vs_dynamic_classic_mcts(self):
+    def test_dynamic_budget_comparison_reports_runtime_target_match_for_fixed_vs_dynamic_classic_mcts(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         report = benchmark.dynamic_budget_comparison(
@@ -2848,7 +2985,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             report,
         )
 
-    def test_dynamic_budget_comparison_accepts_real_fixed_baseline_without_embedded_comparison_payload(self):
+    def test_dynamic_budget_comparison_accepts_real_fixed_baseline_without_embedded_comparison_payload(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         report = benchmark.dynamic_budget_comparison(
@@ -2913,7 +3052,9 @@ class BenchmarkScriptTest(unittest.TestCase):
         self.assertEqual(96.0, report["fixed_mean_final_simulations"])
         self.assertEqual(0.49, report["fixed_score"])
 
-    def test_dynamic_budget_comparison_accepts_matching_producer_reports_with_different_profile_hashes(self):
+    def test_dynamic_budget_comparison_accepts_matching_producer_reports_with_different_profile_hashes(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         report = benchmark.dynamic_budget_comparison(
@@ -2998,7 +3139,9 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertEqual(0.49, report["fixed_score"])
 
-    def test_dynamic_budget_comparison_rejects_missing_producer_provenance_metadata(self):
+    def test_dynamic_budget_comparison_rejects_missing_producer_provenance_metadata(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with self.assertRaisesRegex(SystemExit, "producer provenance metadata"):
@@ -3056,7 +3199,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 },
             )
 
-    def test_dynamic_budget_comparison_rejects_baseline_from_different_fixed_arm_configuration(self):
+    def test_dynamic_budget_comparison_rejects_baseline_from_different_fixed_arm_configuration(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with self.assertRaisesRegex(SystemExit, "matching fixed arm configuration"):
@@ -3136,7 +3281,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 },
             )
 
-    def test_dynamic_budget_comparison_rejects_baseline_with_mismatched_exact_solve_invariant(self):
+    def test_dynamic_budget_comparison_rejects_baseline_with_mismatched_exact_solve_invariant(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with self.assertRaisesRegex(SystemExit, "matching fixed arm configuration"):
@@ -3216,7 +3363,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 },
             )
 
-    def test_dynamic_budget_comparison_preserves_embedded_seat_bias_neutralization_value(self):
+    def test_dynamic_budget_comparison_preserves_embedded_seat_bias_neutralization_value(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         report = benchmark.dynamic_budget_comparison(
@@ -3366,22 +3515,26 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertIs(False, report["seat_bias_neutralized"])
 
-    def test_dynamic_budget_comparison_rejects_untruthful_candidate_comparison_payload(self):
+    def test_dynamic_budget_comparison_rejects_untruthful_candidate_comparison_payload(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
-        with self.assertRaisesRegex(SystemExit, "truthful fixed-vs-dynamic ClassicMCTS comparison data"):
+        with self.assertRaisesRegex(
+            SystemExit, "truthful fixed-vs-dynamic ClassicMCTS comparison data"
+        ):
             benchmark.dynamic_budget_comparison(
-            {
-                "comparison_mode": "classic_dynamic_vs_fixed",
-                "classic_mcts_mode": "dynamic",
-                "search_profile": self.classic_mcts_dynamic_search_profile(),
-                "search_profile_hash": "dynamic-profile-hash",
-                "games": 25,
-                "az_wins": 13,
-                "mcts_wins": 12,
-                "draws": 0,
-                "score": 0.52,
-                "budget_summary": {
+                {
+                    "comparison_mode": "classic_dynamic_vs_fixed",
+                    "classic_mcts_mode": "dynamic",
+                    "search_profile": self.classic_mcts_dynamic_search_profile(),
+                    "search_profile_hash": "dynamic-profile-hash",
+                    "games": 25,
+                    "az_wins": 13,
+                    "mcts_wins": 12,
+                    "draws": 0,
+                    "score": 0.52,
+                    "budget_summary": {
                         "source": "classic_mcts_dynamic_runtime",
                         "mean_final_simulations": 128,
                         "mean_root_latency_ms": 6.5,
@@ -3418,7 +3571,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 },
             )
 
-    def test_dynamic_budget_comparison_rejects_missing_score_fields_with_controlled_error(self):
+    def test_dynamic_budget_comparison_rejects_missing_score_fields_with_controlled_error(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with self.assertRaisesRegex(SystemExit, "score fields"):
@@ -3484,7 +3639,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 },
             )
 
-    def test_dynamic_budget_comparison_rejects_score_fields_that_do_not_match_raw_counts(self):
+    def test_dynamic_budget_comparison_rejects_score_fields_that_do_not_match_raw_counts(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with self.assertRaisesRegex(SystemExit, "score fields"):
@@ -3767,7 +3924,9 @@ class BenchmarkScriptTest(unittest.TestCase):
                 },
             )
 
-    def test_promotion_report_uses_embedded_fixed_vs_dynamic_classic_mcts_comparison(self):
+    def test_promotion_report_uses_embedded_fixed_vs_dynamic_classic_mcts_comparison(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -3896,10 +4055,18 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertEqual(0.65, report["dynamic_budget_comparison"]["dynamic_score"])
         self.assertEqual(0.6, report["dynamic_budget_comparison"]["fixed_score"])
-        self.assertEqual("classic_mcts_dynamic_runtime", report["dynamic_budget_metric_source"]["candidate"])
-        self.assertEqual("classic_mcts_fixed_runtime", report["dynamic_budget_metric_source"]["baseline"])
+        self.assertEqual(
+            "classic_mcts_dynamic_runtime",
+            report["dynamic_budget_metric_source"]["candidate"],
+        )
+        self.assertEqual(
+            "classic_mcts_fixed_runtime",
+            report["dynamic_budget_metric_source"]["baseline"],
+        )
 
-    def test_promotion_report_accepts_real_fixed_baseline_without_comparison_payload(self):
+    def test_promotion_report_accepts_real_fixed_baseline_without_comparison_payload(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -4047,7 +4214,9 @@ class BenchmarkScriptTest(unittest.TestCase):
             report = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertIsNone(report["dynamic_budget_comparison"])
 
-    def test_promotion_report_preserves_candidate_dynamic_budget_metadata_without_baseline(self):
+    def test_promotion_report_preserves_candidate_dynamic_budget_metadata_without_baseline(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -4110,14 +4279,22 @@ class BenchmarkScriptTest(unittest.TestCase):
             )
             report = benchmark.build_report(args)
 
-        self.assertEqual("challenger_puct_runtime", report["dynamic_budget_metric_source"]["candidate"])
+        self.assertEqual(
+            "challenger_puct_runtime",
+            report["dynamic_budget_metric_source"]["candidate"],
+        )
         self.assertIsNone(report["dynamic_budget_metric_source"].get("baseline"))
-        self.assertEqual(0.75, report["classic_mcts_dynamic_budget_config"]["candidate"]["entropy_weight"])
+        self.assertEqual(
+            0.75,
+            report["classic_mcts_dynamic_budget_config"]["candidate"]["entropy_weight"],
+        )
         self.assertIsNone(report["classic_mcts_dynamic_budget_config"].get("baseline"))
         self.assertNotIn("dynamic_budget_config", report)
         self.assertIsNone(report["dynamic_budget_comparison"])
 
-    def test_build_report_preserves_opening_cache_summary_fields_from_arena_report(self):
+    def test_build_report_preserves_opening_cache_summary_fields_from_arena_report(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:
@@ -4174,7 +4351,9 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertEqual(0.25, report["opening_cache_summary"]["runtime_hit_rate"])
         self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
-        self.assertEqual(0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(
+            0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"]
+        )
         self.assertEqual(-5.2, report["opening_cache_summary"]["latency_delta_ms"])
 
     def test_promotion_report_preserves_opening_cache_summary_fields(self):
@@ -4207,10 +4386,14 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertEqual(0.25, report["opening_cache_summary"]["runtime_hit_rate"])
         self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
-        self.assertEqual(0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(
+            0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"]
+        )
         self.assertEqual(-5.2, report["opening_cache_summary"]["latency_delta_ms"])
 
-    def test_promotion_report_uses_arena_embedded_opening_cache_summary_when_input_not_overridden(self):
+    def test_promotion_report_uses_arena_embedded_opening_cache_summary_when_input_not_overridden(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
         report = benchmark.build_report_from_inputs(
@@ -4240,7 +4423,9 @@ class BenchmarkScriptTest(unittest.TestCase):
 
         self.assertEqual(0.25, report["opening_cache_summary"]["runtime_hit_rate"])
         self.assertEqual(0.4, report["opening_cache_summary"]["training_hit_rate"])
-        self.assertEqual(0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"])
+        self.assertEqual(
+            0.03, report["opening_cache_summary"]["opening_bucket_quality_delta"]
+        )
         self.assertEqual(-5.2, report["opening_cache_summary"]["latency_delta_ms"])
 
     def test_promotion_mode_rejects_mcts_report_missing_required_fields(self):
@@ -4300,10 +4485,14 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("missing required field", result.stderr)
 
-    def test_dynamic_budget_comparison_rejects_missing_candidate_dynamic_budget_config(self):
+    def test_dynamic_budget_comparison_rejects_missing_candidate_dynamic_budget_config(
+        self,
+    ):
         from ml.alphazero_lite import benchmark
 
-        with self.assertRaisesRegex(SystemExit, "candidate dynamic budget config metadata"):
+        with self.assertRaisesRegex(
+            SystemExit, "candidate dynamic budget config metadata"
+        ):
             benchmark.dynamic_budget_comparison(
                 {
                     "comparison_mode": "classic_dynamic_vs_fixed",

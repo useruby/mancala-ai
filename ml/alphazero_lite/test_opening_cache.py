@@ -5,7 +5,11 @@ from pathlib import Path
 from unittest import mock
 
 from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.opening_cache import canonical_key, canonical_payload, load_opening_cache
+from ml.alphazero_lite.opening_cache import (
+    canonical_key,
+    canonical_payload,
+    load_opening_cache,
+)
 from ml.alphazero_lite.generate_opening_cache import (
     DEFAULT_ARTIFACT_PATH,
     DEFAULT_GENERATION_GATE,
@@ -62,7 +66,9 @@ class OpeningCacheTest(unittest.TestCase):
             "player_store": int(state["player_store"]),
             "opponent_store": int(state["opponent_store"]),
         }
-        return json.dumps(canonical_payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        return json.dumps(
+            canonical_payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+        )
 
     def test_canonical_key_is_stable_hash_for_canonical_state_payload(self):
         state = {
@@ -176,7 +182,9 @@ class OpeningCacheTest(unittest.TestCase):
         self.assertIn(hashed_key, cache._entries_by_key)
         self.assertEqual(entry, cache.lookup(state, ply=0))
 
-    def test_lookup_returns_matching_entry_for_legacy_raw_canonical_json_key_artifact(self):
+    def test_lookup_returns_matching_entry_for_legacy_raw_canonical_json_key_artifact(
+        self,
+    ):
         state = self.opening_state()
         entry = self.lookup_entry()
         hashed_key = canonical_key(state)
@@ -203,7 +211,9 @@ class OpeningCacheTest(unittest.TestCase):
             "opponent_pits": [4, 4, 4, 4, 4, 3],
         }
 
-        with self.assertRaisesRegex(ValueError, "Opening cache entry key does not match entry state"):
+        with self.assertRaisesRegex(
+            ValueError, "Opening cache entry key does not match entry state"
+        ):
             load_opening_cache(
                 {
                     "schema": "azlite_opening_cache_v1",
@@ -326,7 +336,9 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
         }
         search.search_root.return_value = mock.Mock(visits=0, wins=0)
 
-        with mock.patch("ml.alphazero_lite.generate_opening_cache.ClassicMCTS", return_value=search) as classic_mcts:
+        with mock.patch(
+            "ml.alphazero_lite.generate_opening_cache.ClassicMCTS", return_value=search
+        ) as classic_mcts:
             default_teacher(state)
 
         classic_mcts.assert_called_once()
@@ -344,7 +356,9 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
         }
         search.search_root.return_value = mock.Mock(visits=10, wins=8)
 
-        with mock.patch("ml.alphazero_lite.generate_opening_cache.ClassicMCTS", return_value=search):
+        with mock.patch(
+            "ml.alphazero_lite.generate_opening_cache.ClassicMCTS", return_value=search
+        ):
             result = default_teacher(state)
 
         self.assertAlmostEqual(0.6, result["value"])
@@ -357,7 +371,9 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
         self.assertEqual(1, seed_one_profile["deterministic_seed"])
         self.assertNotEqual(seed_zero_profile["hash"], seed_one_profile["hash"])
 
-    def test_build_opening_cache_artifact_deduplicates_qualifying_states_and_sorts_entries(self):
+    def test_build_opening_cache_artifact_deduplicates_qualifying_states_and_sorts_entries(
+        self,
+    ):
         opening_state = self.opening_state()
         second_state = self.second_state()
         teacher_calls = []
@@ -391,7 +407,9 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
 
         opening_entry = artifact["entries"][canonical_key(opening_state)]
         self.assertEqual(2, opening_entry["provenance"]["hit_count_in_sources"])
-        self.assertEqual(["game-1", "game-3"], opening_entry["provenance"]["example_origins"])
+        self.assertEqual(
+            ["game-1", "game-3"], opening_entry["provenance"]["example_origins"]
+        )
 
         second_entry = artifact["entries"][canonical_key(second_state)]
         self.assertEqual(1, second_entry["provenance"]["hit_count_in_sources"])
@@ -419,7 +437,9 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
 
         artifact = build_opening_cache_artifact(
             [{"state": source_state, "ply": 0, "origin": "seed-game"}],
-            teacher=lambda state: self.teacher_result(1, value=0.25, root_latency_ms=7.0),
+            teacher=lambda state: self.teacher_result(
+                1, value=0.25, root_latency_ms=7.0
+            ),
         )
 
         self.assertEqual(
@@ -427,7 +447,9 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
             artifact["entries"][canonical_key(source_state)]["state"],
         )
 
-    def test_build_opening_cache_artifact_derives_provenance_teacher_kind_from_search_profile(self):
+    def test_build_opening_cache_artifact_derives_provenance_teacher_kind_from_search_profile(
+        self,
+    ):
         opening_state = self.opening_state()
         profile = {
             "hash": "profile-hash",
@@ -437,17 +459,28 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
 
         artifact = build_opening_cache_artifact(
             [{"state": opening_state, "ply": 0, "origin": "seed-game"}],
-            teacher=lambda state: self.teacher_result(1, value=0.25, root_latency_ms=7.0),
+            teacher=lambda state: self.teacher_result(
+                1, value=0.25, root_latency_ms=7.0
+            ),
             search_profile=profile,
         )
 
         self.assertEqual(
             "scripted_teacher",
-            artifact["entries"][canonical_key(opening_state)]["provenance"]["teacher_kind"],
+            artifact["entries"][canonical_key(opening_state)]["provenance"][
+                "teacher_kind"
+            ],
         )
-        self.assertEqual(profile["hash"], artifact["entries"][canonical_key(opening_state)]["provenance"]["search_profile_hash"])
+        self.assertEqual(
+            profile["hash"],
+            artifact["entries"][canonical_key(opening_state)]["provenance"][
+                "search_profile_hash"
+            ],
+        )
 
-    def test_build_opening_cache_artifact_rejects_mismatched_search_profile_for_default_teacher(self):
+    def test_build_opening_cache_artifact_rejects_mismatched_search_profile_for_default_teacher(
+        self,
+    ):
         with self.assertRaisesRegex(ValueError, "search_profile"):
             build_opening_cache_artifact(
                 [{"state": self.opening_state(), "ply": 0, "origin": "seed-game"}],
@@ -465,30 +498,43 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
                 {"state": opening_state, "ply": 0, "origin": "game-a"},
                 {"state": opening_state, "ply": 0, "origin": "game-c"},
             ],
-            teacher=lambda state: self.teacher_result(1, value=0.25, root_latency_ms=7.0),
+            teacher=lambda state: self.teacher_result(
+                1, value=0.25, root_latency_ms=7.0
+            ),
         )
 
         entry = artifact["entries"][canonical_key(opening_state)]
 
         self.assertEqual(5, entry["provenance"]["hit_count_in_sources"])
-        self.assertEqual(["game-a", "game-b", "game-c"], entry["provenance"]["example_origins"])
+        self.assertEqual(
+            ["game-a", "game-b", "game-c"], entry["provenance"]["example_origins"]
+        )
 
-    def test_write_opening_cache_artifact_persists_deterministic_json_to_default_path(self):
+    def test_write_opening_cache_artifact_persists_deterministic_json_to_default_path(
+        self,
+    ):
         opening_state = self.opening_state()
 
         with tempfile.TemporaryDirectory() as tmpdir:
             artifact_path = Path(tmpdir) / DEFAULT_ARTIFACT_PATH
             artifact = write_opening_cache_artifact(
                 [{"state": opening_state, "ply": 0, "origin": "seed-game"}],
-                teacher=lambda state: self.teacher_result(1, value=0.25, root_latency_ms=7.0),
+                teacher=lambda state: self.teacher_result(
+                    1, value=0.25, root_latency_ms=7.0
+                ),
                 artifact_path=artifact_path,
             )
 
             self.assertTrue(artifact_path.exists())
-            self.assertEqual(Path("storage/ai/alphazero_lite/opening_cache_v1.json"), DEFAULT_ARTIFACT_PATH)
+            self.assertEqual(
+                Path("storage/ai/alphazero_lite/opening_cache_v1.json"),
+                DEFAULT_ARTIFACT_PATH,
+            )
             written_payload = json.loads(artifact_path.read_text(encoding="utf-8"))
             self.assertEqual(artifact, written_payload)
-            self.assertEqual([canonical_key(opening_state)], list(written_payload["entries"].keys()))
+            self.assertEqual(
+                [canonical_key(opening_state)], list(written_payload["entries"].keys())
+            )
 
     def test_write_opening_cache_artifact_threads_opening_gate_and_search_profile(self):
         opening_state = self.opening_state()
@@ -503,7 +549,9 @@ class OpeningCacheGeneratorTest(unittest.TestCase):
             artifact_path = Path(tmpdir) / "opening_cache.json"
             artifact = write_opening_cache_artifact(
                 [{"state": opening_state, "ply": 1, "origin": "seed-game"}],
-                teacher=lambda state: self.teacher_result(1, value=0.25, root_latency_ms=7.0),
+                teacher=lambda state: self.teacher_result(
+                    1, value=0.25, root_latency_ms=7.0
+                ),
                 opening_gate=opening_gate,
                 search_profile=search_profile,
                 artifact_path=artifact_path,

@@ -72,7 +72,9 @@ class HardStateMiningTest(unittest.TestCase):
             "current_player": 0,
         }
         self.assertEqual(expected_state, normalized["state"])
-        self.assertEqual(canonical_state_key(expected_state), normalized["canonical_state"])
+        self.assertEqual(
+            canonical_state_key(expected_state), normalized["canonical_state"]
+        )
 
     def test_normalize_candidate_rejects_malformed_state(self):
         from ml.alphazero_lite import hard_state_mining
@@ -86,8 +88,12 @@ class HardStateMiningTest(unittest.TestCase):
             "player_store": 0,
             "opponent_store": 0,
         }
-        with self.assertRaisesRegex(ValueError, "candidate state is missing required field: current_player"):
-            hard_state_mining.normalize_candidate(self.make_candidate(state=malformed_state))
+        with self.assertRaisesRegex(
+            ValueError, "candidate state is missing required field: current_player"
+        ):
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(state=malformed_state)
+            )
 
     def test_normalize_candidate_state_is_independent_from_input(self):
         from ml.alphazero_lite import hard_state_mining
@@ -312,7 +318,10 @@ class HardStateMiningTest(unittest.TestCase):
             [
                 {
                     "canonical_state": "multi-source",
-                    "selection_reasons": ["large_value_error", "student_teacher_disagreement"],
+                    "selection_reasons": [
+                        "large_value_error",
+                        "student_teacher_disagreement",
+                    ],
                     "source_artifacts": ["a.json", "b.json", "c.json"],
                     "source_runs": [
                         {"kind": "forensic", "run": "a"},
@@ -367,7 +376,9 @@ class HardStateMiningTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(["state-a", "state-b"], [row["canonical_state"] for row in scored])
+        self.assertEqual(
+            ["state-a", "state-b"], [row["canonical_state"] for row in scored]
+        )
 
     def test_score_rows_rejects_unknown_selection_reason(self):
         from ml.alphazero_lite import hard_state_mining
@@ -407,9 +418,13 @@ class HardStateMiningTest(unittest.TestCase):
 
         self.assertEqual([0, 1, 2], normalized["legal_moves"])
         self.assertEqual([0, 1, 2], deduplicated[0]["legal_moves"])
-        self.assertEqual({"kind": "forensic", "run": "a"}, deduplicated[0]["source_runs"][0])
+        self.assertEqual(
+            {"kind": "forensic", "run": "a"}, deduplicated[0]["source_runs"][0]
+        )
 
-    def test_extract_candidates_covers_requested_source_classes_from_supported_report_shapes(self):
+    def test_extract_candidates_covers_requested_source_classes_from_supported_report_shapes(
+        self,
+    ):
         from ml.alphazero_lite import hard_state_mining
 
         artifacts = [
@@ -499,12 +514,18 @@ class HardStateMiningTest(unittest.TestCase):
             },
             {row["selection_reason"] for row in rows},
         )
-        forensic_rows = [row for row in rows if row["source_run"]["kind"] == "forensic_suite"]
+        forensic_rows = [
+            row for row in rows if row["source_run"]["kind"] == "forensic_suite"
+        ]
         self.assertTrue(forensic_rows)
         self.assertEqual("challenger", forensic_rows[0]["source_run"]["system"])
-        self.assertEqual("azlite_forensic_suite_v1", forensic_rows[0]["source_run"]["schema"])
+        self.assertEqual(
+            "azlite_forensic_suite_v1", forensic_rows[0]["source_run"]["schema"]
+        )
 
-    def test_forensic_multi_signal_candidates_deduplicate_without_consequence_conflicts(self):
+    def test_forensic_multi_signal_candidates_deduplicate_without_consequence_conflicts(
+        self,
+    ):
         from ml.alphazero_lite import hard_state_mining
 
         artifacts = [
@@ -635,7 +656,9 @@ class HardStateMiningTest(unittest.TestCase):
         self.assertTrue(candidates)
         self.assertEqual({8}, {candidate["ply"] for candidate in candidates})
 
-    def test_forensic_candidates_skip_unstable_reference_rows_for_disagreement_mining(self):
+    def test_forensic_candidates_skip_unstable_reference_rows_for_disagreement_mining(
+        self,
+    ):
         from ml.alphazero_lite import hard_state_mining
 
         artifacts = [
@@ -672,7 +695,9 @@ class HardStateMiningTest(unittest.TestCase):
 
         rows = hard_state_mining.extract_candidates(artifacts)
 
-        self.assertNotIn("student_teacher_disagreement", {row["selection_reason"] for row in rows})
+        self.assertNotIn(
+            "student_teacher_disagreement", {row["selection_reason"] for row in rows}
+        )
         self.assertEqual(
             {"large_value_error", "high_search_entropy", "large_best_second_gap"},
             {row["selection_reason"] for row in rows},
@@ -681,14 +706,22 @@ class HardStateMiningTest(unittest.TestCase):
     def test_normalize_candidate_rejects_conflicting_ply_and_move_index(self):
         from ml.alphazero_lite import hard_state_mining
 
-        with self.assertRaisesRegex(ValueError, "candidate ply and move_index must match"):
-            hard_state_mining.normalize_candidate(self.make_candidate(ply=8, move_index=9))
+        with self.assertRaisesRegex(
+            ValueError, "candidate ply and move_index must match"
+        ):
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(ply=8, move_index=9)
+            )
 
-    def test_normalize_candidate_rejects_non_integer_move_index_before_mismatch_check(self):
+    def test_normalize_candidate_rejects_non_integer_move_index_before_mismatch_check(
+        self,
+    ):
         from ml.alphazero_lite import hard_state_mining
 
         with self.assertRaisesRegex(ValueError, "candidate ply must be an integer"):
-            hard_state_mining.normalize_candidate(self.make_candidate(ply=8, move_index="8"))
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(ply=8, move_index="8")
+            )
 
     def test_cli_writes_jsonl_and_summary_report(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -781,7 +814,9 @@ class HardStateMiningTest(unittest.TestCase):
             )
 
             self.assertNotEqual(0, result.returncode)
-            self.assertIn("no supported hard-state mining artifacts found", result.stderr)
+            self.assertIn(
+                "no supported hard-state mining artifacts found", result.stderr
+            )
             self.assertNotIn("Traceback", result.stderr)
 
     def test_cli_rejects_summary_only_loss_artifact_without_traceback(self):
@@ -826,7 +861,9 @@ class HardStateMiningTest(unittest.TestCase):
     def test_run_pipeline_summary_reports_all_requested_source_classes(self):
         from ml.alphazero_lite import hard_state_mining
 
-        fixture_dir = Path(__file__).resolve().parents[2] / "test/fixtures/ai/hard_state_mining"
+        fixture_dir = (
+            Path(__file__).resolve().parents[2] / "test/fixtures/ai/hard_state_mining"
+        )
         rows, summary = hard_state_mining.run_pipeline([str(fixture_dir)])
 
         self.assertTrue(rows)
@@ -854,7 +891,10 @@ class HardStateMiningTest(unittest.TestCase):
         )
 
     def test_hard_state_mining_doc_mentions_cli_and_schema(self):
-        doc_path = Path(__file__).resolve().parents[2] / "docs/alphazero-lite-hard-state-mining.md"
+        doc_path = (
+            Path(__file__).resolve().parents[2]
+            / "docs/alphazero-lite-hard-state-mining.md"
+        )
         doc = doc_path.read_text(encoding="utf-8")
 
         self.assertIn("# AlphaZero-lite Hard-State Mining", doc)
@@ -882,14 +922,18 @@ class HardStateMiningTest(unittest.TestCase):
             }
         ]
 
-        with self.assertRaisesRegex(ValueError, "selection_reason does not match artifact kind"):
+        with self.assertRaisesRegex(
+            ValueError, "selection_reason does not match artifact kind"
+        ):
             hard_state_mining.extract_candidates(artifacts)
 
     def test_normalize_candidate_rejects_unknown_consequence(self):
         from ml.alphazero_lite import hard_state_mining
 
         with self.assertRaisesRegex(ValueError, "unknown consequence"):
-            hard_state_mining.normalize_candidate(self.make_candidate(consequence="caused_los"))
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(consequence="caused_los")
+            )
 
     def test_normalize_candidate_rejects_invalid_state_shape(self):
         from ml.alphazero_lite import hard_state_mining
@@ -902,8 +946,12 @@ class HardStateMiningTest(unittest.TestCase):
             "current_player": 0,
         }
 
-        with self.assertRaisesRegex(ValueError, "player_pits must be a list of 6 integers"):
-            hard_state_mining.normalize_candidate(self.make_candidate(state=invalid_state))
+        with self.assertRaisesRegex(
+            ValueError, "player_pits must be a list of 6 integers"
+        ):
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(state=invalid_state)
+            )
 
     def test_normalize_candidate_rejects_invalid_current_player_and_side_to_move(self):
         from ml.alphazero_lite import hard_state_mining
@@ -921,32 +969,52 @@ class HardStateMiningTest(unittest.TestCase):
                 )
             )
 
-        with self.assertRaisesRegex(ValueError, "side_to_move must match state.current_player"):
+        with self.assertRaisesRegex(
+            ValueError, "side_to_move must match state.current_player"
+        ):
             hard_state_mining.normalize_candidate(self.make_candidate(side_to_move=1))
 
-    def test_normalize_candidate_rejects_bool_side_to_move_and_invalid_legal_moves(self):
+    def test_normalize_candidate_rejects_bool_side_to_move_and_invalid_legal_moves(
+        self,
+    ):
         from ml.alphazero_lite import hard_state_mining
 
         with self.assertRaisesRegex(ValueError, "side_to_move must be 0 or 1"):
-            hard_state_mining.normalize_candidate(self.make_candidate(side_to_move=True))
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(side_to_move=True)
+            )
 
-        with self.assertRaisesRegex(ValueError, "legal_moves must contain unique moves in range 0..5"):
-            hard_state_mining.normalize_candidate(self.make_candidate(legal_moves=[0, 0]))
+        with self.assertRaisesRegex(
+            ValueError, "legal_moves must contain unique moves in range 0..5"
+        ):
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(legal_moves=[0, 0])
+            )
 
     def test_normalize_candidate_rejects_non_dict_source_run_and_metrics(self):
         from ml.alphazero_lite import hard_state_mining
 
-        with self.assertRaisesRegex(ValueError, "candidate source_run must be a dictionary"):
-            hard_state_mining.normalize_candidate(self.make_candidate(source_run="forensic"))
+        with self.assertRaisesRegex(
+            ValueError, "candidate source_run must be a dictionary"
+        ):
+            hard_state_mining.normalize_candidate(
+                self.make_candidate(source_run="forensic")
+            )
 
-        with self.assertRaisesRegex(ValueError, "candidate metrics must be a dictionary"):
+        with self.assertRaisesRegex(
+            ValueError, "candidate metrics must be a dictionary"
+        ):
             hard_state_mining.normalize_candidate(self.make_candidate(metrics="oops"))
 
     def test_deduplicate_candidates_rejects_non_numeric_metrics(self):
         from ml.alphazero_lite import hard_state_mining
 
-        with self.assertRaisesRegex(ValueError, "candidate metric regret must be numeric"):
-            hard_state_mining.deduplicate_candidates([self.make_candidate(metrics={"regret": None})])
+        with self.assertRaisesRegex(
+            ValueError, "candidate metric regret must be numeric"
+        ):
+            hard_state_mining.deduplicate_candidates(
+                [self.make_candidate(metrics={"regret": None})]
+            )
 
     def test_cli_rejects_malformed_json_without_traceback(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -1055,7 +1123,9 @@ class HardStateMiningTest(unittest.TestCase):
 
     def test_cli_rejects_malformed_forensic_row_without_traceback(self):
         repo_root = Path(__file__).resolve().parents[2]
-        with tempfile.TemporaryDirectory(prefix="azlite-hard-mining-forensic-row-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-hard-mining-forensic-row-"
+        ) as tmp:
             tmp_path = Path(tmp)
             input_path = tmp_path / "forensic.json"
             out_jsonl = tmp_path / "mined.jsonl"
@@ -1150,13 +1220,17 @@ class HardStateMiningTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, "malformed hard-state mining artifact rows"):
+            with self.assertRaisesRegex(
+                ValueError, "malformed hard-state mining artifact rows"
+            ):
                 hard_state_mining.load_artifacts([str(input_path)])
 
     def test_load_artifacts_rejects_non_dict_forensic_systems(self):
         from ml.alphazero_lite import hard_state_mining
 
-        with tempfile.TemporaryDirectory(prefix="azlite-hard-mining-bad-systems-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-hard-mining-bad-systems-"
+        ) as tmp:
             tmp_path = Path(tmp)
             input_path = tmp_path / "forensic.json"
             input_path.write_text(
@@ -1175,7 +1249,9 @@ class HardStateMiningTest(unittest.TestCase):
     def test_load_artifacts_rejects_non_dict_forensic_system_payload(self):
         from ml.alphazero_lite import hard_state_mining
 
-        with tempfile.TemporaryDirectory(prefix="azlite-hard-mining-bad-system-payload-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-hard-mining-bad-system-payload-"
+        ) as tmp:
             tmp_path = Path(tmp)
             input_path = tmp_path / "forensic.json"
             input_path.write_text(
@@ -1190,18 +1266,26 @@ class HardStateMiningTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, "system 'challenger' must be an object"):
+            with self.assertRaisesRegex(
+                ValueError, "system 'challenger' must be an object"
+            ):
                 hard_state_mining.load_artifacts([str(input_path)])
 
     def test_load_artifacts_rejects_non_object_payload(self):
         from ml.alphazero_lite import hard_state_mining
 
-        with tempfile.TemporaryDirectory(prefix="azlite-hard-mining-bad-payload-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-hard-mining-bad-payload-"
+        ) as tmp:
             tmp_path = Path(tmp)
             input_path = tmp_path / "payload.json"
-            input_path.write_text(json.dumps([{"schema": "azlite_forensic_suite_v1"}]), encoding="utf-8")
+            input_path.write_text(
+                json.dumps([{"schema": "azlite_forensic_suite_v1"}]), encoding="utf-8"
+            )
 
-            with self.assertRaisesRegex(ValueError, "hard-state mining artifact must be a JSON object"):
+            with self.assertRaisesRegex(
+                ValueError, "hard-state mining artifact must be a JSON object"
+            ):
                 hard_state_mining.load_artifacts([str(input_path)])
 
     def test_load_artifacts_does_not_classify_kind_forensic_suite_without_schema(self):
@@ -1210,9 +1294,13 @@ class HardStateMiningTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-hard-mining-kind-only-") as tmp:
             tmp_path = Path(tmp)
             input_path = tmp_path / "forensic-kind.json"
-            input_path.write_text(json.dumps({"kind": "forensic_suite"}), encoding="utf-8")
+            input_path.write_text(
+                json.dumps({"kind": "forensic_suite"}), encoding="utf-8"
+            )
 
-            with self.assertRaisesRegex(ValueError, "no supported hard-state mining artifacts found"):
+            with self.assertRaisesRegex(
+                ValueError, "no supported hard-state mining artifacts found"
+            ):
                 hard_state_mining.load_artifacts([str(input_path)])
 
     def test_extract_candidates_rejects_non_numeric_forensic_threshold_metrics(self):
@@ -1237,5 +1325,7 @@ class HardStateMiningTest(unittest.TestCase):
             }
         ]
 
-        with self.assertRaisesRegex(ValueError, "candidate metric value_error must be numeric"):
+        with self.assertRaisesRegex(
+            ValueError, "candidate metric value_error must be numeric"
+        ):
             hard_state_mining.extract_candidates(artifacts)

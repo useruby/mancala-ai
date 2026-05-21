@@ -5,7 +5,9 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from ml.alphazero_lite import capture_002_selection_score_trace as selection_score_module
+from ml.alphazero_lite import (
+    capture_002_selection_score_trace as selection_score_module,
+)
 from ml.alphazero_lite import capture_002_trace_cadence_review as trace_cadence_module
 from ml.alphazero_lite import capture_002_nonseparable_review as module
 
@@ -13,7 +15,10 @@ from ml.alphazero_lite import capture_002_nonseparable_review as module
 class Capture002NonseparableReviewContractTest(unittest.TestCase):
     def test_contract_constants_are_stable(self):
         self.assertEqual("azlite_capture_002_nonseparable_review_v1", module.SCHEMA)
-        self.assertEqual("azlite_capture_002_selection_score_trace_v1", module.SOURCE_SELECTION_SCORE_SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_selection_score_trace_v1",
+            module.SOURCE_SELECTION_SCORE_SCHEMA,
+        )
         self.assertEqual(
             "azlite_capture_002_trace_cadence_review_v1",
             module.SOURCE_TRACE_CADENCE_REVIEW_SCHEMA,
@@ -88,7 +93,13 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
         }
 
     def generated_default_selection_score_artifact(self) -> dict:
-        def trace_point(*, simulation: float, selected_move: int, visits: list[float], moves: list[dict]) -> dict:
+        def trace_point(
+            *,
+            simulation: float,
+            selected_move: int,
+            visits: list[float],
+            moves: list[dict],
+        ) -> dict:
             return {
                 "simulation": simulation,
                 "selected_move": selected_move,
@@ -156,7 +167,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             }
         )
 
-    def generated_trace_cadence_review_artifact(self, selection_score_artifact: dict) -> dict:
+    def generated_trace_cadence_review_artifact(
+        self, selection_score_artifact: dict
+    ) -> dict:
         return trace_cadence_module.build_payload(
             {
                 "schema": trace_cadence_module.SOURCE_TRACE_CAPTURE_SCHEMA,
@@ -214,10 +227,17 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
         )
 
     def cadence_review_artifact(self, *, decision: str) -> dict:
-        classification = "cadence_adequate" if decision == "continue_002_threshold_too_strict_check" else "trace_too_sparse"
+        classification = (
+            "cadence_adequate"
+            if decision == "continue_002_threshold_too_strict_check"
+            else "trace_too_sparse"
+        )
         return {
             "schema": module.SOURCE_TRACE_CADENCE_REVIEW_SCHEMA,
-            "classification": {"classification": classification, "evidence_summary": "cadence review"},
+            "classification": {
+                "classification": classification,
+                "evidence_summary": "cadence review",
+            },
             "decision": decision,
             "trace_capture_excerpt": {
                 "row_id": "capture_available-002",
@@ -241,7 +261,10 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
     ) -> dict:
         return {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
-            "classification": {"classification": classification, "evidence_summary": "threshold review"},
+            "classification": {
+                "classification": classification,
+                "evidence_summary": "threshold review",
+            },
             "decision": decision,
             "insufficiency_reasons": [],
             "source_artifact": {
@@ -265,10 +288,14 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             "final_selected_minus_reference_visit_share": 0.04545454545454547,
         }
 
-    def test_build_payload_supports_genuinely_not_separable_when_prerequisites_hold_and_relaxation_still_unresolved(self):
+    def test_build_payload_supports_genuinely_not_separable_when_prerequisites_hold_and_relaxation_still_unresolved(
+        self,
+    ):
         payload = module.build_payload(
             self.default_selection_score_artifact(),
-            self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+            self.cadence_review_artifact(
+                decision="continue_002_threshold_too_strict_check"
+            ),
             self.threshold_review_artifact(
                 classification="unresolved",
                 decision="write_002_unresolved_trace_review_spec",
@@ -278,15 +305,23 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             source_threshold_review_artifact_path="/tmp/threshold_review.json",
         )
 
-        self.assertEqual("genuinely_not_separable", payload["classification"]["classification"])
+        self.assertEqual(
+            "genuinely_not_separable", payload["classification"]["classification"]
+        )
         self.assertEqual("stop_002_unresolved", payload["decision"])
         self.assertEqual(-0.02, payload["final_margin_summary"]["default_q_margin"])
-        self.assertEqual(0.04, payload["thresholds_evaluated"]["relaxed_material_visit_share_margin"])
+        self.assertEqual(
+            0.04, payload["thresholds_evaluated"]["relaxed_material_visit_share_margin"]
+        )
 
-    def test_build_payload_preempts_when_cadence_review_already_supports_sparse_branch(self):
+    def test_build_payload_preempts_when_cadence_review_already_supports_sparse_branch(
+        self,
+    ):
         payload = module.build_payload(
             self.default_selection_score_artifact(),
-            self.cadence_review_artifact(decision="write_002_trace_cadence_capture_spec"),
+            self.cadence_review_artifact(
+                decision="write_002_trace_cadence_capture_spec"
+            ),
             self.threshold_review_artifact(
                 classification="unresolved",
                 decision="write_002_unresolved_trace_review_spec",
@@ -296,14 +331,20 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             source_threshold_review_artifact_path="/tmp/threshold_review.json",
         )
 
-        self.assertEqual("prerequisite_preempted", payload["classification"]["classification"])
+        self.assertEqual(
+            "prerequisite_preempted", payload["classification"]["classification"]
+        )
         self.assertEqual("genuinely_not_separable", payload["hypothesis"])
         self.assertEqual("write_002_trace_cadence_capture_spec", payload["decision"])
 
-    def test_build_payload_preempts_when_threshold_review_already_supports_selection_score_pressure(self):
+    def test_build_payload_preempts_when_threshold_review_already_supports_selection_score_pressure(
+        self,
+    ):
         payload = module.build_payload(
             self.default_selection_score_artifact(),
-            self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+            self.cadence_review_artifact(
+                decision="continue_002_threshold_too_strict_check"
+            ),
             self.threshold_review_artifact(
                 classification="selection_score_pressure_confirmed",
                 decision="write_002_selection_pressure_ablation_spec",
@@ -313,14 +354,20 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             source_threshold_review_artifact_path="/tmp/threshold_review.json",
         )
 
-        self.assertEqual("prerequisite_preempted", payload["classification"]["classification"])
+        self.assertEqual(
+            "prerequisite_preempted", payload["classification"]["classification"]
+        )
         self.assertEqual("genuinely_not_separable", payload["hypothesis"])
-        self.assertEqual("write_002_selection_pressure_ablation_spec", payload["decision"])
+        self.assertEqual(
+            "write_002_selection_pressure_ablation_spec", payload["decision"]
+        )
 
     def test_build_payload_accepts_valid_relaxed_threshold_unresolved_artifact(self):
         payload = module.build_payload(
             self.default_selection_score_artifact(),
-            self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+            self.cadence_review_artifact(
+                decision="continue_002_threshold_too_strict_check"
+            ),
             self.threshold_review_artifact(
                 classification="unresolved",
                 decision="write_002_unresolved_trace_review_spec",
@@ -330,17 +377,23 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             source_threshold_review_artifact_path="/tmp/threshold_review.json",
         )
 
-        self.assertEqual("genuinely_not_separable", payload["classification"]["classification"])
+        self.assertEqual(
+            "genuinely_not_separable", payload["classification"]["classification"]
+        )
         self.assertEqual("stop_002_unresolved", payload["decision"])
 
-    def test_build_payload_accepts_generated_default_selection_artifact_shape_via_loaders(self):
+    def test_build_payload_accepts_generated_default_selection_artifact_shape_via_loaders(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             default_path = Path(tmp) / "default_selection.json"
             cadence_path = Path(tmp) / "cadence_review.json"
             threshold_path = Path(tmp) / "threshold_review.json"
 
             default_artifact = self.generated_default_selection_score_artifact()
-            cadence_artifact = self.generated_trace_cadence_review_artifact(default_artifact)
+            cadence_artifact = self.generated_trace_cadence_review_artifact(
+                default_artifact
+            )
             threshold_artifact = self.threshold_review_artifact(
                 classification="unresolved",
                 decision="write_002_unresolved_trace_review_spec",
@@ -351,11 +404,19 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             self.write_json(threshold_path, threshold_artifact)
 
             loaded_default_artifact = module.load_selection_score_artifact(default_path)
-            loaded_cadence_artifact = module.load_trace_cadence_review_artifact(cadence_path)
-            loaded_threshold_artifact = module.load_threshold_review_artifact(threshold_path)
+            loaded_cadence_artifact = module.load_trace_cadence_review_artifact(
+                cadence_path
+            )
+            loaded_threshold_artifact = module.load_threshold_review_artifact(
+                threshold_path
+            )
 
-        self.assertEqual(2, loaded_default_artifact["source_artifact"]["reference_move"])
-        self.assertEqual(0, loaded_default_artifact["source_artifact"]["full_search_selected_move"])
+        self.assertEqual(
+            2, loaded_default_artifact["source_artifact"]["reference_move"]
+        )
+        self.assertEqual(
+            0, loaded_default_artifact["source_artifact"]["full_search_selected_move"]
+        )
         payload = module.build_payload(
             loaded_default_artifact,
             loaded_cadence_artifact,
@@ -364,13 +425,19 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             source_trace_cadence_review_artifact_path="/tmp/cadence_review.json",
             source_threshold_review_artifact_path="/tmp/threshold_review.json",
         )
-        self.assertEqual("genuinely_not_separable", payload["classification"]["classification"])
+        self.assertEqual(
+            "genuinely_not_separable", payload["classification"]["classification"]
+        )
 
-    def test_build_payload_rejects_contradictory_threshold_classification_and_decision(self):
+    def test_build_payload_rejects_contradictory_threshold_classification_and_decision(
+        self,
+    ):
         with self.assertRaisesRegex(ValueError, "threshold review artifact"):
             module.build_payload(
                 self.default_selection_score_artifact(),
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 self.threshold_review_artifact(
                     classification="selection_score_pressure_confirmed",
                     decision="write_002_unresolved_trace_review_spec",
@@ -380,7 +447,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
                 source_threshold_review_artifact_path="/tmp/threshold_review.json",
             )
 
-    def test_build_payload_rejects_default_selection_score_artifact_that_already_supports_another_branch(self):
+    def test_build_payload_rejects_default_selection_score_artifact_that_already_supports_another_branch(
+        self,
+    ):
         default_artifact = self.default_selection_score_artifact()
         default_artifact["classification"] = {
             "classification": "selection_score_pressure_confirmed",
@@ -391,7 +460,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "default selection score artifact"):
             module.build_payload(
                 default_artifact,
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 self.threshold_review_artifact(
                     classification="unresolved",
                     decision="write_002_unresolved_trace_review_spec",
@@ -401,14 +472,18 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
                 source_threshold_review_artifact_path="/tmp/threshold_review.json",
             )
 
-    def test_build_payload_rejects_relaxed_threshold_artifact_as_default_baseline_input(self):
+    def test_build_payload_rejects_relaxed_threshold_artifact_as_default_baseline_input(
+        self,
+    ):
         with self.assertRaisesRegex(ValueError, "default selection score artifact"):
             module.build_payload(
                 self.threshold_review_artifact(
                     classification="unresolved",
                     decision="write_002_unresolved_trace_review_spec",
                 ),
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 self.threshold_review_artifact(
                     classification="unresolved",
                     decision="write_002_unresolved_trace_review_spec",
@@ -438,7 +513,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
                 source_threshold_review_artifact_path="/tmp/threshold_review.json",
             )
 
-    def test_build_payload_rejects_non_baseline_default_artifact_even_on_cadence_preempt_path(self):
+    def test_build_payload_rejects_non_baseline_default_artifact_even_on_cadence_preempt_path(
+        self,
+    ):
         default_artifact = self.default_selection_score_artifact()
         default_artifact["classification"] = {
             "classification": "selection_score_pressure_confirmed",
@@ -449,7 +526,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "default selection score artifact"):
             module.build_payload(
                 default_artifact,
-                self.cadence_review_artifact(decision="write_002_trace_cadence_capture_spec"),
+                self.cadence_review_artifact(
+                    decision="write_002_trace_cadence_capture_spec"
+                ),
                 self.threshold_review_artifact(
                     classification="unresolved",
                     decision="write_002_unresolved_trace_review_spec",
@@ -466,7 +545,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "selection score artifact"):
             module.build_payload(
                 wrong_default,
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 self.threshold_review_artifact(
                     classification="unresolved",
                     decision="write_002_unresolved_trace_review_spec",
@@ -485,7 +566,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "selection score artifact"):
             module.build_payload(
                 self.default_selection_score_artifact(),
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 wrong_threshold,
                 source_selection_score_artifact_path="/tmp/default_selection.json",
                 source_trace_cadence_review_artifact_path="/tmp/cadence_review.json",
@@ -510,14 +593,18 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
                 source_threshold_review_artifact_path="/tmp/threshold_review.json",
             )
 
-    def test_build_payload_rejects_non_empty_insufficiency_reasons_on_selection_score_inputs(self):
+    def test_build_payload_rejects_non_empty_insufficiency_reasons_on_selection_score_inputs(
+        self,
+    ):
         bad_default = self.default_selection_score_artifact()
         bad_default["insufficiency_reasons"] = ["trace_missing"]
 
         with self.assertRaisesRegex(ValueError, "selection score artifact"):
             module.build_payload(
                 bad_default,
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 self.threshold_review_artifact(
                     classification="unresolved",
                     decision="write_002_unresolved_trace_review_spec",
@@ -527,17 +614,23 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
                 source_threshold_review_artifact_path="/tmp/threshold_review.json",
             )
 
-    def test_build_payload_rejects_mismatched_default_and_threshold_source_identity(self):
+    def test_build_payload_rejects_mismatched_default_and_threshold_source_identity(
+        self,
+    ):
         threshold_artifact = self.threshold_review_artifact(
             classification="unresolved",
             decision="write_002_unresolved_trace_review_spec",
         )
         threshold_artifact["source_artifact"]["full_search_selected_move"] = 1
 
-        with self.assertRaisesRegex(ValueError, "selection score source identities must match"):
+        with self.assertRaisesRegex(
+            ValueError, "selection score source identities must match"
+        ):
             module.build_payload(
                 self.default_selection_score_artifact(),
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 threshold_artifact,
                 source_selection_score_artifact_path="/tmp/default_selection.json",
                 source_trace_cadence_review_artifact_path="/tmp/cadence_review.json",
@@ -545,10 +638,14 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             )
 
     def test_build_payload_rejects_mismatched_cadence_trace_excerpt(self):
-        cadence_artifact = self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check")
+        cadence_artifact = self.cadence_review_artifact(
+            decision="continue_002_threshold_too_strict_check"
+        )
         cadence_artifact["trace_capture_excerpt"]["row_id"] = "capture_available-003"
 
-        with self.assertRaisesRegex(ValueError, "trace cadence review artifact trace_capture_excerpt"):
+        with self.assertRaisesRegex(
+            ValueError, "trace cadence review artifact trace_capture_excerpt"
+        ):
             module.build_payload(
                 self.default_selection_score_artifact(),
                 cadence_artifact,
@@ -562,10 +659,16 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             )
 
     def test_build_payload_rejects_mismatched_cadence_selection_score_excerpt(self):
-        cadence_artifact = self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check")
-        cadence_artifact["selection_score_excerpt"]["final_selected_minus_reference_visit_share"] = 0.02
+        cadence_artifact = self.cadence_review_artifact(
+            decision="continue_002_threshold_too_strict_check"
+        )
+        cadence_artifact["selection_score_excerpt"][
+            "final_selected_minus_reference_visit_share"
+        ] = 0.02
 
-        with self.assertRaisesRegex(ValueError, "trace cadence review artifact selection_score_excerpt"):
+        with self.assertRaisesRegex(
+            ValueError, "trace cadence review artifact selection_score_excerpt"
+        ):
             module.build_payload(
                 self.default_selection_score_artifact(),
                 cadence_artifact,
@@ -587,17 +690,23 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "selection score artifact"):
             module.build_payload(
                 self.default_selection_score_artifact(),
-                self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
                 bad_threshold,
                 source_selection_score_artifact_path="/tmp/default_selection.json",
                 source_trace_cadence_review_artifact_path="/tmp/cadence_review.json",
                 source_threshold_review_artifact_path="/tmp/threshold_review.json",
             )
 
-    def test_build_payload_preempts_when_threshold_review_supports_q_support_branch(self):
+    def test_build_payload_preempts_when_threshold_review_supports_q_support_branch(
+        self,
+    ):
         payload = module.build_payload(
             self.default_selection_score_artifact(),
-            self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"),
+            self.cadence_review_artifact(
+                decision="continue_002_threshold_too_strict_check"
+            ),
             self.threshold_review_artifact(
                 classification="q_support_precedes_selection_score",
                 decision="write_002_child_value_audit_spec",
@@ -607,7 +716,9 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             source_threshold_review_artifact_path="/tmp/threshold_review.json",
         )
 
-        self.assertEqual("prerequisite_preempted", payload["classification"]["classification"])
+        self.assertEqual(
+            "prerequisite_preempted", payload["classification"]["classification"]
+        )
         self.assertEqual("write_002_child_value_audit_spec", payload["decision"])
 
     def test_main_writes_sorted_payload_and_prints_compact_json(self):
@@ -617,7 +728,12 @@ class Capture002NonseparableReviewBuildPayloadTest(unittest.TestCase):
             threshold_path = Path(tmp) / "threshold_review.json"
             out_path = Path(tmp) / "nonseparable_review.json"
             self.write_json(default_path, self.default_selection_score_artifact())
-            self.write_json(cadence_path, self.cadence_review_artifact(decision="continue_002_threshold_too_strict_check"))
+            self.write_json(
+                cadence_path,
+                self.cadence_review_artifact(
+                    decision="continue_002_threshold_too_strict_check"
+                ),
+            )
             self.write_json(
                 threshold_path,
                 self.threshold_review_artifact(
@@ -680,7 +796,9 @@ class Capture002NonseparableReviewThresholdArtifactValidationTest(unittest.TestC
             with self.assertRaisesRegex(ValueError, "threshold review artifact"):
                 module.load_threshold_review_artifact(path)
 
-    def test_load_threshold_review_artifact_rejects_supported_mechanism_at_default_thresholds(self):
+    def test_load_threshold_review_artifact_rejects_supported_mechanism_at_default_thresholds(
+        self,
+    ):
         artifact = {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
             "classification": {
@@ -705,7 +823,9 @@ class Capture002NonseparableReviewThresholdArtifactValidationTest(unittest.TestC
 
 
 class Capture002NonseparableReviewCadenceArtifactValidationTest(unittest.TestCase):
-    def test_load_trace_cadence_review_artifact_rejects_malformed_classification_decision_pair(self):
+    def test_load_trace_cadence_review_artifact_rejects_malformed_classification_decision_pair(
+        self,
+    ):
         artifact = {
             "schema": module.SOURCE_TRACE_CADENCE_REVIEW_SCHEMA,
             "classification": {
@@ -722,7 +842,9 @@ class Capture002NonseparableReviewCadenceArtifactValidationTest(unittest.TestCas
             with self.assertRaisesRegex(ValueError, "trace cadence review artifact"):
                 module.load_trace_cadence_review_artifact(path)
 
-    def test_load_trace_cadence_review_artifact_rejects_missing_classification_or_decision(self):
+    def test_load_trace_cadence_review_artifact_rejects_missing_classification_or_decision(
+        self,
+    ):
         artifacts = [
             {
                 "schema": module.SOURCE_TRACE_CADENCE_REVIEW_SCHEMA,
@@ -743,5 +865,7 @@ class Capture002NonseparableReviewCadenceArtifactValidationTest(unittest.TestCas
                 path = Path(tmp) / f"cadence_review_{index}.json"
                 path.write_text(json.dumps(artifact), encoding="utf-8")
 
-                with self.assertRaisesRegex(ValueError, "trace cadence review artifact"):
+                with self.assertRaisesRegex(
+                    ValueError, "trace cadence review artifact"
+                ):
                     module.load_trace_cadence_review_artifact(path)

@@ -19,7 +19,12 @@ def canonical_payload(state):
 
 
 def canonical_payload_json(state):
-    encoded = json.dumps(canonical_payload(state), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    encoded = json.dumps(
+        canonical_payload(state),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    )
     return encoded
 
 
@@ -29,7 +34,9 @@ def canonical_key(state):
 
 
 def stones_in_pits(state):
-    return sum(int(value) for value in state["player_pits"]) + sum(int(value) for value in state["opponent_pits"])
+    return sum(int(value) for value in state["player_pits"]) + sum(
+        int(value) for value in state["opponent_pits"]
+    )
 
 
 def state_qualifies_for_opening_cache(state, *, ply, opening_gate=None):
@@ -53,7 +60,9 @@ class OpeningCache:
         self._entries_by_key = dict(payload["entries"])
 
     def lookup(self, state, *, ply):
-        if not state_qualifies_for_opening_cache(state, ply=ply, opening_gate=self.opening_gate):
+        if not state_qualifies_for_opening_cache(
+            state, ply=ply, opening_gate=self.opening_gate
+        ):
             return None
 
         return self._entries_by_key.get(canonical_key(state))
@@ -72,7 +81,9 @@ def normalize_opening_gate(opening_gate):
         try:
             normalized_gate[field] = int(normalized_gate[field])
         except (TypeError, ValueError) as error:
-            raise ValueError(f"Opening cache opening_gate.{field} must be numeric") from error
+            raise ValueError(
+                f"Opening cache opening_gate.{field} must be numeric"
+            ) from error
 
     return normalized_gate
 
@@ -83,7 +94,9 @@ def load_opening_cache(payload):
 
     entries_by_key = payload.get("entries")
     if not isinstance(entries_by_key, dict):
-        raise ValueError("Opening cache entries must be a mapping keyed by canonical state")
+        raise ValueError(
+            "Opening cache entries must be a mapping keyed by canonical state"
+        )
 
     normalized_entries = {}
     for provided_key, entry in entries_by_key.items():
@@ -100,6 +113,8 @@ def load_opening_cache(payload):
         normalized_entries[hashed_key] = entry
 
     normalized_payload = dict(payload)
-    normalized_payload["opening_gate"] = normalize_opening_gate(payload.get("opening_gate"))
+    normalized_payload["opening_gate"] = normalize_opening_gate(
+        payload.get("opening_gate")
+    )
     normalized_payload["entries"] = normalized_entries
     return OpeningCache(normalized_payload)

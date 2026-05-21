@@ -6,10 +6,19 @@ from statistics import median
 def pick_best_topk(candidates: list[dict]) -> dict:
     if not candidates:
         raise ValueError("at least one candidate is required")
-    return max(candidates, key=lambda row: (float(row["mcts_screen_score"]), float(row.get("arena_score", -1.0)), -int(row["topk_index"])))
+    return max(
+        candidates,
+        key=lambda row: (
+            float(row["mcts_screen_score"]),
+            float(row.get("arena_score", -1.0)),
+            -int(row["topk_index"]),
+        ),
+    )
 
 
-def summarize_tournament(seed_winners: list[dict], *, min_mcts_score: float, min_arena_score: float) -> dict:
+def summarize_tournament(
+    seed_winners: list[dict], *, min_mcts_score: float, min_arena_score: float
+) -> dict:
     if not seed_winners:
         raise ValueError("seed winners required")
 
@@ -24,5 +33,6 @@ def summarize_tournament(seed_winners: list[dict], *, min_mcts_score: float, min
         "best_arena_score": round(best_arena, 4),
         "pass_mcts_median": median_mcts >= float(min_mcts_score),
         "pass_arena_best_of_3": best_arena >= float(min_arena_score),
-        "passed": (median_mcts >= float(min_mcts_score)) and (best_arena >= float(min_arena_score)),
+        "passed": (median_mcts >= float(min_mcts_score))
+        and (best_arena >= float(min_arena_score)),
     }

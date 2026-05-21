@@ -12,7 +12,13 @@ if __package__ in (None, ""):
 
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
 from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.opening_cache import DEFAULT_OPENING_GATE, SCHEMA, canonical_key, canonical_payload, state_qualifies_for_opening_cache
+from ml.alphazero_lite.opening_cache import (
+    DEFAULT_OPENING_GATE,
+    SCHEMA,
+    canonical_key,
+    canonical_payload,
+    state_qualifies_for_opening_cache,
+)
 
 
 DEFAULT_ARTIFACT_PATH = Path("storage/ai/alphazero_lite/opening_cache_v1.json")
@@ -29,7 +35,9 @@ def build_search_profile(*, seed=0):
         "root_policy_mode": "deterministic",
         "deterministic_seed": int(seed),
     }
-    encoded_profile = json.dumps(profile, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    encoded_profile = json.dumps(
+        profile, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
     return {
         **profile,
         "hash": hashlib.sha256(encoded_profile.encode("utf-8")).hexdigest(),
@@ -41,7 +49,9 @@ DEFAULT_SEARCH_PROFILE = build_search_profile()
 
 def validate_search_profile_for_default_teacher(search_profile):
     if search_profile != DEFAULT_SEARCH_PROFILE:
-        raise ValueError("search_profile must match the built-in default teacher settings when teacher is omitted")
+        raise ValueError(
+            "search_profile must match the built-in default teacher settings when teacher is omitted"
+        )
 
 
 def default_teacher(state):
@@ -62,10 +72,14 @@ def default_teacher(state):
 
 
 def provenance_teacher_kind(search_profile):
-    return str(search_profile.get("player_mode") or search_profile.get("kind") or "unknown")
+    return str(
+        search_profile.get("player_mode") or search_profile.get("kind") or "unknown"
+    )
 
 
-def build_opening_cache_artifact(source_positions, *, teacher=None, opening_gate=None, search_profile=None):
+def build_opening_cache_artifact(
+    source_positions, *, teacher=None, opening_gate=None, search_profile=None
+):
     gate = dict(DEFAULT_GENERATION_GATE)
     if opening_gate:
         gate.update(opening_gate)
@@ -153,14 +167,25 @@ def write_opening_cache_artifact(
     )
     destination = Path(artifact_path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps(artifact, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    destination.write_text(
+        json.dumps(artifact, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )
     return artifact
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Generate deterministic opening cache artifact")
-    parser.add_argument("input", type=Path, help="Path to JSON list of source positions")
-    parser.add_argument("--output", type=Path, default=DEFAULT_ARTIFACT_PATH, help="Artifact output path")
+    parser = argparse.ArgumentParser(
+        description="Generate deterministic opening cache artifact"
+    )
+    parser.add_argument(
+        "input", type=Path, help="Path to JSON list of source positions"
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_ARTIFACT_PATH,
+        help="Artifact output path",
+    )
     return parser.parse_args(argv)
 
 

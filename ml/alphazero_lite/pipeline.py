@@ -22,7 +22,10 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.input_encodings import feature_count_for
-from ml.alphazero_lite.report_validation import ArenaReportValidationError, validate_arena_report
+from ml.alphazero_lite.report_validation import (
+    ArenaReportValidationError,
+    validate_arena_report,
+)
 from ml.alphazero_lite.run_manifest import build_manifest, write_manifest
 from ml.alphazero_lite.self_play import normalize_value_trust_schedule
 
@@ -54,7 +57,7 @@ def checkpoint_feature_count(checkpoint_path: Path) -> int | None:
                         if handle.read(6) != b"\x93NUMPY":
                             continue
                         major = handle.read(1)[0]
-                        minor = handle.read(1)[0]
+                        handle.read(1)
                         if major == 1:
                             header_len = struct.unpack("<H", handle.read(2))[0]
                         else:
@@ -70,11 +73,15 @@ def checkpoint_feature_count(checkpoint_path: Path) -> int | None:
     return None
 
 
-def drop_incompatible_parent_checkpoint(command: list[str], *, parent_checkpoint: Path) -> list[str]:
+def drop_incompatible_parent_checkpoint(
+    command: list[str], *, parent_checkpoint: Path
+) -> list[str]:
     if "--input-encoding" not in command:
         return command
 
-    expected_feature_count = feature_count_for(command[command.index("--input-encoding") + 1])
+    expected_feature_count = feature_count_for(
+        command[command.index("--input-encoding") + 1]
+    )
     actual_feature_count = checkpoint_feature_count(parent_checkpoint)
     if actual_feature_count is None or actual_feature_count == expected_feature_count:
         return command
@@ -87,7 +94,9 @@ def drop_incompatible_parent_checkpoint(command: list[str], *, parent_checkpoint
                 checkpoint_index = rendered.index(flag, search_start)
             except ValueError:
                 break
-            if checkpoint_index + 1 >= len(rendered) or rendered[checkpoint_index + 1] != str(parent_checkpoint):
+            if checkpoint_index + 1 >= len(rendered) or rendered[
+                checkpoint_index + 1
+            ] != str(parent_checkpoint):
                 search_start = checkpoint_index + 2
                 continue
             rendered = rendered[:checkpoint_index] + rendered[checkpoint_index + 2 :]
@@ -97,7 +106,9 @@ def drop_incompatible_parent_checkpoint(command: list[str], *, parent_checkpoint
 
 def materialize_weights_json_checkpoint(*, weights_path: Path, out_path: Path) -> Path:
     weights = json.loads(weights_path.read_text(encoding="utf-8"))
-    arrays = {name: np.asarray(value, dtype=np.float32) for name, value in weights.items()}
+    arrays = {
+        name: np.asarray(value, dtype=np.float32) for name, value in weights.items()
+    }
     out_path.parent.mkdir(parents=True, exist_ok=True)
     np.savez(out_path, **arrays)
     return out_path
@@ -129,9 +140,13 @@ def render_command(
         value = value.replace("{parent_checkpoint}", str(parent_checkpoint))
         value = value.replace("{replay_data}", replay_data)
         value = value.replace("{replay_weights}", replay_weights)
-        value = value.replace("{hard_state_validation_path}", hard_state_validation_path)
+        value = value.replace(
+            "{hard_state_validation_path}", hard_state_validation_path
+        )
         rendered.append(value)
-    return drop_incompatible_parent_checkpoint(rendered, parent_checkpoint=parent_checkpoint)
+    return drop_incompatible_parent_checkpoint(
+        rendered, parent_checkpoint=parent_checkpoint
+    )
 
 
 def append_step_search_option_flags(step: dict, command: list[str]) -> list[str]:
@@ -168,10 +183,16 @@ def has_explicit_value_trust_flag(command: list[str]) -> bool:
         "--value-trust-midgame",
         "--value-trust-late",
     )
-    return any(token in explicit_value_trust_flags or any(token.startswith(f"{flag}=") for flag in explicit_value_trust_flags) for token in command)
+    return any(
+        token in explicit_value_trust_flags
+        or any(token.startswith(f"{flag}=") for flag in explicit_value_trust_flags)
+        for token in command
+    )
 
 
-def validate_self_play_value_trust_schedule(step: dict, command: list[str] | None = None) -> dict | None:
+def validate_self_play_value_trust_schedule(
+    step: dict, command: list[str] | None = None
+) -> dict | None:
     if step.get("name") != "self_play":
         return None
 
@@ -186,10 +207,14 @@ def validate_self_play_value_trust_schedule(step: dict, command: list[str] | Non
 
     value_trust_schedule = search_options["value_trust_schedule"]
     if not isinstance(value_trust_schedule, dict):
-        raise SystemExit("self_play step search_options.value_trust_schedule must be an object")
+        raise SystemExit(
+            "self_play step search_options.value_trust_schedule must be an object"
+        )
 
     allowed_keys = {"enabled", "opening", "midgame", "late"}
-    unexpected_keys = sorted(str(key) for key in value_trust_schedule if key not in allowed_keys)
+    unexpected_keys = sorted(
+        str(key) for key in value_trust_schedule if key not in allowed_keys
+    )
     if unexpected_keys:
         raise SystemExit(
             "self_play step search_options.value_trust_schedule contains unexpected keys: "
@@ -197,13 +222,19 @@ def validate_self_play_value_trust_schedule(step: dict, command: list[str] | Non
         )
 
     try:
-        normalized_value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
+        normalized_value_trust_schedule = normalize_value_trust_schedule(
+            value_trust_schedule
+        )
     except ValueError as error:
         message = str(error)
         if message == "value_trust_schedule.enabled must be a boolean":
-            raise SystemExit("self_play step search_options.value_trust_schedule.enabled must be a boolean") from None
+            raise SystemExit(
+                "self_play step search_options.value_trust_schedule.enabled must be a boolean"
+            ) from None
         if message.endswith("must be a finite number > 0"):
-            field_name = message.removeprefix("value_trust_schedule.").removesuffix(" must be a finite number > 0")
+            field_name = message.removeprefix("value_trust_schedule.").removesuffix(
+                " must be a finite number > 0"
+            )
             raw_value = value_trust_schedule.get(field_name)
             if isinstance(raw_value, bool) or raw_value is None:
                 raise SystemExit(
@@ -227,7 +258,9 @@ def validate_self_play_value_trust_schedule(step: dict, command: list[str] | Non
     if command is None:
         command = step.get("command", [])
     if isinstance(command, list) and has_explicit_value_trust_flag(command):
-        raise SystemExit("value_trust_schedule cannot be combined with explicit --value-trust flags")
+        raise SystemExit(
+            "value_trust_schedule cannot be combined with explicit --value-trust flags"
+        )
 
     return normalized_value_trust_schedule
 
@@ -266,7 +299,9 @@ def render_path(
     rendered = rendered.replace("{parent_checkpoint}", str(parent_checkpoint))
     rendered = rendered.replace("{replay_data}", replay_data)
     rendered = rendered.replace("{replay_weights}", replay_weights)
-    rendered = rendered.replace("{hard_state_validation_path}", hard_state_validation_path)
+    rendered = rendered.replace(
+        "{hard_state_validation_path}", hard_state_validation_path
+    )
     return Path(rendered)
 
 
@@ -290,7 +325,9 @@ def resolve_step_command(command: list[str], *, repo_root: Path) -> list[str]:
     return [sys.executable, *command[1:]]
 
 
-def load_fixed_replay_sources(config: dict, *, repo_root: Path) -> list[tuple[Path, int]]:
+def load_fixed_replay_sources(
+    config: dict, *, repo_root: Path
+) -> list[tuple[Path, int]]:
     raw_sources = config.get("fixed_replay_sources", [])
     if raw_sources is None:
         return []
@@ -348,19 +385,27 @@ def validate_startup_paths(
         checkpoint_path = parent_path / "checkpoint.npz"
         model_path = parent_path / "model.npz"
         weights_path = parent_path / "weights.json"
-        if not checkpoint_path.exists() and not model_path.exists() and not weights_path.exists():
+        if (
+            not checkpoint_path.exists()
+            and not model_path.exists()
+            and not weights_path.exists()
+        ):
             raise SystemExit(
                 f"parent_artifact_path must contain checkpoint.npz, model.npz, or weights.json: {parent_path}"
             )
 
     if "hard_state_validation_path" in config:
-        validation_path = resolve_config_path(hard_state_validation_path, repo_root=repo_root)
+        validation_path = resolve_config_path(
+            hard_state_validation_path, repo_root=repo_root
+        )
         if not validation_path.exists():
             raise SystemExit(f"missing hard_state_validation_path: {validation_path}")
 
 
 def has_self_play_step(steps: list[dict]) -> bool:
-    return any(step.get("name") == "self_play" for step in steps if isinstance(step, dict))
+    return any(
+        step.get("name") == "self_play" for step in steps if isinstance(step, dict)
+    )
 
 
 def build_replay_context(
@@ -377,8 +422,12 @@ def build_replay_context(
     if include_current_iteration:
         replay_paths.append(iter_dir / "self_play.jsonl")
 
-    for previous_iteration in range(iteration - 1, max(0, iteration - replay_window), -1):
-        previous_path = versions_dir / f"{run_id}-iter{previous_iteration}" / "self_play.jsonl"
+    for previous_iteration in range(
+        iteration - 1, max(0, iteration - replay_window), -1
+    ):
+        previous_path = (
+            versions_dir / f"{run_id}-iter{previous_iteration}" / "self_play.jsonl"
+        )
         if previous_path.exists():
             replay_paths.append(previous_path)
 
@@ -446,7 +495,13 @@ def numpy_build_summary(numpy_module) -> dict:
     get_info = getattr(config, "get_info", None)
     if callable(get_info):
         summary = {}
-        for name in ("blas_opt", "lapack_opt", "openblas", "blas_ilp64_opt", "lapack_ilp64_opt"):
+        for name in (
+            "blas_opt",
+            "lapack_opt",
+            "openblas",
+            "blas_ilp64_opt",
+            "lapack_ilp64_opt",
+        ):
             info = get_info(name)
             if info:
                 summary[name] = json_safe_config(info)
@@ -524,8 +579,12 @@ def environment_report() -> dict:
             "cuda": {
                 "available": cuda_available,
                 "version": getattr(torch_version, "cuda", None),
-                "device_count": safe_call(getattr(cuda_module, "device_count", None)) if cuda_available is True else None,
-                "cudnn_version": safe_call(getattr(cudnn_module, "version", None)) if cuda_available is True else None,
+                "device_count": safe_call(getattr(cuda_module, "device_count", None))
+                if cuda_available is True
+                else None,
+                "cudnn_version": safe_call(getattr(cudnn_module, "version", None))
+                if cuda_available is True
+                else None,
             },
         }
     except Exception:
@@ -552,7 +611,11 @@ def run_step(
     name = step.get("name", "unnamed_step")
     command = build_step_command(step)
     if not isinstance(command, list) or not command:
-        return {"name": name, "status": "failed", "error": "step command must be a non-empty list"}
+        return {
+            "name": name,
+            "status": "failed",
+            "error": "step command must be a non-empty list",
+        }
 
     rendered = render_command(
         command,
@@ -569,7 +632,9 @@ def run_step(
     )
     rendered = resolve_step_command(rendered, repo_root=repo_root)
     started = time.time()
-    result = subprocess.run(rendered, cwd=repo_root, capture_output=True, text=True, check=False)
+    result = subprocess.run(
+        rendered, cwd=repo_root, capture_output=True, text=True, check=False
+    )
     duration = round(time.time() - started, 4)
 
     log_path = iter_dir / f"{name}.log"
@@ -621,11 +686,21 @@ def gate_failures(
             hard_state_validation_path=hard_state_validation_path,
         )
         if not parity_path.exists():
-            failures.append({"code": "rules_parity_report_missing", "message": f"missing rules parity report: {parity_path}"})
+            failures.append(
+                {
+                    "code": "rules_parity_report_missing",
+                    "message": f"missing rules parity report: {parity_path}",
+                }
+            )
         else:
             payload = json.loads(parity_path.read_text(encoding="utf-8"))
             if not payload.get("parity_passed", False):
-                failures.append({"code": "rules_parity_failed", "message": "rules parity check did not pass"})
+                failures.append(
+                    {
+                        "code": "rules_parity_failed",
+                        "message": "rules parity check did not pass",
+                    }
+                )
 
     perspective_audit_report = gates.get("perspective_audit_report")
     if perspective_audit_report:
@@ -643,11 +718,21 @@ def gate_failures(
             hard_state_validation_path=hard_state_validation_path,
         )
         if not audit_path.exists():
-            failures.append({"code": "perspective_audit_missing", "message": f"missing perspective audit report: {audit_path}"})
+            failures.append(
+                {
+                    "code": "perspective_audit_missing",
+                    "message": f"missing perspective audit report: {audit_path}",
+                }
+            )
         else:
             payload = json.loads(audit_path.read_text(encoding="utf-8"))
             if not payload.get("passed", False):
-                failures.append({"code": "perspective_audit_failed", "message": "perspective audit did not pass"})
+                failures.append(
+                    {
+                        "code": "perspective_audit_failed",
+                        "message": "perspective audit did not pass",
+                    }
+                )
 
     arena_report = gates.get("arena_report")
     if arena_report:
@@ -666,17 +751,29 @@ def gate_failures(
         )
         min_arena_score = float(gates.get("min_arena_score", 0.55))
         if not arena_path.exists():
-            failures.append({"code": "arena_report_missing", "message": f"missing arena report: {arena_path}"})
+            failures.append(
+                {
+                    "code": "arena_report_missing",
+                    "message": f"missing arena report: {arena_path}",
+                }
+            )
         else:
             payload = json.loads(arena_path.read_text(encoding="utf-8"))
             try:
-                result = validate_arena_report(report=payload, min_score=min_arena_score)
+                result = validate_arena_report(
+                    report=payload, min_score=min_arena_score
+                )
             except ArenaReportValidationError as error:
                 failures.append({"code": error.code.lower(), "message": str(error)})
             else:
                 score = float(result["score"])
                 if score < min_arena_score:
-                    failures.append({"code": "arena_score_below_threshold", "message": f"arena score {score:.4f} < {min_arena_score:.4f}"})
+                    failures.append(
+                        {
+                            "code": "arena_score_below_threshold",
+                            "message": f"arena score {score:.4f} < {min_arena_score:.4f}",
+                        }
+                    )
 
     benchmark_report = gates.get("benchmark_report")
     if benchmark_report:
@@ -694,22 +791,57 @@ def gate_failures(
             hard_state_validation_path=hard_state_validation_path,
         )
         if not benchmark_path.exists():
-            failures.append({"code": "benchmark_report_missing", "message": f"missing benchmark report: {benchmark_path}"})
+            failures.append(
+                {
+                    "code": "benchmark_report_missing",
+                    "message": f"missing benchmark report: {benchmark_path}",
+                }
+            )
         else:
             payload = json.loads(benchmark_path.read_text(encoding="utf-8"))
             checks = payload.get("checks", [])
             if not isinstance(checks, list) or not checks:
-                failures.append({"code": "benchmark_checks_missing", "message": "benchmark report missing checks results"})
+                failures.append(
+                    {
+                        "code": "benchmark_checks_missing",
+                        "message": "benchmark report missing checks results",
+                    }
+                )
             else:
-                checks_with_status = [check for check in checks if isinstance(check, dict) and "passed" in check]
+                checks_with_status = [
+                    check
+                    for check in checks
+                    if isinstance(check, dict) and "passed" in check
+                ]
                 if not checks_with_status:
-                    failures.append({"code": "benchmark_checks_unscored", "message": "benchmark checks do not include pass/fail values"})
+                    failures.append(
+                        {
+                            "code": "benchmark_checks_unscored",
+                            "message": "benchmark checks do not include pass/fail values",
+                        }
+                    )
                 else:
-                    failing_checks = [check.get("id", "unknown") for check in checks_with_status if not bool(check.get("passed"))]
+                    failing_checks = [
+                        check.get("id", "unknown")
+                        for check in checks_with_status
+                        if not bool(check.get("passed"))
+                    ]
                     if failing_checks:
-                        failures.append({"code": "benchmark_checks_failed", "message": f"benchmark checks failed: {', '.join(failing_checks)}"})
+                        failures.append(
+                            {
+                                "code": "benchmark_checks_failed",
+                                "message": f"benchmark checks failed: {', '.join(failing_checks)}",
+                            }
+                        )
 
-                    runtime_check = next((check for check in checks_with_status if check.get("id") == "runtime_parity"), None)
+                    runtime_check = next(
+                        (
+                            check
+                            for check in checks_with_status
+                            if check.get("id") == "runtime_parity"
+                        ),
+                        None,
+                    )
                     if runtime_check:
                         chooser_score = runtime_check.get("chooser_score")
                         preloaded_score = runtime_check.get("preloaded_score")
@@ -717,7 +849,12 @@ def gate_failures(
                         if chooser_score is not None and preloaded_score is not None:
                             delta = abs(float(chooser_score) - float(preloaded_score))
                             if not math.isfinite(delta) or delta > max_delta:
-                                failures.append({"code": "runtime_parity_delta_exceeded", "message": f"runtime parity delta {delta:.4f} > {max_delta:.4f}"})
+                                failures.append(
+                                    {
+                                        "code": "runtime_parity_delta_exceeded",
+                                        "message": f"runtime parity delta {delta:.4f} > {max_delta:.4f}",
+                                    }
+                                )
 
     return failures
 
@@ -731,14 +868,22 @@ def main() -> None:
     run_id = config.get("run_id", "aggressive-v1")
     seed = int(config.get("seed", 42))
     total_iterations = int(args.iterations or config.get("iterations", 1))
-    start_iteration = max(1, int(args.start_iteration or config.get("start_iteration", 1)))
+    start_iteration = max(
+        1, int(args.start_iteration or config.get("start_iteration", 1))
+    )
     final_iteration = start_iteration + total_iterations - 1
-    versions_dir = Path(config.get("versions_dir", "storage/ai/alphazero_lite/versions"))
+    versions_dir = Path(
+        config.get("versions_dir", "storage/ai/alphazero_lite/versions")
+    )
     current_path = config.get("current_path", "model-artifact/current")
     parent_artifact_path = config.get("parent_artifact_path", current_path)
-    resolved_first_iteration_parent_path = resolve_config_path(parent_artifact_path, repo_root=repo_root)
+    resolved_first_iteration_parent_path = resolve_config_path(
+        parent_artifact_path, repo_root=repo_root
+    )
     resolved_parent_artifact_path = (
-        resolved_first_iteration_parent_path if "parent_artifact_path" in config else None
+        resolved_first_iteration_parent_path
+        if "parent_artifact_path" in config
+        else None
     )
     steps = config.get("steps", [])
     gates = config.get("gates", {})
@@ -788,12 +933,16 @@ def main() -> None:
             iteration=iteration,
             seed=seed,
             config_path=str(config_path),
-            parent_version=parent_artifact_path if iteration == start_iteration else f"{run_id}-iter{iteration - 1}",
+            parent_version=parent_artifact_path
+            if iteration == start_iteration
+            else f"{run_id}-iter{iteration - 1}",
             status="planned" if args.dry_run else "running",
             notes={
                 "phase": "phase_1_scaffold",
                 "dry_run": bool(args.dry_run),
-                "parent_artifact_path": parent_artifact_path if iteration == start_iteration else None,
+                "parent_artifact_path": parent_artifact_path
+                if iteration == start_iteration
+                else None,
             },
         )
 
@@ -812,7 +961,10 @@ def main() -> None:
 
         if not args.dry_run:
             for step in steps:
-                if step.get("skip_before_final_iteration") and iteration < final_iteration:
+                if (
+                    step.get("skip_before_final_iteration")
+                    and iteration < final_iteration
+                ):
                     skipped_result = {
                         "name": step.get("name", "unnamed_step"),
                         "status": "skipped",

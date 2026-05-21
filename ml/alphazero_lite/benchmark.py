@@ -13,8 +13,15 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.report_validation import ArenaReportValidationError, validate_arena_report
-from ml.alphazero_lite.self_play import add_search_option_args, build_eval_search_options, search_options_from_args
+from ml.alphazero_lite.report_validation import (
+    ArenaReportValidationError,
+    validate_arena_report,
+)
+from ml.alphazero_lite.self_play import (
+    add_search_option_args,
+    build_eval_search_options,
+    search_options_from_args,
+)
 
 
 EXPECTED_MCTS_SCHEMA = "azlite_vs_mcts_v1"
@@ -31,12 +38,15 @@ def opening_cache_summary_fields(summary: dict | None) -> dict | None:
         "latency_delta_ms": summary.get("latency_delta_ms"),
     }
 
+
 def load_local_promotion_gate_module():
     script_path = Path(__file__).resolve().parents[2] / "script/ai/local_promotion_gate"
     spec = importlib.util.spec_from_file_location(
         "local_promotion_gate",
         script_path,
-        loader=importlib.machinery.SourceFileLoader("local_promotion_gate", str(script_path)),
+        loader=importlib.machinery.SourceFileLoader(
+            "local_promotion_gate", str(script_path)
+        ),
     )
     if spec is None or spec.loader is None:
         raise SystemExit(f"unable to load local promotion gate helper: {script_path}")
@@ -60,7 +70,9 @@ def mcts_integer_field(report: dict, key: str, report_name: str) -> int:
 def validate_mcts_report(report: dict, report_name: str) -> tuple[int, int, int, int]:
     schema = report.get("schema")
     if schema is not None and schema != EXPECTED_MCTS_SCHEMA:
-        raise SystemExit(f"{report_name} schema must be {EXPECTED_MCTS_SCHEMA} when present")
+        raise SystemExit(
+            f"{report_name} schema must be {EXPECTED_MCTS_SCHEMA} when present"
+        )
 
     games = mcts_integer_field(report, "games", report_name)
     az_wins = mcts_integer_field(report, "az_wins", report_name)
@@ -79,10 +91,14 @@ def validate_mcts_report(report: dict, report_name: str) -> tuple[int, int, int,
 
 def validated_numeric_score(report: dict, report_name: str) -> float:
     if "score" not in report:
-        raise SystemExit(f"dynamic budget comparison requires explicit score fields; missing {report_name} score")
+        raise SystemExit(
+            f"dynamic budget comparison requires explicit score fields; missing {report_name} score"
+        )
     value = report.get("score")
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise SystemExit(f"dynamic budget comparison requires explicit score fields; {report_name} score must be numeric")
+        raise SystemExit(
+            f"dynamic budget comparison requires explicit score fields; {report_name} score must be numeric"
+        )
     score = float(value)
     games, az_wins, _mcts_wins, draws = validate_mcts_report(report, report_name)
     derived_score = round((az_wins + (0.5 * draws)) / games, 4)
@@ -93,13 +109,21 @@ def validated_numeric_score(report: dict, report_name: str) -> float:
     return score
 
 
-def validate_matching_fixed_arm_configuration(candidate_report: dict, baseline_report: dict) -> None:
+def validate_matching_fixed_arm_configuration(
+    candidate_report: dict, baseline_report: dict
+) -> None:
     candidate_profile = candidate_report.get("search_profile")
     baseline_profile = baseline_report.get("search_profile")
-    if not isinstance(candidate_profile, dict) or not isinstance(baseline_profile, dict):
-        raise SystemExit("dynamic budget comparison requires producer provenance metadata in both reports")
+    if not isinstance(candidate_profile, dict) or not isinstance(
+        baseline_profile, dict
+    ):
+        raise SystemExit(
+            "dynamic budget comparison requires producer provenance metadata in both reports"
+        )
     if candidate_profile.get("kind") != baseline_profile.get("kind"):
-        raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
+        raise SystemExit(
+            "dynamic budget comparison requires baseline report from the matching fixed arm configuration"
+        )
     invariant_fields = (
         "player_mode",
         "classic_mcts_simulations",
@@ -112,14 +136,26 @@ def validate_matching_fixed_arm_configuration(candidate_report: dict, baseline_r
         candidate_value = candidate_profile.get(field)
         baseline_value = baseline_profile.get(field)
         if candidate_value != baseline_value:
-            raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
+            raise SystemExit(
+                "dynamic budget comparison requires baseline report from the matching fixed arm configuration"
+            )
 
     candidate_config = candidate_report.get("classic_mcts_dynamic_budget_config")
     baseline_config = baseline_report.get("classic_mcts_dynamic_budget_config")
-    if not isinstance(candidate_config, dict) or bool(candidate_config.get("enabled")) is not True:
-        raise SystemExit("dynamic budget comparison requires candidate dynamic budget config metadata")
-    if not isinstance(baseline_config, dict) or bool(baseline_config.get("enabled")) is not False:
-        raise SystemExit("dynamic budget comparison requires baseline report from the matching fixed arm configuration")
+    if (
+        not isinstance(candidate_config, dict)
+        or bool(candidate_config.get("enabled")) is not True
+    ):
+        raise SystemExit(
+            "dynamic budget comparison requires candidate dynamic budget config metadata"
+        )
+    if (
+        not isinstance(baseline_config, dict)
+        or bool(baseline_config.get("enabled")) is not False
+    ):
+        raise SystemExit(
+            "dynamic budget comparison requires baseline report from the matching fixed arm configuration"
+        )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -143,18 +179,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def dynamic_budget_comparison(mcts_report: dict, baseline_report: dict | None, *, strict: bool = True) -> dict | None:
+def dynamic_budget_comparison(
+    mcts_report: dict, baseline_report: dict | None, *, strict: bool = True
+) -> dict | None:
     if baseline_report is None:
         return None
 
     candidate_mode = mcts_report.get("comparison_mode")
     if candidate_mode is None:
         if strict:
-            raise SystemExit("dynamic budget comparison requires explicit fixed-vs-dynamic ClassicMCTS candidate comparison_mode")
+            raise SystemExit(
+                "dynamic budget comparison requires explicit fixed-vs-dynamic ClassicMCTS candidate comparison_mode"
+            )
         return None
     if candidate_mode != "classic_dynamic_vs_fixed":
         if strict:
-            raise SystemExit("dynamic budget comparison requires explicit fixed-vs-dynamic ClassicMCTS candidate comparison_mode")
+            raise SystemExit(
+                "dynamic budget comparison requires explicit fixed-vs-dynamic ClassicMCTS candidate comparison_mode"
+            )
         return None
 
     candidate_budget = mcts_report.get("budget_summary", {})
@@ -164,14 +206,23 @@ def dynamic_budget_comparison(mcts_report: dict, baseline_report: dict | None, *
     candidate_classic_mode = mcts_report.get("classic_mcts_mode")
     baseline_classic_mode = baseline_report.get("classic_mcts_mode")
     if candidate_classic_mode != "dynamic" or baseline_classic_mode != "fixed":
-        raise SystemExit("dynamic budget comparison requires dynamic candidate and fixed baseline ClassicMCTS reports")
-    if candidate_source != "classic_mcts_dynamic_runtime" or baseline_source != "classic_mcts_fixed_runtime":
-        raise SystemExit("dynamic budget comparison requires fixed-vs-dynamic ClassicMCTS comparison metric sources")
+        raise SystemExit(
+            "dynamic budget comparison requires dynamic candidate and fixed baseline ClassicMCTS reports"
+        )
+    if (
+        candidate_source != "classic_mcts_dynamic_runtime"
+        or baseline_source != "classic_mcts_fixed_runtime"
+    ):
+        raise SystemExit(
+            "dynamic budget comparison requires fixed-vs-dynamic ClassicMCTS comparison metric sources"
+        )
     validate_matching_fixed_arm_configuration(mcts_report, baseline_report)
 
     embedded_candidate = mcts_report.get("dynamic_budget_comparison")
     if not isinstance(embedded_candidate, dict):
-        raise SystemExit("dynamic budget comparison requires embedded fixed-vs-dynamic ClassicMCTS candidate comparison data")
+        raise SystemExit(
+            "dynamic budget comparison requires embedded fixed-vs-dynamic ClassicMCTS candidate comparison data"
+        )
 
     candidate_mean_final_simulations = candidate_budget.get("mean_final_simulations")
     candidate_mean_root_latency_ms = candidate_budget.get("mean_root_latency_ms")
@@ -179,9 +230,13 @@ def dynamic_budget_comparison(mcts_report: dict, baseline_report: dict | None, *
     baseline_mean_root_latency_ms = baseline_budget.get("mean_root_latency_ms")
     candidate_seat_bias_neutralized = embedded_candidate.get("seat_bias_neutralized")
     if not isinstance(candidate_seat_bias_neutralized, bool):
-        raise SystemExit("dynamic budget comparison requires explicit seat-bias allocation metadata")
+        raise SystemExit(
+            "dynamic budget comparison requires explicit seat-bias allocation metadata"
+        )
     if candidate_mean_root_latency_ms is None or baseline_mean_root_latency_ms is None:
-        raise SystemExit("dynamic budget comparison requires candidate and baseline latency metrics")
+        raise SystemExit(
+            "dynamic budget comparison requires candidate and baseline latency metrics"
+        )
     runtime_target_ms = baseline_mean_root_latency_ms
     runtime_target_matched = candidate_mean_root_latency_ms >= runtime_target_ms
 
@@ -209,7 +264,9 @@ def dynamic_budget_comparison(mcts_report: dict, baseline_report: dict | None, *
         "fixed_score": baseline_score,
     }
     if embedded_candidate != result:
-        raise SystemExit("dynamic budget comparison requires truthful fixed-vs-dynamic ClassicMCTS comparison data")
+        raise SystemExit(
+            "dynamic budget comparison requires truthful fixed-vs-dynamic ClassicMCTS comparison data"
+        )
     return result
 
 
@@ -234,8 +291,13 @@ def promotion_check(checks: list[dict], check_id: str) -> dict | None:
     return None
 
 
-def scheduled_value_trust_active(*, value_trust_summary: dict | None, arena_report: dict | None = None) -> bool:
-    if isinstance(value_trust_summary, dict) and value_trust_summary.get("enabled") is True:
+def scheduled_value_trust_active(
+    *, value_trust_summary: dict | None, arena_report: dict | None = None
+) -> bool:
+    if (
+        isinstance(value_trust_summary, dict)
+        and value_trust_summary.get("enabled") is True
+    ):
         return True
     if not isinstance(arena_report, dict):
         return False
@@ -246,10 +308,18 @@ def scheduled_value_trust_active(*, value_trust_summary: dict | None, arena_repo
     if not isinstance(search_options, dict):
         return False
     value_trust_schedule = search_options.get("value_trust_schedule")
-    return bool(isinstance(value_trust_schedule, dict) and value_trust_schedule.get("enabled") is True)
+    return bool(
+        isinstance(value_trust_schedule, dict)
+        and value_trust_schedule.get("enabled") is True
+    )
 
 
-def build_value_trust_recommendation(*, checks: list[dict], value_trust_summary: dict | None, arena_report: dict | None = None) -> dict | None:
+def build_value_trust_recommendation(
+    *,
+    checks: list[dict],
+    value_trust_summary: dict | None,
+    arena_report: dict | None = None,
+) -> dict | None:
     arena_check = promotion_check(checks, "promotion_arena")
     mcts_check = promotion_check(checks, "mcts1200_gate")
     if arena_check is None or mcts_check is None:
@@ -278,7 +348,11 @@ def build_value_trust_recommendation(*, checks: list[dict], value_trust_summary:
 
     if not arena_passed or not mcts_passed:
         decision = "drop"
-        drop_target = "scheduled value trust" if scheduled_trust_active else "the uniform value-trust path"
+        drop_target = (
+            "scheduled value trust"
+            if scheduled_trust_active
+            else "the uniform value-trust path"
+        )
         summary = (
             f"Drop {drop_target}: promotion checks did not clear. "
             f"Arena score {arena_check.get('score')} {'passed' if arena_passed else 'did not clear'} its gate; "
@@ -341,7 +415,9 @@ def build_promotion_checks_from_reports(
     declared = bool(arena.get("promotion_decision", {}).get("passed", False))
     check_passed = bool(arena_result["passed"])
 
-    mcts_games, mcts_wins, mcts_losses, mcts_draws = validate_mcts_report(mcts, "mcts report")
+    mcts_games, mcts_wins, mcts_losses, mcts_draws = validate_mcts_report(
+        mcts, "mcts report"
+    )
     mcts_score = (mcts_wins + (0.5 * mcts_draws)) / mcts_games
     mcts_passed = mcts_score >= float(min_mcts_score)
 
@@ -360,7 +436,9 @@ def build_promotion_checks_from_reports(
     if min_confidence_lower_bound is not None:
         arena_check.update(
             {
-                "confidence_lower_bound": round(float(arena_result["confidence_lower_bound"]), 4),
+                "confidence_lower_bound": round(
+                    float(arena_result["confidence_lower_bound"]), 4
+                ),
                 "confidence_passed": bool(arena_result["confidence_passed"]),
                 "min_confidence_lower_bound": float(min_confidence_lower_bound),
             }
@@ -379,9 +457,11 @@ def build_promotion_checks_from_reports(
     }
 
     if current_baseline_mcts_report is not None:
-        baseline_games, baseline_wins, _baseline_losses, baseline_draws = validate_mcts_report(
-            current_baseline_mcts_report,
-            "current baseline mcts report",
+        baseline_games, baseline_wins, _baseline_losses, baseline_draws = (
+            validate_mcts_report(
+                current_baseline_mcts_report,
+                "current baseline mcts report",
+            )
         )
         baseline_score = (baseline_wins + (0.5 * baseline_draws)) / baseline_games
         mcts_check.update(
@@ -402,9 +482,13 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
         return checks_for_mode("promotion")
 
     if not args.arena_report:
-        raise SystemExit("--arena-report is required for promotion mode when not using --dry-run")
+        raise SystemExit(
+            "--arena-report is required for promotion mode when not using --dry-run"
+        )
     if not args.mcts_report:
-        raise SystemExit("--mcts-report is required for promotion mode when not using --dry-run")
+        raise SystemExit(
+            "--mcts-report is required for promotion mode when not using --dry-run"
+        )
 
     arena_path = Path(args.arena_report)
     if not arena_path.exists():
@@ -420,7 +504,9 @@ def promotion_checks(args: argparse.Namespace) -> list[dict]:
     if args.current_baseline_mcts_report:
         baseline_mcts_path = Path(args.current_baseline_mcts_report)
         if not baseline_mcts_path.exists():
-            raise SystemExit(f"current baseline mcts report not found: {baseline_mcts_path}")
+            raise SystemExit(
+                f"current baseline mcts report not found: {baseline_mcts_path}"
+            )
         baseline_mcts = json.loads(baseline_mcts_path.read_text(encoding="utf-8"))
 
     checks = build_promotion_checks_from_reports(
@@ -449,7 +535,9 @@ def build_report(args: argparse.Namespace) -> dict:
         checks = promotion_checks(args)
         if not args.dry_run and args.arena_report:
             arena = json.loads(Path(args.arena_report).read_text(encoding="utf-8"))
-            opening_cache_summary = opening_cache_summary_fields(arena.get("opening_cache_summary"))
+            opening_cache_summary = opening_cache_summary_fields(
+                arena.get("opening_cache_summary")
+            )
             value_trust_summary = arena.get("value_trust_summary")
         value_trust_recommendation = build_value_trust_recommendation(
             checks=checks,
@@ -465,24 +553,41 @@ def build_report(args: argparse.Namespace) -> dict:
                 "candidate": mcts.get("classic_mcts_dynamic_budget_config"),
             }
             if args.current_baseline_mcts_report:
-                baseline_mcts = json.loads(Path(args.current_baseline_mcts_report).read_text(encoding="utf-8"))
-                dynamic_budget_metric_source["baseline"] = baseline_mcts.get("budget_summary", {}).get("source")
-                classic_mcts_dynamic_budget_config["baseline"] = baseline_mcts.get("classic_mcts_dynamic_budget_config")
-                candidate_comparison_mode = mcts.get("comparison_mode")
-                candidate_dynamic_budget_config = mcts.get("classic_mcts_dynamic_budget_config")
-                candidate_dynamic_budget_enabled = isinstance(candidate_dynamic_budget_config, dict) and bool(
-                    candidate_dynamic_budget_config.get("enabled")
+                baseline_mcts = json.loads(
+                    Path(args.current_baseline_mcts_report).read_text(encoding="utf-8")
                 )
-                should_validate_dynamic_budget = candidate_comparison_mode is not None or candidate_dynamic_budget_enabled
+                dynamic_budget_metric_source["baseline"] = baseline_mcts.get(
+                    "budget_summary", {}
+                ).get("source")
+                classic_mcts_dynamic_budget_config["baseline"] = baseline_mcts.get(
+                    "classic_mcts_dynamic_budget_config"
+                )
+                candidate_comparison_mode = mcts.get("comparison_mode")
+                candidate_dynamic_budget_config = mcts.get(
+                    "classic_mcts_dynamic_budget_config"
+                )
+                candidate_dynamic_budget_enabled = isinstance(
+                    candidate_dynamic_budget_config, dict
+                ) and bool(candidate_dynamic_budget_config.get("enabled"))
+                should_validate_dynamic_budget = (
+                    candidate_comparison_mode is not None
+                    or candidate_dynamic_budget_enabled
+                )
                 if should_validate_dynamic_budget:
-                    dynamic_budget = dynamic_budget_comparison(mcts, baseline_mcts, strict=True)
+                    dynamic_budget = dynamic_budget_comparison(
+                        mcts, baseline_mcts, strict=True
+                    )
         if not args.dry_run and args.forensic_report:
             forensic_path = Path(args.forensic_report)
             if not forensic_path.exists():
                 raise SystemExit(f"forensic report not found: {forensic_path}")
 
             forensic_report = json.loads(forensic_path.read_text(encoding="utf-8"))
-            forensic_quality = load_local_promotion_gate_module().evaluate_forensic_quality(forensic_report)
+            forensic_quality = (
+                load_local_promotion_gate_module().evaluate_forensic_quality(
+                    forensic_report
+                )
+            )
             checks.append(
                 {
                     "id": "forensic_quality_gate",
@@ -550,7 +655,9 @@ def build_report_from_inputs(
         "arena_report": arena_report,
         "mcts_report": mcts_report,
         "current_baseline_mcts_report": current_baseline_mcts_report,
-        "opening_cache_summary": opening_cache_summary_fields(resolved_opening_cache_summary),
+        "opening_cache_summary": opening_cache_summary_fields(
+            resolved_opening_cache_summary
+        ),
         "checks": checks,
     }
     if value_trust_summary is not None:

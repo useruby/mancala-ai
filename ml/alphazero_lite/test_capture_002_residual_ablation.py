@@ -97,7 +97,9 @@ class Capture002ResidualAblationContractTest(unittest.TestCase):
             Path("/tmp/prior_pressure_audit.json"),
             args.source_prior_pressure_audit_artifact,
         )
-        self.assertEqual(Path("/tmp/default.json"), args.source_selection_score_artifact)
+        self.assertEqual(
+            Path("/tmp/default.json"), args.source_selection_score_artifact
+        )
         self.assertEqual(
             Path("/tmp/relaxed.json"),
             args.source_threshold_relaxed_selection_score_artifact,
@@ -186,7 +188,9 @@ class Capture002ResidualAblationTestSupport:
             "selected_artifact": self.selected_artifact(),
         }
 
-    def trace_point(self, *, simulation: float, moves: list[dict], visits: list[float]) -> dict:
+    def trace_point(
+        self, *, simulation: float, moves: list[dict], visits: list[float]
+    ) -> dict:
         return {
             "simulation": simulation,
             "selected_move": 0,
@@ -223,7 +227,9 @@ class Capture002ResidualAblationTestSupport:
             "decision": module.EXPECTED_TRACE_DECISION,
             "insufficiency_reasons": [],
             "trace_origin": trace_origin,
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
             "thresholds": copy.deepcopy(thresholds),
             "trace_points": copy.deepcopy(trace_points),
         }
@@ -236,7 +242,9 @@ class Capture002ResidualAblationTestSupport:
                 "evidence_summary": "selection-score residual lead",
             },
             "decision": module.EXPECTED_PRIOR_PRESSURE_DECISION,
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
         }
 
     def residual_audit_artifact(self, *, source_artifact: dict | None = None) -> dict:
@@ -253,7 +261,9 @@ class Capture002ResidualAblationTestSupport:
                 "source_selection_score_artifact_path": "/tmp/default.json",
                 "source_threshold_relaxed_selection_score_artifact_path": "/tmp/relaxed.json",
             },
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
             "checkpoint": {
                 "canonical_simulation": module.EXPECTED_CANONICAL_SIMULATION,
                 "default_upstream_checkpoint_echo": {
@@ -279,7 +289,9 @@ class Capture002ResidualAblationTestSupport:
                 "float_tolerance": 1e-12,
             },
             "source_snapshots": {
-                "metric_audit_classification": {"classification": "early_selection_score_only"},
+                "metric_audit_classification": {
+                    "classification": "early_selection_score_only"
+                },
                 "default_trace_classification": {"classification": "unresolved"},
                 "relaxed_trace_classification": {"classification": "unresolved"},
             },
@@ -326,7 +338,9 @@ class Capture002ResidualAblationBuildPayloadHappyPathTest(
     unittest.TestCase,
 ):
     def test_build_payload_returns_initial_summary_skeleton(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         payload = module.build_payload(
             residual_audit,
@@ -346,7 +360,11 @@ class Capture002ResidualAblationBuildPayloadHappyPathTest(
             payload["classification"]["classification"],
         )
         self.assertEqual(
-            ["baseline_replay", "selected_residual_neutralized", "all_residuals_flattened"],
+            [
+                "baseline_replay",
+                "selected_residual_neutralized",
+                "all_residuals_flattened",
+            ],
             [entry["mode"] for entry in payload["mode_results"]],
         )
         self.assertEqual(
@@ -366,12 +384,27 @@ class Capture002ResidualAblationBuildPayloadHappyPathTest(
         self.assertEqual("ok", payload["mode_results"][0]["validation_status"])
         self.assertTrue(payload["mode_results"][0]["preserved_move_zero"])
         self.assertIsNone(payload["mode_results"][0]["failure_reason"])
-        self.assertEqual("no ablation edit applied", payload["mode_results"][0]["applied_edit_summary"])
+        self.assertEqual(
+            "no ablation edit applied",
+            payload["mode_results"][0]["applied_edit_summary"],
+        )
         self.assertEqual(0, payload["mode_comparison"]["baseline_selected_move"])
-        self.assertEqual(0, payload["mode_comparison"]["selected_residual_neutralized_selected_move"])
-        self.assertEqual(0, payload["mode_comparison"]["all_residuals_flattened_selected_move"])
-        self.assertFalse(payload["mode_comparison"]["selected_residual_neutralized_changed_away_from_baseline"])
-        self.assertFalse(payload["mode_comparison"]["all_residuals_flattened_changed_away_from_baseline"])
+        self.assertEqual(
+            0, payload["mode_comparison"]["selected_residual_neutralized_selected_move"]
+        )
+        self.assertEqual(
+            0, payload["mode_comparison"]["all_residuals_flattened_selected_move"]
+        )
+        self.assertFalse(
+            payload["mode_comparison"][
+                "selected_residual_neutralized_changed_away_from_baseline"
+            ]
+        )
+        self.assertFalse(
+            payload["mode_comparison"][
+                "all_residuals_flattened_changed_away_from_baseline"
+            ]
+        )
         self.assertEqual(
             {
                 "schema",
@@ -389,9 +422,15 @@ class Capture002ResidualAblationBuildPayloadHappyPathTest(
             set(payload.keys()),
         )
 
-    def test_build_payload_rebuilds_checkpoint_payload_from_canonical_trace_lookup(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        residual_audit["checkpoint"]["default_upstream_checkpoint_echo"]["selection_score_margin"] = 999.0
+    def test_build_payload_rebuilds_checkpoint_payload_from_canonical_trace_lookup(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        residual_audit["checkpoint"]["default_upstream_checkpoint_echo"][
+            "selection_score_margin"
+        ] = 999.0
         default_trace["trace_points"][1]["moves"][0]["selection_score"] = 0.11
         relaxed_trace["trace_points"][1]["moves"][0]["selection_score"] = 0.12
 
@@ -458,7 +497,9 @@ class Capture002ResidualAblationModeExecutionTest(
             visits=visits or [2.0, 0.0, 1.0, 0.0, 0.0],
         )
 
-    def build_payload_for_trace_points(self, *, default_trace_point: dict, relaxed_trace_point: dict | None = None):
+    def build_payload_for_trace_points(
+        self, *, default_trace_point: dict, relaxed_trace_point: dict | None = None
+    ):
         source_artifact = self.source_artifact_with_provenance()
         residual_audit = self.residual_audit_artifact(source_artifact=source_artifact)
         prior_pressure = self.prior_pressure_artifact(source_artifact=source_artifact)
@@ -483,7 +524,9 @@ class Capture002ResidualAblationModeExecutionTest(
             source_threshold_relaxed_selection_score_artifact_path="/tmp/relaxed.json",
         )
 
-    def test_build_payload_classifies_selected_move_residual_sensitive_when_ablation_changes_move(self):
+    def test_build_payload_classifies_selected_move_residual_sensitive_when_ablation_changes_move(
+        self,
+    ):
         payload = self.build_payload_for_trace_points(
             default_trace_point=self.canonical_trace_point(
                 selected_selection_score=0.09,
@@ -493,16 +536,25 @@ class Capture002ResidualAblationModeExecutionTest(
             )
         )
 
-        self.assertEqual("selected_move_residual_sensitive", payload["classification"]["classification"])
+        self.assertEqual(
+            "selected_move_residual_sensitive",
+            payload["classification"]["classification"],
+        )
         self.assertEqual(
             "write_002_residual_sensitive_intervention_spec",
             payload["decision"],
         )
         self.assertEqual(0, payload["mode_comparison"]["baseline_selected_move"])
-        self.assertEqual(2, payload["mode_comparison"]["selected_residual_neutralized_selected_move"])
-        self.assertEqual(2, payload["mode_comparison"]["all_residuals_flattened_selected_move"])
+        self.assertEqual(
+            2, payload["mode_comparison"]["selected_residual_neutralized_selected_move"]
+        )
+        self.assertEqual(
+            2, payload["mode_comparison"]["all_residuals_flattened_selected_move"]
+        )
 
-    def test_build_payload_classifies_selected_move_residual_insensitive_when_all_modes_preserve_move_zero(self):
+    def test_build_payload_classifies_selected_move_residual_insensitive_when_all_modes_preserve_move_zero(
+        self,
+    ):
         payload = self.build_payload_for_trace_points(
             default_trace_point=self.canonical_trace_point(
                 selected_selection_score=0.07,
@@ -512,7 +564,10 @@ class Capture002ResidualAblationModeExecutionTest(
             )
         )
 
-        self.assertEqual("selected_move_residual_insensitive", payload["classification"]["classification"])
+        self.assertEqual(
+            "selected_move_residual_insensitive",
+            payload["classification"]["classification"],
+        )
         self.assertEqual(
             "write_002_non_residual_mechanism_review_spec",
             payload["decision"],
@@ -522,7 +577,9 @@ class Capture002ResidualAblationModeExecutionTest(
             [entry["selected_move"] for entry in payload["mode_results"]],
         )
 
-    def test_build_payload_classifies_selected_move_residual_ablation_inconclusive_when_baseline_selects_non_zero(self):
+    def test_build_payload_classifies_selected_move_residual_ablation_inconclusive_when_baseline_selects_non_zero(
+        self,
+    ):
         payload = self.build_payload_for_trace_points(
             default_trace_point=self.canonical_trace_point(
                 selected_selection_score=0.05,
@@ -542,7 +599,9 @@ class Capture002ResidualAblationModeExecutionTest(
         )
         self.assertEqual(2, payload["mode_comparison"]["baseline_selected_move"])
 
-    def test_build_payload_selected_residual_neutralized_still_edits_move_zero_when_baseline_drifts(self):
+    def test_build_payload_selected_residual_neutralized_still_edits_move_zero_when_baseline_drifts(
+        self,
+    ):
         payload = self.build_payload_for_trace_points(
             default_trace_point=self.canonical_trace_point(
                 selected_selection_score=0.05,
@@ -553,13 +612,17 @@ class Capture002ResidualAblationModeExecutionTest(
         )
 
         self.assertEqual(2, payload["mode_comparison"]["baseline_selected_move"])
-        self.assertEqual(2, payload["mode_comparison"]["selected_residual_neutralized_selected_move"])
+        self.assertEqual(
+            2, payload["mode_comparison"]["selected_residual_neutralized_selected_move"]
+        )
         self.assertEqual(
             "selected_residual_neutralized changed away from move 0",
             payload["mode_results"][1]["evidence_summary"],
         )
 
-    def test_build_payload_rejects_all_residuals_flattened_when_any_legal_move_lacks_usable_residual_evidence(self):
+    def test_build_payload_rejects_all_residuals_flattened_when_any_legal_move_lacks_usable_residual_evidence(
+        self,
+    ):
         with self.assertRaisesRegex(
             ValueError,
             "all_residuals_flattened requires usable residual evidence for every legal move",
@@ -610,7 +673,9 @@ class Capture002ResidualAblationModeExecutionTest(
                 source_threshold_relaxed_selection_score_artifact_path="/tmp/relaxed.json",
             )
 
-    def test_build_payload_classifies_inconclusive_when_branches_disagree_on_baseline(self):
+    def test_build_payload_classifies_inconclusive_when_branches_disagree_on_baseline(
+        self,
+    ):
         payload = self.build_payload_for_trace_points(
             default_trace_point=self.canonical_trace_point(
                 selected_selection_score=0.07,
@@ -663,18 +728,25 @@ class Capture002ResidualAblationValidationTest(
         )
 
     def test_build_payload_rejects_wrong_residual_audit_schema(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         residual_audit["schema"] = "wrong"
 
-        with self.assertRaisesRegex(ValueError, "selection-score residual audit artifact has wrong schema"):
+        with self.assertRaisesRegex(
+            ValueError, "selection-score residual audit artifact has wrong schema"
+        ):
             self.build_payload(
                 residual_audit=residual_audit,
                 prior_pressure=prior_pressure,
                 default_trace=default_trace,
                 relaxed_trace=relaxed_trace,
             )
+
     def test_build_payload_rejects_wrong_residual_audit_classification(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         residual_audit["classification"]["classification"] = "wrong"
 
         with self.assertRaisesRegex(
@@ -689,7 +761,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_non_canonical_residual_audit_checkpoint(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         residual_audit["checkpoint"]["canonical_simulation"] = 1.0
 
         with self.assertRaisesRegex(
@@ -704,7 +778,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_wrong_residual_audit_decision(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         residual_audit["decision"] = "wrong"
 
         with self.assertRaisesRegex(
@@ -718,9 +794,15 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_residual_audit_input_prior_pressure_path_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        residual_audit["input_artifacts"]["source_prior_pressure_audit_artifact_path"] = "/tmp/other.json"
+    def test_build_payload_rejects_residual_audit_input_prior_pressure_path_mismatch(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        residual_audit["input_artifacts"][
+            "source_prior_pressure_audit_artifact_path"
+        ] = "/tmp/other.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -733,12 +815,18 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rebuilds_thresholds_and_trace_snapshots_from_validated_inputs_only(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rebuilds_thresholds_and_trace_snapshots_from_validated_inputs_only(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         residual_audit["thresholds_evaluated"] = {"stale": True}
         residual_audit["source_snapshots"] = {
             "stale": True,
-            "metric_audit_classification": {"classification": "early_selection_score_only"},
+            "metric_audit_classification": {
+                "classification": "early_selection_score_only"
+            },
         }
         default_trace["trace_origin"] = "default-live"
         relaxed_trace["trace_origin"] = "relaxed-live"
@@ -760,7 +848,9 @@ class Capture002ResidualAblationValidationTest(
         )
         self.assertEqual(
             {
-                "metric_audit_classification": {"classification": "early_selection_score_only"},
+                "metric_audit_classification": {
+                    "classification": "early_selection_score_only"
+                },
                 "default_trace_classification": default_trace["classification"],
                 "relaxed_trace_classification": relaxed_trace["classification"],
                 "default_trace_origin": "default-live",
@@ -770,10 +860,14 @@ class Capture002ResidualAblationValidationTest(
         )
 
     def test_build_payload_rejects_wrong_prior_pressure_schema(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         prior_pressure["schema"] = "wrong"
 
-        with self.assertRaisesRegex(ValueError, "prior-pressure audit artifact has wrong schema"):
+        with self.assertRaisesRegex(
+            ValueError, "prior-pressure audit artifact has wrong schema"
+        ):
             self.build_payload(
                 residual_audit=residual_audit,
                 prior_pressure=prior_pressure,
@@ -782,7 +876,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_wrong_prior_pressure_classification(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         prior_pressure["classification"] = {"classification": "wrong"}
 
         with self.assertRaisesRegex(
@@ -797,7 +893,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_wrong_prior_pressure_decision(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         prior_pressure["decision"] = "wrong"
 
         with self.assertRaisesRegex(
@@ -812,7 +910,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_wrong_default_trace_classification(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["classification"]["classification"] = "wrong"
 
         with self.assertRaisesRegex(
@@ -827,7 +927,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_wrong_relaxed_trace_decision(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["decision"] = "wrong"
 
         with self.assertRaisesRegex(
@@ -842,7 +944,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_missing_default_trace_trace_origin(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         del default_trace["trace_origin"]
 
         with self.assertRaisesRegex(
@@ -856,8 +960,12 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_non_numeric_relaxed_trace_material_selection_score_margin(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_non_numeric_relaxed_trace_material_selection_score_margin(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["thresholds"]["material_selection_score_margin"] = "wrong"
 
         with self.assertRaisesRegex(
@@ -872,7 +980,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_default_trace_missing_canonical_checkpoint(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["trace_points"] = [
             trace_point
             for trace_point in default_trace["trace_points"]
@@ -891,7 +1001,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_conflicting_duplicate_non_canonical_checkpoint(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         duplicate_default_trace_point = copy.deepcopy(default_trace["trace_points"][0])
         duplicate_default_trace_point["moves"][0]["selection_score"] = 0.08
         default_trace["trace_points"].insert(1, duplicate_default_trace_point)
@@ -907,8 +1019,12 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_conflicting_duplicate_canonical_checkpoint_without_canonicalization(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_conflicting_duplicate_canonical_checkpoint_without_canonicalization(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         duplicate_default_trace_point = copy.deepcopy(default_trace["trace_points"][1])
         duplicate_default_trace_point["moves"][0]["selection_score"] = 0.08
         default_trace["trace_points"].append(duplicate_default_trace_point)
@@ -924,9 +1040,15 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_equivalent_duplicate_canonical_checkpoint_without_canonicalization(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        default_trace["trace_points"].append(copy.deepcopy(default_trace["trace_points"][1]))
+    def test_build_payload_rejects_equivalent_duplicate_canonical_checkpoint_without_canonicalization(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        default_trace["trace_points"].append(
+            copy.deepcopy(default_trace["trace_points"][1])
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -939,8 +1061,12 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_accepts_default_canonical_trace_point_selected_move_metadata_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_accepts_default_canonical_trace_point_selected_move_metadata_mismatch(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["trace_points"][1]["selected_move"] = 2
 
         payload = self.build_payload(
@@ -952,8 +1078,12 @@ class Capture002ResidualAblationValidationTest(
 
         self.assertEqual(module.SCHEMA, payload["schema"])
 
-    def test_build_payload_rejects_relaxed_canonical_trace_point_reference_move_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_relaxed_canonical_trace_point_reference_move_mismatch(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["trace_points"][1]["reference_move_by_prior"] = 0
 
         with self.assertRaisesRegex(
@@ -968,7 +1098,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_path_only_canonicalization_hint(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         duplicate_default_trace_point = copy.deepcopy(default_trace["trace_points"][1])
         duplicate_default_trace_point["moves"][0]["selection_score"] = 0.08
         default_trace["trace_points"].append(duplicate_default_trace_point)
@@ -990,8 +1122,12 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_prior_pressure_source_artifact_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["source_artifact"]["selected_artifact"]["selected_target"] = "/tmp/source/other-selected"
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        prior_pressure["source_artifact"]["selected_artifact"]["selected_target"] = (
+            "/tmp/source/other-selected"
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1004,8 +1140,12 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_prior_pressure_source_artifact_provenance_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_prior_pressure_source_artifact_provenance_mismatch(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         prior_pressure["source_artifact"]["artifact_path"] = "/tmp/other-upstream.json"
 
         with self.assertRaisesRegex(
@@ -1020,7 +1160,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_default_trace_source_artifact_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["source_artifact"]["reference_move"] = 4
 
         with self.assertRaisesRegex(
@@ -1035,7 +1177,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_relaxed_trace_source_artifact_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["source_artifact"]["full_search_selected_move"] = 4
 
         with self.assertRaisesRegex(
@@ -1049,10 +1193,16 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_supplied_canonicalization_artifact_wrong_schema(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_supplied_canonicalization_artifact_wrong_schema(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
-        with self.assertRaisesRegex(ValueError, "checkpoint canonicalization artifact has wrong schema"):
+        with self.assertRaisesRegex(
+            ValueError, "checkpoint canonicalization artifact has wrong schema"
+        ):
             module.build_payload(
                 residual_audit,
                 prior_pressure,
@@ -1066,8 +1216,12 @@ class Capture002ResidualAblationValidationTest(
                 checkpoint_canonicalization_artifact={"schema": "wrong"},
             )
 
-    def test_build_payload_echoes_supplied_canonicalization_path_into_input_artifacts(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_echoes_supplied_canonicalization_path_into_input_artifacts(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         payload = module.build_payload(
             residual_audit,
@@ -1082,7 +1236,10 @@ class Capture002ResidualAblationValidationTest(
                 "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                 "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                 "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                "canonical_checkpoint_sequences": {
+                    "default": [1.0, 2.0],
+                    "relaxed": [1.0, 2.0],
+                },
                 "canonicalization_status": {"safe_for_followup_spec": True},
                 "canonical_sequences_match": True,
             },
@@ -1091,11 +1248,17 @@ class Capture002ResidualAblationValidationTest(
 
         self.assertEqual(
             "/tmp/canonicalization.json",
-            payload["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"],
+            payload["input_artifacts"][
+                "source_checkpoint_canonicalization_artifact_path"
+            ],
         )
 
-    def test_build_payload_rejects_canonicalization_path_without_canonicalization_artifact(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_canonicalization_path_without_canonicalization_artifact(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1113,8 +1276,12 @@ class Capture002ResidualAblationValidationTest(
                 source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_canonicalization_artifact_without_canonicalization_path(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_canonicalization_artifact_without_canonicalization_path(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1133,14 +1300,19 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0, 2.0],
+                        "relaxed": [1.0, 2.0],
+                    },
                     "canonicalization_status": {"safe_for_followup_spec": True},
                     "canonical_sequences_match": True,
                 },
             )
 
     def test_build_payload_rejects_wrong_canonicalization_decision(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1160,14 +1332,21 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": "wrong",
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0, 2.0],
+                        "relaxed": [1.0, 2.0],
+                    },
                 },
             )
 
     def test_build_payload_rejects_canonicalization_source_identity_mismatch(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         mismatched_source_artifact = copy.deepcopy(residual_audit["source_artifact"])
-        mismatched_source_artifact["selected_artifact"]["selected_target"] = "/tmp/source/mismatch"
+        mismatched_source_artifact["selected_artifact"]["selected_target"] = (
+            "/tmp/source/mismatch"
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1187,12 +1366,19 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": mismatched_source_artifact,
-                    "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0, 2.0],
+                        "relaxed": [1.0, 2.0],
+                    },
                 },
             )
 
-    def test_build_payload_rejects_canonicalization_artifact_missing_canonical_2_sequence(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_canonicalization_artifact_missing_canonical_2_sequence(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1212,14 +1398,21 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [1.0], "relaxed": [1.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0],
+                        "relaxed": [1.0],
+                    },
                     "canonicalization_status": {"safe_for_followup_spec": True},
                     "canonical_sequences_match": True,
                 },
             )
 
-    def test_build_payload_rejects_missing_canonicalization_safe_for_followup_spec(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_missing_canonicalization_safe_for_followup_spec(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1239,14 +1432,19 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0, 2.0],
+                        "relaxed": [1.0, 2.0],
+                    },
                     "canonicalization_status": {},
                     "canonical_sequences_match": True,
                 },
             )
 
     def test_build_payload_rejects_false_canonical_sequences_match(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1266,14 +1464,21 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0, 2.0],
+                        "relaxed": [1.0, 2.0],
+                    },
                     "canonicalization_status": {"safe_for_followup_spec": True},
                     "canonical_sequences_match": False,
                 },
             )
 
-    def test_build_payload_rejects_canonical_sequences_that_do_not_align_with_supplied_traces(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_canonical_sequences_that_do_not_align_with_supplied_traces(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1293,14 +1498,21 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [2.0], "relaxed": [2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [2.0],
+                        "relaxed": [2.0],
+                    },
                     "canonicalization_status": {"safe_for_followup_spec": True},
                     "canonical_sequences_match": True,
                 },
             )
 
-    def test_build_payload_rejects_conflicting_duplicate_checkpoint_with_valid_canonicalization(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_conflicting_duplicate_checkpoint_with_valid_canonicalization(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         duplicate_default_trace_point = copy.deepcopy(default_trace["trace_points"][1])
         duplicate_default_trace_point["moves"][0]["selection_score"] = 0.08
         default_trace["trace_points"].append(duplicate_default_trace_point)
@@ -1323,14 +1535,21 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0, 2.0],
+                        "relaxed": [1.0, 2.0],
+                    },
                     "canonicalization_status": {"safe_for_followup_spec": True},
                     "canonical_sequences_match": True,
                 },
             )
 
-    def test_build_payload_accepts_equivalent_duplicate_checkpoint_with_valid_canonicalization(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_accepts_equivalent_duplicate_checkpoint_with_valid_canonicalization(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         duplicate_default_trace_point = copy.deepcopy(default_trace["trace_points"][1])
         duplicate_default_trace_point["simulation"] = 2
         duplicate_default_trace_point["visits"] = [2, 0, 1, 0, 0]
@@ -1354,7 +1573,10 @@ class Capture002ResidualAblationValidationTest(
                 "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                 "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                 "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                "canonical_checkpoint_sequences": {"default": [1.0, 2.0], "relaxed": [1.0, 2.0]},
+                "canonical_checkpoint_sequences": {
+                    "default": [1.0, 2.0],
+                    "relaxed": [1.0, 2.0],
+                },
                 "canonicalization_status": {"safe_for_followup_spec": True},
                 "canonical_sequences_match": True,
             },
@@ -1362,8 +1584,12 @@ class Capture002ResidualAblationValidationTest(
 
         self.assertEqual(module.SCHEMA, payload["schema"])
 
-    def test_build_payload_rejects_non_contiguous_duplicate_checkpoint_with_valid_canonicalization(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_non_contiguous_duplicate_checkpoint_with_valid_canonicalization(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["trace_points"] = [
             default_trace["trace_points"][0],
             default_trace["trace_points"][1],
@@ -1396,14 +1622,19 @@ class Capture002ResidualAblationValidationTest(
                     "schema": module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
                     "decision": module.EXPECTED_CANONICALIZATION_DECISION,
                     "source_artifact": copy.deepcopy(residual_audit["source_artifact"]),
-                    "canonical_checkpoint_sequences": {"default": [1.0, 2.0, 3.0], "relaxed": [1.0, 2.0]},
+                    "canonical_checkpoint_sequences": {
+                        "default": [1.0, 2.0, 3.0],
+                        "relaxed": [1.0, 2.0],
+                    },
                     "canonicalization_status": {"safe_for_followup_spec": True},
                     "canonical_sequences_match": True,
                 },
             )
 
     def test_build_payload_rejects_source_artifact_metadata_drift(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         prior_pressure["source_artifact"]["metadata_note"] = "harmless"
         default_trace["source_artifact"]["trace_label"] = "default-copy"
         relaxed_trace["source_artifact"]["trace_label"] = "relaxed-copy"
@@ -1420,7 +1651,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_boolean_prior_pressure_reference_move(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         prior_pressure["source_artifact"]["reference_move"] = False
 
         with self.assertRaisesRegex(
@@ -1435,7 +1668,9 @@ class Capture002ResidualAblationValidationTest(
             )
 
     def test_build_payload_rejects_boolean_default_trace_reference_move(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["source_artifact"]["reference_move"] = False
 
         with self.assertRaisesRegex(
@@ -1449,8 +1684,12 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_boolean_prior_pressure_full_search_selected_move(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_boolean_prior_pressure_full_search_selected_move(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         prior_pressure["source_artifact"]["full_search_selected_move"] = True
 
         with self.assertRaisesRegex(
@@ -1464,8 +1703,12 @@ class Capture002ResidualAblationValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_boolean_relaxed_trace_full_search_selected_move(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_boolean_relaxed_trace_full_search_selected_move(
+        self,
+    ):
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["source_artifact"]["full_search_selected_move"] = True
 
         with self.assertRaisesRegex(
@@ -1489,7 +1732,9 @@ class Capture002ResidualAblationMainTest(
         path.write_text(json.dumps(payload), encoding="utf-8")
 
     def test_main_writes_sorted_json_to_out_and_prints_compact_summary(self):
-        residual_audit, prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
+        residual_audit, prior_pressure, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
@@ -1498,12 +1743,12 @@ class Capture002ResidualAblationMainTest(
             default_trace_path = tmpdir_path / "default_trace.json"
             relaxed_trace_path = tmpdir_path / "relaxed_trace.json"
             out_path = tmpdir_path / "nested" / "out.json"
-            residual_audit["input_artifacts"]["source_prior_pressure_audit_artifact_path"] = str(
-                prior_pressure_path
-            )
-            residual_audit["input_artifacts"]["source_selection_score_artifact_path"] = str(
-                default_trace_path
-            )
+            residual_audit["input_artifacts"][
+                "source_prior_pressure_audit_artifact_path"
+            ] = str(prior_pressure_path)
+            residual_audit["input_artifacts"][
+                "source_selection_score_artifact_path"
+            ] = str(default_trace_path)
             residual_audit["input_artifacts"][
                 "source_threshold_relaxed_selection_score_artifact_path"
             ] = str(relaxed_trace_path)
@@ -1567,8 +1812,10 @@ class Capture002ResidualAblationLiveArtifactSmokeTest(unittest.TestCase):
                     continue
                 if (
                     isinstance(payload, dict)
-                    and payload.get("schema") == module.SOURCE_SELECTION_SCORE_RESIDUAL_AUDIT_SCHEMA
-                    and payload.get("source_artifact", {}).get("row_id") == module.ROW_ID
+                    and payload.get("schema")
+                    == module.SOURCE_SELECTION_SCORE_RESIDUAL_AUDIT_SCHEMA
+                    and payload.get("source_artifact", {}).get("row_id")
+                    == module.ROW_ID
                 ):
                     matching_paths.append(path)
 
@@ -1605,15 +1852,35 @@ class Capture002ResidualAblationLiveArtifactSmokeTest(unittest.TestCase):
 
         for residual_audit_path in matching_paths:
             with self.subTest(residual_audit_path=str(residual_audit_path)):
-                residual_audit = json.loads(residual_audit_path.read_text(encoding="utf-8"))
+                residual_audit = json.loads(
+                    residual_audit_path.read_text(encoding="utf-8")
+                )
                 input_artifacts = residual_audit.get("input_artifacts", {})
                 try:
                     payload = module.build_payload(
                         residual_audit,
-                        module.load_json(Path(input_artifacts["source_prior_pressure_audit_artifact_path"])),
-                        module.load_json(Path(input_artifacts["source_selection_score_artifact_path"])),
-                        module.load_json(Path(input_artifacts["source_threshold_relaxed_selection_score_artifact_path"])),
-                        source_selection_score_residual_audit_artifact_path=str(residual_audit_path),
+                        module.load_json(
+                            Path(
+                                input_artifacts[
+                                    "source_prior_pressure_audit_artifact_path"
+                                ]
+                            )
+                        ),
+                        module.load_json(
+                            Path(
+                                input_artifacts["source_selection_score_artifact_path"]
+                            )
+                        ),
+                        module.load_json(
+                            Path(
+                                input_artifacts[
+                                    "source_threshold_relaxed_selection_score_artifact_path"
+                                ]
+                            )
+                        ),
+                        source_selection_score_residual_audit_artifact_path=str(
+                            residual_audit_path
+                        ),
                         source_prior_pressure_audit_artifact_path=input_artifacts[
                             "source_prior_pressure_audit_artifact_path"
                         ],
@@ -1627,12 +1894,17 @@ class Capture002ResidualAblationLiveArtifactSmokeTest(unittest.TestCase):
                 except (FileNotFoundError, KeyError, ValueError) as error:
                     self.assertTrue(
                         isinstance(error, (FileNotFoundError, KeyError))
-                        or any(fragment in str(error) for fragment in allowed_validation_error_fragments),
+                        or any(
+                            fragment in str(error)
+                            for fragment in allowed_validation_error_fragments
+                        ),
                         str(error),
                     )
                     continue
 
-                self.assertIn(payload["classification"]["classification"], allowed_classifications)
+                self.assertIn(
+                    payload["classification"]["classification"], allowed_classifications
+                )
 
 
 class Capture002ResidualAblationLiveArtifactSmokeBehaviorTest(unittest.TestCase):
@@ -1645,7 +1917,9 @@ class Capture002ResidualAblationLiveArtifactSmokeBehaviorTest(unittest.TestCase)
             with self.assertRaises(unittest.SkipTest):
                 smoke_test.test_live_row_002_residual_audit_artifact_is_discoverable()
 
-    def test_live_artifact_smoke_test_does_not_allow_selected_move_metadata_mismatch(self):
+    def test_live_artifact_smoke_test_does_not_allow_selected_move_metadata_mismatch(
+        self,
+    ):
         smoke_test = Capture002ResidualAblationLiveArtifactSmokeTest(
             "test_live_row_002_residual_audit_artifact_has_allowed_harness_outcome"
         )
@@ -1663,12 +1937,16 @@ class Capture002ResidualAblationLiveArtifactSmokeBehaviorTest(unittest.TestCase)
             "_discover_live_residual_audit_artifact_paths",
             return_value=[fake_path],
         ):
-            with mock.patch.object(Path, "read_text", return_value=json.dumps(residual_audit)):
+            with mock.patch.object(
+                Path, "read_text", return_value=json.dumps(residual_audit)
+            ):
                 with mock.patch.object(module, "load_json", return_value={}):
                     with mock.patch.object(
                         module,
                         "build_payload",
-                        side_effect=ValueError("default canonical trace point.selected_move must be 0"),
+                        side_effect=ValueError(
+                            "default canonical trace point.selected_move must be 0"
+                        ),
                     ):
                         with self.assertRaises(AssertionError):
                             smoke_test.test_live_row_002_residual_audit_artifact_has_allowed_harness_outcome()

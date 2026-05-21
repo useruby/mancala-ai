@@ -8,7 +8,11 @@ from pathlib import Path
 
 import numpy as np
 
-from ml.alphazero_lite.input_encodings import BASE_FEATURE_ORDER, KALAH_V3_EXTRA_FEATURE_ORDER, feature_count_for
+from ml.alphazero_lite.input_encodings import (
+    BASE_FEATURE_ORDER,
+    KALAH_V3_EXTRA_FEATURE_ORDER,
+    feature_count_for,
+)
 
 
 class ExportArtifactScriptTest(unittest.TestCase):
@@ -23,10 +27,14 @@ class ExportArtifactScriptTest(unittest.TestCase):
                 return str(candidate)
         return sys.executable
 
-    def write_synthetic_residual_v3_checkpoint(self, path: Path, *, include_value_head: bool = True) -> dict[str, np.ndarray]:
+    def write_synthetic_residual_v3_checkpoint(
+        self, path: Path, *, include_value_head: bool = True
+    ) -> dict[str, np.ndarray]:
         feature_count = feature_count_for("kalah_v3")
         checkpoint = {
-            "w_input": np.arange(feature_count * 4, dtype=np.float32).reshape(feature_count, 4),
+            "w_input": np.arange(feature_count * 4, dtype=np.float32).reshape(
+                feature_count, 4
+            ),
             "b_input": np.array([0.1, 0.2, 0.3, 0.4], dtype=np.float32),
             "w_residual_1_1": np.arange(16, dtype=np.float32).reshape(4, 4) + 10.0,
             "b_residual_1_1": np.array([1.0, 1.1, 1.2, 1.3], dtype=np.float32),
@@ -44,7 +52,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             "b_value": np.array([7.0], dtype=np.float32),
         }
         if include_value_head:
-            checkpoint["w_value_hidden"] = np.arange(12, dtype=np.float32).reshape(4, 3) + 80.0
+            checkpoint["w_value_hidden"] = (
+                np.arange(12, dtype=np.float32).reshape(4, 3) + 80.0
+            )
             checkpoint["b_value_hidden"] = np.array([8.0, 8.1, 8.2], dtype=np.float32)
 
         np.savez(path, **checkpoint)
@@ -81,7 +91,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
                 "policy": [0.0, 0.5, 0.0, 0.5, 0.0, 0.0],
                 "value": 1.0,
             }
-            data_path.write_text("\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8"
+            )
 
             train = subprocess.run(
                 [
@@ -131,7 +143,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, export.returncode, msg=export.stderr)
 
-            metadata = json.loads((out_dir / "metadata.json").read_text(encoding="utf-8"))
+            metadata = json.loads(
+                (out_dir / "metadata.json").read_text(encoding="utf-8")
+            )
             self.assertEqual("kalah_v1", metadata["rules_version"])
             self.assertEqual("mlp_deep", metadata["architecture"]["model_type"])
             self.assertEqual([128, 128, 64], metadata["architecture"]["hidden_sizes"])
@@ -148,7 +162,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
                 "policy": [0.0, 0.5, 0.0, 0.5, 0.0, 0.0],
                 "value": 1.0,
             }
-            data_path.write_text("\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8"
+            )
 
             train = subprocess.run(
                 [
@@ -200,7 +216,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, export.returncode, msg=export.stderr)
 
-            metadata = json.loads((out_dir / "metadata.json").read_text(encoding="utf-8"))
+            metadata = json.loads(
+                (out_dir / "metadata.json").read_text(encoding="utf-8")
+            )
             self.assertEqual("kalah_v2", metadata["input_encoding"])
             self.assertEqual("residual_v2", metadata["architecture"]["model_type"])
             self.assertEqual("residual_policy_value", metadata["architecture"]["type"])
@@ -213,7 +231,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             checkpoint_path = tmp_path / "checkpoint.npz"
             out_dir = tmp_path / "artifact"
 
-            expected_weights = self.write_synthetic_residual_v3_checkpoint(checkpoint_path)
+            expected_weights = self.write_synthetic_residual_v3_checkpoint(
+                checkpoint_path
+            )
 
             export = subprocess.run(
                 [
@@ -237,7 +257,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, export.returncode, msg=export.stderr)
 
-            metadata = json.loads((out_dir / "metadata.json").read_text(encoding="utf-8"))
+            metadata = json.loads(
+                (out_dir / "metadata.json").read_text(encoding="utf-8")
+            )
             self.assertEqual("residual_v3", metadata["architecture"]["model_type"])
             self.assertEqual("residual_policy_value", metadata["architecture"]["type"])
             self.assertEqual(4, metadata["architecture"]["trunk_size"])
@@ -247,10 +269,18 @@ class ExportArtifactScriptTest(unittest.TestCase):
             self.assertEqual(3, metadata["architecture"]["value_hidden_size"])
 
             weights = json.loads((out_dir / "weights.json").read_text(encoding="utf-8"))
-            self.assertEqual(expected_weights["w_policy_hidden"].tolist(), weights["w_policy_hidden"])
-            self.assertEqual(expected_weights["b_policy_hidden"].tolist(), weights["b_policy_hidden"])
-            self.assertEqual(expected_weights["w_value_hidden"].tolist(), weights["w_value_hidden"])
-            self.assertEqual(expected_weights["b_value_hidden"].tolist(), weights["b_value_hidden"])
+            self.assertEqual(
+                expected_weights["w_policy_hidden"].tolist(), weights["w_policy_hidden"]
+            )
+            self.assertEqual(
+                expected_weights["b_policy_hidden"].tolist(), weights["b_policy_hidden"]
+            )
+            self.assertEqual(
+                expected_weights["w_value_hidden"].tolist(), weights["w_value_hidden"]
+            )
+            self.assertEqual(
+                expected_weights["b_value_hidden"].tolist(), weights["b_value_hidden"]
+            )
             self.assertEqual(expected_weights["w_policy"].tolist(), weights["w_policy"])
             self.assertEqual(expected_weights["w_value"].tolist(), weights["w_value"])
 
@@ -260,7 +290,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             checkpoint_path = tmp_path / "checkpoint.npz"
             out_dir = tmp_path / "artifact"
 
-            self.write_synthetic_residual_v3_checkpoint(checkpoint_path, include_value_head=False)
+            self.write_synthetic_residual_v3_checkpoint(
+                checkpoint_path, include_value_head=False
+            )
 
             export = subprocess.run(
                 [
@@ -286,7 +318,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             self.assertIn("residual_v3", export.stderr)
             self.assertIn("value", export.stderr)
 
-    def test_export_rejects_residual_v3_checkpoint_with_shape_mismatched_specialized_head(self):
+    def test_export_rejects_residual_v3_checkpoint_with_shape_mismatched_specialized_head(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-export-") as tmp:
             tmp_path = Path(tmp)
             checkpoint_path = tmp_path / "checkpoint.npz"
@@ -400,7 +434,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
                 "policy": [0.0, 0.5, 0.0, 0.5, 0.0, 0.0],
                 "value": 1.0,
             }
-            data_path.write_text("\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join([json.dumps(row) for _ in range(64)]) + "\n", encoding="utf-8"
+            )
 
             train = subprocess.run(
                 [
@@ -484,7 +520,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, export.returncode, msg=export.stderr)
 
-            metadata = json.loads((out_dir / "metadata.json").read_text(encoding="utf-8"))
+            metadata = json.loads(
+                (out_dir / "metadata.json").read_text(encoding="utf-8")
+            )
             self.assertEqual("kalah_v3", metadata["input_encoding"])
             self.assertEqual(feature_count_for("kalah_v3"), metadata["feature_count"])
             self.assertGreater(metadata["feature_count"], 15)
@@ -529,7 +567,9 @@ class ExportArtifactScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, export.returncode, msg=export.stderr)
 
-            metadata = json.loads((out_dir / "metadata.json").read_text(encoding="utf-8"))
+            metadata = json.loads(
+                (out_dir / "metadata.json").read_text(encoding="utf-8")
+            )
             self.assertEqual(
                 [*BASE_FEATURE_ORDER, *KALAH_V3_EXTRA_FEATURE_ORDER],
                 metadata["feature_order"],

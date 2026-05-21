@@ -105,7 +105,9 @@ class TacticalValidationVerdictTest(unittest.TestCase):
         candidate = forensic_report()
         bucket_gate = check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -122,8 +124,12 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
             bucket_gate_path.write_text(json.dumps(bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -191,7 +197,9 @@ class TacticalValidationVerdictTest(unittest.TestCase):
         bucket_gate = check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
         self.assertTrue(bucket_gate["passed"])
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -208,8 +216,12 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
             bucket_gate_path.write_text(json.dumps(bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -265,7 +277,9 @@ class TacticalValidationVerdictTest(unittest.TestCase):
         candidate = forensic_report()
         bucket_gate = check_bucket_promotion_gate.evaluate_gate(baseline, candidate)
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -282,8 +296,12 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text("{not-json", encoding="utf-8")
             bucket_gate_path.write_text(json.dumps(bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -334,7 +352,9 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             "checks": [{"id": "capture_available.average_regret", "passed": True}],
         }
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -350,9 +370,15 @@ class TacticalValidationVerdictTest(unittest.TestCase):
 
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
-            bucket_gate_path.write_text(json.dumps(malformed_bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            bucket_gate_path.write_text(
+                json.dumps(malformed_bucket_gate), encoding="utf-8"
+            )
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -411,7 +437,9 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             ],
         }
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -427,9 +455,15 @@ class TacticalValidationVerdictTest(unittest.TestCase):
 
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
-            bucket_gate_path.write_text(json.dumps(malformed_bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            bucket_gate_path.write_text(
+                json.dumps(malformed_bucket_gate), encoding="utf-8"
+            )
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -475,10 +509,14 @@ class TacticalValidationVerdictTest(unittest.TestCase):
         self.assertTrue(bucket_gate["passed"])
 
         bucket_gate["checks"] = [
-            check for check in bucket_gate["checks"] if check["id"] != "overall.top1_agreement"
+            check
+            for check in bucket_gate["checks"]
+            if check["id"] != "overall.top1_agreement"
         ]
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -495,8 +533,12 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
             bucket_gate_path.write_text(json.dumps(bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -548,10 +590,14 @@ class TacticalValidationVerdictTest(unittest.TestCase):
         bucket_gate = check_bucket_promotion_gate.evaluate_gate(baseline, baseline)
 
         candidate["systems"]["challenger"]["rows"] = [
-            row for row in candidate["systems"]["challenger"]["rows"] if row["bucket"] != "capture_available"
+            row
+            for row in candidate["systems"]["challenger"]["rows"]
+            if row["bucket"] != "capture_available"
         ]
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -568,8 +614,12 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
             bucket_gate_path.write_text(json.dumps(bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -605,7 +655,10 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             self.assertEqual(["input_validation_failed"], verdict["failure_reasons"])
             self.assertEqual("invalid_input", verdict["error"]["code"])
             self.assertEqual(str(candidate_path), verdict["error"]["path"])
-            self.assertIn("missing challenger rows for capture_available", verdict["error"]["message"])
+            self.assertIn(
+                "missing challenger rows for capture_available",
+                verdict["error"]["message"],
+            )
 
     def test_verdict_dedupes_overlapping_extra_adverse_delta_ids(self):
         importlib.import_module("ml.alphazero_lite.write_tactical_validation_verdict")
@@ -630,11 +683,15 @@ class TacticalValidationVerdictTest(unittest.TestCase):
         self.assertFalse(bucket_gate["passed"])
 
         bucket_gate["checks"] = [
-            check for check in bucket_gate["checks"] if check["id"] != "capture_available.blunder_rate_0_20"
+            check
+            for check in bucket_gate["checks"]
+            if check["id"] != "capture_available.blunder_rate_0_20"
         ]
         bucket_gate["passed"] = all(check["passed"] for check in bucket_gate["checks"])
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -651,8 +708,12 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
             bucket_gate_path.write_text(json.dumps(bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -686,7 +747,11 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             verdict = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertFalse(verdict["passed"])
             self.assertEqual(
-                [delta for delta in verdict["extra_adverse_deltas"] if delta["id"] == "capture_available.blunder_rate_0_20"],
+                [
+                    delta
+                    for delta in verdict["extra_adverse_deltas"]
+                    if delta["id"] == "capture_available.blunder_rate_0_20"
+                ],
                 [
                     {
                         "id": "capture_available.blunder_rate_0_20",
@@ -697,7 +762,9 @@ class TacticalValidationVerdictTest(unittest.TestCase):
                 ],
             )
 
-    def test_cli_attributes_non_capture_derived_blunder_metric_failure_to_candidate_forensics_file(self):
+    def test_cli_attributes_non_capture_derived_blunder_metric_failure_to_candidate_forensics_file(
+        self,
+    ):
         importlib.import_module("ml.alphazero_lite.write_tactical_validation_verdict")
 
         baseline = forensic_report()
@@ -705,10 +772,14 @@ class TacticalValidationVerdictTest(unittest.TestCase):
         bucket_gate = check_bucket_promotion_gate.evaluate_gate(baseline, baseline)
 
         candidate["systems"]["challenger"]["rows"] = [
-            row for row in candidate["systems"]["challenger"]["rows"] if row["bucket"] != "high_imbalance"
+            row
+            for row in candidate["systems"]["challenger"]["rows"]
+            if row["bucket"] != "high_imbalance"
         ]
 
-        with tempfile.TemporaryDirectory(prefix="azlite-tactical-validation-verdict-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-tactical-validation-verdict-"
+        ) as tmp:
             tmp_path = Path(tmp)
             run_dir = tmp_path / "run" / "final"
             selected_artifact = run_dir / "selected-candidate"
@@ -725,8 +796,12 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
             candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
             bucket_gate_path.write_text(json.dumps(bucket_gate), encoding="utf-8")
-            regression_path.write_text(json.dumps(regression_report(passed=True)), encoding="utf-8")
-            arena_path.write_text(json.dumps(arena_report(passed=True)), encoding="utf-8")
+            regression_path.write_text(
+                json.dumps(regression_report(passed=True)), encoding="utf-8"
+            )
+            arena_path.write_text(
+                json.dumps(arena_report(passed=True)), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -762,7 +837,10 @@ class TacticalValidationVerdictTest(unittest.TestCase):
             self.assertEqual(["input_validation_failed"], verdict["failure_reasons"])
             self.assertEqual("invalid_input", verdict["error"]["code"])
             self.assertEqual(str(candidate_path), verdict["error"]["path"])
-            self.assertIn("missing challenger rows for high_imbalance", verdict["error"]["message"])
+            self.assertIn(
+                "missing challenger rows for high_imbalance",
+                verdict["error"]["message"],
+            )
 
 
 if __name__ == "__main__":

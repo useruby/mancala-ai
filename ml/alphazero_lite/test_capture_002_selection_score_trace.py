@@ -196,7 +196,9 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             },
         }
 
-    def test_load_source_shared_drift_artifact_accepts_valid_capture_available_002_payload(self):
+    def test_load_source_shared_drift_artifact_accepts_valid_capture_available_002_payload(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
             self.write_json(source_path, self.valid_source_artifact())
@@ -244,7 +246,9 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             artifact["settings"],
         )
 
-    def test_load_source_shared_drift_artifact_preserves_empty_snapshots_for_fail_closed_handling(self):
+    def test_load_source_shared_drift_artifact_preserves_empty_snapshots_for_fail_closed_handling(
+        self,
+    ):
         artifact = self.valid_source_artifact()
         artifact["rows"]["capture_available-002"]["snapshots"] = []
         artifact["rows"]["capture_available-002"]["root_start"] = None
@@ -258,7 +262,9 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
         self.assertIsNone(loaded_artifact["row"]["root_start"])
         self.assertEqual([], loaded_artifact["row"]["snapshots"])
 
-    def test_load_source_shared_drift_artifact_rejects_missing_root_start_when_snapshots_exist(self):
+    def test_load_source_shared_drift_artifact_rejects_missing_root_start_when_snapshots_exist(
+        self,
+    ):
         artifact = self.valid_source_artifact()
         artifact["rows"]["capture_available-002"]["root_start"] = None
 
@@ -291,7 +297,9 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "root_start"):
                 module.load_source_shared_drift_artifact(source_path)
 
-    def test_load_source_shared_drift_artifact_rejects_snapshots_out_of_order_by_simulation(self):
+    def test_load_source_shared_drift_artifact_rejects_snapshots_out_of_order_by_simulation(
+        self,
+    ):
         artifact = self.valid_source_artifact()
         artifact["rows"]["capture_available-002"]["snapshots"] = [
             artifact["rows"]["capture_available-002"]["snapshots"][1],
@@ -305,7 +313,9 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "ordered by simulation"):
                 module.load_source_shared_drift_artifact(source_path)
 
-    def test_load_source_shared_drift_artifact_rejects_root_start_later_than_first_snapshot(self):
+    def test_load_source_shared_drift_artifact_rejects_root_start_later_than_first_snapshot(
+        self,
+    ):
         artifact = self.valid_source_artifact()
         artifact["rows"]["capture_available-002"]["root_start"]["simulation"] = 17.0
 
@@ -313,10 +323,14 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
             self.write_json(source_path, artifact)
 
-            with self.assertRaisesRegex(ValueError, "root_start.*ordered by simulation"):
+            with self.assertRaisesRegex(
+                ValueError, "root_start.*ordered by simulation"
+            ):
                 module.load_source_shared_drift_artifact(source_path)
 
-    def test_load_source_shared_drift_artifact_rejects_snapshot_without_upstream_fields(self):
+    def test_load_source_shared_drift_artifact_rejects_snapshot_without_upstream_fields(
+        self,
+    ):
         artifact = self.valid_source_artifact()
         del artifact["rows"]["capture_available-002"]["snapshots"][0]["visits"]
 
@@ -335,10 +349,14 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
             self.write_json(source_path, artifact)
 
-            with self.assertRaisesRegex(ValueError, "reference_move must be a legal move int"):
+            with self.assertRaisesRegex(
+                ValueError, "reference_move must be a legal move int"
+            ):
                 module.load_source_shared_drift_artifact(source_path)
 
-    def test_load_source_shared_drift_artifact_rejects_wrong_type_full_search_selected_move(self):
+    def test_load_source_shared_drift_artifact_rejects_wrong_type_full_search_selected_move(
+        self,
+    ):
         artifact = self.valid_source_artifact()
         artifact["rows"]["capture_available-002"]["full_search_selected_move"] = "0"
 
@@ -346,7 +364,9 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
             self.write_json(source_path, artifact)
 
-            with self.assertRaisesRegex(ValueError, "full_search_selected_move must be a legal move int"):
+            with self.assertRaisesRegex(
+                ValueError, "full_search_selected_move must be a legal move int"
+            ):
                 module.load_source_shared_drift_artifact(source_path)
 
     def test_load_source_shared_drift_artifact_rejects_illegal_reference_move(self):
@@ -357,7 +377,9 @@ class Capture002SelectionScoreTraceSourceArtifactTest(unittest.TestCase):
             source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
             self.write_json(source_path, artifact)
 
-            with self.assertRaisesRegex(ValueError, "reference_move must be a legal move int"):
+            with self.assertRaisesRegex(
+                ValueError, "reference_move must be a legal move int"
+            ):
                 module.load_source_shared_drift_artifact(source_path)
 
 
@@ -383,7 +405,9 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             "visits": list(visits),
         }
 
-    def source_artifact(self, *, root_start=None, snapshots=None, selected_artifact=None) -> dict:
+    def source_artifact(
+        self, *, root_start=None, snapshots=None, selected_artifact=None
+    ) -> dict:
         return {
             "artifact_path": "/tmp/source-artifacts/shared_drift.json",
             "schema": module.SOURCE_SHARED_DRIFT_SCHEMA,
@@ -400,7 +424,9 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             },
         }
 
-    def source_artifact_document(self, *, root_start=None, snapshots=None, selected_artifact=None) -> dict:
+    def source_artifact_document(
+        self, *, root_start=None, snapshots=None, selected_artifact=None
+    ) -> dict:
         return {
             "schema": module.SOURCE_SHARED_DRIFT_SCHEMA,
             "classification": {"classification": "shared_mechanism_disproved"},
@@ -429,7 +455,9 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             },
         }
 
-    def test_build_payload_prefers_selection_score_overtake_before_meaningful_q_support(self):
+    def test_build_payload_prefers_selection_score_overtake_before_meaningful_q_support(
+        self,
+    ):
         root_start = self.trace_point(
             simulation=1.0,
             selected_move=2,
@@ -473,10 +501,15 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             ),
         ]
 
-        payload = module.build_payload(self.source_artifact(root_start=root_start, snapshots=snapshots))
+        payload = module.build_payload(
+            self.source_artifact(root_start=root_start, snapshots=snapshots)
+        )
 
         self.assertEqual("extracted", payload["trace_origin"])
-        self.assertEqual("selection_score_pressure_confirmed", payload["classification"]["classification"])
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            payload["classification"]["classification"],
+        )
         self.assertEqual(
             module.CLASSIFICATION_DECISIONS["selection_score_pressure_confirmed"],
             payload["decision"],
@@ -493,13 +526,24 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             },
             payload["source_artifact"],
         )
-        self.assertEqual(16.0, payload["first_selected_selection_score_overtake_snapshot"]["simulation"])
-        self.assertEqual(32.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"])
-        self.assertAlmostEqual(0.16, payload["final_selected_minus_reference_selection_score"])
+        self.assertEqual(
+            16.0,
+            payload["first_selected_selection_score_overtake_snapshot"]["simulation"],
+        )
+        self.assertEqual(
+            32.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"]
+        )
+        self.assertAlmostEqual(
+            0.16, payload["final_selected_minus_reference_selection_score"]
+        )
         self.assertEqual(0.04, payload["final_selected_minus_reference_q"])
-        self.assertAlmostEqual(0.4375, payload["final_selected_minus_reference_visit_share"])
+        self.assertAlmostEqual(
+            0.4375, payload["final_selected_minus_reference_visit_share"]
+        )
 
-    def test_build_payload_compares_against_row_target_before_snapshot_selected_move_flips(self):
+    def test_build_payload_compares_against_row_target_before_snapshot_selected_move_flips(
+        self,
+    ):
         root_start = self.trace_point(
             simulation=1.0,
             selected_move=2,
@@ -543,13 +587,25 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             ),
         ]
 
-        payload = module.build_payload(self.source_artifact(root_start=root_start, snapshots=snapshots))
+        payload = module.build_payload(
+            self.source_artifact(root_start=root_start, snapshots=snapshots)
+        )
 
-        self.assertEqual(8.0, payload["first_selected_selection_score_overtake_snapshot"]["simulation"])
-        self.assertEqual(10.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"])
-        self.assertEqual("selection_score_pressure_confirmed", payload["classification"]["classification"])
+        self.assertEqual(
+            8.0,
+            payload["first_selected_selection_score_overtake_snapshot"]["simulation"],
+        )
+        self.assertEqual(
+            10.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"]
+        )
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            payload["classification"]["classification"],
+        )
 
-    def test_build_payload_does_not_confirm_selection_score_when_visit_share_leads_first(self):
+    def test_build_payload_does_not_confirm_selection_score_when_visit_share_leads_first(
+        self,
+    ):
         root_start = self.trace_point(
             simulation=1.0,
             selected_move=2,
@@ -593,12 +649,21 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             ),
         ]
 
-        payload = module.build_payload(self.source_artifact(root_start=root_start, snapshots=snapshots))
+        payload = module.build_payload(
+            self.source_artifact(root_start=root_start, snapshots=snapshots)
+        )
 
-        self.assertEqual(8.0, payload["first_selected_material_visit_share_snapshot"]["simulation"])
-        self.assertEqual(16.0, payload["first_selected_selection_score_overtake_snapshot"]["simulation"])
+        self.assertEqual(
+            8.0, payload["first_selected_material_visit_share_snapshot"]["simulation"]
+        )
+        self.assertEqual(
+            16.0,
+            payload["first_selected_selection_score_overtake_snapshot"]["simulation"],
+        )
         self.assertEqual("unresolved", payload["classification"]["classification"])
-        self.assertEqual(module.CLASSIFICATION_DECISIONS["unresolved"], payload["decision"])
+        self.assertEqual(
+            module.CLASSIFICATION_DECISIONS["unresolved"], payload["decision"]
+        )
 
     def test_build_payload_routes_unresolved_trace_to_review_spec(self):
         root_start = self.trace_point(
@@ -644,7 +709,9 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             ),
         ]
 
-        payload = module.build_payload(self.source_artifact(root_start=root_start, snapshots=snapshots))
+        payload = module.build_payload(
+            self.source_artifact(root_start=root_start, snapshots=snapshots)
+        )
 
         self.assertEqual("unresolved", payload["classification"]["classification"])
         self.assertEqual("write_002_unresolved_trace_review_spec", payload["decision"])
@@ -687,16 +754,26 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             source_path = Path(tmp) / "source_artifacts" / "shared_drift.json"
             self.write_json(
                 source_path,
-                self.source_artifact_document(root_start=root_start, snapshots=snapshots),
+                self.source_artifact_document(
+                    root_start=root_start, snapshots=snapshots
+                ),
             )
 
             loaded_artifact = module.load_source_shared_drift_artifact(source_path)
             payload = module.build_payload(loaded_artifact)
 
         self.assertEqual("extracted", payload["trace_origin"])
-        self.assertEqual("selection_score_pressure_confirmed", payload["classification"]["classification"])
-        self.assertEqual(16.0, payload["first_selected_selection_score_overtake_snapshot"]["simulation"])
-        self.assertEqual(32.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"])
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            payload["classification"]["classification"],
+        )
+        self.assertEqual(
+            16.0,
+            payload["first_selected_selection_score_overtake_snapshot"]["simulation"],
+        )
+        self.assertEqual(
+            32.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"]
+        )
 
     def test_build_payload_fails_closed_for_insufficient_extracted_trace(self):
         root_start = self.trace_point(
@@ -735,17 +812,25 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         )
 
         self.assertEqual("insufficient", payload["trace_origin"])
-        self.assertEqual("trace_insufficient", payload["classification"]["classification"])
-        self.assertEqual(module.CLASSIFICATION_DECISIONS["trace_insufficient"], payload["decision"])
+        self.assertEqual(
+            "trace_insufficient", payload["classification"]["classification"]
+        )
+        self.assertEqual(
+            module.CLASSIFICATION_DECISIONS["trace_insufficient"], payload["decision"]
+        )
         self.assertEqual(module.ROW_ID, payload["source_artifact"]["row_id"])
         self.assertEqual(2, payload["source_artifact"]["reference_move"])
         self.assertEqual(0, payload["source_artifact"]["full_search_selected_move"])
-        self.assertEqual(selected_artifact, payload["source_artifact"]["selected_artifact"])
+        self.assertEqual(
+            selected_artifact, payload["source_artifact"]["selected_artifact"]
+        )
         self.assertEqual(1.0, payload["trace_points"][0]["simulation"])
         self.assertEqual(8.0, payload["trace_points"][1]["simulation"])
         self.assertTrue(payload["insufficiency_reasons"])
 
-    def test_build_payload_preserves_loaded_selected_artifact_for_insufficient_trace(self):
+    def test_build_payload_preserves_loaded_selected_artifact_for_insufficient_trace(
+        self,
+    ):
         selected_artifact = {
             "path": "/tmp/selected/model.bin",
             "selected_target": "/tmp/selected/model.bin",
@@ -788,10 +873,16 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             payload = module.build_payload(loaded_artifact)
 
         self.assertEqual("insufficient", payload["trace_origin"])
-        self.assertEqual(selected_artifact, payload["source_artifact"]["selected_artifact"])
-        self.assertEqual("trace_insufficient", payload["classification"]["classification"])
+        self.assertEqual(
+            selected_artifact, payload["source_artifact"]["selected_artifact"]
+        )
+        self.assertEqual(
+            "trace_insufficient", payload["classification"]["classification"]
+        )
 
-    def test_build_payload_uses_rerun_trace_when_allowed_and_extracted_trace_is_insufficient(self):
+    def test_build_payload_uses_rerun_trace_when_allowed_and_extracted_trace_is_insufficient(
+        self,
+    ):
         extracted = self.source_artifact(
             root_start=self.trace_point(
                 simulation=1.0,
@@ -857,7 +948,10 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         self.assertEqual("rerun", payload["trace_origin"])
         self.assertEqual(rerun_settings, payload["settings"])
         self.assertEqual(rerun_trace_points, payload["trace_points"])
-        self.assertEqual("selection_score_pressure_confirmed", payload["classification"]["classification"])
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            payload["classification"]["classification"],
+        )
 
     def test_build_payload_fails_closed_for_out_of_order_rerun_trace(self):
         extracted = self.source_artifact(
@@ -905,10 +999,16 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         )
 
         self.assertEqual("insufficient", payload["trace_origin"])
-        self.assertEqual("trace_insufficient", payload["classification"]["classification"])
-        self.assertIn("rerun_trace_points_out_of_order", payload["insufficiency_reasons"])
+        self.assertEqual(
+            "trace_insufficient", payload["classification"]["classification"]
+        )
+        self.assertIn(
+            "rerun_trace_points_out_of_order", payload["insufficiency_reasons"]
+        )
 
-    def test_build_payload_fails_closed_when_extracted_trace_drifts_to_different_move_pair(self):
+    def test_build_payload_fails_closed_when_extracted_trace_drifts_to_different_move_pair(
+        self,
+    ):
         root_start = self.trace_point(
             simulation=1.0,
             selected_move=2,
@@ -942,13 +1042,19 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
             ),
         ]
 
-        payload = module.build_payload(self.source_artifact(root_start=root_start, snapshots=snapshots))
+        payload = module.build_payload(
+            self.source_artifact(root_start=root_start, snapshots=snapshots)
+        )
 
         self.assertEqual("insufficient", payload["trace_origin"])
-        self.assertEqual("trace_insufficient", payload["classification"]["classification"])
+        self.assertEqual(
+            "trace_insufficient", payload["classification"]["classification"]
+        )
         self.assertIn("trace_points_pair_mismatch", payload["insufficiency_reasons"])
 
-    def test_build_payload_fails_closed_when_rerun_trace_drifts_to_different_move_pair(self):
+    def test_build_payload_fails_closed_when_rerun_trace_drifts_to_different_move_pair(
+        self,
+    ):
         extracted = self.source_artifact(
             root_start=self.trace_point(
                 simulation=1.0,
@@ -994,8 +1100,12 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         )
 
         self.assertEqual("insufficient", payload["trace_origin"])
-        self.assertEqual("trace_insufficient", payload["classification"]["classification"])
-        self.assertIn("rerun_trace_points_pair_mismatch", payload["insufficiency_reasons"])
+        self.assertEqual(
+            "trace_insufficient", payload["classification"]["classification"]
+        )
+        self.assertIn(
+            "rerun_trace_points_pair_mismatch", payload["insufficiency_reasons"]
+        )
 
     def test_build_payload_fails_closed_when_rerun_trace_is_still_insufficient(self):
         extracted = self.source_artifact(
@@ -1036,10 +1146,14 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         self.assertEqual("insufficient", payload["trace_origin"])
         self.assertEqual(rerun_settings, payload["settings"])
         self.assertEqual(rerun_trace_points, payload["trace_points"])
-        self.assertEqual("trace_insufficient", payload["classification"]["classification"])
+        self.assertEqual(
+            "trace_insufficient", payload["classification"]["classification"]
+        )
         self.assertIn("too_few_trace_points", payload["insufficiency_reasons"])
 
-    def test_build_payload_fails_closed_when_rerun_callback_returns_malformed_trace_points(self):
+    def test_build_payload_fails_closed_when_rerun_callback_returns_malformed_trace_points(
+        self,
+    ):
         extracted = self.source_artifact(
             root_start=self.trace_point(
                 simulation=1.0,
@@ -1063,7 +1177,9 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         )
 
         self.assertEqual("insufficient", payload["trace_origin"])
-        self.assertEqual("trace_insufficient", payload["classification"]["classification"])
+        self.assertEqual(
+            "trace_insufficient", payload["classification"]["classification"]
+        )
         self.assertEqual([], payload["trace_points"])
         self.assertEqual({"seed": 17, "simulation_count": 32}, payload["settings"])
         self.assertIn("rerun_trace_points_malformed", payload["insufficiency_reasons"])
@@ -1098,7 +1214,9 @@ class Capture002SelectionScoreTraceBuildPayloadTest(unittest.TestCase):
         payload = module.build_payload(artifact)
 
         self.assertEqual("insufficient", payload["trace_origin"])
-        self.assertIn("missing_full_search_selected_move", payload["insufficiency_reasons"])
+        self.assertIn(
+            "missing_full_search_selected_move", payload["insufficiency_reasons"]
+        )
 
 
 class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
@@ -1120,7 +1238,9 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
     }
 
     def load_fixture(self, name: str) -> dict:
-        return json.loads((self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8"))
+        return json.loads(
+            (self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8")
+        )
 
     def test_checked_in_task_4_fixtures_exist(self):
         for name in self.FIXTURE_CASES:
@@ -1135,7 +1255,10 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
                     fixture.get("thresholds", module.THRESHOLDS),
                 )
 
-                self.assertEqual(expected_classification, classification["classification"]["classification"])
+                self.assertEqual(
+                    expected_classification,
+                    classification["classification"]["classification"],
+                )
                 self.assertEqual(
                     fixture["expected_decision"],
                     classification["decision"],
@@ -1144,25 +1267,41 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
     def test_fixture_classifier_uses_trace_origin_insufficient(self):
         fixture = self.load_fixture("trace_insufficient")
 
-        classification = module.classify_fixture_payload(fixture["payload"], module.THRESHOLDS)
+        classification = module.classify_fixture_payload(
+            fixture["payload"], module.THRESHOLDS
+        )
 
         self.assertEqual("insufficient", fixture["payload"]["trace_origin"])
-        self.assertEqual("trace_insufficient", classification["classification"]["classification"])
+        self.assertEqual(
+            "trace_insufficient", classification["classification"]["classification"]
+        )
 
-    def test_fixture_classifier_keeps_same_snapshot_meaningful_q_and_selection_score_unresolved(self):
+    def test_fixture_classifier_keeps_same_snapshot_meaningful_q_and_selection_score_unresolved(
+        self,
+    ):
         fixture = self.load_fixture("same_snapshot_material_overtakes")
 
-        classification = module.classify_fixture_payload(fixture["payload"], module.THRESHOLDS)
+        classification = module.classify_fixture_payload(
+            fixture["payload"], module.THRESHOLDS
+        )
 
-        self.assertEqual("unresolved", classification["classification"]["classification"])
+        self.assertEqual(
+            "unresolved", classification["classification"]["classification"]
+        )
 
     def test_unresolved_fixture_routes_to_review_spec(self):
         fixture = self.load_fixture("unresolved")
 
-        classification = module.classify_fixture_payload(fixture["payload"], module.THRESHOLDS)
+        classification = module.classify_fixture_payload(
+            fixture["payload"], module.THRESHOLDS
+        )
 
-        self.assertEqual("unresolved", classification["classification"]["classification"])
-        self.assertEqual("write_002_unresolved_trace_review_spec", classification["decision"])
+        self.assertEqual(
+            "unresolved", classification["classification"]["classification"]
+        )
+        self.assertEqual(
+            "write_002_unresolved_trace_review_spec", classification["decision"]
+        )
 
     def test_fixture_classifier_tracks_runtime_classification_logic(self):
         payload = {
@@ -1172,12 +1311,16 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
             "first_selected_material_visit_share_snapshot": {"simulation": 12.0},
         }
 
-        fixture_classification = module.classify_fixture_payload(payload, module.THRESHOLDS)
+        fixture_classification = module.classify_fixture_payload(
+            payload, module.THRESHOLDS
+        )
         runtime_classification = module._classify_payload(payload)
 
         self.assertEqual(runtime_classification, fixture_classification)
 
-    def test_fixture_classifier_selection_score_pressure_summary_allows_same_snapshot_visit_share(self):
+    def test_fixture_classifier_selection_score_pressure_summary_allows_same_snapshot_visit_share(
+        self,
+    ):
         classification = module.classify_fixture_payload(
             {
                 "trace_origin": "extracted",
@@ -1188,7 +1331,10 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
             module.THRESHOLDS,
         )
 
-        self.assertEqual("selection_score_pressure_confirmed", classification["classification"]["classification"])
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            classification["classification"]["classification"],
+        )
         self.assertEqual(
             "Selection-score pressure appears before meaningful child-Q support and visit share is already present or follows.",
             classification["classification"]["evidence_summary"],
@@ -1259,11 +1405,21 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
             material_visit_share_margin=0.05,
         )
 
-        self.assertEqual(8.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"])
-        self.assertEqual(12.0, payload["first_selected_selection_score_overtake_snapshot"]["simulation"])
-        self.assertEqual("q_support_precedes_selection_score", payload["classification"]["classification"])
+        self.assertEqual(
+            8.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"]
+        )
+        self.assertEqual(
+            12.0,
+            payload["first_selected_selection_score_overtake_snapshot"]["simulation"],
+        )
+        self.assertEqual(
+            "q_support_precedes_selection_score",
+            payload["classification"]["classification"],
+        )
 
-    def test_build_payload_treats_selection_score_margin_equal_to_threshold_as_material(self):
+    def test_build_payload_treats_selection_score_margin_equal_to_threshold_as_material(
+        self,
+    ):
         root_start = {
             "simulation": 1.0,
             "selected_move": 2,
@@ -1328,9 +1484,17 @@ class Capture002SelectionScoreTraceFixtureClassificationTest(unittest.TestCase):
             material_visit_share_margin=0.05,
         )
 
-        self.assertEqual(8.0, payload["first_selected_selection_score_overtake_snapshot"]["simulation"])
-        self.assertEqual(16.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"])
-        self.assertEqual("selection_score_pressure_confirmed", payload["classification"]["classification"])
+        self.assertEqual(
+            8.0,
+            payload["first_selected_selection_score_overtake_snapshot"]["simulation"],
+        )
+        self.assertEqual(
+            16.0, payload["first_selected_meaningful_q_support_snapshot"]["simulation"]
+        )
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            payload["classification"]["classification"],
+        )
 
 
 class Capture002SelectionScoreTraceCliTest(unittest.TestCase):
@@ -1355,7 +1519,9 @@ class Capture002SelectionScoreTraceCliTest(unittest.TestCase):
             "visits": list(visits),
         }
 
-    def source_artifact_document(self, *, root_start=None, snapshots=None, selected_artifact=None) -> dict:
+    def source_artifact_document(
+        self, *, root_start=None, snapshots=None, selected_artifact=None
+    ) -> dict:
         return {
             "schema": module.SOURCE_SHARED_DRIFT_SCHEMA,
             "classification": {"classification": "shared_mechanism_disproved"},
@@ -1510,7 +1676,9 @@ class Capture002SelectionScoreTraceCliTest(unittest.TestCase):
             out_path = Path(tmp) / "diagnostics" / "selection_score_trace.json"
             self.write_json(
                 source_path,
-                self.source_artifact_document(root_start=root_start, snapshots=snapshots),
+                self.source_artifact_document(
+                    root_start=root_start, snapshots=snapshots
+                ),
             )
 
             stdout = io.StringIO()
@@ -1537,17 +1705,24 @@ class Capture002SelectionScoreTraceCliTest(unittest.TestCase):
         self.assertEqual(0, exit_code)
         self.assertTrue(written.endswith("\n"))
         self.assertEqual(module.SCHEMA, payload["schema"])
-        self.assertEqual("selection_score_pressure_confirmed", payload["classification"]["classification"])
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            payload["classification"]["classification"],
+        )
         self.assertEqual(
             {
                 "artifact_path": str(out_path),
                 "schema": module.SCHEMA,
-                "decision": module.CLASSIFICATION_DECISIONS["selection_score_pressure_confirmed"],
+                "decision": module.CLASSIFICATION_DECISIONS[
+                    "selection_score_pressure_confirmed"
+                ],
             },
             printed,
         )
 
-    def test_main_allow_rerun_capture_changes_insufficient_result_when_rerun_trace_available(self):
+    def test_main_allow_rerun_capture_changes_insufficient_result_when_rerun_trace_available(
+        self,
+    ):
         root_start = self.trace_point(
             simulation=1.0,
             selected_move=2,
@@ -1591,7 +1766,9 @@ class Capture002SelectionScoreTraceCliTest(unittest.TestCase):
             ),
         ]
 
-        document = self.source_artifact_document(root_start=root_start, snapshots=snapshots)
+        document = self.source_artifact_document(
+            root_start=root_start, snapshots=snapshots
+        )
         document["selected_artifact"] = {
             "path": "/tmp/artifacts/selected.bin",
             "selected_target": "/tmp/artifacts/selected.bin",
@@ -1640,9 +1817,14 @@ class Capture002SelectionScoreTraceCliTest(unittest.TestCase):
             with_rerun = json.loads(with_rerun_out.read_text(encoding="utf-8"))
 
         self.assertEqual("insufficient", without_rerun["trace_origin"])
-        self.assertEqual("trace_insufficient", without_rerun["classification"]["classification"])
+        self.assertEqual(
+            "trace_insufficient", without_rerun["classification"]["classification"]
+        )
         self.assertEqual("rerun", with_rerun["trace_origin"])
-        self.assertEqual("selection_score_pressure_confirmed", with_rerun["classification"]["classification"])
+        self.assertEqual(
+            "selection_score_pressure_confirmed",
+            with_rerun["classification"]["classification"],
+        )
         self.assertEqual(rerun_trace_points, with_rerun["trace_points"])
 
 

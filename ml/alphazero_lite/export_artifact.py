@@ -16,7 +16,11 @@ import numpy as np
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.input_encodings import BASE_FEATURE_ORDER, KALAH_V3_EXTRA_FEATURE_ORDER, feature_count_for
+from ml.alphazero_lite.input_encodings import (
+    BASE_FEATURE_ORDER,
+    KALAH_V3_EXTRA_FEATURE_ORDER,
+    feature_count_for,
+)
 
 
 SUPPORTED_MODEL_TYPES = ["mlp_v1", "mlp_deep", "residual_v2", "residual_v3"]
@@ -40,11 +44,15 @@ def checkpoint_feature_count(npz: np.lib.npyio.NpzFile) -> int:
     raise ValueError("checkpoint is missing an input layer weight matrix")
 
 
-def validate_checkpoint_feature_count(npz: np.lib.npyio.NpzFile, *, input_encoding: str) -> None:
+def validate_checkpoint_feature_count(
+    npz: np.lib.npyio.NpzFile, *, input_encoding: str
+) -> None:
     expected = feature_count_for(input_encoding)
     actual = checkpoint_feature_count(npz)
     if actual != expected:
-        raise ValueError(f"checkpoint feature_count must be {expected} for {input_encoding}, got {actual}")
+        raise ValueError(
+            f"checkpoint feature_count must be {expected} for {input_encoding}, got {actual}"
+        )
 
 
 def validate_residual_v3_checkpoint(npz: np.lib.npyio.NpzFile) -> None:
@@ -57,7 +65,9 @@ def validate_residual_v3_checkpoint(npz: np.lib.npyio.NpzFile) -> None:
     missing_keys = [key for key in required_keys if key not in npz]
     if missing_keys:
         missing = ", ".join(missing_keys)
-        raise ValueError(f"residual_v3 checkpoint must include specialized head weights: {missing}")
+        raise ValueError(
+            f"residual_v3 checkpoint must include specialized head weights: {missing}"
+        )
 
     trunk_size = int(npz["w_input"].shape[1])
     policy_hidden_shape = npz["w_policy_hidden"].shape
@@ -163,9 +173,13 @@ def main() -> None:
             validate_residual_v3_checkpoint(npz)
             architecture_payload["hidden_layer_count"] += 2
         if args.model_type == "residual_v3" and "w_policy_hidden" in npz:
-            architecture_payload["policy_hidden_size"] = int(npz["w_policy_hidden"].shape[1])
+            architecture_payload["policy_hidden_size"] = int(
+                npz["w_policy_hidden"].shape[1]
+            )
         if args.model_type == "residual_v3" and "w_value_hidden" in npz:
-            architecture_payload["value_hidden_size"] = int(npz["w_value_hidden"].shape[1])
+            architecture_payload["value_hidden_size"] = int(
+                npz["w_value_hidden"].shape[1]
+            )
         architecture.update(architecture_payload)
     else:
         hidden_sizes: list[int] = []
@@ -221,7 +235,9 @@ def main() -> None:
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
 
-    (out_dir / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    (out_dir / "metadata.json").write_text(
+        json.dumps(metadata, indent=2), encoding="utf-8"
+    )
     print(f"exported artifact to {out_dir}")
 
 

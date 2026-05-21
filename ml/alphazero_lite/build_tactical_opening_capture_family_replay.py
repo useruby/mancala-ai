@@ -25,7 +25,10 @@ from ml.alphazero_lite.build_tactical_capture_protection import (
 
 
 DEFAULT_OPENING_CAPTURE_FAMILY_REPLAY_SOURCE = DEFAULT_BALANCED_REPLAY_SOURCE
-DEFAULT_REGRESSION_POSITIONS = Path(__file__).resolve().parents[2] / "test/fixtures/ai/superhuman_regression_positions.json"
+DEFAULT_REGRESSION_POSITIONS = (
+    Path(__file__).resolve().parents[2]
+    / "test/fixtures/ai/superhuman_regression_positions.json"
+)
 OPENING_FAMILY_SOURCE_IDS = {
     "capture_available-017",
     "capture_available-019",
@@ -39,7 +42,10 @@ def _has_opening_family_provenance(row: dict) -> bool:
         return False
 
     for source_run in source_runs:
-        if isinstance(source_run, dict) and source_run.get("id") in OPENING_FAMILY_SOURCE_IDS:
+        if (
+            isinstance(source_run, dict)
+            and source_run.get("id") in OPENING_FAMILY_SOURCE_IDS
+        ):
             return True
     return False
 
@@ -79,7 +85,11 @@ def _is_opening_capture_family_row(row: dict) -> bool:
 
 
 def _select_opening_capture_family_rows(source_rows: list[dict]) -> list[dict]:
-    selected_rows = [_sanitize_source_artifacts(dict(row)) for row in source_rows if _is_opening_capture_family_row(row)]
+    selected_rows = [
+        _sanitize_source_artifacts(dict(row))
+        for row in source_rows
+        if _is_opening_capture_family_row(row)
+    ]
     selected_rows.sort(
         key=lambda row: (
             -float(row.get("priority_score", 0.0)),
@@ -103,7 +113,9 @@ def _select_opening_capture_family_rows(source_rows: list[dict]) -> list[dict]:
 
 
 def _build_capture_protection_row(regression_positions_path: Path) -> dict:
-    regression_positions = json.loads(regression_positions_path.read_text(encoding="utf-8"))
+    regression_positions = json.loads(
+        regression_positions_path.read_text(encoding="utf-8")
+    )
     if not regression_positions:
         raise ValueError("regression fixture must contain at least one position")
 
@@ -112,16 +124,22 @@ def _build_capture_protection_row(regression_positions_path: Path) -> dict:
         regression_position=regression_position,
         teacher_labeler=lambda raw_state: teacher_label_regression_row(
             raw_state,
-            source_id=str(regression_position.get("id", "capture_protection_regression")),
+            source_id=str(
+                regression_position.get("id", "capture_protection_regression")
+            ),
             move_number=regression_position.get("move_number"),
         ),
     )
     return json.loads(json.dumps(_sanitize_source_artifacts(row)))
 
 
-def build_opening_capture_family_replay_dataset(*, tactical_replay_path: Path, out_path: Path):
+def build_opening_capture_family_replay_dataset(
+    *, tactical_replay_path: Path, out_path: Path
+):
     if not tactical_replay_path.exists():
-        raise FileNotFoundError(f"opening capture family replay source not found: {tactical_replay_path}")
+        raise FileNotFoundError(
+            f"opening capture family replay source not found: {tactical_replay_path}"
+        )
 
     source_rows = _load_jsonl(tactical_replay_path)
     protection_row = _build_capture_protection_row(DEFAULT_REGRESSION_POSITIONS)
@@ -146,7 +164,9 @@ def build_opening_capture_family_replay_dataset(*, tactical_replay_path: Path, o
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tactical-replay", default=str(DEFAULT_OPENING_CAPTURE_FAMILY_REPLAY_SOURCE))
+    parser.add_argument(
+        "--tactical-replay", default=str(DEFAULT_OPENING_CAPTURE_FAMILY_REPLAY_SOURCE)
+    )
     parser.add_argument("--out", required=True)
     return parser.parse_args()
 

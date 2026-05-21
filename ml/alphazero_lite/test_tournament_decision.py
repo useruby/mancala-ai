@@ -21,7 +21,9 @@ class TournamentDecisionTest(unittest.TestCase):
             {"seed": 43, "mcts_confirm_score": 0.25, "arena_score": 0.0},
         ]
 
-        summary = summarize_tournament(winners, min_mcts_score=0.45, min_arena_score=0.55)
+        summary = summarize_tournament(
+            winners, min_mcts_score=0.45, min_arena_score=0.55
+        )
 
         self.assertEqual(0.5, summary["median_mcts_score"])
         self.assertEqual(1.0, summary["best_arena_score"])

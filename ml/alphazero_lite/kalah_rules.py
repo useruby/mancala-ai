@@ -80,7 +80,9 @@ class KalahGame:
         pit_seeds = self.pits[absolute_index]
         self.pits[absolute_index] = 0
 
-        last_pit_index, extra_turn = self._seeding(absolute_index, pit_seeds, self.current_player)
+        last_pit_index, extra_turn = self._seeding(
+            absolute_index, pit_seeds, self.current_player
+        )
         if not extra_turn:
             self._capture(last_pit_index)
             self.current_player = self.opposite_player()
@@ -90,7 +92,9 @@ class KalahGame:
 
         return True
 
-    def _seeding(self, pit_index: int, pit_seeds: int, pit_owner: int) -> tuple[int, bool]:
+    def _seeding(
+        self, pit_index: int, pit_seeds: int, pit_owner: int
+    ) -> tuple[int, bool]:
         extra_turn = False
 
         for _ in range(pit_seeds):
@@ -124,13 +128,17 @@ class KalahGame:
         if opposite_seeds == 0:
             return
 
-        self.captured_seeds[self.current_player] += self.pits[pit_index] + opposite_seeds
+        self.captured_seeds[self.current_player] += (
+            self.pits[pit_index] + opposite_seeds
+        )
         self.pits[pit_index] = 0
         self.pits[opposite_index] = 0
 
     def _after_game_over(self) -> None:
         opposite = self.opposite_player()
-        opposite_indexes = range(opposite * PITS_PER_PLAYER, (opposite + 1) * PITS_PER_PLAYER)
+        opposite_indexes = range(
+            opposite * PITS_PER_PLAYER, (opposite + 1) * PITS_PER_PLAYER
+        )
         self.captured_seeds[opposite] += sum(self.pits[i] for i in opposite_indexes)
 
         for i in range(TOTAL_PITS):

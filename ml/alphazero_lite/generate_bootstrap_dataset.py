@@ -23,7 +23,6 @@ from ml.alphazero_lite.kalah_rules import KalahGame, NUMBER_OF_PLAYERS, PITS_PER
 from ml.alphazero_lite.self_play import (
     DEFAULT_POLICY_TARGET_MODE,
     DEFAULT_VALUE_TARGET_MODE,
-    HYBRID_VALUE_TARGET_MODE,
     PUCT,
     HeuristicEvaluator,
     format_metrics_line,
@@ -33,7 +32,6 @@ from ml.alphazero_lite.self_play import (
     normalize_policy_target_mode,
     normalize_value_target_mode,
     partition_counts,
-    policy_from_visits,
     sample_move,
     value_from_classic_mcts_root,
     visits_from_classic_mcts_root,
@@ -61,9 +59,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tau", type=float, default=1.0)
     parser.add_argument("--top-k", type=int)
     parser.add_argument("--dirichlet-alpha", type=float)
-    parser.add_argument("--dirichlet-epsilon", type=float, default=DEFAULT_DIRICHLET_EPSILON)
+    parser.add_argument(
+        "--dirichlet-epsilon", type=float, default=DEFAULT_DIRICHLET_EPSILON
+    )
     parser.add_argument("--dirichlet-opening-moves", type=int, default=0)
-    parser.add_argument("--teacher-mode", default="puct", choices=["puct", "classic_mcts"])
+    parser.add_argument(
+        "--teacher-mode", default="puct", choices=["puct", "classic_mcts"]
+    )
     parser.add_argument("--teacher-search-reuse", action="store_true")
     return parser.parse_args()
 
@@ -105,10 +107,19 @@ def shape_policy(
         base = float(visits[move])
         weighted[move] = 0.0 if base == 0.0 else base ** (1.0 / tau)
 
-    if apply_dirichlet and dirichlet_alpha and dirichlet_alpha > 0 and move_index < dirichlet_opening_moves:
-        noise = np.random.default_rng(rng.randint(0, 2**31 - 1)).dirichlet([dirichlet_alpha] * len(legal_moves))
+    if (
+        apply_dirichlet
+        and dirichlet_alpha
+        and dirichlet_alpha > 0
+        and move_index < dirichlet_opening_moves
+    ):
+        noise = np.random.default_rng(rng.randint(0, 2**31 - 1)).dirichlet(
+            [dirichlet_alpha] * len(legal_moves)
+        )
         for index, move in enumerate(legal_moves):
-            weighted[move] = ((1.0 - dirichlet_epsilon) * weighted[move]) + (dirichlet_epsilon * float(noise[index]))
+            weighted[move] = ((1.0 - dirichlet_epsilon) * weighted[move]) + (
+                dirichlet_epsilon * float(noise[index])
+            )
 
     if top_k and 0 < top_k < len(legal_moves):
         keep = sorted(legal_moves, key=lambda move: (-weighted[move], move))[:top_k]
@@ -120,9 +131,17 @@ def shape_policy(
     total = sum(weighted[move] for move in legal_moves)
     if total <= 0.0:
         probability = 1.0 / len(legal_moves)
-        return [probability if move in legal_moves else 0.0 for move in range(PITS_PER_PLAYER)]
+        return [
+            probability if move in legal_moves else 0.0
+            for move in range(PITS_PER_PLAYER)
+        ]
 
-    return [weighted[move] / total if move in legal_moves else 0.0 for move in range(PITS_PER_PLAYER)]
+    return [
+        weighted[move] / total if move in legal_moves else 0.0
+        for move in range(PITS_PER_PLAYER)
+    ]
+
+
 def build_policy_target(
     *,
     visits: list[float],
@@ -156,7 +175,13 @@ def build_policy_target(
 
 
 def policy_divergence(shallow_policy: list[float], deeper_policy: list[float]) -> float:
-    return sum(abs(float(a) - float(b)) for a, b in zip(shallow_policy, deeper_policy, strict=True)) / 2.0
+    return (
+        sum(
+            abs(float(a) - float(b))
+            for a, b in zip(shallow_policy, deeper_policy, strict=True)
+        )
+        / 2.0
+    )
 
 
 def best_move_for(policy: list[float]) -> int | None:
@@ -182,10 +207,10 @@ def clone_search_root(node):
         value_sum=getattr(node, "value_sum", 0.0),
         expanded=getattr(node, "expanded", False),
     )
-    cloned.children = {action: clone_search_root(child) for action, child in children.items()}
+    cloned.children = {
+        action: clone_search_root(child) for action, child in children.items()
+    }
     return cloned
-
-
 
 
 def disagreement_position(position: dict[str, Any]) -> bool:
@@ -193,14 +218,20 @@ def disagreement_position(position: dict[str, Any]) -> bool:
     if not deeper_policy:
         return False
     shallow_policy = position["policy"]
-    return best_move_for(shallow_policy) != best_move_for(deeper_policy) or policy_divergence(shallow_policy, deeper_policy) >= DISAGREEMENT_POLICY_THRESHOLD
+    return (
+        best_move_for(shallow_policy) != best_move_for(deeper_policy)
+        or policy_divergence(shallow_policy, deeper_policy)
+        >= DISAGREEMENT_POLICY_THRESHOLD
+    )
 
 
 def own_store_passes(move: int, seeds: int) -> int:
     distance_to_store = PITS_PER_PLAYER - move
     if seeds < distance_to_store:
         return 0
-    return 1 + ((seeds - distance_to_store) // ((PITS_PER_PLAYER * NUMBER_OF_PLAYERS) + 1))
+    return 1 + (
+        (seeds - distance_to_store) // ((PITS_PER_PLAYER * NUMBER_OF_PLAYERS) + 1)
+    )
 
 
 def game_after_move(game: KalahGame, move: int) -> KalahGame:
@@ -219,7 +250,9 @@ def capture_move(game: KalahGame, move: int) -> bool:
     seeds = game.pits[absolute_index]
     store_before = game.captured_seeds[player]
     simulated = game_after_move(game, move)
-    return (simulated.captured_seeds[player] - store_before) > own_store_passes(move, seeds)
+    return (simulated.captured_seeds[player] - store_before) > own_store_passes(
+        move, seeds
+    )
 
 
 def immediate_capture_available(game: KalahGame) -> bool:
@@ -232,7 +265,8 @@ def prevents_immediate_opponent_capture(game: KalahGame, move: int) -> bool:
     if simulated.current_player == player or immediate_capture_available(simulated):
         return False
     return any(
-        game_after_move(game, alternative).current_player != player and immediate_capture_available(game_after_move(game, alternative))
+        game_after_move(game, alternative).current_player != player
+        and immediate_capture_available(game_after_move(game, alternative))
         for alternative in game.possible_moves()
         if alternative != move
     )
@@ -240,10 +274,17 @@ def prevents_immediate_opponent_capture(game: KalahGame, move: int) -> bool:
 
 def tactical_position(position: dict[str, Any]) -> bool:
     game = KalahGame.from_state(position["game_state"])
-    return any(extra_turn_move(game, move) or capture_move(game, move) or prevents_immediate_opponent_capture(game, move) for move in game.possible_moves())
+    return any(
+        extra_turn_move(game, move)
+        or capture_move(game, move)
+        or prevents_immediate_opponent_capture(game, move)
+        for move in game.possible_moves()
+    )
 
 
-def sample_bucket(bucket: list[dict[str, Any]], target: int, tactical_mode: bool) -> list[dict[str, Any]]:
+def sample_bucket(
+    bucket: list[dict[str, Any]], target: int, tactical_mode: bool
+) -> list[dict[str, Any]]:
     if not bucket or target <= 0:
         return []
     ranked = sorted(
@@ -257,7 +298,9 @@ def sample_bucket(bucket: list[dict[str, Any]], target: int, tactical_mode: bool
     return ranked[: min(target, len(ranked))]
 
 
-def apply_curriculum(positions: list[dict[str, Any]], max_positions_per_game: int, tactical_mode: bool) -> list[dict[str, Any]]:
+def apply_curriculum(
+    positions: list[dict[str, Any]], max_positions_per_game: int, tactical_mode: bool
+) -> list[dict[str, Any]]:
     if len(positions) <= max_positions_per_game:
         return positions
     early = [position for position in positions if position["move_index"] <= 8]
@@ -271,11 +314,17 @@ def apply_curriculum(positions: list[dict[str, Any]], max_positions_per_game: in
     selected.extend(sample_bucket(late, late_target, tactical_mode))
     if len(selected) < max_positions_per_game:
         leftovers = [position for position in positions if position not in selected]
-        selected.extend(sample_bucket(leftovers, max_positions_per_game - len(selected), tactical_mode))
+        selected.extend(
+            sample_bucket(
+                leftovers, max_positions_per_game - len(selected), tactical_mode
+            )
+        )
     return selected[:max_positions_per_game]
 
 
-def selected_teacher_positions(positions: list[dict[str, Any]], mode: str) -> list[dict[str, Any]]:
+def selected_teacher_positions(
+    positions: list[dict[str, Any]], mode: str
+) -> list[dict[str, Any]]:
     if mode == "tactical":
         return [position for position in positions if tactical_position(position)]
     if mode == "hybrid_teacher":
@@ -296,7 +345,13 @@ def selected_teacher_positions(positions: list[dict[str, Any]], mode: str) -> li
     return positions
 
 
-def annotate_rows(positions: list[dict[str, Any]], *, winner: int | None, value_target_mode: str, position_selection_mode: str) -> list[dict[str, Any]]:
+def annotate_rows(
+    positions: list[dict[str, Any]],
+    *,
+    winner: int | None,
+    value_target_mode: str,
+    position_selection_mode: str,
+) -> list[dict[str, Any]]:
     rows = []
     for position in positions:
         player = int(position["player"])
@@ -367,14 +422,25 @@ def run_worker(
                     break
 
                 search_rng = random.Random(search_seed(seed, game_index, move_index))
-                search = PUCT(evaluator=evaluator, simulations=simulations, c_puct=1.25, rng=search_rng, root=reusable_root, reuse_subtree=tree_reuse_enabled)
+                search = PUCT(
+                    evaluator=evaluator,
+                    simulations=simulations,
+                    c_puct=1.25,
+                    rng=search_rng,
+                    root=reusable_root,
+                    reuse_subtree=tree_reuse_enabled,
+                )
                 visits, root = search.run(
                     game,
-                    dirichlet_alpha=dirichlet_alpha if move_index < dirichlet_opening_moves else None,
+                    dirichlet_alpha=dirichlet_alpha
+                    if move_index < dirichlet_opening_moves
+                    else None,
                     dirichlet_epsilon=dirichlet_epsilon,
                 )
                 visit_list = visits.tolist()
-                shallow_root_search_value = float(root.q_value if root is not None else 0.0)
+                shallow_root_search_value = float(
+                    root.q_value if root is not None else 0.0
+                )
                 move = sample_move(
                     shape_policy(
                         visits=visit_list,
@@ -391,20 +457,34 @@ def run_worker(
                     legal_moves=legal_moves,
                     rng=rng,
                 )
-                next_reusable_root = root.child_for_action(move) if tree_reuse_enabled and root is not None else None
+                next_reusable_root = (
+                    root.child_for_action(move)
+                    if tree_reuse_enabled and root is not None
+                    else None
+                )
                 positions_visited += 1
                 simulations_run += simulations
 
                 deeper_policy = None
                 if position_selection_mode == "hybrid_teacher":
-                    deeper_target_simulations = simulations * DISAGREEMENT_DEEPER_SIMULATION_FACTOR
-                    deeper_simulations = max(deeper_target_simulations - simulations, 0) if teacher_search_reuse else deeper_target_simulations
-                    teacher_root = clone_search_root(root) if teacher_search_reuse else None
+                    deeper_target_simulations = (
+                        simulations * DISAGREEMENT_DEEPER_SIMULATION_FACTOR
+                    )
+                    deeper_simulations = (
+                        max(deeper_target_simulations - simulations, 0)
+                        if teacher_search_reuse
+                        else deeper_target_simulations
+                    )
+                    teacher_root = (
+                        clone_search_root(root) if teacher_search_reuse else None
+                    )
                     deeper_search = PUCT(
                         evaluator=evaluator,
                         simulations=deeper_simulations,
                         c_puct=1.25,
-                        rng=random.Random(search_seed(seed + 17, game_index, move_index)),
+                        rng=random.Random(
+                            search_seed(seed + 17, game_index, move_index)
+                        ),
                         root=teacher_root,
                         reuse_subtree=teacher_search_reuse,
                     )
@@ -434,7 +514,9 @@ def run_worker(
                 )
                 positions.append(
                     {
-                        "state": encode_state(game.to_state(), input_encoding=input_encoding),
+                        "state": encode_state(
+                            game.to_state(), input_encoding=input_encoding
+                        ),
                         "game_state": game.to_state(),
                         "player": game.current_player,
                         "move_index": move_index,
@@ -449,7 +531,11 @@ def run_worker(
                     break
 
             selected = selected_teacher_positions(
-                apply_curriculum(positions, max_positions_per_game=max_positions_per_game, tactical_mode=position_selection_mode == "tactical"),
+                apply_curriculum(
+                    positions,
+                    max_positions_per_game=max_positions_per_game,
+                    tactical_mode=position_selection_mode == "tactical",
+                ),
                 mode=position_selection_mode,
             )
             rows = annotate_rows(
@@ -543,7 +629,9 @@ def run_worker_classic_mcts(
                 )
                 positions.append(
                     {
-                        "state": encode_state(game.to_state(), input_encoding=input_encoding),
+                        "state": encode_state(
+                            game.to_state(), input_encoding=input_encoding
+                        ),
                         "game_state": game.to_state(),
                         "player": game.current_player,
                         "move_index": move_index,
@@ -558,7 +646,11 @@ def run_worker_classic_mcts(
                     break
 
             selected = selected_teacher_positions(
-                apply_curriculum(positions, max_positions_per_game=max_positions_per_game, tactical_mode=position_selection_mode == "tactical"),
+                apply_curriculum(
+                    positions,
+                    max_positions_per_game=max_positions_per_game,
+                    tactical_mode=position_selection_mode == "tactical",
+                ),
                 mode=position_selection_mode,
             )
             rows = annotate_rows(
@@ -599,11 +691,18 @@ def main() -> None:
         starts.append(cursor)
         cursor += count
 
-    with tempfile.TemporaryDirectory(prefix="azlite-bootstrap-shards-", dir=out_path.parent) as shard_dir:
-        shard_paths = [str(Path(shard_dir) / f"worker_{worker_id}.jsonl") for worker_id in range(workers)]
+    with tempfile.TemporaryDirectory(
+        prefix="azlite-bootstrap-shards-", dir=out_path.parent
+    ) as shard_dir:
+        shard_paths = [
+            str(Path(shard_dir) / f"worker_{worker_id}.jsonl")
+            for worker_id in range(workers)
+        ]
         futures = []
         with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
-            for worker_id, (start_index, game_count) in enumerate(zip(starts, game_counts, strict=True)):
+            for worker_id, (start_index, game_count) in enumerate(
+                zip(starts, game_counts, strict=True)
+            ):
                 if game_count <= 0:
                     Path(shard_paths[worker_id]).write_text("", encoding="utf-8")
                     continue
@@ -646,7 +745,9 @@ def main() -> None:
                             top_k=args.top_k,
                             dirichlet_alpha=args.dirichlet_alpha,
                             dirichlet_epsilon=max(float(args.dirichlet_epsilon), 0.0),
-                            dirichlet_opening_moves=max(int(args.dirichlet_opening_moves), 0),
+                            dirichlet_opening_moves=max(
+                                int(args.dirichlet_opening_moves), 0
+                            ),
                             shard_path=shard_paths[worker_id],
                         )
                     )
@@ -660,7 +761,9 @@ def main() -> None:
     positions_visited = sum(int(result["positions_visited"]) for result in results)
     positions_searched = sum(int(result["positions_searched"]) for result in results)
     simulations_run = sum(int(result["simulations_run"]) for result in results)
-    average_rows = 0.0 if games_processed == 0 else rows_written / float(games_processed)
+    average_rows = (
+        0.0 if games_processed == 0 else rows_written / float(games_processed)
+    )
 
     print(f"wrote {rows_written} rows to {out_path}")
     print(
@@ -668,7 +771,11 @@ def main() -> None:
         f"games_processed={games_processed} rows_written={rows_written} positions_visited={positions_visited} "
         f"positions_searched={positions_searched} simulations_run={simulations_run} average_rows_retained_per_game={average_rows}"
     )
-    effective_teacher_search_reuse = bool(args.teacher_search_reuse and teacher_mode == "puct" and position_selection_mode == "hybrid_teacher")
+    effective_teacher_search_reuse = bool(
+        args.teacher_search_reuse
+        and teacher_mode == "puct"
+        and position_selection_mode == "hybrid_teacher"
+    )
     print(
         format_metrics_line(
             prefix="dataset_metrics",

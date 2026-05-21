@@ -7,7 +7,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-def build_manifest(*, run_id: str, iteration: int, seed: int, config_path: str, parent_version: str | None, status: str, notes: dict | None = None) -> dict:
+def build_manifest(
+    *,
+    run_id: str,
+    iteration: int,
+    seed: int,
+    config_path: str,
+    parent_version: str | None,
+    status: str,
+    notes: dict | None = None,
+) -> dict:
     return {
         "schema": "azlite_run_manifest_v1",
         "run_id": run_id,

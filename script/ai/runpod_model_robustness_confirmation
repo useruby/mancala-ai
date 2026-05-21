@@ -18,13 +18,19 @@ from ml.alphazero_lite.runpod_experiment import (  # noqa: E402
     orchestrate,
 )
 
-DEFAULT_PARENT_ARTIFACT = "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1"
+DEFAULT_PARENT_ARTIFACT = (
+    "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1"
+)
 DEFAULT_CURRENT_PATH = "model-artifact/current"
 DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json"
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_v3_robustness_confirmation"
-DEFAULT_RESULTS_PATH = "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+DEFAULT_RESULTS_PATH = (
+    "storage/ai/alphazero_lite/versions/runpod-robustness-confirmation"
+)
 DEFAULT_LOCAL_RESULTS_PATH = "/tmp/runpod-robustness-confirmation-results"
-DEFAULT_BUNDLE_PATH = str(REPO_ROOT / "tmp" / "runpod_model_robustness_confirmation_bundle.tar.gz")
+DEFAULT_BUNDLE_PATH = str(
+    REPO_ROOT / "tmp" / "runpod_model_robustness_confirmation_bundle.tar.gz"
+)
 DEFAULT_NAME = "azlite-runpod-robustness-confirmation"
 DEFAULT_POD_PROFILE = "cpu3c-16-32"
 DEFAULT_RESULT_SUMMARY_NAME = "aggregate_summary.json"
@@ -75,7 +81,9 @@ def repo_bundle_path(path_value: str) -> str:
         pass
     if path_value.startswith("/tmp/"):
         return path.relative_to("/").as_posix()
-    raise SystemExit(f"Path must be repo-relative or under /tmp for RunPod bundling: {path_value}")
+    raise SystemExit(
+        f"Path must be repo-relative or under /tmp for RunPod bundling: {path_value}"
+    )
 
 
 def sync_commands_for_tmp_path(path_value: str, bundle_path: str) -> list[str]:
@@ -93,25 +101,38 @@ def downloaded_results_dir(local_results_path: str, results_path: str) -> Path:
 
 
 def robustness_summary_path(local_results_path: str, results_path: str) -> Path:
-    return downloaded_results_dir(local_results_path, results_path) / DEFAULT_RESULT_SUMMARY_NAME
+    return (
+        downloaded_results_dir(local_results_path, results_path)
+        / DEFAULT_RESULT_SUMMARY_NAME
+    )
 
 
 def clear_downloaded_results_dir(local_results_path: str, results_path: str) -> None:
-    shutil.rmtree(downloaded_results_dir(local_results_path, results_path), ignore_errors=True)
+    shutil.rmtree(
+        downloaded_results_dir(local_results_path, results_path), ignore_errors=True
+    )
 
 
 def load_robustness_summary(local_results_path: str, results_path: str) -> dict:
     summary_path = robustness_summary_path(local_results_path, results_path)
     if not summary_path.exists():
-        raise SystemExit(f"Missing downloaded robustness aggregate summary: {summary_path}")
+        raise SystemExit(
+            f"Missing downloaded robustness aggregate summary: {summary_path}"
+        )
     try:
         payload = json.loads(summary_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as error:
-        raise SystemExit(f"Invalid downloaded robustness aggregate summary: {summary_path}") from error
+        raise SystemExit(
+            f"Invalid downloaded robustness aggregate summary: {summary_path}"
+        ) from error
     if not isinstance(payload, dict):
-        raise SystemExit(f"Downloaded robustness aggregate summary must be a JSON object: {summary_path}")
+        raise SystemExit(
+            f"Downloaded robustness aggregate summary must be a JSON object: {summary_path}"
+        )
     if not isinstance(payload.get("passed"), bool):
-        raise SystemExit(f"Downloaded robustness aggregate summary must contain boolean 'passed': {summary_path}")
+        raise SystemExit(
+            f"Downloaded robustness aggregate summary must contain boolean 'passed': {summary_path}"
+        )
     payload["summary_path"] = str(summary_path)
     return payload
 
@@ -137,21 +158,35 @@ def main() -> int:
     dry_run_parent_artifact = args.parent_artifact
     dry_run_current_path = args.current_path
     base_config_bundle_path = repo_bundle_path(args.base_config)
-    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith("/tmp/"):
-        dry_run_parent_artifact = str(REPO_ROOT / stage_absolute_bundle_path(args.parent_artifact))
-        parent_bundle_path = Path(dry_run_parent_artifact).relative_to(REPO_ROOT).as_posix()
+    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith(
+        "/tmp/"
+    ):
+        dry_run_parent_artifact = str(
+            REPO_ROOT / stage_absolute_bundle_path(args.parent_artifact)
+        )
+        parent_bundle_path = (
+            Path(dry_run_parent_artifact).relative_to(REPO_ROOT).as_posix()
+        )
     else:
         parent_bundle_path = repo_bundle_path(args.parent_artifact)
 
-    if Path(args.current_path).is_absolute() and not args.current_path.startswith("/tmp/"):
-        dry_run_current_path = str(REPO_ROOT / stage_absolute_bundle_path(args.current_path))
-        current_bundle_path = Path(dry_run_current_path).relative_to(REPO_ROOT).as_posix()
+    if Path(args.current_path).is_absolute() and not args.current_path.startswith(
+        "/tmp/"
+    ):
+        dry_run_current_path = str(
+            REPO_ROOT / stage_absolute_bundle_path(args.current_path)
+        )
+        current_bundle_path = (
+            Path(dry_run_current_path).relative_to(REPO_ROOT).as_posix()
+        )
     elif Path(args.current_path).is_absolute():
         current_bundle_path = repo_bundle_path(args.current_path)
     else:
         current_bundle_path = args.current_path
 
-    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith("/tmp/"):
+    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith(
+        "/tmp/"
+    ):
         pass
 
     include_paths = [
@@ -165,31 +200,37 @@ def main() -> int:
     if args.current_path != "model-artifact/current":
         include_paths.append(current_bundle_path)
 
-    robustness_command = " ".join([
-        "script/ai/model_robustness_confirmation",
-        f"--base-config {shlex.quote(args.base_config)}",
-        f"--parent-artifact {shlex.quote(dry_run_parent_artifact)}",
-        f"--current-path {shlex.quote(dry_run_current_path)}",
-        f"--output-root {shlex.quote(args.output_root)}",
-    ])
+    robustness_command = " ".join(
+        [
+            "script/ai/model_robustness_confirmation",
+            f"--base-config {shlex.quote(args.base_config)}",
+            f"--parent-artifact {shlex.quote(dry_run_parent_artifact)}",
+            f"--current-path {shlex.quote(dry_run_current_path)}",
+            f"--output-root {shlex.quote(args.output_root)}",
+        ]
+    )
 
-    command = " && ".join([
-        f"mkdir -p {shlex.quote(args.results_path)}",
-        *sync_commands_for_tmp_path(args.parent_artifact, parent_bundle_path),
-        *sync_commands_for_tmp_path(args.current_path, current_bundle_path),
-        " ".join([
-            "(",
-            f"if {robustness_command};",
-            "then robustness_status=0;",
-            "else robustness_status=$?;",
-            f"fi; if cp -R {shlex.quote(args.output_root)}/. {shlex.quote(args.results_path)}/;",
-            "then copy_status=0;",
-            "else copy_status=$?;",
-            'fi; if [ "$copy_status" -ne 0 ]; then exit "$copy_status"; fi;',
-            'exit "$robustness_status"',
-            ")",
-        ]),
-    ])
+    command = " && ".join(
+        [
+            f"mkdir -p {shlex.quote(args.results_path)}",
+            *sync_commands_for_tmp_path(args.parent_artifact, parent_bundle_path),
+            *sync_commands_for_tmp_path(args.current_path, current_bundle_path),
+            " ".join(
+                [
+                    "(",
+                    f"if {robustness_command};",
+                    "then robustness_status=0;",
+                    "else robustness_status=$?;",
+                    f"fi; if cp -R {shlex.quote(args.output_root)}/. {shlex.quote(args.results_path)}/;",
+                    "then copy_status=0;",
+                    "else copy_status=$?;",
+                    'fi; if [ "$copy_status" -ne 0 ]; then exit "$copy_status"; fi;',
+                    'exit "$robustness_status"',
+                    ")",
+                ]
+            ),
+        ]
+    )
 
     include_paths = list(dict.fromkeys(include_paths))
     if args.dry_run:
@@ -209,15 +250,19 @@ def main() -> int:
         return 0
 
     parent_bundle_path = stage_tmp_bundle_path(args.parent_artifact)
-    current_bundle_path = stage_tmp_bundle_path(args.current_path) if Path(args.current_path).is_absolute() else args.current_path
-    parent_artifact_arg = args.parent_artifact
-    current_path_arg = args.current_path
-    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith("/tmp/"):
+    current_bundle_path = (
+        stage_tmp_bundle_path(args.current_path)
+        if Path(args.current_path).is_absolute()
+        else args.current_path
+    )
+    if Path(args.parent_artifact).is_absolute() and not args.parent_artifact.startswith(
+        "/tmp/"
+    ):
         parent_bundle_path = stage_absolute_bundle_path(args.parent_artifact)
-        parent_artifact_arg = str(REPO_ROOT / parent_bundle_path)
-    if Path(args.current_path).is_absolute() and not args.current_path.startswith("/tmp/"):
+    if Path(args.current_path).is_absolute() and not args.current_path.startswith(
+        "/tmp/"
+    ):
         current_bundle_path = stage_absolute_bundle_path(args.current_path)
-        current_path_arg = str(REPO_ROOT / current_bundle_path)
     include_paths = [
         "script/ai/model_robustness_confirmation",
         "script/ai/local_promotion_gate",
@@ -251,7 +296,9 @@ def main() -> int:
         orchestrate_error = error
 
     try:
-        robustness_summary = load_robustness_summary(args.local_results_path, args.results_path)
+        robustness_summary = load_robustness_summary(
+            args.local_results_path, args.results_path
+        )
     except SystemExit:
         if orchestrate_error is not None:
             raise orchestrate_error
@@ -267,33 +314,67 @@ parser = argparse.ArgumentParser(
     prog="script/ai/runpod_model_robustness_confirmation",
     description="Launch the expensive model robustness confirmation sweep on RunPod.",
 )
-parser.add_argument("--base-config", default=DEFAULT_BASE_CONFIG,
-                    help="Base pipeline config used by model_robustness_confirmation")
-parser.add_argument("--parent-artifact", default=DEFAULT_PARENT_ARTIFACT,
-                    help="Parent artifact used as the remote baseline")
-parser.add_argument("--current-path", default=DEFAULT_CURRENT_PATH,
-                    help="Current artifact path used by local_promotion_gate")
-parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT,
-                    help="Remote output root for the confirmation sweep")
-parser.add_argument("--results-path", default=DEFAULT_RESULTS_PATH,
-                    help="Remote-relative results directory to download")
-parser.add_argument("--local-results-path", default=DEFAULT_LOCAL_RESULTS_PATH,
-                    help="Where to download remote results locally")
-parser.add_argument("--bundle-path", default=DEFAULT_BUNDLE_PATH,
-                    help="Where to write the generated tarball")
-parser.add_argument("--api-key-env", default="RUNPOD_API_KEY",
-                    help="Env var that contains the RunPod API key")
-parser.add_argument("--name", default=DEFAULT_NAME,
-                    help="RunPod pod name")
-parser.add_argument("--pod-profile", default=DEFAULT_POD_PROFILE,
-                    help="Named RunPod pod profile")
-parser.add_argument("--run-timeout-seconds", type=int, default=14400,
-                    help="Timeout for the remote experiment command")
-parser.add_argument("--keep-pod-on-failure", action=argparse.BooleanOptionalAction,
-                    default=True,
-                    help="Keep the pod only when remote execution fails before producing usable results")
-parser.add_argument("--dry-run", action="store_true",
-                    help="Print the bundle/orchestration plan without running it")
+parser.add_argument(
+    "--base-config",
+    default=DEFAULT_BASE_CONFIG,
+    help="Base pipeline config used by model_robustness_confirmation",
+)
+parser.add_argument(
+    "--parent-artifact",
+    default=DEFAULT_PARENT_ARTIFACT,
+    help="Parent artifact used as the remote baseline",
+)
+parser.add_argument(
+    "--current-path",
+    default=DEFAULT_CURRENT_PATH,
+    help="Current artifact path used by local_promotion_gate",
+)
+parser.add_argument(
+    "--output-root",
+    default=DEFAULT_OUTPUT_ROOT,
+    help="Remote output root for the confirmation sweep",
+)
+parser.add_argument(
+    "--results-path",
+    default=DEFAULT_RESULTS_PATH,
+    help="Remote-relative results directory to download",
+)
+parser.add_argument(
+    "--local-results-path",
+    default=DEFAULT_LOCAL_RESULTS_PATH,
+    help="Where to download remote results locally",
+)
+parser.add_argument(
+    "--bundle-path",
+    default=DEFAULT_BUNDLE_PATH,
+    help="Where to write the generated tarball",
+)
+parser.add_argument(
+    "--api-key-env",
+    default="RUNPOD_API_KEY",
+    help="Env var that contains the RunPod API key",
+)
+parser.add_argument("--name", default=DEFAULT_NAME, help="RunPod pod name")
+parser.add_argument(
+    "--pod-profile", default=DEFAULT_POD_PROFILE, help="Named RunPod pod profile"
+)
+parser.add_argument(
+    "--run-timeout-seconds",
+    type=int,
+    default=14400,
+    help="Timeout for the remote experiment command",
+)
+parser.add_argument(
+    "--keep-pod-on-failure",
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help="Keep the pod only when remote execution fails before producing usable results",
+)
+parser.add_argument(
+    "--dry-run",
+    action="store_true",
+    help="Print the bundle/orchestration plan without running it",
+)
 
 
 if __name__ == "__main__":

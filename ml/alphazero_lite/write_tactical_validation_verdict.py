@@ -56,15 +56,21 @@ def validate_bucket_gate(payload: Any) -> dict[str, Any]:
         if not isinstance(check.get("id"), str):
             raise ValueError(f"bucket_gate checks[{index}] must include string id")
         if str(check["id"]).count(".") != 1:
-            raise ValueError(f"bucket_gate checks[{index}] must include id in <bucket>.<metric> form")
+            raise ValueError(
+                f"bucket_gate checks[{index}] must include id in <bucket>.<metric> form"
+            )
         if check.get("comparison") not in {"max", "min"}:
-            raise ValueError(f"bucket_gate checks[{index}] must include valid comparison")
+            raise ValueError(
+                f"bucket_gate checks[{index}] must include valid comparison"
+            )
         if not isinstance(check.get("passed"), bool):
             raise ValueError(f"bucket_gate checks[{index}] must include boolean passed")
         for field in ("baseline_value", "candidate_value", "threshold"):
             value = check.get(field)
             if isinstance(value, bool) or not isinstance(value, (int, float)):
-                raise ValueError(f"bucket_gate checks[{index}] must include numeric {field}")
+                raise ValueError(
+                    f"bucket_gate checks[{index}] must include numeric {field}"
+                )
     return payload
 
 
@@ -285,12 +291,22 @@ def write_report(path: str, payload: dict[str, Any]) -> None:
 def main() -> int:
     args = parse_args()
     try:
-        baseline_forensics = check_bucket_promotion_gate.load_validate_and_check_metrics(args.baseline_forensics)
-        candidate_forensics = check_bucket_promotion_gate.load_validate_and_check_metrics(args.candidate_forensics)
+        baseline_forensics = (
+            check_bucket_promotion_gate.load_validate_and_check_metrics(
+                args.baseline_forensics
+            )
+        )
+        candidate_forensics = (
+            check_bucket_promotion_gate.load_validate_and_check_metrics(
+                args.candidate_forensics
+            )
+        )
         validate_verdict_metric_surfaces(baseline_forensics)
         validate_verdict_metric_surfaces(candidate_forensics)
         bucket_gate = validate_bucket_gate(load_json(args.bucket_gate))
-        regression_report = validate_regression_report(load_json(args.regression_report))
+        regression_report = validate_regression_report(
+            load_json(args.regression_report)
+        )
         arena_report = validate_arena_report(load_json(args.arena_report))
         verdict = build_verdict(
             run_dir=args.run_dir,
@@ -314,22 +330,42 @@ def main() -> int:
             (
                 args.baseline_forensics,
                 lambda current_path: validate_verdict_metric_surfaces(
-                    check_bucket_promotion_gate.load_validate_and_check_metrics(current_path)
+                    check_bucket_promotion_gate.load_validate_and_check_metrics(
+                        current_path
+                    )
                 ),
             ),
             (
                 args.candidate_forensics,
                 lambda current_path: validate_verdict_metric_surfaces(
-                    check_bucket_promotion_gate.load_validate_and_check_metrics(current_path)
+                    check_bucket_promotion_gate.load_validate_and_check_metrics(
+                        current_path
+                    )
                 ),
             ),
-            (args.bucket_gate, lambda current_path: validate_bucket_gate(load_json(current_path))),
-            (args.regression_report, lambda current_path: validate_regression_report(load_json(current_path))),
-            (args.arena_report, lambda current_path: validate_arena_report(load_json(current_path))),
+            (
+                args.bucket_gate,
+                lambda current_path: validate_bucket_gate(load_json(current_path)),
+            ),
+            (
+                args.regression_report,
+                lambda current_path: validate_regression_report(
+                    load_json(current_path)
+                ),
+            ),
+            (
+                args.arena_report,
+                lambda current_path: validate_arena_report(load_json(current_path)),
+            ),
         ):
             try:
                 loader(candidate_path)
-            except (OSError, json.JSONDecodeError, TypeError, ValueError) as specific_error:
+            except (
+                OSError,
+                json.JSONDecodeError,
+                TypeError,
+                ValueError,
+            ) as specific_error:
                 path = candidate_path
                 reported_error = specific_error
                 break

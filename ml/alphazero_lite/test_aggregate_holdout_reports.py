@@ -94,8 +94,12 @@ class AggregateHoldoutReportsTest(unittest.TestCase):
             out_candidate = tmp_path / "out" / "candidate_mcts.json"
             out_current = tmp_path / "out" / "current_mcts.json"
 
-            arena_a.write_text(json.dumps(arena(4, 1, 0, mean=80.0, p95=120.0)), encoding="utf-8")
-            arena_b.write_text(json.dumps(arena(3, 1, 1, mean=120.0, p95=220.0)), encoding="utf-8")
+            arena_a.write_text(
+                json.dumps(arena(4, 1, 0, mean=80.0, p95=120.0)), encoding="utf-8"
+            )
+            arena_b.write_text(
+                json.dumps(arena(3, 1, 1, mean=120.0, p95=220.0)), encoding="utf-8"
+            )
             candidate_a.write_text(json.dumps(mcts(5, 2, 1)), encoding="utf-8")
             candidate_b.write_text(json.dumps(mcts(4, 4, 0)), encoding="utf-8")
             current_a.write_text(json.dumps(mcts(2, 5, 1)), encoding="utf-8")

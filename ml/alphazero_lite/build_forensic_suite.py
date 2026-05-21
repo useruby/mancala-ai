@@ -3,26 +3,40 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from collections import Counter
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+try:
+    from ml.alphazero_lite.arena import (
+        ArtifactEvaluator,
+        build_eval_search_options,
+        evaluate_artifact_position,
+    )
+    from ml.alphazero_lite.forensic_suite import REQUIRED_BUCKETS, canonical_state_key
+    from ml.alphazero_lite.kalah_rules import KalahGame
+except ModuleNotFoundError:
+    from arena import (
+        ArtifactEvaluator,
+        build_eval_search_options,
+        evaluate_artifact_position,
+    )
+    from forensic_suite import REQUIRED_BUCKETS, canonical_state_key
+    from kalah_rules import KalahGame
 
-from ml.alphazero_lite.arena import ArtifactEvaluator, build_eval_search_options, evaluate_artifact_position
-from ml.alphazero_lite.forensic_suite import REQUIRED_BUCKETS, canonical_state_key
-from ml.alphazero_lite.kalah_rules import KalahGame
+ROOT_DIR = Path(__file__).resolve().parents[2]
 
 FIXTURE_SCHEMA = "azlite_forensic_suite_v1"
 TARGET_SUITE_SIZE = 224
-DEFAULT_OUTPUT = ROOT_DIR / "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+DEFAULT_OUTPUT = (
+    ROOT_DIR / "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+)
 MAX_PLIES = 32
 MAX_STATES_PER_DEPTH = 256
-PROXY_ARTIFACT = ROOT_DIR / "ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current"
+PROXY_ARTIFACT = (
+    ROOT_DIR / "ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current"
+)
 CURRENT_PROXY_SIMULATIONS = 256
 CHALLENGER_PROXY_SIMULATIONS = 384
 PROXY_SEARCH_OPTIONS = build_eval_search_options()
@@ -43,7 +57,9 @@ def _legal_moves(state: dict[str, Any]) -> list[int]:
     return KalahGame.from_state(state).possible_moves()
 
 
-def _side_view(state: dict[str, Any], player: int | None = None) -> tuple[list[int], list[int], int, int]:
+def _side_view(
+    state: dict[str, Any], player: int | None = None
+) -> tuple[list[int], list[int], int, int]:
     current_player = int(state["current_player"] if player is None else player)
     if current_player == 0:
         return (
@@ -67,10 +83,13 @@ def _move_features(game: KalahGame, move: int) -> dict[str, bool | int]:
     if not simulated.move(absolute_move):
         raise ValueError(f"illegal move {move} for state {game.to_state()}")
     state_after = simulated.to_state()
-    side_pits_after, _, side_store_after, _ = _side_view(state_after, player=original_player)
+    side_pits_after, _, side_store_after, _ = _side_view(
+        state_after, player=original_player
+    )
     player_store_gain = side_store_after - game.captured_seeds[original_player]
     return {
-        "extra_turn": simulated.current_player == original_player and not simulated.over(),
+        "extra_turn": simulated.current_player == original_player
+        and not simulated.over(),
         "capture": player_store_gain > 1,
         "swing": player_store_gain >= 4,
         "post_move_empty_pits": sum(1 for value in side_pits_after if value == 0),
@@ -94,7 +113,12 @@ def _choose_bucket(state: dict[str, Any], ply: int) -> str | None:
         return "sparse_endgame"
     if any(bool(feature["swing"]) for feature in features):
         return "high_value_swing"
-    if total_side <= 6 or total_opponent <= 6 or empty_player >= 4 or empty_opponent >= 4:
+    if (
+        total_side <= 6
+        or total_opponent <= 6
+        or empty_player >= 4
+        or empty_opponent >= 4
+    ):
         return "starvation_pressure"
     if abs(side_store - opponent_store) >= 8:
         return "high_imbalance"
@@ -145,7 +169,11 @@ def _is_proxy_disagreement_candidate(state: dict[str, Any], ply: int) -> bool:
     challenger_summary = _proxy_root_summary(state_key, CHALLENGER_PROXY_SIMULATIONS)
     current_move = current_summary.get("selected_move")
     challenger_move = challenger_summary.get("selected_move")
-    if current_move is None or challenger_move is None or current_move == challenger_move:
+    if (
+        current_move is None
+        or challenger_move is None
+        or current_move == challenger_move
+    ):
         return False
     current_quality = _best_child_score(current_summary, current_move)
     challenger_quality = _best_child_score(challenger_summary, challenger_move)
@@ -163,7 +191,15 @@ def _phase_for_state(state: dict[str, Any], ply: int) -> str:
     return "mid"
 
 
-def _row_from_state(*, state: dict[str, Any], bucket: str, phase: str, source: str, row_id: str, tags: list[str]) -> dict[str, Any]:
+def _row_from_state(
+    *,
+    state: dict[str, Any],
+    bucket: str,
+    phase: str,
+    source: str,
+    row_id: str,
+    tags: list[str],
+) -> dict[str, Any]:
     return {
         "id": row_id,
         "state": state,
@@ -200,7 +236,9 @@ def _seed_rows(candidates: list[tuple[int, dict[str, Any]]]) -> list[dict[str, A
     }
     seed_counts = {bucket: 0 for bucket in seed_targets}
     for ply, state in candidates:
-        if seed_counts[PROXY_DISAGREEMENT_BUCKET] < seed_targets[PROXY_DISAGREEMENT_BUCKET] and _is_proxy_disagreement_candidate(state, ply):
+        if seed_counts[PROXY_DISAGREEMENT_BUCKET] < seed_targets[
+            PROXY_DISAGREEMENT_BUCKET
+        ] and _is_proxy_disagreement_candidate(state, ply):
             seed_counts[PROXY_DISAGREEMENT_BUCKET] += 1
             bucket = PROXY_DISAGREEMENT_BUCKET
             rows.append(
@@ -213,7 +251,9 @@ def _seed_rows(candidates: list[tuple[int, dict[str, Any]]]) -> list[dict[str, A
                     tags=[bucket, "seed", f"ply_{ply}"],
                 )
             )
-            if all(seed_counts[name] >= target for name, target in seed_targets.items()):
+            if all(
+                seed_counts[name] >= target for name, target in seed_targets.items()
+            ):
                 break
             continue
 
@@ -278,7 +318,9 @@ def _candidate_states() -> list[tuple[int, dict[str, Any]]]:
 
 def build_rows() -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    rows_by_bucket: dict[str, list[dict[str, Any]]] = {bucket: [] for bucket in sorted(REQUIRED_BUCKETS)}
+    rows_by_bucket: dict[str, list[dict[str, Any]]] = {
+        bucket: [] for bucket in sorted(REQUIRED_BUCKETS)
+    }
     seen: set[str] = set()
     bucket_ids: dict[str, int] = {bucket: 0 for bucket in sorted(REQUIRED_BUCKETS)}
 
@@ -378,7 +420,16 @@ def main() -> None:
     output_path.write_text(build_fixture_text(rows), encoding="utf-8")
     bucket_counts = Counter(row["bucket"] for row in rows)
     print(f"wrote forensic suite to {output_path}")
-    print(json.dumps({"schema": FIXTURE_SCHEMA, "rows": len(rows), "buckets": dict(sorted(bucket_counts.items()))}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "schema": FIXTURE_SCHEMA,
+                "rows": len(rows),
+                "buckets": dict(sorted(bucket_counts.items())),
+            },
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":

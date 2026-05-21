@@ -11,11 +11,18 @@ from ml.alphazero_lite import capture_002_trace_checkpoint_canonicalization as m
 
 class Capture002TraceCheckpointCanonicalizationContractTest(unittest.TestCase):
     def test_contract_constants_are_stable(self):
-        self.assertEqual("azlite_capture_002_trace_checkpoint_canonicalization_v1", module.SCHEMA)
-        self.assertEqual("azlite_capture_002_selection_score_trace_v1", module.SOURCE_SELECTION_SCORE_SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_trace_checkpoint_canonicalization_v1", module.SCHEMA
+        )
+        self.assertEqual(
+            "azlite_capture_002_selection_score_trace_v1",
+            module.SOURCE_SELECTION_SCORE_SCHEMA,
+        )
         self.assertEqual("capture_available-002", module.ROW_ID)
         self.assertEqual("unresolved", module.EXPECTED_TRACE_CLASSIFICATION)
-        self.assertEqual("write_002_unresolved_trace_review_spec", module.EXPECTED_TRACE_DECISION)
+        self.assertEqual(
+            "write_002_unresolved_trace_review_spec", module.EXPECTED_TRACE_DECISION
+        )
         self.assertEqual(
             {
                 "duplicate_root_snapshot_only": "write_002_metric_audit_canonical_input_spec",
@@ -39,7 +46,9 @@ class Capture002TraceCheckpointCanonicalizationContractTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(Path("/tmp/default.json"), args.source_selection_score_artifact)
+        self.assertEqual(
+            Path("/tmp/default.json"), args.source_selection_score_artifact
+        )
         self.assertEqual(
             Path("/tmp/relaxed.json"),
             args.source_threshold_relaxed_selection_score_artifact,
@@ -89,15 +98,28 @@ class Capture002TraceCheckpointCanonicalizationBuildPayloadTest(unittest.TestCas
             "reference_move_by_prior": reference_move_by_prior,
             "visits": list(visits),
             "moves": [
-                self.move_entry(0, q_value=selected_q, selection_score=selected_selection_score),
-                self.move_entry(2, q_value=reference_q, selection_score=reference_selection_score),
+                self.move_entry(
+                    0, q_value=selected_q, selection_score=selected_selection_score
+                ),
+                self.move_entry(
+                    2, q_value=reference_q, selection_score=reference_selection_score
+                ),
             ],
         }
 
-    def trace_artifact(self, *, thresholds: dict, trace_points: list[dict], trace_origin: str = "extracted") -> dict:
+    def trace_artifact(
+        self,
+        *,
+        thresholds: dict,
+        trace_points: list[dict],
+        trace_origin: str = "extracted",
+    ) -> dict:
         return {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
-            "classification": {"classification": "unresolved", "evidence_summary": "unresolved"},
+            "classification": {
+                "classification": "unresolved",
+                "evidence_summary": "unresolved",
+            },
             "decision": "write_002_unresolved_trace_review_spec",
             "insufficiency_reasons": [],
             "trace_origin": trace_origin,
@@ -165,8 +187,12 @@ class Capture002TraceCheckpointCanonicalizationBuildPayloadTest(unittest.TestCas
     def valid_inputs(self) -> tuple[dict, dict]:
         trace_points = self.safe_trace_points()
         return (
-            self.trace_artifact(thresholds=self.default_thresholds(), trace_points=trace_points),
-            self.trace_artifact(thresholds=self.relaxed_thresholds(), trace_points=trace_points),
+            self.trace_artifact(
+                thresholds=self.default_thresholds(), trace_points=trace_points
+            ),
+            self.trace_artifact(
+                thresholds=self.relaxed_thresholds(), trace_points=trace_points
+            ),
         )
 
     def build_payload(self, default=None, relaxed=None) -> dict:
@@ -181,13 +207,25 @@ class Capture002TraceCheckpointCanonicalizationBuildPayloadTest(unittest.TestCas
     def test_build_payload_classifies_duplicate_root_snapshot_only(self):
         payload = self.build_payload()
 
-        self.assertEqual("duplicate_root_snapshot_only", payload["classification"]["classification"])
-        self.assertEqual("write_002_metric_audit_canonical_input_spec", payload["decision"])
+        self.assertEqual(
+            "duplicate_root_snapshot_only", payload["classification"]["classification"]
+        )
+        self.assertEqual(
+            "write_002_metric_audit_canonical_input_spec", payload["decision"]
+        )
         self.assertTrue(payload["canonical_sequences_match"])
-        self.assertEqual([1.0, 2.0, 192.0, 384.0], payload["canonical_checkpoint_sequences"]["default"])
-        self.assertEqual([1.0, 2.0, 192.0, 384.0], payload["canonical_checkpoint_sequences"]["relaxed"])
+        self.assertEqual(
+            [1.0, 2.0, 192.0, 384.0],
+            payload["canonical_checkpoint_sequences"]["default"],
+        )
+        self.assertEqual(
+            [1.0, 2.0, 192.0, 384.0],
+            payload["canonical_checkpoint_sequences"]["relaxed"],
+        )
 
-    def test_build_payload_classifies_duplicate_equivalent_checkpoint_when_later_duplicate_exists(self):
+    def test_build_payload_classifies_duplicate_equivalent_checkpoint_when_later_duplicate_exists(
+        self,
+    ):
         default, relaxed = self.valid_inputs()
         later_duplicate = copy.deepcopy(default["trace_points"][2])
         default["trace_points"].insert(3, copy.deepcopy(later_duplicate))
@@ -195,32 +233,53 @@ class Capture002TraceCheckpointCanonicalizationBuildPayloadTest(unittest.TestCas
 
         payload = self.build_payload(default=default, relaxed=relaxed)
 
-        self.assertEqual("duplicate_equivalent_checkpoint", payload["classification"]["classification"])
-        self.assertEqual("write_002_metric_audit_canonical_input_spec", payload["decision"])
+        self.assertEqual(
+            "duplicate_equivalent_checkpoint",
+            payload["classification"]["classification"],
+        )
+        self.assertEqual(
+            "write_002_metric_audit_canonical_input_spec", payload["decision"]
+        )
         self.assertTrue(payload["canonical_sequences_match"])
 
-    def test_build_payload_classifies_duplicate_conflicting_checkpoint_when_duplicate_group_differs(self):
+    def test_build_payload_classifies_duplicate_conflicting_checkpoint_when_duplicate_group_differs(
+        self,
+    ):
         default, relaxed = self.valid_inputs()
         default["trace_points"][1]["moves"][0]["selection_score"] = 0.99
 
         payload = self.build_payload(default=default, relaxed=relaxed)
 
-        self.assertEqual("duplicate_conflicting_checkpoint", payload["classification"]["classification"])
+        self.assertEqual(
+            "duplicate_conflicting_checkpoint",
+            payload["classification"]["classification"],
+        )
         self.assertEqual("stop_002_duplicate_checkpoint_conflict", payload["decision"])
         self.assertFalse(payload["canonical_sequences_match"])
 
-    def test_build_payload_classifies_duplicate_conflicting_checkpoint_when_duplicate_move_order_differs(self):
+    def test_build_payload_classifies_duplicate_conflicting_checkpoint_when_duplicate_move_order_differs(
+        self,
+    ):
         default, relaxed = self.valid_inputs()
-        default["trace_points"][1]["moves"] = list(reversed(default["trace_points"][1]["moves"]))
-        relaxed["trace_points"][1]["moves"] = list(reversed(relaxed["trace_points"][1]["moves"]))
+        default["trace_points"][1]["moves"] = list(
+            reversed(default["trace_points"][1]["moves"])
+        )
+        relaxed["trace_points"][1]["moves"] = list(
+            reversed(relaxed["trace_points"][1]["moves"])
+        )
 
         payload = self.build_payload(default=default, relaxed=relaxed)
 
-        self.assertEqual("duplicate_conflicting_checkpoint", payload["classification"]["classification"])
+        self.assertEqual(
+            "duplicate_conflicting_checkpoint",
+            payload["classification"]["classification"],
+        )
         self.assertEqual("stop_002_duplicate_checkpoint_conflict", payload["decision"])
         self.assertFalse(payload["canonical_sequences_match"])
 
-    def test_build_payload_classifies_checkpoint_shape_mismatch_when_safe_sequences_differ(self):
+    def test_build_payload_classifies_checkpoint_shape_mismatch_when_safe_sequences_differ(
+        self,
+    ):
         default, relaxed = self.valid_inputs()
         relaxed["trace_points"] = [
             relaxed["trace_points"][0],
@@ -231,7 +290,9 @@ class Capture002TraceCheckpointCanonicalizationBuildPayloadTest(unittest.TestCas
 
         payload = self.build_payload(default=default, relaxed=relaxed)
 
-        self.assertEqual("checkpoint_shape_mismatch", payload["classification"]["classification"])
+        self.assertEqual(
+            "checkpoint_shape_mismatch", payload["classification"]["classification"]
+        )
         self.assertEqual("stop_002_checkpoint_shape_mismatch", payload["decision"])
         self.assertFalse(payload["canonical_sequences_match"])
 
@@ -239,7 +300,9 @@ class Capture002TraceCheckpointCanonicalizationBuildPayloadTest(unittest.TestCas
         default, relaxed = self.valid_inputs()
         relaxed["trace_origin"] = "rerun"
 
-        with self.assertRaisesRegex(ValueError, "default and relaxed trace_origin must match"):
+        with self.assertRaisesRegex(
+            ValueError, "default and relaxed trace_origin must match"
+        ):
             self.build_payload(default=default, relaxed=relaxed)
 
     def test_main_writes_sorted_payload_and_prints_compact_json(self):
@@ -273,7 +336,9 @@ class Capture002TraceCheckpointCanonicalizationBuildPayloadTest(unittest.TestCas
         self.assertEqual(module.SCHEMA, payload["schema"])
         self.assertEqual(str(out_path), summary["artifact_path"])
         self.assertEqual(module.SCHEMA, summary["schema"])
-        self.assertEqual(payload["classification"]["classification"], summary["classification"])
+        self.assertEqual(
+            payload["classification"]["classification"], summary["classification"]
+        )
         self.assertEqual(payload["decision"], summary["decision"])
 
 
