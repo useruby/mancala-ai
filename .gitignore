@@ -1,3 +1,4 @@
+/.worktrees/
 /.venv/
 /tmp/
 **/__pycache__/
