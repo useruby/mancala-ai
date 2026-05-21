@@ -67,3 +67,9 @@ Use `requirements-dev.txt` for shared repo tooling such as Ruff and `pre-commit`
 
 - review whether the detailed AlphaZero-lite operations guide should trim some provider-specific operational examples in a later docs pass
 - review whether any app-integration references should move into narrower internal or integration-focused documentation later
+
+## Community docs
+
+- Contribution guide: `CONTRIBUTING.md`
+- Security policy: `SECURITY.md`
+- Code of conduct: `CODE_OF_CONDUCT.md`
