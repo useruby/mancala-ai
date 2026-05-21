@@ -68,6 +68,43 @@ Notes:
 - Swap only `--config-path` (and optionally paths) per lane.
 - Wrapper runs pipeline + `local_promotion_gate` remotely and downloads outputs.
 
+## Stronger-Bootstrap More-Data RunPod Wrapper
+
+Use the dedicated issue-#1 wrapper when you want the stronger-bootstrap more-data lane with a predictable downloaded result tree and a concise recommendation summary.
+
+Default command:
+
+```bash
+script/ai/runpod_stronger_bootstrap_more_data_experiment
+```
+
+Default behavior:
+
+- uses `ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_more_data_local.json`
+- writes remote results under `storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data`
+- downloads results under `/tmp/runpod-stronger-bootstrap-more-data-results`
+- writes a lane summary to `<downloaded-results-root>/<remote-results-dir-name>/issue1_summary.json`
+- prints the same summary JSON to stdout, including the effective paths for the candidate artifact and key reports
+
+Override the result directory when you need reruns or alternate seeds without editing the wrapper:
+
+```bash
+script/ai/runpod_stronger_bootstrap_more_data_experiment \
+  --results-path storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data-seed43
+```
+
+Summary interpretation:
+
+- `confirm`: candidate passed the current issue checks, but alternate-seed confirmation is still required before treating it as promotion-ready
+- `pivot`: candidate beat current in arena play but regressed against `MCTS1200`, so the next task should target tactical or hard-state follow-up
+- `reject`: candidate failed the lane decision rules and should not be promoted
+
+Important:
+
+- the wrapper is orchestration plus reporting only; it does not change training or promotion semantics
+- do not manually copy files into `model-artifact/current`
+- use repo promotion tooling only after a candidate is validated and ready for promotion review
+
 ## Robustness Confirmation On RunPod
 
 Use the dedicated wrapper for multi-seed confirmation runs that are too expensive locally:

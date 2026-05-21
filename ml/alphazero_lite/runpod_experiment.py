@@ -30,6 +30,14 @@ DEFAULT_CPU_PROFILE = {
     "vcpuCount": 8,
 }
 SUPPORTED_CPU_PROFILES = {
+    "cpu5c-2-4": {
+        "cpuFlavorIds": ["cpu5c"],
+        "vcpuCount": 2,
+    },
+    "cpu3c-2-4": {
+        "cpuFlavorIds": ["cpu3c"],
+        "vcpuCount": 2,
+    },
     "cpu5c-16-32": {
         "cpuFlavorIds": ["cpu5c"],
         "vcpuCount": 16,
@@ -55,6 +63,8 @@ def build_bundle(
 ) -> str:
     normalized = [_normalize_repo_path(p) for p in include_paths]
     all_paths = _augment_bundle_paths(normalized)
+    install_python_requirements = _install_python_requirements(normalized)
+    install_ruby_dependencies = _install_ruby_dependencies(normalized)
     for path in all_paths:
         if not (REPO_ROOT / path).exists():
             raise ValueError(f"Missing include path: {path}")
@@ -65,9 +75,9 @@ def build_bundle(
     manifest = {
         "command": command,
         "results_path": results_path,
-        "install_python_requirements": _install_python_requirements(normalized),
-        "install_ruby_dependencies": _install_ruby_dependencies(normalized),
-        "ruby_version": _ruby_version(),
+        "install_python_requirements": install_python_requirements,
+        "install_ruby_dependencies": install_ruby_dependencies,
+        "ruby_version": _ruby_version() if install_ruby_dependencies else None,
         "include_paths": normalized,
     }
 
@@ -415,7 +425,11 @@ def orchestrate(
                         "manifest_path": downloaded["manifest_path"],
                         "manifest_status": downloaded["manifest_status"],
                     }
-                delete_pod = not keep_pod_on_failure
+                delete_pod = (
+                    True
+                    if downloaded["usable_downloaded_results_present"]
+                    else not keep_pod_on_failure
+                )
             except Exception:
                 pass
         raise
@@ -545,6 +559,8 @@ def _reset_local_results_dir(local_results_path: str, results_path: str) -> None
 def _inspect_downloaded_results(local_results_path: str, results_path: str) -> dict:
     empty = {
         "execution_completed": False,
+        "downloaded_results_present": False,
+        "usable_downloaded_results_present": False,
         "experiment_report_path": None,
         "experiment_passed": None,
         "manifest_path": None,
@@ -552,11 +568,16 @@ def _inspect_downloaded_results(local_results_path: str, results_path: str) -> d
     }
     try:
         results_dir = os.path.join(local_results_path, os.path.basename(results_path))
+        downloaded_results_present = os.path.isdir(results_dir) and any(
+            Path(results_dir).iterdir()
+        )
         report_path = os.path.join(results_dir, "local_promotion_gate.json")
         if os.path.exists(report_path):
             payload = json.loads(Path(report_path).read_text(encoding="utf-8"))
             return {
                 "execution_completed": True,
+                "downloaded_results_present": downloaded_results_present,
+                "usable_downloaded_results_present": True,
                 "experiment_report_path": report_path,
                 "experiment_passed": payload.get("passed"),
                 "manifest_path": None,
@@ -574,6 +595,8 @@ def _inspect_downloaded_results(local_results_path: str, results_path: str) -> d
             if isinstance(payload, dict) and isinstance(payload.get("passed"), bool):
                 return {
                     "execution_completed": True,
+                    "downloaded_results_present": downloaded_results_present,
+                    "usable_downloaded_results_present": True,
                     "experiment_report_path": None,
                     "experiment_passed": payload["passed"],
                     "manifest_path": None,
@@ -588,13 +611,18 @@ def _inspect_downloaded_results(local_results_path: str, results_path: str) -> d
             payload = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
             return {
                 "execution_completed": False,
+                "downloaded_results_present": downloaded_results_present,
+                "usable_downloaded_results_present": True,
                 "experiment_report_path": None,
                 "experiment_passed": None,
                 "manifest_path": manifest_path,
                 "manifest_status": payload.get("status"),
             }
 
-        return empty
+        return {
+            **empty,
+            "downloaded_results_present": downloaded_results_present,
+        }
     except (json.JSONDecodeError, OSError):
         return empty
 
