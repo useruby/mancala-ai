@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import shlex
 import sys
 from pathlib import Path
@@ -60,19 +59,6 @@ def existing_repo_path(path_value: str, *, label: str) -> Path:
     if not path.exists():
         raise SystemExit(f"Missing {label}: {path_value}")
     return path
-
-
-def stage_repo_directory(source_path: str, destination_path: str) -> str:
-    source = REPO_ROOT / source_path
-    destination = REPO_ROOT / "tmp" / "runpod-staged" / destination_path
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists() or destination.is_symlink():
-        if destination.is_dir() and not destination.is_symlink():
-            shutil.rmtree(destination)
-        else:
-            destination.unlink()
-    shutil.copytree(source, destination, symlinks=True)
-    return destination.relative_to(REPO_ROOT).as_posix()
 
 
 def lane_command(config: dict, args: argparse.Namespace) -> tuple[str, str, str, str]:
@@ -131,14 +117,7 @@ def include_paths(args: argparse.Namespace, config: dict) -> list[str]:
     if args.promotion_current_path != "model-artifact/current":
         paths.append(args.promotion_current_path)
     config_current_path = config.get("current_path")
-    if (
-        config_current_path == "storage/ai/alphazero_lite/current"
-        and not (REPO_ROOT / config_current_path).exists()
-    ):
-        paths.append(
-            stage_repo_directory("model-artifact/current", config_current_path)
-        )
-    elif isinstance(config_current_path, str):
+    if isinstance(config_current_path, str):
         paths.append(config_current_path)
     existing_paths = []
     for path in list(dict.fromkeys(paths)):

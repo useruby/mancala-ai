@@ -83,7 +83,7 @@ Default behavior:
 - uses `ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_more_data_local.json`
 - writes remote results under `storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data`
 - downloads results under `/tmp/runpod-stronger-bootstrap-more-data-results`
-- writes a lane summary to `<downloaded-results>/issue1_summary.json`
+- writes a lane summary to `<downloaded-results-root>/<remote-results-dir-name>/issue1_summary.json`
 - prints the same summary JSON to stdout, including the effective paths for the candidate artifact and key reports
 
 Override the result directory when you need reruns or alternate seeds without editing the wrapper:

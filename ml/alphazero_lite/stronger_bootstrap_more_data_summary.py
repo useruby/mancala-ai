@@ -61,6 +61,14 @@ def mcts_score(report: dict | None) -> float | None:
     return round((wins + (0.5 * draws)) / games, 4)
 
 
+def preferred_gate_score(
+    gate_report: dict | None, key: str, computed_score: float | None
+) -> float | None:
+    if isinstance(gate_report, dict) and gate_report.get(key) is not None:
+        return gate_report[key]
+    return computed_score
+
+
 def summarize_downloaded_results(
     *,
     local_results_path: str,
@@ -147,15 +155,15 @@ def summarize_downloaded_results(
         "manifest_status": manifest_status,
         "completed": completed,
         "passed": gate_report.get("passed") if isinstance(gate_report, dict) else None,
-        "arena_score": gate_report.get("arena_score")
-        if isinstance(gate_report, dict)
-        else computed_arena_score,
-        "candidate_mcts_score": gate_report.get("candidate_mcts_score")
-        if isinstance(gate_report, dict)
-        else computed_candidate_mcts_score,
-        "current_mcts_score": gate_report.get("current_mcts_score")
-        if isinstance(gate_report, dict)
-        else computed_current_mcts_score,
+        "arena_score": preferred_gate_score(
+            gate_report, "arena_score", computed_arena_score
+        ),
+        "candidate_mcts_score": preferred_gate_score(
+            gate_report, "candidate_mcts_score", computed_candidate_mcts_score
+        ),
+        "current_mcts_score": preferred_gate_score(
+            gate_report, "current_mcts_score", computed_current_mcts_score
+        ),
         "failure_reasons": gate_report.get("failure_reasons")
         if isinstance(gate_report, dict)
         else None,

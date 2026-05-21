@@ -1597,7 +1597,7 @@ class RunpodStrongerBootstrapMoreDataWrapperTest(unittest.TestCase):
         self.assertNotIn("app/models", plan["include_paths"])
         self.assertNotIn("config", plan["include_paths"])
 
-    def test_dry_run_bundles_config_current_path_when_distinct_from_gate_current_path(
+    def test_dry_run_does_not_include_staged_config_current_path(
         self,
     ):
         repo_root = Path(__file__).resolve().parents[2]
@@ -1615,8 +1615,9 @@ class RunpodStrongerBootstrapMoreDataWrapperTest(unittest.TestCase):
 
         self.assertEqual(0, result.returncode, msg=result.stderr)
         plan = json.loads(result.stdout)
-        self.assertIn(
-            "tmp/runpod-staged/storage/ai/alphazero_lite/current", plan["include_paths"]
+        self.assertNotIn(
+            "tmp/runpod-staged/storage/ai/alphazero_lite/current",
+            plan["include_paths"],
         )
 
     def test_dry_run_syncs_model_artifact_into_config_current_path_before_pipeline(
@@ -1763,6 +1764,74 @@ class RunpodStrongerBootstrapMoreDataWrapperTest(unittest.TestCase):
         self.assertFalse(summary["completed"])
         self.assertIsNone(summary["recommendation"])
         self.assertIsNone(summary["candidate_regression_suite_path"])
+
+    def test_summary_falls_back_to_computed_scores_when_gate_scores_are_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = (
+                "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+            )
+
+            def fake_orchestrate(**kwargs):
+                self.write_downloaded_result_tree(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    gate_report={
+                        "passed": False,
+                        "candidate_path": "/tmp/versions/aggressive-v3-stronger-bootstrap-more-data-local-iter1",
+                        "failure_reasons": [{"code": "candidate_mcts_below_current"}],
+                    },
+                    arena_report={
+                        "wins": 68,
+                        "draws": 6,
+                        "losses": 46,
+                        "games_played": 120,
+                    },
+                    candidate_mcts_report={
+                        "az_wins": 16,
+                        "draws": 6,
+                        "losses": 18,
+                        "games": 40,
+                    },
+                    current_mcts_report={
+                        "az_wins": 20,
+                        "draws": 4,
+                        "losses": 16,
+                        "games": 40,
+                    },
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": str(
+                        local_results_path
+                        / Path(results_path).name
+                        / "local_promotion_gate.json"
+                    ),
+                    "experiment_passed": False,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=[
+                    "--local-results-path",
+                    str(local_results_path),
+                    "--results-path",
+                    results_path,
+                ],
+            )
+
+            summary = json.loads(stdout)
+
+        self.assertEqual("", stderr)
+        self.assertEqual(1, code)
+        self.assertEqual(0.5917, summary["arena_score"])
+        self.assertEqual(0.475, summary["candidate_mcts_score"])
+        self.assertEqual(0.55, summary["current_mcts_score"])
 
     def test_completed_run_recommends_pivot_when_mcts1200_regresses(self):
         with tempfile.TemporaryDirectory() as tmp:
