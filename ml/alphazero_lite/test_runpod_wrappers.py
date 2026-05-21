@@ -1210,7 +1210,409 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         self.assertIn("app/models", plan["include_paths"])
 
 
+class RunpodStrongerBootstrapMoreDataWrapperTest(unittest.TestCase):
+    def write_downloaded_result_tree(
+        self,
+        *,
+        local_results_path,
+        results_path,
+        candidate_dir_name="aggressive-v3-stronger-bootstrap-more-data-local-iter1",
+        gate_report=None,
+        arena_report=None,
+        candidate_mcts_report=None,
+        current_mcts_report=None,
+        include_regression=True,
+        include_forensic=True,
+    ):
+        downloaded_root = Path(local_results_path) / Path(results_path).name
+        candidate_dir = downloaded_root / candidate_dir_name
+        candidate_dir.mkdir(parents=True, exist_ok=True)
+        (candidate_dir / "weights.json").write_text("{}", encoding="utf-8")
+        (candidate_dir / "metadata.json").write_text("{}", encoding="utf-8")
+        (candidate_dir / "arena_report.json").write_text("{}", encoding="utf-8")
+        (candidate_dir / "run_manifest.json").write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+
+        default_gate_report = {
+            "passed": True,
+            "candidate_path": f"/tmp/versions/{candidate_dir_name}",
+            "arena_score": 0.61,
+            "candidate_mcts_score": 0.56,
+            "current_mcts_score": 0.53,
+            "failure_reasons": [],
+        }
+        default_arena_report = {"wins": 70, "draws": 10, "losses": 40, "games_played": 120}
+        default_candidate_mcts_report = {"az_wins": 24, "draws": 4, "losses": 12, "games": 40}
+        default_current_mcts_report = {"az_wins": 20, "draws": 4, "losses": 16, "games": 40}
+
+        (downloaded_root / "local_promotion_gate.json").write_text(
+            json.dumps(gate_report or default_gate_report),
+            encoding="utf-8",
+        )
+        (downloaded_root / "candidate_vs_current_arena.json").write_text(
+            json.dumps(arena_report or default_arena_report),
+            encoding="utf-8",
+        )
+        (downloaded_root / "candidate_vs_mcts1200.json").write_text(
+            json.dumps(candidate_mcts_report or default_candidate_mcts_report),
+            encoding="utf-8",
+        )
+        (downloaded_root / "current_vs_mcts1200.json").write_text(
+            json.dumps(current_mcts_report or default_current_mcts_report),
+            encoding="utf-8",
+        )
+        if include_regression:
+            (downloaded_root / "candidate_regression_suite.json").write_text(
+                json.dumps({"passed": True}),
+                encoding="utf-8",
+            )
+        if include_forensic:
+            (downloaded_root / "candidate_forensic_suite.json").write_text(
+                json.dumps({"schema": "azlite_forensic_suite_v1"}),
+                encoding="utf-8",
+            )
+        return downloaded_root
+
+    def run_wrapper(self, *, orchestrate_impl, cli_args):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/runpod_stronger_bootstrap_more_data_experiment"
+        fake_runpod_experiment = types.ModuleType("ml.alphazero_lite.runpod_experiment")
+        fake_runpod_experiment.build_dry_run_plan = lambda **kwargs: kwargs
+        fake_runpod_experiment.orchestrate = orchestrate_impl
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with mock.patch.dict(sys.modules, {"ml.alphazero_lite.runpod_experiment": fake_runpod_experiment}):
+            with mock.patch.object(sys, "argv", [str(script_path), *cli_args]), mock.patch(
+                "sys.stdout", stdout
+            ), mock.patch("sys.stderr", stderr):
+                try:
+                    runpy.run_path(str(script_path), run_name="__main__")
+                except SystemExit as exc:
+                    if isinstance(exc.code, int):
+                        code = exc.code
+                    else:
+                        if exc.code not in (None, ""):
+                            print(exc.code, file=sys.stderr)
+                        code = 1
+                else:
+                    code = 0
+
+        return code, stdout.getvalue(), stderr.getvalue()
+
+    def test_dry_run_uses_lane_defaults(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        self.assertEqual(
+            "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data",
+            plan["results_path"],
+        )
+        self.assertEqual(
+            "ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_more_data_local.json",
+            plan["config_path"],
+        )
+
+    def test_dry_run_excludes_missing_optional_bundle_paths(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        self.assertNotIn("Gemfile", plan["include_paths"])
+        self.assertNotIn("Gemfile.lock", plan["include_paths"])
+        self.assertNotIn("bin/rails", plan["include_paths"])
+        self.assertNotIn("app/models", plan["include_paths"])
+        self.assertNotIn("config", plan["include_paths"])
+
+    def test_dry_run_bundles_config_current_path_when_distinct_from_gate_current_path(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        self.assertIn("tmp/runpod-staged/storage/ai/alphazero_lite/current", plan["include_paths"])
+
+    def test_dry_run_syncs_model_artifact_into_config_current_path_before_pipeline(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        self.assertIn(
+            "cp -R model-artifact/current/. storage/ai/alphazero_lite/current/",
+            plan["command"],
+        )
+
+    def test_rejects_missing_config_path_before_launch(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                "--config-path",
+                "ml/alphazero_lite/configs/does_not_exist.json",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("Missing config path", result.stderr)
+
+    def test_completed_run_recommends_confirm_and_writes_summary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+
+            def fake_orchestrate(**kwargs):
+                self.write_downloaded_result_tree(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": str(local_results_path / Path(results_path).name / "local_promotion_gate.json"),
+                    "experiment_passed": True,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+            summary = json.loads(stdout)
+            written_summary = json.loads((local_results_path / Path(results_path).name / "issue1_summary.json").read_text(encoding="utf-8"))
+
+        self.assertEqual("", stderr)
+        self.assertEqual(0, code)
+        self.assertEqual("confirm", summary["recommendation"])
+        self.assertEqual(summary, written_summary)
+        self.assertTrue(summary["local_promotion_gate_path"].endswith("local_promotion_gate.json"))
+        self.assertTrue(summary["candidate_path"].endswith("aggressive-v3-stronger-bootstrap-more-data-local-iter1"))
+
+    def test_missing_regression_report_keeps_summary_incomplete(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+
+            def fake_orchestrate(**kwargs):
+                self.write_downloaded_result_tree(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    include_regression=False,
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": str(local_results_path / Path(results_path).name / "local_promotion_gate.json"),
+                    "experiment_passed": True,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+            summary = json.loads(stdout)
+
+        self.assertEqual("", stderr)
+        self.assertEqual(1, code)
+        self.assertFalse(summary["completed"])
+        self.assertIsNone(summary["recommendation"])
+        self.assertIsNone(summary["candidate_regression_suite_path"])
+
+    def test_completed_run_recommends_pivot_when_mcts1200_regresses(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+
+            def fake_orchestrate(**kwargs):
+                self.write_downloaded_result_tree(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    gate_report={
+                        "passed": False,
+                        "candidate_path": "/tmp/versions/aggressive-v3-stronger-bootstrap-more-data-local-iter1",
+                        "arena_score": 0.58,
+                        "candidate_mcts_score": 0.47,
+                        "current_mcts_score": 0.53,
+                        "failure_reasons": [{"code": "candidate_mcts_below_current"}],
+                    },
+                    arena_report={"wins": 68, "draws": 6, "losses": 46, "games_played": 120},
+                    candidate_mcts_report={"az_wins": 16, "draws": 6, "losses": 18, "games": 40},
+                    current_mcts_report={"az_wins": 20, "draws": 4, "losses": 16, "games": 40},
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": str(local_results_path / Path(results_path).name / "local_promotion_gate.json"),
+                    "experiment_passed": False,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+            summary = json.loads(stdout)
+
+        self.assertEqual("", stderr)
+        self.assertEqual(1, code)
+        self.assertEqual("pivot", summary["recommendation"])
+
+    def test_completed_run_recommends_reject_when_candidate_loses_to_current(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+
+            def fake_orchestrate(**kwargs):
+                self.write_downloaded_result_tree(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    gate_report={
+                        "passed": False,
+                        "candidate_path": "/tmp/versions/aggressive-v3-stronger-bootstrap-more-data-local-iter1",
+                        "arena_score": 0.42,
+                        "candidate_mcts_score": 0.46,
+                        "current_mcts_score": 0.53,
+                        "failure_reasons": [{"code": "arena_score_below_threshold"}],
+                    },
+                    arena_report={"wins": 40, "draws": 20, "losses": 60, "games_played": 120},
+                    candidate_mcts_report={"az_wins": 16, "draws": 5, "losses": 19, "games": 40},
+                    current_mcts_report={"az_wins": 20, "draws": 4, "losses": 16, "games": 40},
+                    include_forensic=False,
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": str(local_results_path / Path(results_path).name / "local_promotion_gate.json"),
+                    "experiment_passed": False,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=["--local-results-path", str(local_results_path), "--results-path", results_path],
+            )
+
+            summary = json.loads(stdout)
+
+        self.assertEqual("", stderr)
+        self.assertEqual(1, code)
+        self.assertEqual("reject", summary["recommendation"])
+        self.assertTrue(summary["candidate_regression_suite_path"].endswith("candidate_regression_suite.json"))
+        self.assertIsNone(summary["candidate_forensic_suite_path"])
+
+
 class RunpodExperimentCleanupTest(unittest.TestCase):
+    def test_inspect_downloaded_results_marks_partial_artifacts_present_when_only_remote_log_exists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+            downloaded_results_dir = local_results_path / Path(results_path).name
+            remote_log_path = downloaded_results_dir / "remote_run.log"
+
+            remote_log_path.parent.mkdir(parents=True, exist_ok=True)
+            remote_log_path.write_text("exit_status=1\n", encoding="utf-8")
+
+            result = runpod_experiment._inspect_downloaded_results(str(local_results_path), results_path)
+
+        self.assertFalse(result["execution_completed"])
+        self.assertTrue(result["downloaded_results_present"])
+        self.assertIsNone(result["experiment_report_path"])
+
+    def test_build_pod_request_supports_cpu3c_2_4_profile(self):
+        pod_request = runpod_experiment.build_pod_request(
+            name="azlite-runpod-stronger-bootstrap-more-data",
+            include_paths=["ml/alphazero_lite"],
+            pod_profile="cpu3c-2-4",
+        )
+
+        self.assertEqual(["cpu3c"], pod_request["cpuFlavorIds"])
+        self.assertEqual(2, pod_request["vcpuCount"])
+
+    def test_build_bundle_does_not_require_ruby_version_when_ruby_paths_are_absent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle_path = str(Path(tmp) / "bundle.tar.gz")
+
+            result_path = runpod_experiment.build_bundle(
+                bundle_path=bundle_path,
+                command="script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                results_path="storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data",
+                include_paths=[
+                    "ml/alphazero_lite",
+                    "script/ai",
+                    "ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_more_data_local.json",
+                    "model-artifact/current",
+                    "test/fixtures/ai/superhuman_regression_positions.json",
+                ],
+            )
+
+            self.assertEqual(bundle_path, result_path)
+            self.assertTrue(Path(bundle_path).exists())
+
     def test_inspect_downloaded_results_falls_back_to_manifest_when_aggregate_summary_is_invalid(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -1291,6 +1693,120 @@ class RunpodExperimentCleanupTest(unittest.TestCase):
         self.assertIsNone(result["experiment_report_path"])
         self.assertIs(False, result["experiment_passed"])
         self.assertIsNone(result["manifest_path"])
+        self.assertIn("runpodctl pod delete pod-123", executed_commands)
+
+    def test_orchestrate_preserves_pod_when_only_debug_log_exists_after_remote_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bundle_path = tmp_path / "bundle.tar.gz"
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+            downloaded_results_dir = local_results_path / Path(results_path).name
+            remote_log_path = downloaded_results_dir / "remote_run.log"
+
+            def fake_bundle_builder(**kwargs):
+                bundle_path.write_text("bundle", encoding="utf-8")
+                return str(bundle_path)
+
+            def fake_timeout_runner(seconds, fn):
+                return fn()
+
+            executed_commands = []
+
+            def fake_command_runner(command):
+                executed_commands.append(command)
+                if "https://rest.runpod.io/v1/pods" in command:
+                    return json.dumps({"id": "pod-123"})
+                if command == "runpodctl ssh info pod-123":
+                    return json.dumps({
+                        "host": "example.com",
+                        "port": 22,
+                        "user": "root",
+                        "keyPath": "/tmp/fake-key",
+                    })
+                if "runpod_remote_run.sh" in command:
+                    raise RuntimeError("remote command failed")
+                if command.startswith("scp ") and results_path in command:
+                    remote_log_path.parent.mkdir(parents=True, exist_ok=True)
+                    remote_log_path.write_text("exit_status=1\n", encoding="utf-8")
+                    return ""
+                if command == "runpodctl pod delete pod-123":
+                    return ""
+                return ""
+
+            with self.assertRaises(RuntimeError):
+                runpod_experiment.orchestrate(
+                    name="stronger-bootstrap",
+                    command="script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                    bundle_path=str(bundle_path),
+                    results_path=results_path,
+                    local_results_path=str(local_results_path),
+                    include_paths=["ml/alphazero_lite"],
+                    api_key_env="RUNPOD_API_KEY",
+                    keep_pod_on_failure=True,
+                    bundle_builder=fake_bundle_builder,
+                    command_runner=fake_command_runner,
+                    timeout_runner=fake_timeout_runner,
+                    sleeper=lambda _: None,
+                )
+
+        self.assertNotIn("runpodctl pod delete pod-123", executed_commands)
+
+    def test_orchestrate_deletes_pod_when_manifest_exists_after_remote_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bundle_path = tmp_path / "bundle.tar.gz"
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+            downloaded_results_dir = local_results_path / Path(results_path).name / "candidate-dir"
+            manifest_path = downloaded_results_dir / "run_manifest.json"
+
+            def fake_bundle_builder(**kwargs):
+                bundle_path.write_text("bundle", encoding="utf-8")
+                return str(bundle_path)
+
+            def fake_timeout_runner(seconds, fn):
+                return fn()
+
+            executed_commands = []
+
+            def fake_command_runner(command):
+                executed_commands.append(command)
+                if "https://rest.runpod.io/v1/pods" in command:
+                    return json.dumps({"id": "pod-123"})
+                if command == "runpodctl ssh info pod-123":
+                    return json.dumps({
+                        "host": "example.com",
+                        "port": 22,
+                        "user": "root",
+                        "keyPath": "/tmp/fake-key",
+                    })
+                if "runpod_remote_run.sh" in command:
+                    raise RuntimeError("remote command failed")
+                if command.startswith("scp ") and results_path in command:
+                    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+                    manifest_path.write_text(json.dumps({"status": "failed"}), encoding="utf-8")
+                    return ""
+                if command == "runpodctl pod delete pod-123":
+                    return ""
+                return ""
+
+            with self.assertRaises(RuntimeError):
+                runpod_experiment.orchestrate(
+                    name="stronger-bootstrap",
+                    command="script/ai/runpod_stronger_bootstrap_more_data_experiment",
+                    bundle_path=str(bundle_path),
+                    results_path=results_path,
+                    local_results_path=str(local_results_path),
+                    include_paths=["ml/alphazero_lite"],
+                    api_key_env="RUNPOD_API_KEY",
+                    keep_pod_on_failure=True,
+                    bundle_builder=fake_bundle_builder,
+                    command_runner=fake_command_runner,
+                    timeout_runner=fake_timeout_runner,
+                    sleeper=lambda _: None,
+                )
+
         self.assertIn("runpodctl pod delete pod-123", executed_commands)
 
 
