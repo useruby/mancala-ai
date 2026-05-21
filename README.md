@@ -7,7 +7,7 @@ Kalah/Mancala bot training, evaluation, and artifact pipeline. Expect active
 research and tooling work rather than a polished external product.
 
 APIs, configs, scripts, and generated artifacts may change as the pipeline
- evolves.
+evolves.
 
 ## What this repo is
 

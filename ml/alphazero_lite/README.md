@@ -88,7 +88,7 @@ Important metadata fields:
 
 ## RunPod notes
 
-Use the dedicated wrapper when you want remote compute to handle the heavier pipeline run and promotion gate.
+Use the dedicated RunPod wrapper when you want remote compute to handle the heavier pipeline run and promotion gate.
 
 ```bash
 script/ai/runpod_training_experiment \
