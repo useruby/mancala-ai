@@ -19,18 +19,24 @@ DEFAULT_VALUE_TARGET_MODE = "default"
 SUPPORTED_TEACHER_MODES = frozenset({"classic_mcts"})
 
 
-def _validate_state_pits(state: dict[str, Any], *, field_name: str, source: str) -> list[int]:
+def _validate_state_pits(
+    state: dict[str, Any], *, field_name: str, source: str
+) -> list[int]:
     pits = state.get(field_name)
     if (
         not isinstance(pits, list)
         or len(pits) != PITS_PER_PLAYER
         or any(not isinstance(pit, int) or isinstance(pit, bool) for pit in pits)
     ):
-        raise ValueError(f"{source} state {field_name} must be a list of {PITS_PER_PLAYER} integers")
+        raise ValueError(
+            f"{source} state {field_name} must be a list of {PITS_PER_PLAYER} integers"
+        )
     return list(pits)
 
 
-def _validate_state_store(state: dict[str, Any], *, field_name: str, source: str) -> int:
+def _validate_state_store(
+    state: dict[str, Any], *, field_name: str, source: str
+) -> int:
     value = state.get(field_name)
     if not isinstance(value, int) or isinstance(value, bool):
         raise ValueError(f"{source} state {field_name} must be an integer")
@@ -56,7 +62,9 @@ def _validate_legal_moves(legal_moves: list[Any], *, source: str) -> list[int]:
         if not isinstance(move, int) or isinstance(move, bool):
             raise ValueError(f"{source} legal_moves[{index}] must be an integer")
         if not 0 <= move < PITS_PER_PLAYER:
-            raise ValueError(f"{source} legal_moves[{index}] must be between 0 and {PITS_PER_PLAYER - 1}")
+            raise ValueError(
+                f"{source} legal_moves[{index}] must be between 0 and {PITS_PER_PLAYER - 1}"
+            )
         if move in seen_moves:
             raise ValueError(f"{source} legal_moves must not contain duplicates")
         seen_moves.add(move)
@@ -74,10 +82,18 @@ def validate_hard_state_row(row: dict[str, Any], *, source: str) -> dict[str, An
     if not isinstance(state, dict):
         raise ValueError(f"{source} state must be an object")
     validated_state = {
-        "player_pits": _validate_state_pits(state, field_name="player_pits", source=source),
-        "opponent_pits": _validate_state_pits(state, field_name="opponent_pits", source=source),
-        "player_store": _validate_state_store(state, field_name="player_store", source=source),
-        "opponent_store": _validate_state_store(state, field_name="opponent_store", source=source),
+        "player_pits": _validate_state_pits(
+            state, field_name="player_pits", source=source
+        ),
+        "opponent_pits": _validate_state_pits(
+            state, field_name="opponent_pits", source=source
+        ),
+        "player_store": _validate_state_store(
+            state, field_name="player_store", source=source
+        ),
+        "opponent_store": _validate_state_store(
+            state, field_name="opponent_store", source=source
+        ),
         "current_player": _validate_current_player(state, source=source),
     }
 
@@ -97,7 +113,9 @@ def validate_hard_state_row(row: dict[str, Any], *, source: str) -> dict[str, An
     validated_selection_reasons: list[str] = []
     for index, selection_reason in enumerate(selection_reasons):
         if not isinstance(selection_reason, str) or not selection_reason:
-            raise ValueError(f"{source} selection_reasons[{index}] must be a non-empty string")
+            raise ValueError(
+                f"{source} selection_reasons[{index}] must be a non-empty string"
+            )
         validated_selection_reasons.append(selection_reason)
 
     source_artifacts = row.get("source_artifacts")
@@ -142,14 +160,20 @@ def load_hard_state_rows(path: str | Path) -> list[dict[str, Any]]:
         for line_number, line in enumerate(handle, start=1):
             payload = json.loads(line)
             if not isinstance(payload, dict):
-                raise ValueError(f"{dataset_path}:{line_number} hard-state row must be an object")
-            validated_row = validate_hard_state_row(payload, source=f"{dataset_path}:{line_number}")
+                raise ValueError(
+                    f"{dataset_path}:{line_number} hard-state row must be an object"
+                )
+            validated_row = validate_hard_state_row(
+                payload, source=f"{dataset_path}:{line_number}"
+            )
             source_artifacts = list(validated_row.get("source_artifacts", []))
             prior_source_artifact = validated_row.get("source_artifact")
             if isinstance(prior_source_artifact, str) and prior_source_artifact:
                 source_artifacts.append(prior_source_artifact)
             if source_artifacts:
-                validated_row["source_artifacts"] = list(dict.fromkeys(source_artifacts))
+                validated_row["source_artifacts"] = list(
+                    dict.fromkeys(source_artifacts)
+                )
             validated_row["source_artifact"] = str(dataset_path)
             rows.append(validated_row)
     if not rows:
@@ -157,7 +181,9 @@ def load_hard_state_rows(path: str | Path) -> list[dict[str, Any]]:
     return rows
 
 
-def select_top_ranked_rows(rows: list[dict[str, Any]], *, top_n: int | str) -> list[dict[str, Any]]:
+def select_top_ranked_rows(
+    rows: list[dict[str, Any]], *, top_n: int | str
+) -> list[dict[str, Any]]:
     if isinstance(top_n, bool):
         raise ValueError("top_n must be an integer")
 
@@ -224,7 +250,9 @@ def run_teacher_label(
 ) -> dict[str, Any]:
     if teacher_mode not in SUPPORTED_TEACHER_MODES:
         raise ValueError(f"unsupported teacher_mode: {teacher_mode}")
-    teacher_budget = _require_positive_budget(teacher_budget, field_name="teacher_budget")
+    teacher_budget = _require_positive_budget(
+        teacher_budget, field_name="teacher_budget"
+    )
 
     search = ClassicMCTS(
         KalahGame.from_state(state),
@@ -235,11 +263,15 @@ def run_teacher_label(
     return derive_teacher_targets_from_summary(summary)
 
 
-def build_budget_pair_id(*, canonical_state: str, source_artifact: str, source_rank: int) -> str:
+def build_budget_pair_id(
+    *, canonical_state: str, source_artifact: str, source_rank: int
+) -> str:
     return f"{canonical_state}|{source_artifact}|{int(source_rank)}"
 
 
-def derive_teacher_seed(*, base_seed: int, canonical_state: str, source_artifact: str, teacher_budget: int) -> int:
+def derive_teacher_seed(
+    *, base_seed: int, canonical_state: str, source_artifact: str, teacher_budget: int
+) -> int:
     stable_seed_input = f"{canonical_state}|{source_artifact}|{int(teacher_budget)}"
     digest = hashlib.sha256(stable_seed_input.encode("utf-8")).digest()
     stable_offset = int.from_bytes(digest[:8], byteorder="big", signed=False)
@@ -249,14 +281,22 @@ def derive_teacher_seed(*, base_seed: int, canonical_state: str, source_artifact
 def resolve_teacher_seed_identity(row: dict[str, Any], *, canonical_state: str) -> str:
     source_artifacts = row.get("source_artifacts")
     if isinstance(source_artifacts, list):
-        canonical_source_artifacts = sorted({artifact for artifact in source_artifacts if isinstance(artifact, str) and artifact})
+        canonical_source_artifacts = sorted(
+            {
+                artifact
+                for artifact in source_artifacts
+                if isinstance(artifact, str) and artifact
+            }
+        )
         if canonical_source_artifacts:
             return "|".join(canonical_source_artifacts)
 
     return canonical_state
 
 
-def resolve_source_artifact(row: dict[str, Any], *, canonical_state: str, source_rank: int) -> str:
+def resolve_source_artifact(
+    row: dict[str, Any], *, canonical_state: str, source_rank: int
+) -> str:
     source_artifact = row.get("source_artifact")
     if isinstance(source_artifact, str) and source_artifact:
         return source_artifact
@@ -283,8 +323,12 @@ def build_dual_budget_rows(
     input_encoding: str,
     seed: int,
 ) -> list[dict[str, Any]]:
-    canonical_budget = _require_positive_budget(canonical_budget, field_name="canonical_budget")
-    stronger_budget = _require_positive_budget(stronger_budget, field_name="stronger_budget")
+    canonical_budget = _require_positive_budget(
+        canonical_budget, field_name="canonical_budget"
+    )
+    stronger_budget = _require_positive_budget(
+        stronger_budget, field_name="stronger_budget"
+    )
     labeled_rows: list[dict[str, Any]] = []
 
     for source_rank, row in enumerate(rows, start=1):
@@ -308,7 +352,10 @@ def build_dual_budget_rows(
             source_rank=source_rank,
         )
 
-        for teacher_profile, teacher_budget in (("canonical", canonical_budget), ("stronger", stronger_budget)):
+        for teacher_profile, teacher_budget in (
+            ("canonical", canonical_budget),
+            ("stronger", stronger_budget),
+        ):
             label = run_teacher_label(
                 state,
                 teacher_budget=teacher_budget,
@@ -359,8 +406,12 @@ def load_labeled_rows(path: str | Path) -> list[dict[str, Any]]:
         for line_number, line in enumerate(handle, start=1):
             payload = json.loads(line)
             if not isinstance(payload, dict):
-                raise ValueError(f"{dataset_path}:{line_number} labeled row must be an object")
-            rows.append(validate_labeled_row(payload, source=f"{dataset_path}:{line_number}"))
+                raise ValueError(
+                    f"{dataset_path}:{line_number} labeled row must be an object"
+                )
+            rows.append(
+                validate_labeled_row(payload, source=f"{dataset_path}:{line_number}")
+            )
     if not rows:
         raise ValueError(f"{dataset_path} does not contain any labeled rows")
     return rows
@@ -374,21 +425,27 @@ def _policy_divergence(left: list[float], right: list[float]) -> float:
     return sum(abs(float(a) - float(b)) for a, b in zip(left, right, strict=True)) / 2.0
 
 
-def _require_labeled_row_string(row: dict[str, Any], *, field_name: str, source: str) -> str:
+def _require_labeled_row_string(
+    row: dict[str, Any], *, field_name: str, source: str
+) -> str:
     value = row.get(field_name)
     if not isinstance(value, str) or not value:
         raise ValueError(f"{source} {field_name} must be a non-empty string")
     return value
 
 
-def _require_labeled_row_int(row: dict[str, Any], *, field_name: str, source: str) -> int:
+def _require_labeled_row_int(
+    row: dict[str, Any], *, field_name: str, source: str
+) -> int:
     value = row.get(field_name)
     if not isinstance(value, int) or isinstance(value, bool):
         raise ValueError(f"{source} {field_name} must be an integer")
     return int(value)
 
 
-def _require_labeled_row_numeric(row: dict[str, Any], *, field_name: str, source: str) -> float:
+def _require_labeled_row_numeric(
+    row: dict[str, Any], *, field_name: str, source: str
+) -> float:
     try:
         value = float(row[field_name])
     except KeyError as error:
@@ -403,7 +460,9 @@ def _require_labeled_row_numeric(row: dict[str, Any], *, field_name: str, source
 def _require_labeled_row_policy(row: dict[str, Any], *, source: str) -> list[float]:
     policy = row.get("policy")
     if not isinstance(policy, list) or len(policy) != PITS_PER_PLAYER:
-        raise ValueError(f"{source} policy must be a list of {PITS_PER_PLAYER} numeric values")
+        raise ValueError(
+            f"{source} policy must be a list of {PITS_PER_PLAYER} numeric values"
+        )
 
     validated_policy: list[float] = []
     for index, entry in enumerate(policy):
@@ -438,13 +497,25 @@ def validate_labeled_row(row: dict[str, Any], *, source: str) -> dict[str, Any]:
             raise ValueError(f"{source} missing required field '{field_name}'")
 
     validated_row = dict(row)
-    validated_row["budget_pair_id"] = _require_labeled_row_string(row, field_name="budget_pair_id", source=source)
-    validated_row["canonical_state"] = _require_labeled_row_string(row, field_name="canonical_state", source=source)
-    validated_row["teacher_profile"] = _require_labeled_row_string(row, field_name="teacher_profile", source=source)
-    validated_row["teacher_budget"] = _require_labeled_row_int(row, field_name="teacher_budget", source=source)
-    validated_row["source_rank"] = _require_labeled_row_int(row, field_name="source_rank", source=source)
+    validated_row["budget_pair_id"] = _require_labeled_row_string(
+        row, field_name="budget_pair_id", source=source
+    )
+    validated_row["canonical_state"] = _require_labeled_row_string(
+        row, field_name="canonical_state", source=source
+    )
+    validated_row["teacher_profile"] = _require_labeled_row_string(
+        row, field_name="teacher_profile", source=source
+    )
+    validated_row["teacher_budget"] = _require_labeled_row_int(
+        row, field_name="teacher_budget", source=source
+    )
+    validated_row["source_rank"] = _require_labeled_row_int(
+        row, field_name="source_rank", source=source
+    )
     validated_row["policy"] = _require_labeled_row_policy(row, source=source)
-    validated_row["value"] = _require_labeled_row_numeric(row, field_name="value", source=source)
+    validated_row["value"] = _require_labeled_row_numeric(
+        row, field_name="value", source=source
+    )
     if not -1.0 <= validated_row["value"] <= 1.0:
         raise ValueError(f"{source} value must be between -1.0 and 1.0")
     return validated_row
@@ -470,8 +541,14 @@ def pair_budget_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for pair_id, profiles in grouped.items():
         canonical_rows = profiles.get("canonical", [])
         stronger_rows = profiles.get("stronger", [])
-        if len(canonical_rows) != 1 or len(stronger_rows) != 1 or set(profiles) != {"canonical", "stronger"}:
-            raise ValueError(f"{pair_id} must contain exactly one canonical row and one stronger row")
+        if (
+            len(canonical_rows) != 1
+            or len(stronger_rows) != 1
+            or set(profiles) != {"canonical", "stronger"}
+        ):
+            raise ValueError(
+                f"{pair_id} must contain exactly one canonical row and one stronger row"
+            )
         pairs.append(
             {
                 "budget_pair_id": pair_id,
@@ -512,21 +589,33 @@ def build_comparison_report(rows: list[dict[str, Any]]) -> dict[str, Any]:
             }
         )
 
-    disagreements.sort(key=lambda row: (-float(row["policy_divergence"]), row["canonical_state"]))
+    disagreements.sort(
+        key=lambda row: (-float(row["policy_divergence"]), row["canonical_state"])
+    )
     pair_count = len(pairs)
     return {
         "pair_count": pair_count,
-        "top1_disagreement_rate": 0.0 if pair_count == 0 else round(top1_disagreements / pair_count, 6),
-        "average_policy_divergence": 0.0 if pair_count == 0 else round(total_policy_divergence / pair_count, 6),
+        "top1_disagreement_rate": 0.0
+        if pair_count == 0
+        else round(top1_disagreements / pair_count, 6),
+        "average_policy_divergence": 0.0
+        if pair_count == 0
+        else round(total_policy_divergence / pair_count, 6),
         "maximum_policy_divergence": 0.0
         if pair_count == 0
-        else round(max((row["policy_divergence"] for row in disagreements), default=0.0), 6),
-        "average_absolute_value_delta": 0.0 if pair_count == 0 else round(total_value_delta / pair_count, 6),
+        else round(
+            max((row["policy_divergence"] for row in disagreements), default=0.0), 6
+        ),
+        "average_absolute_value_delta": 0.0
+        if pair_count == 0
+        else round(total_value_delta / pair_count, 6),
         "largest_disagreements": disagreements[:10],
     }
 
 
-def _validated_hard_suite_buckets(arena_report: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def _validated_hard_suite_buckets(
+    arena_report: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
     hard_suite_buckets = arena_report.get("hard_suite_buckets")
     if not isinstance(hard_suite_buckets, dict):
         raise ValueError("arena report must include hard_suite_buckets")
@@ -568,7 +657,9 @@ def _validated_hard_suite_buckets(arena_report: dict[str, Any]) -> dict[str, dic
 
     required_bucket_names = {"opening", "midgame", "late"}
     if set(validated_buckets) != required_bucket_names:
-        raise ValueError("arena hard_suite_buckets must include opening, midgame, and late buckets")
+        raise ValueError(
+            "arena hard_suite_buckets must include opening, midgame, and late buckets"
+        )
     return validated_buckets
 
 
@@ -580,10 +671,14 @@ def _require_non_negative_int(value: Any, *, field_name: str) -> int:
 
 def _require_probability(value: Any, *, field_name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ValueError(f"{field_name} must be a finite numeric value between 0.0 and 1.0")
+        raise ValueError(
+            f"{field_name} must be a finite numeric value between 0.0 and 1.0"
+        )
     normalized_value = float(value)
     if not math.isfinite(normalized_value) or not 0.0 <= normalized_value <= 1.0:
-        raise ValueError(f"{field_name} must be a finite numeric value between 0.0 and 1.0")
+        raise ValueError(
+            f"{field_name} must be a finite numeric value between 0.0 and 1.0"
+        )
     return normalized_value
 
 
@@ -598,7 +693,9 @@ def build_issue264_report(
     min_score: float,
 ) -> dict[str, Any]:
     min_score = _require_probability(min_score, field_name="min_score")
-    arena_score = _require_probability(arena_report.get("score"), field_name="arena score")
+    arena_score = _require_probability(
+        arena_report.get("score"), field_name="arena score"
+    )
 
     raw_promotion_decision = arena_report.get("promotion_decision")
     if not isinstance(raw_promotion_decision, dict):
@@ -610,7 +707,9 @@ def build_issue264_report(
 
     hard_suite_buckets = _validated_hard_suite_buckets(arena_report)
 
-    games_played = _require_non_negative_int(arena_report.get("games_played"), field_name="games_played")
+    games_played = _require_non_negative_int(
+        arena_report.get("games_played"), field_name="games_played"
+    )
     if games_played == 0:
         raise ValueError("arena games_played must be >= 1")
     wins = _require_non_negative_int(arena_report.get("wins"), field_name="wins")
@@ -619,7 +718,9 @@ def build_issue264_report(
     derived_games_played = wins + losses + draws
     if derived_games_played != games_played:
         raise ValueError("arena games_played must match wins/losses/draws total")
-    derived_score = 0.0 if games_played == 0 else ((wins + (0.5 * draws)) / games_played)
+    derived_score = (
+        0.0 if games_played == 0 else ((wins + (0.5 * draws)) / games_played)
+    )
     if not math.isclose(arena_score, derived_score, rel_tol=0.0, abs_tol=1e-6):
         raise ValueError("arena score must match wins/losses/draws-derived score")
     hard_suite_games = sum(bucket["games"] for bucket in hard_suite_buckets.values())
@@ -628,13 +729,17 @@ def build_issue264_report(
 
     score_clears_threshold = arena_score >= min_score
     if promotion_passed != score_clears_threshold:
-        raise ValueError("arena promotion_decision.passed must match the score threshold outcome")
+        raise ValueError(
+            "arena promotion_decision.passed must match the score threshold outcome"
+        )
 
     arena_passed = score_clears_threshold
 
     if arena_passed:
         recommendation = "promote_to_standard_step"
-        rationale = "arena score cleared threshold and hard-suite coverage was validated"
+        rationale = (
+            "arena score cleared threshold and hard-suite coverage was validated"
+        )
     else:
         recommendation = "remain_selective"
         rationale = "arena score did not clear the required threshold"

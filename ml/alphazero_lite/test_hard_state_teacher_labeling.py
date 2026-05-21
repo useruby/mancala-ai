@@ -50,7 +50,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
         selected = labeling.select_top_ranked_rows(rows, top_n=2)
 
-        self.assertEqual(["state-b", "state-a"], [row["canonical_state"] for row in selected])
+        self.assertEqual(
+            ["state-b", "state-a"], [row["canonical_state"] for row in selected]
+        )
 
     def test_select_top_ranked_rows_uses_normalized_top_n_for_slicing(self):
         rows = [
@@ -61,7 +63,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
         selected = labeling.select_top_ranked_rows(rows, top_n="2")
 
-        self.assertEqual(["state-b", "state-a"], [row["canonical_state"] for row in selected])
+        self.assertEqual(
+            ["state-b", "state-a"], [row["canonical_state"] for row in selected]
+        )
 
     def test_select_top_ranked_rows_rejects_invalid_top_n_types(self):
         invalid_top_n_values = [
@@ -103,12 +107,17 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             )
 
         self.assertEqual(2, len(rows))
-        self.assertEqual(["canonical", "stronger"], [row["teacher_profile"] for row in rows])
+        self.assertEqual(
+            ["canonical", "stronger"], [row["teacher_profile"] for row in rows]
+        )
         self.assertEqual([128, 512], [row["teacher_budget"] for row in rows])
         self.assertEqual(rows[0]["budget_pair_id"], rows[1]["budget_pair_id"])
         self.assertEqual("default", rows[0]["policy_target_mode"])
         self.assertEqual("default", rows[0]["value_target_mode"])
-        self.assertEqual(["large_value_error", "student_teacher_disagreement"], rows[0]["selection_reasons"])
+        self.assertEqual(
+            ["large_value_error", "student_teacher_disagreement"],
+            rows[0]["selection_reasons"],
+        )
         self.assertEqual(13.5, rows[0]["source_priority_score"])
         self.assertEqual([0, 1, 2, 3, 4, 5], rows[0]["legal_moves"])
 
@@ -140,7 +149,10 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             ],
             [row["source_artifact"] for row in rows],
         )
-        self.assertEqual(["large_value_error", "student_teacher_disagreement"], rows[0]["selection_reasons"])
+        self.assertEqual(
+            ["large_value_error", "student_teacher_disagreement"],
+            rows[0]["selection_reasons"],
+        )
 
     def test_build_dual_budget_rows_prefers_singular_source_artifact(self):
         mined_row = self.sample_mined_row(
@@ -165,7 +177,10 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                 seed=41,
             )
 
-        self.assertEqual(["/tmp/labeling-input.jsonl", "/tmp/labeling-input.jsonl"], [row["source_artifact"] for row in rows])
+        self.assertEqual(
+            ["/tmp/labeling-input.jsonl", "/tmp/labeling-input.jsonl"],
+            [row["source_artifact"] for row in rows],
+        )
 
     def test_build_dual_budget_rows_falls_back_to_plural_source_artifacts(self):
         mined_row = self.sample_mined_row()
@@ -187,7 +202,10 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                 seed=41,
             )
 
-        self.assertEqual(["/tmp/mined.jsonl", "/tmp/mined.jsonl"], [row["source_artifact"] for row in rows])
+        self.assertEqual(
+            ["/tmp/mined.jsonl", "/tmp/mined.jsonl"],
+            [row["source_artifact"] for row in rows],
+        )
 
     def test_build_dual_budget_rows_uses_stable_seed_not_source_rank(self):
         first_row = self.sample_mined_row(
@@ -235,7 +253,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             seeds_by_state_in_original_order = {
                 call.args[0]["player_store"]: [
                     current_call.kwargs["seed"]
-                    for current_call in run_teacher_label.call_args_list[index * 2 : (index * 2) + 2]
+                    for current_call in run_teacher_label.call_args_list[
+                        index * 2 : (index * 2) + 2
+                    ]
                 ]
                 for index, call in enumerate(run_teacher_label.call_args_list[::2])
             }
@@ -261,9 +281,13 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             seeds_by_state_in_reordered_run = {
                 call.args[0]["player_store"]: [
                     current_call.kwargs["seed"]
-                    for current_call in reordered_run_teacher_label.call_args_list[index * 2 : (index * 2) + 2]
+                    for current_call in reordered_run_teacher_label.call_args_list[
+                        index * 2 : (index * 2) + 2
+                    ]
                 ]
-                for index, call in enumerate(reordered_run_teacher_label.call_args_list[::2])
+                for index, call in enumerate(
+                    reordered_run_teacher_label.call_args_list[::2]
+                )
             }
 
         self.assertEqual(
@@ -275,7 +299,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             seeds_by_state_in_reordered_run[2],
         )
 
-    def test_derive_value_from_selected_move_win_rate_requires_child_stat_for_selected_move(self):
+    def test_derive_value_from_selected_move_win_rate_requires_child_stat_for_selected_move(
+        self,
+    ):
         summary = {
             "selected_move": 4,
             "child_stats": [
@@ -284,7 +310,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             ],
         }
 
-        with self.assertRaisesRegex(ValueError, "selected_move 4 missing from child_stats"):
+        with self.assertRaisesRegex(
+            ValueError, "selected_move 4 missing from child_stats"
+        ):
             labeling.derive_value_from_selected_move_win_rate(summary)
 
     def test_run_teacher_label_emits_one_hot_policy_for_single_legal_move(self):
@@ -312,7 +340,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             dataset_path = Path(tmpdir) / "hard_states.jsonl"
             dataset_path.write_text(f"{labeling.json.dumps(row)}\n", encoding="utf-8")
 
-            with self.assertRaisesRegex(ValueError, "missing required field 'legal_moves'"):
+            with self.assertRaisesRegex(
+                ValueError, "missing required field 'legal_moves'"
+            ):
                 labeling.load_hard_state_rows(dataset_path)
 
     def test_load_hard_state_rows_rejects_invalid_required_field_types(self):
@@ -334,7 +364,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
         for source_artifacts in invalid_source_artifacts:
             with self.subTest(source_artifacts=source_artifacts):
-                with self.assertRaisesRegex(ValueError, r"source_artifacts\[1\] must be a string"):
+                with self.assertRaisesRegex(
+                    ValueError, r"source_artifacts\[1\] must be a string"
+                ):
                     labeling.validate_hard_state_row(
                         self.sample_mined_row(source_artifacts=source_artifacts),
                         source="row",
@@ -342,10 +374,22 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
     def test_validate_hard_state_row_rejects_malformed_selection_reasons_entries(self):
         invalid_selection_reasons = [
-            (["large_value_error", 7], r"selection_reasons\[1\] must be a non-empty string"),
-            (["large_value_error", None], r"selection_reasons\[1\] must be a non-empty string"),
-            (["large_value_error", False], r"selection_reasons\[1\] must be a non-empty string"),
-            (["large_value_error", ""], r"selection_reasons\[1\] must be a non-empty string"),
+            (
+                ["large_value_error", 7],
+                r"selection_reasons\[1\] must be a non-empty string",
+            ),
+            (
+                ["large_value_error", None],
+                r"selection_reasons\[1\] must be a non-empty string",
+            ),
+            (
+                ["large_value_error", False],
+                r"selection_reasons\[1\] must be a non-empty string",
+            ),
+            (
+                ["large_value_error", ""],
+                r"selection_reasons\[1\] must be a non-empty string",
+            ),
         ]
 
         for selection_reasons, expected_error in invalid_selection_reasons:
@@ -367,7 +411,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             }
         )
 
-        with self.assertRaisesRegex(ValueError, "state player_pits must be a list of 6 integers"):
+        with self.assertRaisesRegex(
+            ValueError, "state player_pits must be a list of 6 integers"
+        ):
             labeling.validate_hard_state_row(row, source="row")
 
     def test_validate_hard_state_row_rejects_boolean_state_values(self):
@@ -426,7 +472,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             }
         )
 
-        with self.assertRaisesRegex(ValueError, "state current_player must be an integer 0 or 1"):
+        with self.assertRaisesRegex(
+            ValueError, "state current_player must be an integer 0 or 1"
+        ):
             labeling.validate_hard_state_row(row, source="row")
 
     def test_validate_hard_state_row_rejects_invalid_legal_moves(self):
@@ -458,7 +506,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             legal_moves=[0, 1, 4],
         )
 
-        with self.assertRaisesRegex(ValueError, r"legal_moves must match state-derived legal moves \[1, 4\]"):
+        with self.assertRaisesRegex(
+            ValueError, r"legal_moves must match state-derived legal moves \[1, 4\]"
+        ):
             labeling.validate_hard_state_row(row, source="row")
 
     def test_validate_hard_state_row_rejects_non_finite_priority_scores(self):
@@ -466,7 +516,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
 
         for priority_score in invalid_priority_scores:
             with self.subTest(priority_score=priority_score):
-                with self.assertRaisesRegex(ValueError, "priority_score must be finite"):
+                with self.assertRaisesRegex(
+                    ValueError, "priority_score must be finite"
+                ):
                     labeling.validate_hard_state_row(
                         self.sample_mined_row(priority_score=priority_score),
                         source="row",
@@ -485,7 +537,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
         self.assertEqual(str(dataset_path), loaded_rows[0]["source_artifact"])
 
     def test_load_hard_state_rows_preserves_prior_source_artifact_as_provenance(self):
-        row = self.sample_mined_row(source_artifact="/tmp/original-labeling-input.jsonl")
+        row = self.sample_mined_row(
+            source_artifact="/tmp/original-labeling-input.jsonl"
+        )
         del row["source_artifacts"]
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -495,7 +549,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             loaded_rows = labeling.load_hard_state_rows(dataset_path)
 
         self.assertEqual(str(dataset_path), loaded_rows[0]["source_artifact"])
-        self.assertEqual(["/tmp/original-labeling-input.jsonl"], loaded_rows[0]["source_artifacts"])
+        self.assertEqual(
+            ["/tmp/original-labeling-input.jsonl"], loaded_rows[0]["source_artifacts"]
+        )
 
     def test_build_dual_budget_rows_uses_loaded_dataset_path_for_source_artifact(self):
         row = self.sample_mined_row()
@@ -523,7 +579,10 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                     seed=41,
                 )
 
-        self.assertEqual([str(dataset_path), str(dataset_path)], [row["source_artifact"] for row in labeled_rows])
+        self.assertEqual(
+            [str(dataset_path), str(dataset_path)],
+            [row["source_artifact"] for row in labeled_rows],
+        )
 
     def test_build_dual_budget_rows_rejects_non_positive_canonical_budget(self):
         with self.assertRaisesRegex(ValueError, "canonical_budget must be >= 1"):
@@ -547,7 +606,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                 seed=41,
             )
 
-    def test_build_dual_budget_rows_uses_stable_seed_for_same_loaded_row_across_filenames(self):
+    def test_build_dual_budget_rows_uses_stable_seed_for_same_loaded_row_across_filenames(
+        self,
+    ):
         row = self.sample_mined_row()
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -599,7 +660,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             [call.kwargs["seed"] for call in second_run_teacher_label.call_args_list],
         )
 
-    def test_build_dual_budget_rows_uses_order_invariant_seed_identity_for_source_artifacts(self):
+    def test_build_dual_budget_rows_uses_order_invariant_seed_identity_for_source_artifacts(
+        self,
+    ):
         first_row = self.sample_mined_row(source_artifacts=["b.json", "a.json"])
         second_row = self.sample_mined_row(source_artifacts=["a.json", "b.json"])
 
@@ -700,10 +763,18 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             )
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
-            self.assertEqual({"out": str(out_path), "rows": 2}, json.loads(result.stdout.strip()))
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            self.assertEqual(
+                {"out": str(out_path), "rows": 2}, json.loads(result.stdout.strip())
+            )
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertEqual(2, len(rows))
-            self.assertEqual({"canonical", "stronger"}, {row["teacher_profile"] for row in rows})
+            self.assertEqual(
+                {"canonical", "stronger"}, {row["teacher_profile"] for row in rows}
+            )
 
     def test_cli_output_loads_through_train_load_jsonl(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -736,9 +807,15 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             )
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
-            self.assertEqual({"out": str(out_path), "rows": 2}, json.loads(result.stdout.strip()))
+            self.assertEqual(
+                {"out": str(out_path), "rows": 2}, json.loads(result.stdout.strip())
+            )
 
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             x, p, v = train.load_jsonl(out_path)
             expected_state_width = len(rows[0]["state"])
 
@@ -793,7 +870,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
         self.assertEqual(1, len(report["largest_disagreements"]))
         self.assertAlmostEqual(0.6, report["average_absolute_value_delta"])
 
-    def test_build_comparison_report_handles_identical_labels_without_disagreement_or_delta(self):
+    def test_build_comparison_report_handles_identical_labels_without_disagreement_or_delta(
+        self,
+    ):
         rows = [
             {
                 "budget_pair_id": "pair-a",
@@ -837,7 +916,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             report["largest_disagreements"],
         )
 
-    def test_build_issue264_report_recommends_remain_selective_when_arena_fails_threshold(self):
+    def test_build_issue264_report_recommends_remain_selective_when_arena_fails_threshold(
+        self,
+    ):
         label_report = {
             "pair_count": 3,
             "top1_disagreement_rate": 0.333333,
@@ -874,7 +955,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
         self.assertEqual("remain_selective", report["recommendation"]["recommendation"])
         self.assertIn("arena", report["recommendation"]["rationale"])
 
-    def test_build_issue264_report_recommends_standard_step_when_arena_passes_and_hard_suite_present(self):
+    def test_build_issue264_report_recommends_standard_step_when_arena_passes_and_hard_suite_present(
+        self,
+    ):
         label_report = {
             "pair_count": 3,
             "top1_disagreement_rate": 0.666667,
@@ -908,8 +991,12 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             min_score=0.6,
         )
 
-        self.assertEqual("promote_to_standard_step", report["recommendation"]["recommendation"])
-        self.assertEqual(arena_report["hard_suite_buckets"], report["arena"]["hard_suite_buckets"])
+        self.assertEqual(
+            "promote_to_standard_step", report["recommendation"]["recommendation"]
+        )
+        self.assertEqual(
+            arena_report["hard_suite_buckets"], report["arena"]["hard_suite_buckets"]
+        )
         self.assertIn("hard-suite coverage", report["recommendation"]["rationale"])
 
     def test_build_issue264_report_rejects_mismatched_arena_promotion_decision(self):
@@ -988,7 +1075,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                     )
 
     def test_build_issue264_report_rejects_missing_promotion_decision(self):
-        with self.assertRaisesRegex(ValueError, r"arena promotion_decision must be an object"):
+        with self.assertRaisesRegex(
+            ValueError, r"arena promotion_decision must be an object"
+        ):
             labeling.build_issue264_report(
                 experiment={"top_n": 3, "seed": 41},
                 label_report={
@@ -1021,7 +1110,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
     def test_build_issue264_report_rejects_non_dict_promotion_decision(self):
         for promotion_decision in (None, False, "passed", [True]):
             with self.subTest(promotion_decision=promotion_decision):
-                with self.assertRaisesRegex(ValueError, r"arena promotion_decision must be an object"):
+                with self.assertRaisesRegex(
+                    ValueError, r"arena promotion_decision must be an object"
+                ):
                     labeling.build_issue264_report(
                         experiment={"top_n": 3, "seed": 41},
                         label_report={
@@ -1053,7 +1144,14 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                     )
 
     def test_build_issue264_report_rejects_invalid_arena_score(self):
-        invalid_scores = ["0.75", float("nan"), float("inf"), float("-inf"), -0.01, 1.01]
+        invalid_scores = [
+            "0.75",
+            float("nan"),
+            float("inf"),
+            float("-inf"),
+            -0.01,
+            1.01,
+        ]
 
         for score in invalid_scores:
             with self.subTest(score=score):
@@ -1090,7 +1188,14 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                     )
 
     def test_build_issue264_report_rejects_invalid_min_score(self):
-        invalid_min_scores = ["0.6", float("nan"), float("inf"), float("-inf"), -0.01, 1.01]
+        invalid_min_scores = [
+            "0.6",
+            float("nan"),
+            float("inf"),
+            float("-inf"),
+            -0.01,
+            1.01,
+        ]
 
         for min_score in invalid_min_scores:
             with self.subTest(min_score=min_score):
@@ -1250,7 +1355,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                 min_score=0.6,
             )
 
-    def test_build_issue264_report_rejects_missing_required_hard_suite_bucket_keys(self):
+    def test_build_issue264_report_rejects_missing_required_hard_suite_bucket_keys(
+        self,
+    ):
         with self.assertRaisesRegex(
             ValueError,
             r"arena hard_suite_buckets must include opening, midgame, and late buckets",
@@ -1320,7 +1427,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             )
 
     def test_build_issue264_report_rejects_missing_hard_suite_buckets(self):
-        with self.assertRaisesRegex(ValueError, "arena report must include hard_suite_buckets"):
+        with self.assertRaisesRegex(
+            ValueError, "arena report must include hard_suite_buckets"
+        ):
             labeling.build_issue264_report(
                 experiment={"top_n": 3, "seed": 41},
                 label_report={
@@ -1379,7 +1488,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                 min_score=0.6,
             )
 
-    def test_build_issue264_report_recommends_standard_step_when_arena_passes_with_descriptive_hard_suite_scores(self):
+    def test_build_issue264_report_recommends_standard_step_when_arena_passes_with_descriptive_hard_suite_scores(
+        self,
+    ):
         label_report = {
             "pair_count": 3,
             "top1_disagreement_rate": 0.666667,
@@ -1413,7 +1524,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             min_score=0.6,
         )
 
-        self.assertEqual("promote_to_standard_step", report["recommendation"]["recommendation"])
+        self.assertEqual(
+            "promote_to_standard_step", report["recommendation"]["recommendation"]
+        )
         self.assertIn("hard-suite coverage", report["recommendation"]["rationale"])
 
     def test_build_issue264_report_rejects_negative_hard_suite_bucket_games(self):
@@ -1534,7 +1647,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             }
         ]
 
-        with self.assertRaisesRegex(ValueError, "must contain exactly one canonical row and one stronger row"):
+        with self.assertRaisesRegex(
+            ValueError, "must contain exactly one canonical row and one stronger row"
+        ):
             labeling.pair_budget_rows(rows)
 
     def test_pair_budget_rows_rejects_duplicate_canonical_rows(self):
@@ -1568,7 +1683,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             },
         ]
 
-        with self.assertRaisesRegex(ValueError, "must contain exactly one canonical row and one stronger row"):
+        with self.assertRaisesRegex(
+            ValueError, "must contain exactly one canonical row and one stronger row"
+        ):
             labeling.pair_budget_rows(rows)
 
     def test_validate_labeled_row_rejects_negative_policy_probability(self):
@@ -1639,7 +1756,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                     "value": 0.8,
                 },
             ]
-            dataset_path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+            dataset_path.write_text(
+                "".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -1657,7 +1776,10 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
             )
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
-            self.assertEqual({"out_report": str(report_path), "pair_count": 1}, json.loads(result.stdout.strip()))
+            self.assertEqual(
+                {"out_report": str(report_path), "pair_count": 1},
+                json.loads(result.stdout.strip()),
+            )
             report = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertEqual(1, report["pair_count"])
             self.assertEqual(1.0, report["top1_disagreement_rate"])
@@ -1687,7 +1809,9 @@ class HardStateTeacherLabelingTest(unittest.TestCase):
                     "value": 0.8,
                 },
             ]
-            dataset_path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+            dataset_path.write_text(
+                "".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [

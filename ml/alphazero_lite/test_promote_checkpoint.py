@@ -25,8 +25,12 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
             checkpoint_dir = Path(tmp) / "checkpoint"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
-            (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps({}), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps({"schema_version": 1}), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps({}), encoding="utf-8"
+            )
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
                     {
@@ -67,8 +71,12 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
             checkpoint_dir = Path(tmp) / "checkpoint"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
-            (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps({}), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps({"schema_version": 1}), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps({}), encoding="utf-8"
+            )
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
                     {
@@ -104,7 +112,9 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
             checkpoint_dir = Path(tmp) / "checkpoint"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
-            (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps({"schema_version": 1}), encoding="utf-8"
+            )
             (checkpoint_dir / "model.npz").write_bytes(b"fake")
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
@@ -121,7 +131,11 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [self.executable_python(), "ml/alphazero_lite/promote_checkpoint.py", str(checkpoint_dir)],
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/promote_checkpoint.py",
+                    str(checkpoint_dir),
+                ],
                 cwd=repo_root,
                 capture_output=True,
                 text=True,
@@ -140,7 +154,9 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
             target_dir.mkdir(parents=True, exist_ok=True)
             (target_dir / "metadata.json").write_text("live-metadata", encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps({}), encoding="utf-8")
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps({}), encoding="utf-8"
+            )
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
                     {
@@ -171,7 +187,10 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn("Missing required file", result.stderr)
-            self.assertEqual("live-metadata", (target_dir / "metadata.json").read_text(encoding="utf-8"))
+            self.assertEqual(
+                "live-metadata",
+                (target_dir / "metadata.json").read_text(encoding="utf-8"),
+            )
 
     def test_cli_rejects_losses_when_lossless_is_required(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -181,8 +200,12 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             target_dir = Path(tmp) / "current"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-            (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps({}), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps({"schema_version": 1}), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps({}), encoding="utf-8"
+            )
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
                     {
@@ -224,8 +247,12 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             checkpoint_dir = Path(tmp) / "checkpoint"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-            (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps({}), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps({"schema_version": 1}), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps({}), encoding="utf-8"
+            )
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
                     {
@@ -264,8 +291,12 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             checkpoint_dir = Path(tmp) / "checkpoint"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-            (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps({}), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps({"schema_version": 1}), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps({}), encoding="utf-8"
+            )
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
                     {
@@ -309,8 +340,12 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             target_dir = Path(tmp) / "current"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-            (checkpoint_dir / "metadata.json").write_text(json.dumps({"schema_version": 1}), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps({}), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps({"schema_version": 1}), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps({}), encoding="utf-8"
+            )
             (checkpoint_dir / "arena_report.json").write_text(
                 json.dumps(
                     {
@@ -373,9 +408,15 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
                 "draws": 200,
                 "promotion_decision": {"passed": True},
             }
-            (checkpoint_dir / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps(weights), encoding="utf-8")
-            (checkpoint_dir / "arena_report.json").write_text(json.dumps(arena_report), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps(metadata), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps(weights), encoding="utf-8"
+            )
+            (checkpoint_dir / "arena_report.json").write_text(
+                json.dumps(arena_report), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -395,9 +436,20 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             )
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
-            self.assertEqual(metadata, json.loads((target_dir / "metadata.json").read_text(encoding="utf-8")))
-            self.assertEqual(weights, json.loads((target_dir / "weights.json").read_text(encoding="utf-8")))
-            self.assertEqual(arena_report, json.loads((target_dir / "arena_report.json").read_text(encoding="utf-8")))
+            self.assertEqual(
+                metadata,
+                json.loads((target_dir / "metadata.json").read_text(encoding="utf-8")),
+            )
+            self.assertEqual(
+                weights,
+                json.loads((target_dir / "weights.json").read_text(encoding="utf-8")),
+            )
+            self.assertEqual(
+                arena_report,
+                json.loads(
+                    (target_dir / "arena_report.json").read_text(encoding="utf-8")
+                ),
+            )
 
     def test_cli_promotes_to_multiple_targets(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -418,18 +470,27 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
                 "draws": 0,
                 "promotion_decision": {"passed": True},
             }
-            (checkpoint_dir / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
-            (checkpoint_dir / "weights.json").write_text(json.dumps(weights), encoding="utf-8")
-            (checkpoint_dir / "arena_report.json").write_text(json.dumps(arena_report), encoding="utf-8")
+            (checkpoint_dir / "metadata.json").write_text(
+                json.dumps(metadata), encoding="utf-8"
+            )
+            (checkpoint_dir / "weights.json").write_text(
+                json.dumps(weights), encoding="utf-8"
+            )
+            (checkpoint_dir / "arena_report.json").write_text(
+                json.dumps(arena_report), encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
                     self.executable_python(),
                     "ml/alphazero_lite/promote_checkpoint.py",
                     str(checkpoint_dir),
-                    "--target", str(target_a),
-                    "--target", str(target_b),
-                    "--min-score", "0.0",
+                    "--target",
+                    str(target_a),
+                    "--target",
+                    str(target_b),
+                    "--min-score",
+                    "0.0",
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -439,6 +500,17 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             for target in (target_a, target_b):
-                self.assertEqual(metadata, json.loads((target / "metadata.json").read_text(encoding="utf-8")))
-                self.assertEqual(weights, json.loads((target / "weights.json").read_text(encoding="utf-8")))
-                self.assertEqual(arena_report, json.loads((target / "arena_report.json").read_text(encoding="utf-8")))
+                self.assertEqual(
+                    metadata,
+                    json.loads((target / "metadata.json").read_text(encoding="utf-8")),
+                )
+                self.assertEqual(
+                    weights,
+                    json.loads((target / "weights.json").read_text(encoding="utf-8")),
+                )
+                self.assertEqual(
+                    arena_report,
+                    json.loads(
+                        (target / "arena_report.json").read_text(encoding="utf-8")
+                    ),
+                )

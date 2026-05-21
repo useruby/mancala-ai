@@ -46,6 +46,7 @@ REQUIRED_RAILS_BOOT_PATHS = ["app/middleware"]
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def build_bundle(
     bundle_path: str,
     command: str,
@@ -91,7 +92,9 @@ def build_pod_request(
 ) -> dict:
     include_paths = include_paths or []
     disk_gb = _recommended_disk_gb(include_paths)
-    cpu_profile = _resolve_cpu_profile(pod_profile) if pod_profile else DEFAULT_CPU_PROFILE
+    cpu_profile = (
+        _resolve_cpu_profile(pod_profile) if pod_profile else DEFAULT_CPU_PROFILE
+    )
 
     return {
         "name": name,
@@ -126,52 +129,68 @@ def build_shell_plan(
     remote_results_full_path = f"{remote_root}/{remote_results_path}"
     ssh_target = f"{user}@{host}"
 
-    ssh_flags = " ".join([
-        "-p", shlex.quote(str(port)),
-        "-i", shlex.quote(key_path),
-        "-o", shlex.quote("IdentitiesOnly=yes"),
-        "-o", shlex.quote("StrictHostKeyChecking=no"),
-        "-o", shlex.quote("UserKnownHostsFile=/dev/null"),
-    ])
+    ssh_flags = " ".join(
+        [
+            "-p",
+            shlex.quote(str(port)),
+            "-i",
+            shlex.quote(key_path),
+            "-o",
+            shlex.quote("IdentitiesOnly=yes"),
+            "-o",
+            shlex.quote("StrictHostKeyChecking=no"),
+            "-o",
+            shlex.quote("UserKnownHostsFile=/dev/null"),
+        ]
+    )
     scp_flags = [
-        "-P", str(port),
-        "-i", key_path,
-        "-o", "IdentitiesOnly=yes",
-        "-o", "StrictHostKeyChecking=no",
-        "-o", "UserKnownHostsFile=/dev/null",
+        "-P",
+        str(port),
+        "-i",
+        key_path,
+        "-o",
+        "IdentitiesOnly=yes",
+        "-o",
+        "StrictHostKeyChecking=no",
+        "-o",
+        "UserKnownHostsFile=/dev/null",
     ]
 
     return {
         "ssh_info_command": ["runpodctl", "ssh", "info", pod_id],
         "mkdir_command": _ssh_command(
-            ssh_flags, ssh_target,
-            f"mkdir -p {shlex.quote(remote_root)}"
+            ssh_flags, ssh_target, f"mkdir -p {shlex.quote(remote_root)}"
         ),
         "upload_command": " ".join(
-            shlex.quote(p) for p in
-            ["scp"] + scp_flags + [bundle_path, f"{ssh_target}:{remote_bundle_path}"]
+            shlex.quote(p)
+            for p in ["scp"]
+            + scp_flags
+            + [bundle_path, f"{ssh_target}:{remote_bundle_path}"]
         ),
         "unpack_command": _ssh_command(
-            ssh_flags, ssh_target,
+            ssh_flags,
+            ssh_target,
             f"mkdir -p {shlex.quote(remote_root)} && "
-            f"tar -xzf {shlex.quote(remote_bundle_path)} -C {shlex.quote(remote_root)}"
+            f"tar -xzf {shlex.quote(remote_bundle_path)} -C {shlex.quote(remote_root)}",
         ),
         "bootstrap_command": _ssh_command(
-            ssh_flags, ssh_target,
+            ssh_flags,
+            ssh_target,
             f"cd {shlex.quote(remote_root)} && "
-            f"bash script/ai/runpod_remote_bootstrap.sh {shlex.quote(remote_root)}"
+            f"bash script/ai/runpod_remote_bootstrap.sh {shlex.quote(remote_root)}",
         ),
         "run_command": _ssh_command(
-            ssh_flags, ssh_target,
+            ssh_flags,
+            ssh_target,
             f"cd {shlex.quote(remote_root)} && "
             f"bash script/ai/runpod_remote_run.sh "
-            f"{shlex.quote(remote_root)} {shlex.quote(remote_manifest_path)}"
+            f"{shlex.quote(remote_root)} {shlex.quote(remote_manifest_path)}",
         ),
         "download_command": " ".join(
-            shlex.quote(p) for p in
-            ["scp"] + scp_flags + ["-r",
-             f"{ssh_target}:{remote_results_full_path}",
-             local_results_path]
+            shlex.quote(p)
+            for p in ["scp"]
+            + scp_flags
+            + ["-r", f"{ssh_target}:{remote_results_full_path}", local_results_path]
         ),
         "delete_command": f"runpodctl pod delete {pod_id}",
     }
@@ -249,11 +268,16 @@ def parse_ssh_info(response_body: str) -> dict:
     payload = json.loads(response_body)
 
     if "host" in payload:
-        return {k: payload[k] for k in ("host", "port", "user", "keyPath") if k in payload}
+        return {
+            k: payload[k] for k in ("host", "port", "user", "keyPath") if k in payload
+        }
 
     if "ip" in payload:
         ssh_info = _parse_ssh_command(
-            payload.get("ssh_command") or payload.get("command") or payload.get("sshCommand") or ""
+            payload.get("ssh_command")
+            or payload.get("command")
+            or payload.get("sshCommand")
+            or ""
         )
         ssh_info["host"] = ssh_info.get("host") or payload["ip"]
         ssh_info["port"] = ssh_info.get("port") or payload.get("port")
@@ -271,9 +295,7 @@ def run_command(command: str) -> str:
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     if result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip()
-        raise RuntimeError(
-            f"Command failed ({result.returncode}): {command}\n{detail}"
-        )
+        raise RuntimeError(f"Command failed ({result.returncode}): {command}\n{detail}")
     return result.stdout
 
 
@@ -300,8 +322,10 @@ def orchestrate(
     if command_runner is None:
         command_runner = run_command
     if timeout_runner is None:
+
         def timeout_runner(seconds, fn):
             return fn()
+
     if sleeper is None:
         sleeper = time.sleep
 
@@ -331,7 +355,9 @@ def orchestrate(
         )
         pod_id = parse_pod_id(create_response)
 
-        ssh_info = wait_for_ssh_info(pod_id, command_runner=command_runner, sleeper=sleeper)
+        ssh_info = wait_for_ssh_info(
+            pod_id, command_runner=command_runner, sleeper=sleeper
+        )
         shell_plan = build_shell_plan(
             pod_id=pod_id,
             bundle_path=built_bundle_path,
@@ -375,7 +401,9 @@ def orchestrate(
             try:
                 _reset_local_results_dir(local_results_path, results_path)
                 command_runner(shell_plan["download_command"])
-                downloaded = _inspect_downloaded_results(local_results_path, results_path)
+                downloaded = _inspect_downloaded_results(
+                    local_results_path, results_path
+                )
                 if downloaded["execution_completed"]:
                     delete_pod = True
                     return {
@@ -424,6 +452,7 @@ def wait_for_ssh_info(
 # Private helpers
 # ---------------------------------------------------------------------------
 
+
 def _normalize_repo_path(path: str) -> str:
     return path.lstrip("./").lstrip("/") if path.startswith("./") else path
 
@@ -470,7 +499,11 @@ def _install_ruby_dependencies(include_paths: list[str]) -> bool:
 
 
 def _recommended_disk_gb(include_paths: list[str]) -> int:
-    return DEFAULT_PYTHON_DISK_GB if _install_python_requirements(include_paths) else DEFAULT_SMALL_DISK_GB
+    return (
+        DEFAULT_PYTHON_DISK_GB
+        if _install_python_requirements(include_paths)
+        else DEFAULT_SMALL_DISK_GB
+    )
 
 
 def _resolve_cpu_profile(pod_profile: str) -> dict:
@@ -502,6 +535,7 @@ def _write_string_entry(tar: tarfile.TarFile, rel_path: str, contents: str) -> N
 
 def _reset_local_results_dir(local_results_path: str, results_path: str) -> None:
     import shutil
+
     os.makedirs(local_results_path, exist_ok=True)
     stale = os.path.join(local_results_path, os.path.basename(results_path))
     if os.path.exists(stale):
@@ -532,7 +566,9 @@ def _inspect_downloaded_results(local_results_path: str, results_path: str) -> d
         aggregate_summary_path = os.path.join(results_dir, "aggregate_summary.json")
         if os.path.exists(aggregate_summary_path):
             try:
-                payload = json.loads(Path(aggregate_summary_path).read_text(encoding="utf-8"))
+                payload = json.loads(
+                    Path(aggregate_summary_path).read_text(encoding="utf-8")
+                )
             except (json.JSONDecodeError, OSError):
                 payload = None
             if isinstance(payload, dict) and isinstance(payload.get("passed"), bool):
@@ -544,7 +580,9 @@ def _inspect_downloaded_results(local_results_path: str, results_path: str) -> d
                     "manifest_status": None,
                 }
 
-        manifests = glob.glob(os.path.join(results_dir, "**", "run_manifest.json"), recursive=True)
+        manifests = glob.glob(
+            os.path.join(results_dir, "**", "run_manifest.json"), recursive=True
+        )
         if manifests:
             manifest_path = manifests[0]
             payload = json.loads(Path(manifest_path).read_text(encoding="utf-8"))

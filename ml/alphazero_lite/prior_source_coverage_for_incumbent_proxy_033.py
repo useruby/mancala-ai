@@ -34,7 +34,9 @@ def validate_schema(payload: dict[str, Any], expected_schema: str, path: Path) -
         raise ValueError(f"unexpected schema for {path}: {actual_schema}")
 
 
-def replay_memberships(path: Path, canonical_states: dict[str, Any] | None = None) -> dict[str, dict[str, Any]]:
+def replay_memberships(
+    path: Path, canonical_states: dict[str, Any] | None = None
+) -> dict[str, dict[str, Any]]:
     memberships = {
         row_id: {"present": False, "count": 0, "matched_by": [], "line_numbers": []}
         for row_id in ROW_IDS
@@ -48,11 +50,20 @@ def replay_memberships(path: Path, canonical_states: dict[str, Any] | None = Non
                 continue
             payload = json.loads(line)
             for row_id in ROW_IDS:
-                matched_by = [field for field in REPLAY_MEMBERSHIP_FIELDS if payload.get(field) == row_id]
+                matched_by = [
+                    field
+                    for field in REPLAY_MEMBERSHIP_FIELDS
+                    if payload.get(field) == row_id
+                ]
                 row_canonical_states = canonical_states.get(row_id)
-                if row_canonical_states is not None and not isinstance(row_canonical_states, list):
+                if row_canonical_states is not None and not isinstance(
+                    row_canonical_states, list
+                ):
                     row_canonical_states = [row_canonical_states]
-                if row_canonical_states and payload.get("canonical_state") in row_canonical_states:
+                if (
+                    row_canonical_states
+                    and payload.get("canonical_state") in row_canonical_states
+                ):
                     matched_by.append("canonical_state")
                 if matched_by:
                     memberships[row_id]["present"] = True
@@ -65,18 +76,24 @@ def replay_memberships(path: Path, canonical_states: dict[str, Any] | None = Non
                     actual_bucket = payload.get("bucket")
                     if actual_bucket is not None and actual_bucket != expected_bucket:
                         memberships[row_id]["classification"] = "misclassified"
-                        evidence = memberships[row_id].setdefault("classification_evidence", [])
+                        evidence = memberships[row_id].setdefault(
+                            "classification_evidence", []
+                        )
                         for field in matched_by:
-                            evidence.append({
-                                "expected_bucket": expected_bucket,
-                                "actual_bucket": actual_bucket,
-                                "line_number": line_number,
-                                "matched_by": field,
-                            })
+                            evidence.append(
+                                {
+                                    "expected_bucket": expected_bucket,
+                                    "actual_bucket": actual_bucket,
+                                    "line_number": line_number,
+                                    "matched_by": field,
+                                }
+                            )
     return memberships
 
 
-def selected_candidate_forensics_path(search_interaction_payload: dict[str, Any]) -> Path | None:
+def selected_candidate_forensics_path(
+    search_interaction_payload: dict[str, Any],
+) -> Path | None:
     rebalanced_run_dir = search_interaction_payload.get("rebalanced_run_dir")
     if not rebalanced_run_dir:
         return None
@@ -120,7 +137,11 @@ def load_canonical_state_provenance(
             "candidate_search_interaction": candidate_state,
             "rebalance_search_interaction": rebalance_state,
         }
-        if candidate_state is not None and rebalance_state is not None and candidate_state != rebalance_state:
+        if (
+            candidate_state is not None
+            and rebalance_state is not None
+            and candidate_state != rebalance_state
+        ):
             conflicts[row_id] = {
                 "candidate_search_interaction": candidate_state,
                 "rebalance_search_interaction": rebalance_state,
@@ -172,17 +193,30 @@ def load_source_artifacts(
         rebalance_payload=rebalance_payload,
     )
     return {
-        "artifact_pinned_ablation": {"path": str(artifact_pinned_ablation), "payload": pinned_payload},
-        "candidate_search_interaction": {"path": str(candidate_search_interaction), "payload": candidate_payload},
-        "rebalance_search_interaction": {"path": str(rebalance_search_interaction), "payload": rebalance_payload},
+        "artifact_pinned_ablation": {
+            "path": str(artifact_pinned_ablation),
+            "payload": pinned_payload,
+        },
+        "candidate_search_interaction": {
+            "path": str(candidate_search_interaction),
+            "payload": candidate_payload,
+        },
+        "rebalance_search_interaction": {
+            "path": str(rebalance_search_interaction),
+            "payload": rebalance_payload,
+        },
         "canonical_state_provenance": canonical_state_provenance,
         "replay_source": {
             "path": str(replay_source),
             "memberships": replay_memberships(
                 replay_source,
                 canonical_states={
-                    row_id: [state for state in row_states.values() if state is not None]
-                    for row_id, row_states in (canonical_state_provenance.get("row_states") or {}).items()
+                    row_id: [
+                        state for state in row_states.values() if state is not None
+                    ]
+                    for row_id, row_states in (
+                        canonical_state_provenance.get("row_states") or {}
+                    ).items()
                 },
             ),
         },
@@ -197,7 +231,9 @@ def row_role(row_id: str) -> str:
     return "context"
 
 
-def _search_row(source_artifacts: dict[str, Any], artifact_key: str, row_id: str) -> dict[str, Any] | None:
+def _search_row(
+    source_artifacts: dict[str, Any], artifact_key: str, row_id: str
+) -> dict[str, Any] | None:
     payload = source_artifacts.get(artifact_key, {}).get("payload") or {}
     return (payload.get("rows") or {}).get(row_id)
 
@@ -220,11 +256,19 @@ def _first_present(*values: Any) -> Any:
 
 def build_row_entry(*, source_artifacts: dict[str, Any], row_id: str) -> dict[str, Any]:
     pinned_row = _pinned_row(source_artifacts, row_id)
-    candidate_row = _search_row(source_artifacts, "candidate_search_interaction", row_id)
-    rebalance_row = _search_row(source_artifacts, "rebalance_search_interaction", row_id)
+    candidate_row = _search_row(
+        source_artifacts, "candidate_search_interaction", row_id
+    )
+    rebalance_row = _search_row(
+        source_artifacts, "rebalance_search_interaction", row_id
+    )
     default_config = _full_default(pinned_row)
-    replay_membership = (source_artifacts.get("replay_source", {}).get("memberships") or {}).get(row_id)
-    canonical_state_provenance = source_artifacts.get("canonical_state_provenance") or {}
+    replay_membership = (
+        source_artifacts.get("replay_source", {}).get("memberships") or {}
+    ).get(row_id)
+    canonical_state_provenance = (
+        source_artifacts.get("canonical_state_provenance") or {}
+    )
     canonical_state = (canonical_state_provenance.get("states") or {}).get(row_id)
     reference_values = [
         value
@@ -252,10 +296,16 @@ def build_row_entry(*, source_artifacts: dict[str, Any], row_id: str) -> dict[st
         notes.append("replay source membership unavailable")
     if canonical_state is None:
         notes.append("canonical state unavailable")
-    row_canonical_states = (canonical_state_provenance.get("row_states") or {}).get(row_id) or {}
-    canonical_state_conflict = row_id in (canonical_state_provenance.get("conflicts") or {})
+    row_canonical_states = (canonical_state_provenance.get("row_states") or {}).get(
+        row_id
+    ) or {}
+    canonical_state_conflict = row_id in (
+        canonical_state_provenance.get("conflicts") or {}
+    )
     if canonical_state_conflict:
-        notes.append("canonical state conflict between candidate and rebalance forensics")
+        notes.append(
+            "canonical state conflict between candidate and rebalance forensics"
+        )
 
     return {
         "row_id": row_id,
@@ -263,8 +313,12 @@ def build_row_entry(*, source_artifacts: dict[str, Any], row_id: str) -> dict[st
         "canonical_state": canonical_state,
         "canonical_state_provenance": {
             "source": (canonical_state_provenance.get("sources") or {}).get(row_id),
-            "candidate_canonical_state": row_canonical_states.get("candidate_search_interaction"),
-            "rebalance_canonical_state": row_canonical_states.get("rebalance_search_interaction"),
+            "candidate_canonical_state": row_canonical_states.get(
+                "candidate_search_interaction"
+            ),
+            "rebalance_canonical_state": row_canonical_states.get(
+                "rebalance_search_interaction"
+            ),
             "conflict": canonical_state_conflict,
             "paths": canonical_state_provenance.get("paths"),
         },
@@ -279,8 +333,12 @@ def build_row_entry(*, source_artifacts: dict[str, Any], row_id: str) -> dict[st
         ),
         "full_default_selected_move": default_config.get("selected_move"),
         "passes_reference": default_config.get("passes_reference"),
-        "bucket": _first_present((candidate_row or {}).get("bucket"), (rebalance_row or {}).get("bucket")),
-        "phase": _first_present((candidate_row or {}).get("phase"), (rebalance_row or {}).get("phase")),
+        "bucket": _first_present(
+            (candidate_row or {}).get("bucket"), (rebalance_row or {}).get("bucket")
+        ),
+        "phase": _first_present(
+            (candidate_row or {}).get("phase"), (rebalance_row or {}).get("phase")
+        ),
         "row_state_provenance": {
             "candidate_search_interaction": candidate_row is not None,
             "rebalance_search_interaction": rebalance_row is not None,
@@ -293,16 +351,26 @@ def build_row_entry(*, source_artifacts: dict[str, Any], row_id: str) -> dict[st
             "rebalance_search_interaction": rebalance_row,
         },
         "opening_family_provenance": {
-            "candidate_opening_row": (candidate_row or {}).get("opening_family") if candidate_row else None,
-            "rebalance_opening_row": (rebalance_row or {}).get("opening_family") if rebalance_row else None,
+            "candidate_opening_row": (candidate_row or {}).get("opening_family")
+            if candidate_row
+            else None,
+            "rebalance_opening_row": (rebalance_row or {}).get("opening_family")
+            if rebalance_row
+            else None,
         },
         "replay_source_membership": replay_membership,
         "reference_values": reference_values,
         "teacher_values": teacher_values,
         "selected_artifact_paths": {
-            "artifact_pinned_ablation": source_artifacts["artifact_pinned_ablation"]["path"],
-            "candidate_search_interaction": source_artifacts["candidate_search_interaction"]["path"],
-            "rebalance_search_interaction": source_artifacts["rebalance_search_interaction"]["path"],
+            "artifact_pinned_ablation": source_artifacts["artifact_pinned_ablation"][
+                "path"
+            ],
+            "candidate_search_interaction": source_artifacts[
+                "candidate_search_interaction"
+            ]["path"],
+            "rebalance_search_interaction": source_artifacts[
+                "rebalance_search_interaction"
+            ]["path"],
         },
         "notes": notes,
     }
@@ -318,10 +386,14 @@ def classify_source_gap(rows: dict[str, dict[str, Any]]) -> str:
     if membership.get("count", 1) == 0:
         return "absent_from_source_construction"
     if membership.get("count", 1) > 0 and membership.get("count", 1) < min(
-        (rows[row_id].get("replay_source_membership") or {}).get("count", 1) for row_id in GUARD_ROW_IDS
+        (rows[row_id].get("replay_source_membership") or {}).get("count", 1)
+        for row_id in GUARD_ROW_IDS
     ):
         return "underrepresented_in_source_construction"
-    if len(set(target.get("reference_values") or [])) > 1 or len(set(target.get("teacher_values") or [])) > 1:
+    if (
+        len(set(target.get("reference_values") or [])) > 1
+        or len(set(target.get("teacher_values") or [])) > 1
+    ):
         return "reference_or_teacher_drift_detected"
     return "no_concrete_source_gap_found"
 
@@ -344,13 +416,20 @@ def guard_rows_clean(rows: dict[str, dict[str, Any]]) -> bool:
 
 
 def decision_for(*, classification: str, guards_clean: bool) -> str:
-    if classification in {"absent_from_source_construction", "misclassified_in_source_construction"} and guards_clean:
+    if (
+        classification
+        in {"absent_from_source_construction", "misclassified_in_source_construction"}
+        and guards_clean
+    ):
         return WRITE_CANDIDATE_SPEC_DECISION
     return CLOSE_DECISION
 
 
 def build_payload(*, source_artifacts: dict[str, Any]) -> dict[str, Any]:
-    rows = {row_id: build_row_entry(source_artifacts=source_artifacts, row_id=row_id) for row_id in ROW_IDS}
+    rows = {
+        row_id: build_row_entry(source_artifacts=source_artifacts, row_id=row_id)
+        for row_id in ROW_IDS
+    }
     classification = classify_source_gap(rows)
     guards_clean = guard_rows_clean(rows)
     decision = decision_for(classification=classification, guards_clean=guards_clean)
@@ -364,8 +443,15 @@ def build_payload(*, source_artifacts: dict[str, Any]) -> dict[str, Any]:
             for key, value in source_artifacts.items()
             if isinstance(value, dict) and "path" in value
         },
-        "canonical_state_provenance": source_artifacts.get("canonical_state_provenance"),
-        "probe_settings": (source_artifacts["artifact_pinned_ablation"]["payload"].get("probe_settings") or None),
+        "canonical_state_provenance": source_artifacts.get(
+            "canonical_state_provenance"
+        ),
+        "probe_settings": (
+            source_artifacts["artifact_pinned_ablation"]["payload"].get(
+                "probe_settings"
+            )
+            or None
+        ),
         "rows": rows,
         "summary": {
             "decision": decision,
@@ -377,7 +463,9 @@ def build_payload(*, source_artifacts: dict[str, Any]) -> dict[str, Any]:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Diagnose prior/source coverage for incumbent_proxy_disagreement-033")
+    parser = argparse.ArgumentParser(
+        description="Diagnose prior/source coverage for incumbent_proxy_disagreement-033"
+    )
     parser.add_argument("--artifact-pinned-ablation", type=Path, required=True)
     parser.add_argument("--candidate-search-interaction", type=Path, required=True)
     parser.add_argument("--rebalance-search-interaction", type=Path, required=True)
@@ -396,8 +484,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     payload = build_payload(source_artifacts=source_artifacts)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"artifact_path": str(args.out), "schema": SCHEMA, "decision": payload["summary"]["decision"]}))
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    print(
+        json.dumps(
+            {
+                "artifact_path": str(args.out),
+                "schema": SCHEMA,
+                "decision": payload["summary"]["decision"],
+            }
+        )
+    )
     return 0
 
 

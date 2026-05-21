@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        files: ^(requirements-dev\.txt|pyproject\.toml|\.pre-commit-config\.yaml)$
+      - id: trailing-whitespace
+        files: ^(ml/alphazero_lite/.*|script/ai/.*)$
+        types_or: [python]
+      - id: end-of-file-fixer
+        files: ^(requirements-dev\.txt|pyproject\.toml|\.pre-commit-config\.yaml)$
+      - id: end-of-file-fixer
+        files: ^(ml/alphazero_lite/.*|script/ai/.*)$
+        types_or: [python]
+      - id: check-yaml
+        files: ^(\.pre-commit-config\.yaml|\.github/workflows/.*\.ya?ml)$
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.13
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^(ml/alphazero_lite/.*|script/ai/.*)$
+        types_or: [python]
+      - id: ruff-format
+        files: ^(ml/alphazero_lite/.*|script/ai/.*)$
+        types_or: [python]

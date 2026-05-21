@@ -62,7 +62,9 @@ def validate_arena_report(
         "confidence_lower_bound": confidence_lower_bound,
         "min_score": float(min_score),
         "min_confidence_lower_bound": (
-            float(min_confidence_lower_bound) if min_confidence_lower_bound is not None else None
+            float(min_confidence_lower_bound)
+            if min_confidence_lower_bound is not None
+            else None
         ),
         "games_played": games_played,
         "wins": wins,
@@ -92,5 +94,9 @@ def wilson_lower_bound(*, score: float, sample_size: int, z: float = 1.96) -> fl
 
     denominator = 1.0 + ((z**2) / sample_size)
     center = score + ((z**2) / (2.0 * sample_size))
-    margin = z * (((score * (1.0 - score)) + ((z**2) / (4.0 * sample_size))) / sample_size) ** 0.5
+    margin = (
+        z
+        * (((score * (1.0 - score)) + ((z**2) / (4.0 * sample_size))) / sample_size)
+        ** 0.5
+    )
     return max(0.0, (center - margin) / denominator)

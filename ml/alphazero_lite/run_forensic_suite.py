@@ -11,10 +11,21 @@ from typing import Any
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.forensic_suite import ForensicPosition, canonical_state_key, centered_value_from_probability, load_suite, summarize_bucket_matrix, summarize_system
+from ml.alphazero_lite.forensic_suite import (
+    ForensicPosition,
+    canonical_state_key,
+    centered_value_from_probability,
+    load_suite,
+    summarize_bucket_matrix,
+    summarize_system,
+)
 
 if os.environ.get("AZLITE_FORENSIC_SUITE_STUB") != "1":
-    from ml.alphazero_lite.arena import ArtifactEvaluator, build_eval_search_options, evaluate_artifact_position
+    from ml.alphazero_lite.arena import (
+        ArtifactEvaluator,
+        build_eval_search_options,
+        evaluate_artifact_position,
+    )
     from ml.alphazero_lite.classic_mcts import MCTS
     from ml.alphazero_lite.kalah_rules import KalahGame
 else:
@@ -48,7 +59,10 @@ def _teacher_value(child_stats: list[dict]) -> float | None:
     total_visits = sum(int(child.get("visits", 0)) for child in child_stats)
     if total_visits <= 0:
         return None
-    weighted_sum = sum(float(child.get("win_rate", 0.0)) * int(child.get("visits", 0)) for child in child_stats)
+    weighted_sum = sum(
+        float(child.get("win_rate", 0.0)) * int(child.get("visits", 0))
+        for child in child_stats
+    )
     return weighted_sum / total_visits
 
 
@@ -56,7 +70,14 @@ def _regret(child_stats: list[dict], selected_move: int | None) -> float | None:
     if not child_stats or selected_move is None:
         return None
     best = max(float(child.get("win_rate", 0.0)) for child in child_stats)
-    chosen = next((float(child.get("win_rate", 0.0)) for child in child_stats if child.get("move") == selected_move), best)
+    chosen = next(
+        (
+            float(child.get("win_rate", 0.0))
+            for child in child_stats
+            if child.get("move") == selected_move
+        ),
+        best,
+    )
     return max(0.0, best - chosen)
 
 
@@ -104,15 +125,23 @@ def _apply_sparse_regret_summaries(summary: dict[str, Any]) -> dict[str, Any]:
 
 
 def _apply_sparse_top1_summaries(summary: dict[str, Any]) -> dict[str, Any]:
-    available_rows = [row for row in summary["rows"] if row.get("agrees_top1") is not None]
+    available_rows = [
+        row for row in summary["rows"] if row.get("agrees_top1") is not None
+    ]
     if not available_rows:
         _clear_top1_summary(summary["overall"])
     else:
         agreements = sum(1 for row in available_rows if row["agrees_top1"])
-        summary["overall"]["top1_agreement"] = round(agreements / len(available_rows), 4)
+        summary["overall"]["top1_agreement"] = round(
+            agreements / len(available_rows), 4
+        )
 
     for bucket, bucket_summary in summary["buckets"].items():
-        bucket_rows = [row for row in summary["rows"] if row["bucket"] == bucket and row.get("agrees_top1") is not None]
+        bucket_rows = [
+            row
+            for row in summary["rows"]
+            if row["bucket"] == bucket and row.get("agrees_top1") is not None
+        ]
         if not bucket_rows:
             _clear_top1_summary(bucket_summary)
             continue
@@ -121,7 +150,9 @@ def _apply_sparse_top1_summaries(summary: dict[str, Any]) -> dict[str, Any]:
     return summary
 
 
-def _apply_sparse_bucket_matrix(matrix: dict[str, dict[str, Any]], system_rows: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, Any]]:
+def _apply_sparse_bucket_matrix(
+    matrix: dict[str, dict[str, Any]], system_rows: dict[str, list[dict[str, Any]]]
+) -> dict[str, dict[str, Any]]:
     for bucket, bucket_summary in matrix.items():
         for system_name, system_summary in bucket_summary["systems"].items():
             rows = [row for row in system_rows[system_name] if row["bucket"] == bucket]
@@ -130,7 +161,9 @@ def _apply_sparse_bucket_matrix(matrix: dict[str, dict[str, Any]], system_rows: 
     return matrix
 
 
-def _apply_sparse_top1_bucket_matrix(matrix: dict[str, dict[str, Any]], system_rows: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, Any]]:
+def _apply_sparse_top1_bucket_matrix(
+    matrix: dict[str, dict[str, Any]], system_rows: dict[str, list[dict[str, Any]]]
+) -> dict[str, dict[str, Any]]:
     for bucket, bucket_summary in matrix.items():
         for system_name, system_summary in bucket_summary["systems"].items():
             rows = [
@@ -146,7 +179,9 @@ def _apply_sparse_top1_bucket_matrix(matrix: dict[str, dict[str, Any]], system_r
     return matrix
 
 
-def _load_shared_references(reference_artifact_path: str | Path) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+def _load_shared_references(
+    reference_artifact_path: str | Path,
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     artifact = json.loads(Path(reference_artifact_path).read_text(encoding="utf-8"))
     if artifact.get("schema") != SHARED_REFERENCE_SCHEMA:
         raise SystemExit(
@@ -158,7 +193,16 @@ def _load_shared_references(reference_artifact_path: str | Path) -> tuple[dict[s
         raise SystemExit("reference artifact must contain a rows list")
 
     references_by_canonical_state: dict[str, dict[str, Any]] = {}
-    required_fields = {"id", "canonical_state", "state", "reference_move", "teacher_value", "reference_unstable", "observed_reference_moves", "seed_samples"}
+    required_fields = {
+        "id",
+        "canonical_state",
+        "state",
+        "reference_move",
+        "teacher_value",
+        "reference_unstable",
+        "observed_reference_moves",
+        "seed_samples",
+    }
     for index, row in enumerate(rows):
         if not isinstance(row, dict):
             raise SystemExit(f"shared reference artifact row {index} must be an object")
@@ -179,8 +223,7 @@ def _load_shared_references(reference_artifact_path: str | Path) -> tuple[dict[s
             )
         if canonical_state in references_by_canonical_state:
             raise SystemExit(
-                "shared reference artifact row "
-                f"{index} has duplicate canonical_state"
+                f"shared reference artifact row {index} has duplicate canonical_state"
             )
         references_by_canonical_state[canonical_state] = dict(row)
     return artifact, references_by_canonical_state
@@ -197,7 +240,9 @@ def _reference_child_stats(reference: dict[str, Any]) -> list[dict[str, Any]]:
     return child_stats if isinstance(child_stats, list) else []
 
 
-def _stub_reference(index: int, policy_simulations: int, value_simulations: int) -> dict:
+def _stub_reference(
+    index: int, policy_simulations: int, value_simulations: int
+) -> dict:
     if index == 0:
         policy = {
             "selected_move": 0,
@@ -241,20 +286,34 @@ def _stub_system(system_name: str, index: int, legal_moves: tuple[int, ...]) -> 
     return {**system, "policy": [], "child_stats": [], "visits": []}
 
 
-def run_reference(state: dict, policy_simulations: int, value_simulations: int, seed: int, index: int) -> dict:
+def run_reference(
+    state: dict, policy_simulations: int, value_simulations: int, seed: int, index: int
+) -> dict:
     if os.environ.get("AZLITE_FORENSIC_SUITE_STUB") == "1":
         return _stub_reference(index, policy_simulations, value_simulations)
 
-    search = MCTS(KalahGame.from_state(state), simulations=policy_simulations, seed=seed)
+    search = MCTS(
+        KalahGame.from_state(state), simulations=policy_simulations, seed=seed
+    )
     summary = search.root_summary()
 
     if value_simulations == policy_simulations:
         teacher_probability = _teacher_value(summary["child_stats"])
     else:
-        teacher_search = MCTS(KalahGame.from_state(state), simulations=value_simulations, seed=seed + 50_000)
-        teacher_probability = _teacher_value(teacher_search.root_summary()["child_stats"])
+        teacher_search = MCTS(
+            KalahGame.from_state(state),
+            simulations=value_simulations,
+            seed=seed + 50_000,
+        )
+        teacher_probability = _teacher_value(
+            teacher_search.root_summary()["child_stats"]
+        )
 
-    summary["teacher_value"] = None if teacher_probability is None else centered_value_from_probability(teacher_probability)
+    summary["teacher_value"] = (
+        None
+        if teacher_probability is None
+        else centered_value_from_probability(teacher_probability)
+    )
     return summary
 
 
@@ -263,7 +322,9 @@ def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> d
     teacher_value = reference.get("teacher_value")
     system_value = float(system["value"])
     regret = _regret(_reference_child_stats(reference), system["selected_move"])
-    agrees_top1 = None if reference_move is None else system["selected_move"] == reference_move
+    agrees_top1 = (
+        None if reference_move is None else system["selected_move"] == reference_move
+    )
     row = {
         "id": position.id,
         "state": position.state,
@@ -278,11 +339,19 @@ def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> d
         "selected_move": system["selected_move"],
         "agrees_top1": agrees_top1,
         "regret": None if regret is None else round(regret, 4),
-        "teacher_value": None if teacher_value is None else round(float(teacher_value), 4),
+        "teacher_value": None
+        if teacher_value is None
+        else round(float(teacher_value), 4),
         "system_value": round(system_value, 4),
-        "value_error": None if teacher_value is None else round(abs(system_value - float(teacher_value)), 4),
+        "value_error": None
+        if teacher_value is None
+        else round(abs(system_value - float(teacher_value)), 4),
     }
-    for field_name in ("reference_unstable", "observed_reference_moves", "seed_samples"):
+    for field_name in (
+        "reference_unstable",
+        "observed_reference_moves",
+        "seed_samples",
+    ):
         if field_name in reference:
             row[field_name] = reference[field_name]
     return row
@@ -295,7 +364,11 @@ def main() -> None:
     out_path = Path(args.out)
     suite = load_suite(suite_path)
     search_options = build_eval_search_options()
-    value_reference_simulations = int(args.teacher_simulations) if int(args.teacher_simulations) > 0 else int(args.mcts_simulations)
+    value_reference_simulations = (
+        int(args.teacher_simulations)
+        if int(args.teacher_simulations) > 0
+        else int(args.mcts_simulations)
+    )
     stub_mode = os.environ.get("AZLITE_FORENSIC_SUITE_STUB") == "1"
 
     if stub_mode:
@@ -303,16 +376,26 @@ def main() -> None:
 
     shared_reference_artifact = None
     if reference_artifact_path:
-        shared_reference_artifact, references_by_canonical_state = _load_shared_references(reference_artifact_path)
+        shared_reference_artifact, references_by_canonical_state = (
+            _load_shared_references(reference_artifact_path)
+        )
         references = []
         for position in suite:
             reference = references_by_canonical_state.get(position.canonical_key)
             if reference is None:
-                raise SystemExit(f"missing shared reference row for canonical state: {position.id}")
+                raise SystemExit(
+                    f"missing shared reference row for canonical state: {position.id}"
+                )
             references.append(reference)
     else:
         references = [
-            run_reference(position.state, int(args.mcts_simulations), value_reference_simulations, args.seed + index, index)
+            run_reference(
+                position.state,
+                int(args.mcts_simulations),
+                value_reference_simulations,
+                args.seed + index,
+                index,
+            )
             for index, position in enumerate(suite)
         ]
 
@@ -323,7 +406,8 @@ def main() -> None:
     evaluators = None
     if not stub_mode:
         evaluators = {
-            system_name: ArtifactEvaluator(Path(artifact_path)) for system_name, artifact_path in systems.items()
+            system_name: ArtifactEvaluator(Path(artifact_path))
+            for system_name, artifact_path in systems.items()
         }
 
     system_rows: dict[str, list[dict]] = {}
@@ -359,7 +443,9 @@ def main() -> None:
         "reference": {
             "kind": "shared_artifact",
             "artifact_path": str(Path(reference_artifact_path)),
-            "shared_reference": None if shared_reference_artifact is None else shared_reference_artifact.get("reference"),
+            "shared_reference": None
+            if shared_reference_artifact is None
+            else shared_reference_artifact.get("reference"),
         }
         if reference_artifact_path
         else {
@@ -377,8 +463,14 @@ def main() -> None:
             system_name: {
                 "artifact_path": artifact_path,
                 **(
-                    _apply_sparse_regret_summaries(summarize_system(system_rows[system_name]))
-                    if reference_artifact_path and not all(_has_reference_child_stats(reference) for reference in references)
+                    _apply_sparse_regret_summaries(
+                        summarize_system(system_rows[system_name])
+                    )
+                    if reference_artifact_path
+                    and not all(
+                        _has_reference_child_stats(reference)
+                        for reference in references
+                    )
                     else summarize_system(system_rows[system_name])
                 ),
             }
@@ -391,11 +483,15 @@ def main() -> None:
         for system_summary in report["systems"].values():
             _apply_sparse_top1_summaries(system_summary)
 
-    if reference_artifact_path and not all(_has_reference_child_stats(reference) for reference in references):
+    if reference_artifact_path and not all(
+        _has_reference_child_stats(reference) for reference in references
+    ):
         report["buckets"] = _apply_sparse_bucket_matrix(report["buckets"], system_rows)
 
     if reference_artifact_path:
-        report["buckets"] = _apply_sparse_top1_bucket_matrix(report["buckets"], system_rows)
+        report["buckets"] = _apply_sparse_top1_bucket_matrix(
+            report["buckets"], system_rows
+        )
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

@@ -6,7 +6,15 @@ from unittest import mock
 
 
 class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
-    def opening_row(self, row_id, *, reference_move=3, legal_moves=None, bucket="capture_available", phase="opening"):
+    def opening_row(
+        self,
+        row_id,
+        *,
+        reference_move=3,
+        legal_moves=None,
+        bucket="capture_available",
+        phase="opening",
+    ):
         return {
             "id": row_id,
             "state": {
@@ -36,9 +44,14 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
 
         selected = module.select_tracked_family_rows(rows)
 
-        self.assertEqual(["capture_available-017", "capture_available-024", "capture_available-099"], [row["id"] for row in selected])
+        self.assertEqual(
+            ["capture_available-017", "capture_available-024", "capture_available-099"],
+            [row["id"] for row in selected],
+        )
 
-    def test_build_report_includes_current_and_candidate_prior_and_search_summaries(self):
+    def test_build_report_includes_current_and_candidate_prior_and_search_summaries(
+        self,
+    ):
         from ml.alphazero_lite import write_opening_capture_family_report as module
 
         current_artifact = Path("/tmp/current-artifact")
@@ -49,7 +62,17 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             self.opening_row("high_imbalance-002"),
         ]
 
-        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode="full"):
+        def fake_evaluate_artifact_position(
+            *,
+            artifact_path,
+            evaluator,
+            state,
+            simulations,
+            seed,
+            c_puct,
+            search_options,
+            ablation_mode="full",
+        ):
             del state, simulations, seed, c_puct, search_options, ablation_mode
             self.assertEqual(artifact_path, evaluator)
             if artifact_path == current_artifact:
@@ -79,22 +102,32 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                     {"move": 2, "visits": 8, "q_value": 0.2},
                     {"move": 3, "visits": 20, "q_value": 0.6},
                     {"move": 4, "visits": 6, "q_value": 0.25},
-                    ],
-                }
+                ],
+            }
 
         fake_arena = type(
             "FakeArena",
             (),
             {
                 "ArtifactEvaluator": staticmethod(lambda path: path),
-                "build_eval_search_options": staticmethod(lambda: {"root_policy_mode": "deterministic"}),
-                "evaluate_artifact_position": staticmethod(fake_evaluate_artifact_position),
+                "build_eval_search_options": staticmethod(
+                    lambda: {"root_policy_mode": "deterministic"}
+                ),
+                "evaluate_artifact_position": staticmethod(
+                    fake_evaluate_artifact_position
+                ),
             },
         )
 
-        with mock.patch("ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows", return_value=suite_rows), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
-            return_value=fake_arena,
+        with (
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
+                return_value=suite_rows,
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
+                return_value=fake_arena,
+            ),
         ):
             report = module.build_report(
                 suite_path=Path("/tmp/opening-suite.json"),
@@ -109,25 +142,39 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         self.assertEqual(str(current_artifact), report["current_artifact_path"])
         self.assertEqual(str(candidate_artifact), report["candidate_artifact_path"])
         self.assertEqual(2, len(report["rows"]))
-        self.assertEqual(["capture_available-017", "capture_available-099"], [row["id"] for row in report["rows"]])
+        self.assertEqual(
+            ["capture_available-017", "capture_available-099"],
+            [row["id"] for row in report["rows"]],
+        )
         first_row = report["rows"][0]
         self.assertEqual(3, first_row["reference_move"])
         self.assertEqual([0, 1, 2, 3, 4], first_row["legal_moves"])
         self.assertEqual(
-            {"selected_move", "value", "early_mass", "reference_mass", "reference_margin", "reference_move"},
+            {
+                "selected_move",
+                "value",
+                "early_mass",
+                "reference_mass",
+                "reference_margin",
+                "reference_move",
+            },
             set(first_row["current_prior_summary"]),
         )
         self.assertEqual(0.2, first_row["current_prior_summary"]["early_mass"])
         self.assertEqual(0.3, first_row["current_prior_summary"]["reference_margin"])
         self.assertEqual(1, first_row["current_searched_summary"]["selected_move"])
         self.assertEqual(0.16, first_row["current_searched_summary"]["early_mass"])
-        self.assertEqual(0.46, first_row["current_searched_summary"]["reference_margin"])
+        self.assertEqual(
+            0.46, first_row["current_searched_summary"]["reference_margin"]
+        )
         self.assertEqual(3, first_row["candidate_prior_summary"]["selected_move"])
         self.assertEqual(0.2, first_row["candidate_prior_summary"]["early_mass"])
         self.assertEqual(0.25, first_row["candidate_prior_summary"]["reference_margin"])
         self.assertEqual(3, first_row["candidate_searched_summary"]["selected_move"])
         self.assertEqual(0.1905, first_row["candidate_searched_summary"]["early_mass"])
-        self.assertEqual(0.2857, first_row["candidate_searched_summary"]["reference_margin"])
+        self.assertEqual(
+            0.2857, first_row["candidate_searched_summary"]["reference_margin"]
+        )
 
     def test_summarize_prior_uses_prior_best_move_not_search_selected_move(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
@@ -158,7 +205,14 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            {"selected_move", "value", "early_mass", "reference_mass", "reference_margin", "reference_move"},
+            {
+                "selected_move",
+                "value",
+                "early_mass",
+                "reference_mass",
+                "reference_margin",
+                "reference_move",
+            },
             set(summary),
         )
 
@@ -225,9 +279,14 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         )
 
         self.assertEqual([3, 3], [row["reference_move"] for row in enriched])
-        self.assertEqual(["capture_available-017", "capture_available-024"], [row["id"] for row in module.select_tracked_family_rows(enriched)])
+        self.assertEqual(
+            ["capture_available-017", "capture_available-024"],
+            [row["id"] for row in module.select_tracked_family_rows(enriched)],
+        )
 
-    def test_enrich_suite_rows_prefers_shared_reference_move_over_stale_suite_value(self):
+    def test_enrich_suite_rows_prefers_shared_reference_move_over_stale_suite_value(
+        self,
+    ):
         from ml.alphazero_lite import write_opening_capture_family_report as module
 
         tracked_state = {
@@ -297,7 +356,13 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
 
         self.assertFalse(module.has_stable_reference_move(row))
         self.assertEqual(
-            [{"code": "invalid_reference_move", "id": "capture_available-016", "reference_move": True}],
+            [
+                {
+                    "code": "invalid_reference_move",
+                    "id": "capture_available-016",
+                    "reference_move": True,
+                }
+            ],
             module.missing_tracked_family_references([row]),
         )
 
@@ -314,8 +379,26 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             "current_player": 0,
         }
 
-        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode="full"):
-            del evaluator, state, simulations, seed, c_puct, search_options, ablation_mode
+        def fake_evaluate_artifact_position(
+            *,
+            artifact_path,
+            evaluator,
+            state,
+            simulations,
+            seed,
+            c_puct,
+            search_options,
+            ablation_mode="full",
+        ):
+            del (
+                evaluator,
+                state,
+                simulations,
+                seed,
+                c_puct,
+                search_options,
+                ablation_mode,
+            )
             if artifact_path == current_artifact:
                 return {
                     "selected_move": 4,
@@ -337,29 +420,37 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             (),
             {
                 "ArtifactEvaluator": staticmethod(lambda path: path),
-                "build_eval_search_options": staticmethod(lambda: {"root_policy_mode": "deterministic"}),
-                "evaluate_artifact_position": staticmethod(fake_evaluate_artifact_position),
+                "build_eval_search_options": staticmethod(
+                    lambda: {"root_policy_mode": "deterministic"}
+                ),
+                "evaluate_artifact_position": staticmethod(
+                    fake_evaluate_artifact_position
+                ),
             },
         )
 
-        with mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
-            return_value=[
-                {
-                    "id": "capture_available-016",
-                    "state": tracked_state,
-                    "legal_moves": [0, 1, 2, 3, 4],
-                    "bucket": "capture_available",
-                    "phase": "opening",
-                    "reference_move": None,
-                }
-            ],
-        ), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
-            return_value={module.canonical_state_key(tracked_state): 4},
-        ), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
-            return_value=fake_arena,
+        with (
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
+                return_value=[
+                    {
+                        "id": "capture_available-016",
+                        "state": tracked_state,
+                        "legal_moves": [0, 1, 2, 3, 4],
+                        "bucket": "capture_available",
+                        "phase": "opening",
+                        "reference_move": None,
+                    }
+                ],
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
+                return_value={module.canonical_state_key(tracked_state): 4},
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
+                return_value=fake_arena,
+            ),
         ):
             report = module.build_report(
                 suite_path=Path("/tmp/opening-suite.json"),
@@ -371,7 +462,9 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                 seed=7,
             )
 
-        self.assertEqual(["capture_available-016"], [row["id"] for row in report["rows"]])
+        self.assertEqual(
+            ["capture_available-016"], [row["id"] for row in report["rows"]]
+        )
         self.assertEqual([], report["missing_references"])
         self.assertEqual(4, report["rows"][0]["reference_move"])
 
@@ -383,7 +476,17 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
         suite_rows = [self.opening_row("capture_available-017")]
         calls = []
 
-        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode="full"):
+        def fake_evaluate_artifact_position(
+            *,
+            artifact_path,
+            evaluator,
+            state,
+            simulations,
+            seed,
+            c_puct,
+            search_options,
+            ablation_mode="full",
+        ):
             del evaluator, state, simulations, c_puct, search_options, ablation_mode
             calls.append((artifact_path, seed))
             return {
@@ -399,14 +502,24 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             (),
             {
                 "ArtifactEvaluator": staticmethod(lambda path: path),
-                "build_eval_search_options": staticmethod(lambda: {"root_policy_mode": "deterministic"}),
-                "evaluate_artifact_position": staticmethod(fake_evaluate_artifact_position),
+                "build_eval_search_options": staticmethod(
+                    lambda: {"root_policy_mode": "deterministic"}
+                ),
+                "evaluate_artifact_position": staticmethod(
+                    fake_evaluate_artifact_position
+                ),
             },
         )
 
-        with mock.patch("ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows", return_value=suite_rows), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
-            return_value=fake_arena,
+        with (
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
+                return_value=suite_rows,
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
+                return_value=fake_arena,
+            ),
         ):
             module.build_report(
                 suite_path=Path("/tmp/opening-suite.json"),
@@ -430,21 +543,24 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             "current_player": 0,
         }
 
-        with mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
-            return_value=[
-                {
-                    "id": "capture_available-017",
-                    "state": tracked_state,
-                    "legal_moves": [0, 1, 2, 3, 4],
-                    "bucket": "capture_available",
-                    "phase": "opening",
-                    "reference_move": None,
-                }
-            ],
-        ), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
-            return_value={},
+        with (
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
+                return_value=[
+                    {
+                        "id": "capture_available-017",
+                        "state": tracked_state,
+                        "legal_moves": [0, 1, 2, 3, 4],
+                        "bucket": "capture_available",
+                        "phase": "opening",
+                        "reference_move": None,
+                    }
+                ],
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
+                return_value={},
+            ),
         ):
             report = module.build_report(
                 suite_path=Path("/tmp/opening-suite.json"),
@@ -467,7 +583,9 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             report["missing_references"],
         )
 
-    def test_build_report_keeps_structurally_tracked_row_with_stale_suite_reference_move(self):
+    def test_build_report_keeps_structurally_tracked_row_with_stale_suite_reference_move(
+        self,
+    ):
         from ml.alphazero_lite import write_opening_capture_family_report as module
 
         tracked_state = {
@@ -478,8 +596,27 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             "current_player": 0,
         }
 
-        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode="full"):
-            del artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode
+        def fake_evaluate_artifact_position(
+            *,
+            artifact_path,
+            evaluator,
+            state,
+            simulations,
+            seed,
+            c_puct,
+            search_options,
+            ablation_mode="full",
+        ):
+            del (
+                artifact_path,
+                evaluator,
+                state,
+                simulations,
+                seed,
+                c_puct,
+                search_options,
+                ablation_mode,
+            )
             return {
                 "selected_move": 1,
                 "legal_moves": [0, 1, 2, 3, 4],
@@ -493,29 +630,37 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             (),
             {
                 "ArtifactEvaluator": staticmethod(lambda path: path),
-                "build_eval_search_options": staticmethod(lambda: {"root_policy_mode": "deterministic"}),
-                "evaluate_artifact_position": staticmethod(fake_evaluate_artifact_position),
+                "build_eval_search_options": staticmethod(
+                    lambda: {"root_policy_mode": "deterministic"}
+                ),
+                "evaluate_artifact_position": staticmethod(
+                    fake_evaluate_artifact_position
+                ),
             },
         )
 
-        with mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
-            return_value=[
-                {
-                    "id": "capture_available-017",
-                    "state": tracked_state,
-                    "legal_moves": [0, 1, 2, 3, 4],
-                    "bucket": "capture_available",
-                    "phase": "opening",
-                    "reference_move": 1,
-                }
-            ],
-        ), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
-            return_value={},
-        ), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
-            return_value=fake_arena,
+        with (
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
+                return_value=[
+                    {
+                        "id": "capture_available-017",
+                        "state": tracked_state,
+                        "legal_moves": [0, 1, 2, 3, 4],
+                        "bucket": "capture_available",
+                        "phase": "opening",
+                        "reference_move": 1,
+                    }
+                ],
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
+                return_value={},
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
+                return_value=fake_arena,
+            ),
         ):
             report = module.build_report(
                 suite_path=Path("/tmp/opening-suite.json"),
@@ -526,7 +671,9 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                 seed=7,
             )
 
-        self.assertEqual(["capture_available-017"], [row["id"] for row in report["rows"]])
+        self.assertEqual(
+            ["capture_available-017"], [row["id"] for row in report["rows"]]
+        )
         self.assertEqual([], report["missing_references"])
         self.assertEqual(1, report["rows"][0]["reference_move"])
 
@@ -550,13 +697,21 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                         "rows": [
                             {
                                 "id": "capture_available-017",
-                                "canonical_state": module.canonical_state_key(tracked_state),
+                                "canonical_state": module.canonical_state_key(
+                                    tracked_state
+                                ),
                                 "state": tracked_state,
                                 "reference_move": 3,
                                 "teacher_value": 0.4183,
                                 "reference_unstable": False,
                                 "observed_reference_moves": [3],
-                                "seed_samples": [{"seed": 2100, "reference_move": 3, "teacher_value": 0.4183}],
+                                "seed_samples": [
+                                    {
+                                        "seed": 2100,
+                                        "reference_move": 3,
+                                        "teacher_value": 0.4183,
+                                    }
+                                ],
                             }
                         ],
                     }
@@ -566,7 +721,9 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
 
             reference_moves = module.load_reference_moves(reference_path)
 
-        self.assertEqual({module.canonical_state_key(tracked_state): 3}, reference_moves)
+        self.assertEqual(
+            {module.canonical_state_key(tracked_state): 3}, reference_moves
+        )
 
     def test_load_reference_moves_rejects_malformed_reference_artifact(self):
         from ml.alphazero_lite import write_opening_capture_family_report as module
@@ -575,7 +732,9 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             reference_path = Path(tmp) / "reference_moves.json"
             reference_path.write_text("{not-json", encoding="utf-8")
 
-            with self.assertRaisesRegex(ValueError, "reference artifact is not valid JSON"):
+            with self.assertRaisesRegex(
+                ValueError, "reference artifact is not valid JSON"
+            ):
                 module.load_reference_moves(reference_path)
 
     def test_load_reference_moves_rejects_missing_explicit_reference_artifact(self):
@@ -596,7 +755,10 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, "reference artifact must use schema azlite_forensic_references_v1"):
+            with self.assertRaisesRegex(
+                ValueError,
+                "reference artifact must use schema azlite_forensic_references_v1",
+            ):
                 module.load_reference_moves(reference_path)
 
     def test_load_reference_moves_rejects_reference_artifact_without_rows_list(self):
@@ -609,10 +771,14 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, "reference artifact must contain a rows list"):
+            with self.assertRaisesRegex(
+                ValueError, "reference artifact must contain a rows list"
+            ):
                 module.load_reference_moves(reference_path)
 
-    def test_load_reference_moves_ignores_unstable_shared_reference_rows_without_reference_move(self):
+    def test_load_reference_moves_ignores_unstable_shared_reference_rows_without_reference_move(
+        self,
+    ):
         from ml.alphazero_lite import write_opening_capture_family_report as module
 
         tracked_state = {
@@ -632,15 +798,25 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
                         "rows": [
                             {
                                 "id": "capture_available-017",
-                                "canonical_state": module.canonical_state_key(tracked_state),
+                                "canonical_state": module.canonical_state_key(
+                                    tracked_state
+                                ),
                                 "state": tracked_state,
                                 "reference_move": None,
                                 "teacher_value": None,
                                 "reference_unstable": True,
                                 "observed_reference_moves": [3, 4],
                                 "seed_samples": [
-                                    {"seed": 2100, "reference_move": 3, "teacher_value": 0.4183},
-                                    {"seed": 2200, "reference_move": 4, "teacher_value": 0.4012},
+                                    {
+                                        "seed": 2100,
+                                        "reference_move": 3,
+                                        "teacher_value": 0.4183,
+                                    },
+                                    {
+                                        "seed": 2200,
+                                        "reference_move": 4,
+                                        "teacher_value": 0.4012,
+                                    },
                                 ],
                             }
                         ],
@@ -704,17 +880,28 @@ class WriteOpeningCaptureFamilyReportTest(unittest.TestCase):
             (),
             {
                 "ArtifactEvaluator": staticmethod(lambda path: path),
-                "build_eval_search_options": staticmethod(lambda: {"root_policy_mode": "deterministic"}),
-                "evaluate_artifact_position": staticmethod(lambda **kwargs: fake_summary),
+                "build_eval_search_options": staticmethod(
+                    lambda: {"root_policy_mode": "deterministic"}
+                ),
+                "evaluate_artifact_position": staticmethod(
+                    lambda **kwargs: fake_summary
+                ),
             },
         )
 
-        with mock.patch("ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows", return_value=suite_rows), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
-            return_value={module.canonical_state_key(tracked_state): 3},
-        ), mock.patch(
-            "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
-            return_value=fake_arena,
+        with (
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_suite_rows",
+                return_value=suite_rows,
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_reference_moves",
+                return_value={module.canonical_state_key(tracked_state): 3},
+            ),
+            mock.patch(
+                "ml.alphazero_lite.write_opening_capture_family_report.load_arena_module",
+                return_value=fake_arena,
+            ),
         ):
             report = module.build_report(
                 suite_path=Path("/tmp/opening-suite.json"),

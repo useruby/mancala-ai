@@ -6,7 +6,7 @@ import types
 import unittest
 from types import SimpleNamespace
 from pathlib import Path
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
 from ml.alphazero_lite import run_targeted_source_coverage_redesign as module
 
@@ -29,12 +29,17 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
             tmp_path = Path(tmp)
             output_root = tmp_path / "runs"
 
-            with patch.object(module, "build_variant_artifact_summaries") as build_summaries, patch.object(
-                module, "run_variant_training"
-            ) as run_training:
+            with (
+                patch.object(
+                    module, "build_variant_artifact_summaries"
+                ) as build_summaries,
+                patch.object(module, "run_variant_training") as run_training,
+            ):
                 build_summaries.return_value = {
                     "capped_11": {"pass_flags": {"structurally_valid": True}},
-                    "expanded_12_guard_reinforced": {"pass_flags": {"structurally_valid": False}},
+                    "expanded_12_guard_reinforced": {
+                        "pass_flags": {"structurally_valid": False}
+                    },
                 }
 
                 result = module.run_redesign(
@@ -43,7 +48,9 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
                         "ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json"
                     ),
                     current_path="model-artifact/current",
-                    forensic_suite_path=Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"),
+                    forensic_suite_path=Path(
+                        "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+                    ),
                 )
 
             self.assertFalse(result["training_started"])
@@ -54,12 +61,17 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
             tmp_path = Path(tmp)
             output_root = tmp_path / "runs"
 
-            with patch.object(module, "build_variant_artifact_summaries") as build_summaries, patch.object(
-                module, "run_variant_training"
-            ) as run_training:
+            with (
+                patch.object(
+                    module, "build_variant_artifact_summaries"
+                ) as build_summaries,
+                patch.object(module, "run_variant_training") as run_training,
+            ):
                 build_summaries.return_value = {
                     "capped_11": {"pass_flags": {"structurally_valid": True}},
-                    "expanded_12_guard_reinforced": {"pass_flags": {"structurally_valid": True}},
+                    "expanded_12_guard_reinforced": {
+                        "pass_flags": {"structurally_valid": True}
+                    },
                 }
                 run_training.return_value = {"status": "ok"}
 
@@ -69,21 +81,30 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
                         "ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json"
                     ),
                     current_path="model-artifact/current",
-                    forensic_suite_path=Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"),
+                    forensic_suite_path=Path(
+                        "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+                    ),
                 )
 
             self.assertTrue(result["training_started"])
-            self.assertEqual(set(module.VARIANT_RUN_IDS), set(result["training_results"]))
+            self.assertEqual(
+                set(module.VARIANT_RUN_IDS), set(result["training_results"])
+            )
             self.assertEqual(len(module.VARIANT_RUN_IDS), run_training.call_count)
 
-    def test_builder_phase_requires_all_expected_variant_summaries_before_training(self):
+    def test_builder_phase_requires_all_expected_variant_summaries_before_training(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             output_root = tmp_path / "runs"
 
-            with patch.object(module, "build_variant_artifact_summaries") as build_summaries, patch.object(
-                module, "run_variant_training"
-            ) as run_training:
+            with (
+                patch.object(
+                    module, "build_variant_artifact_summaries"
+                ) as build_summaries,
+                patch.object(module, "run_variant_training") as run_training,
+            ):
                 build_summaries.return_value = {
                     "capped_11": {"pass_flags": {"structurally_valid": True}},
                 }
@@ -94,7 +115,9 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
                         "ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json"
                     ),
                     current_path="model-artifact/current",
-                    forensic_suite_path=Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"),
+                    forensic_suite_path=Path(
+                        "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+                    ),
                 )
 
             self.assertFalse(result["training_started"])
@@ -105,9 +128,12 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
             tmp_path = Path(tmp)
             output_root = tmp_path / "runs"
 
-            with patch.object(module, "build_variant_artifact_summaries") as build_summaries, patch.object(
-                module, "run_variant_training"
-            ) as run_training:
+            with (
+                patch.object(
+                    module, "build_variant_artifact_summaries"
+                ) as build_summaries,
+                patch.object(module, "run_variant_training") as run_training,
+            ):
                 build_summaries.return_value = {
                     "capped_11": {"pass_flags": {"structurally_valid": True}},
                     "expanded_12_guard_reinforced": {},
@@ -119,7 +145,9 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
                         "ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json"
                     ),
                     current_path="model-artifact/current",
-                    forensic_suite_path=Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"),
+                    forensic_suite_path=Path(
+                        "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+                    ),
                 )
 
             self.assertFalse(result["training_started"])
@@ -129,10 +157,16 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             output_root = tmp_path / "runs"
-            regression_positions_path = Path("test/fixtures/ai/superhuman_regression_positions.json")
-            tactical_replay_path = Path("ml/alphazero_lite/tactical_balanced_replay_source.jsonl")
+            regression_positions_path = Path(
+                "test/fixtures/ai/superhuman_regression_positions.json"
+            )
+            tactical_replay_path = Path(
+                "ml/alphazero_lite/tactical_balanced_replay_source.jsonl"
+            )
 
-            def fake_build_balanced_replay_dataset(*, regression_positions_path, tactical_replay_path, out_path, variant):
+            def fake_build_balanced_replay_dataset(
+                *, regression_positions_path, tactical_replay_path, out_path, variant
+            ):
                 return [], {
                     "variant": variant,
                     "replay_artifact_path": str(out_path),
@@ -152,37 +186,68 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
                 )
 
             self.assertEqual(set(module.VARIANT_RUN_IDS), set(summaries))
-            self.assertEqual([call.kwargs["variant"] for call in builder.call_args_list], list(module.VARIANT_RUN_IDS))
+            self.assertEqual(
+                [call.kwargs["variant"] for call in builder.call_args_list],
+                list(module.VARIANT_RUN_IDS),
+            )
             for variant, run_id in module.VARIANT_RUN_IDS.items():
-                expected_replay_path = output_root / run_id / "final" / "tactical_balanced_replay.jsonl"
-                builder_call = next(call for call in builder.call_args_list if call.kwargs["variant"] == variant)
-                self.assertEqual(regression_positions_path, builder_call.kwargs["regression_positions_path"])
-                self.assertEqual(tactical_replay_path, builder_call.kwargs["tactical_replay_path"])
+                expected_replay_path = (
+                    output_root / run_id / "final" / "tactical_balanced_replay.jsonl"
+                )
+                builder_call = next(
+                    call
+                    for call in builder.call_args_list
+                    if call.kwargs["variant"] == variant
+                )
+                self.assertEqual(
+                    regression_positions_path,
+                    builder_call.kwargs["regression_positions_path"],
+                )
+                self.assertEqual(
+                    tactical_replay_path, builder_call.kwargs["tactical_replay_path"]
+                )
                 self.assertEqual(expected_replay_path, builder_call.kwargs["out_path"])
-                self.assertEqual(str(expected_replay_path), summaries[variant]["replay_artifact_path"])
+                self.assertEqual(
+                    str(expected_replay_path),
+                    summaries[variant]["replay_artifact_path"],
+                )
 
-    def test_run_variant_training_invokes_local_experiment_wrapper_and_returns_json(self):
+    def test_run_variant_training_invokes_local_experiment_wrapper_and_returns_json(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             output_root = tmp_path / "runs"
-            base_config_path = Path("ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json")
-            forensic_suite_path = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
+            base_config_path = Path(
+                "ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json"
+            )
+            forensic_suite_path = Path(
+                "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+            )
 
             completed = SimpleNamespace(
                 stdout='{"status": "completed", "run_id": "targeted-source-coverage-033-capped-11"}\n',
                 returncode=0,
             )
             base_config = {
-                "fixed_replay_sources": [{"path": "ml/alphazero_lite/tactical_balanced_replay.jsonl", "weight": 8}]
+                "fixed_replay_sources": [
+                    {
+                        "path": "ml/alphazero_lite/tactical_balanced_replay.jsonl",
+                        "weight": 8,
+                    }
+                ]
             }
 
             fake_subprocess = SimpleNamespace(run=None)
 
-            with patch.object(module, "subprocess", fake_subprocess, create=True), patch.object(
-                fake_subprocess, "run", return_value=completed
-            ) as run_subprocess, patch.object(module, "_load_json", return_value=base_config), patch.object(
-                module, "_write_json"
-            ) as write_json:
+            with (
+                patch.object(module, "subprocess", fake_subprocess, create=True),
+                patch.object(
+                    fake_subprocess, "run", return_value=completed
+                ) as run_subprocess,
+                patch.object(module, "_load_json", return_value=base_config),
+                patch.object(module, "_write_json") as write_json,
+            ):
                 summary = module.run_variant_training(
                     variant="capped_11",
                     run_id="targeted-source-coverage-033-capped-11",
@@ -193,26 +258,36 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
                 )
 
             self.assertEqual("completed", summary["status"])
-            self.assertEqual("targeted-source-coverage-033-capped-11", summary["run_id"])
+            self.assertEqual(
+                "targeted-source-coverage-033-capped-11", summary["run_id"]
+            )
             command = run_subprocess.call_args.kwargs["args"]
-            self.assertEqual([str(module._python_bin()), str(module.LOCAL_EXPERIMENT_WRAPPER)], command[:2])
+            self.assertEqual(
+                [str(module._python_bin()), str(module.LOCAL_EXPERIMENT_WRAPPER)],
+                command[:2],
+            )
             self.assertIn("--base-config", command)
             runtime_config_path = Path(command[command.index("--base-config") + 1])
             self.assertEqual(
-                output_root / "targeted-source-coverage-033-capped-11" / "inputs" / "runtime_config.json",
+                output_root
+                / "targeted-source-coverage-033-capped-11"
+                / "inputs"
+                / "runtime_config.json",
                 runtime_config_path,
             )
             self.assertEqual(runtime_config_path, write_json.call_args.kwargs["path"])
             self.assertEqual(
-                [{
-                    "path": str(
-                        output_root
-                        / "targeted-source-coverage-033-capped-11"
-                        / "final"
-                        / "tactical_balanced_replay.jsonl"
-                    ),
-                    "weight": 8,
-                }],
+                [
+                    {
+                        "path": str(
+                            output_root
+                            / "targeted-source-coverage-033-capped-11"
+                            / "final"
+                            / "tactical_balanced_replay.jsonl"
+                        ),
+                        "weight": 8,
+                    }
+                ],
                 write_json.call_args.kwargs["payload"]["fixed_replay_sources"],
             )
             self.assertIn("--run-id", command)
@@ -228,10 +303,19 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             output_root = tmp_path / "runs"
-            base_config_path = Path("ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json")
-            forensic_suite_path = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
+            base_config_path = Path(
+                "ml/alphazero_lite/configs/aggressive_v3_tactical_balanced_replay_local.json"
+            )
+            forensic_suite_path = Path(
+                "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+            )
             base_config = {
-                "fixed_replay_sources": [{"path": "ml/alphazero_lite/tactical_balanced_replay.jsonl", "weight": 8}]
+                "fixed_replay_sources": [
+                    {
+                        "path": "ml/alphazero_lite/tactical_balanced_replay.jsonl",
+                        "weight": 8,
+                    }
+                ]
             }
             completed = SimpleNamespace(
                 stdout='wrote forensic report\npipeline_scaffold_complete\n{"status": "completed", "run_id": "targeted-source-coverage-033-capped-11"}\n',
@@ -239,9 +323,12 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
             )
             fake_subprocess = SimpleNamespace(run=None)
 
-            with patch.object(module, "subprocess", fake_subprocess, create=True), patch.object(
-                fake_subprocess, "run", return_value=completed
-            ), patch.object(module, "_load_json", return_value=base_config), patch.object(module, "_write_json"):
+            with (
+                patch.object(module, "subprocess", fake_subprocess, create=True),
+                patch.object(fake_subprocess, "run", return_value=completed),
+                patch.object(module, "_load_json", return_value=base_config),
+                patch.object(module, "_write_json"),
+            ):
                 summary = module.run_variant_training(
                     variant="capped_11",
                     run_id="targeted-source-coverage-033-capped-11",
@@ -257,16 +344,20 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
     def test_main_prints_json_payload(self):
         expected = {"training_started": False}
 
-        with patch.object(
-            module,
-            "parse_args",
-            return_value=SimpleNamespace(
-                output_root="/tmp/redesign",
-                base_config="base.json",
-                current_path="model-artifact/current",
-                forensic_suite="suite.json",
+        with (
+            patch.object(
+                module,
+                "parse_args",
+                return_value=SimpleNamespace(
+                    output_root="/tmp/redesign",
+                    base_config="base.json",
+                    current_path="model-artifact/current",
+                    forensic_suite="suite.json",
+                ),
             ),
-        ), patch.object(module, "run_redesign", return_value=expected), patch("builtins.print") as print_mock:
+            patch.object(module, "run_redesign", return_value=expected),
+            patch("builtins.print") as print_mock,
+        ):
             module.main()
 
         print_mock.assert_called_once_with(json.dumps(expected))
@@ -283,7 +374,11 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
                 removed_modules[name] = sys.modules.pop(name)
 
         try:
-            isolated_path = [entry for entry in sys.path if Path(entry or ".").resolve() != repo_root.resolve()]
+            isolated_path = [
+                entry
+                for entry in sys.path
+                if Path(entry or ".").resolve() != repo_root.resolve()
+            ]
             with patch.object(sys, "path", isolated_path):
                 wrapper = self.load_wrapper_module()
         finally:
@@ -295,7 +390,10 @@ class RunTargetedSourceCoverageRedesignTest(unittest.TestCase):
         repo_root = Path(__file__).resolve().parents[2]
         wrapper = self.load_wrapper_module()
 
-        with patch.object(wrapper.os, "chdir") as chdir, patch.object(wrapper, "run_redesign_main") as runner_main:
+        with (
+            patch.object(wrapper.os, "chdir") as chdir,
+            patch.object(wrapper, "run_redesign_main") as runner_main,
+        ):
             wrapper.main()
 
         chdir.assert_called_once_with(repo_root)

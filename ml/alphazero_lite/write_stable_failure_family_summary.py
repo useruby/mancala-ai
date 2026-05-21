@@ -52,9 +52,13 @@ def _blunder_ids(rows: list[dict]) -> list[str]:
 
 def build_summary(*, candidate_forensics: dict, opening_family_report: dict) -> dict:
     challenger_rows = candidate_forensics["systems"]["challenger"]["rows"]
-    capture_rows = [row for row in challenger_rows if _is_opening_capture_family_row(row)]
+    capture_rows = [
+        row for row in challenger_rows if _is_opening_capture_family_row(row)
+    ]
     family_rows_by_id = {
-        row["id"]: row for row in opening_family_report.get("rows", []) if isinstance(row, dict) and isinstance(row.get("id"), str)
+        row["id"]: row
+        for row in opening_family_report.get("rows", [])
+        if isinstance(row, dict) and isinstance(row.get("id"), str)
     }
 
     search_flipped_ids = []
@@ -65,7 +69,10 @@ def build_summary(*, candidate_forensics: dict, opening_family_report: dict) -> 
         prior = family_row.get("candidate_prior_summary", {})
         searched = family_row.get("candidate_searched_summary", {})
         reference_move = row.get("reference_move")
-        if prior.get("selected_move") == reference_move and searched.get("selected_move") != reference_move:
+        if (
+            prior.get("selected_move") == reference_move
+            and searched.get("selected_move") != reference_move
+        ):
             search_flipped_ids.append(row["id"])
 
     high_imbalance_rows = [
@@ -84,16 +91,24 @@ def build_summary(*, candidate_forensics: dict, opening_family_report: dict) -> 
         "capture_available": {
             "tracked_rows": len(capture_rows),
             "average_regret": _average_regret(capture_rows),
-            "blunder_rate_0_20": round(len(capture_blunder_ids) / len(capture_rows), 4) if capture_rows else 0.0,
+            "blunder_rate_0_20": round(len(capture_blunder_ids) / len(capture_rows), 4)
+            if capture_rows
+            else 0.0,
             "blunder_ids": capture_blunder_ids,
             "search_flipped_rows": len(search_flipped_ids),
             "search_flipped_ids": search_flipped_ids,
-            "missing_opening_family_rows": sorted(set(row["id"] for row in capture_rows) - set(family_rows_by_id)),
+            "missing_opening_family_rows": sorted(
+                set(row["id"] for row in capture_rows) - set(family_rows_by_id)
+            ),
         },
         "high_imbalance": {
             "stable_rows": len(high_imbalance_rows),
             "average_regret": _average_regret(high_imbalance_rows),
-            "blunder_rate_0_20": round(len(high_imbalance_blunder_ids) / len(high_imbalance_rows), 4) if high_imbalance_rows else 0.0,
+            "blunder_rate_0_20": round(
+                len(high_imbalance_blunder_ids) / len(high_imbalance_rows), 4
+            )
+            if high_imbalance_rows
+            else 0.0,
             "blunder_ids": high_imbalance_blunder_ids,
         },
     }

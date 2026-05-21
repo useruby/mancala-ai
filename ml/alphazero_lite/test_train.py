@@ -29,28 +29,36 @@ class TrainScriptTest(unittest.TestCase):
     def test_argument_parser_accepts_hybrid_value_target_mode(self):
         parser = train_module.build_argument_parser()
 
-        args = parser.parse_args(["--out", "checkpoint.npz", "--value-target-mode", "hybrid"])
+        args = parser.parse_args(
+            ["--out", "checkpoint.npz", "--value-target-mode", "hybrid"]
+        )
 
         self.assertEqual("hybrid", args.value_target_mode)
 
     def test_argument_parser_accepts_phase_aware_value_target_mode(self):
         parser = train_module.build_argument_parser()
 
-        args = parser.parse_args(["--out", "checkpoint.npz", "--value-target-mode", "phase_aware_sharpened"])
+        args = parser.parse_args(
+            ["--out", "checkpoint.npz", "--value-target-mode", "phase_aware_sharpened"]
+        )
 
         self.assertEqual("phase_aware_sharpened", args.value_target_mode)
 
     def test_argument_parser_accepts_sharpened_value_target_mode(self):
         parser = train_module.build_argument_parser()
 
-        args = parser.parse_args(["--out", "checkpoint.npz", "--value-target-mode", "sharpened"])
+        args = parser.parse_args(
+            ["--out", "checkpoint.npz", "--value-target-mode", "sharpened"]
+        )
 
         self.assertEqual("sharpened", args.value_target_mode)
 
     def test_argument_parser_accepts_sharpened_policy_target_mode(self):
         parser = train_module.build_argument_parser()
 
-        args = parser.parse_args(["--out", "checkpoint.npz", "--policy-target-mode", "sharpened"])
+        args = parser.parse_args(
+            ["--out", "checkpoint.npz", "--policy-target-mode", "sharpened"]
+        )
 
         self.assertEqual("sharpened", args.policy_target_mode)
 
@@ -180,13 +188,17 @@ class TrainScriptTest(unittest.TestCase):
 
             self._write_dataset(data_path, rows=3, value_target_mode="sharpened")
 
-            x, p_target, v_target = train_module.load_jsonl(data_path, value_target_mode="sharpened")
+            x, p_target, v_target = train_module.load_jsonl(
+                data_path, value_target_mode="sharpened"
+            )
 
             self.assertEqual((3, 15), x.shape)
             self.assertEqual((3, 6), p_target.shape)
             self.assertEqual((3, 1), v_target.shape)
 
-    def test_load_jsonl_accepts_aligned_bootstrap_row_with_real_search_value_and_strict_metadata(self):
+    def test_load_jsonl_accepts_aligned_bootstrap_row_with_real_search_value_and_strict_metadata(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "aligned-bootstrap-value-target.jsonl"
@@ -225,7 +237,11 @@ class TrainScriptTest(unittest.TestCase):
             self.assertEqual((1, 15), x.shape)
             self.assertEqual((1, 6), p_target.shape)
             self.assertEqual((1, 1), v_target.shape)
-            np.testing.assert_allclose(p_target[0], np.array([0.3, 0.0, 0.0, 0.0, 0.7, 0.0], dtype=np.float32), atol=1e-6)
+            np.testing.assert_allclose(
+                p_target[0],
+                np.array([0.3, 0.0, 0.0, 0.0, 0.7, 0.0], dtype=np.float32),
+                atol=1e-6,
+            )
             self.assertAlmostEqual(0.27, float(v_target[0, 0]), places=6)
 
     def test_load_jsonl_accepts_correctly_tagged_phase_aware_value_target_rows(self):
@@ -233,9 +249,13 @@ class TrainScriptTest(unittest.TestCase):
             tmp_path = Path(tmp)
             data_path = tmp_path / "phase-aware-value-target.jsonl"
 
-            self._write_dataset(data_path, rows=3, value_target_mode="phase_aware_sharpened")
+            self._write_dataset(
+                data_path, rows=3, value_target_mode="phase_aware_sharpened"
+            )
 
-            x, p_target, v_target = train_module.load_jsonl(data_path, value_target_mode="phase_aware_sharpened")
+            x, p_target, v_target = train_module.load_jsonl(
+                data_path, value_target_mode="phase_aware_sharpened"
+            )
 
             self.assertEqual((3, 15), x.shape)
             self.assertEqual((3, 6), p_target.shape)
@@ -248,7 +268,9 @@ class TrainScriptTest(unittest.TestCase):
 
             self._write_dataset(data_path, rows=3, value_target_mode="hybrid")
 
-            x, p_target, v_target = train_module.load_jsonl(data_path, value_target_mode="hybrid")
+            x, p_target, v_target = train_module.load_jsonl(
+                data_path, value_target_mode="hybrid"
+            )
 
             self.assertEqual((3, 15), x.shape)
             self.assertEqual((3, 6), p_target.shape)
@@ -606,7 +628,9 @@ class TrainScriptTest(unittest.TestCase):
     def test_argument_parser_accepts_residual_v3_model_type_choice(self):
         parser = train_module.build_argument_parser()
 
-        args = parser.parse_args(["--out", "checkpoint.npz", "--model-type", "residual_v3"])
+        args = parser.parse_args(
+            ["--out", "checkpoint.npz", "--model-type", "residual_v3"]
+        )
 
         self.assertEqual("residual_v3", args.model_type)
 
@@ -648,7 +672,9 @@ class TrainScriptTest(unittest.TestCase):
             self.assertIn("model_type=residual_v3", result.stdout)
 
     def test_residual_v3_outputs_policy_and_value_shapes(self):
-        model = train_module.PolicyValueNet(hidden_sizes=(64, 2), model_type="residual_v3", input_size=27)
+        model = train_module.PolicyValueNet(
+            hidden_sizes=(64, 2), model_type="residual_v3", input_size=27
+        )
 
         policy, value = model(torch.zeros((2, 27), dtype=torch.float32))
 
@@ -656,7 +682,9 @@ class TrainScriptTest(unittest.TestCase):
         self.assertEqual((2, 1), tuple(value.shape))
 
     def test_residual_v3_uses_distinct_policy_and_value_paths(self):
-        model = train_module.PolicyValueNet(hidden_sizes=(64, 2), model_type="residual_v3", input_size=27)
+        model = train_module.PolicyValueNet(
+            hidden_sizes=(64, 2), model_type="residual_v3", input_size=27
+        )
 
         self.assertIsInstance(model.policy_hidden_layer, torch.nn.Linear)
         self.assertIsInstance(model.value_hidden_layer, torch.nn.Linear)
@@ -673,13 +701,17 @@ class TrainScriptTest(unittest.TestCase):
             tmp_path = Path(tmp)
             checkpoint_path = tmp_path / "checkpoint.npz"
 
-            model = train_module.PolicyValueNet(hidden_sizes=(64, 2), model_type="residual_v3", input_size=27)
+            model = train_module.PolicyValueNet(
+                hidden_sizes=(64, 2), model_type="residual_v3", input_size=27
+            )
             for index, parameter in enumerate(model.parameters(), start=1):
                 torch.nn.init.constant_(parameter, index / 10.0)
 
             np.savez(checkpoint_path, **train_module.checkpoint_from_model(model))
 
-            restored_model = train_module.PolicyValueNet(hidden_sizes=(64, 2), model_type="residual_v3", input_size=27)
+            restored_model = train_module.PolicyValueNet(
+                hidden_sizes=(64, 2), model_type="residual_v3", input_size=27
+            )
             train_module.load_checkpoint_into_model(restored_model, checkpoint_path)
 
             checkpoint = np.load(checkpoint_path)
@@ -741,7 +773,9 @@ class TrainScriptTest(unittest.TestCase):
 
             self._write_dataset(data_path, rows=64)
 
-            model = train_module.PolicyValueNet(hidden_sizes=(64, 64), model_type="mlp_v1", input_size=15)
+            model = train_module.PolicyValueNet(
+                hidden_sizes=(64, 64), model_type="mlp_v1", input_size=15
+            )
             for index, parameter in enumerate(model.parameters(), start=1):
                 torch.nn.init.constant_(parameter, index / 10.0)
             np.savez(init_checkpoint_path, **train_module.checkpoint_from_model(model))
@@ -776,8 +810,19 @@ class TrainScriptTest(unittest.TestCase):
             init_checkpoint = np.load(init_checkpoint_path)
             checkpoint = np.load(out_path)
 
-            for key in ["w1", "b1", "w2", "b2", "w_policy", "b_policy", "w_value", "b_value"]:
-                np.testing.assert_allclose(init_checkpoint[key], checkpoint[key], rtol=1e-7, atol=1e-7)
+            for key in [
+                "w1",
+                "b1",
+                "w2",
+                "b2",
+                "w_policy",
+                "b_policy",
+                "w_value",
+                "b_value",
+            ]:
+                np.testing.assert_allclose(
+                    init_checkpoint[key], checkpoint[key], rtol=1e-7, atol=1e-7
+                )
 
     def test_replay_loader_returns_expanded_sample_indexes_without_duplicate_rows(self):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
@@ -786,11 +831,23 @@ class TrainScriptTest(unittest.TestCase):
             data_path2 = tmp_path / "data_2.jsonl"
 
             rows1 = [
-                {"state": [1.0] * 15, "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0], "value": 1.0},
-                {"state": [2.0] * 15, "policy": [0.0, 1.0, 0.0, 0.0, 0.0, 0.0], "value": -1.0},
+                {
+                    "state": [1.0] * 15,
+                    "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    "value": 1.0,
+                },
+                {
+                    "state": [2.0] * 15,
+                    "policy": [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+                    "value": -1.0,
+                },
             ]
             rows2 = [
-                {"state": [3.0] * 15, "policy": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], "value": 0.5},
+                {
+                    "state": [3.0] * 15,
+                    "policy": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                    "value": 0.5,
+                },
             ]
             self._write_rows(data_path1, rows1)
             self._write_rows(data_path2, rows2)
@@ -803,10 +860,16 @@ class TrainScriptTest(unittest.TestCase):
             self.assertEqual((3, 15), x.shape)
             self.assertEqual((3, 6), p_target.shape)
             self.assertEqual((3, 1), v_target.shape)
-            np.testing.assert_array_equal(np.array([0, 1, 2, 2, 2], dtype=np.int64), sample_indexes)
-            np.testing.assert_array_equal(np.array([1.0, 2.0, 3.0], dtype=np.float32), x[:, 0])
+            np.testing.assert_array_equal(
+                np.array([0, 1, 2, 2, 2], dtype=np.int64), sample_indexes
+            )
+            np.testing.assert_array_equal(
+                np.array([1.0, 2.0, 3.0], dtype=np.float32), x[:, 0]
+            )
 
-    def test_load_jsonl_replay_preserves_legal_sharpened_targets_from_self_play_and_bootstrap(self):
+    def test_load_jsonl_replay_preserves_legal_sharpened_targets_from_self_play_and_bootstrap(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
             self_play_path = tmp_path / "self_play.jsonl"
@@ -849,13 +912,25 @@ class TrainScriptTest(unittest.TestCase):
             self.assertEqual(15, x.shape[1])
             self.assertEqual((x.shape[0], 6), p_target.shape)
             self.assertEqual((x.shape[0], 1), v_target.shape)
-            np.testing.assert_allclose(np.sum(p_target, axis=1), np.ones(x.shape[0], dtype=np.float32), atol=1e-6)
+            np.testing.assert_allclose(
+                np.sum(p_target, axis=1),
+                np.ones(x.shape[0], dtype=np.float32),
+                atol=1e-6,
+            )
             self.assertTrue(np.all(p_target >= 0.0))
             for state, policy in zip(x, p_target):
                 legal_moves = train_module.derive_legal_moves_from_encoded_state(state)
                 self.assertIsNotNone(legal_moves)
-                self.assertAlmostEqual(1.0, float(np.sum(policy[legal_moves])), places=6)
-                self.assertTrue(all(policy[move] == 0.0 for move in range(6) if move not in legal_moves))
+                self.assertAlmostEqual(
+                    1.0, float(np.sum(policy[legal_moves])), places=6
+                )
+                self.assertTrue(
+                    all(
+                        policy[move] == 0.0
+                        for move in range(6)
+                        if move not in legal_moves
+                    )
+                )
             bootstrap_index = x.shape[0] - 1
             np.testing.assert_allclose(
                 p_target[bootstrap_index],
@@ -918,7 +993,9 @@ class TrainScriptTest(unittest.TestCase):
                 replay_indexes[-2:],
             )
 
-    def test_load_jsonl_replay_accepts_aligned_bootstrap_rows_alongside_self_play_under_same_mode(self):
+    def test_load_jsonl_replay_accepts_aligned_bootstrap_rows_alongside_self_play_under_same_mode(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
             self_play_path = tmp_path / "self_play_aligned.jsonl"
@@ -970,7 +1047,9 @@ class TrainScriptTest(unittest.TestCase):
                 replay_indexes[-2:],
             )
 
-    def test_load_jsonl_replay_accepts_phase_aware_value_targets_from_both_sources(self):
+    def test_load_jsonl_replay_accepts_phase_aware_value_targets_from_both_sources(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
             self_play_path = tmp_path / "self_play_phase_aware_value.jsonl"
@@ -1089,8 +1168,12 @@ class TrainScriptTest(unittest.TestCase):
                 ],
             )
 
-            with self.assertRaisesRegex(ValueError, "must declare policy_target_mode=sharpened"):
-                train_module.load_jsonl_replay([data_path], policy_target_mode="sharpened")
+            with self.assertRaisesRegex(
+                ValueError, "must declare policy_target_mode=sharpened"
+            ):
+                train_module.load_jsonl_replay(
+                    [data_path], policy_target_mode="sharpened"
+                )
 
     def test_load_jsonl_uses_policy_target_mode_when_actual_mode_is_absent(self):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
@@ -1109,13 +1192,17 @@ class TrainScriptTest(unittest.TestCase):
                 ],
             )
 
-            x, p_target, v_target = train_module.load_jsonl(data_path, policy_target_mode="sharpened")
+            x, p_target, v_target = train_module.load_jsonl(
+                data_path, policy_target_mode="sharpened"
+            )
 
             self.assertEqual((1, 15), x.shape)
             self.assertEqual((1, 6), p_target.shape)
             self.assertEqual((1, 1), v_target.shape)
 
-    def test_load_jsonl_rejects_rows_when_policy_target_actual_mode_differs_from_request(self):
+    def test_load_jsonl_rejects_rows_when_policy_target_actual_mode_differs_from_request(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "actual-policy-mode-mismatch.jsonl"
@@ -1157,7 +1244,9 @@ class TrainScriptTest(unittest.TestCase):
                 ],
             )
 
-            with self.assertRaisesRegex(ValueError, "must declare value_target_mode=sharpened"):
+            with self.assertRaisesRegex(
+                ValueError, "must declare value_target_mode=sharpened"
+            ):
                 train_module.load_jsonl(data_path, value_target_mode="sharpened")
 
     def test_load_jsonl_rejects_missing_phase_aware_value_target_metadata(self):
@@ -1178,8 +1267,12 @@ class TrainScriptTest(unittest.TestCase):
                 ],
             )
 
-            with self.assertRaisesRegex(ValueError, "must declare value_target_mode=phase_aware_sharpened"):
-                train_module.load_jsonl(data_path, value_target_mode="phase_aware_sharpened")
+            with self.assertRaisesRegex(
+                ValueError, "must declare value_target_mode=phase_aware_sharpened"
+            ):
+                train_module.load_jsonl(
+                    data_path, value_target_mode="phase_aware_sharpened"
+                )
 
     def test_load_jsonl_rejects_missing_hybrid_value_target_metadata(self):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
@@ -1199,7 +1292,9 @@ class TrainScriptTest(unittest.TestCase):
                 ],
             )
 
-            with self.assertRaisesRegex(ValueError, "must declare value_target_mode=hybrid"):
+            with self.assertRaisesRegex(
+                ValueError, "must declare value_target_mode=hybrid"
+            ):
                 train_module.load_jsonl(data_path, value_target_mode="hybrid")
 
     def test_load_jsonl_replay_rejects_mismatched_value_target_metadata(self):
@@ -1213,9 +1308,13 @@ class TrainScriptTest(unittest.TestCase):
                 ValueError,
                 "value_target_mode=default does not match requested sharpened",
             ):
-                train_module.load_jsonl_replay([data_path], value_target_mode="sharpened")
+                train_module.load_jsonl_replay(
+                    [data_path], value_target_mode="sharpened"
+                )
 
-    def test_load_jsonl_replay_rejects_mismatched_phase_aware_value_target_metadata(self):
+    def test_load_jsonl_replay_rejects_mismatched_phase_aware_value_target_metadata(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "mismatched-phase-aware-value-metadata.jsonl"
@@ -1226,7 +1325,9 @@ class TrainScriptTest(unittest.TestCase):
                 ValueError,
                 "value_target_mode=sharpened does not match requested phase_aware_sharpened",
             ):
-                train_module.load_jsonl_replay([data_path], value_target_mode="phase_aware_sharpened")
+                train_module.load_jsonl_replay(
+                    [data_path], value_target_mode="phase_aware_sharpened"
+                )
 
     def test_load_jsonl_replay_rejects_mismatched_hybrid_value_target_metadata(self):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
@@ -1259,10 +1360,14 @@ class TrainScriptTest(unittest.TestCase):
                 ],
             )
 
-            with self.assertRaisesRegex(ValueError, r"value must stay within \[-1.0, 1.0\]"):
+            with self.assertRaisesRegex(
+                ValueError, r"value must stay within \[-1.0, 1.0\]"
+            ):
                 train_module.load_jsonl(data_path, value_target_mode="sharpened")
 
-    def test_load_jsonl_replay_rejects_positive_probability_on_illegal_move_when_state_is_decodable(self):
+    def test_load_jsonl_replay_rejects_positive_probability_on_illegal_move_when_state_is_decodable(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "invalid.jsonl"
@@ -1289,7 +1394,9 @@ class TrainScriptTest(unittest.TestCase):
             )
 
             with self.assertRaisesRegex(ValueError, "illegal moves"):
-                train_module.load_jsonl_replay([data_path], policy_target_mode="sharpened")
+                train_module.load_jsonl_replay(
+                    [data_path], policy_target_mode="sharpened"
+                )
 
     def test_train_replay_indexes_match_duplicated_sgd_behavior_for_small_batches(self):
         x_compact = np.array([[1.0] * 15, [2.0] * 15], dtype=np.float32)
@@ -1303,7 +1410,9 @@ class TrainScriptTest(unittest.TestCase):
         v_compact = np.array([[1.0], [-1.0]], dtype=np.float32)
         replay_indexes = np.array([0, 1, 1, 1], dtype=np.int64)
 
-        x_duplicated = np.array([[1.0] * 15, [2.0] * 15, [2.0] * 15, [2.0] * 15], dtype=np.float32)
+        x_duplicated = np.array(
+            [[1.0] * 15, [2.0] * 15, [2.0] * 15, [2.0] * 15], dtype=np.float32
+        )
         p_duplicated = np.array(
             [
                 [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -1315,8 +1424,12 @@ class TrainScriptTest(unittest.TestCase):
         )
         v_duplicated = np.array([[1.0], [-1.0], [-1.0], [-1.0]], dtype=np.float32)
 
-        indexed_model = train_module.PolicyValueNet(hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15)
-        duplicated_model = train_module.PolicyValueNet(hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15)
+        indexed_model = train_module.PolicyValueNet(
+            hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15
+        )
+        duplicated_model = train_module.PolicyValueNet(
+            hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15
+        )
         duplicated_model.load_state_dict(indexed_model.state_dict())
 
         train_module.set_seed(7)
@@ -1368,7 +1481,11 @@ class TrainScriptTest(unittest.TestCase):
         replay_indexes = np.array([0, 1, 1, 1], dtype=np.int64)
 
         train_module.set_seed(11)
-        train_positions, val_positions = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.5)
+        train_positions, val_positions = (
+            train_module.split_replay_positions_by_source_row(
+                replay_indexes, val_split=0.5
+            )
+        )
 
         train_source_rows = set(replay_indexes[train_positions].tolist())
         val_source_rows = set(replay_indexes[val_positions].tolist())
@@ -1382,19 +1499,29 @@ class TrainScriptTest(unittest.TestCase):
         replay_indexes = np.array([0, 1, 1, 1, 2, 2], dtype=np.int64)
 
         train_module.set_seed(23)
-        first_train, first_val = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.5)
+        first_train, first_val = train_module.split_replay_positions_by_source_row(
+            replay_indexes, val_split=0.5
+        )
 
         train_module.set_seed(23)
-        second_train, second_val = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.5)
+        second_train, second_val = train_module.split_replay_positions_by_source_row(
+            replay_indexes, val_split=0.5
+        )
 
         np.testing.assert_array_equal(first_train, second_train)
         np.testing.assert_array_equal(first_val, second_val)
 
-    def test_split_replay_positions_by_source_row_keeps_nonzero_val_split_nonempty(self):
+    def test_split_replay_positions_by_source_row_keeps_nonzero_val_split_nonempty(
+        self,
+    ):
         replay_indexes = np.array([0, 0, 1, 1, 2, 2, 3, 3, 4, 4], dtype=np.int64)
 
         train_module.set_seed(31)
-        train_positions, val_positions = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.1)
+        train_positions, val_positions = (
+            train_module.split_replay_positions_by_source_row(
+                replay_indexes, val_split=0.1
+            )
+        )
 
         self.assertGreater(train_positions.shape[0], 0)
         self.assertGreater(val_positions.shape[0], 0)
@@ -1403,7 +1530,11 @@ class TrainScriptTest(unittest.TestCase):
         replay_indexes = np.array([0, 0, 1, 1], dtype=np.int64)
 
         train_module.set_seed(31)
-        train_positions, val_positions = train_module.split_replay_positions_by_source_row(replay_indexes, val_split=0.0)
+        train_positions, val_positions = (
+            train_module.split_replay_positions_by_source_row(
+                replay_indexes, val_split=0.0
+            )
+        )
 
         self.assertGreater(train_positions.shape[0], 0)
         self.assertEqual(0, val_positions.shape[0])

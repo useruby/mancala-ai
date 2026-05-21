@@ -11,7 +11,10 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.report_validation import ArenaReportValidationError, validate_arena_report
+from ml.alphazero_lite.report_validation import (
+    ArenaReportValidationError,
+    validate_arena_report,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -28,10 +31,13 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("checkpoint_path")
     parser.add_argument("--min-score", type=float, default=0.55)
-    parser.add_argument("--target", action="append", default=None,
-                        metavar="TARGET",
-                        help="Destination directory (repeatable). Defaults to "
-                             "model-artifact/current")
+    parser.add_argument(
+        "--target",
+        action="append",
+        default=None,
+        metavar="TARGET",
+        help="Destination directory (repeatable). Defaults to model-artifact/current",
+    )
     parser.add_argument("--gate-report")
     parser.add_argument("--require-lossless", action="store_true")
     parser.add_argument("--max-losses", type=non_negative_int, default=0)
@@ -59,14 +65,18 @@ def main() -> None:
         try:
             gate_report = json.loads(gate_report_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as error:
-            raise SystemExit(f"Malformed gate report JSON: {gate_report_path}: {error}") from error
+            raise SystemExit(
+                f"Malformed gate report JSON: {gate_report_path}: {error}"
+            ) from error
         if not gate_report.get("passed", False):
             raise SystemExit(f"Gate report did not pass: {gate_report_path}")
 
     try:
         report = json.loads(report_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as error:
-        raise SystemExit(f"Malformed arena report JSON: {report_path}: {error}") from error
+        raise SystemExit(
+            f"Malformed arena report JSON: {report_path}: {error}"
+        ) from error
     try:
         result = validate_arena_report(report=report, min_score=args.min_score)
     except ArenaReportValidationError as error:
@@ -92,7 +102,11 @@ def main() -> None:
         targets.append(t)
 
     required_files = ["metadata.json", "arena_report.json", "weights.json"]
-    missing_files = [str(checkpoint_path / filename) for filename in required_files if not (checkpoint_path / filename).exists()]
+    missing_files = [
+        str(checkpoint_path / filename)
+        for filename in required_files
+        if not (checkpoint_path / filename).exists()
+    ]
     if missing_files:
         raise SystemExit(f"Missing required file: {missing_files[0]}")
 

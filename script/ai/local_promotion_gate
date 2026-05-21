@@ -73,7 +73,15 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def build_evaluation(*, evaluation_id: str, subject: str, opponent: str, games: int, report_dir: Path, mode: str) -> dict:
+def build_evaluation(
+    *,
+    evaluation_id: str,
+    subject: str,
+    opponent: str,
+    games: int,
+    report_dir: Path,
+    mode: str,
+) -> dict:
     return {
         "id": evaluation_id,
         "subject": subject,
@@ -84,19 +92,27 @@ def build_evaluation(*, evaluation_id: str, subject: str, opponent: str, games: 
     }
 
 
-def forensic_evaluation(report_dir: Path, *, candidate_path: Path, current_path: str) -> dict:
+def forensic_evaluation(
+    report_dir: Path, *, candidate_path: Path, current_path: str
+) -> dict:
     return {
         "id": "candidate_forensic_suite",
         "report_path": str(report_dir / "candidate_forensic_suite.json"),
         "command": [
             python_executable(),
             "ml/alphazero_lite/run_forensic_suite.py",
-            "--suite", "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
-            "--current-artifact", str(current_path),
-            "--challenger-artifact", str(candidate_path),
-            "--mcts-simulations", "1200",
-            "--teacher-simulations", "1800",
-            "--out", str(report_dir / "candidate_forensic_suite.json"),
+            "--suite",
+            "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+            "--current-artifact",
+            str(current_path),
+            "--challenger-artifact",
+            str(candidate_path),
+            "--mcts-simulations",
+            "1200",
+            "--teacher-simulations",
+            "1800",
+            "--out",
+            str(report_dir / "candidate_forensic_suite.json"),
         ],
     }
 
@@ -120,7 +136,14 @@ def resolve_optional_config_path(config_path: str | None) -> Path | None:
 
 
 def search_flags_for_step(config: dict, step_name: str, *, required: bool) -> list[str]:
-    step = next((candidate for candidate in config.get("steps", []) if candidate.get("name") == step_name), None)
+    step = next(
+        (
+            candidate
+            for candidate in config.get("steps", [])
+            if candidate.get("name") == step_name
+        ),
+        None,
+    )
     if step is None:
         if required:
             raise SystemExit(f"config missing required step: {step_name}")
@@ -145,7 +168,9 @@ def search_flags_for_step(config: dict, step_name: str, *, required: bool) -> li
     return rendered_flags
 
 
-def load_search_flag_map(config_path: str | None, *, require_steps: bool = True) -> dict[str, list[str]]:
+def load_search_flag_map(
+    config_path: str | None, *, require_steps: bool = True
+) -> dict[str, list[str]]:
     resolved_path = resolve_optional_config_path(config_path)
     if resolved_path is None:
         return {}
@@ -158,17 +183,26 @@ def load_search_flag_map(config_path: str | None, *, require_steps: bool = True)
     }
     require_mcts_steps = require_steps and any(
         step_name in present_step_names
-        for step_name in ("mcts1200_baseline_report", "current_mcts1200_baseline_report")
+        for step_name in (
+            "mcts1200_baseline_report",
+            "current_mcts1200_baseline_report",
+        )
     )
 
     return {
         "arena": search_flags_for_step(config, "arena_confirm_report", required=False),
-        "candidate_mcts": search_flags_for_step(config, "mcts1200_baseline_report", required=require_mcts_steps),
-        "current_mcts": search_flags_for_step(config, "current_mcts1200_baseline_report", required=require_mcts_steps),
+        "candidate_mcts": search_flags_for_step(
+            config, "mcts1200_baseline_report", required=require_mcts_steps
+        ),
+        "current_mcts": search_flags_for_step(
+            config, "current_mcts1200_baseline_report", required=require_mcts_steps
+        ),
     }
 
 
-def load_threshold_planning_search_flag_map(config_path: str | None) -> dict[str, list[str]]:
+def load_threshold_planning_search_flag_map(
+    config_path: str | None,
+) -> dict[str, list[str]]:
     return load_search_flag_map(config_path, require_steps=False)
 
 
@@ -227,7 +261,9 @@ def mcts_score(report: dict) -> float:
     return (az_wins + (0.5 * draws)) / games
 
 
-def dynamic_budget_summary(candidate_mcts_report: dict, current_mcts_report: dict, arena_report: dict) -> dict | None:
+def dynamic_budget_summary(
+    candidate_mcts_report: dict, current_mcts_report: dict, arena_report: dict
+) -> dict | None:
     candidate_budget = candidate_mcts_report.get("budget_summary", {})
     current_budget = current_mcts_report.get("budget_summary", {})
     arena_budget = arena_report.get("budget_summary", {})
@@ -236,13 +272,16 @@ def dynamic_budget_summary(candidate_mcts_report: dict, current_mcts_report: dic
         return None
 
     return {
-        "candidate_mean_final_simulations": candidate_budget.get("mean_final_simulations"),
+        "candidate_mean_final_simulations": candidate_budget.get(
+            "mean_final_simulations"
+        ),
         "candidate_mean_root_latency_ms": candidate_budget.get("mean_root_latency_ms"),
         "current_mean_final_simulations": current_budget.get("mean_final_simulations"),
         "current_mean_root_latency_ms": current_budget.get("mean_root_latency_ms"),
         "arena_trigger_counts": arena_budget.get("trigger_counts", {}),
         "dynamic_budget_comparison": candidate_mcts_report.get(
-            "dynamic_budget_comparison", candidate_budget.get("dynamic_budget_comparison")
+            "dynamic_budget_comparison",
+            candidate_budget.get("dynamic_budget_comparison"),
         ),
         "opening_cache_summary": opening_cache_summary,
     }
@@ -264,7 +303,9 @@ def build_dynamic_budget_recommendation(
             comparison = candidate_comparison
 
     decision = "tune"
-    reason = "promotion safety passed, but dynamic budget evidence is incomplete or mixed"
+    reason = (
+        "promotion safety passed, but dynamic budget evidence is incomplete or mixed"
+    )
     if not passed:
         decision = "drop"
         reason = "promotion safety checks failed for the dynamic budget candidate"
@@ -409,25 +450,35 @@ def numeric_metric(payload: dict, key: str, *, context: str) -> float:
 
     value = payload.get(key)
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise SystemExit(f"malformed forensic metric {context}.{key}: expected numeric value")
+        raise SystemExit(
+            f"malformed forensic metric {context}.{key}: expected numeric value"
+        )
 
     if not math.isfinite(float(value)):
-        raise SystemExit(f"malformed forensic metric {context}.{key}: non-finite numeric value")
+        raise SystemExit(
+            f"malformed forensic metric {context}.{key}: non-finite numeric value"
+        )
 
     numeric_value = float(value)
 
     if key in ("top1_agreement", "blunder_rate") and not 0.0 <= numeric_value <= 1.0:
-        raise SystemExit(f"malformed forensic metric {context}.{key}: expected value between 0.0 and 1.0")
+        raise SystemExit(
+            f"malformed forensic metric {context}.{key}: expected value between 0.0 and 1.0"
+        )
 
     if key == "average_regret" and numeric_value < 0.0:
-        raise SystemExit(f"malformed forensic metric {context}.{key}: expected value greater than or equal to 0.0")
+        raise SystemExit(
+            f"malformed forensic metric {context}.{key}: expected value greater than or equal to 0.0"
+        )
 
     return numeric_value
 
 
 def forensic_metric_block(payload: dict, *, context: str) -> dict[str, float]:
     if not isinstance(payload, dict):
-        raise SystemExit(f"malformed forensic metric block for {context}: expected object")
+        raise SystemExit(
+            f"malformed forensic metric block for {context}: expected object"
+        )
 
     return {
         metric_name: numeric_metric(payload, metric_name, context=context)
@@ -445,16 +496,22 @@ def forensic_system_overall(report: dict, system_name: str) -> dict[str, float]:
 
     system_payload = systems.get(system_name)
     if not isinstance(system_payload, dict):
-        raise SystemExit(f"malformed forensic report: missing systems.{system_name} block")
+        raise SystemExit(
+            f"malformed forensic report: missing systems.{system_name} block"
+        )
 
     overall = system_payload.get("overall")
     if not isinstance(overall, dict):
-        raise SystemExit(f"malformed forensic report: missing systems.{system_name}.overall block")
+        raise SystemExit(
+            f"malformed forensic report: missing systems.{system_name}.overall block"
+        )
 
     return forensic_metric_block(overall, context=f"systems.{system_name}.overall")
 
 
-def forensic_bucket_metrics(report: dict, bucket_name: str, system_name: str) -> dict[str, float]:
+def forensic_bucket_metrics(
+    report: dict, bucket_name: str, system_name: str
+) -> dict[str, float]:
     if not isinstance(report, dict):
         raise SystemExit("malformed forensic report: expected object")
 
@@ -468,13 +525,19 @@ def forensic_bucket_metrics(report: dict, bucket_name: str, system_name: str) ->
 
     systems = bucket_payload.get("systems")
     if not isinstance(systems, dict):
-        raise SystemExit(f"malformed forensic bucket {bucket_name}: missing systems block")
+        raise SystemExit(
+            f"malformed forensic bucket {bucket_name}: missing systems block"
+        )
 
     system_payload = systems.get(system_name)
     if not isinstance(system_payload, dict):
-        raise SystemExit(f"malformed forensic bucket {bucket_name}: missing systems.{system_name} block")
+        raise SystemExit(
+            f"malformed forensic bucket {bucket_name}: missing systems.{system_name} block"
+        )
 
-    return forensic_metric_block(system_payload, context=f"buckets.{bucket_name}.systems.{system_name}")
+    return forensic_metric_block(
+        system_payload, context=f"buckets.{bucket_name}.systems.{system_name}"
+    )
 
 
 def forensic_quality_summary(report: dict) -> dict:
@@ -482,7 +545,9 @@ def forensic_quality_summary(report: dict) -> dict:
         raise SystemExit("malformed forensic report: expected object")
 
     if report.get("schema") != "azlite_forensic_suite_v1":
-        raise SystemExit("malformed forensic report: expected schema azlite_forensic_suite_v1")
+        raise SystemExit(
+            "malformed forensic report: expected schema azlite_forensic_suite_v1"
+        )
 
     return {
         "overall": {
@@ -492,7 +557,9 @@ def forensic_quality_summary(report: dict) -> dict:
         "critical_buckets": {
             bucket_name: {
                 "current": forensic_bucket_metrics(report, bucket_name, "current"),
-                "challenger": forensic_bucket_metrics(report, bucket_name, "challenger"),
+                "challenger": forensic_bucket_metrics(
+                    report, bucket_name, "challenger"
+                ),
             }
             for bucket_name in CRITICAL_FORENSIC_BUCKETS
         },
@@ -507,7 +574,9 @@ def evaluate_forensic_quality(report: dict) -> dict:
     summary = forensic_quality_summary(report)
     failure_reasons = []
 
-    def evaluate_metric(metric_name: str, challenger: float, current: float, threshold: float) -> dict:
+    def evaluate_metric(
+        metric_name: str, challenger: float, current: float, threshold: float
+    ) -> dict:
         raw_delta = raw_metric_delta(challenger=challenger, current=current)
         delta = round(raw_delta, 4)
         if metric_name == "top1_agreement":
@@ -569,7 +638,9 @@ def evaluate_forensic_quality(report: dict) -> dict:
     }
 
 
-def build_endgame_exact_solve_section(*, status: str, results_source: str, results: list[dict]) -> dict:
+def build_endgame_exact_solve_section(
+    *, status: str, results_source: str, results: list[dict]
+) -> dict:
     return {
         "status": status,
         "scaffold_only": True,
@@ -596,13 +667,15 @@ def build_endgame_exact_solve_recommendation(results: list[dict]) -> dict:
     best_result = max(
         results,
         key=lambda row: (
-            float(row.get("candidate_mcts_score", 0.0)) - float(row.get("current_mcts_score", 0.0)),
+            float(row.get("candidate_mcts_score", 0.0))
+            - float(row.get("current_mcts_score", 0.0)),
             float(row.get("candidate_mcts_score", 0.0)),
             -int(row.get("threshold", 0)),
         ),
     )
     best_gain = round(
-        float(best_result.get("candidate_mcts_score", 0.0)) - float(best_result.get("current_mcts_score", 0.0)),
+        float(best_result.get("candidate_mcts_score", 0.0))
+        - float(best_result.get("current_mcts_score", 0.0)),
         4,
     )
     if best_gain <= 0.0:
@@ -619,12 +692,22 @@ def build_endgame_exact_solve_recommendation(results: list[dict]) -> dict:
     }
 
 
-def build_endgame_exact_solve_plans(args: argparse.Namespace, *, report_dir: Path, search_flag_map: dict[str, list[str]]) -> list[dict]:
+def build_endgame_exact_solve_plans(
+    args: argparse.Namespace, *, report_dir: Path, search_flag_map: dict[str, list[str]]
+) -> list[dict]:
     plans = []
     for threshold in (8, 10, 12):
-        candidate_report_path = report_dir / f"endgame_exact_solve_threshold_{threshold}_candidate_vs_mcts1200.json"
-        current_report_path = report_dir / f"endgame_exact_solve_threshold_{threshold}_current_vs_mcts1200.json"
-        summary_report_path = report_dir / f"endgame_exact_solve_threshold_{threshold}.json"
+        candidate_report_path = (
+            report_dir
+            / f"endgame_exact_solve_threshold_{threshold}_candidate_vs_mcts1200.json"
+        )
+        current_report_path = (
+            report_dir
+            / f"endgame_exact_solve_threshold_{threshold}_current_vs_mcts1200.json"
+        )
+        summary_report_path = (
+            report_dir / f"endgame_exact_solve_threshold_{threshold}.json"
+        )
         plans.append(
             {
                 "threshold": threshold,
@@ -683,8 +766,12 @@ def build_decision_report(
     current_mcts_report_path: Path,
     regression_report_path: Path,
 ) -> dict:
-    planned_evaluations = list(report.get("endgame_exact_solve", {}).get("planned_evaluations", []))
-    existing_threshold_results = list(report.get("endgame_exact_solve", {}).get("results", []))
+    planned_evaluations = list(
+        report.get("endgame_exact_solve", {}).get("planned_evaluations", [])
+    )
+    existing_threshold_results = list(
+        report.get("endgame_exact_solve", {}).get("results", [])
+    )
     arena_games_played = int(arena_report.get("games_played", 0))
     arena_losses = int(arena_report.get("losses", 0))
     candidate_mcts_games = int(candidate_mcts_report.get("games", 0))
@@ -709,18 +796,33 @@ def build_decision_report(
         failure_reasons.append({"code": "arena_score_below_threshold"})
     if args.require_lossless and arena_losses > args.max_losses:
         failure_reasons.append({"code": "arena_losses_above_threshold"})
-    if not args.skip_mcts_relative_check and raw_candidate_mcts_score < raw_current_mcts_score:
+    if (
+        not args.skip_mcts_relative_check
+        and raw_candidate_mcts_score < raw_current_mcts_score
+    ):
         failure_reasons.append({"code": "candidate_mcts_below_current"})
     if not regression_report.get("passed", False):
         failure_reasons.append({"code": "regression_check_failed"})
 
-    forensic_quality = evaluate_forensic_quality(forensic_report) if forensic_report is not None else None
+    forensic_quality = (
+        evaluate_forensic_quality(forensic_report)
+        if forensic_report is not None
+        else None
+    )
     if forensic_quality is not None and not forensic_quality["passed"]:
         failure_reasons.extend(forensic_quality["failure_reasons"])
 
-    notes = arena_report.get("notes", {}) if isinstance(arena_report.get("notes", {}), dict) else {}
-    move_time_mean_ms = notes.get("move_time_mean_ms", arena_report.get("move_time_mean_ms"))
-    move_time_p95_ms = notes.get("move_time_p95_ms", arena_report.get("move_time_p95_ms"))
+    notes = (
+        arena_report.get("notes", {})
+        if isinstance(arena_report.get("notes", {}), dict)
+        else {}
+    )
+    move_time_mean_ms = notes.get(
+        "move_time_mean_ms", arena_report.get("move_time_mean_ms")
+    )
+    move_time_p95_ms = notes.get(
+        "move_time_p95_ms", arena_report.get("move_time_p95_ms")
+    )
     if args.max_arena_move_time_mean_ms is not None:
         if move_time_mean_ms is None:
             failure_reasons.append({"code": "arena_move_time_mean_missing"})
@@ -745,7 +847,9 @@ def build_decision_report(
     report.update(
         {
             "arena_report_path": str(arena_report_path),
-            "hard_report_path": str(hard_report_path) if hard_report_path is not None else None,
+            "hard_report_path": str(hard_report_path)
+            if hard_report_path is not None
+            else None,
             "candidate_mcts_report_path": str(candidate_mcts_report_path),
             "current_mcts_report_path": str(current_mcts_report_path),
             "regression_report_path": str(regression_report_path),
@@ -754,7 +858,9 @@ def build_decision_report(
             "arena_losses": arena_losses,
             "candidate_mcts_score": computed_candidate_mcts_score,
             "current_mcts_score": computed_current_mcts_score,
-            "dynamic_budget": dynamic_budget_summary(candidate_mcts_report, current_mcts_report, arena_report),
+            "dynamic_budget": dynamic_budget_summary(
+                candidate_mcts_report, current_mcts_report, arena_report
+            ),
             "hard_suite_buckets": hard_suite_bucket_breakdown(hard_report),
             "forensic_quality": forensic_quality,
             "lossless_passed": arena_losses <= args.max_losses,
@@ -762,7 +868,9 @@ def build_decision_report(
             "failure_reasons": failure_reasons,
             "endgame_exact_solve": build_endgame_exact_solve_section(
                 status="executed" if existing_threshold_results else "planned_only",
-                results_source="threshold_specific_reports" if existing_threshold_results else "planned_evaluation_metadata_only",
+                results_source="threshold_specific_reports"
+                if existing_threshold_results
+                else "planned_evaluation_metadata_only",
                 results=existing_threshold_results,
             ),
         }
@@ -783,20 +891,32 @@ def build_decision_report(
         opening_cache_summary=opening_cache_summary
     )
     report["endgame_exact_solve"]["planned_evaluations"] = planned_evaluations
-    report["endgame_exact_solve"]["scaffold_only"] = not bool(existing_threshold_results)
-    report["endgame_exact_solve"]["recommendation"] = build_endgame_exact_solve_recommendation(existing_threshold_results)
+    report["endgame_exact_solve"]["scaffold_only"] = not bool(
+        existing_threshold_results
+    )
+    report["endgame_exact_solve"]["recommendation"] = (
+        build_endgame_exact_solve_recommendation(existing_threshold_results)
+    )
     return report
 
 
 def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
-    hard_report = load_json(args.stub_hard_report) if args.stub_hard_report is not None else None
+    hard_report = (
+        load_json(args.stub_hard_report) if args.stub_hard_report is not None else None
+    )
     regression_report = (
         load_json(args.stub_regression_report)
         if args.stub_regression_report is not None
         else default_regression_report(args.regression_positions_path)
     )
-    forensic_report = load_json(args.stub_forensic_report) if args.stub_forensic_report is not None else None
-    regression_report_path = args.stub_regression_report or Path(report["regression_report_path"])
+    forensic_report = (
+        load_json(args.stub_forensic_report)
+        if args.stub_forensic_report is not None
+        else None
+    )
+    regression_report_path = args.stub_regression_report or Path(
+        report["regression_report_path"]
+    )
     return build_decision_report(
         args,
         report,
@@ -848,7 +968,11 @@ def run_regression_check(command: list[str], report_path: Path) -> dict:
         if details:
             raise SystemExit(f"check_superhuman_regressions failed: {details}")
         raise SystemExit("check_superhuman_regressions failed")
-    report_text = report_path.read_text(encoding="utf-8").strip() if report_path.exists() else stdout
+    report_text = (
+        report_path.read_text(encoding="utf-8").strip()
+        if report_path.exists()
+        else stdout
+    )
 
     try:
         report = json.loads(report_text)
@@ -867,9 +991,15 @@ def run_regression_check(command: list[str], report_path: Path) -> dict:
 def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     evaluations = {evaluation["id"]: evaluation for evaluation in report["evaluations"]}
     arena_report_path = Path(evaluations["candidate_vs_current_arena"]["report_path"])
-    candidate_mcts_report_path = Path(evaluations["candidate_vs_mcts1200"]["report_path"])
+    candidate_mcts_report_path = Path(
+        evaluations["candidate_vs_mcts1200"]["report_path"]
+    )
     current_mcts_report_path = Path(evaluations["current_vs_mcts1200"]["report_path"])
-    hard_report_path = Path(evaluations["candidate_vs_hard_arena"]["report_path"]) if "candidate_vs_hard_arena" in evaluations else None
+    hard_report_path = (
+        Path(evaluations["candidate_vs_hard_arena"]["report_path"])
+        if "candidate_vs_hard_arena" in evaluations
+        else None
+    )
     forensic_report_path = Path(evaluations["candidate_forensic_suite"]["report_path"])
     regression_report_path = Path(report["regression_report_path"])
     search_flag_map = load_search_flag_map(args.config_path)
@@ -952,18 +1082,26 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     for planned_evaluation in report["endgame_exact_solve"]["planned_evaluations"]:
         run_command(planned_evaluation["candidate_mcts_command"])
         run_command(planned_evaluation["current_mcts_command"])
-        candidate_threshold_report = load_json(Path(planned_evaluation["candidate_mcts_report_path"]))
-        current_threshold_report = load_json(Path(planned_evaluation["current_mcts_report_path"]))
+        candidate_threshold_report = load_json(
+            Path(planned_evaluation["candidate_mcts_report_path"])
+        )
+        current_threshold_report = load_json(
+            Path(planned_evaluation["current_mcts_report_path"])
+        )
         threshold_summary = {
             "threshold": int(planned_evaluation["threshold"]),
             "mode": "executed",
             "score": round(mcts_score(candidate_threshold_report), 4),
             "candidate_mcts_score": round(mcts_score(candidate_threshold_report), 4),
             "current_mcts_score": round(mcts_score(current_threshold_report), 4),
-            "candidate_mcts_report_path": planned_evaluation["candidate_mcts_report_path"],
+            "candidate_mcts_report_path": planned_evaluation[
+                "candidate_mcts_report_path"
+            ],
             "current_mcts_report_path": planned_evaluation["current_mcts_report_path"],
         }
-        Path(planned_evaluation["report_path"]).write_text(json.dumps(threshold_summary, indent=2), encoding="utf-8")
+        Path(planned_evaluation["report_path"]).write_text(
+            json.dumps(threshold_summary, indent=2), encoding="utf-8"
+        )
         planned_evaluation["status"] = "executed"
         planned_evaluation["mode"] = "executed"
         planned_evaluation["scaffold_only"] = False
@@ -992,7 +1130,6 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     )
 
 
-
 def main() -> int:
     args = parse_args()
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -1014,10 +1151,16 @@ def main() -> int:
         args.stub_regression_report,
         args.stub_forensic_report,
     )
-    if args.stub_forensic_report is not None and not all(path is not None for path in required_stub_paths[:-1]):
+    if args.stub_forensic_report is not None and not all(
+        path is not None for path in required_stub_paths[:-1]
+    ):
         raise SystemExit("--stub-forensic-report requires full stub bundle")
-    if any(path is not None for path in all_stub_paths) and not all(path is not None for path in required_stub_paths):
-        raise SystemExit("provide arena, candidate/current mcts, and forensic stub report paths together or none")
+    if any(path is not None for path in all_stub_paths) and not all(
+        path is not None for path in required_stub_paths
+    ):
+        raise SystemExit(
+            "provide arena, candidate/current mcts, and forensic stub report paths together or none"
+        )
     if args.stub_hard_report is not None and args.hard_path is None:
         raise SystemExit("--stub-hard-report requires --hard-path")
 
@@ -1066,7 +1209,13 @@ def main() -> int:
             ),
         ]
     )
-    evaluations.append(forensic_evaluation(args.out.parent, candidate_path=args.candidate_path, current_path=current_path))
+    evaluations.append(
+        forensic_evaluation(
+            args.out.parent,
+            candidate_path=args.candidate_path,
+            current_path=current_path,
+        )
+    )
     evaluations[-1]["mode"] = mode
 
     report = {
@@ -1077,7 +1226,9 @@ def main() -> int:
         "hard_path": args.hard_path,
         "regression_positions_path": args.regression_positions_path,
         "report_path": str(args.out),
-        "regression_report_path": str(args.out.parent / "candidate_regression_suite.json"),
+        "regression_report_path": str(
+            args.out.parent / "candidate_regression_suite.json"
+        ),
         "forensic_report_path": str(args.out.parent / "candidate_forensic_suite.json"),
         "arena_games": args.arena_games,
         "mcts_games": args.mcts_games,
@@ -1100,11 +1251,17 @@ def main() -> int:
         ),
     }
 
-    search_flag_map = load_threshold_planning_search_flag_map(args.config_path) if args.config_path else {}
-    report["endgame_exact_solve"]["planned_evaluations"] = build_endgame_exact_solve_plans(
-        args,
-        report_dir=args.out.parent,
-        search_flag_map=search_flag_map,
+    search_flag_map = (
+        load_threshold_planning_search_flag_map(args.config_path)
+        if args.config_path
+        else {}
+    )
+    report["endgame_exact_solve"]["planned_evaluations"] = (
+        build_endgame_exact_solve_plans(
+            args,
+            report_dir=args.out.parent,
+            search_flag_map=search_flag_map,
+        )
     )
 
     stub_reports_provided = all(path is not None for path in required_stub_paths)

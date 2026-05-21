@@ -48,7 +48,9 @@ class PerspectiveAuditTest(unittest.TestCase):
                 "player": 0,
                 "winner": None,
             }
-            data_path.write_text("\n".join([json.dumps(row) for _ in range(8)]) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join([json.dumps(row) for _ in range(8)]) + "\n", encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -178,7 +180,9 @@ class PerspectiveAuditTest(unittest.TestCase):
                     "value_target_mode": "sharpened",
                 },
             ]
-            data_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -199,7 +203,9 @@ class PerspectiveAuditTest(unittest.TestCase):
             audit = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertTrue(audit["passed"])
 
-    def test_audit_accepts_aligned_bootstrap_like_sharpened_rows_for_sign_and_zero_behavior(self):
+    def test_audit_accepts_aligned_bootstrap_like_sharpened_rows_for_sign_and_zero_behavior(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-audit-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "bootstrap_like_sharpened.jsonl"
@@ -227,7 +233,9 @@ class PerspectiveAuditTest(unittest.TestCase):
                     "value_target_mode": "sharpened",
                 },
             ]
-            data_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -248,7 +256,9 @@ class PerspectiveAuditTest(unittest.TestCase):
             audit = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertTrue(audit["passed"])
 
-    def test_audit_clearly_rejects_aligned_bootstrap_like_signed_row_without_winner(self):
+    def test_audit_clearly_rejects_aligned_bootstrap_like_signed_row_without_winner(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-audit-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "bootstrap_like_missing_winner.jsonl"
@@ -286,7 +296,9 @@ class PerspectiveAuditTest(unittest.TestCase):
             self.assertFalse(audit["passed"])
             self.assertEqual("signed_value_requires_winner", audit["errors"][0]["code"])
 
-    def test_audit_accepts_phase_aware_value_targets_when_perspective_sign_matches(self):
+    def test_audit_accepts_phase_aware_value_targets_when_perspective_sign_matches(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-audit-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "self_play_phase_aware.jsonl"
@@ -310,7 +322,9 @@ class PerspectiveAuditTest(unittest.TestCase):
                     "value_target_mode": "phase_aware_sharpened",
                 },
             ]
-            data_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [
@@ -331,7 +345,9 @@ class PerspectiveAuditTest(unittest.TestCase):
             audit = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertTrue(audit["passed"])
 
-    def test_audit_accepts_hybrid_value_targets_when_values_stay_bounded_and_perspective_matches(self):
+    def test_audit_accepts_hybrid_value_targets_when_values_stay_bounded_and_perspective_matches(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="azlite-audit-") as tmp:
             tmp_path = Path(tmp)
             data_path = tmp_path / "self_play_hybrid.jsonl"
@@ -355,7 +371,9 @@ class PerspectiveAuditTest(unittest.TestCase):
                     "value_target_mode": "hybrid",
                 },
             ]
-            data_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+            data_path.write_text(
+                "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+            )
 
             result = subprocess.run(
                 [

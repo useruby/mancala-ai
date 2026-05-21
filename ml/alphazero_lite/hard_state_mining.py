@@ -110,7 +110,9 @@ def _normalize_state(state: Any) -> dict[str, Any]:
     canonical_opponent_pits: list[int] = []
     for value in opponent_pits:
         if isinstance(value, bool) or not isinstance(value, int):
-            raise ValueError("candidate state opponent_pits must be a list of 6 integers")
+            raise ValueError(
+                "candidate state opponent_pits must be a list of 6 integers"
+            )
         canonical_opponent_pits.append(value)
 
     for field in ("player_store", "opponent_store", "current_player"):
@@ -133,9 +135,13 @@ def _normalize_state(state: Any) -> dict[str, Any]:
 def _normalize_optional_ply(candidate: dict[str, Any]) -> int | None:
     raw_ply = candidate.get("ply")
     raw_move_index = candidate.get("move_index")
-    if raw_ply is not None and (isinstance(raw_ply, bool) or not isinstance(raw_ply, int)):
+    if raw_ply is not None and (
+        isinstance(raw_ply, bool) or not isinstance(raw_ply, int)
+    ):
         raise ValueError("candidate ply must be an integer")
-    if raw_move_index is not None and (isinstance(raw_move_index, bool) or not isinstance(raw_move_index, int)):
+    if raw_move_index is not None and (
+        isinstance(raw_move_index, bool) or not isinstance(raw_move_index, int)
+    ):
         raise ValueError("candidate ply must be an integer")
     if raw_ply is not None and raw_move_index is not None and raw_ply != raw_move_index:
         raise ValueError("candidate ply and move_index must match")
@@ -178,14 +184,20 @@ def normalize_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
 
     legal_moves = candidate["legal_moves"]
     if not isinstance(legal_moves, list) or not legal_moves:
-        raise ValueError("candidate legal_moves must contain unique moves in range 0..5")
+        raise ValueError(
+            "candidate legal_moves must contain unique moves in range 0..5"
+        )
     normalized_legal_moves: list[int] = []
     for move in legal_moves:
         if isinstance(move, bool) or not isinstance(move, int) or move < 0 or move >= 6:
-            raise ValueError("candidate legal_moves must contain unique moves in range 0..5")
+            raise ValueError(
+                "candidate legal_moves must contain unique moves in range 0..5"
+            )
         normalized_legal_moves.append(move)
     if len(set(normalized_legal_moves)) != len(normalized_legal_moves):
-        raise ValueError("candidate legal_moves must contain unique moves in range 0..5")
+        raise ValueError(
+            "candidate legal_moves must contain unique moves in range 0..5"
+        )
     normalized_candidate["legal_moves"] = normalized_legal_moves
 
     normalized_candidate["selection_reason"] = str(candidate["selection_reason"])
@@ -211,10 +223,15 @@ def normalize_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"unknown consequence: {normalized_candidate['consequence']}")
     if normalized_candidate["side_to_move"] not in (0, 1):
         raise ValueError("candidate side_to_move must be 0 or 1")
-    if normalized_candidate["side_to_move"] != normalized_candidate["state"]["current_player"]:
+    if (
+        normalized_candidate["side_to_move"]
+        != normalized_candidate["state"]["current_player"]
+    ):
         raise ValueError("candidate side_to_move must match state.current_player")
 
-    normalized_candidate["canonical_state"] = canonical_state_key(normalized_candidate["state"])
+    normalized_candidate["canonical_state"] = canonical_state_key(
+        normalized_candidate["state"]
+    )
     return normalized_candidate
 
 
@@ -232,8 +249,12 @@ def deduplicate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, A
             merged_candidate.pop("source_artifact")
             merged_candidate.pop("source_run")
             metrics = merged_candidate.pop("metrics")
-            merged_candidate["selection_reasons"] = [normalized_candidate["selection_reason"]]
-            merged_candidate["source_artifacts"] = [normalized_candidate["source_artifact"]]
+            merged_candidate["selection_reasons"] = [
+                normalized_candidate["selection_reason"]
+            ]
+            merged_candidate["source_artifacts"] = [
+                normalized_candidate["source_artifact"]
+            ]
             merged_candidate["source_runs"] = [normalized_candidate["source_run"]]
             merged_candidate["metadata"] = {
                 "max_regret": _coerce_metric_value(metrics, "regret"),
@@ -251,22 +272,36 @@ def deduplicate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, A
                 continue
 
             if field == "consequence":
-                if CONSEQUENCE_WEIGHTS.get(str(value), 0) > CONSEQUENCE_WEIGHTS.get(str(merged_candidate[field]), 0):
+                if CONSEQUENCE_WEIGHTS.get(str(value), 0) > CONSEQUENCE_WEIGHTS.get(
+                    str(merged_candidate[field]), 0
+                ):
                     merged_candidate[field] = value
                 continue
 
             if field == "ply":
-                merged_candidate[field] = max(int(merged_candidate.get(field, value)), int(value))
+                merged_candidate[field] = max(
+                    int(merged_candidate.get(field, value)), int(value)
+                )
                 continue
 
             if merged_candidate[field] != value:
                 raise ValueError(f"conflicting candidate field: {field}")
 
-        if normalized_candidate["selection_reason"] not in merged_candidate["selection_reasons"]:
-            merged_candidate["selection_reasons"].append(normalized_candidate["selection_reason"])
+        if (
+            normalized_candidate["selection_reason"]
+            not in merged_candidate["selection_reasons"]
+        ):
+            merged_candidate["selection_reasons"].append(
+                normalized_candidate["selection_reason"]
+            )
 
-        if normalized_candidate["source_artifact"] not in merged_candidate["source_artifacts"]:
-            merged_candidate["source_artifacts"].append(normalized_candidate["source_artifact"])
+        if (
+            normalized_candidate["source_artifact"]
+            not in merged_candidate["source_artifacts"]
+        ):
+            merged_candidate["source_artifacts"].append(
+                normalized_candidate["source_artifact"]
+            )
 
         if normalized_candidate["source_run"] not in merged_candidate["source_runs"]:
             merged_candidate["source_runs"].append(normalized_candidate["source_run"])
@@ -301,12 +336,16 @@ def score_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             if reason not in REASON_WEIGHTS:
                 raise ValueError(f"unknown selection reason: {reason}")
 
-        reason_score = sum(REASON_WEIGHTS[reason] for reason in row["selection_reasons"])
+        reason_score = sum(
+            REASON_WEIGHTS[reason] for reason in row["selection_reasons"]
+        )
         regret_boost = float(metadata.get("max_regret", 0.0)) * 5.0
         value_error_boost = float(metadata.get("max_value_error", 0.0)) * 5.0
         entropy_boost = float(metadata.get("max_entropy", 0.0)) * 3.0
         gap_boost = float(metadata.get("max_best_second_gap", 0.0)) * 3.0
-        source_classes = {str(source_run.get("kind", "")) for source_run in row["source_runs"]}
+        source_classes = {
+            str(source_run.get("kind", "")) for source_run in row["source_runs"]
+        }
         multi_source_boost = max(0, len(source_classes) - 1) * 2.0
         priority_score = round(
             reason_score
@@ -494,12 +533,21 @@ def extract_candidates(artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
             if not isinstance(row, dict):
                 raise ValueError("artifact row must be a dictionary")
 
-            for field in ("state", "side_to_move", "legal_moves", "selection_reason", "consequence"):
+            for field in (
+                "state",
+                "side_to_move",
+                "legal_moves",
+                "selection_reason",
+                "consequence",
+            ):
                 if field not in row:
                     raise ValueError(f"missing required row field: {field}")
 
             expected_reason = LOSS_ARTIFACT_REASONS.get(source_kind)
-            if expected_reason is not None and row.get("selection_reason") != expected_reason:
+            if (
+                expected_reason is not None
+                and row.get("selection_reason") != expected_reason
+            ):
                 raise ValueError(
                     f"selection_reason does not match artifact kind: {source_kind}"
                 )
@@ -516,7 +564,11 @@ def extract_candidates(artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
                         "consequence": row["consequence"],
                         "metrics": dict(row.get("metrics", {})),
                         **({"ply": row["ply"]} if "ply" in row else {}),
-                        **({"move_index": row["move_index"]} if "move_index" in row else {}),
+                        **(
+                            {"move_index": row["move_index"]}
+                            if "move_index" in row
+                            else {}
+                        ),
                     }
                 )
             )
@@ -528,12 +580,16 @@ def _load_supported_artifact(path: Path) -> dict[str, Any] | None:
     try:
         raw_payload = path.read_text(encoding="utf-8")
     except OSError as error:
-        raise ValueError(f"unable to read hard-state mining artifact: {path}") from error
+        raise ValueError(
+            f"unable to read hard-state mining artifact: {path}"
+        ) from error
 
     try:
         payload = json.loads(raw_payload)
     except json.JSONDecodeError as error:
-        raise ValueError(f"invalid JSON in hard-state mining artifact: {path}") from error
+        raise ValueError(
+            f"invalid JSON in hard-state mining artifact: {path}"
+        ) from error
 
     if not isinstance(payload, dict):
         raise ValueError(f"hard-state mining artifact must be a JSON object: {path}")
@@ -551,7 +607,9 @@ def _load_supported_artifact(path: Path) -> dict[str, Any] | None:
     if kind == "forensic_suite":
         systems = payload.get("systems", {})
         if not isinstance(systems, dict):
-            raise ValueError(f"invalid forensic-suite artifact: {path}: 'systems' must be an object")
+            raise ValueError(
+                f"invalid forensic-suite artifact: {path}: 'systems' must be an object"
+            )
 
         normalized_systems: dict[str, dict[str, Any]] = {}
         for system_name, system_payload in systems.items():
@@ -609,13 +667,19 @@ def build_summary(
 
     for candidate in candidates:
         reason = str(candidate["selection_reason"])
-        candidate_counts_by_reason[reason] = candidate_counts_by_reason.get(reason, 0) + 1
+        candidate_counts_by_reason[reason] = (
+            candidate_counts_by_reason.get(reason, 0) + 1
+        )
         source_class = reason
-        candidate_counts_by_source_class[source_class] = candidate_counts_by_source_class.get(source_class, 0) + 1
+        candidate_counts_by_source_class[source_class] = (
+            candidate_counts_by_source_class.get(source_class, 0) + 1
+        )
 
     for row in rows:
         for reason in row["selection_reasons"]:
-            contribution_totals_by_reason[reason] = contribution_totals_by_reason.get(reason, 0) + 1
+            contribution_totals_by_reason[reason] = (
+                contribution_totals_by_reason.get(reason, 0) + 1
+            )
 
     source_coverage = sorted(candidate_counts_by_reason)
     return {

@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_tactical_opening_capture_family_local.json"
+DEFAULT_BASE_CONFIG = (
+    "ml/alphazero_lite/configs/aggressive_v3_tactical_opening_capture_family_local.json"
+)
 DEFAULT_FORENSIC_SUITE = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
 FAMILY_REPORT_SCHEMA = "opening_capture_family_report_v1"
 
@@ -53,7 +55,8 @@ def build_run_paths(output_root: str | Path, run_id: str) -> dict[str, Path]:
         "selection_artifact": base_dir / "selection" / "artifact",
         "family_report_path": final_dir / "opening_capture_family_report.json",
         "verdict_path": final_dir / "tactical_validation_verdict.json",
-        "wrapper_summary_path": base_dir / "tactical_opening_capture_family_validation_summary.json",
+        "wrapper_summary_path": base_dir
+        / "tactical_opening_capture_family_validation_summary.json",
     }
 
 
@@ -69,17 +72,25 @@ def pinned_sources(root: Path, run_paths: dict[str, Path]) -> dict[str, str]:
         "forensic-suite": str(resolve_repo_path(root, DEFAULT_FORENSIC_SUITE)),
         "selected-artifact": str(run_paths["selection_artifact"]),
         "reference-artifact": str(reference_artifact),
-        "baseline-forensics": str(run_paths["final_dir"] / "baseline_candidate_forensics.json"),
+        "baseline-forensics": str(
+            run_paths["final_dir"] / "baseline_candidate_forensics.json"
+        ),
         "reference-forensics": str(reference_artifact),
-        "candidate-forensics": str(run_paths["final_dir"] / "selected_candidate_forensics.json"),
+        "candidate-forensics": str(
+            run_paths["final_dir"] / "selected_candidate_forensics.json"
+        ),
         "bucket-gate": str(run_paths["final_dir"] / "bucket_gate.json"),
-        "regression-report": str(run_paths["final_dir"] / "candidate_regression_suite.json"),
+        "regression-report": str(
+            run_paths["final_dir"] / "candidate_regression_suite.json"
+        ),
         "arena-report": str(run_paths["final_dir"] / "arena_seed_1041.json"),
         "family-report": str(run_paths["family_report_path"]),
     }
 
 
-def build_commands(args: argparse.Namespace, root: Path, run_paths: dict[str, Path]) -> dict[str, list[str]]:
+def build_commands(
+    args: argparse.Namespace, root: Path, run_paths: dict[str, Path]
+) -> dict[str, list[str]]:
     python_bin = python_executable(root)
     pins = pinned_sources(root, run_paths)
     launcher_path = str(root / "script/ai/run_local_tactical_replay_experiment")
@@ -183,11 +194,18 @@ def build_dry_run_payload(args: argparse.Namespace, root: Path) -> dict[str, Any
     }
 
 
-def run_command(command: list[str], cwd: Path, allowed_returncodes: tuple[int, ...] = (0,)) -> dict[str, Any]:
-    completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True, check=False)
+def run_command(
+    command: list[str], cwd: Path, allowed_returncodes: tuple[int, ...] = (0,)
+) -> dict[str, Any]:
+    completed = subprocess.run(
+        command, cwd=cwd, capture_output=True, text=True, check=False
+    )
     if completed.returncode not in allowed_returncodes:
         details = (completed.stderr or completed.stdout).strip()
-        raise SystemExit(details or f"command failed with exit code {completed.returncode}: {command}")
+        raise SystemExit(
+            details
+            or f"command failed with exit code {completed.returncode}: {command}"
+        )
     return {
         "command": list(command),
         "cwd": str(cwd),
@@ -213,10 +231,14 @@ def remove_existing_file(path: Path) -> None:
 
 def load_fresh_family_report(path: Path) -> dict[str, Any]:
     if not path.exists():
-        raise SystemExit(f"family report writer did not produce a fresh family report artifact: {path}")
+        raise SystemExit(
+            f"family report writer did not produce a fresh family report artifact: {path}"
+        )
     report = load_json(path)
     if not isinstance(report, dict):
-        raise SystemExit(f"family report writer produced an invalid family report artifact: {path}")
+        raise SystemExit(
+            f"family report writer produced an invalid family report artifact: {path}"
+        )
     if report.get("schema") != FAMILY_REPORT_SCHEMA:
         raise SystemExit(
             f"family report writer produced schema {report.get('schema')!r}; expected {FAMILY_REPORT_SCHEMA}: {path}"
@@ -226,7 +248,9 @@ def load_fresh_family_report(path: Path) -> dict[str, Any]:
 
 def load_fresh_verdict(path: Path) -> dict[str, Any]:
     if not path.exists():
-        raise SystemExit(f"verdict writer did not produce a fresh verdict artifact: {path}")
+        raise SystemExit(
+            f"verdict writer did not produce a fresh verdict artifact: {path}"
+        )
     verdict = load_json(path)
     if not isinstance(verdict, dict):
         raise SystemExit(f"verdict writer produced an invalid verdict artifact: {path}")
@@ -242,16 +266,25 @@ def run(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     remove_existing_file(run_paths["family_report_path"])
     remove_existing_file(run_paths["verdict_path"])
     remove_existing_file(run_paths["wrapper_summary_path"])
-    command_results.append(run_command(commands["validation_pack"], root, allowed_returncodes=(0, 1)))
+    command_results.append(
+        run_command(commands["validation_pack"], root, allowed_returncodes=(0, 1))
+    )
     command_results.append(run_command(commands["write_family_report"], root))
     family_report = load_fresh_family_report(run_paths["family_report_path"])
-    command_results.append(run_command(commands["write_verdict"], root, allowed_returncodes=(0, 1)))
+    command_results.append(
+        run_command(commands["write_verdict"], root, allowed_returncodes=(0, 1))
+    )
     verdict = load_fresh_verdict(run_paths["verdict_path"])
     summary = {
         "schema": "azlite_tactical_opening_capture_family_validation_summary_v1",
         "run_id": args.run_id,
         "current_path": args.current_path,
-        "executed_stages": ["select", "validation_pack", "write_family_report", "write_verdict"],
+        "executed_stages": [
+            "select",
+            "validation_pack",
+            "write_family_report",
+            "write_verdict",
+        ],
         "selected_artifact": pins["selected-artifact"],
         "pinned_sources": pins,
         "family_report_path": str(run_paths["family_report_path"]),

@@ -7,7 +7,6 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from ml.alphazero_lite import self_play as self_play_module
 from ml.alphazero_lite import train as train_module
 from ml.alphazero_lite.forensic_suite import canonical_state_key
 from ml.alphazero_lite import label_tactical_states
@@ -89,7 +88,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
                 ]
             )
 
-    def test_labeled_rows_emit_raw_state_and_encoded_state_with_supported_target_modes(self):
+    def test_labeled_rows_emit_raw_state_and_encoded_state_with_supported_target_modes(
+        self,
+    ):
         raw_state = self._early_extra_turn_state()
         mined_rows = [
             {
@@ -105,7 +106,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             }
         ]
 
-        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+        with mock.patch(
+            "ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS
+        ):
             for policy_mode in train_module.SUPPORTED_POLICY_TARGET_MODES:
                 for value_mode in train_module.SUPPORTED_VALUE_TARGET_MODES:
                     labeled_rows = label_tactical_states.label_rows(
@@ -120,19 +123,32 @@ class LabelTacticalStatesTest(unittest.TestCase):
 
                     self.assertEqual(1, len(labeled_rows))
                     labeled = labeled_rows[0]
-                    self.assertEqual(canonical_state_key(raw_state), labeled["canonical_state"])
+                    self.assertEqual(
+                        canonical_state_key(raw_state), labeled["canonical_state"]
+                    )
                     self.assertEqual(raw_state, labeled["raw_state"])
-                    self.assertEqual(raw_state["current_player"], labeled["side_to_move"])
-                    self.assertEqual(KalahGame.from_state(raw_state).possible_moves(), labeled["legal_moves"])
-                    self.assertEqual(feature_count_for("kalah_v3"), len(labeled["state"]))
+                    self.assertEqual(
+                        raw_state["current_player"], labeled["side_to_move"]
+                    )
+                    self.assertEqual(
+                        KalahGame.from_state(raw_state).possible_moves(),
+                        labeled["legal_moves"],
+                    )
+                    self.assertEqual(
+                        feature_count_for("kalah_v3"), len(labeled["state"])
+                    )
                     self.assertEqual("early_extra_turn", labeled["bucket"])
                     self.assertEqual("tactical", labeled["bucket_group"])
                     self.assertEqual(policy_mode, labeled["policy_target_mode"])
                     self.assertEqual(value_mode, labeled["value_target_mode"])
                     self.assertEqual("kalah_v3", labeled["input_encoding"])
-                    self.assertEqual(["student_teacher_disagreement"], labeled["selection_reasons"])
+                    self.assertEqual(
+                        ["student_teacher_disagreement"], labeled["selection_reasons"]
+                    )
                     self.assertEqual(["forensics.json"], labeled["source_artifacts"])
-                    self.assertEqual([{"kind": "forensic_suite"}], labeled["source_runs"])
+                    self.assertEqual(
+                        [{"kind": "forensic_suite"}], labeled["source_runs"]
+                    )
                     self.assertEqual(12.5, labeled["priority_score"])
                     self.assertEqual(12, labeled["teacher_policy_simulations"])
                     self.assertEqual(18, labeled["teacher_value_simulations"])
@@ -170,7 +186,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             },
         ]
 
-        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+        with mock.patch(
+            "ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS
+        ):
             labeled_rows = label_tactical_states.label_rows(
                 mined_rows,
                 policy_simulations=12,
@@ -203,7 +221,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
         }
 
         bad_side = dict(base_row, side_to_move=0)
-        with self.assertRaisesRegex(ValueError, "side_to_move must match state.current_player"):
+        with self.assertRaisesRegex(
+            ValueError, "side_to_move must match state.current_player"
+        ):
             label_tactical_states.label_rows(
                 [bad_side],
                 policy_simulations=12,
@@ -215,7 +235,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             )
 
         bad_legal_moves = dict(base_row, legal_moves=[0, 1])
-        with self.assertRaisesRegex(ValueError, "legal_moves must match state legal moves"):
+        with self.assertRaisesRegex(
+            ValueError, "legal_moves must match state legal moves"
+        ):
             label_tactical_states.label_rows(
                 [bad_legal_moves],
                 policy_simulations=12,
@@ -280,7 +302,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             }
         ]
 
-        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+        with mock.patch(
+            "ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS
+        ):
             labeled_rows = label_tactical_states.label_rows(
                 mined_rows,
                 policy_simulations=12,
@@ -307,7 +331,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
                 "canonical_state": canonical_state_key(unclassifiable_state),
                 "state": unclassifiable_state,
                 "side_to_move": unclassifiable_state["current_player"],
-                "legal_moves": KalahGame.from_state(unclassifiable_state).possible_moves(),
+                "legal_moves": KalahGame.from_state(
+                    unclassifiable_state
+                ).possible_moves(),
                 "ply": 9,
                 "selection_reasons": ["student_teacher_disagreement"],
                 "source_artifacts": ["forensics.json"],
@@ -316,7 +342,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             }
         ]
 
-        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+        with mock.patch(
+            "ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS
+        ):
             labeled_rows = label_tactical_states.label_rows(
                 mined_rows,
                 policy_simulations=12,
@@ -329,7 +357,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
 
         self.assertEqual([], labeled_rows)
 
-    def test_label_rows_skips_unclassifiable_rows_without_disrupting_neighboring_rows(self):
+    def test_label_rows_skips_unclassifiable_rows_without_disrupting_neighboring_rows(
+        self,
+    ):
         valid_state = self._opening_state()
         unclassifiable_state = {
             "player_pits": [0, 2, 1, 8, 0, 7],
@@ -354,7 +384,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
                 "canonical_state": canonical_state_key(unclassifiable_state),
                 "state": unclassifiable_state,
                 "side_to_move": unclassifiable_state["current_player"],
-                "legal_moves": KalahGame.from_state(unclassifiable_state).possible_moves(),
+                "legal_moves": KalahGame.from_state(
+                    unclassifiable_state
+                ).possible_moves(),
                 "ply": 9,
                 "selection_reasons": ["student_teacher_disagreement"],
                 "source_artifacts": ["forensics-b.json"],
@@ -363,7 +395,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             },
         ]
 
-        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+        with mock.patch(
+            "ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS
+        ):
             labeled_rows = label_tactical_states.label_rows(
                 mined_rows,
                 policy_simulations=12,
@@ -375,7 +409,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             )
 
         self.assertEqual(1, len(labeled_rows))
-        self.assertEqual(canonical_state_key(valid_state), labeled_rows[0]["canonical_state"])
+        self.assertEqual(
+            canonical_state_key(valid_state), labeled_rows[0]["canonical_state"]
+        )
         self.assertEqual(7, labeled_rows[0]["teacher_seed"])
 
     def test_label_rows_rejects_missing_teacher_coverage_for_legal_move(self):
@@ -394,8 +430,13 @@ class LabelTacticalStatesTest(unittest.TestCase):
             }
         ]
 
-        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _MissingLegalMoveFakeMCTS):
-            with self.assertRaisesRegex(ValueError, "teacher child_stats missing legal moves"):
+        with mock.patch(
+            "ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS",
+            _MissingLegalMoveFakeMCTS,
+        ):
+            with self.assertRaisesRegex(
+                ValueError, "teacher child_stats missing legal moves"
+            ):
                 label_tactical_states.label_rows(
                     mined_rows,
                     policy_simulations=12,
@@ -462,7 +503,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
             }
         ]
 
-        with mock.patch("ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS):
+        with mock.patch(
+            "ml.alphazero_lite.label_tactical_states.classic_mcts.MCTS", _FakeMCTS
+        ):
             labeled = label_tactical_states.label_rows(
                 mined_rows,
                 policy_simulations=10,
@@ -503,10 +546,14 @@ class LabelTacticalStatesTest(unittest.TestCase):
             },
         ]
 
-        tactical_rows, preservation_rows = label_tactical_states.split_train_rows(labeled_rows)
+        tactical_rows, preservation_rows = label_tactical_states.split_train_rows(
+            labeled_rows
+        )
 
         self.assertEqual(["early_extra_turn"], [row["bucket"] for row in tactical_rows])
-        self.assertEqual(["opening_plies_1_8"], [row["bucket"] for row in preservation_rows])
+        self.assertEqual(
+            ["opening_plies_1_8"], [row["bucket"] for row in preservation_rows]
+        )
         self.assertNotIn("raw_state", tactical_rows[0])
         self.assertNotIn("raw_state", preservation_rows[0])
 
@@ -522,10 +569,16 @@ class LabelTacticalStatesTest(unittest.TestCase):
                 input_path,
                 [
                     {
-                        "canonical_state": canonical_state_key(self._early_extra_turn_state()),
+                        "canonical_state": canonical_state_key(
+                            self._early_extra_turn_state()
+                        ),
                         "state": self._early_extra_turn_state(),
-                        "side_to_move": self._early_extra_turn_state()["current_player"],
-                        "legal_moves": KalahGame.from_state(self._early_extra_turn_state()).possible_moves(),
+                        "side_to_move": self._early_extra_turn_state()[
+                            "current_player"
+                        ],
+                        "legal_moves": KalahGame.from_state(
+                            self._early_extra_turn_state()
+                        ).possible_moves(),
                         "move_index": 9,
                         "selection_reasons": ["student_teacher_disagreement"],
                         "source_artifacts": ["forensics-a.json"],
@@ -536,7 +589,9 @@ class LabelTacticalStatesTest(unittest.TestCase):
                         "canonical_state": canonical_state_key(self._opening_state()),
                         "state": self._opening_state(),
                         "side_to_move": 0,
-                        "legal_moves": KalahGame.from_state(self._opening_state()).possible_moves(),
+                        "legal_moves": KalahGame.from_state(
+                            self._opening_state()
+                        ).possible_moves(),
                         "move_index": 4,
                         "selection_reasons": ["large_value_error"],
                         "source_artifacts": ["forensics-b.json"],
@@ -706,7 +761,11 @@ class LabelTacticalStatesTest(unittest.TestCase):
         )
 
     def _read_jsonl(self, path):
-        return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        return [
+            json.loads(line)
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
 
 
 if __name__ == "__main__":

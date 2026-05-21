@@ -1,6 +1,9 @@
 import unittest
 
-from ml.alphazero_lite.endgame_tablebase import EndgameTablebase, EndgameTablebaseContract
+from ml.alphazero_lite.endgame_tablebase import (
+    EndgameTablebase,
+    EndgameTablebaseContract,
+)
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 
@@ -21,7 +24,9 @@ class EndgameTablebaseTest(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             EndgameTablebaseContract.lookup_cached(object(), game, 0)
 
-    def test_lookup_scores_unswept_tied_terminal_position_as_draw_from_both_perspectives(self):
+    def test_lookup_scores_unswept_tied_terminal_position_as_draw_from_both_perspectives(
+        self,
+    ):
         tablebase = EndgameTablebase()
         game = KalahGame.from_state(
             {
@@ -70,7 +75,9 @@ class EndgameTablebaseTest(unittest.TestCase):
         self.assertEqual(0.0, tablebase.lookup(game, perspective_player=0))
         self.assertEqual(1.0, tablebase.lookup(game, perspective_player=1))
 
-    def test_lookup_recurses_when_opponent_side_is_empty_but_current_player_can_still_move(self):
+    def test_lookup_recurses_when_opponent_side_is_empty_but_current_player_can_still_move(
+        self,
+    ):
         tablebase = EndgameTablebase()
         game = KalahGame.from_state(
             {

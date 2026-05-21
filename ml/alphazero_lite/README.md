@@ -1,5 +1,7 @@
 # AlphaZero-lite Manual Training Module
 
+For repo-wide setup, shared dev tooling, linting, and `pre-commit` usage, start with the root [`README.md`](../../README.md). This guide stays focused on AlphaZero-lite training and operations.
+
 This folder contains a manual, language-agnostic training workflow for Mancala
 (`kalah`) model artifacts consumed by Rails runtime code.
 
@@ -58,14 +60,15 @@ Large batch (chunked, resumable, parallel workers):
   --tree-reuse-enabled
 ```
 
-To make this checkpoint active in Rails:
+To make an exported checkpoint active in Rails before promotion-gate reporting:
 
 ```bash
 mkdir -p model-artifact/current
 cp storage/ai/alphazero_lite/versions/azlite-local-001/weights.json model-artifact/current/weights.json
 cp storage/ai/alphazero_lite/versions/azlite-local-001/metadata.json model-artifact/current/metadata.json
-cp storage/ai/alphazero_lite/versions/azlite-local-001/arena_report.json model-artifact/current/arena_report.json
 ```
+
+`arena_report.json` is not written by `export_artifact.py`. Copy or promote that report only after `script/ai/local_promotion_gate` or the RunPod wrapper produces it.
 
 ## Output contract
 
@@ -124,17 +127,7 @@ script/ai/promote_superhuman_candidate \
   tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2
 ```
 
-Deploy the runtime model set to production with standard app deploy:
-
-```bash
-bin/kamal deploy
-```
-
-Rollback model + app together with standard deploy rollback:
-
-```bash
-bin/kamal rollback
-```
+Deploy and rollback happen from the main app repository using that repo's standard deploy flow; this worktree does not include the app-side `bin/kamal` entrypoints.
 
 ## Local promotion gate
 

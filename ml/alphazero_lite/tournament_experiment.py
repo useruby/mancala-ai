@@ -167,7 +167,14 @@ def main() -> None:
             )
             mcts_stdout = screen_report_path.read_text(encoding="utf-8")
             mcts_screen_score = parse_mcts_score(mcts_stdout)
-            candidates.append({"seed": seed, "topk_index": topk, "artifact_dir": str(artifact_dir), "mcts_screen_score": mcts_screen_score})
+            candidates.append(
+                {
+                    "seed": seed,
+                    "topk_index": topk,
+                    "artifact_dir": str(artifact_dir),
+                    "mcts_screen_score": mcts_screen_score,
+                }
+            )
 
         winner = pick_best_topk(candidates)
         winner_dir = winner["artifact_dir"]

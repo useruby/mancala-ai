@@ -7,10 +7,14 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
-from ml.alphazero_lite.search_interaction_diagnostic import main
+
+def main() -> int:
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from ml.alphazero_lite.search_interaction_diagnostic import main as run_main
+
+    return run_main()
 
 
 if __name__ == "__main__":

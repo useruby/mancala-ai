@@ -43,4 +43,6 @@ def feature_count_for(input_encoding: str) -> int:
         return FEATURE_COUNTS[input_encoding]
     except KeyError as exc:
         supported = ", ".join(SUPPORTED_INPUT_ENCODINGS)
-        raise ValueError(f"unsupported input_encoding {input_encoding!r}; expected one of: {supported}") from exc
+        raise ValueError(
+            f"unsupported input_encoding {input_encoding!r}; expected one of: {supported}"
+        ) from exc

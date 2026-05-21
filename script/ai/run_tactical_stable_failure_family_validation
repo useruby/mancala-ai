@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_tactical_stable_failure_family_local.json"
+DEFAULT_BASE_CONFIG = (
+    "ml/alphazero_lite/configs/aggressive_v3_tactical_stable_failure_family_local.json"
+)
 DEFAULT_FORENSIC_SUITE = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
 FAMILY_REPORT_SCHEMA = "opening_capture_family_report_v1"
 REPLAY_SUMMARY_SCHEMA = "azlite_tactical_stable_failure_family_replay_summary_v1"
@@ -56,11 +58,14 @@ def build_run_paths(output_root: str | Path, run_id: str) -> dict[str, Path]:
         "base_dir": base_dir,
         "final_dir": final_dir,
         "selection_artifact": base_dir / "selection" / "artifact",
-        "replay_summary_path": base_dir / "inputs" / "tactical_stable_failure_family_replay_summary.json",
+        "replay_summary_path": base_dir
+        / "inputs"
+        / "tactical_stable_failure_family_replay_summary.json",
         "family_report_path": final_dir / "opening_capture_family_report.json",
         "stable_family_summary_path": final_dir / "stable_failure_family_summary.json",
         "verdict_path": final_dir / "tactical_validation_verdict.json",
-        "wrapper_summary_path": base_dir / "tactical_stable_failure_family_validation_summary.json",
+        "wrapper_summary_path": base_dir
+        / "tactical_stable_failure_family_validation_summary.json",
     }
 
 
@@ -70,7 +75,9 @@ def resolve_repo_path(root: Path, path_value: str) -> Path:
 
 
 def selected_artifact_source(run_paths: dict[str, Path]) -> Path:
-    selection_manifest_path = run_paths["base_dir"] / "selection" / "selection_manifest.json"
+    selection_manifest_path = (
+        run_paths["base_dir"] / "selection" / "selection_manifest.json"
+    )
     if selection_manifest_path.exists():
         manifest = load_json(selection_manifest_path)
         selected_target = manifest.get("selected_target")
@@ -87,11 +94,17 @@ def pinned_sources(root: Path, run_paths: dict[str, Path]) -> dict[str, str]:
         "forensic-suite": str(resolve_repo_path(root, DEFAULT_FORENSIC_SUITE)),
         "selected-artifact": str(selected_artifact),
         "reference-artifact": str(reference_artifact),
-        "baseline-forensics": str(run_paths["final_dir"] / "baseline_candidate_forensics.json"),
+        "baseline-forensics": str(
+            run_paths["final_dir"] / "baseline_candidate_forensics.json"
+        ),
         "reference-forensics": str(reference_artifact),
-        "candidate-forensics": str(run_paths["final_dir"] / "selected_candidate_forensics.json"),
+        "candidate-forensics": str(
+            run_paths["final_dir"] / "selected_candidate_forensics.json"
+        ),
         "bucket-gate": str(run_paths["final_dir"] / "bucket_gate.json"),
-        "regression-report": str(run_paths["final_dir"] / "candidate_regression_suite.json"),
+        "regression-report": str(
+            run_paths["final_dir"] / "candidate_regression_suite.json"
+        ),
         "arena-report": str(run_paths["final_dir"] / "arena_seed_1041.json"),
         "replay-summary": str(run_paths["replay_summary_path"]),
         "family-report": str(run_paths["family_report_path"]),
@@ -99,7 +112,9 @@ def pinned_sources(root: Path, run_paths: dict[str, Path]) -> dict[str, str]:
     }
 
 
-def build_commands(args: argparse.Namespace, root: Path, run_paths: dict[str, Path]) -> dict[str, list[str]]:
+def build_commands(
+    args: argparse.Namespace, root: Path, run_paths: dict[str, Path]
+) -> dict[str, list[str]]:
     python_bin = python_executable(root)
     pins = pinned_sources(root, run_paths)
     launcher_path = str(root / "script/ai/run_local_tactical_replay_experiment")
@@ -206,7 +221,13 @@ def build_dry_run_payload(args: argparse.Namespace, root: Path) -> dict[str, Any
     return {
         "run_id": args.run_id,
         "current_path": args.current_path,
-        "stages": ["select", "validation_pack", "write_family_report", "write_stable_family_summary", "write_verdict"],
+        "stages": [
+            "select",
+            "validation_pack",
+            "write_family_report",
+            "write_stable_family_summary",
+            "write_verdict",
+        ],
         "pinned_sources": pinned_sources(root, run_paths),
         "commands": commands,
         "summary_path": str(run_paths["wrapper_summary_path"]),
@@ -225,11 +246,25 @@ def run_command(
     if log_path is None:
         log_path = cwd / "command.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    with log_path.open("w", encoding="utf-8") as log_file, redirect_stdout(log_file), redirect_stderr(log_file):
-        completed = subprocess.run(command, cwd=cwd, stdout=log_file, stderr=subprocess.STDOUT, text=True, check=False)
+    with (
+        log_path.open("w", encoding="utf-8") as log_file,
+        redirect_stdout(log_file),
+        redirect_stderr(log_file),
+    ):
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            stdout=log_file,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False,
+        )
     if completed.returncode not in allowed_returncodes:
         details = log_path.read_text(encoding="utf-8").strip()
-        raise SystemExit(details or f"command failed with exit code {completed.returncode}: {command}")
+        raise SystemExit(
+            details
+            or f"command failed with exit code {completed.returncode}: {command}"
+        )
     return {
         "command": list(command),
         "cwd": str(cwd),
@@ -254,10 +289,14 @@ def remove_existing_file(path: Path) -> None:
 
 def load_fresh_family_report(path: Path) -> dict[str, Any]:
     if not path.exists():
-        raise SystemExit(f"family report writer did not produce a fresh family report artifact: {path}")
+        raise SystemExit(
+            f"family report writer did not produce a fresh family report artifact: {path}"
+        )
     report = load_json(path)
     if not isinstance(report, dict):
-        raise SystemExit(f"family report writer produced an invalid family report artifact: {path}")
+        raise SystemExit(
+            f"family report writer produced an invalid family report artifact: {path}"
+        )
     if report.get("schema") != FAMILY_REPORT_SCHEMA:
         raise SystemExit(
             f"family report writer produced schema {report.get('schema')!r}; expected {FAMILY_REPORT_SCHEMA}: {path}"
@@ -267,10 +306,14 @@ def load_fresh_family_report(path: Path) -> dict[str, Any]:
 
 def load_fresh_replay_summary(path: Path) -> dict[str, Any]:
     if not path.exists():
-        raise SystemExit(f"replay builder did not produce a fresh replay summary artifact: {path}")
+        raise SystemExit(
+            f"replay builder did not produce a fresh replay summary artifact: {path}"
+        )
     summary = load_json(path)
     if not isinstance(summary, dict):
-        raise SystemExit(f"replay builder produced an invalid replay summary artifact: {path}")
+        raise SystemExit(
+            f"replay builder produced an invalid replay summary artifact: {path}"
+        )
     if summary.get("schema") != REPLAY_SUMMARY_SCHEMA:
         raise SystemExit(
             f"replay builder produced schema {summary.get('schema')!r}; expected {REPLAY_SUMMARY_SCHEMA}: {path}"
@@ -280,10 +323,14 @@ def load_fresh_replay_summary(path: Path) -> dict[str, Any]:
 
 def load_fresh_stable_family_summary(path: Path) -> dict[str, Any]:
     if not path.exists():
-        raise SystemExit(f"stable family summary writer did not produce a fresh stable family summary artifact: {path}")
+        raise SystemExit(
+            f"stable family summary writer did not produce a fresh stable family summary artifact: {path}"
+        )
     summary = load_json(path)
     if not isinstance(summary, dict):
-        raise SystemExit(f"stable family summary writer produced an invalid stable family summary artifact: {path}")
+        raise SystemExit(
+            f"stable family summary writer produced an invalid stable family summary artifact: {path}"
+        )
     if summary.get("schema") != STABLE_FAMILY_SUMMARY_SCHEMA:
         raise SystemExit(
             f"stable family summary writer produced schema {summary.get('schema')!r}; expected {STABLE_FAMILY_SUMMARY_SCHEMA}: {path}"
@@ -296,22 +343,34 @@ def validate_stable_family_summary(summary: dict[str, Any], path: Path) -> None:
     def require_section(section_name: str) -> dict[str, Any]:
         section = summary.get(section_name)
         if not isinstance(section, dict):
-            raise SystemExit(f"stable family summary missing section {section_name}: {path}")
+            raise SystemExit(
+                f"stable family summary missing section {section_name}: {path}"
+            )
         return section
 
     def require_int(section_name: str, section: dict[str, Any], key: str) -> None:
         value = section.get(key)
         if not isinstance(value, int) or isinstance(value, bool):
-            raise SystemExit(f"stable family summary missing integer {section_name}.{key}: {path}")
+            raise SystemExit(
+                f"stable family summary missing integer {section_name}.{key}: {path}"
+            )
 
     def require_number(section_name: str, section: dict[str, Any], key: str) -> None:
         value = section.get(key)
-        if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(float(value)):
-            raise SystemExit(f"stable family summary missing numeric {section_name}.{key}: {path}")
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(float(value))
+        ):
+            raise SystemExit(
+                f"stable family summary missing numeric {section_name}.{key}: {path}"
+            )
 
     def require_list(section_name: str, section: dict[str, Any], key: str) -> None:
         if not isinstance(section.get(key), list):
-            raise SystemExit(f"stable family summary missing list {section_name}.{key}: {path}")
+            raise SystemExit(
+                f"stable family summary missing list {section_name}.{key}: {path}"
+            )
 
     capture = require_section("capture_available")
     require_int("capture_available", capture, "tracked_rows")
@@ -331,7 +390,9 @@ def validate_stable_family_summary(summary: dict[str, Any], path: Path) -> None:
 
 def load_fresh_verdict(path: Path) -> dict[str, Any]:
     if not path.exists():
-        raise SystemExit(f"verdict writer did not produce a fresh verdict artifact: {path}")
+        raise SystemExit(
+            f"verdict writer did not produce a fresh verdict artifact: {path}"
+        )
     verdict = load_json(path)
     if not isinstance(verdict, dict):
         raise SystemExit(f"verdict writer produced an invalid verdict artifact: {path}")
@@ -340,7 +401,9 @@ def load_fresh_verdict(path: Path) -> dict[str, Any]:
             f"verdict writer produced schema {verdict.get('schema')!r}; expected {VERDICT_SCHEMA}: {path}"
         )
     if not isinstance(verdict.get("passed"), bool):
-        raise SystemExit(f"verdict writer produced an invalid verdict artifact with non-boolean passed field: {path}")
+        raise SystemExit(
+            f"verdict writer produced an invalid verdict artifact with non-boolean passed field: {path}"
+        )
     return verdict
 
 
@@ -362,21 +425,35 @@ def run(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     remove_existing_file(run_paths["stable_family_summary_path"])
     remove_existing_file(run_paths["verdict_path"])
     remove_existing_file(run_paths["wrapper_summary_path"])
-    validation_pack_result = run_command(commands["validation_pack"], root, allowed_returncodes=(0, 1))
+    validation_pack_result = run_command(
+        commands["validation_pack"], root, allowed_returncodes=(0, 1)
+    )
     command_results.append(validation_pack_result)
     if validation_pack_result["returncode"] != 0:
-        raise SystemExit(f"validation_pack failed with exit code {validation_pack_result['returncode']}")
+        raise SystemExit(
+            f"validation_pack failed with exit code {validation_pack_result['returncode']}"
+        )
     command_results.append(run_command(commands["write_family_report"], root))
     family_report = load_fresh_family_report(run_paths["family_report_path"])
     command_results.append(run_command(commands["write_stable_family_summary"], root))
-    stable_family_summary = load_fresh_stable_family_summary(run_paths["stable_family_summary_path"])
-    command_results.append(run_command(commands["write_verdict"], root, allowed_returncodes=(0, 1)))
+    stable_family_summary = load_fresh_stable_family_summary(
+        run_paths["stable_family_summary_path"]
+    )
+    command_results.append(
+        run_command(commands["write_verdict"], root, allowed_returncodes=(0, 1))
+    )
     verdict = load_fresh_verdict(run_paths["verdict_path"])
     summary = {
         "schema": "azlite_tactical_stable_failure_family_validation_summary_v1",
         "run_id": args.run_id,
         "current_path": args.current_path,
-        "executed_stages": ["select", "validation_pack", "write_family_report", "write_stable_family_summary", "write_verdict"],
+        "executed_stages": [
+            "select",
+            "validation_pack",
+            "write_family_report",
+            "write_stable_family_summary",
+            "write_verdict",
+        ],
         "selected_artifact": pins["selected-artifact"],
         "pinned_sources": pins,
         "replay_summary_path": str(run_paths["replay_summary_path"]),

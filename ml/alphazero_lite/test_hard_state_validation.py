@@ -32,8 +32,16 @@ class HardStateValidationTest(unittest.TestCase):
                 mock.Mock(id="pos-2", state={"marker": 2}, bucket="sparse_endgame"),
             ]
             references = [
-                {"selected_move": 1, "child_stats": [{"move": 1, "win_rate": 0.9, "visits": 10}], "teacher_value": 0.4},
-                {"selected_move": 2, "child_stats": [{"move": 2, "win_rate": 0.8, "visits": 10}], "teacher_value": -0.2},
+                {
+                    "selected_move": 1,
+                    "child_stats": [{"move": 1, "win_rate": 0.9, "visits": 10}],
+                    "teacher_value": 0.4,
+                },
+                {
+                    "selected_move": 2,
+                    "child_stats": [{"move": 2, "win_rate": 0.8, "visits": 10}],
+                    "teacher_value": -0.2,
+                },
             ]
             systems = [
                 {"selected_move": 1, "value": 0.3},
@@ -79,35 +87,54 @@ class HardStateValidationTest(unittest.TestCase):
                 "rows": built_rows,
             }
             bucket_matrix = {
-                "capture_available": {"positions": 1, "systems": {"artifact": summarized["buckets"]["capture_available"]}},
-                "sparse_endgame": {"positions": 1, "systems": {"artifact": summarized["buckets"]["sparse_endgame"]}},
+                "capture_available": {
+                    "positions": 1,
+                    "systems": {"artifact": summarized["buckets"]["capture_available"]},
+                },
+                "sparse_endgame": {
+                    "positions": 1,
+                    "systems": {"artifact": summarized["buckets"]["sparse_endgame"]},
+                },
             }
 
-            with mock.patch("ml.alphazero_lite.hard_state_validation.parse_args", return_value=args), mock.patch(
-                "ml.alphazero_lite.hard_state_validation.load_suite",
-                return_value=suite,
-            ) as load_suite_mock, mock.patch(
-                "ml.alphazero_lite.hard_state_validation.build_eval_search_options",
-                return_value={"search": "options"},
-            ) as build_search_options_mock, mock.patch(
-                "ml.alphazero_lite.hard_state_validation.ArtifactEvaluator",
-                return_value=mock.sentinel.evaluator,
-            ) as artifact_evaluator_mock, mock.patch(
-                "ml.alphazero_lite.hard_state_validation.run_reference",
-                side_effect=references,
-            ) as run_reference_mock, mock.patch(
-                "ml.alphazero_lite.hard_state_validation.evaluate_artifact_position",
-                side_effect=systems,
-            ) as evaluate_mock, mock.patch(
-                "ml.alphazero_lite.hard_state_validation.build_row",
-                side_effect=built_rows,
-            ) as build_row_mock, mock.patch(
-                "ml.alphazero_lite.hard_state_validation.summarize_system",
-                return_value=summarized,
-            ) as summarize_system_mock, mock.patch(
-                "ml.alphazero_lite.hard_state_validation.summarize_bucket_matrix",
-                return_value=bucket_matrix,
-            ) as summarize_bucket_matrix_mock:
+            with (
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.parse_args",
+                    return_value=args,
+                ),
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.load_suite",
+                    return_value=suite,
+                ) as load_suite_mock,
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.build_eval_search_options",
+                    return_value={"search": "options"},
+                ) as build_search_options_mock,
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.ArtifactEvaluator",
+                    return_value=mock.sentinel.evaluator,
+                ) as artifact_evaluator_mock,
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.run_reference",
+                    side_effect=references,
+                ) as run_reference_mock,
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.evaluate_artifact_position",
+                    side_effect=systems,
+                ) as evaluate_mock,
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.build_row",
+                    side_effect=built_rows,
+                ) as build_row_mock,
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.summarize_system",
+                    return_value=summarized,
+                ) as summarize_system_mock,
+                mock.patch(
+                    "ml.alphazero_lite.hard_state_validation.summarize_bucket_matrix",
+                    return_value=bucket_matrix,
+                ) as summarize_bucket_matrix_mock,
+            ):
                 hard_state_validation.main()
 
             report = json.loads(out_path.read_text(encoding="utf-8"))
@@ -128,15 +155,23 @@ class HardStateValidationTest(unittest.TestCase):
             self.assertEqual(2, run_reference_mock.call_count)
             self.assertEqual(2, evaluate_mock.call_count)
             self.assertEqual(2, build_row_mock.call_count)
-            self.assertEqual(suite[0], build_row_mock.call_args_list[0].kwargs["position"])
-            self.assertEqual(suite[1], build_row_mock.call_args_list[1].kwargs["position"])
+            self.assertEqual(
+                suite[0], build_row_mock.call_args_list[0].kwargs["position"]
+            )
+            self.assertEqual(
+                suite[1], build_row_mock.call_args_list[1].kwargs["position"]
+            )
             summarize_system_mock.assert_called_once_with(built_rows)
-            summarize_bucket_matrix_mock.assert_called_once_with({"artifact": built_rows})
+            summarize_bucket_matrix_mock.assert_called_once_with(
+                {"artifact": built_rows}
+            )
 
     def test_main_fails_when_validation_path_is_missing(self):
         from ml.alphazero_lite import hard_state_validation
 
-        with tempfile.TemporaryDirectory(prefix="azlite-hard-state-validation-missing-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-hard-state-validation-missing-"
+        ) as tmp:
             tmp_path = Path(tmp)
             args = Namespace(
                 artifact_path=str(tmp_path / "artifact"),
@@ -148,8 +183,12 @@ class HardStateValidationTest(unittest.TestCase):
                 out=str(tmp_path / "report.json"),
             )
 
-            with mock.patch("ml.alphazero_lite.hard_state_validation.parse_args", return_value=args):
-                with self.assertRaisesRegex(SystemExit, "validation path does not exist"):
+            with mock.patch(
+                "ml.alphazero_lite.hard_state_validation.parse_args", return_value=args
+            ):
+                with self.assertRaisesRegex(
+                    SystemExit, "validation path does not exist"
+                ):
                     hard_state_validation.main()
 
 

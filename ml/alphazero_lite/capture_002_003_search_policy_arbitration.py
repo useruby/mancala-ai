@@ -26,7 +26,9 @@ CLASSIFICATION_DECISIONS = {
 
 
 def default_out_path(*, rebalanced_run_dir: Path) -> Path:
-    return rebalanced_run_dir / "final" / "capture_002_003_search_policy_arbitration.json"
+    return (
+        rebalanced_run_dir / "final" / "capture_002_003_search_policy_arbitration.json"
+    )
 
 
 def load_json(path: Path) -> dict:
@@ -44,7 +46,9 @@ def raw_state_from_canonical_state(canonical_state: str | None) -> dict | None:
 
 
 def resolve_full_state(*, row: dict) -> dict:
-    parsed_canonical_state = raw_state_from_canonical_state(row.get("canonical_state")) or {}
+    parsed_canonical_state = (
+        raw_state_from_canonical_state(row.get("canonical_state")) or {}
+    )
     embedded_state = row.get("state") if isinstance(row.get("state"), dict) else {}
 
     resolved = dict(parsed_canonical_state)
@@ -58,7 +62,11 @@ def resolve_full_state(*, row: dict) -> dict:
         embedded_value = embedded_state.get(key)
         canonical_value = parsed_canonical_state.get(key)
         if key in embedded_state:
-            resolved[key] = list(embedded_value) if isinstance(embedded_value, (list, tuple)) else embedded_value
+            resolved[key] = (
+                list(embedded_value)
+                if isinstance(embedded_value, (list, tuple))
+                else embedded_value
+            )
         elif isinstance(canonical_value, (list, tuple)):
             resolved[key] = list(canonical_value)
 
@@ -78,7 +86,9 @@ def _state_source_has_required_board_shape(state: object) -> bool:
 
     player_pits = state.get("player_pits")
     opponent_pits = state.get("opponent_pits")
-    if not isinstance(player_pits, (list, tuple)) or not isinstance(opponent_pits, (list, tuple)):
+    if not isinstance(player_pits, (list, tuple)) or not isinstance(
+        opponent_pits, (list, tuple)
+    ):
         return False
 
     if not player_pits or not opponent_pits or len(player_pits) != len(opponent_pits):
@@ -104,7 +114,9 @@ def validated_diagnostic_state(*, row: dict) -> dict:
     return resolved_state
 
 
-def _simulate_reference_move(*, player_pits: list[int], opponent_pits: list[int], reference_move: int) -> dict:
+def _simulate_reference_move(
+    *, player_pits: list[int], opponent_pits: list[int], reference_move: int
+) -> dict:
     if not (0 <= reference_move < len(player_pits)):
         return {"extra_turn_available": False, "capture_legal": False}
 
@@ -119,7 +131,10 @@ def _simulate_reference_move(*, player_pits: list[int], opponent_pits: list[int]
     track = [
         *[("player", pit_index) for pit_index in range(len(player_after))],
         ("store", None),
-        *[("opponent", pit_index) for pit_index in reversed(range(len(opponent_after)))],
+        *[
+            ("opponent", pit_index)
+            for pit_index in reversed(range(len(opponent_after)))
+        ],
     ]
     position = reference_move
     last_side = None
@@ -135,9 +150,16 @@ def _simulate_reference_move(*, player_pits: list[int], opponent_pits: list[int]
 
     extra_turn_available = last_side == "store"
     capture_legal = False
-    if last_side == "player" and last_index is not None and player_after[last_index] == 1:
+    if (
+        last_side == "player"
+        and last_index is not None
+        and player_after[last_index] == 1
+    ):
         opposite_index = len(opponent_after) - 1 - last_index
-        capture_legal = 0 <= opposite_index < len(opponent_after) and opponent_after[opposite_index] > 0
+        capture_legal = (
+            0 <= opposite_index < len(opponent_after)
+            and opponent_after[opposite_index] > 0
+        )
 
     return {
         "extra_turn_available": extra_turn_available,
@@ -146,7 +168,9 @@ def _simulate_reference_move(*, player_pits: list[int], opponent_pits: list[int]
 
 
 def probe_artifact_position(**kwargs) -> dict:
-    from ml.alphazero_lite.search_interaction_diagnostic import probe_artifact_position as _probe
+    from ml.alphazero_lite.search_interaction_diagnostic import (
+        probe_artifact_position as _probe,
+    )
 
     return _probe(**kwargs)
 
@@ -195,7 +219,13 @@ def resolve_rows(*, rows_by_id: dict[str, dict]) -> list[dict]:
 
         missing_fields = [
             field
-            for field in ["id", "canonical_state", "legal_moves", "reference_move", "state"]
+            for field in [
+                "id",
+                "canonical_state",
+                "legal_moves",
+                "reference_move",
+                "state",
+            ]
             if row.get(field) is None
         ]
         if missing_fields:
@@ -224,14 +254,18 @@ def resolve_rows(*, rows_by_id: dict[str, dict]) -> list[dict]:
         )
 
         if row["reference_move"] not in row["legal_moves"]:
-            raise ValueError(f"row {row_id} reference_move must be present in legal_moves")
+            raise ValueError(
+                f"row {row_id} reference_move must be present in legal_moves"
+            )
 
         resolved.append(row)
 
     return resolved
 
 
-def _distribution(values: list[float], legal_moves: list[int]) -> dict[str, float] | None:
+def _distribution(
+    values: list[float], legal_moves: list[int]
+) -> dict[str, float] | None:
     if (
         not values
         or any(move >= len(values) for move in legal_moves)
@@ -242,7 +276,9 @@ def _distribution(values: list[float], legal_moves: list[int]) -> dict[str, floa
 
 
 def _is_numeric_value(value: object) -> bool:
-    return isinstance(value, Real) and not isinstance(value, bool) and math.isfinite(value)
+    return (
+        isinstance(value, Real) and not isinstance(value, bool) and math.isfinite(value)
+    )
 
 
 def _is_integer_value(value: object) -> bool:
@@ -257,7 +293,9 @@ def _validate_move_id(*, value: object, field_name: str) -> None:
         raise ValueError(f"{field_name} must be non-negative")
 
 
-def _validated_optional_numeric_sequence(*, value: object, field_name: str) -> list[float | None]:
+def _validated_optional_numeric_sequence(
+    *, value: object, field_name: str
+) -> list[float | None]:
     if value is None:
         return []
 
@@ -266,12 +304,16 @@ def _validated_optional_numeric_sequence(*, value: object, field_name: str) -> l
 
     for index, item in enumerate(value):
         if item is not None and not _is_numeric_value(item):
-            raise ValueError(f"{field_name} entries must be numeric or None (index {index})")
+            raise ValueError(
+                f"{field_name} entries must be numeric or None (index {index})"
+            )
 
     return list(value)
 
 
-def _validated_optional_numeric_scalar(*, value: object, field_name: str) -> float | None:
+def _validated_optional_numeric_scalar(
+    *, value: object, field_name: str
+) -> float | None:
     if value is None:
         return None
 
@@ -331,13 +373,19 @@ def _child_stat_maps(
         seen_moves.add(int(item["move"]))
 
         if not _is_integer_value(item["visits"]):
-            raise ValueError(f"child_stats entry at index {index} visits must be an integer")
+            raise ValueError(
+                f"child_stats entry at index {index} visits must be an integer"
+            )
 
         if item["visits"] < 0:
-            raise ValueError(f"child_stats entry at index {index} visits must be non-negative")
+            raise ValueError(
+                f"child_stats entry at index {index} visits must be non-negative"
+            )
 
         if not _is_numeric_value(item["q_value"]):
-            raise ValueError(f"child_stats entry at index {index} q_value must be numeric")
+            raise ValueError(
+                f"child_stats entry at index {index} q_value must be numeric"
+            )
 
     missing_moves = [move for move in legal_moves if move not in seen_moves]
     if missing_moves:
@@ -387,15 +435,21 @@ def build_row_views(*, row: dict, probe_summary: dict) -> dict:
     )
 
     policy_top_move = (
-        None if raw_policy is None else max(legal_moves, key=lambda move: raw_policy[str(move)])
+        None
+        if raw_policy is None
+        else max(legal_moves, key=lambda move: raw_policy[str(move)])
     )
-    reference_policy = None if raw_policy is None else raw_policy.get(reference_key, 0.0)
+    reference_policy = (
+        None if raw_policy is None else raw_policy.get(reference_key, 0.0)
+    )
     selected_policy = (
         None
         if raw_policy is None or selected_key is None
         else raw_policy.get(selected_key, 0.0)
     )
-    q_reference = None if per_move_q_values is None else per_move_q_values.get(reference_key)
+    q_reference = (
+        None if per_move_q_values is None else per_move_q_values.get(reference_key)
+    )
     q_selected = (
         None
         if per_move_q_values is None or selected_key is None
@@ -426,7 +480,9 @@ def build_row_views(*, row: dict, probe_summary: dict) -> dict:
     if root_value_estimate is None:
         missing_fields.append("value_view.root_value_estimate")
 
-    total_visits = None if search_distribution is None else sum(search_distribution.values())
+    total_visits = (
+        None if search_distribution is None else sum(search_distribution.values())
+    )
     reference_move_visit_share = None
     selected_move_visit_share = None
     if search_distribution is None:
@@ -522,7 +578,9 @@ def compute_rule_features(*, row: dict) -> dict:
         reference_move=reference_move,
     )
 
-    non_empty_opponent_pits = sum(1 for seeds_in_pit in starvation_target_pits if seeds_in_pit > 0)
+    non_empty_opponent_pits = sum(
+        1 for seeds_in_pit in starvation_target_pits if seeds_in_pit > 0
+    )
     starvation_risk = non_empty_opponent_pits <= 2
     starvation_shape = "sparse" if starvation_risk else "distributed"
 
@@ -563,7 +621,9 @@ def build_rows_payload(
                 search_options=search_options,
                 ablation_mode=ablation_mode,
             )
-            probe_views[probe_key] = build_row_views(row=row, probe_summary=probe_summary)
+            probe_views[probe_key] = build_row_views(
+                row=row, probe_summary=probe_summary
+            )
 
         payload[row["id"]] = {
             **probe_views["full_search"],
@@ -785,7 +845,9 @@ def validate_base_config(*, base_config: Path) -> None:
     try:
         base_config.read_text(encoding="utf-8")
     except OSError as error:
-        raise ValueError(f"base config must exist and be readable: {base_config}") from error
+        raise ValueError(
+            f"base config must exist and be readable: {base_config}"
+        ) from error
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -822,7 +884,9 @@ def main(argv: list[str] | None = None) -> int:
         rows=payload_rows,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

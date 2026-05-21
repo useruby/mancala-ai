@@ -63,7 +63,14 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
         }
 
     def contradictory_policy(self):
-        return [0.06637731194496155, 0.3550935685634613, 0.0543360710144043, 0.3244529366493225, 0.19974012672901154, 0.0]
+        return [
+            0.06637731194496155,
+            0.3550935685634613,
+            0.0543360710144043,
+            0.3244529366493225,
+            0.19974012672901154,
+            0.0,
+        ]
 
     def regression_policy(self):
         return [0.0001, 0.9993, 0.0001, 0.0, 0.0, 0.0005]
@@ -72,15 +79,45 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
         return [0.0, 0.0, 0.1, 0.8, 0.1, 0.0]
 
     def diversity_policy_gain_4_5_pit_4(self):
-        return [0.5639695819300191, 0.21796454090650363, 0.6994649712461508, 0.7668980983562408, 0.16778914336780226, 0.6072474938909317]
+        return [
+            0.5639695819300191,
+            0.21796454090650363,
+            0.6994649712461508,
+            0.7668980983562408,
+            0.16778914336780226,
+            0.6072474938909317,
+        ]
 
     def diversity_policy_gain_2_3_pit_3(self):
-        return [0.4391534486737374, 0.4686979702761619, 0.30409119054476674, 0.4025085191628056, 0.2722461931442631, 0.539981562598014]
+        return [
+            0.4391534486737374,
+            0.4686979702761619,
+            0.30409119054476674,
+            0.4025085191628056,
+            0.2722461931442631,
+            0.539981562598014,
+        ]
 
     def diversity_policy_gain_6_plus_pit_3(self):
-        return [0.3621505825434207, 0.9494671118799197, 0.03238532397966698, 0.1534381633927081, 0.44992256871479397, 0.3709645075501008]
+        return [
+            0.3621505825434207,
+            0.9494671118799197,
+            0.03238532397966698,
+            0.1534381633927081,
+            0.44992256871479397,
+            0.3709645075501008,
+        ]
 
-    def capture_candidate(self, canonical_state, *, raw_state, policy, priority, motif_score, teacher_selected_move=None):
+    def capture_candidate(
+        self,
+        canonical_state,
+        *,
+        raw_state,
+        policy,
+        priority,
+        motif_score,
+        teacher_selected_move=None,
+    ):
         return {
             "canonical_state": canonical_state,
             "state": [0.0] * 27,
@@ -93,13 +130,14 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             "value": 0.5,
             "priority_score": priority,
             "motif_support_score": motif_score,
-            "policy": [0.0, 0.7, 0.0, 0.2, 0.1, 0.0],
             "policy": policy,
             "teacher_selected_move": teacher_selected_move,
         }
 
     def test_extract_regression_motif_signature_returns_expected_known_values(self):
-        signature = module.extract_regression_motif_signature(self.regression_state(), expected_move=1)
+        signature = module.extract_regression_motif_signature(
+            self.regression_state(), expected_move=1
+        )
 
         self.assertEqual(1, signature["target_capture_move"])
         self.assertEqual(5, signature["tempting_extra_turn_move"])
@@ -116,7 +154,14 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
     def test_choose_candidate_conflict_moves_uses_deterministic_tie_breakers(self):
         row = {
             "raw_state": self.contradictory_state(),
-            "policy": [0.06637731194496155, 0.3550935685634613, 0.0543360710144043, 0.3244529366493225, 0.19974012672901154, 0.0],
+            "policy": [
+                0.06637731194496155,
+                0.3550935685634613,
+                0.0543360710144043,
+                0.3244529366493225,
+                0.19974012672901154,
+                0.0,
+            ],
         }
 
         conflict = module.choose_candidate_conflict_moves(row)
@@ -146,7 +191,14 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
     def test_capture_shape_key_reuses_existing_conflict_move_selection(self):
         row = {
             "raw_state": self.contradictory_state(),
-            "policy": [0.06637731194496155, 0.3550935685634613, 0.0543360710144043, 0.3244529366493225, 0.19974012672901154, 0.0],
+            "policy": [
+                0.06637731194496155,
+                0.3550935685634613,
+                0.0543360710144043,
+                0.3244529366493225,
+                0.19974012672901154,
+                0.0,
+            ],
         }
 
         conflict = module.choose_candidate_conflict_moves(row)
@@ -155,7 +207,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
         self.assertEqual({"capture_move": 0, "extra_turn_move": 1}, conflict)
         self.assertEqual("extra_turn", key[3])
 
-    def test_legal_move_features_normalizes_non_store_landings_to_zero_through_five(self):
+    def test_legal_move_features_normalizes_non_store_landings_to_zero_through_five(
+        self,
+    ):
         features = module.legal_move_features(self.regression_state())
         non_store_landings = [
             feature["landing_pit"]
@@ -166,27 +220,46 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
         self.assertTrue(non_store_landings)
         self.assertTrue(all(0 <= landing <= 5 for landing in non_store_landings))
 
-    def test_score_candidate_support_row_marks_old_contradictory_row_motif_protective(self):
-        signature = module.extract_regression_motif_signature(self.regression_state(), expected_move=1)
+    def test_score_candidate_support_row_marks_old_contradictory_row_motif_protective(
+        self,
+    ):
+        signature = module.extract_regression_motif_signature(
+            self.regression_state(), expected_move=1
+        )
         row = {
-            "canonical_state": json.dumps(self.contradictory_state(), separators=(",", ":"), sort_keys=True),
+            "canonical_state": json.dumps(
+                self.contradictory_state(), separators=(",", ":"), sort_keys=True
+            ),
             "raw_state": self.contradictory_state(),
-            "policy": [0.06637731194496155, 0.3550935685634613, 0.0543360710144043, 0.3244529366493225, 0.19974012672901154, 0.0],
+            "policy": [
+                0.06637731194496155,
+                0.3550935685634613,
+                0.0543360710144043,
+                0.3244529366493225,
+                0.19974012672901154,
+                0.0,
+            ],
             "teacher_selected_move": 1,
         }
 
         scored = module.score_candidate_support_row(row, signature)
 
         self.assertEqual(13, scored["score"])
-        self.assertGreaterEqual(scored["score"], module.MOTIF_PROTECTIVE_SCORE_THRESHOLD)
+        self.assertGreaterEqual(
+            scored["score"], module.MOTIF_PROTECTIVE_SCORE_THRESHOLD
+        )
         self.assertTrue(scored["motif_protective"])
         self.assertEqual(0, scored["capture_move"])
         self.assertEqual(1, scored["extra_turn_move"])
 
     def test_score_candidate_support_row_rejects_failed_support_row(self):
-        signature = module.extract_regression_motif_signature(self.regression_state(), expected_move=1)
+        signature = module.extract_regression_motif_signature(
+            self.regression_state(), expected_move=1
+        )
         row = {
-            "canonical_state": json.dumps(self.rejected_support_state(), separators=(",", ":"), sort_keys=True),
+            "canonical_state": json.dumps(
+                self.rejected_support_state(), separators=(",", ":"), sort_keys=True
+            ),
             "raw_state": self.rejected_support_state(),
             "policy": [0.0, 0.0, 0.1, 0.8, 0.1, 0.0],
             "teacher_selected_move": 3,
@@ -200,7 +273,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
         self.assertEqual(0, scored["capture_move"])
         self.assertEqual(1, scored["extra_turn_move"])
 
-    def test_teacher_label_regression_row_proves_capture_available_tactical_bucket_contract(self):
+    def test_teacher_label_regression_row_proves_capture_available_tactical_bucket_contract(
+        self,
+    ):
         regression_position = json.loads(
             (
                 Path(__file__).resolve().parents[2]
@@ -217,19 +292,24 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
         self.assertEqual("capture_available", row.get("bucket"))
         self.assertEqual("tactical", row.get("bucket_group"))
 
-    def test_real_dataset_contains_exactly_five_capture_rows_with_support_row_second(self):
+    def test_real_dataset_contains_exactly_five_capture_rows_with_support_row_second(
+        self,
+    ):
         repo_root = Path(__file__).resolve().parents[2]
         out_path = repo_root / "ml/alphazero_lite/tactical_capture_protection.jsonl"
 
         rows = module.load_jsonl(out_path)
 
         self.assertEqual(5, len(rows))
-        self.assertEqual("missed_capture_f67bd4k0_move_28", rows[0]["capture_protection_source"])
+        self.assertEqual(
+            "missed_capture_f67bd4k0_move_28", rows[0]["capture_protection_source"]
+        )
         self.assertEqual("capture_available", rows[0]["bucket"])
         copied_rows = [
             {
                 **row,
-                "raw_state": row.get("raw_state") or module.raw_state_from_canonical_state(row["canonical_state"]),
+                "raw_state": row.get("raw_state")
+                or module.raw_state_from_canonical_state(row["canonical_state"]),
             }
             for row in rows[1:]
         ]
@@ -271,7 +351,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, "regression fixture must contain at least one position"):
+            with self.assertRaisesRegex(
+                ValueError, "regression fixture must contain at least one position"
+            ):
                 module.build_capture_protection_dataset(
                     regression_positions_path=regression_path,
                     tactical_replay_path=tactical_path,
@@ -372,7 +454,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             )
             tactical_path.write_text("", encoding="utf-8")
 
-            with self.assertRaisesRegex(ValueError, "regression row bucket must equal capture_available"):
+            with self.assertRaisesRegex(
+                ValueError, "regression row bucket must equal capture_available"
+            ):
                 module.build_capture_protection_dataset(
                     regression_positions_path=regression_path,
                     tactical_replay_path=tactical_path,
@@ -393,7 +477,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                     },
                 )
 
-    def test_build_dataset_writes_exact_regression_row_with_capture_bucket_and_move_one_peak(self):
+    def test_build_dataset_writes_exact_regression_row_with_capture_bucket_and_move_one_peak(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="capture-protection-") as tmp:
             tmp_path = Path(tmp)
             regression_path = tmp_path / "superhuman_regression_positions.json"
@@ -439,7 +525,11 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 },
             )
 
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertEqual(1, len(rows))
             self.assertEqual("capture-regression-state", rows[0]["canonical_state"])
             self.assertEqual("capture_available", rows[0]["bucket"])
@@ -484,14 +574,103 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             c_mid_state = self.diversity_state_gain_4_5_pit_4()
             d_mid_state = self.diversity_state_gain_2_3_pit_3()
             rows = [
-                {"canonical_state": json.dumps(z_low_state, separators=(",", ":"), sort_keys=True), "raw_state": z_low_state, "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.2, "priority_score": 1.0, "policy": [0.5677812224209393, 0.7572827502575612, 0.17549491383846472, 0.8561465042734577, 0.8970427617839751, 0.8269898252763096], "teacher_selected_move": 4},
-                {"canonical_state": json.dumps(a_high_state, separators=(",", ":"), sort_keys=True), "raw_state": a_high_state, "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.2, "priority_score": 10.0, "policy": self.contradictory_policy(), "teacher_selected_move": 1},
-                {"canonical_state": json.dumps(b_high_state, separators=(",", ":"), sort_keys=True), "raw_state": b_high_state, "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.2, "priority_score": 10.0, "policy": self.regression_policy(), "teacher_selected_move": 5},
-                {"canonical_state": json.dumps(c_mid_state, separators=(",", ":"), sort_keys=True), "raw_state": c_mid_state, "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.2, "priority_score": 8.0, "policy": self.diversity_policy_gain_4_5_pit_4(), "teacher_selected_move": 1},
-                {"canonical_state": json.dumps(d_mid_state, separators=(",", ":"), sort_keys=True), "raw_state": d_mid_state, "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.2, "priority_score": 7.0, "policy": self.diversity_policy_gain_2_3_pit_3()},
-                {"canonical_state": "skip-other-bucket", "bucket": "sparse_endgame", "bucket_group": "tactical", "priority_score": 999.0, "policy": [0, 1, 0, 0, 0, 0]},
+                {
+                    "canonical_state": json.dumps(
+                        z_low_state, separators=(",", ":"), sort_keys=True
+                    ),
+                    "raw_state": z_low_state,
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.2,
+                    "priority_score": 1.0,
+                    "policy": [
+                        0.5677812224209393,
+                        0.7572827502575612,
+                        0.17549491383846472,
+                        0.8561465042734577,
+                        0.8970427617839751,
+                        0.8269898252763096,
+                    ],
+                    "teacher_selected_move": 4,
+                },
+                {
+                    "canonical_state": json.dumps(
+                        a_high_state, separators=(",", ":"), sort_keys=True
+                    ),
+                    "raw_state": a_high_state,
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.2,
+                    "priority_score": 10.0,
+                    "policy": self.contradictory_policy(),
+                    "teacher_selected_move": 1,
+                },
+                {
+                    "canonical_state": json.dumps(
+                        b_high_state, separators=(",", ":"), sort_keys=True
+                    ),
+                    "raw_state": b_high_state,
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.2,
+                    "priority_score": 10.0,
+                    "policy": self.regression_policy(),
+                    "teacher_selected_move": 5,
+                },
+                {
+                    "canonical_state": json.dumps(
+                        c_mid_state, separators=(",", ":"), sort_keys=True
+                    ),
+                    "raw_state": c_mid_state,
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.2,
+                    "priority_score": 8.0,
+                    "policy": self.diversity_policy_gain_4_5_pit_4(),
+                    "teacher_selected_move": 1,
+                },
+                {
+                    "canonical_state": json.dumps(
+                        d_mid_state, separators=(",", ":"), sort_keys=True
+                    ),
+                    "raw_state": d_mid_state,
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.2,
+                    "priority_score": 7.0,
+                    "policy": self.diversity_policy_gain_2_3_pit_3(),
+                },
+                {
+                    "canonical_state": "skip-other-bucket",
+                    "bucket": "sparse_endgame",
+                    "bucket_group": "tactical",
+                    "priority_score": 999.0,
+                    "policy": [0, 1, 0, 0, 0, 0],
+                },
             ]
-            tactical_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+            tactical_path.write_text(
+                "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+            )
 
             module.build_capture_protection_dataset(
                 regression_positions_path=regression_path,
@@ -513,7 +692,11 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 },
             )
 
-            built_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            built_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertEqual(
                 [
                     "capture-regression-state",
@@ -553,7 +736,10 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             )
             tactical_path.write_text("", encoding="utf-8")
 
-            with self.assertRaisesRegex(ValueError, "teacher_selected_move must equal expected_move for capture protection row"):
+            with self.assertRaisesRegex(
+                ValueError,
+                "teacher_selected_move must equal expected_move for capture protection row",
+            ):
                 module.build_capture_protection_dataset(
                     regression_positions_path=regression_path,
                     tactical_replay_path=tactical_path,
@@ -572,7 +758,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                     },
                 )
 
-    def test_build_dataset_skips_single_copied_capture_row_when_policy_peak_disagrees_with_forensic_reference(self):
+    def test_build_dataset_skips_single_copied_capture_row_when_policy_peak_disagrees_with_forensic_reference(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="capture-protection-") as tmp:
             tmp_path = Path(tmp)
             regression_path = tmp_path / "superhuman_regression_positions.json"
@@ -648,10 +836,19 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 },
             )
 
-            built_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
-            self.assertEqual(["capture-regression-state"], [row["canonical_state"] for row in built_rows])
+            built_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            self.assertEqual(
+                ["capture-regression-state"],
+                [row["canonical_state"] for row in built_rows],
+            )
 
-    def test_build_dataset_uses_forensic_input_reference_moves_when_tactical_rows_omit_them(self):
+    def test_build_dataset_uses_forensic_input_reference_moves_when_tactical_rows_omit_them(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="capture-protection-") as tmp:
             tmp_path = Path(tmp)
             regression_path = tmp_path / "superhuman_regression_positions.json"
@@ -747,10 +944,19 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 forensic_suite_path=forensic_path,
             )
 
-            built_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
-            self.assertEqual(["capture-regression-state"], [row["canonical_state"] for row in built_rows])
+            built_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            self.assertEqual(
+                ["capture-regression-state"],
+                [row["canonical_state"] for row in built_rows],
+            )
 
-    def test_build_dataset_matches_forensic_reference_moves_from_raw_state_when_canonical_state_is_absent(self):
+    def test_build_dataset_matches_forensic_reference_moves_from_raw_state_when_canonical_state_is_absent(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="capture-protection-") as tmp:
             tmp_path = Path(tmp)
             regression_path = tmp_path / "superhuman_regression_positions.json"
@@ -765,7 +971,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 "opponent_store": 2,
                 "current_player": 1,
             }
-            canonical_state = json.dumps(raw_state, separators=(",", ":"), sort_keys=True)
+            canonical_state = json.dumps(
+                raw_state, separators=(",", ":"), sort_keys=True
+            )
 
             regression_path.write_text(
                 json.dumps(
@@ -844,10 +1052,19 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 forensic_suite_path=forensic_path,
             )
 
-            built_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
-            self.assertEqual(["capture-regression-state"], [row["canonical_state"] for row in built_rows])
+            built_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            self.assertEqual(
+                ["capture-regression-state"],
+                [row["canonical_state"] for row in built_rows],
+            )
 
-    def test_build_dataset_skips_contradictory_capture_rows_and_keeps_next_valid_candidates(self):
+    def test_build_dataset_skips_contradictory_capture_rows_and_keeps_next_valid_candidates(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="capture-protection-") as tmp:
             tmp_path = Path(tmp)
             regression_path = tmp_path / "superhuman_regression_positions.json"
@@ -890,27 +1107,121 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
 
             contradictory = state_key([1, 6, 6, 0, 6, 5], [5, 5, 1, 5, 5, 0], 1)
             valid_a = state_key([1, 6, 6, 6, 5, 0], [5, 5, 1, 5, 5, 0], 1)
-            valid_b = json.dumps(self.diversity_state_gain_6_plus_pit_3(), separators=(",", ":"), sort_keys=True)
-            valid_c = json.dumps(self.diversity_state_gain_4_5_pit_4(), separators=(",", ":"), sort_keys=True)
+            valid_b = json.dumps(
+                self.diversity_state_gain_6_plus_pit_3(),
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            valid_c = json.dumps(
+                self.diversity_state_gain_4_5_pit_4(),
+                separators=(",", ":"),
+                sort_keys=True,
+            )
             valid_d = state_key([1, 0, 7, 6, 6, 5], [5, 4, 4, 4, 4, 0], 1)
 
             tactical_rows = [
-                {"canonical_state": contradictory, "raw_state": json.loads(contradictory), "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.5, "priority_score": 10.0, "policy": [0.0, 0.7, 0.0, 0.2, 0.1, 0.0]},
-                {"canonical_state": valid_a, "raw_state": json.loads(valid_a), "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.5, "priority_score": 9.0, "policy": [0.0, 0.1, 0.0, 0.8, 0.1, 0.0]},
-                {"canonical_state": valid_b, "raw_state": self.diversity_state_gain_6_plus_pit_3(), "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.5, "priority_score": 8.0, "policy": self.diversity_policy_gain_6_plus_pit_3()},
-                {"canonical_state": valid_c, "raw_state": self.diversity_state_gain_4_5_pit_4(), "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.5, "priority_score": 7.0, "policy": self.diversity_policy_gain_4_5_pit_4(), "teacher_selected_move": 1},
-                {"canonical_state": valid_d, "state": [0.0] * 27, "bucket": "capture_available", "bucket_group": "tactical", "input_encoding": "kalah_v3", "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "value": 0.5, "priority_score": 6.0, "policy": [0.0, 0.0, 0.8, 0.1, 0.1, 0.0]},
+                {
+                    "canonical_state": contradictory,
+                    "raw_state": json.loads(contradictory),
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.5,
+                    "priority_score": 10.0,
+                    "policy": [0.0, 0.7, 0.0, 0.2, 0.1, 0.0],
+                },
+                {
+                    "canonical_state": valid_a,
+                    "raw_state": json.loads(valid_a),
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.5,
+                    "priority_score": 9.0,
+                    "policy": [0.0, 0.1, 0.0, 0.8, 0.1, 0.0],
+                },
+                {
+                    "canonical_state": valid_b,
+                    "raw_state": self.diversity_state_gain_6_plus_pit_3(),
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.5,
+                    "priority_score": 8.0,
+                    "policy": self.diversity_policy_gain_6_plus_pit_3(),
+                },
+                {
+                    "canonical_state": valid_c,
+                    "raw_state": self.diversity_state_gain_4_5_pit_4(),
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.5,
+                    "priority_score": 7.0,
+                    "policy": self.diversity_policy_gain_4_5_pit_4(),
+                    "teacher_selected_move": 1,
+                },
+                {
+                    "canonical_state": valid_d,
+                    "state": [0.0] * 27,
+                    "bucket": "capture_available",
+                    "bucket_group": "tactical",
+                    "input_encoding": "kalah_v3",
+                    "policy_target_mode": "sharpened",
+                    "value_target_mode": "sharpened",
+                    "value": 0.5,
+                    "priority_score": 6.0,
+                    "policy": [0.0, 0.0, 0.8, 0.1, 0.1, 0.0],
+                },
             ]
-            tactical_path.write_text("\n".join(json.dumps(row) for row in tactical_rows) + "\n", encoding="utf-8")
+            tactical_path.write_text(
+                "\n".join(json.dumps(row) for row in tactical_rows) + "\n",
+                encoding="utf-8",
+            )
 
             forensic_rows = [
-                {"state": json.loads(contradictory), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_a), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_b), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_c), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_d), "bucket": "capture_available", "reference_move": 2},
+                {
+                    "state": json.loads(contradictory),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_a),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_b),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_c),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_d),
+                    "bucket": "capture_available",
+                    "reference_move": 2,
+                },
             ]
-            forensic_path.write_text(json.dumps({"systems": {"challenger": {"rows": forensic_rows}}}), encoding="utf-8")
+            forensic_path.write_text(
+                json.dumps({"systems": {"challenger": {"rows": forensic_rows}}}),
+                encoding="utf-8",
+            )
 
             module.build_capture_protection_dataset(
                 regression_positions_path=regression_path,
@@ -933,13 +1244,19 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 forensic_suite_path=forensic_path,
             )
 
-            built_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            built_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertEqual(
                 ["capture-regression-state", valid_c, valid_a, valid_d],
                 [row["canonical_state"] for row in built_rows],
             )
 
-    def test_build_dataset_allows_only_motif_protective_candidates_and_contradiction_override(self):
+    def test_build_dataset_allows_only_motif_protective_candidates_and_contradiction_override(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="capture-protection-") as tmp:
             tmp_path = Path(tmp)
             regression_path = tmp_path / "superhuman_regression_positions.json"
@@ -948,35 +1265,53 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             out_path = tmp_path / "tactical_capture_protection.jsonl"
 
             regression_path.write_text(
-                json.dumps([
-                    {
-                        "id": "missed_capture_f67bd4k0_move_28",
-                        "state": self.regression_state(),
-                        "expected_move": 1,
-                        "acceptable_moves": [1],
-                        "move_number": 28,
-                    }
-                ]),
+                json.dumps(
+                    [
+                        {
+                            "id": "missed_capture_f67bd4k0_move_28",
+                            "state": self.regression_state(),
+                            "expected_move": 1,
+                            "acceptable_moves": [1],
+                            "move_number": 28,
+                        }
+                    ]
+                ),
                 encoding="utf-8",
             )
 
-            contradictory = json.dumps(self.contradictory_state(), separators=(",", ":"), sort_keys=True)
-            rejected_support = json.dumps(self.rejected_support_state(), separators=(",", ":"), sort_keys=True)
-            valid_a = json.dumps({
-                "player_pits": [1, 6, 6, 6, 5, 0],
-                "opponent_pits": [5, 5, 1, 5, 5, 0],
-                "player_store": 1,
-                "opponent_store": 2,
-                "current_player": 1,
-            }, separators=(",", ":"), sort_keys=True)
-            valid_b = json.dumps(self.diversity_state_gain_6_plus_pit_3(), separators=(",", ":"), sort_keys=True)
-            valid_c = json.dumps({
-                "player_pits": [1, 0, 7, 6, 6, 5],
-                "opponent_pits": [5, 4, 4, 4, 4, 0],
-                "player_store": 1,
-                "opponent_store": 2,
-                "current_player": 1,
-            }, separators=(",", ":"), sort_keys=True)
+            contradictory = json.dumps(
+                self.contradictory_state(), separators=(",", ":"), sort_keys=True
+            )
+            rejected_support = json.dumps(
+                self.rejected_support_state(), separators=(",", ":"), sort_keys=True
+            )
+            valid_a = json.dumps(
+                {
+                    "player_pits": [1, 6, 6, 6, 5, 0],
+                    "opponent_pits": [5, 5, 1, 5, 5, 0],
+                    "player_store": 1,
+                    "opponent_store": 2,
+                    "current_player": 1,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            valid_b = json.dumps(
+                self.diversity_state_gain_6_plus_pit_3(),
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            valid_c = json.dumps(
+                {
+                    "player_pits": [1, 0, 7, 6, 6, 5],
+                    "opponent_pits": [5, 4, 4, 4, 4, 0],
+                    "player_store": 1,
+                    "opponent_store": 2,
+                    "current_player": 1,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
 
             tactical_rows = [
                 {
@@ -990,7 +1325,14 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                     "value_target_mode": "sharpened",
                     "value": 0.5,
                     "priority_score": 10.0,
-                    "policy": [0.06637731194496155, 0.3550935685634613, 0.0543360710144043, 0.3244529366493225, 0.19974012672901154, 0.0],
+                    "policy": [
+                        0.06637731194496155,
+                        0.3550935685634613,
+                        0.0543360710144043,
+                        0.3244529366493225,
+                        0.19974012672901154,
+                        0.0,
+                    ],
                     "teacher_selected_move": 1,
                 },
                 {
@@ -1045,16 +1387,42 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                     "policy": [0.0, 0.0, 0.8, 0.1, 0.1, 0.0],
                 },
             ]
-            tactical_path.write_text("\n".join(json.dumps(row) for row in tactical_rows) + "\n", encoding="utf-8")
+            tactical_path.write_text(
+                "\n".join(json.dumps(row) for row in tactical_rows) + "\n",
+                encoding="utf-8",
+            )
 
             forensic_rows = [
-                {"state": self.contradictory_state(), "bucket": "capture_available", "reference_move": 3},
-                {"state": self.rejected_support_state(), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_a), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_b), "bucket": "capture_available", "reference_move": 1},
-                {"state": json.loads(valid_c), "bucket": "capture_available", "reference_move": 2},
+                {
+                    "state": self.contradictory_state(),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": self.rejected_support_state(),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_a),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_b),
+                    "bucket": "capture_available",
+                    "reference_move": 1,
+                },
+                {
+                    "state": json.loads(valid_c),
+                    "bucket": "capture_available",
+                    "reference_move": 2,
+                },
             ]
-            forensic_path.write_text(json.dumps({"systems": {"challenger": {"rows": forensic_rows}}}), encoding="utf-8")
+            forensic_path.write_text(
+                json.dumps({"systems": {"challenger": {"rows": forensic_rows}}}),
+                encoding="utf-8",
+            )
 
             module.build_capture_protection_dataset(
                 regression_positions_path=regression_path,
@@ -1068,7 +1436,11 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 forensic_suite_path=forensic_path,
             )
 
-            built_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            built_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             canonical_states = [row["canonical_state"] for row in built_rows]
 
             self.assertIn(contradictory, canonical_states)
@@ -1129,14 +1501,18 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             "score_candidate_support_row",
             side_effect=lambda row, signature: support_scores[row["canonical_state"]],
         ):
-            built_rows = module.select_capture_rows(rows, limit=4, regression_signature=self.regression_state())
+            built_rows = module.select_capture_rows(
+                rows, limit=4, regression_signature=self.regression_state()
+            )
 
         self.assertEqual(
             ["shape-a-top", "shape-b", "shape-c", "shape-d"],
             [row["canonical_state"] for row in built_rows],
         )
 
-    def test_select_capture_rows_reuses_shape_only_after_distinct_shapes_exhausted(self):
+    def test_select_capture_rows_reuses_shape_only_after_distinct_shapes_exhausted(
+        self,
+    ):
         rows = [
             self.capture_candidate(
                 "shape-a-top",
@@ -1176,7 +1552,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             "score_candidate_support_row",
             side_effect=lambda row, signature: support_scores[row["canonical_state"]],
         ):
-            built_rows = module.select_capture_rows(rows, limit=4, regression_signature=self.regression_state())
+            built_rows = module.select_capture_rows(
+                rows, limit=4, regression_signature=self.regression_state()
+            )
 
         self.assertEqual(
             ["shape-a-top", "shape-b", "shape-a-clone"],
@@ -1220,11 +1598,17 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             "score_candidate_support_row",
             side_effect=lambda row, signature: support_scores[row["canonical_state"]],
         ):
-            built_rows = module.select_capture_rows(rows, limit=4, regression_signature=self.regression_state())
+            built_rows = module.select_capture_rows(
+                rows, limit=4, regression_signature=self.regression_state()
+            )
 
-        self.assertEqual(["shape-a-top"], [row["canonical_state"] for row in built_rows])
+        self.assertEqual(
+            ["shape-a-top"], [row["canonical_state"] for row in built_rows]
+        )
 
-    def test_build_dataset_reconstructs_raw_state_from_canonical_state_for_motif_filtering(self):
+    def test_build_dataset_reconstructs_raw_state_from_canonical_state_for_motif_filtering(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="capture-protection-") as tmp:
             tmp_path = Path(tmp)
             regression_path = tmp_path / "superhuman_regression_positions.json"
@@ -1233,35 +1617,53 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             out_path = tmp_path / "tactical_capture_protection.jsonl"
 
             regression_path.write_text(
-                json.dumps([
-                    {
-                        "id": "missed_capture_f67bd4k0_move_28",
-                        "state": self.regression_state(),
-                        "expected_move": 1,
-                        "acceptable_moves": [1],
-                        "move_number": 28,
-                    }
-                ]),
+                json.dumps(
+                    [
+                        {
+                            "id": "missed_capture_f67bd4k0_move_28",
+                            "state": self.regression_state(),
+                            "expected_move": 1,
+                            "acceptable_moves": [1],
+                            "move_number": 28,
+                        }
+                    ]
+                ),
                 encoding="utf-8",
             )
 
-            contradictory = json.dumps(self.contradictory_state(), separators=(",", ":"), sort_keys=True)
-            rejected_support = json.dumps(self.rejected_support_state(), separators=(",", ":"), sort_keys=True)
-            valid_a = json.dumps({
-                "player_pits": [1, 6, 6, 6, 5, 0],
-                "opponent_pits": [5, 5, 1, 5, 5, 0],
-                "player_store": 1,
-                "opponent_store": 2,
-                "current_player": 1,
-            }, separators=(",", ":"), sort_keys=True)
-            valid_b = json.dumps(self.diversity_state_gain_6_plus_pit_3(), separators=(",", ":"), sort_keys=True)
-            valid_c = json.dumps({
-                "player_pits": [1, 0, 7, 6, 6, 5],
-                "opponent_pits": [5, 4, 4, 4, 4, 0],
-                "player_store": 1,
-                "opponent_store": 2,
-                "current_player": 1,
-            }, separators=(",", ":"), sort_keys=True)
+            contradictory = json.dumps(
+                self.contradictory_state(), separators=(",", ":"), sort_keys=True
+            )
+            rejected_support = json.dumps(
+                self.rejected_support_state(), separators=(",", ":"), sort_keys=True
+            )
+            valid_a = json.dumps(
+                {
+                    "player_pits": [1, 6, 6, 6, 5, 0],
+                    "opponent_pits": [5, 5, 1, 5, 5, 0],
+                    "player_store": 1,
+                    "opponent_store": 2,
+                    "current_player": 1,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            valid_b = json.dumps(
+                self.diversity_state_gain_6_plus_pit_3(),
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            valid_c = json.dumps(
+                {
+                    "player_pits": [1, 0, 7, 6, 6, 5],
+                    "opponent_pits": [5, 4, 4, 4, 4, 0],
+                    "player_store": 1,
+                    "opponent_store": 2,
+                    "current_player": 1,
+                },
+                separators=(",", ":"),
+                sort_keys=True,
+            )
 
             tactical_rows = [
                 {
@@ -1274,7 +1676,14 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                     "value_target_mode": "sharpened",
                     "value": 0.5,
                     "priority_score": 10.0,
-                    "policy": [0.06637731194496155, 0.3550935685634613, 0.0543360710144043, 0.3244529366493225, 0.19974012672901154, 0.0],
+                    "policy": [
+                        0.06637731194496155,
+                        0.3550935685634613,
+                        0.0543360710144043,
+                        0.3244529366493225,
+                        0.19974012672901154,
+                        0.0,
+                    ],
                     "teacher_selected_move": 1,
                 },
                 {
@@ -1327,16 +1736,42 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                     "policy": [0.0, 0.0, 0.8, 0.1, 0.1, 0.0],
                 },
             ]
-            tactical_path.write_text("\n".join(json.dumps(row) for row in tactical_rows) + "\n", encoding="utf-8")
+            tactical_path.write_text(
+                "\n".join(json.dumps(row) for row in tactical_rows) + "\n",
+                encoding="utf-8",
+            )
 
             forensic_rows = [
-                {"state": self.contradictory_state(), "bucket": "capture_available", "reference_move": 3},
-                {"state": self.rejected_support_state(), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_a), "bucket": "capture_available", "reference_move": 3},
-                {"state": json.loads(valid_b), "bucket": "capture_available", "reference_move": 1},
-                {"state": json.loads(valid_c), "bucket": "capture_available", "reference_move": 2},
+                {
+                    "state": self.contradictory_state(),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": self.rejected_support_state(),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_a),
+                    "bucket": "capture_available",
+                    "reference_move": 3,
+                },
+                {
+                    "state": json.loads(valid_b),
+                    "bucket": "capture_available",
+                    "reference_move": 1,
+                },
+                {
+                    "state": json.loads(valid_c),
+                    "bucket": "capture_available",
+                    "reference_move": 2,
+                },
             ]
-            forensic_path.write_text(json.dumps({"systems": {"challenger": {"rows": forensic_rows}}}), encoding="utf-8")
+            forensic_path.write_text(
+                json.dumps({"systems": {"challenger": {"rows": forensic_rows}}}),
+                encoding="utf-8",
+            )
 
             module.build_capture_protection_dataset(
                 regression_positions_path=regression_path,
@@ -1350,18 +1785,28 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
                 forensic_suite_path=forensic_path,
             )
 
-            built_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            built_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             canonical_states = [row["canonical_state"] for row in built_rows]
 
             self.assertIn(contradictory, canonical_states)
             self.assertNotIn(rejected_support, canonical_states)
             self.assertEqual(5, len(built_rows))
 
-    def test_select_capture_rows_falls_back_to_skipfix_when_no_contradiction_clears_threshold(self):
-        regression_signature = module.extract_regression_motif_signature(self.regression_state(), expected_move=1)
+    def test_select_capture_rows_falls_back_to_skipfix_when_no_contradiction_clears_threshold(
+        self,
+    ):
+        regression_signature = module.extract_regression_motif_signature(
+            self.regression_state(), expected_move=1
+        )
         rows = [
             {
-                "canonical_state": json.dumps(self.rejected_support_state(), separators=(",", ":"), sort_keys=True),
+                "canonical_state": json.dumps(
+                    self.rejected_support_state(), separators=(",", ":"), sort_keys=True
+                ),
                 "raw_state": self.rejected_support_state(),
                 "state": [0.0] * 27,
                 "bucket": "capture_available",
@@ -1384,7 +1829,9 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
         self.assertEqual([], selected)
 
     def test_score_candidate_support_row_rejects_row_without_extra_turn(self):
-        signature = module.extract_regression_motif_signature(self.regression_state(), expected_move=1)
+        signature = module.extract_regression_motif_signature(
+            self.regression_state(), expected_move=1
+        )
         row = {
             "raw_state": {
                 "player_pits": [5, 0, 5, 5, 5, 0],
@@ -1396,8 +1843,11 @@ class BuildTacticalCaptureProtectionTest(unittest.TestCase):
             "policy": [0.9, 0.0, 0.05, 0.03, 0.02, 0.0],
         }
 
-        with self.assertRaisesRegex(ValueError, "candidate row must expose both capture and extra-turn moves"):
+        with self.assertRaisesRegex(
+            ValueError, "candidate row must expose both capture and extra-turn moves"
+        ):
             module.score_candidate_support_row(row, signature)
+
 
 if __name__ == "__main__":
     unittest.main()

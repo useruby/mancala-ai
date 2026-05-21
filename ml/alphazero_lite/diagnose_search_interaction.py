@@ -21,11 +21,21 @@ def build_opening_matrix_row(
         "phase": opening_row["phase"],
         "reference_move": opening_row["reference_move"],
         "current_prior_move": opening_row["current_prior_summary"]["selected_move"],
-        "current_searched_move": opening_row["current_searched_summary"]["selected_move"],
-        "original_challenger_prior_move": original_opening_row["candidate_prior_summary"]["selected_move"],
-        "original_challenger_searched_move": original_opening_row["candidate_searched_summary"]["selected_move"],
-        "rebalanced_challenger_prior_move": rebalanced_opening_row["candidate_prior_summary"]["selected_move"],
-        "rebalanced_challenger_searched_move": rebalanced_opening_row["candidate_searched_summary"]["selected_move"],
+        "current_searched_move": opening_row["current_searched_summary"][
+            "selected_move"
+        ],
+        "original_challenger_prior_move": original_opening_row[
+            "candidate_prior_summary"
+        ]["selected_move"],
+        "original_challenger_searched_move": original_opening_row[
+            "candidate_searched_summary"
+        ]["selected_move"],
+        "rebalanced_challenger_prior_move": rebalanced_opening_row[
+            "candidate_prior_summary"
+        ]["selected_move"],
+        "rebalanced_challenger_searched_move": rebalanced_opening_row[
+            "candidate_searched_summary"
+        ]["selected_move"],
         "teacher_value": current_row["teacher_value"],
         "current_system": {
             "value": current_row["system_value"],
@@ -54,22 +64,45 @@ def classify_mechanism(row: dict) -> str:
     if row["phase"] == "late":
         return "persistent_late_game_weakness"
 
-    if rebalanced_prior_move == reference_move and rebalanced_move != reference_move and rebalanced_error <= 0.1:
+    if (
+        rebalanced_prior_move == reference_move
+        and rebalanced_move != reference_move
+        and rebalanced_error <= 0.1
+    ):
         return "search_overrides_prior"
 
-    if original_move == reference_move and rebalanced_move != reference_move and rebalanced_error <= 0.1:
+    if (
+        original_move == reference_move
+        and rebalanced_move != reference_move
+        and rebalanced_error <= 0.1
+    ):
         return "search_overrides_prior"
 
-    if teacher_value < 0 and rebalanced_value > 0 and original_move == reference_move and rebalanced_move != reference_move:
+    if (
+        teacher_value < 0
+        and rebalanced_value > 0
+        and original_move == reference_move
+        and rebalanced_move != reference_move
+    ):
         return "value_sign_miscalibration"
 
     return "mixed"
 
 
 def choose_next_branch(matrix: list[dict]) -> dict:
-    search_rows = [row["row_id"] for row in matrix if row["mechanism"] == "search_overrides_prior"]
-    value_rows = [row["row_id"] for row in matrix if row["mechanism"] == "value_sign_miscalibration"]
-    endgame_rows = [row["row_id"] for row in matrix if row["mechanism"] == "persistent_late_game_weakness"]
+    search_rows = [
+        row["row_id"] for row in matrix if row["mechanism"] == "search_overrides_prior"
+    ]
+    value_rows = [
+        row["row_id"]
+        for row in matrix
+        if row["mechanism"] == "value_sign_miscalibration"
+    ]
+    endgame_rows = [
+        row["row_id"]
+        for row in matrix
+        if row["mechanism"] == "persistent_late_game_weakness"
+    ]
 
     if search_rows:
         next_branch = "search_interaction_diagnostic"
@@ -96,8 +129,15 @@ def _rows_by_id(rows: list[dict]) -> dict[str, dict]:
 
 TARGET_ROW_IDS_BY_BUCKET = {
     "capture_available": {"capture_available-002", "capture_available-003"},
-    "high_imbalance": {"high_imbalance-010", "high_imbalance-011", "high_imbalance-019"},
-    "incumbent_proxy_disagreement": {"incumbent_proxy_disagreement-031", "incumbent_proxy_disagreement-033"},
+    "high_imbalance": {
+        "high_imbalance-010",
+        "high_imbalance-011",
+        "high_imbalance-019",
+    },
+    "incumbent_proxy_disagreement": {
+        "incumbent_proxy_disagreement-031",
+        "incumbent_proxy_disagreement-033",
+    },
     "opening_plies_1_8": {"opening_plies_1_8-057"},
     "sparse_endgame": {"sparse_endgame-009"},
 }
@@ -138,10 +178,18 @@ def _build_non_opening_matrix_row(
 
 
 def build_matrix_from_runs(*, original_run: Path, rebalanced_run: Path) -> list[dict]:
-    original_forensics = _load_json(original_run / "final" / "selected_candidate_forensics.json")
-    rebalanced_forensics = _load_json(rebalanced_run / "final" / "selected_candidate_forensics.json")
-    original_opening_report = _load_json(original_run / "final" / "opening_capture_family_report.json")
-    rebalanced_opening_report = _load_json(rebalanced_run / "final" / "opening_capture_family_report.json")
+    original_forensics = _load_json(
+        original_run / "final" / "selected_candidate_forensics.json"
+    )
+    rebalanced_forensics = _load_json(
+        rebalanced_run / "final" / "selected_candidate_forensics.json"
+    )
+    original_opening_report = _load_json(
+        original_run / "final" / "opening_capture_family_report.json"
+    )
+    rebalanced_opening_report = _load_json(
+        rebalanced_run / "final" / "opening_capture_family_report.json"
+    )
 
     current_rows = _rows_by_id(original_forensics["systems"]["current"]["rows"])
     original_rows = _rows_by_id(original_forensics["systems"]["challenger"]["rows"])

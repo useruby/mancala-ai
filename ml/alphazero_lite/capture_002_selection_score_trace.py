@@ -37,13 +37,24 @@ def load_json(path):
 
 
 def _finite_number(value, *, context: str):
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
-        raise ValueError(f"source shared drift artifact {context} must be finite numeric")
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+    ):
+        raise ValueError(
+            f"source shared drift artifact {context} must be finite numeric"
+        )
     return float(value)
 
 
 def _finite_non_negative_number(value, *, context: str):
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < 0
+    ):
         raise ValueError(f"{context} must be finite non-negative")
     return float(value)
 
@@ -63,21 +74,33 @@ def _validate_trace_point(point, *, context: str, legal_moves: list[int]):
 
     for required_key in ["selected_move", "simulation", "visits"]:
         if required_key not in point:
-            raise ValueError(f"source shared drift artifact {context} missing {required_key}")
+            raise ValueError(
+                f"source shared drift artifact {context} missing {required_key}"
+            )
 
     selected_move = point["selected_move"]
-    if isinstance(selected_move, bool) or not isinstance(selected_move, int) or selected_move not in legal_moves:
-        raise ValueError(f"source shared drift artifact {context} selected_move must be legal int")
+    if (
+        isinstance(selected_move, bool)
+        or not isinstance(selected_move, int)
+        or selected_move not in legal_moves
+    ):
+        raise ValueError(
+            f"source shared drift artifact {context} selected_move must be legal int"
+        )
 
     _finite_number(point["simulation"], context=f"{context} simulation")
 
     visits = point["visits"]
     if not isinstance(visits, list):
-        raise ValueError(f"source shared drift artifact {context} visits must be a list")
+        raise ValueError(
+            f"source shared drift artifact {context} visits must be a list"
+        )
     for index, visit in enumerate(visits):
         _finite_number(visit, context=f"{context} visits[{index}]")
     if len(visits) <= max(legal_moves, default=-1):
-        raise ValueError(f"source shared drift artifact {context} visits must cover legal_moves")
+        raise ValueError(
+            f"source shared drift artifact {context} visits must cover legal_moves"
+        )
 
     reference_move_by_prior = point.get("reference_move_by_prior")
     if reference_move_by_prior is not None and (
@@ -85,20 +108,32 @@ def _validate_trace_point(point, *, context: str, legal_moves: list[int]):
         or not isinstance(reference_move_by_prior, int)
         or reference_move_by_prior not in legal_moves
     ):
-        raise ValueError(f"source shared drift artifact {context} reference_move_by_prior must be legal int")
+        raise ValueError(
+            f"source shared drift artifact {context} reference_move_by_prior must be legal int"
+        )
 
     moves = point.get("moves")
     normalized_moves = None
     if moves is not None:
         if not isinstance(moves, list):
-            raise ValueError(f"source shared drift artifact {context} moves must be a list")
+            raise ValueError(
+                f"source shared drift artifact {context} moves must be a list"
+            )
         normalized_moves = []
         for move_index, move_entry in enumerate(moves):
             if not isinstance(move_entry, dict):
-                raise ValueError(f"source shared drift artifact {context} moves[{move_index}] must be a dict")
+                raise ValueError(
+                    f"source shared drift artifact {context} moves[{move_index}] must be a dict"
+                )
             move = move_entry.get("move")
-            if isinstance(move, bool) or not isinstance(move, int) or move not in legal_moves:
-                raise ValueError(f"source shared drift artifact {context} moves[{move_index}].move must be legal int")
+            if (
+                isinstance(move, bool)
+                or not isinstance(move, int)
+                or move not in legal_moves
+            ):
+                raise ValueError(
+                    f"source shared drift artifact {context} moves[{move_index}].move must be legal int"
+                )
 
             normalized_move_entry = {"move": int(move)}
             for metric_key in ["selection_score", "q_value"]:
@@ -121,11 +156,15 @@ def _validate_trace_point(point, *, context: str, legal_moves: list[int]):
     return normalized_point
 
 
-def adapt_trace_points_for_downstream_shared_drift_artifact(trace_points, *, legal_moves: list[int]):
+def adapt_trace_points_for_downstream_shared_drift_artifact(
+    trace_points, *, legal_moves: list[int]
+):
     if not isinstance(trace_points, list):
         raise ValueError("trace_points must be a list")
     return [
-        _validate_trace_point(trace_point, context=f"trace_points[{index}]", legal_moves=legal_moves)
+        _validate_trace_point(
+            trace_point, context=f"trace_points[{index}]", legal_moves=legal_moves
+        )
         for index, trace_point in enumerate(trace_points)
     ]
 
@@ -138,27 +177,42 @@ def _validate_settings(settings, *, legal_moves: list[int]):
 
     search_settings = settings.get("search_settings")
     if not isinstance(search_settings, dict):
-        raise ValueError("source shared drift artifact settings must include search_settings")
+        raise ValueError(
+            "source shared drift artifact settings must include search_settings"
+        )
     for key in REQUIRED_SEARCH_SETTINGS_KEYS:
         if key not in search_settings:
-            raise ValueError(f"source shared drift artifact settings search_settings missing required key: {key}")
+            raise ValueError(
+                f"source shared drift artifact settings search_settings missing required key: {key}"
+            )
 
     _finite_number(search_settings["c_puct"], context="settings search_settings c_puct")
-    _finite_number(search_settings["tactical_root_bias"], context="settings search_settings tactical_root_bias")
+    _finite_number(
+        search_settings["tactical_root_bias"],
+        context="settings search_settings tactical_root_bias",
+    )
 
     seed = settings.get("seed")
     if isinstance(seed, bool) or not isinstance(seed, int):
         raise ValueError("source shared drift artifact settings seed must be an int")
 
     simulation_count = settings.get("simulation_count")
-    if isinstance(simulation_count, bool) or not isinstance(simulation_count, int) or simulation_count <= 0:
-        raise ValueError("source shared drift artifact settings simulation_count must be positive int")
+    if (
+        isinstance(simulation_count, bool)
+        or not isinstance(simulation_count, int)
+        or simulation_count <= 0
+    ):
+        raise ValueError(
+            "source shared drift artifact settings simulation_count must be positive int"
+        )
 
     rerun_trace_points = settings.get("rerun_trace_points")
     normalized_rerun_trace_points = None
     if rerun_trace_points is not None:
         if not isinstance(rerun_trace_points, list):
-            raise ValueError("source shared drift artifact settings rerun_trace_points must be a list")
+            raise ValueError(
+                "source shared drift artifact settings rerun_trace_points must be a list"
+            )
         normalized_rerun_trace_points = [
             _validate_trace_point(
                 trace_point,
@@ -178,8 +232,14 @@ def _validate_settings(settings, *, legal_moves: list[int]):
 
 
 def _validate_row_move_identity(value, *, field: str, legal_moves: list[int]) -> int:
-    if isinstance(value, bool) or not isinstance(value, int) or value not in legal_moves:
-        raise ValueError(f"source shared drift artifact row {ROW_ID} {field} must be a legal move int")
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or value not in legal_moves
+    ):
+        raise ValueError(
+            f"source shared drift artifact row {ROW_ID} {field} must be a legal move int"
+        )
     return int(value)
 
 
@@ -193,7 +253,9 @@ def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
 
     decision = artifact.get("decision")
     if decision != EXPECTED_SOURCE_DECISION:
-        raise ValueError(f"source shared drift artifact decision must be {EXPECTED_SOURCE_DECISION}")
+        raise ValueError(
+            f"source shared drift artifact decision must be {EXPECTED_SOURCE_DECISION}"
+        )
 
     rows = artifact.get("rows")
     if not isinstance(rows, dict):
@@ -203,15 +265,26 @@ def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
     if not isinstance(row, dict):
         raise ValueError(f"source shared drift artifact missing row {ROW_ID}")
     if row.get("row_id") != ROW_ID:
-        raise ValueError(f"source shared drift artifact row {ROW_ID} row_id must match row key")
+        raise ValueError(
+            f"source shared drift artifact row {ROW_ID} row_id must match row key"
+        )
 
     legal_moves = row.get("legal_moves")
     if not isinstance(legal_moves, list) or not legal_moves:
-        raise ValueError(f"source shared drift artifact row {ROW_ID} legal_moves must be a non-empty list")
-    if any(isinstance(move, bool) or not isinstance(move, int) or move < 0 for move in legal_moves):
-        raise ValueError(f"source shared drift artifact row {ROW_ID} legal_moves must contain non-negative ints")
+        raise ValueError(
+            f"source shared drift artifact row {ROW_ID} legal_moves must be a non-empty list"
+        )
+    if any(
+        isinstance(move, bool) or not isinstance(move, int) or move < 0
+        for move in legal_moves
+    ):
+        raise ValueError(
+            f"source shared drift artifact row {ROW_ID} legal_moves must contain non-negative ints"
+        )
     if len(set(legal_moves)) != len(legal_moves):
-        raise ValueError(f"source shared drift artifact row {ROW_ID} legal_moves must be unique")
+        raise ValueError(
+            f"source shared drift artifact row {ROW_ID} legal_moves must be unique"
+        )
     normalized_legal_moves = [int(move) for move in legal_moves]
     reference_move = _validate_row_move_identity(
         row.get("reference_move"),
@@ -226,12 +299,16 @@ def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
 
     snapshots = row.get("snapshots")
     if not isinstance(snapshots, list):
-        raise ValueError(f"source shared drift artifact row {ROW_ID} snapshots must be a list")
+        raise ValueError(
+            f"source shared drift artifact row {ROW_ID} snapshots must be a list"
+        )
 
     root_start_value = row.get("root_start")
     if root_start_value is None:
         if snapshots:
-            raise ValueError(f"source shared drift artifact row {ROW_ID} root_start must be a dict")
+            raise ValueError(
+                f"source shared drift artifact row {ROW_ID} root_start must be a dict"
+            )
         root_start = None
     else:
         root_start = _validate_trace_point(
@@ -250,14 +327,24 @@ def load_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
         )
         simulation = normalized_snapshot["simulation"]
         if previous_simulation is not None and simulation < previous_simulation:
-            raise ValueError(f"source shared drift artifact row {ROW_ID} snapshots must be ordered by simulation")
+            raise ValueError(
+                f"source shared drift artifact row {ROW_ID} snapshots must be ordered by simulation"
+            )
         previous_simulation = simulation
         normalized_snapshots.append(normalized_snapshot)
 
-    if root_start is not None and normalized_snapshots and root_start["simulation"] > normalized_snapshots[0]["simulation"]:
-        raise ValueError(f"source shared drift artifact row {ROW_ID} root_start must be ordered by simulation")
+    if (
+        root_start is not None
+        and normalized_snapshots
+        and root_start["simulation"] > normalized_snapshots[0]["simulation"]
+    ):
+        raise ValueError(
+            f"source shared drift artifact row {ROW_ID} root_start must be ordered by simulation"
+        )
 
-    settings = _validate_settings(artifact.get("settings"), legal_moves=normalized_legal_moves)
+    settings = _validate_settings(
+        artifact.get("settings"), legal_moves=normalized_legal_moves
+    )
 
     return {
         "artifact_path": artifact_path,
@@ -283,7 +370,9 @@ def load_source_shared_drift_artifact(path):
 
 
 def classify_source_shared_drift_artifact_document(artifact, *, artifact_path: str):
-    loaded_artifact = load_source_shared_drift_artifact_document(artifact, artifact_path=artifact_path)
+    loaded_artifact = load_source_shared_drift_artifact_document(
+        artifact, artifact_path=artifact_path
+    )
     return build_payload(loaded_artifact)
 
 
@@ -302,7 +391,9 @@ def parse_args(argv=None):
     return parser.parse_args(argv)
 
 
-def _target_minus_reference_metric(trace_point, metric_key, *, target_move, reference_move):
+def _target_minus_reference_metric(
+    trace_point, metric_key, *, target_move, reference_move
+):
     selected_entry = _move_entry(trace_point, target_move)
     reference_entry = _move_entry(trace_point, reference_move)
     if selected_entry is None or reference_entry is None:
@@ -344,17 +435,26 @@ def _visit_share_delta(trace_point, *, target_move, reference_move):
     ):
         return None
 
-    if any(isinstance(visit, bool) or not isinstance(visit, (int, float)) or not math.isfinite(visit) for visit in visits):
+    if any(
+        isinstance(visit, bool)
+        or not isinstance(visit, (int, float))
+        or not math.isfinite(visit)
+        for visit in visits
+    ):
         return None
 
     total_visits = float(sum(visits))
     if total_visits <= 0.0:
         return None
 
-    return (float(visits[target_move]) / total_visits) - (float(visits[reference_move]) / total_visits)
+    return (float(visits[target_move]) / total_visits) - (
+        float(visits[reference_move]) / total_visits
+    )
 
 
-def _insufficient_payload(source_artifact, trace_points, insufficiency_reasons, *, thresholds, settings=None):
+def _insufficient_payload(
+    source_artifact, trace_points, insufficiency_reasons, *, thresholds, settings=None
+):
     selected_artifact = source_artifact.get("selected_artifact")
     row = source_artifact.get("row") or {}
     source_artifact_payload = {
@@ -475,15 +575,24 @@ def _trace_pair_requirements_reasons(*, reference_move, full_search_selected_mov
     reasons = []
     if isinstance(reference_move, bool) or not isinstance(reference_move, int):
         reasons.append("missing_reference_move")
-    if isinstance(full_search_selected_move, bool) or not isinstance(full_search_selected_move, int):
+    if isinstance(full_search_selected_move, bool) or not isinstance(
+        full_search_selected_move, int
+    ):
         reasons.append("missing_full_search_selected_move")
     return reasons
 
 
-def _build_thresholds(*, meaningful_q_margin=None, material_selection_score_margin=None, material_visit_share_margin=None):
+def _build_thresholds(
+    *,
+    meaningful_q_margin=None,
+    material_selection_score_margin=None,
+    material_visit_share_margin=None,
+):
     return {
         "meaningful_q_margin": _finite_non_negative_number(
-            THRESHOLDS["meaningful_q_margin"] if meaningful_q_margin is None else meaningful_q_margin,
+            THRESHOLDS["meaningful_q_margin"]
+            if meaningful_q_margin is None
+            else meaningful_q_margin,
             context="meaningful_q_margin",
         ),
         "material_selection_score_margin": _finite_non_negative_number(
@@ -493,7 +602,9 @@ def _build_thresholds(*, meaningful_q_margin=None, material_selection_score_marg
             context="material_selection_score_margin",
         ),
         "material_visit_share_margin": _finite_non_negative_number(
-            THRESHOLDS["material_visit_share_margin"] if material_visit_share_margin is None else material_visit_share_margin,
+            THRESHOLDS["material_visit_share_margin"]
+            if material_visit_share_margin is None
+            else material_visit_share_margin,
             context="material_visit_share_margin",
         ),
     }
@@ -557,19 +668,27 @@ def build_payload(
                 reason_key="trace_points_pair_mismatch",
             )
         )
-    insufficiency_reasons.extend(_trace_ordering_reasons(trace_points, reason_key="trace_points_out_of_order"))
+    insufficiency_reasons.extend(
+        _trace_ordering_reasons(trace_points, reason_key="trace_points_out_of_order")
+    )
     insufficiency_reasons.extend(sufficiency["insufficiency_reasons"])
-    final_trace_point = sufficiency["final_trace_point"]
     final_selection_score = sufficiency["final_selection_score"]
     final_q_margin = sufficiency["final_q_margin"]
     final_visit_share = sufficiency["final_visit_share"]
 
-    if not _trace_pair_requirements_reasons(
-        reference_move=reference_move,
-        full_search_selected_move=full_search_selected_move,
-    ) and insufficiency_reasons and allow_rerun_capture and rerun_capture is not None:
+    if (
+        not _trace_pair_requirements_reasons(
+            reference_move=reference_move,
+            full_search_selected_move=full_search_selected_move,
+        )
+        and insufficiency_reasons
+        and allow_rerun_capture
+        and rerun_capture is not None
+    ):
         rerun_payload = rerun_capture(source_artifact) or {}
-        rerun_trace_points, rerun_malformed_reason = _rerun_trace_points_or_reason(rerun_payload)
+        rerun_trace_points, rerun_malformed_reason = _rerun_trace_points_or_reason(
+            rerun_payload
+        )
         if isinstance(rerun_payload, dict):
             settings = copy.deepcopy(rerun_payload.get("settings"))
         if rerun_trace_points:
@@ -589,9 +708,12 @@ def build_payload(
                     reason_key="rerun_trace_points_pair_mismatch",
                 )
             )
-            insufficiency_reasons.extend(_trace_ordering_reasons(trace_points, reason_key="rerun_trace_points_out_of_order"))
+            insufficiency_reasons.extend(
+                _trace_ordering_reasons(
+                    trace_points, reason_key="rerun_trace_points_out_of_order"
+                )
+            )
             insufficiency_reasons.extend(sufficiency["insufficiency_reasons"])
-            final_trace_point = sufficiency["final_trace_point"]
             final_selection_score = sufficiency["final_selection_score"]
             final_q_margin = sufficiency["final_q_margin"]
             final_visit_share = sufficiency["final_visit_share"]
@@ -670,9 +792,15 @@ def build_payload(
         "source_artifact": source_artifact_payload,
         "settings": settings,
         "trace_points": copy.deepcopy(trace_points),
-        "first_selected_selection_score_overtake_snapshot": copy.deepcopy(selection_score_snapshot),
-        "first_selected_meaningful_q_support_snapshot": copy.deepcopy(meaningful_q_snapshot),
-        "first_selected_material_visit_share_snapshot": copy.deepcopy(material_visit_share_snapshot),
+        "first_selected_selection_score_overtake_snapshot": copy.deepcopy(
+            selection_score_snapshot
+        ),
+        "first_selected_meaningful_q_support_snapshot": copy.deepcopy(
+            meaningful_q_snapshot
+        ),
+        "first_selected_material_visit_share_snapshot": copy.deepcopy(
+            material_visit_share_snapshot
+        ),
         "final_selected_minus_reference_selection_score": final_selection_score,
         "final_selected_minus_reference_q": final_q_margin,
         "final_selected_minus_reference_visit_share": final_visit_share,
@@ -695,17 +823,32 @@ def _classify_payload(payload):
 
     selection_snapshot = payload.get("first_selected_selection_score_overtake_snapshot")
     meaningful_q_snapshot = payload.get("first_selected_meaningful_q_support_snapshot")
-    material_visit_share_snapshot = payload.get("first_selected_material_visit_share_snapshot")
+    material_visit_share_snapshot = payload.get(
+        "first_selected_material_visit_share_snapshot"
+    )
 
-    selection_simulation = None if selection_snapshot is None else selection_snapshot.get("simulation")
-    meaningful_q_simulation = None if meaningful_q_snapshot is None else meaningful_q_snapshot.get("simulation")
-    visit_share_simulation = None if material_visit_share_snapshot is None else material_visit_share_snapshot.get("simulation")
+    selection_simulation = (
+        None if selection_snapshot is None else selection_snapshot.get("simulation")
+    )
+    meaningful_q_simulation = (
+        None
+        if meaningful_q_snapshot is None
+        else meaningful_q_snapshot.get("simulation")
+    )
+    visit_share_simulation = (
+        None
+        if material_visit_share_snapshot is None
+        else material_visit_share_snapshot.get("simulation")
+    )
 
     if (
         selection_simulation is not None
         and visit_share_simulation is not None
         and selection_simulation <= visit_share_simulation
-        and (meaningful_q_simulation is None or selection_simulation < meaningful_q_simulation)
+        and (
+            meaningful_q_simulation is None
+            or selection_simulation < meaningful_q_simulation
+        )
     ):
         return {
             "classification": {
@@ -772,18 +915,24 @@ def _rerun_capture_from_source_artifact(source_artifact):
 def main(argv=None):
     args = parse_args(argv)
     thresholds = _thresholds_from_args(args)
-    source_artifact = load_source_shared_drift_artifact(args.source_shared_drift_artifact)
+    source_artifact = load_source_shared_drift_artifact(
+        args.source_shared_drift_artifact
+    )
     payload = build_payload(
         source_artifact,
         meaningful_q_margin=thresholds["meaningful_q_margin"],
         material_selection_score_margin=thresholds["material_selection_score_margin"],
         material_visit_share_margin=thresholds["material_visit_share_margin"],
         allow_rerun_capture=args.allow_rerun_capture,
-        rerun_capture=_rerun_capture_from_source_artifact if args.allow_rerun_capture else None,
+        rerun_capture=_rerun_capture_from_source_artifact
+        if args.allow_rerun_capture
+        else None,
     )
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
     print(
         json.dumps(

@@ -24,7 +24,9 @@ class EndgameTablebase:
     MAX_SOLVED_SEEDS = 16
 
     def __init__(self) -> None:
-        self._values: dict[tuple[int, tuple[int, ...], tuple[int, int], int], float] = {}
+        self._values: dict[
+            tuple[int, tuple[int, ...], tuple[int, int], int], float
+        ] = {}
 
     def lookup(self, game: KalahGame, perspective_player: int) -> float | None:
         cached = self.lookup_cached(game, perspective_player)
@@ -100,7 +102,9 @@ class EndgameTablebase:
             return 0.0
         return 0.5
 
-    def _key(self, game: KalahGame, perspective_player: int) -> tuple[int, tuple[int, ...], tuple[int, int], int]:
+    def _key(
+        self, game: KalahGame, perspective_player: int
+    ) -> tuple[int, tuple[int, ...], tuple[int, int], int]:
         return (
             int(perspective_player),
             tuple(game.pits),

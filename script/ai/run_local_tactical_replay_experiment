@@ -8,7 +8,15 @@ import sys
 from pathlib import Path
 
 
-STAGES = ["mine", "label", "train", "select", "validation_pack", "final_holdout", "decision"]
+STAGES = [
+    "mine",
+    "label",
+    "train",
+    "select",
+    "validation_pack",
+    "final_holdout",
+    "decision",
+]
 
 
 def repo_root() -> Path:
@@ -32,7 +40,13 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def selection_manifest_payload(*, artifact_path: Path, selected_target: Path, selection_rule: str, candidate_count: int) -> dict:
+def selection_manifest_payload(
+    *,
+    artifact_path: Path,
+    selected_target: Path,
+    selection_rule: str,
+    candidate_count: int,
+) -> dict:
     return {
         "selected_artifact": str(artifact_path),
         "selected_target": str(selected_target.resolve()),
@@ -42,11 +56,21 @@ def selection_manifest_payload(*, artifact_path: Path, selected_target: Path, se
 
 
 def default_fixed_replay_sources() -> list[dict[str, int | str]]:
-    return [{"path": "ml/alphazero_lite/tactical_opening_capture_family_replay.jsonl", "weight": 8}]
+    return [
+        {
+            "path": "ml/alphazero_lite/tactical_opening_capture_family_replay.jsonl",
+            "weight": 8,
+        }
+    ]
 
 
 def default_stable_failure_family_replay_sources() -> list[dict[str, int | str]]:
-    return [{"path": "ml/alphazero_lite/tactical_stable_failure_family_replay.jsonl", "weight": 8}]
+    return [
+        {
+            "path": "ml/alphazero_lite/tactical_stable_failure_family_replay.jsonl",
+            "weight": 8,
+        }
+    ]
 
 
 def opening_capture_family_replay_path(run_paths: dict[str, Path]) -> Path:
@@ -58,7 +82,9 @@ def stable_failure_family_replay_path(run_paths: dict[str, Path]) -> Path:
 
 
 def stable_failure_family_replay_summary_path(run_paths: dict[str, Path]) -> Path:
-    return run_paths["inputs_dir"] / "tactical_stable_failure_family_replay_summary.json"
+    return (
+        run_paths["inputs_dir"] / "tactical_stable_failure_family_replay_summary.json"
+    )
 
 
 def fixed_replay_artifact_path_for_sources(
@@ -71,9 +97,13 @@ def fixed_replay_artifact_path_for_sources(
     return None
 
 
-def runtime_fixed_replay_sources(config: dict, *, fixed_replay_artifact_path: Path | None = None) -> list[dict]:
+def runtime_fixed_replay_sources(
+    config: dict, *, fixed_replay_artifact_path: Path | None = None
+) -> list[dict]:
     fixed_replay_sources = list(config.get("fixed_replay_sources", []))
-    if fixed_replay_sources == [{"path": "ml/alphazero_lite/tactical_capture_protection.jsonl", "weight": 8}]:
+    if fixed_replay_sources == [
+        {"path": "ml/alphazero_lite/tactical_capture_protection.jsonl", "weight": 8}
+    ]:
         fixed_replay_sources = list(default_fixed_replay_sources())
     if fixed_replay_artifact_path is None:
         return fixed_replay_sources
@@ -136,7 +166,9 @@ def planned_stages(args) -> list[str]:
     start_index = STAGES.index(getattr(args, "start_stage", "mine"))
     skip_stages = set(getattr(args, "skip_stage", []) or [])
     stages = list(STAGES[start_index:])
-    if getattr(args, "start_stage", "mine") == "mine" and not getattr(args, "selected_artifact", None):
+    if getattr(args, "start_stage", "mine") == "mine" and not getattr(
+        args, "selected_artifact", None
+    ):
         stages = stages[: stages.index("select") + 1]
     return [stage for stage in stages if stage not in skip_stages]
 
@@ -181,7 +213,9 @@ def command_names_by_stage_for(requested_stages: list[str]) -> dict[str, list[st
 
 
 def validate_args(args, root) -> None:
-    if args.start_stage == "final_holdout" and not getattr(args, "selected_artifact", None):
+    if args.start_stage == "final_holdout" and not getattr(
+        args, "selected_artifact", None
+    ):
         raise SystemExit("final_holdout start requires a selected artifact")
 
     if getattr(args, "selected_artifact", None):
@@ -197,23 +231,47 @@ def validate_stage_prerequisites(args, root) -> None:
     selection_artifact = run_paths["selection_dir"] / "artifact"
     mined_states_path = run_paths["inputs_dir"] / "mined_hard_states.jsonl"
     labeled_states_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
-    exploratory_summary_path = resolve_path(root, getattr(args, "exploratory_summary", None))
+    exploratory_summary_path = resolve_path(
+        root, getattr(args, "exploratory_summary", None)
+    )
     if exploratory_summary_path is None:
-        exploratory_summary_path = run_paths["base_dir"] / "exploratory" / "aggregate_summary.json"
+        exploratory_summary_path = (
+            run_paths["base_dir"] / "exploratory" / "aggregate_summary.json"
+        )
     bucket_gate_path = run_paths["base_dir"] / "final" / "bucket_gate.json"
     promotion_gate_path = run_paths["base_dir"] / "final" / "local_promotion_gate.json"
 
-    if "label" in requested_stages and "mine" not in requested_stages and not mined_states_path.exists():
+    if (
+        "label" in requested_stages
+        and "mine" not in requested_stages
+        and not mined_states_path.exists()
+    ):
         raise SystemExit(f"missing prerequisite: {mined_states_path}")
 
-    if "train" in requested_stages and "label" not in requested_stages and not labeled_states_path.exists():
+    if (
+        "train" in requested_stages
+        and "label" not in requested_stages
+        and not labeled_states_path.exists()
+    ):
         raise SystemExit(f"missing prerequisite: {labeled_states_path}")
 
-    if "select" in requested_stages and "train" not in requested_stages and not getattr(args, "selected_artifact", None):
+    if (
+        "select" in requested_stages
+        and "train" not in requested_stages
+        and not getattr(args, "selected_artifact", None)
+    ):
         if not candidate_artifact_dirs(train_root):
-            raise SystemExit(f"missing prerequisite candidate artifacts under {train_root}")
+            raise SystemExit(
+                f"missing prerequisite candidate artifacts under {train_root}"
+            )
 
-    if any(stage in requested_stages for stage in ["validation_pack", "final_holdout", "decision"]) and "select" not in requested_stages:
+    if (
+        any(
+            stage in requested_stages
+            for stage in ["validation_pack", "final_holdout", "decision"]
+        )
+        and "select" not in requested_stages
+    ):
         explicit_selected = resolve_path(root, getattr(args, "selected_artifact", None))
         if explicit_selected is None and not selection_artifact.exists():
             raise SystemExit(f"missing prerequisite: {selection_artifact}")
@@ -223,7 +281,9 @@ def validate_stage_prerequisites(args, root) -> None:
         and "mine" not in requested_stages
         and getattr(args, "exploratory_summary", None) is None
     ):
-        raise SystemExit("resumed decision flow requires an explicit exploratory summary")
+        raise SystemExit(
+            "resumed decision flow requires an explicit exploratory summary"
+        )
 
     if "decision" in requested_stages and not exploratory_summary_path.exists():
         raise SystemExit(f"missing prerequisite: {exploratory_summary_path}")
@@ -231,7 +291,9 @@ def validate_stage_prerequisites(args, root) -> None:
     if "decision" in requested_stages and exploratory_summary_path.exists():
         exploratory_summary = load_json(exploratory_summary_path)
         if not exploratory_summary.get("passed"):
-            raise SystemExit(f"exploratory confirmation failed: {exploratory_summary_path}")
+            raise SystemExit(
+                f"exploratory confirmation failed: {exploratory_summary_path}"
+            )
 
     if "decision" in requested_stages and "final_holdout" not in requested_stages:
         if not bucket_gate_path.exists():
@@ -264,7 +326,9 @@ def select_candidate(train_root, selection_dir) -> Path:
 def run_command(command, cwd, allowed_returncodes=(0,)) -> dict:
     completed = subprocess.run(command, cwd=cwd, check=False)
     if completed.returncode not in allowed_returncodes:
-        raise SystemExit(f"command failed with exit code {completed.returncode}: {command}")
+        raise SystemExit(
+            f"command failed with exit code {completed.returncode}: {command}"
+        )
     return {
         "command": list(command),
         "cwd": str(cwd),
@@ -313,8 +377,10 @@ def run(args, root) -> dict:
     replay_dataset_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
     fixed_replay_artifact_path = None
     fixed_replay_sources = runtime_fixed_replay_sources(load_json(config_path))
-    fixed_replay_artifact_path = fixed_replay_artifact_path_for_sources(fixed_replay_sources, run_paths)
-    runtime_config = write_runtime_config(
+    fixed_replay_artifact_path = fixed_replay_artifact_path_for_sources(
+        fixed_replay_sources, run_paths
+    )
+    write_runtime_config(
         base_config_path=config_path,
         destination_path=run_paths["runtime_config_path"],
         run_id=args.run_id,
@@ -331,8 +397,12 @@ def run(args, root) -> dict:
         runtime_config_path=run_paths["runtime_config_path"],
         output_root=Path(args.output_root),
         base_config_path=config_path,
-        reference_artifact_path=resolve_path(root, getattr(args, "reference_artifact", None)),
-        exploratory_summary_path=resolve_path(root, getattr(args, "exploratory_summary", None)),
+        reference_artifact_path=resolve_path(
+            root, getattr(args, "reference_artifact", None)
+        ),
+        exploratory_summary_path=resolve_path(
+            root, getattr(args, "exploratory_summary", None)
+        ),
     )
 
     executed_stages: list[str] = []
@@ -344,15 +414,22 @@ def run(args, root) -> dict:
     command_names_by_stage = command_names_by_stage_for(requested_stages)
     command_names_by_stage["train"] = build_train_command_names(config_path)
 
-    if explicit_selected is not None and any(stage in requested_stages for stage in ["validation_pack", "final_holdout", "decision"]):
-        artifact_path = materialize_selected_artifact(run_paths["selection_dir"], explicit_selected)
+    if explicit_selected is not None and any(
+        stage in requested_stages
+        for stage in ["validation_pack", "final_holdout", "decision"]
+    ):
+        artifact_path = materialize_selected_artifact(
+            run_paths["selection_dir"], explicit_selected
+        )
         selection_manifest = selection_manifest_payload(
             artifact_path=artifact_path,
             selected_target=explicit_selected,
             selection_rule="explicit_artifact",
             candidate_count=1,
         )
-        write_json(run_paths["selection_dir"] / "selection_manifest.json", selection_manifest)
+        write_json(
+            run_paths["selection_dir"] / "selection_manifest.json", selection_manifest
+        )
 
     for stage in requested_stages:
         if stage == "select":
@@ -361,18 +438,27 @@ def run(args, root) -> dict:
                 selection_rule = "explicit_artifact"
                 candidate_count = 1
             else:
-                selected_target = select_candidate(run_paths["base_dir"] / "versions", run_paths["selection_dir"])
+                selected_target = select_candidate(
+                    run_paths["base_dir"] / "versions", run_paths["selection_dir"]
+                )
                 selection_rule = "single_candidate"
-                candidate_count = len(candidate_artifact_dirs(run_paths["base_dir"] / "versions"))
+                candidate_count = len(
+                    candidate_artifact_dirs(run_paths["base_dir"] / "versions")
+                )
 
-            artifact_path = materialize_selected_artifact(run_paths["selection_dir"], selected_target)
+            artifact_path = materialize_selected_artifact(
+                run_paths["selection_dir"], selected_target
+            )
             selection_manifest = selection_manifest_payload(
                 artifact_path=artifact_path,
                 selected_target=selected_target,
                 selection_rule=selection_rule,
                 candidate_count=candidate_count,
             )
-            write_json(run_paths["selection_dir"] / "selection_manifest.json", selection_manifest)
+            write_json(
+                run_paths["selection_dir"] / "selection_manifest.json",
+                selection_manifest,
+            )
             executed_stages.append(stage)
             continue
 
@@ -402,7 +488,9 @@ def run(args, root) -> dict:
         "executed_stages": executed_stages,
         "runtime_config_path": str(run_paths["runtime_config_path"]),
         "summary_path": str(run_paths["summary_path"]),
-        "selection_manifest_path": str(run_paths["selection_dir"] / "selection_manifest.json"),
+        "selection_manifest_path": str(
+            run_paths["selection_dir"] / "selection_manifest.json"
+        ),
     }
     write_json(run_paths["manifest_path"], manifest)
 
@@ -440,7 +528,10 @@ def write_runtime_config(
         config,
         fixed_replay_artifact_path=fixed_replay_artifact_path,
     )
-    config["fixed_replay_sources"] = [{"path": str(replay_dataset_path), "weight": 1}, *fixed_replay_sources]
+    config["fixed_replay_sources"] = [
+        {"path": str(replay_dataset_path), "weight": 1},
+        *fixed_replay_sources,
+    ]
 
     for step in config.get("steps", []):
         command = list(step.get("command", []))
@@ -485,7 +576,10 @@ def build_fixed_replay_command(
     if should_build_opening_capture_family_replay(base_config_path):
         return [
             python_bin,
-            str(root / "ml/alphazero_lite/build_tactical_opening_capture_family_replay.py"),
+            str(
+                root
+                / "ml/alphazero_lite/build_tactical_opening_capture_family_replay.py"
+            ),
             "--out",
             str(opening_capture_family_replay_path(run_paths)),
         ]
@@ -493,7 +587,10 @@ def build_fixed_replay_command(
     if should_build_stable_failure_family_replay(base_config_path):
         return [
             python_bin,
-            str(root / "ml/alphazero_lite/build_tactical_stable_failure_family_replay.py"),
+            str(
+                root
+                / "ml/alphazero_lite/build_tactical_stable_failure_family_replay.py"
+            ),
             "--reference",
             str(reference_artifact_path),
             "--out",
@@ -526,7 +623,9 @@ def build_stage_commands(
     mined_report_path = run_paths["inputs_dir"] / "mined_hard_states_report.json"
     labeled_states_path = run_paths["inputs_dir"] / "labeled_tactical_states.jsonl"
     tactical_train_path = run_paths["inputs_dir"] / "tactical_replay_train.jsonl"
-    preservation_train_path = run_paths["inputs_dir"] / "preservation_replay_train.jsonl"
+    preservation_train_path = (
+        run_paths["inputs_dir"] / "preservation_replay_train.jsonl"
+    )
     if reference_artifact_path is None:
         reference_artifact_path = run_paths["inputs_dir"] / "reference_moves.json"
     candidate_forensic_path = final_dir / "selected_candidate_forensics.json"
@@ -542,7 +641,9 @@ def build_stage_commands(
     promotion_gate_path = final_dir / "local_promotion_gate.json"
     decision_path = final_dir / "tactical_lane_decision.json"
     if exploratory_summary_path is None:
-        exploratory_summary_path = run_paths["base_dir"] / "exploratory" / "aggregate_summary.json"
+        exploratory_summary_path = (
+            run_paths["base_dir"] / "exploratory" / "aggregate_summary.json"
+        )
 
     commands = {
         "prepare_forensic_mining_input_command": [
@@ -834,15 +935,30 @@ def build_dry_run_payload(args, root) -> dict:
         runtime_config_path=paths["runtime_config_path"],
         output_root=Path(args.output_root),
         base_config_path=config_path,
-        reference_artifact_path=resolve_path(root, getattr(args, "reference_artifact", None)),
-        exploratory_summary_path=resolve_path(root, getattr(args, "exploratory_summary", None)),
+        reference_artifact_path=resolve_path(
+            root, getattr(args, "reference_artifact", None)
+        ),
+        exploratory_summary_path=resolve_path(
+            root, getattr(args, "exploratory_summary", None)
+        ),
     )
     stages = planned_stages(args)
     command_names_by_stage = command_names_by_stage_for(stages)
     command_names_by_stage["train"] = build_train_command_names(config_path)
     all_commands = {
-        stage: [planned_commands[command_name] for command_name in command_names_by_stage.get(stage, [])]
-        for stage in ["mine", "label", "train", "select", "validation_pack", "final_holdout", "decision"]
+        stage: [
+            planned_commands[command_name]
+            for command_name in command_names_by_stage.get(stage, [])
+        ]
+        for stage in [
+            "mine",
+            "label",
+            "train",
+            "select",
+            "validation_pack",
+            "final_holdout",
+            "decision",
+        ]
     }
 
     return {
