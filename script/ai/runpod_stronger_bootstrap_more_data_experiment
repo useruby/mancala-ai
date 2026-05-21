@@ -14,12 +14,21 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 from ml.alphazero_lite.runpod_experiment import build_dry_run_plan, orchestrate  # noqa: E402
-from ml.alphazero_lite.stronger_bootstrap_more_data_summary import summarize_downloaded_results, write_summary  # noqa: E402
+from ml.alphazero_lite.stronger_bootstrap_more_data_summary import (  # noqa: E402
+    summarize_downloaded_results,
+    write_summary,
+)
 
-DEFAULT_CONFIG_PATH = "ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_more_data_local.json"
-DEFAULT_RESULTS_PATH = "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+DEFAULT_CONFIG_PATH = (
+    "ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_more_data_local.json"
+)
+DEFAULT_RESULTS_PATH = (
+    "storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data"
+)
 DEFAULT_LOCAL_RESULTS_PATH = "/tmp/runpod-stronger-bootstrap-more-data-results"
-DEFAULT_BUNDLE_PATH = str(REPO_ROOT / "tmp" / "runpod_stronger_bootstrap_more_data_bundle.tar.gz")
+DEFAULT_BUNDLE_PATH = str(
+    REPO_ROOT / "tmp" / "runpod_stronger_bootstrap_more_data_bundle.tar.gz"
+)
 DEFAULT_NAME = "azlite-runpod-stronger-bootstrap-more-data"
 DEFAULT_POD_PROFILE = "cpu3c-16-32"
 DEFAULT_CURRENT_PATH = "model-artifact/current"
@@ -38,7 +47,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--name", default=DEFAULT_NAME)
     parser.add_argument("--pod-profile", default=DEFAULT_POD_PROFILE)
     parser.add_argument("--run-timeout-seconds", type=int, default=14400)
-    parser.add_argument("--keep-pod-on-failure", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument(
+        "--keep-pod-on-failure", action=argparse.BooleanOptionalAction, default=True
+    )
     parser.add_argument("--promotion-current-path", default=DEFAULT_CURRENT_PATH)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
@@ -72,7 +83,10 @@ def lane_command(config: dict, args: argparse.Namespace) -> tuple[str, str, str,
     promotion_out = str(Path(args.results_path) / "local_promotion_gate.json")
     pre_pipeline_commands = [f"mkdir -p {shlex.quote(args.results_path)}"]
     config_current_path = config.get("current_path")
-    if isinstance(config_current_path, str) and config_current_path != args.promotion_current_path:
+    if (
+        isinstance(config_current_path, str)
+        and config_current_path != args.promotion_current_path
+    ):
         pre_pipeline_commands.extend(
             [
                 f"mkdir -p {shlex.quote(config_current_path)}",
@@ -95,7 +109,9 @@ def lane_command(config: dict, args: argparse.Namespace) -> tuple[str, str, str,
             ),
         ]
     )
-    downloaded_results_root = str(Path(args.local_results_path) / Path(args.results_path).name)
+    downloaded_results_root = str(
+        Path(args.local_results_path) / Path(args.results_path).name
+    )
     return command, candidate_dir_name, candidate_path, downloaded_results_root
 
 
@@ -115,8 +131,13 @@ def include_paths(args: argparse.Namespace, config: dict) -> list[str]:
     if args.promotion_current_path != "model-artifact/current":
         paths.append(args.promotion_current_path)
     config_current_path = config.get("current_path")
-    if config_current_path == "storage/ai/alphazero_lite/current" and not (REPO_ROOT / config_current_path).exists():
-        paths.append(stage_repo_directory("model-artifact/current", config_current_path))
+    if (
+        config_current_path == "storage/ai/alphazero_lite/current"
+        and not (REPO_ROOT / config_current_path).exists()
+    ):
+        paths.append(
+            stage_repo_directory("model-artifact/current", config_current_path)
+        )
     elif isinstance(config_current_path, str):
         paths.append(config_current_path)
     existing_paths = []
@@ -127,7 +148,9 @@ def include_paths(args: argparse.Namespace, config: dict) -> list[str]:
 
 
 def dry_run_payload(args: argparse.Namespace, config: dict) -> dict:
-    command, candidate_dir_name, candidate_path, downloaded_results_root = lane_command(config, args)
+    command, candidate_dir_name, candidate_path, downloaded_results_root = lane_command(
+        config, args
+    )
     plan = build_dry_run_plan(
         name=args.name,
         command=command,

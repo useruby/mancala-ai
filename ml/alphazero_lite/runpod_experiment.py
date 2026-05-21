@@ -425,7 +425,11 @@ def orchestrate(
                         "manifest_path": downloaded["manifest_path"],
                         "manifest_status": downloaded["manifest_status"],
                     }
-                delete_pod = True if downloaded["usable_downloaded_results_present"] else not keep_pod_on_failure
+                delete_pod = (
+                    True
+                    if downloaded["usable_downloaded_results_present"]
+                    else not keep_pod_on_failure
+                )
             except Exception:
                 pass
         raise
@@ -564,7 +568,9 @@ def _inspect_downloaded_results(local_results_path: str, results_path: str) -> d
     }
     try:
         results_dir = os.path.join(local_results_path, os.path.basename(results_path))
-        downloaded_results_present = os.path.isdir(results_dir) and any(Path(results_dir).iterdir())
+        downloaded_results_present = os.path.isdir(results_dir) and any(
+            Path(results_dir).iterdir()
+        )
         report_path = os.path.join(results_dir, "local_promotion_gate.json")
         if os.path.exists(report_path):
             payload = json.loads(Path(report_path).read_text(encoding="utf-8"))

@@ -4,7 +4,12 @@ import json
 from pathlib import Path
 
 
-REQUIRED_ARTIFACT_FILES = ("weights.json", "metadata.json", "arena_report.json", "run_manifest.json")
+REQUIRED_ARTIFACT_FILES = (
+    "weights.json",
+    "metadata.json",
+    "arena_report.json",
+    "run_manifest.json",
+)
 REQUIRED_REPORT_FILES = (
     "local_promotion_gate.json",
     "candidate_vs_current_arena.json",
@@ -25,7 +30,9 @@ def load_json(path: Path) -> dict | None:
 def detect_candidate_dir(downloaded_root: Path) -> Path | None:
     candidates = []
     for child in sorted(downloaded_root.iterdir()) if downloaded_root.exists() else []:
-        if child.is_dir() and all((child / name).is_file() for name in REQUIRED_ARTIFACT_FILES):
+        if child.is_dir() and all(
+            (child / name).is_file() for name in REQUIRED_ARTIFACT_FILES
+        ):
             candidates.append(child)
     if len(candidates) == 1:
         return candidates[0]
@@ -99,10 +106,14 @@ def summarize_downloaded_results(
             and computed_candidate_mcts_score < computed_current_mcts_score
         ):
             recommendation = "pivot"
-            recommendation_reason = "candidate beat current in arena play but regressed against MCTS1200"
+            recommendation_reason = (
+                "candidate beat current in arena play but regressed against MCTS1200"
+            )
         else:
             recommendation = "reject"
-            recommendation_reason = "candidate did not satisfy the promotion-readiness decision rules"
+            recommendation_reason = (
+                "candidate did not satisfy the promotion-readiness decision rules"
+            )
 
     return {
         "results_path": results_path,
@@ -110,22 +121,44 @@ def summarize_downloaded_results(
         "downloaded_results_root": str(downloaded_root),
         "summary_path": str(downloaded_root / "issue1_summary.json"),
         "candidate_path": str(candidate_dir) if candidate_dir is not None else None,
-        "local_promotion_gate_path": str(report_paths["local_promotion_gate.json"]) if report_paths["local_promotion_gate.json"].is_file() else None,
-        "candidate_vs_current_arena_path": str(report_paths["candidate_vs_current_arena.json"]) if report_paths["candidate_vs_current_arena.json"].is_file() else None,
-        "candidate_vs_mcts1200_path": str(report_paths["candidate_vs_mcts1200.json"]) if report_paths["candidate_vs_mcts1200.json"].is_file() else None,
-        "current_vs_mcts1200_path": str(report_paths["current_vs_mcts1200.json"]) if report_paths["current_vs_mcts1200.json"].is_file() else None,
-        "candidate_regression_suite_path": str(regression_path) if regression_path.is_file() else None,
-        "candidate_forensic_suite_path": str(forensic_path) if forensic_path.is_file() else None,
+        "local_promotion_gate_path": str(report_paths["local_promotion_gate.json"])
+        if report_paths["local_promotion_gate.json"].is_file()
+        else None,
+        "candidate_vs_current_arena_path": str(
+            report_paths["candidate_vs_current_arena.json"]
+        )
+        if report_paths["candidate_vs_current_arena.json"].is_file()
+        else None,
+        "candidate_vs_mcts1200_path": str(report_paths["candidate_vs_mcts1200.json"])
+        if report_paths["candidate_vs_mcts1200.json"].is_file()
+        else None,
+        "current_vs_mcts1200_path": str(report_paths["current_vs_mcts1200.json"])
+        if report_paths["current_vs_mcts1200.json"].is_file()
+        else None,
+        "candidate_regression_suite_path": str(regression_path)
+        if regression_path.is_file()
+        else None,
+        "candidate_forensic_suite_path": str(forensic_path)
+        if forensic_path.is_file()
+        else None,
         "experiment_report_path": experiment_report_path,
         "experiment_passed": experiment_passed,
         "manifest_path": manifest_path,
         "manifest_status": manifest_status,
         "completed": completed,
         "passed": gate_report.get("passed") if isinstance(gate_report, dict) else None,
-        "arena_score": gate_report.get("arena_score") if isinstance(gate_report, dict) else computed_arena_score,
-        "candidate_mcts_score": gate_report.get("candidate_mcts_score") if isinstance(gate_report, dict) else computed_candidate_mcts_score,
-        "current_mcts_score": gate_report.get("current_mcts_score") if isinstance(gate_report, dict) else computed_current_mcts_score,
-        "failure_reasons": gate_report.get("failure_reasons") if isinstance(gate_report, dict) else None,
+        "arena_score": gate_report.get("arena_score")
+        if isinstance(gate_report, dict)
+        else computed_arena_score,
+        "candidate_mcts_score": gate_report.get("candidate_mcts_score")
+        if isinstance(gate_report, dict)
+        else computed_candidate_mcts_score,
+        "current_mcts_score": gate_report.get("current_mcts_score")
+        if isinstance(gate_report, dict)
+        else computed_current_mcts_score,
+        "failure_reasons": gate_report.get("failure_reasons")
+        if isinstance(gate_report, dict)
+        else None,
         "recommendation": recommendation,
         "recommendation_reason": recommendation_reason,
     }
