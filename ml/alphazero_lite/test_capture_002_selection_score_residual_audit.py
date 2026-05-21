@@ -11,12 +11,17 @@ from ml.alphazero_lite import capture_002_selection_score_residual_audit as modu
 
 class Capture002SelectionScoreResidualAuditContractTest(unittest.TestCase):
     def test_contract_constants_are_stable(self):
-        self.assertEqual("azlite_capture_002_selection_score_residual_audit_v1", module.SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_selection_score_residual_audit_v1", module.SCHEMA
+        )
         self.assertEqual(
             "azlite_capture_002_prior_pressure_component_audit_v1",
             module.SOURCE_PRIOR_PRESSURE_AUDIT_SCHEMA,
         )
-        self.assertEqual("azlite_capture_002_selection_score_trace_v1", module.SOURCE_SELECTION_SCORE_SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_selection_score_trace_v1",
+            module.SOURCE_SELECTION_SCORE_SCHEMA,
+        )
         self.assertEqual(
             "azlite_capture_002_trace_checkpoint_canonicalization_v1",
             module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
@@ -69,7 +74,9 @@ class Capture002SelectionScoreResidualAuditContractTest(unittest.TestCase):
             Path("/tmp/prior_pressure_audit.json"),
             args.source_prior_pressure_audit_artifact,
         )
-        self.assertEqual(Path("/tmp/default.json"), args.source_selection_score_artifact)
+        self.assertEqual(
+            Path("/tmp/default.json"), args.source_selection_score_artifact
+        )
         self.assertEqual(
             Path("/tmp/relaxed.json"),
             args.source_threshold_relaxed_selection_score_artifact,
@@ -123,7 +130,9 @@ class Capture002SelectionScoreResidualAuditTestSupport:
             "selected_artifact": self.selected_artifact(),
         }
 
-    def trace_point(self, *, simulation: float, moves: list[dict], visits: list[float]) -> dict:
+    def trace_point(
+        self, *, simulation: float, moves: list[dict], visits: list[float]
+    ) -> dict:
         return {
             "simulation": simulation,
             "selected_move": 0,
@@ -156,11 +165,16 @@ class Capture002SelectionScoreResidualAuditTestSupport:
     ) -> dict:
         return {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
-            "classification": {"classification": "unresolved", "evidence_summary": "unresolved"},
+            "classification": {
+                "classification": "unresolved",
+                "evidence_summary": "unresolved",
+            },
             "decision": "write_002_unresolved_trace_review_spec",
             "insufficiency_reasons": [],
             "trace_origin": trace_origin,
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
             "thresholds": copy.deepcopy(thresholds),
             "trace_points": copy.deepcopy(trace_points),
         }
@@ -215,14 +229,18 @@ class Capture002SelectionScoreResidualAuditTestSupport:
                 }
             ),
             "trace_origin": trace_origin or "extracted",
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
         }
         if source_path is not None:
             artifact["source_path"] = source_path
         return artifact
 
     def prior_pressure_artifact(self, *, source_artifact: dict | None = None) -> dict:
-        source_artifact = copy.deepcopy(source_artifact or self.source_artifact_with_provenance())
+        source_artifact = copy.deepcopy(
+            source_artifact or self.source_artifact_with_provenance()
+        )
         return {
             "schema": module.SOURCE_PRIOR_PRESSURE_AUDIT_SCHEMA,
             "hypothesis": "prior_pressure_component_audit",
@@ -239,11 +257,15 @@ class Capture002SelectionScoreResidualAuditTestSupport:
             },
             "source_artifact": source_artifact,
             "thresholds_evaluated": {
-                "selection_score": self.default_thresholds()["material_selection_score_margin"],
+                "selection_score": self.default_thresholds()[
+                    "material_selection_score_margin"
+                ],
                 "meaningful_q": self.default_thresholds()["meaningful_q_margin"],
             },
             "source_snapshots": {
-                "metric_audit_classification": {"classification": "early_selection_score_only"},
+                "metric_audit_classification": {
+                    "classification": "early_selection_score_only"
+                },
                 "default_trace_classification": {"classification": "unresolved"},
                 "relaxed_trace_classification": {"classification": "unresolved"},
                 "default_trace_origin": "extracted",
@@ -356,12 +378,12 @@ class Capture002SelectionScoreResidualAuditBuildPayloadHappyPathTest(
         self.assertEqual(
             {
                 "canonical_simulation": 2.0,
-                "default_upstream_checkpoint_echo": prior_pressure["branch_level_evidence"]["default"][
-                    "upstream_checkpoint_echo"
-                ],
-                "relaxed_upstream_checkpoint_echo": prior_pressure["branch_level_evidence"]["relaxed"][
-                    "upstream_checkpoint_echo"
-                ],
+                "default_upstream_checkpoint_echo": prior_pressure[
+                    "branch_level_evidence"
+                ]["default"]["upstream_checkpoint_echo"],
+                "relaxed_upstream_checkpoint_echo": prior_pressure[
+                    "branch_level_evidence"
+                ]["relaxed"]["upstream_checkpoint_echo"],
             },
             payload["checkpoint"],
         )
@@ -394,7 +416,9 @@ class Capture002SelectionScoreResidualAuditBuildPayloadHappyPathTest(
         )
         self.assertEqual(
             [],
-            payload["branch_residual_evidence"]["default"]["missing_residual_inputs_moves"],
+            payload["branch_residual_evidence"]["default"][
+                "missing_residual_inputs_moves"
+            ],
         )
         self.assertEqual(
             [],
@@ -415,7 +439,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
         canonicalization=None,
         canonicalization_path=None,
     ):
-        valid_prior_pressure, valid_default_trace, valid_relaxed_trace = self.valid_inputs()
+        valid_prior_pressure, valid_default_trace, valid_relaxed_trace = (
+            self.valid_inputs()
+        )
         return module.build_payload(
             prior_pressure or valid_prior_pressure,
             default_trace or valid_default_trace,
@@ -431,7 +457,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         prior_pressure["schema"] = "wrong"
 
-        with self.assertRaisesRegex(ValueError, "prior-pressure audit artifact has wrong schema"):
+        with self.assertRaisesRegex(
+            ValueError, "prior-pressure audit artifact has wrong schema"
+        ):
             self.build_payload(
                 prior_pressure=prior_pressure,
                 default_trace=default_trace,
@@ -441,7 +469,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
     def test_build_payload_rejects_non_object_prior_pressure_artifact(self):
         _, default_trace, relaxed_trace = self.valid_inputs()
 
-        with self.assertRaisesRegex(ValueError, "prior-pressure audit artifact must be an object"):
+        with self.assertRaisesRegex(
+            ValueError, "prior-pressure audit artifact must be an object"
+        ):
             self.build_payload(
                 prior_pressure="not-a-dict",
                 default_trace=default_trace,
@@ -462,7 +492,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_boolean_prior_pressure_source_artifact_selected_move(self):
+    def test_build_payload_rejects_boolean_prior_pressure_source_artifact_selected_move(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         prior_pressure["source_artifact"]["full_search_selected_move"] = True
 
@@ -506,7 +538,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_missing_branch_threshold(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        del prior_pressure["branch_level_evidence"]["default"]["selection_score_residual_threshold"]
+        del prior_pressure["branch_level_evidence"]["default"][
+            "selection_score_residual_threshold"
+        ]
 
         with self.assertRaisesRegex(
             ValueError,
@@ -520,7 +554,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_non_canonical_upstream_checkpoint(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["branch_level_evidence"]["default"]["upstream_checkpoint_echo"]["simulation"] = 1.0
+        prior_pressure["branch_level_evidence"]["default"]["upstream_checkpoint_echo"][
+            "simulation"
+        ] = 1.0
 
         with self.assertRaisesRegex(
             ValueError,
@@ -537,7 +573,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][1])
         duplicate_default_point["moves"][0]["selection_score"] = 0.08
         default_trace["trace_points"].append(duplicate_default_point)
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -551,7 +589,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 canonicalization_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_conflicting_duplicate_canonical_projection_without_canonicalization(self):
+    def test_build_payload_rejects_conflicting_duplicate_canonical_projection_without_canonicalization(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][1])
         duplicate_default_point["moves"][0]["selection_score"] = 0.08
@@ -571,7 +611,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][1])
         default_trace["trace_points"].append(duplicate_default_point)
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -598,7 +640,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 canonicalization=self.canonicalization_artifact(),
             )
 
-    def test_build_payload_requires_prior_pressure_canonicalization_path_in_canonical_mode(self):
+    def test_build_payload_requires_prior_pressure_canonicalization_path_in_canonical_mode(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
 
         with self.assertRaisesRegex(
@@ -613,9 +657,13 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 canonicalization_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_upstream_checkpoint_mismatch_against_canonical_trace(self):
+    def test_build_payload_rejects_upstream_checkpoint_mismatch_against_canonical_trace(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["branch_level_evidence"]["default"]["upstream_checkpoint_echo"]["selection_score_margin"] = 0.08
+        prior_pressure["branch_level_evidence"]["default"]["upstream_checkpoint_echo"][
+            "selection_score_margin"
+        ] = 0.08
 
         with self.assertRaisesRegex(
             ValueError,
@@ -644,7 +692,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
         self.assertEqual(module.SCHEMA, payload["schema"])
 
-    def test_build_payload_accepts_numeric_equivalent_duplicate_canonical_projection(self):
+    def test_build_payload_accepts_numeric_equivalent_duplicate_canonical_projection(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][1])
         duplicate_default_point["simulation"] = 2
@@ -654,7 +704,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
         duplicate_default_point["moves"][1]["selection_score"] = 0
         duplicate_default_point["moves"][1]["q_value"] = 0
         default_trace["trace_points"].append(duplicate_default_point)
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         payload = self.build_payload(
             prior_pressure=prior_pressure,
@@ -669,7 +721,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
     def test_build_payload_rejects_non_object_default_trace_artifact(self):
         prior_pressure, _, relaxed_trace = self.valid_inputs()
 
-        with self.assertRaisesRegex(ValueError, "default trace artifact must be an object"):
+        with self.assertRaisesRegex(
+            ValueError, "default trace artifact must be an object"
+        ):
             self.build_payload(
                 prior_pressure=prior_pressure,
                 default_trace="not-a-dict",
@@ -736,14 +790,18 @@ class Capture002SelectionScoreResidualAuditValidationTest(
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         default_trace["thresholds"] = "not-an-object"
 
-        with self.assertRaisesRegex(ValueError, "default trace artifact thresholds must be an object"):
+        with self.assertRaisesRegex(
+            ValueError, "default trace artifact thresholds must be an object"
+        ):
             self.build_payload(
                 prior_pressure=prior_pressure,
                 default_trace=default_trace,
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_non_numeric_relaxed_trace_material_selection_score_margin(self):
+    def test_build_payload_rejects_non_numeric_relaxed_trace_material_selection_score_margin(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         relaxed_trace["thresholds"]["material_selection_score_margin"] = "wrong"
 
@@ -773,7 +831,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_wrong_canonicalization_decision_when_present(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -789,7 +849,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_missing_canonicalization_decision(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         canonicalization = self.canonicalization_artifact()
         del canonicalization["decision"]
 
@@ -807,7 +869,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_canonicalization_artifact_input_path_mismatch(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -826,9 +890,13 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 canonicalization_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_canonicalization_artifact_source_artifact_mismatch(self):
+    def test_build_payload_rejects_canonicalization_artifact_source_artifact_mismatch(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         mismatched_source_artifact = self.source_artifact_with_provenance()
         mismatched_source_artifact["artifact_path"] = "/tmp/source/other-upstream.json"
 
@@ -840,13 +908,17 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 prior_pressure=prior_pressure,
                 default_trace=default_trace,
                 relaxed_trace=relaxed_trace,
-                canonicalization=self.canonicalization_artifact(source_artifact=mismatched_source_artifact),
+                canonicalization=self.canonicalization_artifact(
+                    source_artifact=mismatched_source_artifact
+                ),
                 canonicalization_path="/tmp/canonicalization.json",
             )
 
     def test_build_payload_rejects_canonicalization_thresholds_evaluated_mismatch(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -872,7 +944,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_missing_canonicalization_thresholds_evaluated(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         canonicalization = self.canonicalization_artifact()
         del canonicalization["thresholds_evaluated"]
 
@@ -890,7 +964,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_canonicalization_trace_origin_mismatch(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -913,7 +989,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_missing_canonicalization_trace_origin(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         canonicalization = self.canonicalization_artifact()
         del canonicalization["trace_origin"]
 
@@ -929,9 +1007,13 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 canonicalization_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_missing_canonicalization_safe_for_followup_spec(self):
+    def test_build_payload_rejects_missing_canonicalization_safe_for_followup_spec(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         canonicalization = self.canonicalization_artifact()
         del canonicalization["canonicalization_status"]["safe_for_followup_spec"]
 
@@ -949,7 +1031,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_false_canonicalization_safe_for_followup_spec(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -965,9 +1049,13 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 canonicalization_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_malformed_canonicalization_artifact_shape_in_canonical_mode(self):
+    def test_build_payload_rejects_malformed_canonicalization_artifact_shape_in_canonical_mode(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+        prior_pressure["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -984,7 +1072,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 canonicalization_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_mismatched_source_artifact_between_prior_pressure_and_default_trace(self):
+    def test_build_payload_rejects_mismatched_source_artifact_between_prior_pressure_and_default_trace(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         default_trace["source_artifact"]["artifact_path"] = "/tmp/source/other.json"
 
@@ -998,7 +1088,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_uses_source_artifact_move_ids_when_canonical_trace_point_ids_differ(self):
+    def test_build_payload_uses_source_artifact_move_ids_when_canonical_trace_point_ids_differ(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         for trace_artifact in (default_trace, relaxed_trace):
             trace_artifact["trace_points"][1]["selected_move"] = 2
@@ -1010,12 +1102,23 @@ class Capture002SelectionScoreResidualAuditValidationTest(
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual(0, payload["branch_residual_evidence"]["default"]["selected_move"])
-        self.assertEqual(2, payload["branch_residual_evidence"]["default"]["reference_move"])
-        self.assertEqual(0.07, payload["branch_residual_evidence"]["default"]["selected_residual"])
-        self.assertEqual("stable_selected_residual_advantage", payload["classification"]["classification"])
+        self.assertEqual(
+            0, payload["branch_residual_evidence"]["default"]["selected_move"]
+        )
+        self.assertEqual(
+            2, payload["branch_residual_evidence"]["default"]["reference_move"]
+        )
+        self.assertEqual(
+            0.07, payload["branch_residual_evidence"]["default"]["selected_residual"]
+        )
+        self.assertEqual(
+            "stable_selected_residual_advantage",
+            payload["classification"]["classification"],
+        )
 
-    def test_build_payload_rejects_when_source_artifact_selected_move_missing_from_canonical_trace_moves(self):
+    def test_build_payload_rejects_when_source_artifact_selected_move_missing_from_canonical_trace_moves(
+        self,
+    ):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
         prior_pressure["source_artifact"]["full_search_selected_move"] = 1
         default_trace["source_artifact"]["full_search_selected_move"] = 1
@@ -1033,7 +1136,9 @@ class Capture002SelectionScoreResidualAuditValidationTest(
 
     def test_build_payload_rejects_mismatched_prior_pressure_default_input_path(self):
         prior_pressure, default_trace, relaxed_trace = self.valid_inputs()
-        prior_pressure["input_artifacts"]["source_selection_score_artifact_path"] = "/tmp/other-default.json"
+        prior_pressure["input_artifacts"]["source_selection_score_artifact_path"] = (
+            "/tmp/other-default.json"
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -1086,14 +1191,16 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
         checkpoint_echo = {
             "simulation": 2.0,
             "selection_score_margin": (
-                trace_point["moves"][0]["selection_score"] - trace_point["moves"][1]["selection_score"]
+                trace_point["moves"][0]["selection_score"]
+                - trace_point["moves"][1]["selection_score"]
             ),
-            "q_margin": trace_point["moves"][0]["q_value"] - trace_point["moves"][1]["q_value"],
+            "q_margin": trace_point["moves"][0]["q_value"]
+            - trace_point["moves"][1]["q_value"],
         }
         for branch in ("default", "relaxed"):
-            prior_pressure["branch_level_evidence"][branch]["upstream_checkpoint_echo"] = copy.deepcopy(
-                checkpoint_echo
-            )
+            prior_pressure["branch_level_evidence"][branch][
+                "upstream_checkpoint_echo"
+            ] = copy.deepcopy(checkpoint_echo)
         default_trace = self.trace_artifact(
             thresholds=self.default_thresholds(),
             trace_points=[trace_point],
@@ -1113,7 +1220,9 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             source_threshold_relaxed_selection_score_artifact_path="/tmp/relaxed.json",
         )
 
-    def test_build_payload_classifies_competing_reference_residual_before_inconclusive(self):
+    def test_build_payload_classifies_competing_reference_residual_before_inconclusive(
+        self,
+    ):
         payload = self.build_payload_for_canonical_trace_point(
             self.canonical_trace_point(
                 selected_selection_score=0.07,
@@ -1133,7 +1242,9 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             payload["classification"]["classification"],
         )
 
-    def test_build_payload_prefers_competing_residual_over_missing_other_move_data(self):
+    def test_build_payload_prefers_competing_residual_over_missing_other_move_data(
+        self,
+    ):
         payload = self.build_payload_for_canonical_trace_point(
             self.canonical_trace_point(
                 selected_selection_score=0.07,
@@ -1149,7 +1260,9 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             payload["branch_residual_evidence"]["default"]["branch_candidate"],
         )
 
-    def test_build_payload_uses_moves_list_for_legal_move_universe_when_visit_is_zero(self):
+    def test_build_payload_uses_moves_list_for_legal_move_universe_when_visit_is_zero(
+        self,
+    ):
         payload = self.build_payload_for_canonical_trace_point(
             self.canonical_trace_point(
                 selected_selection_score=0.07,
@@ -1195,9 +1308,13 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             "tiny_count_residual_ambiguous",
             payload["branch_residual_evidence"]["default"]["branch_candidate"],
         )
-        self.assertFalse(payload["branch_residual_evidence"]["default"]["visit_summary"]["usable"])
+        self.assertFalse(
+            payload["branch_residual_evidence"]["default"]["visit_summary"]["usable"]
+        )
 
-    def test_build_payload_rejects_boolean_move_ids_without_changing_competitor_precedence(self):
+    def test_build_payload_rejects_boolean_move_ids_without_changing_competitor_precedence(
+        self,
+    ):
         payload = self.build_payload_for_canonical_trace_point(
             self.canonical_trace_point(
                 selected_selection_score=0.07,
@@ -1215,7 +1332,9 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             )
         )
 
-        self.assertFalse(payload["branch_residual_evidence"]["default"]["visit_summary"]["usable"])
+        self.assertFalse(
+            payload["branch_residual_evidence"]["default"]["visit_summary"]["usable"]
+        )
         self.assertEqual(
             "reference_or_other_move_residual_competes",
             payload["branch_residual_evidence"]["default"]["branch_candidate"],
@@ -1232,13 +1351,17 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             )
         )
 
-        self.assertFalse(payload["branch_residual_evidence"]["default"]["visit_summary"]["usable"])
+        self.assertFalse(
+            payload["branch_residual_evidence"]["default"]["visit_summary"]["usable"]
+        )
         self.assertEqual(
             "tiny_count_residual_ambiguous",
             payload["branch_residual_evidence"]["default"]["branch_candidate"],
         )
 
-    def test_build_payload_classifies_stable_selected_residual_advantage_when_both_branches_stable(self):
+    def test_build_payload_classifies_stable_selected_residual_advantage_when_both_branches_stable(
+        self,
+    ):
         payload = self.build_payload_for_canonical_trace_point(
             self.canonical_trace_point(
                 selected_selection_score=0.12,
@@ -1266,7 +1389,9 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             payload["decision"],
         )
 
-    def test_build_payload_classifies_tiny_count_residual_ambiguous_when_any_branch_is_ambiguity_limited(self):
+    def test_build_payload_classifies_tiny_count_residual_ambiguous_when_any_branch_is_ambiguity_limited(
+        self,
+    ):
         source_artifact = self.source_artifact_with_provenance()
         stable_trace_point = self.canonical_trace_point(
             selected_selection_score=0.12,
@@ -1283,13 +1408,20 @@ class Capture002SelectionScoreResidualAuditBranchClassificationTest(
             visits=[2.0, 0.0, 1.0, 0.0, 1.0],
         )
         prior_pressure = self.prior_pressure_artifact(source_artifact=source_artifact)
-        for branch, trace_point in (("default", stable_trace_point), ("relaxed", ambiguous_trace_point)):
-            prior_pressure["branch_level_evidence"][branch]["upstream_checkpoint_echo"] = {
+        for branch, trace_point in (
+            ("default", stable_trace_point),
+            ("relaxed", ambiguous_trace_point),
+        ):
+            prior_pressure["branch_level_evidence"][branch][
+                "upstream_checkpoint_echo"
+            ] = {
                 "simulation": 2.0,
                 "selection_score_margin": (
-                    trace_point["moves"][0]["selection_score"] - trace_point["moves"][1]["selection_score"]
+                    trace_point["moves"][0]["selection_score"]
+                    - trace_point["moves"][1]["selection_score"]
                 ),
-                "q_margin": trace_point["moves"][0]["q_value"] - trace_point["moves"][1]["q_value"],
+                "q_margin": trace_point["moves"][0]["q_value"]
+                - trace_point["moves"][1]["q_value"],
             }
 
         payload = module.build_payload(
@@ -1328,7 +1460,9 @@ class Capture002SelectionScoreResidualAuditCliTest(
         prior_pressure_path = tmpdir_path / "prior_pressure.json"
         default_trace_path = tmpdir_path / "default_trace.json"
         relaxed_trace_path = tmpdir_path / "relaxed_trace.json"
-        prior_pressure["input_artifacts"]["source_selection_score_artifact_path"] = str(default_trace_path)
+        prior_pressure["input_artifacts"]["source_selection_score_artifact_path"] = str(
+            default_trace_path
+        )
         prior_pressure["input_artifacts"][
             "source_threshold_relaxed_selection_score_artifact_path"
         ] = str(relaxed_trace_path)
@@ -1340,7 +1474,9 @@ class Capture002SelectionScoreResidualAuditCliTest(
     def test_main_writes_sorted_json_and_prints_compact_summary_json(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
-            prior_pressure_path, default_trace_path, relaxed_trace_path = self.write_cli_inputs(tmpdir_path)
+            prior_pressure_path, default_trace_path, relaxed_trace_path = (
+                self.write_cli_inputs(tmpdir_path)
+            )
             output_path = tmpdir_path / "out.json"
 
             stdout = io.StringIO()
@@ -1379,7 +1515,9 @@ class Capture002SelectionScoreResidualAuditCliTest(
     def test_main_creates_nested_output_parent_before_writing(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
-            prior_pressure_path, default_trace_path, relaxed_trace_path = self.write_cli_inputs(tmpdir_path)
+            prior_pressure_path, default_trace_path, relaxed_trace_path = (
+                self.write_cli_inputs(tmpdir_path)
+            )
             output_path = tmpdir_path / "nested" / "deeper" / "out.json"
 
             stdout = io.StringIO()

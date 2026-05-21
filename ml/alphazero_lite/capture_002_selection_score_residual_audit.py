@@ -7,9 +7,13 @@ import math
 from pathlib import Path
 
 SCHEMA = "azlite_capture_002_selection_score_residual_audit_v1"
-SOURCE_PRIOR_PRESSURE_AUDIT_SCHEMA = "azlite_capture_002_prior_pressure_component_audit_v1"
+SOURCE_PRIOR_PRESSURE_AUDIT_SCHEMA = (
+    "azlite_capture_002_prior_pressure_component_audit_v1"
+)
 SOURCE_SELECTION_SCORE_SCHEMA = "azlite_capture_002_selection_score_trace_v1"
-SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA = "azlite_capture_002_trace_checkpoint_canonicalization_v1"
+SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA = (
+    "azlite_capture_002_trace_checkpoint_canonicalization_v1"
+)
 ROW_ID = "capture_available-002"
 EXPECTED_PRIOR_PRESSURE_CLASSIFICATION = "selection_score_residual_lead"
 EXPECTED_PRIOR_PRESSURE_DECISION = "write_002_selection_score_residual_spec"
@@ -27,15 +31,21 @@ CLASSIFICATION_DECISIONS = {
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Audit capture 002 selection-score residual signals")
-    parser.add_argument("--source-prior-pressure-audit-artifact", type=Path, required=True)
+    parser = argparse.ArgumentParser(
+        description="Audit capture 002 selection-score residual signals"
+    )
+    parser.add_argument(
+        "--source-prior-pressure-audit-artifact", type=Path, required=True
+    )
     parser.add_argument("--source-selection-score-artifact", type=Path, required=True)
     parser.add_argument(
         "--source-threshold-relaxed-selection-score-artifact",
         type=Path,
         required=True,
     )
-    parser.add_argument("--source-checkpoint-canonicalization-artifact", type=Path, required=False)
+    parser.add_argument(
+        "--source-checkpoint-canonicalization-artifact", type=Path, required=False
+    )
     parser.add_argument("--out", type=Path, required=True)
     return parser.parse_args(argv)
 
@@ -45,7 +55,11 @@ def load_json(path: Path) -> dict:
 
 
 def _finite_number(value, *, context: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+    ):
         raise ValueError(f"{context} must be finite numeric")
     return float(value)
 
@@ -72,24 +86,35 @@ def _normalized_projection_value(value):
 
 
 def _trace_point_projection(trace_point: dict, *, context: str) -> tuple[float, str]:
-    simulation = _finite_number(trace_point.get("simulation"), context=f"{context}.simulation")
+    simulation = _finite_number(
+        trace_point.get("simulation"), context=f"{context}.simulation"
+    )
     projection = {
         "simulation": copy.deepcopy(trace_point.get("simulation")),
         "selected_move": copy.deepcopy(trace_point.get("selected_move")),
-        "reference_move_by_prior": copy.deepcopy(trace_point.get("reference_move_by_prior")),
+        "reference_move_by_prior": copy.deepcopy(
+            trace_point.get("reference_move_by_prior")
+        ),
         "visits": copy.deepcopy(trace_point.get("visits")),
         "moves": copy.deepcopy(trace_point.get("moves")),
     }
-    return simulation, json.dumps(_normalized_projection_value(projection), sort_keys=True)
+    return simulation, json.dumps(
+        _normalized_projection_value(projection), sort_keys=True
+    )
 
 
 def _sequence_values(sequence, *, context: str) -> list[float]:
     if not isinstance(sequence, list) or not sequence:
         raise ValueError(f"{context} must be a non-empty list")
-    normalized = [_finite_number(value, context=f"{context}[{index}]") for index, value in enumerate(sequence)]
+    normalized = [
+        _finite_number(value, context=f"{context}[{index}]")
+        for index, value in enumerate(sequence)
+    ]
     if len(set(normalized)) != len(normalized):
         raise ValueError("checkpoint sequences must not contain duplicates")
-    if any(current <= previous for previous, current in zip(normalized, normalized[1:])):
+    if any(
+        current <= previous for previous, current in zip(normalized, normalized[1:])
+    ):
         raise ValueError("checkpoint sequences must be strictly increasing")
     return normalized
 
@@ -114,7 +139,9 @@ def _select_canonical_trace_points(
         previous_simulation = simulation
         if simulation in selected_projections:
             if selected_projections[simulation] != projection:
-                raise ValueError("skipped duplicate checkpoint must match kept checkpoint contents")
+                raise ValueError(
+                    "skipped duplicate checkpoint must match kept checkpoint contents"
+                )
             continue
         selected_projections[simulation] = projection
         collapsed_sequence.append(simulation)
@@ -125,7 +152,9 @@ def _select_canonical_trace_points(
                 "original trace contains non-duplicate checkpoint not present in canonical checkpoint sequence"
             )
     if collapsed_sequence != canonical_sequence:
-        raise ValueError("collapsed original checkpoint sequence must match canonical checkpoint sequence")
+        raise ValueError(
+            "collapsed original checkpoint sequence must match canonical checkpoint sequence"
+        )
     return selected_trace_points
 
 
@@ -145,7 +174,9 @@ def _move_lookup(trace_point: dict, *, move: int, context: str) -> dict:
     raise ValueError(f"{context}.moves must include move {move}")
 
 
-def _source_selected_and_reference_moves(prior_pressure_source_artifact: dict) -> tuple[int, int]:
+def _source_selected_and_reference_moves(
+    prior_pressure_source_artifact: dict,
+) -> tuple[int, int]:
     selected_move = prior_pressure_source_artifact["full_search_selected_move"]
     reference_move = prior_pressure_source_artifact["reference_move"]
     if isinstance(selected_move, bool) or not isinstance(selected_move, int):
@@ -165,10 +196,16 @@ def _canonical_checkpoint_echo_from_trace_point(
     branch: str,
     prior_pressure_source_artifact: dict,
 ) -> dict:
-    selected_move, reference_move = _source_selected_and_reference_moves(prior_pressure_source_artifact)
+    selected_move, reference_move = _source_selected_and_reference_moves(
+        prior_pressure_source_artifact
+    )
 
-    selected_entry = _move_lookup(trace_point, move=selected_move, context=f"{branch} canonical trace point")
-    reference_entry = _move_lookup(trace_point, move=reference_move, context=f"{branch} canonical trace point")
+    selected_entry = _move_lookup(
+        trace_point, move=selected_move, context=f"{branch} canonical trace point"
+    )
+    reference_entry = _move_lookup(
+        trace_point, move=reference_move, context=f"{branch} canonical trace point"
+    )
     selected_score = _finite_number(
         selected_entry.get("selection_score"),
         context=f"{branch} canonical trace point selected selection_score",
@@ -206,7 +243,9 @@ def _canonical_trace_point_at_simulation(trace_artifact: dict, *, branch: str) -
         if abs(simulation - EXPECTED_CANONICAL_SIMULATION) <= FLOAT_TOLERANCE:
             matches.append(trace_point)
     if not matches:
-        raise ValueError(f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}")
+        raise ValueError(
+            f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}"
+        )
     return matches[0]
 
 
@@ -216,28 +255,44 @@ def _validated_canonical_trace_point_move_ids(
     branch: str,
     prior_pressure_source_artifact: dict,
 ) -> None:
-    selected_move, reference_move = _source_selected_and_reference_moves(prior_pressure_source_artifact)
-    _move_lookup(trace_point, move=selected_move, context=f"{branch} canonical trace point")
-    _move_lookup(trace_point, move=reference_move, context=f"{branch} canonical trace point")
+    selected_move, reference_move = _source_selected_and_reference_moves(
+        prior_pressure_source_artifact
+    )
+    _move_lookup(
+        trace_point, move=selected_move, context=f"{branch} canonical trace point"
+    )
+    _move_lookup(
+        trace_point, move=reference_move, context=f"{branch} canonical trace point"
+    )
 
 
 def _validated_prior_pressure_source_artifact(prior_pressure_artifact: dict) -> dict:
     source_artifact = prior_pressure_artifact.get("source_artifact")
     if not isinstance(source_artifact, dict):
-        raise ValueError("prior-pressure audit artifact source_artifact must be an object")
+        raise ValueError(
+            "prior-pressure audit artifact source_artifact must be an object"
+        )
     if source_artifact.get("row_id") != ROW_ID:
-        raise ValueError(f"prior-pressure audit artifact source_artifact.row_id must be {ROW_ID}")
+        raise ValueError(
+            f"prior-pressure audit artifact source_artifact.row_id must be {ROW_ID}"
+        )
     for field in ("reference_move", "full_search_selected_move"):
         value = source_artifact.get(field)
         if isinstance(value, bool) or not isinstance(value, int):
-            raise ValueError(f"prior-pressure audit artifact source_artifact.{field} must be an integer")
+            raise ValueError(
+                f"prior-pressure audit artifact source_artifact.{field} must be an integer"
+            )
     selected_artifact = source_artifact.get("selected_artifact")
     if not isinstance(selected_artifact, dict):
-        raise ValueError("prior-pressure audit artifact source_artifact.selected_artifact must be an object")
+        raise ValueError(
+            "prior-pressure audit artifact source_artifact.selected_artifact must be an object"
+        )
     return source_artifact
 
 
-def _move_residual_evidence(trace_point: dict, *, move: int, context: str) -> dict | None:
+def _move_residual_evidence(
+    trace_point: dict, *, move: int, context: str
+) -> dict | None:
     try:
         move_entry = _move_lookup(trace_point, move=move, context=context)
     except ValueError:
@@ -265,7 +320,9 @@ def _move_residual_evidence(trace_point: dict, *, move: int, context: str) -> di
     }
 
 
-def _visit_summary(trace_point: dict, *, selected_move: int, reference_move: int) -> dict:
+def _visit_summary(
+    trace_point: dict, *, selected_move: int, reference_move: int
+) -> dict:
     moves = trace_point.get("moves")
     if not isinstance(moves, list):
         return {"usable": False, "legal_moves": []}
@@ -288,7 +345,11 @@ def _visit_summary(trace_point: dict, *, selected_move: int, reference_move: int
     normalized_visits = []
     total_visits = 0.0
     for value in visits:
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+        ):
             return {"usable": False, "legal_moves": legal_moves}
         normalized_value = float(value)
         if normalized_value < 0.0:
@@ -298,10 +359,16 @@ def _visit_summary(trace_point: dict, *, selected_move: int, reference_move: int
 
     if total_visits <= 0.0:
         return {"usable": False, "legal_moves": legal_moves}
-    if selected_move >= len(normalized_visits) or reference_move >= len(normalized_visits):
+    if selected_move >= len(normalized_visits) or reference_move >= len(
+        normalized_visits
+    ):
         return {"usable": False, "legal_moves": legal_moves}
 
-    positive_visit_moves = [index for index, visit_count in enumerate(normalized_visits) if visit_count > 0.0]
+    positive_visit_moves = [
+        index
+        for index, visit_count in enumerate(normalized_visits)
+        if visit_count > 0.0
+    ]
     available_moves = set(legal_moves)
     required_moves = set(positive_visit_moves)
     required_moves.add(selected_move)
@@ -324,7 +391,9 @@ def _branch_candidate(
     prior_pressure_source_artifact: dict,
     selection_score_residual_threshold: float,
 ) -> dict:
-    selected_move, reference_move = _source_selected_and_reference_moves(prior_pressure_source_artifact)
+    selected_move, reference_move = _source_selected_and_reference_moves(
+        prior_pressure_source_artifact
+    )
 
     selected_evidence = _move_residual_evidence(
         trace_point,
@@ -379,8 +448,12 @@ def _branch_candidate(
         "reference_move_evidence": reference_evidence,
         "selected_has_usable_evidence": selected_evidence is not None,
         "reference_has_usable_evidence": reference_evidence is not None,
-        "selected_residual": None if selected_evidence is None else selected_evidence["residual"],
-        "reference_residual": None if reference_evidence is None else reference_evidence["residual"],
+        "selected_residual": None
+        if selected_evidence is None
+        else selected_evidence["residual"],
+        "reference_residual": None
+        if reference_evidence is None
+        else reference_evidence["residual"],
         "selection_score_residual_threshold": selection_score_residual_threshold,
         "legal_moves": visit_summary["legal_moves"],
         "per_move_residuals": per_move_residuals,
@@ -390,7 +463,9 @@ def _branch_candidate(
     }
 
     if competing_moves:
-        branch_evidence["branch_candidate"] = "reference_or_other_move_residual_competes"
+        branch_evidence["branch_candidate"] = (
+            "reference_or_other_move_residual_competes"
+        )
         return branch_evidence
 
     if (
@@ -411,7 +486,8 @@ def _branch_candidate(
         and selected_evidence["residual"] >= selection_score_residual_threshold
         and (
             best_competitor_residual is None
-            or selected_evidence["residual"] - best_competitor_residual > FLOAT_TOLERANCE
+            or selected_evidence["residual"] - best_competitor_residual
+            > FLOAT_TOLERANCE
         )
     ):
         branch_evidence["branch_candidate"] = "stable_selected_residual_advantage"
@@ -446,7 +522,9 @@ def _validated_canonical_trace_match(
     upstream_checkpoint_echo: dict,
     prior_pressure_source_artifact: dict,
 ) -> None:
-    canonical_trace_point = _canonical_trace_point_at_simulation(trace_artifact, branch=branch)
+    canonical_trace_point = _canonical_trace_point_at_simulation(
+        trace_artifact, branch=branch
+    )
     canonical_checkpoint_echo = _canonical_checkpoint_echo_from_trace_point(
         canonical_trace_point,
         branch=branch,
@@ -467,25 +545,32 @@ def _validated_canonical_trace_match(
         ),
     }
     if (
-        abs(upstream_projection["simulation"] - canonical_checkpoint_echo["simulation"]) > FLOAT_TOLERANCE
+        abs(upstream_projection["simulation"] - canonical_checkpoint_echo["simulation"])
+        > FLOAT_TOLERANCE
         or abs(
-            upstream_projection["selection_score_margin"] - canonical_checkpoint_echo["selection_score_margin"]
+            upstream_projection["selection_score_margin"]
+            - canonical_checkpoint_echo["selection_score_margin"]
         )
         > FLOAT_TOLERANCE
-        or abs(upstream_projection["q_margin"] - canonical_checkpoint_echo["q_margin"]) > FLOAT_TOLERANCE
+        or abs(upstream_projection["q_margin"] - canonical_checkpoint_echo["q_margin"])
+        > FLOAT_TOLERANCE
     ):
         raise ValueError(
             f"prior-pressure audit {branch} upstream checkpoint must match canonical 2.0 trace point"
         )
 
 
-def _validated_upstream_branch_evidence(prior_pressure_artifact: dict, *, branch: str) -> dict:
+def _validated_upstream_branch_evidence(
+    prior_pressure_artifact: dict, *, branch: str
+) -> dict:
     branch_level_evidence = prior_pressure_artifact.get("branch_level_evidence")
     if not isinstance(branch_level_evidence, dict):
         raise ValueError("prior-pressure audit branch_level_evidence must be an object")
     evidence = branch_level_evidence.get(branch)
     if not isinstance(evidence, dict):
-        raise ValueError(f"prior-pressure audit branch_level_evidence.{branch} must be an object")
+        raise ValueError(
+            f"prior-pressure audit branch_level_evidence.{branch} must be an object"
+        )
     _finite_number(
         evidence.get("selection_score_residual_threshold"),
         context=(
@@ -494,7 +579,9 @@ def _validated_upstream_branch_evidence(prior_pressure_artifact: dict, *, branch
     )
     checkpoint = evidence.get("upstream_checkpoint_echo")
     if not isinstance(checkpoint, dict):
-        raise ValueError(f"prior-pressure audit {branch} upstream checkpoint must be an object")
+        raise ValueError(
+            f"prior-pressure audit {branch} upstream checkpoint must be an object"
+        )
     simulation = _finite_number(
         checkpoint.get("simulation"),
         context=f"prior-pressure audit {branch} upstream checkpoint simulation",
@@ -525,7 +612,9 @@ def _validated_canonicalization_artifact(
         raise ValueError("checkpoint canonicalization artifact has wrong schema")
     canonical_sequences = artifact.get("canonical_checkpoint_sequences")
     if not isinstance(canonical_sequences, dict):
-        raise ValueError("checkpoint canonicalization artifact canonical_checkpoint_sequences must be an object")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonical_checkpoint_sequences must be an object"
+        )
     default_sequence = _sequence_values(
         canonical_sequences.get("default"),
         context="checkpoint canonicalization artifact canonical_checkpoint_sequences.default",
@@ -535,11 +624,18 @@ def _validated_canonicalization_artifact(
         context="checkpoint canonicalization artifact canonical_checkpoint_sequences.relaxed",
     )
     if default_sequence != relaxed_sequence:
-        raise ValueError("checkpoint canonicalization artifact canonical checkpoint sequences must match")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonical checkpoint sequences must match"
+        )
     input_artifacts = artifact.get("input_artifacts")
     if not isinstance(input_artifacts, dict):
-        raise ValueError("checkpoint canonicalization artifact input_artifacts must be an object")
-    if input_artifacts.get("source_selection_score_artifact_path") != source_selection_score_artifact_path:
+        raise ValueError(
+            "checkpoint canonicalization artifact input_artifacts must be an object"
+        )
+    if (
+        input_artifacts.get("source_selection_score_artifact_path")
+        != source_selection_score_artifact_path
+    ):
         raise ValueError(
             "checkpoint canonicalization artifact input_artifacts source_selection_score_artifact_path must match source path"
         )
@@ -557,16 +653,22 @@ def _validated_canonicalization_artifact(
         )
     canonicalization_status = artifact.get("canonicalization_status")
     if not isinstance(canonicalization_status, dict):
-        raise ValueError("checkpoint canonicalization artifact canonicalization_status must be an object")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonicalization_status must be an object"
+        )
     if canonicalization_status.get("safe_for_followup_spec") is not True:
         raise ValueError(
             "checkpoint canonicalization artifact canonicalization_status.safe_for_followup_spec must be true"
         )
     if artifact.get("canonical_sequences_match") is not True:
-        raise ValueError("checkpoint canonicalization artifact canonical_sequences_match must be true")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonical_sequences_match must be true"
+        )
     thresholds_evaluated = artifact.get("thresholds_evaluated")
     if not isinstance(thresholds_evaluated, dict):
-        raise ValueError("checkpoint canonicalization artifact thresholds_evaluated must be an object")
+        raise ValueError(
+            "checkpoint canonicalization artifact thresholds_evaluated must be an object"
+        )
     for branch in ("default", "relaxed"):
         if thresholds_evaluated.get(branch) != validated_thresholds_by_branch[branch]:
             raise ValueError(
@@ -576,10 +678,17 @@ def _validated_canonicalization_artifact(
         raise ValueError("trace artifacts trace_origin must match each other")
     trace_origin = artifact.get("trace_origin")
     if trace_origin != default_trace_origin:
-        raise ValueError("checkpoint canonicalization artifact trace_origin must match trace artifacts")
+        raise ValueError(
+            "checkpoint canonicalization artifact trace_origin must match trace artifacts"
+        )
     source_path = artifact.get("source_path")
-    if source_path is not None and source_path != source_checkpoint_canonicalization_artifact_path:
-        raise ValueError("checkpoint canonicalization artifact source_path must match source path")
+    if (
+        source_path is not None
+        and source_path != source_checkpoint_canonicalization_artifact_path
+    ):
+        raise ValueError(
+            "checkpoint canonicalization artifact source_path must match source path"
+        )
     decision = artifact.get("decision")
     if decision != EXPECTED_CANONICALIZATION_DECISION:
         raise ValueError(
@@ -618,17 +727,25 @@ def _validated_trace_contract(trace_artifact: dict, *, branch: str) -> None:
     if not isinstance(trace_artifact, dict):
         raise ValueError(f"{branch} trace artifact must be an object")
     if trace_artifact.get("schema") != SOURCE_SELECTION_SCORE_SCHEMA:
-        raise ValueError(f"{branch} trace artifact has wrong schema; expected {SOURCE_SELECTION_SCORE_SCHEMA}")
+        raise ValueError(
+            f"{branch} trace artifact has wrong schema; expected {SOURCE_SELECTION_SCORE_SCHEMA}"
+        )
     classification = trace_artifact.get("classification")
     if not isinstance(classification, dict):
         raise ValueError(f"{branch} trace artifact classification must be an object")
     if classification.get("classification") != EXPECTED_TRACE_CLASSIFICATION:
-        raise ValueError(f"{branch} trace artifact classification must be {EXPECTED_TRACE_CLASSIFICATION}")
+        raise ValueError(
+            f"{branch} trace artifact classification must be {EXPECTED_TRACE_CLASSIFICATION}"
+        )
     if trace_artifact.get("decision") != EXPECTED_TRACE_DECISION:
-        raise ValueError(f"{branch} trace artifact decision must be {EXPECTED_TRACE_DECISION}")
+        raise ValueError(
+            f"{branch} trace artifact decision must be {EXPECTED_TRACE_DECISION}"
+        )
     trace_origin = trace_artifact.get("trace_origin")
     if not isinstance(trace_origin, str) or not trace_origin.strip():
-        raise ValueError(f"{branch} trace artifact trace_origin must be a non-empty string")
+        raise ValueError(
+            f"{branch} trace artifact trace_origin must be a non-empty string"
+        )
 
 
 def _validated_thresholds(trace_artifact: dict, *, branch: str) -> dict:
@@ -652,7 +769,9 @@ def _validated_thresholds(trace_artifact: dict, *, branch: str) -> dict:
                 f"{branch} trace artifact thresholds.{key} must be finite non-negative numeric"
             ) from error
         if value < 0.0:
-            raise ValueError(f"{branch} trace artifact thresholds.{key} must be finite non-negative numeric")
+            raise ValueError(
+                f"{branch} trace artifact thresholds.{key} must be finite non-negative numeric"
+            )
         validated_thresholds[key] = value
     return validated_thresholds
 
@@ -667,8 +786,10 @@ def _validate_duplicate_equivalence(
     source_threshold_relaxed_selection_score_artifact_path: str,
     source_checkpoint_canonicalization_artifact_path: str | None,
     prior_pressure_source_artifact: dict,
-    ) -> dict:
-    raw_trace_points = _validated_trace_points(trace_artifact, context=f"{branch} trace")
+) -> dict:
+    raw_trace_points = _validated_trace_points(
+        trace_artifact, context=f"{branch} trace"
+    )
     canonical_trace_projections = []
     for index, trace_point in enumerate(raw_trace_points):
         simulation, projection = _trace_point_projection(
@@ -691,12 +812,18 @@ def _validate_duplicate_equivalence(
 
     canonicalization_artifact = checkpoint_canonicalization_artifact
     if canonicalization_artifact is None:
-        raise ValueError("canonicalization path requires checkpoint_canonicalization_artifact")
+        raise ValueError(
+            "canonicalization path requires checkpoint_canonicalization_artifact"
+        )
     if not isinstance(canonicalization_artifact, dict):
         raise ValueError("checkpoint canonicalization artifact must be an object")
-    canonical_sequences = canonicalization_artifact.get("canonical_checkpoint_sequences")
+    canonical_sequences = canonicalization_artifact.get(
+        "canonical_checkpoint_sequences"
+    )
     if not isinstance(canonical_sequences, dict):
-        raise ValueError("checkpoint canonicalization artifact canonical_checkpoint_sequences must be an object")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonical_checkpoint_sequences must be an object"
+        )
     canonical_sequence = _sequence_values(
         canonical_sequences.get(branch),
         context=f"checkpoint canonicalization artifact canonical_checkpoint_sequences.{branch}",
@@ -708,7 +835,10 @@ def _validate_duplicate_equivalence(
             context=f"{branch} trace canonical selection",
         )
     except ValueError as error:
-        if str(error) == "skipped duplicate checkpoint must match kept checkpoint contents":
+        if (
+            str(error)
+            == "skipped duplicate checkpoint must match kept checkpoint contents"
+        ):
             raise ValueError(
                 f"{branch} raw duplicate {EXPECTED_CANONICAL_SIMULATION} checkpoint must match canonical projection"
             ) from error
@@ -724,7 +854,9 @@ def _validate_duplicate_equivalence(
             canonical_projection = projection
             break
     if canonical_projection is None:
-        raise ValueError(f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}")
+        raise ValueError(
+            f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}"
+        )
 
     duplicate_count = 0
     for index, trace_point in enumerate(raw_trace_points):
@@ -740,7 +872,9 @@ def _validate_duplicate_equivalence(
                 f"{branch} raw duplicate {EXPECTED_CANONICAL_SIMULATION} checkpoint must match canonical projection"
             )
     if duplicate_count == 0:
-        raise ValueError(f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}")
+        raise ValueError(
+            f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}"
+        )
     return {
         "canonical_simulation": EXPECTED_CANONICAL_SIMULATION,
         "raw_match_count": duplicate_count,
@@ -752,10 +886,14 @@ def _checkpoint_payload(prior_pressure_artifact: dict) -> dict:
     return {
         "canonical_simulation": EXPECTED_CANONICAL_SIMULATION,
         "default_upstream_checkpoint_echo": copy.deepcopy(
-            prior_pressure_artifact["branch_level_evidence"]["default"]["upstream_checkpoint_echo"]
+            prior_pressure_artifact["branch_level_evidence"]["default"][
+                "upstream_checkpoint_echo"
+            ]
         ),
         "relaxed_upstream_checkpoint_echo": copy.deepcopy(
-            prior_pressure_artifact["branch_level_evidence"]["relaxed"]["upstream_checkpoint_echo"]
+            prior_pressure_artifact["branch_level_evidence"]["relaxed"][
+                "upstream_checkpoint_echo"
+            ]
         ),
     }
 
@@ -792,7 +930,9 @@ def build_payload(
         )
     canonicalization_mode = source_checkpoint_canonicalization_artifact_path is not None
     if checkpoint_canonicalization_artifact is not None and not canonicalization_mode:
-        raise ValueError("checkpoint_canonicalization_artifact requires canonicalization path")
+        raise ValueError(
+            "checkpoint_canonicalization_artifact requires canonicalization path"
+        )
     if not isinstance(prior_pressure_artifact, dict):
         raise ValueError("prior-pressure audit artifact must be an object")
 
@@ -800,22 +940,36 @@ def build_payload(
         raise ValueError("prior-pressure audit artifact has wrong schema")
     prior_pressure_classification = prior_pressure_artifact.get("classification")
     if not isinstance(prior_pressure_classification, dict):
-        raise ValueError("prior-pressure audit artifact classification must be an object")
-    if prior_pressure_classification.get("classification") != EXPECTED_PRIOR_PRESSURE_CLASSIFICATION:
+        raise ValueError(
+            "prior-pressure audit artifact classification must be an object"
+        )
+    if (
+        prior_pressure_classification.get("classification")
+        != EXPECTED_PRIOR_PRESSURE_CLASSIFICATION
+    ):
         raise ValueError(
             f"prior-pressure audit artifact classification must be {EXPECTED_PRIOR_PRESSURE_CLASSIFICATION}"
         )
     if prior_pressure_artifact.get("decision") != EXPECTED_PRIOR_PRESSURE_DECISION:
-        raise ValueError(f"prior-pressure audit artifact decision must be {EXPECTED_PRIOR_PRESSURE_DECISION}")
+        raise ValueError(
+            f"prior-pressure audit artifact decision must be {EXPECTED_PRIOR_PRESSURE_DECISION}"
+        )
     prior_pressure_input_artifacts = prior_pressure_artifact.get("input_artifacts")
     if not isinstance(prior_pressure_input_artifacts, dict):
-        raise ValueError("prior-pressure audit artifact input_artifacts must be an object")
-    if prior_pressure_input_artifacts.get("source_selection_score_artifact_path") != source_selection_score_artifact_path:
+        raise ValueError(
+            "prior-pressure audit artifact input_artifacts must be an object"
+        )
+    if (
+        prior_pressure_input_artifacts.get("source_selection_score_artifact_path")
+        != source_selection_score_artifact_path
+    ):
         raise ValueError(
             "prior-pressure audit upstream input_artifacts source_selection_score_artifact_path must match source path"
         )
     if (
-        prior_pressure_input_artifacts.get("source_threshold_relaxed_selection_score_artifact_path")
+        prior_pressure_input_artifacts.get(
+            "source_threshold_relaxed_selection_score_artifact_path"
+        )
         != source_threshold_relaxed_selection_score_artifact_path
     ):
         raise ValueError(
@@ -825,7 +979,10 @@ def build_payload(
         "source_checkpoint_canonicalization_artifact_path"
     )
     if canonicalization_mode:
-        if canonicalization_input_path != source_checkpoint_canonicalization_artifact_path:
+        if (
+            canonicalization_input_path
+            != source_checkpoint_canonicalization_artifact_path
+        ):
             raise ValueError(
                 "prior-pressure audit upstream input_artifacts source_checkpoint_canonicalization_artifact_path must match source path"
             )
@@ -834,24 +991,35 @@ def build_payload(
             "prior-pressure audit upstream input_artifacts source_checkpoint_canonicalization_artifact_path must be absent outside canonical mode"
         )
 
-    prior_pressure_source_artifact = _validated_prior_pressure_source_artifact(prior_pressure_artifact)
+    prior_pressure_source_artifact = _validated_prior_pressure_source_artifact(
+        prior_pressure_artifact
+    )
 
     validated_thresholds_by_branch = {}
     duplicate_equivalence_audit = {}
-    for branch, trace_artifact in (("default", default_trace_artifact), ("relaxed", relaxed_trace_artifact)):
+    for branch, trace_artifact in (
+        ("default", default_trace_artifact),
+        ("relaxed", relaxed_trace_artifact),
+    ):
         _validated_trace_contract(trace_artifact, branch=branch)
-        validated_thresholds_by_branch[branch] = _validated_thresholds(trace_artifact, branch=branch)
+        validated_thresholds_by_branch[branch] = _validated_thresholds(
+            trace_artifact, branch=branch
+        )
         if trace_artifact.get("source_artifact") != prior_pressure_source_artifact:
             raise ValueError(
                 f"{branch} trace artifact source_artifact must match prior-pressure audit artifact source_artifact"
             )
-        canonical_trace_point = _canonical_trace_point_at_simulation(trace_artifact, branch=branch)
+        canonical_trace_point = _canonical_trace_point_at_simulation(
+            trace_artifact, branch=branch
+        )
         _validated_canonical_trace_point_move_ids(
             canonical_trace_point,
             branch=branch,
             prior_pressure_source_artifact=prior_pressure_source_artifact,
         )
-        branch_evidence = _validated_upstream_branch_evidence(prior_pressure_artifact, branch=branch)
+        branch_evidence = _validated_upstream_branch_evidence(
+            prior_pressure_artifact, branch=branch
+        )
         _validated_canonical_trace_match(
             trace_artifact,
             branch=branch,
@@ -884,14 +1052,21 @@ def build_payload(
     )
 
     branch_residual_evidence = {}
-    for branch, trace_artifact in (("default", default_trace_artifact), ("relaxed", relaxed_trace_artifact)):
-        canonical_trace_point = _canonical_trace_point_at_simulation(trace_artifact, branch=branch)
+    for branch, trace_artifact in (
+        ("default", default_trace_artifact),
+        ("relaxed", relaxed_trace_artifact),
+    ):
+        canonical_trace_point = _canonical_trace_point_at_simulation(
+            trace_artifact, branch=branch
+        )
         branch_residual_evidence[branch] = _branch_candidate(
             canonical_trace_point,
             branch=branch,
             prior_pressure_source_artifact=prior_pressure_source_artifact,
             selection_score_residual_threshold=_finite_number(
-                prior_pressure_artifact["branch_level_evidence"][branch]["selection_score_residual_threshold"],
+                prior_pressure_artifact["branch_level_evidence"][branch][
+                    "selection_score_residual_threshold"
+                ],
                 context=(
                     f"prior-pressure audit branch_level_evidence.{branch}.selection_score_residual_threshold"
                 ),
@@ -913,14 +1088,18 @@ def build_payload(
             "default": {
                 **copy.deepcopy(validated_thresholds_by_branch["default"]),
                 "selection_score_residual_threshold": _finite_number(
-                    prior_pressure_artifact["branch_level_evidence"]["default"]["selection_score_residual_threshold"],
+                    prior_pressure_artifact["branch_level_evidence"]["default"][
+                        "selection_score_residual_threshold"
+                    ],
                     context="prior-pressure audit branch_level_evidence.default.selection_score_residual_threshold",
                 ),
             },
             "relaxed": {
                 **copy.deepcopy(validated_thresholds_by_branch["relaxed"]),
                 "selection_score_residual_threshold": _finite_number(
-                    prior_pressure_artifact["branch_level_evidence"]["relaxed"]["selection_score_residual_threshold"],
+                    prior_pressure_artifact["branch_level_evidence"]["relaxed"][
+                        "selection_score_residual_threshold"
+                    ],
                     context="prior-pressure audit branch_level_evidence.relaxed.selection_score_residual_threshold",
                 ),
             },
@@ -929,8 +1108,12 @@ def build_payload(
         "checkpoint": _checkpoint_payload(prior_pressure_artifact),
         "duplicate_equivalence_audit": duplicate_equivalence_audit,
         "branch_residual_evidence": branch_residual_evidence,
-        "branch_disagreement_summary": _branch_disagreement_summary(branch_residual_evidence),
-        "source_snapshots": copy.deepcopy(prior_pressure_artifact.get("source_snapshots", {})),
+        "branch_disagreement_summary": _branch_disagreement_summary(
+            branch_residual_evidence
+        ),
+        "source_snapshots": copy.deepcopy(
+            prior_pressure_artifact.get("source_snapshots", {})
+        ),
     }
 
 
@@ -938,16 +1121,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     prior_pressure_artifact = load_json(args.source_prior_pressure_audit_artifact)
     default_trace_artifact = load_json(args.source_selection_score_artifact)
-    relaxed_trace_artifact = load_json(args.source_threshold_relaxed_selection_score_artifact)
+    relaxed_trace_artifact = load_json(
+        args.source_threshold_relaxed_selection_score_artifact
+    )
     checkpoint_canonicalization_artifact = None
     if args.source_checkpoint_canonicalization_artifact is not None:
-        checkpoint_canonicalization_artifact = load_json(args.source_checkpoint_canonicalization_artifact)
+        checkpoint_canonicalization_artifact = load_json(
+            args.source_checkpoint_canonicalization_artifact
+        )
 
     payload = build_payload(
         prior_pressure_artifact,
         default_trace_artifact,
         relaxed_trace_artifact,
-        source_prior_pressure_audit_artifact_path=str(args.source_prior_pressure_audit_artifact),
+        source_prior_pressure_audit_artifact_path=str(
+            args.source_prior_pressure_audit_artifact
+        ),
         source_selection_score_artifact_path=str(args.source_selection_score_artifact),
         source_threshold_relaxed_selection_score_artifact_path=str(
             args.source_threshold_relaxed_selection_score_artifact
@@ -960,7 +1149,9 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

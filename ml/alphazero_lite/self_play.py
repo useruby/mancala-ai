@@ -13,19 +13,31 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING, SUPPORTED_INPUT_ENCODINGS, feature_count_for
+from ml.alphazero_lite.input_encodings import (
+    DEFAULT_INPUT_ENCODING,
+    SUPPORTED_INPUT_ENCODINGS,
+    feature_count_for,
+)
 from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
 from ml.alphazero_lite.opening_cache import load_opening_cache
-from ml.alphazero_lite.opponent_pool import load_opponent_checkpoints, sample_opponent_checkpoint
-from ml.alphazero_lite.search_ablation import build_mode_config, flat_legal_priors, neutral_value
+from ml.alphazero_lite.opponent_pool import (
+    load_opponent_checkpoints,
+    sample_opponent_checkpoint,
+)
+from ml.alphazero_lite.search_ablation import (
+    build_mode_config,
+    flat_legal_priors,
+    neutral_value,
+)
 
 
 PITS_PER_PLAYER = 6
@@ -50,7 +62,12 @@ DEFAULT_VALUE_TARGET_MODE = "default"
 PHASE_AWARE_VALUE_TARGET_MODE = "phase_aware_sharpened"
 HYBRID_VALUE_TARGET_MODE = "hybrid"
 SUPPORTED_VALUE_TARGET_MODES = frozenset(
-    {DEFAULT_VALUE_TARGET_MODE, "sharpened", PHASE_AWARE_VALUE_TARGET_MODE, HYBRID_VALUE_TARGET_MODE}
+    {
+        DEFAULT_VALUE_TARGET_MODE,
+        "sharpened",
+        PHASE_AWARE_VALUE_TARGET_MODE,
+        HYBRID_VALUE_TARGET_MODE,
+    }
 )
 SUPPORTED_PLAYER_MODES = frozenset({"puct", "classic_mcts"})
 DEFAULT_PLAYER_MODE = "puct"
@@ -82,7 +99,9 @@ def softmax(logits: np.ndarray) -> np.ndarray:
     return (exp_values / total).astype(np.float32)
 
 
-def encode_state(state: dict, *, input_encoding: str = DEFAULT_INPUT_ENCODING) -> list[float]:
+def encode_state(
+    state: dict, *, input_encoding: str = DEFAULT_INPUT_ENCODING
+) -> list[float]:
     if input_encoding == "kalah_v3":
         features = encode_kalah_v3(state)
     else:
@@ -123,14 +142,16 @@ def _encode_kalah_v3_side(state: dict, *, side: int, pits_key: str) -> list[floa
         1.0 if _has_immediate_capture(state, side=side) else 0.0,
         pits.count(0) / PITS_PER_PLAYER,
         sum(1 for seeds in pits if seeds >= 7) / PITS_PER_PLAYER,
-        sum(1 for move, seeds in enumerate(pits) if seeds == (PITS_PER_PLAYER - move)) / PITS_PER_PLAYER,
+        sum(1 for move, seeds in enumerate(pits) if seeds == (PITS_PER_PLAYER - move))
+        / PITS_PER_PLAYER,
         remaining_stones / 48.0,
     ]
 
 
 def _game_for_side(state: dict, *, side: int) -> KalahGame:
     return KalahGame(
-        pits=[int(seeds) for seeds in state["player_pits"]] + [int(seeds) for seeds in state["opponent_pits"]],
+        pits=[int(seeds) for seeds in state["player_pits"]]
+        + [int(seeds) for seeds in state["opponent_pits"]],
         captured_seeds=[int(state["player_store"]), int(state["opponent_store"])],
         current_player=side,
     )
@@ -194,13 +215,17 @@ def build_search_options(
         "root_policy_mode": root_policy_mode,
         "tactical_root_bias": float(tactical_root_bias),
     }
-    normalized_value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
+    normalized_value_trust_schedule = normalize_value_trust_schedule(
+        value_trust_schedule
+    )
     if normalized_value_trust_schedule is not None:
         options["value_trust_schedule"] = normalized_value_trust_schedule
     return options
 
 
-def normalize_value_trust_schedule(value_trust_schedule: dict | None) -> dict[str, bool | float] | None:
+def normalize_value_trust_schedule(
+    value_trust_schedule: dict | None,
+) -> dict[str, bool | float] | None:
     if value_trust_schedule is None:
         return None
 
@@ -211,13 +236,19 @@ def normalize_value_trust_schedule(value_trust_schedule: dict | None) -> dict[st
     def normalize_phase_multiplier(phase_name: str) -> float:
         raw_value = value_trust_schedule.get(phase_name, 1.0)
         if isinstance(raw_value, bool):
-            raise ValueError(f"value_trust_schedule.{phase_name} must be a finite number > 0")
+            raise ValueError(
+                f"value_trust_schedule.{phase_name} must be a finite number > 0"
+            )
         try:
             normalized_value = float(raw_value)
         except (TypeError, ValueError) as exc:
-            raise ValueError(f"value_trust_schedule.{phase_name} must be a finite number > 0") from exc
+            raise ValueError(
+                f"value_trust_schedule.{phase_name} must be a finite number > 0"
+            ) from exc
         if not math.isfinite(normalized_value) or normalized_value <= 0.0:
-            raise ValueError(f"value_trust_schedule.{phase_name} must be a finite number > 0")
+            raise ValueError(
+                f"value_trust_schedule.{phase_name} must be a finite number > 0"
+            )
         return normalized_value
 
     return {
@@ -290,7 +321,9 @@ def build_search_profile(
         )
     if extra_fields:
         profile.update(extra_fields)
-    encoded_profile = json.dumps(profile, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    encoded_profile = json.dumps(
+        profile, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
     profile_hash = hashlib.sha256(encoded_profile.encode("utf-8")).hexdigest()
     return {
         **profile,
@@ -299,7 +332,9 @@ def build_search_profile(
 
 
 def opponent_pool_fingerprint(checkpoints: list[str]) -> str:
-    encoded = json.dumps([str(path) for path in checkpoints], separators=(",", ":"), ensure_ascii=True)
+    encoded = json.dumps(
+        [str(path) for path in checkpoints], separators=(",", ":"), ensure_ascii=True
+    )
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
@@ -310,7 +345,9 @@ def cache_hit_rate(cache_hits: int, cache_misses: int) -> float:
     return float(cache_hits) / float(total)
 
 
-def cache_metrics_for(evaluators: list[Evaluator | None]) -> dict[str, bool | int | float]:
+def cache_metrics_for(
+    evaluators: list[Evaluator | None],
+) -> dict[str, bool | int | float]:
     cache_hits = 0
     cache_misses = 0
     cache_enabled = False
@@ -425,7 +462,9 @@ def _sharpen_value_magnitude(value: float, *, strength: float) -> float:
     return 1.0 - math.pow(1.0 - bounded_value, float(strength))
 
 
-def _blend_hybrid_value_target(*, outcome_value: float, search_value: float, move_index: int) -> float:
+def _blend_hybrid_value_target(
+    *, outcome_value: float, search_value: float, move_index: int
+) -> float:
     outcome_sign = 0.0 if outcome_value == 0 else math.copysign(1.0, outcome_value)
     if outcome_sign == 0.0:
         return 0.0
@@ -433,7 +472,9 @@ def _blend_hybrid_value_target(*, outcome_value: float, search_value: float, mov
     weights = _hybrid_value_target_weights(move_index)
     outcome_magnitude = abs(max(-1.0, min(1.0, float(outcome_value))))
     search_magnitude = abs(max(-1.0, min(1.0, float(search_value))))
-    blended_magnitude = (weights["outcome"] * outcome_magnitude) + (weights["search"] * search_magnitude)
+    blended_magnitude = (weights["outcome"] * outcome_magnitude) + (
+        weights["search"] * search_magnitude
+    )
     return math.copysign(max(-1.0, min(1.0, blended_magnitude)), outcome_sign)
 
 
@@ -483,7 +524,9 @@ def canonical_value_target(
     if abs(search_value) < 1e-9:
         return float(outcome_value)
 
-    sharpened_magnitude = build_value_target(abs(search_value), mode=normalized_mode, move_index=move_index)
+    sharpened_magnitude = build_value_target(
+        abs(search_value), mode=normalized_mode, move_index=move_index
+    )
     return outcome_sign * abs(sharpened_magnitude)
 
 
@@ -506,15 +549,25 @@ def add_search_option_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--fpu-mode", default=DEFAULT_SEARCH_OPTIONS["fpu_mode"])
     parser.add_argument("--reuse-subtree", action="store_true")
     parser.add_argument("--normalize-values", action="store_true")
-    parser.add_argument("--root-policy-mode", choices=sorted(SUPPORTED_ROOT_POLICY_MODES), default=DEFAULT_SEARCH_OPTIONS["root_policy_mode"])
-    parser.add_argument("--tactical-root-bias", type=float, default=DEFAULT_SEARCH_OPTIONS["tactical_root_bias"])
+    parser.add_argument(
+        "--root-policy-mode",
+        choices=sorted(SUPPORTED_ROOT_POLICY_MODES),
+        default=DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
+    )
+    parser.add_argument(
+        "--tactical-root-bias",
+        type=float,
+        default=DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+    )
     parser.add_argument("--value-trust-enabled", action="store_true")
     parser.add_argument("--value-trust-opening", type=float, default=None)
     parser.add_argument("--value-trust-midgame", type=float, default=None)
     parser.add_argument("--value-trust-late", type=float, default=None)
 
 
-def value_trust_schedule_from_args(args: argparse.Namespace) -> dict[str, bool | float] | None:
+def value_trust_schedule_from_args(
+    args: argparse.Namespace,
+) -> dict[str, bool | float] | None:
     opening = getattr(args, "value_trust_opening", None)
     midgame = getattr(args, "value_trust_midgame", None)
     late = getattr(args, "value_trust_late", None)
@@ -552,12 +605,17 @@ class HeuristicEvaluator(Evaluator):
         priors = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         if legal_moves:
             offset = game.current_player * PITS_PER_PLAYER
-            weights = np.array([game.pits[offset + move] + 1 for move in legal_moves], dtype=np.float32)
+            weights = np.array(
+                [game.pits[offset + move] + 1 for move in legal_moves], dtype=np.float32
+            )
             weights /= np.sum(weights)
             for idx, move in enumerate(legal_moves):
                 priors[move] = weights[idx]
 
-        store_delta = game.captured_seeds[game.current_player] - game.captured_seeds[1 - game.current_player]
+        store_delta = (
+            game.captured_seeds[game.current_player]
+            - game.captured_seeds[1 - game.current_player]
+        )
         value = float(np.tanh(store_delta / 12.0))
         return priors, value
 
@@ -573,7 +631,9 @@ class CheckpointEvaluator(Evaluator):
         checkpoint_path = checkpoint_path.resolve()
         npz = np.load(checkpoint_path)
         self.residual_blocks = self._extract_residual_blocks(npz)
-        self.hidden_layers = [] if self.residual_blocks else self._extract_hidden_layers(npz)
+        self.hidden_layers = (
+            [] if self.residual_blocks else self._extract_hidden_layers(npz)
+        )
         self.w_input = npz["w_input"] if "w_input" in npz else None
         self.b_input = npz["b_input"] if "b_input" in npz else None
         self.w_policy = npz["w_policy"]
@@ -585,13 +645,24 @@ class CheckpointEvaluator(Evaluator):
         self.w_value_hidden = None
         self.b_value_hidden = None
         self.uses_specialized_heads = False
-        specialized_head_keys = ["w_policy_hidden", "b_policy_hidden", "w_value_hidden", "b_value_hidden"]
-        present_specialized_head_keys = [key for key in specialized_head_keys if key in npz]
+        specialized_head_keys = [
+            "w_policy_hidden",
+            "b_policy_hidden",
+            "w_value_hidden",
+            "b_value_hidden",
+        ]
+        present_specialized_head_keys = [
+            key for key in specialized_head_keys if key in npz
+        ]
         if present_specialized_head_keys:
-            missing_specialized_head_keys = [key for key in specialized_head_keys if key not in npz]
+            missing_specialized_head_keys = [
+                key for key in specialized_head_keys if key not in npz
+            ]
             if missing_specialized_head_keys:
                 missing = ", ".join(missing_specialized_head_keys)
-                raise ValueError(f"checkpoint is missing specialized head weights: {missing}")
+                raise ValueError(
+                    f"checkpoint is missing specialized head weights: {missing}"
+                )
             self.w_policy_hidden = npz["w_policy_hidden"]
             self.b_policy_hidden = npz["b_policy_hidden"]
             self.w_value_hidden = npz["w_value_hidden"]
@@ -618,10 +689,16 @@ class CheckpointEvaluator(Evaluator):
         return f"{checkpoint_path}:{stat.st_mtime_ns}:{stat.st_size}"
 
     def _cache_key_for(self, game: KalahGame) -> str:
-        canonical_state = json.dumps(game.to_state(), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
-        return "|".join((self.checkpoint_identity, self.input_encoding, canonical_state))
+        canonical_state = json.dumps(
+            game.to_state(), sort_keys=True, separators=(",", ":"), ensure_ascii=True
+        )
+        return "|".join(
+            (self.checkpoint_identity, self.input_encoding, canonical_state)
+        )
 
-    def _clone_cached_result(self, result: tuple[np.ndarray, float]) -> tuple[np.ndarray, float]:
+    def _clone_cached_result(
+        self, result: tuple[np.ndarray, float]
+    ) -> tuple[np.ndarray, float]:
         policy, value = result
         return policy.copy(), value
 
@@ -631,7 +708,11 @@ class CheckpointEvaluator(Evaluator):
         assert self.w_value_hidden is not None
         assert self.b_value_hidden is not None
 
-        trunk_size = self.w_input.shape[1] if self.w_input is not None else self.hidden_layers[-1][0].shape[1]
+        trunk_size = (
+            self.w_input.shape[1]
+            if self.w_input is not None
+            else self.hidden_layers[-1][0].shape[1]
+        )
         policy_hidden_size = self.b_policy_hidden.shape[0]
         value_hidden_size = self.b_value_hidden.shape[0]
 
@@ -652,7 +733,9 @@ class CheckpointEvaluator(Evaluator):
                 f"checkpoint w_value must have {value_hidden_size} input rows when specialized heads are present"
             )
 
-    def _extract_residual_blocks(self, npz: np.lib.npyio.NpzFile) -> list[tuple[tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]]:
+    def _extract_residual_blocks(
+        self, npz: np.lib.npyio.NpzFile
+    ) -> list[tuple[tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]]:
         if "w_input" not in npz or "b_input" not in npz:
             return []
 
@@ -668,7 +751,9 @@ class CheckpointEvaluator(Evaluator):
             index += 1
         return blocks
 
-    def _extract_hidden_layers(self, npz: np.lib.npyio.NpzFile) -> list[tuple[np.ndarray, np.ndarray]]:
+    def _extract_hidden_layers(
+        self, npz: np.lib.npyio.NpzFile
+    ) -> list[tuple[np.ndarray, np.ndarray]]:
         indexed_layers: list[tuple[np.ndarray, np.ndarray]] = []
         index = 1
         while f"w_hidden_{index}" in npz and f"b_hidden_{index}" in npz:
@@ -687,7 +772,10 @@ class CheckpointEvaluator(Evaluator):
             if cached is not None:
                 return self._clone_cached_result(cached)
 
-        x = np.asarray(encode_state(game.to_state(), input_encoding=self.input_encoding), dtype=np.float32)
+        x = np.asarray(
+            encode_state(game.to_state(), input_encoding=self.input_encoding),
+            dtype=np.float32,
+        )
 
         if self.residual_blocks:
             assert self.w_input is not None
@@ -708,11 +796,17 @@ class CheckpointEvaluator(Evaluator):
             assert self.b_policy_hidden is not None
             assert self.w_value_hidden is not None
             assert self.b_value_hidden is not None
-            policy_hidden = np.maximum(0.0, (hidden @ self.w_policy_hidden) + self.b_policy_hidden)
-            value_hidden = np.maximum(0.0, (hidden @ self.w_value_hidden) + self.b_value_hidden)
+            policy_hidden = np.maximum(
+                0.0, (hidden @ self.w_policy_hidden) + self.b_policy_hidden
+            )
+            value_hidden = np.maximum(
+                0.0, (hidden @ self.w_value_hidden) + self.b_value_hidden
+            )
 
         policy_logits = (policy_hidden @ self.w_policy) + self.b_policy
-        value_logit = float(((value_hidden @ self.w_value) + self.b_value).reshape(-1)[0])
+        value_logit = float(
+            ((value_hidden @ self.w_value) + self.b_value).reshape(-1)[0]
+        )
         result = (softmax(policy_logits), float(np.tanh(value_logit)))
         if self.cache is not None:
             self.cache.put(cache_key, result)
@@ -812,7 +906,11 @@ class PUCT:
             root.visit_count += 1
             root.value_sum += value
             if simulation_index in visit_snapshot_checkpoints:
-                self._last_visit_snapshots.append(self._build_root_visit_snapshot(root, simulation_index=simulation_index))
+                self._last_visit_snapshots.append(
+                    self._build_root_visit_snapshot(
+                        root, simulation_index=simulation_index
+                    )
+                )
 
         visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         for move, child in root.children.items():
@@ -847,14 +945,21 @@ class PUCT:
         for move, child in root.children.items():
             snapshot_visits[move] = child.visit_count
 
-        selection_entries, _next_simulation_move, _reference_child, _value_trust_multiplier = self._selection_entries(
-            root, sort_moves=True
-        )
+        (
+            selection_entries,
+            _next_simulation_move,
+            _reference_child,
+            _value_trust_multiplier,
+        ) = self._selection_entries(root, sort_moves=True)
         legal_moves = sorted(root.children)
-        selected_move = None if not legal_moves else int(self.select_root_move(root, legal_moves))
+        selected_move = (
+            None if not legal_moves else int(self.select_root_move(root, legal_moves))
+        )
         reference_move_by_prior = None
         if legal_moves:
-            reference_move_by_prior = int(max(legal_moves, key=lambda move: (root.children[move].prior, -move)))
+            reference_move_by_prior = int(
+                max(legal_moves, key=lambda move: (root.children[move].prior, -move))
+            )
 
         return {
             "simulation": int(simulation_index),
@@ -862,8 +967,12 @@ class PUCT:
             "moves": selection_entries,
             "selected_move": selected_move,
             "reference_move_by_prior": reference_move_by_prior,
-            "reference_move_rank_by_visits": self._rank_root_move_by_visits(root, reference_move_by_prior),
-            "reference_move_rank_by_q": self._rank_root_move_by_q(selection_entries, reference_move_by_prior),
+            "reference_move_rank_by_visits": self._rank_root_move_by_visits(
+                root, reference_move_by_prior
+            ),
+            "reference_move_rank_by_q": self._rank_root_move_by_q(
+                selection_entries, reference_move_by_prior
+            ),
             "reference_move_rank_by_selection_score": self._rank_root_move_by_selection_score(
                 selection_entries, reference_move_by_prior
             ),
@@ -887,7 +996,10 @@ class PUCT:
         else:
             ranked_moves = sorted(
                 legal_moves,
-                key=lambda candidate_move: (-int(root.children[candidate_move].visit_count), int(candidate_move)),
+                key=lambda candidate_move: (
+                    -int(root.children[candidate_move].visit_count),
+                    int(candidate_move),
+                ),
             )
 
         for index, candidate_move in enumerate(ranked_moves, start=1):
@@ -895,7 +1007,9 @@ class PUCT:
                 return index
         return None
 
-    def _rank_root_move_by_q(self, selection_entries: list[dict], move: int | None) -> int | None:
+    def _rank_root_move_by_q(
+        self, selection_entries: list[dict], move: int | None
+    ) -> int | None:
         if move is None:
             return None
 
@@ -908,7 +1022,9 @@ class PUCT:
                 return index
         return None
 
-    def _rank_root_move_by_selection_score(self, selection_entries: list[dict], move: int | None) -> int | None:
+    def _rank_root_move_by_selection_score(
+        self, selection_entries: list[dict], move: int | None
+    ) -> int | None:
         if move is None:
             return None
 
@@ -923,19 +1039,38 @@ class PUCT:
 
     def _root_selection_breakdown(self, root: Node) -> dict:
         legal_moves = sorted(root.children)
-        selected_move = None if not legal_moves else int(self.select_root_move(root, legal_moves))
-        _live_entries, _live_next_simulation_move, _reference_child, value_trust_multiplier = self._selection_entries(
-            root, sort_moves=False
+        selected_move = (
+            None if not legal_moves else int(self.select_root_move(root, legal_moves))
         )
-        selection_entries, telemetry_next_simulation_move, _telemetry_reference_child, _telemetry_value_trust_multiplier = (
-            self._selection_entries(root, sort_moves=True)
+        (
+            _live_entries,
+            _live_next_simulation_move,
+            _reference_child,
+            value_trust_multiplier,
+        ) = self._selection_entries(root, sort_moves=False)
+        (
+            selection_entries,
+            telemetry_next_simulation_move,
+            _telemetry_reference_child,
+            _telemetry_value_trust_multiplier,
+        ) = self._selection_entries(root, sort_moves=True)
+        highest_prior_move = (
+            None
+            if not legal_moves
+            else int(
+                max(legal_moves, key=lambda move: (root.children[move].prior, -move))
+            )
         )
-        highest_prior_move = None if not legal_moves else int(max(legal_moves, key=lambda move: (root.children[move].prior, -move)))
         policy_top_move = highest_prior_move
         visit_top_move = None if selected_move is None else int(selected_move)
         q_top_move = None
         if selection_entries:
-            q_top_move = int(max(selection_entries, key=lambda entry: (entry["selection_q_value"], -entry["move"]))["move"])
+            q_top_move = int(
+                max(
+                    selection_entries,
+                    key=lambda entry: (entry["selection_q_value"], -entry["move"]),
+                )["move"]
+            )
         return {
             "fpu_mode": self.fpu_mode,
             "value_trust_multiplier": float(value_trust_multiplier),
@@ -947,7 +1082,9 @@ class PUCT:
             "policy_top_move": policy_top_move,
             "visit_top_move": visit_top_move,
             "q_top_move": q_top_move,
-            "next_simulation_move": None if telemetry_next_simulation_move is None else int(telemetry_next_simulation_move),
+            "next_simulation_move": None
+            if telemetry_next_simulation_move is None
+            else int(telemetry_next_simulation_move),
             "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
             "moves": selection_entries,
         }
@@ -963,7 +1100,9 @@ class PUCT:
         return {
             "enabled": bool(schedule["enabled"]),
             "phase_bucket": phase_key,
-            "effective_multiplier": float(self._effective_value_trust_multiplier_for(game)),
+            "effective_multiplier": float(
+                self._effective_value_trust_multiplier_for(game)
+            ),
             "schedule": {
                 "opening": float(schedule["opening"]),
                 "midgame": float(schedule["midgame"]),
@@ -980,7 +1119,10 @@ class PUCT:
         return "opening"
 
     def _effective_value_trust_multiplier_for(self, game: KalahGame) -> float:
-        if self.value_trust_schedule is None or not self.value_trust_schedule["enabled"]:
+        if (
+            self.value_trust_schedule is None
+            or not self.value_trust_schedule["enabled"]
+        ):
             return 1.0
         return float(self.value_trust_schedule[self._value_trust_phase_key_for(game)])
 
@@ -999,10 +1141,16 @@ class PUCT:
                 ),
             )
 
-        return max(legal_moves, key=lambda move: (root.children[move].visit_count, -move))
+        return max(
+            legal_moves, key=lambda move: (root.children[move].visit_count, -move)
+        )
 
     def _root_for(self, root_game: KalahGame) -> Node:
-        if self.reuse_subtree and self.root is not None and self._same_state(self.root.game, root_game):
+        if (
+            self.reuse_subtree
+            and self.root is not None
+            and self._same_state(self.root.game, root_game)
+        ):
             return self.root
         return Node(game=root_game.clone())
 
@@ -1015,7 +1163,13 @@ class PUCT:
             return terminal
 
         if not node.expanded:
-            _, value = self._expand(node, apply_dirichlet=False, dirichlet_alpha=None, dirichlet_epsilon=0.0, is_root=False)
+            _, value = self._expand(
+                node,
+                apply_dirichlet=False,
+                dirichlet_alpha=None,
+                dirichlet_epsilon=0.0,
+                is_root=False,
+            )
             return value
 
         if not node.children:
@@ -1031,17 +1185,26 @@ class PUCT:
         return value
 
     def _select_child(self, node: Node) -> Node:
-        total_visits = max(1, sum(child.visit_count for child in node.children.values()))
+        total_visits = max(
+            1, sum(child.visit_count for child in node.children.values())
+        )
         items = list(node.children.items())
         raw_q_values = [self._child_q_value(node, child) for _move, child in items]
-        selection_q_values = self._normalize_child_values(raw_q_values) if self.normalize_values else raw_q_values
+        selection_q_values = (
+            self._normalize_child_values(raw_q_values)
+            if self.normalize_values
+            else raw_q_values
+        )
         value_trust_multiplier = self._effective_value_trust_multiplier_for(node.game)
 
         best_child = None
         best_score = -float("inf")
         for (_move, child), selection_q_value in zip(items, selection_q_values):
             selection_score = float(selection_q_value * value_trust_multiplier) + float(
-                self.c_puct * child.prior * math.sqrt(total_visits) / (1 + child.visit_count)
+                self.c_puct
+                * child.prior
+                * math.sqrt(total_visits)
+                / (1 + child.visit_count)
             )
             if selection_score > best_score:
                 best_score = selection_score
@@ -1049,11 +1212,21 @@ class PUCT:
         assert best_child is not None
         return best_child
 
-    def _selection_entries(self, node: Node, *, sort_moves: bool) -> tuple[list[dict], int | None, Node | None, float]:
-        total_visits = max(1, sum(child.visit_count for child in node.children.values()))
-        items = sorted(node.children.items()) if sort_moves else list(node.children.items())
+    def _selection_entries(
+        self, node: Node, *, sort_moves: bool
+    ) -> tuple[list[dict], int | None, Node | None, float]:
+        total_visits = max(
+            1, sum(child.visit_count for child in node.children.values())
+        )
+        items = (
+            sorted(node.children.items()) if sort_moves else list(node.children.items())
+        )
         raw_q_values = [self._child_q_value(node, child) for _move, child in items]
-        selection_q_values = self._normalize_child_values(raw_q_values) if self.normalize_values else list(raw_q_values)
+        selection_q_values = (
+            self._normalize_child_values(raw_q_values)
+            if self.normalize_values
+            else list(raw_q_values)
+        )
         value_trust_multiplier = self._effective_value_trust_multiplier_for(node.game)
 
         selection_entries = []
@@ -1061,10 +1234,17 @@ class PUCT:
         best_child = None
         best_score = -float("inf")
 
-        for (move, child), raw_q_value, selection_q_value in zip(items, raw_q_values, selection_q_values):
+        for (move, child), raw_q_value, selection_q_value in zip(
+            items, raw_q_values, selection_q_values
+        ):
             used_fpu = child.visit_count == 0
             q_component = float(selection_q_value * value_trust_multiplier)
-            u_component = float(self.c_puct * child.prior * math.sqrt(total_visits) / (1 + child.visit_count))
+            u_component = float(
+                self.c_puct
+                * child.prior
+                * math.sqrt(total_visits)
+                / (1 + child.visit_count)
+            )
             selection_score = q_component + u_component
             selection_entries.append(
                 {
@@ -1085,7 +1265,12 @@ class PUCT:
                 next_simulation_move = int(move)
                 best_child = child
 
-        return selection_entries, next_simulation_move, best_child, value_trust_multiplier
+        return (
+            selection_entries,
+            next_simulation_move,
+            best_child,
+            value_trust_multiplier,
+        )
 
     def _child_q_value(self, parent: Node, child: Node) -> float:
         if child.visit_count > 0:
@@ -1139,10 +1324,19 @@ class PUCT:
         elif total > 0:
             masked /= total
 
-        if apply_dirichlet and legal_moves and dirichlet_alpha is not None and dirichlet_alpha > 0:
-            noise = np.random.default_rng(self.rng.randint(0, 2**31 - 1)).dirichlet([dirichlet_alpha] * len(legal_moves))
+        if (
+            apply_dirichlet
+            and legal_moves
+            and dirichlet_alpha is not None
+            and dirichlet_alpha > 0
+        ):
+            noise = np.random.default_rng(self.rng.randint(0, 2**31 - 1)).dirichlet(
+                [dirichlet_alpha] * len(legal_moves)
+            )
             for index, move in enumerate(legal_moves):
-                masked[move] = (1.0 - dirichlet_epsilon) * masked[move] + dirichlet_epsilon * float(noise[index])
+                masked[move] = (1.0 - dirichlet_epsilon) * masked[
+                    move
+                ] + dirichlet_epsilon * float(noise[index])
 
         if is_root:
             masked = self.apply_tactical_root_bias(node.game, masked)
@@ -1158,13 +1352,17 @@ class PUCT:
         node.expanded = True
         return masked, value
 
-    def apply_tactical_root_bias(self, game: KalahGame, priors: np.ndarray) -> np.ndarray:
+    def apply_tactical_root_bias(
+        self, game: KalahGame, priors: np.ndarray
+    ) -> np.ndarray:
         legal_moves = game.possible_moves()
         biased = np.asarray(priors, dtype=np.float32).copy()
         if self.tactical_root_bias <= 0 or not legal_moves:
             return biased
 
-        tactical_moves = [move for move in legal_moves if self._is_immediate_tactical_move(game, move)]
+        tactical_moves = [
+            move for move in legal_moves if self._is_immediate_tactical_move(game, move)
+        ]
         if not tactical_moves:
             return biased
 
@@ -1180,7 +1378,9 @@ class PUCT:
         return normalized.astype(np.float32)
 
     def _is_immediate_tactical_move(self, game: KalahGame, move: int) -> bool:
-        return self._is_immediate_extra_turn(game, move) or self._is_immediate_capture(game, move)
+        return self._is_immediate_extra_turn(game, move) or self._is_immediate_capture(
+            game, move
+        )
 
     def _is_immediate_extra_turn(self, game: KalahGame, move: int) -> bool:
         simulated = game.clone()
@@ -1215,7 +1415,9 @@ def terminal_value(game: KalahGame) -> float | None:
     return 1.0 if game.winner == game.current_player else -1.0
 
 
-def policy_from_visits(visits: np.ndarray, legal_moves: list[int], temperature: float) -> list[float]:
+def policy_from_visits(
+    visits: np.ndarray, legal_moves: list[int], temperature: float
+) -> list[float]:
     policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
     if not legal_moves:
         return policy.tolist()
@@ -1288,8 +1490,12 @@ def teacher_targets_for_state(
         cached = opening_cache.lookup(state, ply=ply)
         if cached is not None:
             cached_policy = list(cached["policy"])
-            cached_policy_target = build_policy_target_from_distribution(cached_policy, mode=policy_target_mode)
-            cached_search_profile = dict(getattr(opening_cache, "search_profile", {}) or {})
+            cached_policy_target = build_policy_target_from_distribution(
+                cached_policy, mode=policy_target_mode
+            )
+            cached_search_profile = dict(
+                getattr(opening_cache, "search_profile", {}) or {}
+            )
             cached_search_profile_hash = str(
                 cached.get("provenance", {}).get("search_profile_hash")
                 or cached_search_profile.get("hash")
@@ -1324,10 +1530,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="Output JSONL path")
     parser.add_argument("--games", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--checkpoint", default=None, help="Optional model checkpoint .npz")
-    parser.add_argument("--opponent-pool-config", default=None, help="Optional JSON config for opponent checkpoint pool")
-    parser.add_argument("--opening-cache", default=None, help="Optional JSON opening-cache artifact path")
-    parser.add_argument("--input-encoding", choices=SUPPORTED_INPUT_ENCODINGS, default=DEFAULT_INPUT_ENCODING)
+    parser.add_argument(
+        "--checkpoint", default=None, help="Optional model checkpoint .npz"
+    )
+    parser.add_argument(
+        "--opponent-pool-config",
+        default=None,
+        help="Optional JSON config for opponent checkpoint pool",
+    )
+    parser.add_argument(
+        "--opening-cache",
+        default=None,
+        help="Optional JSON opening-cache artifact path",
+    )
+    parser.add_argument(
+        "--input-encoding",
+        choices=SUPPORTED_INPUT_ENCODINGS,
+        default=DEFAULT_INPUT_ENCODING,
+    )
     parser.add_argument("--simulations", type=int, default=96)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--temperature-threshold", type=int, default=10)
@@ -1335,16 +1555,28 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--temperature-late", type=float, default=0.1)
     parser.add_argument("--dirichlet-alpha", type=float, default=0.3)
     parser.add_argument("--dirichlet-epsilon", type=float, default=0.25)
-    parser.add_argument("--schedule-progress-mode", choices=["none", "linear"], default="none")
+    parser.add_argument(
+        "--schedule-progress-mode", choices=["none", "linear"], default="none"
+    )
     parser.add_argument("--iteration", type=int, default=1)
     parser.add_argument("--total-iterations", type=int, default=1)
     parser.add_argument("--max-moves", type=int, default=200)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--evaluator-cache-size", type=non_negative_int, default=0)
-    parser.add_argument("--seed-sweep", default=None, help="Comma-separated seeds to mix within one run")
+    parser.add_argument(
+        "--seed-sweep", default=None, help="Comma-separated seeds to mix within one run"
+    )
     parser.add_argument("--tree-reuse-enabled", action="store_true")
-    parser.add_argument("--policy-target-mode", choices=sorted(SUPPORTED_POLICY_TARGET_MODES), default=DEFAULT_POLICY_TARGET_MODE)
-    parser.add_argument("--value-target-mode", choices=sorted(SUPPORTED_VALUE_TARGET_MODES), default=DEFAULT_VALUE_TARGET_MODE)
+    parser.add_argument(
+        "--policy-target-mode",
+        choices=sorted(SUPPORTED_POLICY_TARGET_MODES),
+        default=DEFAULT_POLICY_TARGET_MODE,
+    )
+    parser.add_argument(
+        "--value-target-mode",
+        choices=sorted(SUPPORTED_VALUE_TARGET_MODES),
+        default=DEFAULT_VALUE_TARGET_MODE,
+    )
     parser.add_argument(
         "--player-mode",
         choices=sorted(SUPPORTED_PLAYER_MODES),
@@ -1395,7 +1627,9 @@ def schedule_exploration_params(
     return {
         "temperature": max(0.1, float(temperature) * decay),
         "temperature_late": max(0.02, float(temperature_late) * decay),
-        "temperature_threshold": max(2, int(round(float(temperature_threshold) * threshold_decay))),
+        "temperature_threshold": max(
+            2, int(round(float(temperature_threshold) * threshold_decay))
+        ),
         "dirichlet_epsilon": max(0.05, float(dirichlet_epsilon) * epsilon_decay),
     }
 
@@ -1422,7 +1656,9 @@ def build_checkpoint_evaluator(
     cache_size: int,
 ) -> CheckpointEvaluator:
     if cache_size > 0:
-        return CheckpointEvaluator(checkpoint_path, input_encoding=input_encoding, cache_size=cache_size)
+        return CheckpointEvaluator(
+            checkpoint_path, input_encoding=input_encoding, cache_size=cache_size
+        )
     return CheckpointEvaluator(checkpoint_path, input_encoding=input_encoding)
 
 
@@ -1464,7 +1700,9 @@ def run_self_play_worker(
     value_target_mode = normalize_value_target_mode(value_target_mode)
 
     if player_mode not in SUPPORTED_PLAYER_MODES:
-        raise ValueError(f"Unsupported player_mode {player_mode!r}. Must be one of {sorted(SUPPORTED_PLAYER_MODES)}")
+        raise ValueError(
+            f"Unsupported player_mode {player_mode!r}. Must be one of {sorted(SUPPORTED_PLAYER_MODES)}"
+        )
 
     evaluator: Evaluator | None = None
     opponent_evaluator_cache: dict[str, Evaluator] = {}
@@ -1491,7 +1729,9 @@ def run_self_play_worker(
     )
     profile_extra_fields: dict[str, str] = {}
     if opponent_checkpoints:
-        profile_extra_fields["opponent_pool_fingerprint"] = opponent_pool_fingerprint(opponent_checkpoints)
+        profile_extra_fields["opponent_pool_fingerprint"] = opponent_pool_fingerprint(
+            opponent_checkpoints
+        )
 
     search_profile = build_search_profile(
         kind="self_play",
@@ -1503,7 +1743,9 @@ def run_self_play_worker(
     )
 
     if opening_cache is None and opening_cache_path:
-        opening_cache_payload = json.loads(Path(opening_cache_path).read_text(encoding="utf-8"))
+        opening_cache_payload = json.loads(
+            Path(opening_cache_path).read_text(encoding="utf-8")
+        )
         opening_cache = load_opening_cache(opening_cache_payload)
 
     rows_written = 0
@@ -1511,7 +1753,9 @@ def run_self_play_worker(
         for local_index in range(games):
             global_index = start_index + local_index
             game_seed = seed_pool[global_index % len(seed_pool)]
-            rng = random.Random((game_seed * 1_000_003) + global_index + (worker_id * 9_973))
+            rng = random.Random(
+                (game_seed * 1_000_003) + global_index + (worker_id * 9_973)
+            )
             game = KalahGame.from_state(
                 {
                     "player_pits": [4, 4, 4, 4, 4, 4],
@@ -1521,7 +1765,20 @@ def run_self_play_worker(
                     "current_player": 0,
                 }
             )
-            positions: list[tuple[list[float], list[float], int, float, int, str, dict, str, str, dict | None]] = []
+            positions: list[
+                tuple[
+                    list[float],
+                    list[float],
+                    int,
+                    float,
+                    int,
+                    str,
+                    dict,
+                    str,
+                    str,
+                    dict | None,
+                ]
+            ] = []
             reusable_root: Node | None = None
             opponent_checkpoint_for_game: str | None = None
             if opponent_checkpoints:
@@ -1544,20 +1801,35 @@ def run_self_play_worker(
                 puct_root: Node | None = None
                 temp = temperature if ply < temperature_threshold else temperature_late
 
-                def run_teacher() -> tuple[list[float], list[float], float, dict | None]:
+                def run_teacher() -> tuple[
+                    list[float], list[float], float, dict | None
+                ]:
                     nonlocal puct_root
                     if player_mode == "classic_mcts":
-                        mcts_seed = search_seed_for_classic_mcts(seed, global_index, ply)
+                        mcts_seed = search_seed_for_classic_mcts(
+                            seed, global_index, ply
+                        )
                         classic_kwargs = {}
                         if "value_trust_schedule" in normalized_search_options:
-                            classic_kwargs["value_trust_schedule"] = normalized_search_options["value_trust_schedule"]
-                        mcts = ClassicMCTS(game.clone(), simulations=simulations, seed=mcts_seed, **classic_kwargs)
+                            classic_kwargs["value_trust_schedule"] = (
+                                normalized_search_options["value_trust_schedule"]
+                            )
+                        mcts = ClassicMCTS(
+                            game.clone(),
+                            simulations=simulations,
+                            seed=mcts_seed,
+                            **classic_kwargs,
+                        )
                         mcts_root = mcts.search_root()
                         mcts_summary = None
                         if "value_trust_schedule" in normalized_search_options:
                             mcts_summary = mcts.root_summary()
-                        visits = np.array(visits_from_classic_mcts_root(mcts_root), dtype=np.float32)
-                        gameplay_policy = policy_from_visits(visits, legal_moves=legal_moves, temperature=temp)
+                        visits = np.array(
+                            visits_from_classic_mcts_root(mcts_root), dtype=np.float32
+                        )
+                        gameplay_policy = policy_from_visits(
+                            visits, legal_moves=legal_moves, temperature=temp
+                        )
                         return (
                             gameplay_policy,
                             build_policy_target(
@@ -1571,19 +1843,28 @@ def run_self_play_worker(
                         )
 
                     selected_evaluator = evaluator
-                    if game.current_player == 1 and opponent_checkpoint_for_game is not None:
-                        selected_evaluator = opponent_evaluator_cache.get(opponent_checkpoint_for_game)
+                    if (
+                        game.current_player == 1
+                        and opponent_checkpoint_for_game is not None
+                    ):
+                        selected_evaluator = opponent_evaluator_cache.get(
+                            opponent_checkpoint_for_game
+                        )
                         if selected_evaluator is None:
                             selected_evaluator = build_checkpoint_evaluator(
                                 Path(opponent_checkpoint_for_game),
                                 input_encoding=input_encoding,
                                 cache_size=evaluator_cache_size,
                             )
-                            opponent_evaluator_cache[opponent_checkpoint_for_game] = selected_evaluator
+                            opponent_evaluator_cache[opponent_checkpoint_for_game] = (
+                                selected_evaluator
+                            )
 
                     puct_kwargs = {}
                     if "value_trust_schedule" in normalized_search_options:
-                        puct_kwargs["value_trust_schedule"] = normalized_search_options["value_trust_schedule"]
+                        puct_kwargs["value_trust_schedule"] = normalized_search_options[
+                            "value_trust_schedule"
+                        ]
                     search = PUCT(
                         evaluator=selected_evaluator,
                         simulations=simulations,
@@ -1592,19 +1873,31 @@ def run_self_play_worker(
                         root=reusable_root,
                         fpu_mode=str(normalized_search_options["fpu_mode"]),
                         reuse_subtree=bool(normalized_search_options["reuse_subtree"]),
-                        normalize_values=bool(normalized_search_options["normalize_values"]),
-                        root_policy_mode=str(normalized_search_options["root_policy_mode"]),
-                        tactical_root_bias=float(normalized_search_options["tactical_root_bias"]),
+                        normalize_values=bool(
+                            normalized_search_options["normalize_values"]
+                        ),
+                        root_policy_mode=str(
+                            normalized_search_options["root_policy_mode"]
+                        ),
+                        tactical_root_bias=float(
+                            normalized_search_options["tactical_root_bias"]
+                        ),
                         **puct_kwargs,
                     )
                     visits, puct_root = search.run(
                         game,
-                        dirichlet_alpha=dirichlet_alpha if ply < temperature_threshold else None,
+                        dirichlet_alpha=dirichlet_alpha
+                        if ply < temperature_threshold
+                        else None,
                         dirichlet_epsilon=dirichlet_epsilon,
                     )
-                    gameplay_policy = policy_from_visits(visits, legal_moves=legal_moves, temperature=temp)
+                    gameplay_policy = policy_from_visits(
+                        visits, legal_moves=legal_moves, temperature=temp
+                    )
                     root_summary = None
-                    if "value_trust_schedule" in normalized_search_options and hasattr(search, "root_summary"):
+                    if "value_trust_schedule" in normalized_search_options and hasattr(
+                        search, "root_summary"
+                    ):
                         root_summary = search.root_summary()
                     return (
                         gameplay_policy,
@@ -1655,7 +1948,11 @@ def run_self_play_worker(
                 if player_mode == "classic_mcts" or teacher_source == "opening_cache":
                     reusable_root = None
                 else:
-                    reusable_root = puct_root.child_for_action(move) if effective_reuse_subtree else None
+                    reusable_root = (
+                        puct_root.child_for_action(move)
+                        if effective_reuse_subtree
+                        else None
+                    )
                 absolute_move = game.pit_index(move)
                 if not game.move(absolute_move):
                     break
@@ -1732,12 +2029,19 @@ def main() -> None:
     for count in game_counts:
         starts.append(cursor)
         cursor += count
-    with tempfile.TemporaryDirectory(prefix="azlite-self-play-shards-", dir=out_path.parent) as shard_dir:
-        shard_paths = [str(Path(shard_dir) / f"worker_{worker_id}.jsonl") for worker_id in range(workers)]
+    with tempfile.TemporaryDirectory(
+        prefix="azlite-self-play-shards-", dir=out_path.parent
+    ) as shard_dir:
+        shard_paths = [
+            str(Path(shard_dir) / f"worker_{worker_id}.jsonl")
+            for worker_id in range(workers)
+        ]
 
         futures = []
         with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
-            for worker_id, (start_index, game_count) in enumerate(zip(starts, game_counts, strict=True)):
+            for worker_id, (start_index, game_count) in enumerate(
+                zip(starts, game_counts, strict=True)
+            ):
                 if game_count <= 0:
                     Path(shard_paths[worker_id]).write_text("", encoding="utf-8")
                     continue
@@ -1773,7 +2077,9 @@ def main() -> None:
                     "opening_cache_path": args.opening_cache,
                 }
                 if "value_trust_schedule" in search_options:
-                    worker_kwargs["value_trust_schedule"] = search_options["value_trust_schedule"]
+                    worker_kwargs["value_trust_schedule"] = search_options[
+                        "value_trust_schedule"
+                    ]
                 futures.append(pool.submit(run_self_play_worker, **worker_kwargs))
 
             results = [future.result() for future in futures]
@@ -1783,9 +2089,15 @@ def main() -> None:
 
     print(f"wrote {rows_written} rows to {out_path}")
     cache_metrics = cache_metrics_for([])
-    cache_metrics["cache_enabled"] = any(bool(result.get("cache_enabled", False)) for result in results)
-    cache_metrics["cache_hits"] = sum(int(result.get("cache_hits", 0)) for result in results)
-    cache_metrics["cache_misses"] = sum(int(result.get("cache_misses", 0)) for result in results)
+    cache_metrics["cache_enabled"] = any(
+        bool(result.get("cache_enabled", False)) for result in results
+    )
+    cache_metrics["cache_hits"] = sum(
+        int(result.get("cache_hits", 0)) for result in results
+    )
+    cache_metrics["cache_misses"] = sum(
+        int(result.get("cache_misses", 0)) for result in results
+    )
     print(
         format_metrics_line(
             prefix="cache_metrics",

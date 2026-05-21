@@ -36,8 +36,14 @@ from ml.alphazero_lite import label_tactical_states
 
 
 DEFAULT_STABLE_FAILURE_REPLAY_SOURCE = DEFAULT_BALANCED_REPLAY_SOURCE
-DEFAULT_FORENSIC_SUITE = Path(__file__).resolve().parents[2] / "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
-DEFAULT_REGRESSION_POSITIONS = Path(__file__).resolve().parents[2] / "test/fixtures/ai/superhuman_regression_positions.json"
+DEFAULT_FORENSIC_SUITE = (
+    Path(__file__).resolve().parents[2]
+    / "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+)
+DEFAULT_REGRESSION_POSITIONS = (
+    Path(__file__).resolve().parents[2]
+    / "test/fixtures/ai/superhuman_regression_positions.json"
+)
 TARGET_ROLE_COUNTS = {
     "capture_protection": 1,
     "capture_preservation": 4,
@@ -52,8 +58,12 @@ PRIOR_NEARBY_PRESERVATION_COUNT = 6
 def load_reference_rows(path: Path) -> list[dict]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     rows = payload.get("rows")
-    if payload.get("schema") != "azlite_forensic_references_v1" or not isinstance(rows, list):
-        raise ValueError("reference artifact must use azlite_forensic_references_v1 with rows list")
+    if payload.get("schema") != "azlite_forensic_references_v1" or not isinstance(
+        rows, list
+    ):
+        raise ValueError(
+            "reference artifact must use azlite_forensic_references_v1 with rows list"
+        )
     return [row for row in rows if isinstance(row, dict)]
 
 
@@ -65,7 +75,9 @@ def reference_rows_by_canonical_state(reference_rows: list[dict]) -> dict[str, d
     }
 
 
-def stable_reference_row(suite_row: dict, references_by_state: dict[str, dict]) -> dict | None:
+def stable_reference_row(
+    suite_row: dict, references_by_state: dict[str, dict]
+) -> dict | None:
     canonical_state = canonical_state_key(suite_row["state"])
     reference = references_by_state.get(canonical_state)
     reference_move = reference.get("reference_move") if reference is not None else None
@@ -96,7 +108,9 @@ def stable_reference_ply(suite_row: dict) -> int:
     return 12
 
 
-def build_stable_reference_replay_row(stable_row: dict, *, reference_path: Path) -> dict:
+def build_stable_reference_replay_row(
+    stable_row: dict, *, reference_path: Path
+) -> dict:
     raw_state = dict(stable_row["state"])
     labeled = label_tactical_states.label_row(
         {
@@ -127,7 +141,9 @@ def build_stable_reference_replay_row(stable_row: dict, *, reference_path: Path)
     }
 
 
-def select_opening_capture_family_rows(*, suite_rows: list[dict], reference_rows: list[dict]) -> list[dict]:
+def select_opening_capture_family_rows(
+    *, suite_rows: list[dict], reference_rows: list[dict]
+) -> list[dict]:
     references_by_state = reference_rows_by_canonical_state(reference_rows)
     selected = []
     for row in suite_rows:
@@ -166,7 +182,9 @@ def select_high_imbalance_stable_rows(
     return selected
 
 
-def select_capture_preservation_rows(*, source_rows: list[dict], protection_rows: list[dict]) -> list[dict]:
+def select_capture_preservation_rows(
+    *, source_rows: list[dict], protection_rows: list[dict]
+) -> list[dict]:
     protected_states = {str(row.get("canonical_state")) for row in protection_rows}
     protected_shapes = set()
     for row in protection_rows:
@@ -229,7 +247,11 @@ def select_nearby_preservation_rows(*, source_rows: list[dict]) -> list[dict]:
     selected_rows = []
     remaining_rows = []
     for bucket in NEARBY_BUCKETS:
-        bucket_rows = [_sanitize_source_artifacts(dict(row)) for row in source_rows if row.get("bucket") == bucket]
+        bucket_rows = [
+            _sanitize_source_artifacts(dict(row))
+            for row in source_rows
+            if row.get("bucket") == bucket
+        ]
         bucket_rows.sort(
             key=lambda row: (
                 -float(row.get("priority_score", 0.0)),
@@ -246,7 +268,9 @@ def select_nearby_preservation_rows(*, source_rows: list[dict]) -> list[dict]:
             str(row.get("canonical_state", "")),
         )
     )
-    extra_needed = max(0, TARGET_ROLE_COUNTS["nearby_preservation"] - len(selected_rows))
+    extra_needed = max(
+        0, TARGET_ROLE_COUNTS["nearby_preservation"] - len(selected_rows)
+    )
     selected_rows.extend(remaining_rows[:extra_needed])
     return selected_rows
 
@@ -315,10 +339,12 @@ def invalid_reasons_for_counts(
     reasons = []
     opening_count = role_counts["opening_capture_family"]
     nearby_count = role_counts["nearby_preservation"]
-    other_counts = [count for role, count in role_counts.items() if role != "opening_capture_family"]
-    distinct_capture_shapes = len(capture_shape_counts)
-    capture_shape_shortfall = max(0, TARGET_ROLE_COUNTS["capture_preservation"] - distinct_capture_shapes)
-    missing_nearby_buckets = [bucket for bucket in NEARBY_BUCKETS if nearby_bucket_counts.get(bucket, 0) <= 0]
+    other_counts = [
+        count for role, count in role_counts.items() if role != "opening_capture_family"
+    ]
+    missing_nearby_buckets = [
+        bucket for bucket in NEARBY_BUCKETS if nearby_bucket_counts.get(bucket, 0) <= 0
+    ]
 
     if opening_count >= PRIOR_OPENING_CAPTURE_FAMILY_COUNT:
         reasons.append("opening_capture_family not capped below prior 13")
@@ -326,9 +352,13 @@ def invalid_reasons_for_counts(
         reasons.append("nearby_preservation does not exceed prior 6")
     if other_counts and opening_count > max(other_counts):
         reasons.append("opening_capture_family remains dominant")
-    if role_counts["nearby_preservation"] >= TARGET_ROLE_COUNTS["nearby_preservation"] and missing_nearby_buckets:
+    if (
+        role_counts["nearby_preservation"] >= TARGET_ROLE_COUNTS["nearby_preservation"]
+        and missing_nearby_buckets
+    ):
         reasons.append(
-            "nearby_preservation missing bucket participation: " + ", ".join(missing_nearby_buckets)
+            "nearby_preservation missing bucket participation: "
+            + ", ".join(missing_nearby_buckets)
         )
     return reasons
 
@@ -337,8 +367,14 @@ def build_summary(*, rows: list[dict], summary_out_path: Path) -> dict:
     role_counts = actual_role_counts(rows)
     capture_shape_count_map = capture_preservation_shape_counts(rows)
     nearby_bucket_count_map = nearby_bucket_counts(rows)
-    capture_shape_shortfall = max(0, TARGET_ROLE_COUNTS["capture_preservation"] - len(capture_shape_count_map))
-    nearby_missing_buckets = [bucket for bucket in NEARBY_BUCKETS if nearby_bucket_count_map.get(bucket, 0) <= 0]
+    capture_shape_shortfall = max(
+        0, TARGET_ROLE_COUNTS["capture_preservation"] - len(capture_shape_count_map)
+    )
+    nearby_missing_buckets = [
+        bucket
+        for bucket in NEARBY_BUCKETS
+        if nearby_bucket_count_map.get(bucket, 0) <= 0
+    ]
     return {
         "schema": "azlite_tactical_stable_failure_family_replay_summary_v1",
         "summary_artifact_path": str(summary_out_path),
@@ -365,11 +401,15 @@ def build_summary(*, rows: list[dict], summary_out_path: Path) -> dict:
 
 def write_summary(summary: dict, *, summary_out_path: Path) -> None:
     summary_out_path.parent.mkdir(parents=True, exist_ok=True)
-    summary_out_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    summary_out_path.write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def build_capture_protection_row(regression_positions_path: Path) -> dict:
-    regression_positions = json.loads(regression_positions_path.read_text(encoding="utf-8"))
+    regression_positions = json.loads(
+        regression_positions_path.read_text(encoding="utf-8")
+    )
     if not regression_positions:
         raise ValueError("regression fixture must contain at least one position")
     regression_position = regression_positions[0]
@@ -377,12 +417,16 @@ def build_capture_protection_row(regression_positions_path: Path) -> dict:
         regression_position=regression_position,
         teacher_labeler=lambda raw_state: teacher_label_regression_row(
             raw_state,
-            source_id=str(regression_position.get("id", "capture_protection_regression")),
+            source_id=str(
+                regression_position.get("id", "capture_protection_regression")
+            ),
             move_number=regression_position.get("move_number"),
         ),
     )
     sanitized = json.loads(json.dumps(_sanitize_source_artifacts(row)))
-    sanitized["id"] = str(regression_position.get("id", "capture_protection_regression"))
+    sanitized["id"] = str(
+        regression_position.get("id", "capture_protection_regression")
+    )
     return sanitized
 
 
@@ -401,10 +445,14 @@ def build_stable_failure_family_replay_dataset(
     reference_rows = load_reference_rows(reference_path)
 
     protection_row = build_capture_protection_row(regression_positions_path)
-    preservation_rows = select_capture_preservation_rows(source_rows=source_rows, protection_rows=[protection_row])
+    preservation_rows = select_capture_preservation_rows(
+        source_rows=source_rows, protection_rows=[protection_row]
+    )
     opening_rows = [
         build_stable_reference_replay_row(row, reference_path=reference_path)
-        for row in select_opening_capture_family_rows(suite_rows=suite_rows, reference_rows=reference_rows)
+        for row in select_opening_capture_family_rows(
+            suite_rows=suite_rows, reference_rows=reference_rows
+        )
     ][: TARGET_ROLE_COUNTS["opening_capture_family"]]
     imbalance_rows = [
         build_stable_reference_replay_row(row, reference_path=reference_path)
@@ -429,7 +477,10 @@ def build_stable_failure_family_replay_dataset(
     summary["replay_artifact_path"] = str(out_path)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text("\n".join(json.dumps(row) for row in rows) + ("\n" if rows else ""), encoding="utf-8")
+    out_path.write_text(
+        "\n".join(json.dumps(row) for row in rows) + ("\n" if rows else ""),
+        encoding="utf-8",
+    )
     write_summary(summary, summary_out_path=summary_out_path)
     if summary["invalid_reasons"]:
         raise ValueError("; ".join(summary["invalid_reasons"]))
@@ -438,11 +489,17 @@ def build_stable_failure_family_replay_dataset(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tactical-replay", default=str(DEFAULT_STABLE_FAILURE_REPLAY_SOURCE))
+    parser.add_argument(
+        "--tactical-replay", default=str(DEFAULT_STABLE_FAILURE_REPLAY_SOURCE)
+    )
     parser.add_argument("--suite", default=str(DEFAULT_FORENSIC_SUITE))
     parser.add_argument("--reference", required=True)
-    parser.add_argument("--regression-positions", default=str(DEFAULT_REGRESSION_POSITIONS))
-    parser.add_argument("--high-imbalance-id", action="append", dest="high_imbalance_ids", default=[])
+    parser.add_argument(
+        "--regression-positions", default=str(DEFAULT_REGRESSION_POSITIONS)
+    )
+    parser.add_argument(
+        "--high-imbalance-id", action="append", dest="high_imbalance_ids", default=[]
+    )
     parser.add_argument("--out", required=True)
     parser.add_argument("--summary-out", required=True)
     return parser.parse_args()
@@ -450,7 +507,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    high_imbalance_ids = None if not args.high_imbalance_ids else set(args.high_imbalance_ids)
+    high_imbalance_ids = (
+        None if not args.high_imbalance_ids else set(args.high_imbalance_ids)
+    )
     build_stable_failure_family_replay_dataset(
         tactical_replay_path=Path(args.tactical_replay),
         suite_path=Path(args.suite),

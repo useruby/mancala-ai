@@ -95,7 +95,9 @@ class RunSearchAblationTest(unittest.TestCase):
     def test_parse_budgets_returns_positive_unique_integers(self):
         from ml.alphazero_lite import run_search_ablation
 
-        self.assertEqual([128, 384, 1200], run_search_ablation.parse_budgets("128,384,1200"))
+        self.assertEqual(
+            [128, 384, 1200], run_search_ablation.parse_budgets("128,384,1200")
+        )
 
     def test_parse_budgets_rejects_duplicates(self):
         from ml.alphazero_lite import run_search_ablation
@@ -163,41 +165,49 @@ class RunSearchAblationTest(unittest.TestCase):
             {
                 "overall": {
                     128: {
-                        "classic_only": summarize_bucket(rows_by_budget_and_mode[128]["classic_only"]),
+                        "classic_only": summarize_bucket(
+                            rows_by_budget_and_mode[128]["classic_only"]
+                        ),
                         "full": summarize_bucket(rows_by_budget_and_mode[128]["full"]),
                     },
                     384: {
-                        "classic_only": summarize_bucket(rows_by_budget_and_mode[384]["classic_only"]),
+                        "classic_only": summarize_bucket(
+                            rows_by_budget_and_mode[384]["classic_only"]
+                        ),
                         "full": summarize_bucket(rows_by_budget_and_mode[384]["full"]),
                     },
                 },
                 "buckets": {
                     "capture_available": {
                         128: {
-                            "classic_only": summarize_bucket([
-                                rows_by_budget_and_mode[128]["classic_only"][1]
-                            ]),
+                            "classic_only": summarize_bucket(
+                                [rows_by_budget_and_mode[128]["classic_only"][1]]
+                            ),
                             "full": summarize_bucket([]),
                         },
                         384: {
-                            "classic_only": summarize_bucket(rows_by_budget_and_mode[384]["classic_only"]),
-                            "full": summarize_bucket([
-                                rows_by_budget_and_mode[384]["full"][1]
-                            ]),
+                            "classic_only": summarize_bucket(
+                                rows_by_budget_and_mode[384]["classic_only"]
+                            ),
+                            "full": summarize_bucket(
+                                [rows_by_budget_and_mode[384]["full"][1]]
+                            ),
                         },
                     },
                     "opening_plies_1_8": {
                         128: {
-                            "classic_only": summarize_bucket([
-                                rows_by_budget_and_mode[128]["classic_only"][0]
-                            ]),
-                            "full": summarize_bucket(rows_by_budget_and_mode[128]["full"]),
+                            "classic_only": summarize_bucket(
+                                [rows_by_budget_and_mode[128]["classic_only"][0]]
+                            ),
+                            "full": summarize_bucket(
+                                rows_by_budget_and_mode[128]["full"]
+                            ),
                         },
                         384: {
                             "classic_only": summarize_bucket([]),
-                            "full": summarize_bucket([
-                                rows_by_budget_and_mode[384]["full"][0]
-                            ]),
+                            "full": summarize_bucket(
+                                [rows_by_budget_and_mode[384]["full"][0]]
+                            ),
                         },
                     },
                 },
@@ -205,7 +215,9 @@ class RunSearchAblationTest(unittest.TestCase):
             matrix,
         )
 
-    def test_build_attribution_summary_reports_pairwise_deltas_and_larger_contributor(self):
+    def test_build_attribution_summary_reports_pairwise_deltas_and_larger_contributor(
+        self,
+    ):
         from ml.alphazero_lite import run_search_ablation
 
         summary = run_search_ablation.build_attribution_summary(
@@ -286,7 +298,9 @@ class RunSearchAblationTest(unittest.TestCase):
             summary["buckets"],
         )
 
-    def test_build_attribution_summary_reports_neither_when_learned_modes_trail_classic(self):
+    def test_build_attribution_summary_reports_neither_when_learned_modes_trail_classic(
+        self,
+    ):
         from ml.alphazero_lite import run_search_ablation
 
         summary = run_search_ablation.build_attribution_summary(
@@ -332,31 +346,64 @@ class RunSearchAblationTest(unittest.TestCase):
             tags=["opening"],
             source="fixture",
         )
-        args = run_search_ablation.parse_args(["--out", "/tmp/report.json", "--budgets", "128,384"])
+        args = run_search_ablation.parse_args(
+            ["--out", "/tmp/report.json", "--budgets", "128,384"]
+        )
         reference_calls = []
 
-        def fake_run_reference(state, policy_simulations, value_simulations, seed, index):
+        def fake_run_reference(
+            state, policy_simulations, value_simulations, seed, index
+        ):
             del state, seed
             reference_calls.append((policy_simulations, value_simulations, index))
             return {
                 "selected_move": 0,
-                "child_stats": [{"move": 0, "visits": policy_simulations, "win_rate": 0.75}],
+                "child_stats": [
+                    {"move": 0, "visits": policy_simulations, "win_rate": 0.75}
+                ],
                 "teacher_value": 0.5,
             }
 
-        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode):
-            del artifact_path, evaluator, state, seed, c_puct, search_options, ablation_mode
+        def fake_evaluate_artifact_position(
+            *,
+            artifact_path,
+            evaluator,
+            state,
+            simulations,
+            seed,
+            c_puct,
+            search_options,
+            ablation_mode,
+        ):
+            del (
+                artifact_path,
+                evaluator,
+                state,
+                seed,
+                c_puct,
+                search_options,
+                ablation_mode,
+            )
             return {"selected_move": 0, "value": 0.5}
 
-        with mock.patch.object(run_search_ablation, "load_suite", return_value=[fake_position]), mock.patch.object(
-            run_search_ablation,
-            "run_reference",
-            side_effect=fake_run_reference,
-        ), mock.patch.object(
-            run_search_ablation,
-            "evaluate_artifact_position",
-            side_effect=fake_evaluate_artifact_position,
-        ), mock.patch.object(run_search_ablation, "ArtifactEvaluator", return_value=mock.Mock()):
+        with (
+            mock.patch.object(
+                run_search_ablation, "load_suite", return_value=[fake_position]
+            ),
+            mock.patch.object(
+                run_search_ablation,
+                "run_reference",
+                side_effect=fake_run_reference,
+            ),
+            mock.patch.object(
+                run_search_ablation,
+                "evaluate_artifact_position",
+                side_effect=fake_evaluate_artifact_position,
+            ),
+            mock.patch.object(
+                run_search_ablation, "ArtifactEvaluator", return_value=mock.Mock()
+            ),
+        ):
             rows = run_search_ablation.build_real_rows_by_budget_and_mode(args)
 
         self.assertEqual([(128, 128, 0), (384, 384, 0)], reference_calls)
@@ -461,10 +508,15 @@ class SearchAblationWrapperTest(unittest.TestCase):
         self.assertIn("model-artifact/current", command)
         self.assertIn("128,384,1200", command)
         self.assertIn("--suite", command)
-        self.assertIn("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json", command)
+        self.assertIn(
+            "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json", command
+        )
 
     def test_write_up_contains_expected_headings(self):
-        doc_path = Path(__file__).resolve().parents[2] / "docs/alphazero-lite-policy-value-ablation.md"
+        doc_path = (
+            Path(__file__).resolve().parents[2]
+            / "docs/alphazero-lite-policy-value-ablation.md"
+        )
         doc = doc_path.read_text(encoding="utf-8")
 
         self.assertIn("# AlphaZero-lite Policy-Value Search Ablation", doc)
@@ -475,7 +527,9 @@ class SearchAblationWrapperTest(unittest.TestCase):
         self.assertIn("## Overall Attribution", doc)
         self.assertIn("## Bucket Findings", doc)
         self.assertIn("## Answer", doc)
-        self.assertIn("Overall larger contributor among the learned search signals: `value`.", doc)
+        self.assertIn(
+            "Overall larger contributor among the learned search signals: `value`.", doc
+        )
 
 
 class SearchAblationRealRunnerTest(unittest.TestCase):
@@ -499,7 +553,9 @@ class SearchAblationRealRunnerTest(unittest.TestCase):
             source="fixture",
         )
 
-        def fake_run_reference(state, policy_simulations, value_simulations, seed, index):
+        def fake_run_reference(
+            state, policy_simulations, value_simulations, seed, index
+        ):
             del state, value_simulations, seed, index
             return {
                 "selected_move": 0,
@@ -510,7 +566,17 @@ class SearchAblationRealRunnerTest(unittest.TestCase):
                 "teacher_value": 0.4,
             }
 
-        def fake_evaluate_artifact_position(*, artifact_path, evaluator, state, simulations, seed, c_puct, search_options, ablation_mode):
+        def fake_evaluate_artifact_position(
+            *,
+            artifact_path,
+            evaluator,
+            state,
+            simulations,
+            seed,
+            c_puct,
+            search_options,
+            ablation_mode,
+        ):
             del artifact_path, evaluator, state, seed, c_puct, search_options
             selected_move = 0 if ablation_mode in {"full", "policy_only"} else 1
             return {
@@ -518,32 +584,52 @@ class SearchAblationRealRunnerTest(unittest.TestCase):
                 "value": 0.4 if ablation_mode in {"full", "value_only"} else 0.0,
             }
 
-        with tempfile.TemporaryDirectory(prefix="azlite-search-ablation-real-") as tmpdir:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-search-ablation-real-"
+        ) as tmpdir:
             out_path = Path(tmpdir) / "report.json"
-            with mock.patch.object(run_search_ablation, "load_suite", return_value=[fake_position]), mock.patch.object(
-                run_search_ablation,
-                "run_reference",
-                side_effect=fake_run_reference,
-            ), mock.patch.object(
-                run_search_ablation,
-                "evaluate_artifact_position",
-                side_effect=fake_evaluate_artifact_position,
-            ), mock.patch.object(run_search_ablation, "ArtifactEvaluator", return_value=mock.Mock()):
-                exit_code = run_search_ablation.main(["--out", str(out_path), "--budgets", "128"])
+            with (
+                mock.patch.object(
+                    run_search_ablation, "load_suite", return_value=[fake_position]
+                ),
+                mock.patch.object(
+                    run_search_ablation,
+                    "run_reference",
+                    side_effect=fake_run_reference,
+                ),
+                mock.patch.object(
+                    run_search_ablation,
+                    "evaluate_artifact_position",
+                    side_effect=fake_evaluate_artifact_position,
+                ),
+                mock.patch.object(
+                    run_search_ablation, "ArtifactEvaluator", return_value=mock.Mock()
+                ),
+            ):
+                exit_code = run_search_ablation.main(
+                    ["--out", str(out_path), "--budgets", "128"]
+                )
 
             self.assertEqual(0, exit_code)
             report = json.loads(out_path.read_text(encoding="utf-8"))
 
         self.assertEqual("search_ablation_report_v1", report["schema"])
         self.assertEqual([128], report["budgets"])
-        self.assertEqual(["classic_only", "policy_only", "value_only", "full"], report["modes"])
+        self.assertEqual(
+            ["classic_only", "policy_only", "value_only", "full"], report["modes"]
+        )
         self.assertEqual(1, report["overall"]["128"]["full"]["positions"])
         self.assertEqual(0.0, report["overall"]["128"]["full"]["top1_agreement"])
         self.assertEqual(0.0, report["overall"]["128"]["full"]["average_regret"])
         self.assertEqual(0.0, report["overall"]["128"]["full"]["value_calibration_mae"])
-        self.assertEqual(0.0, report["overall"]["128"]["classic_only"]["top1_agreement"])
+        self.assertEqual(
+            0.0, report["overall"]["128"]["classic_only"]["top1_agreement"]
+        )
         self.assertIn("opening_plies_1_8", report["buckets"])
-        self.assertEqual("neither", report["attribution_summary"]["overall"]["128"]["larger_contributor"])
+        self.assertEqual(
+            "neither",
+            report["attribution_summary"]["overall"]["128"]["larger_contributor"],
+        )
 
 
 if __name__ == "__main__":

@@ -39,11 +39,19 @@ def validate_exploratory_summary(payload: Any) -> dict[str, Any]:
     if not isinstance(payload.get("passed"), bool):
         raise ValueError("exploratory_summary must include boolean passed")
     qualifying_seed_count = payload.get("qualifying_seed_count")
-    if isinstance(qualifying_seed_count, bool) or not isinstance(qualifying_seed_count, int):
-        raise ValueError("exploratory_summary must include integer qualifying_seed_count")
+    if isinstance(qualifying_seed_count, bool) or not isinstance(
+        qualifying_seed_count, int
+    ):
+        raise ValueError(
+            "exploratory_summary must include integer qualifying_seed_count"
+        )
     required_qualifying_seed_count = payload.get("required_qualifying_seed_count")
-    if isinstance(required_qualifying_seed_count, bool) or not isinstance(required_qualifying_seed_count, int):
-        raise ValueError("exploratory_summary must include integer required_qualifying_seed_count")
+    if isinstance(required_qualifying_seed_count, bool) or not isinstance(
+        required_qualifying_seed_count, int
+    ):
+        raise ValueError(
+            "exploratory_summary must include integer required_qualifying_seed_count"
+        )
     return payload
 
 
@@ -57,8 +65,12 @@ def build_decision(
         failure_reasons.append("bucket_gate_failed")
     if not promotion_gate.get("passed"):
         failure_reasons.append("local_promotion_gate_failed")
-    required_qualifying_seed_count = int(exploratory_summary.get("required_qualifying_seed_count", 0))
-    if (not exploratory_summary.get("passed")) or int(exploratory_summary.get("qualifying_seed_count", 0)) < required_qualifying_seed_count:
+    required_qualifying_seed_count = int(
+        exploratory_summary.get("required_qualifying_seed_count", 0)
+    )
+    if (not exploratory_summary.get("passed")) or int(
+        exploratory_summary.get("qualifying_seed_count", 0)
+    ) < required_qualifying_seed_count:
         failure_reasons.append("exploratory_seed_confirmation_failed")
 
     return {

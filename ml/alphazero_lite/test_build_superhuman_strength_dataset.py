@@ -49,16 +49,28 @@ class BuildSuperhumanStrengthDatasetTest(unittest.TestCase):
 
     def test_build_dataset_rows_rejects_missing_game_id(self):
         with self.assertRaisesRegex(ValueError, "missing game_id 99"):
-            dataset_builder.build_dataset_rows([], selections=[{"game_id": 99, "move_number": 1, "label": "missing"}])
+            dataset_builder.build_dataset_rows(
+                [], selections=[{"game_id": 99, "move_number": 1, "label": "missing"}]
+            )
 
     def test_build_dataset_rows_rejects_out_of_range_move_number(self):
-        games = [{"id": 1, "winner": 0, "move_history": [{"seat": "player", "pit": "2"}]}]
+        games = [
+            {"id": 1, "winner": 0, "move_history": [{"seat": "player", "pit": "2"}]}
+        ]
 
         with self.assertRaisesRegex(ValueError, "move_number out of range"):
-            dataset_builder.build_dataset_rows(games, selections=[{"game_id": 1, "move_number": 2, "label": "bad_move"}])
+            dataset_builder.build_dataset_rows(
+                games,
+                selections=[{"game_id": 1, "move_number": 2, "label": "bad_move"}],
+            )
 
-    def test_default_selections_build_deterministic_curated_rows_with_kalah_v3_encoding(self):
-        fixture_path = Path(__file__).with_name("fixtures") / "superhuman_strength_games_2026_04_06.json"
+    def test_default_selections_build_deterministic_curated_rows_with_kalah_v3_encoding(
+        self,
+    ):
+        fixture_path = (
+            Path(__file__).with_name("fixtures")
+            / "superhuman_strength_games_2026_04_06.json"
+        )
         games = json.loads(fixture_path.read_text(encoding="utf-8"))
 
         rows = dataset_builder.build_dataset_rows(games)
@@ -79,13 +91,22 @@ class BuildSuperhumanStrengthDatasetTest(unittest.TestCase):
 
         self.assertEqual(len(dataset_builder.DEFAULT_SELECTIONS), len(rows))
         self.assertEqual(
-            [f"superhuman_strength_{selection['label']}" for selection in dataset_builder.DEFAULT_SELECTIONS],
+            [
+                f"superhuman_strength_{selection['label']}"
+                for selection in dataset_builder.DEFAULT_SELECTIONS
+            ],
             [row["source"] for row in rows],
         )
         self.assertEqual(
             expected_contract,
             [
-                (row["source"], row["move_index"], row["player"], row["value"], row["policy"][row["move_index"]])
+                (
+                    row["source"],
+                    row["move_index"],
+                    row["player"],
+                    row["value"],
+                    row["policy"][row["move_index"]],
+                )
                 for row in rows
             ],
         )
@@ -101,7 +122,10 @@ class BuildSuperhumanStrengthDatasetTest(unittest.TestCase):
         self.assertEqual(rows, first_rows)
 
     def test_search_control_config_uses_deterministic_superhuman_search_settings(self):
-        config_path = Path(__file__).with_name("configs") / "aggressive_v3_superhuman_search_control.json"
+        config_path = (
+            Path(__file__).with_name("configs")
+            / "aggressive_v3_superhuman_search_control.json"
+        )
         config = json.loads(config_path.read_text(encoding="utf-8"))
         expected_programs = {
             "arena_confirm_report": "ml/alphazero_lite/arena.py",
@@ -111,7 +135,11 @@ class BuildSuperhumanStrengthDatasetTest(unittest.TestCase):
 
         self.assertEqual("aggressive-v3-superhuman-search-control", config["run_id"])
         self.assertEqual(
-            ["arena_confirm_report", "mcts1200_baseline_report", "current_mcts1200_baseline_report"],
+            [
+                "arena_confirm_report",
+                "mcts1200_baseline_report",
+                "current_mcts1200_baseline_report",
+            ],
             [step["name"] for step in config["steps"]],
         )
 

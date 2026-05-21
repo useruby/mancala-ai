@@ -11,15 +11,25 @@ from ml.alphazero_lite import capture_002_selection_score_component_audit as mod
 
 class Capture002SelectionScoreComponentAuditContractTest(unittest.TestCase):
     def test_contract_constants_are_stable(self):
-        self.assertEqual("azlite_capture_002_selection_score_component_audit_v1", module.SCHEMA)
-        self.assertEqual("azlite_capture_002_metric_co_movement_audit_v1", module.SOURCE_METRIC_AUDIT_SCHEMA)
-        self.assertEqual("azlite_capture_002_selection_score_trace_v1", module.SOURCE_SELECTION_SCORE_SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_selection_score_component_audit_v1", module.SCHEMA
+        )
+        self.assertEqual(
+            "azlite_capture_002_metric_co_movement_audit_v1",
+            module.SOURCE_METRIC_AUDIT_SCHEMA,
+        )
+        self.assertEqual(
+            "azlite_capture_002_selection_score_trace_v1",
+            module.SOURCE_SELECTION_SCORE_SCHEMA,
+        )
         self.assertEqual(
             "azlite_capture_002_trace_checkpoint_canonicalization_v1",
             module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
         )
         self.assertEqual("capture_available-002", module.ROW_ID)
-        self.assertEqual("early_selection_score_only", module.EXPECTED_METRIC_AUDIT_CLASSIFICATION)
+        self.assertEqual(
+            "early_selection_score_only", module.EXPECTED_METRIC_AUDIT_CLASSIFICATION
+        )
         self.assertEqual(
             "write_002_selection_score_component_audit_spec",
             module.EXPECTED_METRIC_AUDIT_DECISION,
@@ -48,8 +58,12 @@ class Capture002SelectionScoreComponentAuditContractTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(Path("/tmp/metric_audit.json"), args.source_metric_audit_artifact)
-        self.assertEqual(Path("/tmp/default.json"), args.source_selection_score_artifact)
+        self.assertEqual(
+            Path("/tmp/metric_audit.json"), args.source_metric_audit_artifact
+        )
+        self.assertEqual(
+            Path("/tmp/default.json"), args.source_selection_score_artifact
+        )
         self.assertEqual(
             Path("/tmp/relaxed.json"),
             args.source_threshold_relaxed_selection_score_artifact,
@@ -159,11 +173,16 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
     ) -> dict:
         return {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
-            "classification": {"classification": "unresolved", "evidence_summary": "unresolved"},
+            "classification": {
+                "classification": "unresolved",
+                "evidence_summary": "unresolved",
+            },
             "decision": "write_002_unresolved_trace_review_spec",
             "insufficiency_reasons": [],
             "trace_origin": trace_origin,
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
             "thresholds": copy.deepcopy(thresholds),
             "trace_points": copy.deepcopy(trace_points),
         }
@@ -175,11 +194,16 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         decision: str = "write_002_selection_score_component_audit_spec",
         source_artifact: dict | None = None,
     ) -> dict:
-        source_artifact = copy.deepcopy(source_artifact or self.source_artifact_with_provenance())
+        source_artifact = copy.deepcopy(
+            source_artifact or self.source_artifact_with_provenance()
+        )
         return {
             "schema": module.SOURCE_METRIC_AUDIT_SCHEMA,
             "hypothesis": "metric_co_movement_audit",
-            "classification": {"classification": classification, "evidence_summary": "selection-score lead"},
+            "classification": {
+                "classification": classification,
+                "evidence_summary": "selection-score lead",
+            },
             "decision": decision,
             "input_artifacts": {
                 "source_decomposition_artifact_path": "/tmp/decomposition.json",
@@ -197,8 +221,16 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
                 "relaxed": {"q": None, "selection_score": None, "visit_share": None},
             },
             "first_material_checkpoints": {
-                "default": {"q": None, "selection_score": {"simulation": 1.0, "margin": 0.06}, "visit_share": None},
-                "relaxed": {"q": None, "selection_score": {"simulation": 1.0, "margin": 0.06}, "visit_share": None},
+                "default": {
+                    "q": None,
+                    "selection_score": {"simulation": 1.0, "margin": 0.06},
+                    "visit_share": None,
+                },
+                "relaxed": {
+                    "q": None,
+                    "selection_score": {"simulation": 1.0, "margin": 0.06},
+                    "visit_share": None,
+                },
             },
             "final_margin_summary": {
                 "default_q_margin": 0.0,
@@ -209,7 +241,9 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
                 "relaxed_visit_share_margin": 0.0,
             },
             "source_snapshots": {
-                "decomposition_classification": {"classification": "metric_co_movement"},
+                "decomposition_classification": {
+                    "classification": "metric_co_movement"
+                },
                 "default_trace_classification": {"classification": "unresolved"},
                 "relaxed_trace_classification": {"classification": "unresolved"},
                 "default_trace_origin": "extracted",
@@ -242,7 +276,9 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
                 "source_selection_score_artifact_path": "/tmp/default.json",
                 "source_threshold_relaxed_selection_score_artifact_path": "/tmp/relaxed.json",
             },
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
             "canonicalization_status": {"safe_for_followup_spec": True},
             "canonical_sequences_match": True,
             "canonical_checkpoint_sequences": {
@@ -316,8 +352,12 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         metric_audit, default, relaxed = self.valid_inputs()
         metric_audit["schema"] = "wrong"
 
-        with self.assertRaisesRegex(ValueError, "metric audit artifact has wrong schema"):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        with self.assertRaisesRegex(
+            ValueError, "metric audit artifact has wrong schema"
+        ):
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
     def test_build_payload_rejects_wrong_metric_audit_classification(self):
         metric_audit, default, relaxed = self.valid_inputs()
@@ -327,7 +367,9 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
             ValueError,
             "metric audit artifact classification must be early_selection_score_only",
         ):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
     def test_build_payload_rejects_wrong_metric_audit_decision(self):
         metric_audit, default, relaxed = self.valid_inputs()
@@ -337,14 +379,20 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
             ValueError,
             "metric audit artifact decision must be write_002_selection_score_component_audit_spec",
         ):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
     def test_build_payload_rejects_wrong_trace_schema(self):
         metric_audit, default, relaxed = self.valid_inputs()
         default["schema"] = "wrong"
 
-        with self.assertRaisesRegex(ValueError, "selection score artifact has wrong schema"):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        with self.assertRaisesRegex(
+            ValueError, "selection score artifact has wrong schema"
+        ):
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
     def test_build_payload_rejects_wrong_trace_decision(self):
         metric_audit, default, relaxed = self.valid_inputs()
@@ -354,21 +402,31 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
             ValueError,
             "relaxed trace artifact decision must be write_002_unresolved_trace_review_spec",
         ):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
     def test_build_payload_rejects_wrong_row_identity(self):
         metric_audit, default, relaxed = self.valid_inputs()
         relaxed["source_artifact"]["row_id"] = "capture_available-003"
 
-        with self.assertRaisesRegex(ValueError, "source_artifact.row_id must be capture_available-002"):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        with self.assertRaisesRegex(
+            ValueError, "source_artifact.row_id must be capture_available-002"
+        ):
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
     def test_build_payload_classifies_prior_pressure_lead(self):
         metric_audit, default, relaxed = self.valid_inputs()
 
-        payload = self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        payload = self.build_payload(
+            metric_audit=metric_audit, default=default, relaxed=relaxed
+        )
 
-        self.assertEqual("prior_pressure_lead", payload["classification"]["classification"])
+        self.assertEqual(
+            "prior_pressure_lead", payload["classification"]["classification"]
+        )
         self.assertEqual("write_002_prior_pressure_component_spec", payload["decision"])
 
     def test_build_payload_classifies_child_q_lift_lead(self):
@@ -391,12 +449,18 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         ]
         relaxed["trace_points"] = copy.deepcopy(default["trace_points"])
 
-        payload = self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        payload = self.build_payload(
+            metric_audit=metric_audit, default=default, relaxed=relaxed
+        )
 
-        self.assertEqual("child_q_lift_lead", payload["classification"]["classification"])
+        self.assertEqual(
+            "child_q_lift_lead", payload["classification"]["classification"]
+        )
         self.assertEqual("write_002_child_q_lift_component_spec", payload["decision"])
 
-    def test_build_payload_classifies_mixed_signal_when_default_and_relaxed_disagree(self):
+    def test_build_payload_classifies_mixed_signal_when_default_and_relaxed_disagree(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         default["trace_points"] = [
             self.trace_point(
@@ -417,12 +481,20 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
             )
         ]
 
-        payload = self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        payload = self.build_payload(
+            metric_audit=metric_audit, default=default, relaxed=relaxed
+        )
 
-        self.assertEqual("mixed_selection_score_signal", payload["classification"]["classification"])
-        self.assertEqual("write_002_mixed_selection_score_component_spec", payload["decision"])
+        self.assertEqual(
+            "mixed_selection_score_signal", payload["classification"]["classification"]
+        )
+        self.assertEqual(
+            "write_002_mixed_selection_score_component_spec", payload["decision"]
+        )
 
-    def test_build_payload_classifies_mixed_signal_when_only_one_branch_has_material_support(self):
+    def test_build_payload_classifies_mixed_signal_when_only_one_branch_has_material_support(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         default["trace_points"] = [
             self.trace_point(
@@ -443,12 +515,20 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
             )
         ]
 
-        payload = self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        payload = self.build_payload(
+            metric_audit=metric_audit, default=default, relaxed=relaxed
+        )
 
-        self.assertEqual("mixed_selection_score_signal", payload["classification"]["classification"])
-        self.assertEqual("write_002_mixed_selection_score_component_spec", payload["decision"])
+        self.assertEqual(
+            "mixed_selection_score_signal", payload["classification"]["classification"]
+        )
+        self.assertEqual(
+            "write_002_mixed_selection_score_component_spec", payload["decision"]
+        )
 
-    def test_build_payload_classifies_mixed_signal_for_first_positive_first_material_conflict(self):
+    def test_build_payload_classifies_mixed_signal_for_first_positive_first_material_conflict(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         default["trace_points"] = [
             self.trace_point(
@@ -468,11 +548,17 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         ]
         relaxed["trace_points"] = copy.deepcopy(default["trace_points"])
 
-        payload = self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        payload = self.build_payload(
+            metric_audit=metric_audit, default=default, relaxed=relaxed
+        )
 
-        self.assertEqual("mixed_selection_score_signal", payload["classification"]["classification"])
+        self.assertEqual(
+            "mixed_selection_score_signal", payload["classification"]["classification"]
+        )
 
-    def test_build_payload_classifies_inconclusive_when_selection_score_support_never_materializes_cleanly(self):
+    def test_build_payload_classifies_inconclusive_when_selection_score_support_never_materializes_cleanly(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         default["trace_points"] = [
             self.trace_point(
@@ -485,34 +571,64 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         ]
         relaxed["trace_points"] = copy.deepcopy(default["trace_points"])
 
-        payload = self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        payload = self.build_payload(
+            metric_audit=metric_audit, default=default, relaxed=relaxed
+        )
 
         self.assertEqual(
             "selection_score_component_inconclusive",
             payload["classification"]["classification"],
         )
-        self.assertEqual("stop_002_selection_score_component_inconclusive", payload["decision"])
+        self.assertEqual(
+            "stop_002_selection_score_component_inconclusive", payload["decision"]
+        )
 
-    def test_build_payload_rejects_duplicate_checkpoint_sequences_without_canonicalization_artifact(self):
+    def test_build_payload_rejects_duplicate_checkpoint_sequences_without_canonicalization_artifact(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         duplicate_default_point = copy.deepcopy(default["trace_points"][0])
         duplicate_relaxed_point = copy.deepcopy(relaxed["trace_points"][0])
-        default["trace_points"] = [default["trace_points"][0], duplicate_default_point, default["trace_points"][1]]
-        relaxed["trace_points"] = [relaxed["trace_points"][0], duplicate_relaxed_point, relaxed["trace_points"][1]]
+        default["trace_points"] = [
+            default["trace_points"][0],
+            duplicate_default_point,
+            default["trace_points"][1],
+        ]
+        relaxed["trace_points"] = [
+            relaxed["trace_points"][0],
+            duplicate_relaxed_point,
+            relaxed["trace_points"][1],
+        ]
 
-        with self.assertRaisesRegex(ValueError, "checkpoint sequences must not contain duplicates"):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        with self.assertRaisesRegex(
+            ValueError, "checkpoint sequences must not contain duplicates"
+        ):
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
-    def test_build_payload_accepts_duplicate_equivalent_root_snapshots_with_valid_canonicalization_artifact(self):
+    def test_build_payload_accepts_duplicate_equivalent_root_snapshots_with_valid_canonicalization_artifact(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         duplicate_default_point = copy.deepcopy(default["trace_points"][0])
         duplicate_relaxed_point = copy.deepcopy(relaxed["trace_points"][0])
         metric_audit["input_artifacts"][
             "source_checkpoint_canonicalization_artifact_path"
         ] = "/tmp/canonicalization.json"
-        default["trace_points"] = [default["trace_points"][0], duplicate_default_point, default["trace_points"][1]]
-        relaxed["trace_points"] = [relaxed["trace_points"][0], duplicate_relaxed_point, relaxed["trace_points"][1]]
-        canonicalization = self.canonicalization_artifact(default_sequence=[1.0, 2.0], relaxed_sequence=[1.0, 2.0])
+        default["trace_points"] = [
+            default["trace_points"][0],
+            duplicate_default_point,
+            default["trace_points"][1],
+        ]
+        relaxed["trace_points"] = [
+            relaxed["trace_points"][0],
+            duplicate_relaxed_point,
+            relaxed["trace_points"][1],
+        ]
+        canonicalization = self.canonicalization_artifact(
+            default_sequence=[1.0, 2.0], relaxed_sequence=[1.0, 2.0]
+        )
 
         payload = self.build_payload(
             metric_audit=metric_audit,
@@ -524,20 +640,26 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
 
         self.assertEqual(
             "/tmp/canonicalization.json",
-            payload["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"],
+            payload["input_artifacts"][
+                "source_checkpoint_canonicalization_artifact_path"
+            ],
         )
 
     def test_build_payload_omits_canonicalization_path_without_canonical_mode(self):
         metric_audit, default, relaxed = self.valid_inputs()
 
-        payload = self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+        payload = self.build_payload(
+            metric_audit=metric_audit, default=default, relaxed=relaxed
+        )
 
         self.assertNotIn(
             "source_checkpoint_canonicalization_artifact_path",
             payload["input_artifacts"],
         )
 
-    def test_build_payload_rejects_canonical_artifact_without_canonicalization_path(self):
+    def test_build_payload_rejects_canonical_artifact_without_canonicalization_path(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         canonicalization = self.canonicalization_artifact()
 
@@ -552,7 +674,9 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
                 canonicalization=canonicalization,
             )
 
-    def test_build_payload_rejects_canonicalization_path_without_canonical_artifact(self):
+    def test_build_payload_rejects_canonicalization_path_without_canonical_artifact(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         metric_audit["input_artifacts"][
             "source_checkpoint_canonicalization_artifact_path"
@@ -569,7 +693,9 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
                 source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_mismatched_upstream_metric_audit_canonicalization_path(self):
+    def test_build_payload_rejects_mismatched_upstream_metric_audit_canonicalization_path(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         metric_audit["input_artifacts"][
             "source_checkpoint_canonicalization_artifact_path"
@@ -588,7 +714,9 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
                 source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_non_canonical_metric_audit_that_claims_canonicalization_input(self):
+    def test_build_payload_rejects_non_canonical_metric_audit_that_claims_canonicalization_input(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         metric_audit["input_artifacts"][
             "source_checkpoint_canonicalization_artifact_path"
@@ -598,9 +726,13 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
             ValueError,
             "metric audit input_artifacts source_checkpoint_canonicalization_artifact_path must match source path",
         ):
-            self.build_payload(metric_audit=metric_audit, default=default, relaxed=relaxed)
+            self.build_payload(
+                metric_audit=metric_audit, default=default, relaxed=relaxed
+            )
 
-    def test_build_payload_rejects_conflicting_skipped_duplicates_in_canonical_mode(self):
+    def test_build_payload_rejects_conflicting_skipped_duplicates_in_canonical_mode(
+        self,
+    ):
         metric_audit, default, relaxed = self.valid_inputs()
         metric_audit["input_artifacts"][
             "source_checkpoint_canonicalization_artifact_path"
@@ -608,9 +740,19 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         duplicate_default_point = copy.deepcopy(default["trace_points"][0])
         duplicate_default_point["selected_move"] = 2
         duplicate_relaxed_point = copy.deepcopy(relaxed["trace_points"][0])
-        default["trace_points"] = [default["trace_points"][0], duplicate_default_point, default["trace_points"][1]]
-        relaxed["trace_points"] = [relaxed["trace_points"][0], duplicate_relaxed_point, relaxed["trace_points"][1]]
-        canonicalization = self.canonicalization_artifact(default_sequence=[1.0, 2.0], relaxed_sequence=[1.0, 2.0])
+        default["trace_points"] = [
+            default["trace_points"][0],
+            duplicate_default_point,
+            default["trace_points"][1],
+        ]
+        relaxed["trace_points"] = [
+            relaxed["trace_points"][0],
+            duplicate_relaxed_point,
+            relaxed["trace_points"][1],
+        ]
+        canonicalization = self.canonicalization_artifact(
+            default_sequence=[1.0, 2.0], relaxed_sequence=[1.0, 2.0]
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -631,9 +773,19 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         ] = "/tmp/canonicalization.json"
         duplicate_default_point = copy.deepcopy(default["trace_points"][0])
         duplicate_relaxed_point = copy.deepcopy(relaxed["trace_points"][0])
-        default["trace_points"] = [default["trace_points"][0], duplicate_default_point, default["trace_points"][1]]
-        relaxed["trace_points"] = [relaxed["trace_points"][0], duplicate_relaxed_point, relaxed["trace_points"][1]]
-        canonicalization = self.canonicalization_artifact(default_sequence=[1.0, 2.0, 3.0], relaxed_sequence=[1.0, 2.0, 3.0])
+        default["trace_points"] = [
+            default["trace_points"][0],
+            duplicate_default_point,
+            default["trace_points"][1],
+        ]
+        relaxed["trace_points"] = [
+            relaxed["trace_points"][0],
+            duplicate_relaxed_point,
+            relaxed["trace_points"][1],
+        ]
+        canonicalization = self.canonicalization_artifact(
+            default_sequence=[1.0, 2.0, 3.0], relaxed_sequence=[1.0, 2.0, 3.0]
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -658,8 +810,16 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
         relaxed["source_artifact"] = copy.deepcopy(full_source_artifact)
         duplicate_default_point = copy.deepcopy(default["trace_points"][0])
         duplicate_relaxed_point = copy.deepcopy(relaxed["trace_points"][0])
-        default["trace_points"] = [default["trace_points"][0], duplicate_default_point, default["trace_points"][1]]
-        relaxed["trace_points"] = [relaxed["trace_points"][0], duplicate_relaxed_point, relaxed["trace_points"][1]]
+        default["trace_points"] = [
+            default["trace_points"][0],
+            duplicate_default_point,
+            default["trace_points"][1],
+        ]
+        relaxed["trace_points"] = [
+            relaxed["trace_points"][0],
+            duplicate_relaxed_point,
+            relaxed["trace_points"][1],
+        ]
         canonicalization = self.canonicalization_artifact(
             source_artifact=full_source_artifact,
             default_sequence=[1.0, 2.0],
@@ -684,7 +844,9 @@ class Capture002SelectionScoreComponentAuditBuildPayloadTest(unittest.TestCase):
             relaxed_path = tmp_path / "relaxed.json"
             out_path = tmp_path / "diagnostics" / "selection_score_component_audit.json"
             metric_audit, default, relaxed = self.valid_inputs()
-            metric_audit["input_artifacts"]["source_selection_score_artifact_path"] = str(default_path)
+            metric_audit["input_artifacts"]["source_selection_score_artifact_path"] = (
+                str(default_path)
+            )
             metric_audit["input_artifacts"][
                 "source_threshold_relaxed_selection_score_artifact_path"
             ] = str(relaxed_path)

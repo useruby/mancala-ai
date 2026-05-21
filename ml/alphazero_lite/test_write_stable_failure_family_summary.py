@@ -6,7 +6,9 @@ from unittest import mock
 
 
 class WriteStableFailureFamilySummaryTest(unittest.TestCase):
-    def test_build_summary_reports_capture_search_flips_and_high_imbalance_blunders(self):
+    def test_build_summary_reports_capture_search_flips_and_high_imbalance_blunders(
+        self,
+    ):
         from ml.alphazero_lite import write_stable_failure_family_summary as module
 
         candidate_forensics = {
@@ -52,14 +54,31 @@ class WriteStableFailureFamilySummaryTest(unittest.TestCase):
                 {
                     "id": "capture_available-016",
                     "reference_move": 4,
-                    "candidate_prior_summary": {"selected_move": 4, "reference_move": 4, "reference_mass": 0.55, "reference_margin": 0.25, "early_mass": 0.3, "value": 0.51},
-                    "candidate_searched_summary": {"selected_move": 0, "reference_move": 4, "reference_mass": 0.15, "reference_margin": -0.53, "early_mass": 0.68, "value": 0.51},
+                    "candidate_prior_summary": {
+                        "selected_move": 4,
+                        "reference_move": 4,
+                        "reference_mass": 0.55,
+                        "reference_margin": 0.25,
+                        "early_mass": 0.3,
+                        "value": 0.51,
+                    },
+                    "candidate_searched_summary": {
+                        "selected_move": 0,
+                        "reference_move": 4,
+                        "reference_mass": 0.15,
+                        "reference_margin": -0.53,
+                        "early_mass": 0.68,
+                        "value": 0.51,
+                    },
                 }
             ],
             "missing_references": [],
         }
 
-        summary = module.build_summary(candidate_forensics=candidate_forensics, opening_family_report=opening_family_report)
+        summary = module.build_summary(
+            candidate_forensics=candidate_forensics,
+            opening_family_report=opening_family_report,
+        )
 
         self.assertEqual(1, summary["capture_available"]["tracked_rows"])
         self.assertEqual(1, summary["capture_available"]["search_flipped_rows"])
@@ -68,7 +87,9 @@ class WriteStableFailureFamilySummaryTest(unittest.TestCase):
         self.assertEqual(2, summary["high_imbalance"]["stable_rows"])
         self.assertEqual(0.15, summary["high_imbalance"]["average_regret"])
         self.assertEqual(0.5, summary["high_imbalance"]["blunder_rate_0_20"])
-        self.assertEqual(["high_imbalance-001"], summary["high_imbalance"]["blunder_ids"])
+        self.assertEqual(
+            ["high_imbalance-001"], summary["high_imbalance"]["blunder_ids"]
+        )
 
     def test_build_summary_treats_missing_regret_as_non_blunder(self):
         from ml.alphazero_lite import write_stable_failure_family_summary as module
@@ -89,7 +110,9 @@ class WriteStableFailureFamilySummaryTest(unittest.TestCase):
             }
         }
 
-        summary = module.build_summary(candidate_forensics=candidate_forensics, opening_family_report={"rows": []})
+        summary = module.build_summary(
+            candidate_forensics=candidate_forensics, opening_family_report={"rows": []}
+        )
 
         self.assertEqual(1, summary["high_imbalance"]["stable_rows"])
         self.assertEqual(0.0, summary["high_imbalance"]["average_regret"])
@@ -118,7 +141,10 @@ class WriteStableFailureFamilySummaryTest(unittest.TestCase):
                 }
 
                 with self.assertRaisesRegex(ValueError, "high_imbalance-001.*regret"):
-                    module.build_summary(candidate_forensics=candidate_forensics, opening_family_report={"rows": []})
+                    module.build_summary(
+                        candidate_forensics=candidate_forensics,
+                        opening_family_report={"rows": []},
+                    )
 
     def test_main_writes_summary_with_canonical_metric_name(self):
         from ml.alphazero_lite import write_stable_failure_family_summary as module
@@ -147,8 +173,12 @@ class WriteStableFailureFamilySummaryTest(unittest.TestCase):
             candidate_forensics_path = tmp_path / "candidate_forensics.json"
             opening_family_report_path = tmp_path / "opening_capture_family_report.json"
             out_path = tmp_path / "reports" / "stable_failure_family_summary.json"
-            candidate_forensics_path.write_text(json.dumps(candidate_forensics), encoding="utf-8")
-            opening_family_report_path.write_text(json.dumps(opening_family_report), encoding="utf-8")
+            candidate_forensics_path.write_text(
+                json.dumps(candidate_forensics), encoding="utf-8"
+            )
+            opening_family_report_path.write_text(
+                json.dumps(opening_family_report), encoding="utf-8"
+            )
 
             with mock.patch(
                 "sys.argv",

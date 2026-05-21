@@ -6,11 +6,15 @@ import json
 from pathlib import Path
 
 
-def deterministic_pool_index(*, pool_size: int, base_seed: int, game_index: int, worker_id: int) -> int:
+def deterministic_pool_index(
+    *, pool_size: int, base_seed: int, game_index: int, worker_id: int
+) -> int:
     if pool_size <= 0:
         raise ValueError("pool_size must be positive")
 
-    mixed_seed = (int(base_seed) * 1_000_003) + int(game_index) + (int(worker_id) * 9_973)
+    mixed_seed = (
+        (int(base_seed) * 1_000_003) + int(game_index) + (int(worker_id) * 9_973)
+    )
     return mixed_seed % int(pool_size)
 
 
@@ -44,9 +48,13 @@ def load_opponent_checkpoints(config_path: str | None) -> list[str]:
     try:
         config = json.loads(config_file.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        raise ValueError(f"opponent pool config file is not valid JSON: {config_file}") from exc
+        raise ValueError(
+            f"opponent pool config file is not valid JSON: {config_file}"
+        ) from exc
     except OSError as exc:
-        raise ValueError(f"could not read opponent pool config file: {config_file}") from exc
+        raise ValueError(
+            f"could not read opponent pool config file: {config_file}"
+        ) from exc
 
     if not isinstance(config, dict):
         raise ValueError("opponent pool config root must be a JSON object")
@@ -68,8 +76,12 @@ def load_opponent_checkpoints(config_path: str | None) -> list[str]:
             candidate = config_file.parent / candidate
         candidate = candidate.resolve()
         if not candidate.exists():
-            raise ValueError(f"opponent pool config file {config_file} references missing checkpoint: {candidate}")
+            raise ValueError(
+                f"opponent pool config file {config_file} references missing checkpoint: {candidate}"
+            )
         if not candidate.is_file():
-            raise ValueError(f"opponent pool config file {config_file} references a non-file checkpoint: {candidate}")
+            raise ValueError(
+                f"opponent pool config file {config_file} references a non-file checkpoint: {candidate}"
+            )
         resolved.append(str(candidate))
     return resolved

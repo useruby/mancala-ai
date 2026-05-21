@@ -33,7 +33,9 @@ class RunpodTrainingExperimentContractTest(unittest.TestCase):
         self.assertIn("Gemfile", include_paths)
         self.assertIn("Gemfile.lock", include_paths)
         self.assertIn("bin/rails", include_paths)
-        self.assertIn("test/fixtures/ai/superhuman_regression_positions.json", include_paths)
+        self.assertIn(
+            "test/fixtures/ai/superhuman_regression_positions.json", include_paths
+        )
 
 
 class PromoteRunpodCandidateScriptTest(unittest.TestCase):
@@ -58,7 +60,9 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
             check=False,
         )
 
-    def write_candidate_artifact(self, candidate_dir: Path, *, run_id: str = "candidate-run", iteration: int = 2) -> dict:
+    def write_candidate_artifact(
+        self, candidate_dir: Path, *, run_id: str = "candidate-run", iteration: int = 2
+    ) -> dict:
         candidate_dir.mkdir(parents=True, exist_ok=True)
         metadata = {
             "schema_version": 1,
@@ -79,10 +83,18 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
             "iteration": iteration,
             "status": "completed",
         }
-        (candidate_dir / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
-        (candidate_dir / "weights.json").write_text(json.dumps(weights), encoding="utf-8")
-        (candidate_dir / "arena_report.json").write_text(json.dumps(arena_report), encoding="utf-8")
-        (candidate_dir / "run_manifest.json").write_text(json.dumps(run_manifest), encoding="utf-8")
+        (candidate_dir / "metadata.json").write_text(
+            json.dumps(metadata), encoding="utf-8"
+        )
+        (candidate_dir / "weights.json").write_text(
+            json.dumps(weights), encoding="utf-8"
+        )
+        (candidate_dir / "arena_report.json").write_text(
+            json.dumps(arena_report), encoding="utf-8"
+        )
+        (candidate_dir / "run_manifest.json").write_text(
+            json.dumps(run_manifest), encoding="utf-8"
+        )
         return {
             "metadata": metadata,
             "weights": weights,
@@ -100,7 +112,9 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
         ):
             (downloaded_root / name).write_text("{}", encoding="utf-8")
 
-    def write_gate_report(self, path: Path, *, candidate_path: str, passed: bool = True) -> dict:
+    def write_gate_report(
+        self, path: Path, *, candidate_path: str, passed: bool = True
+    ) -> dict:
         payload = {
             "schema": "azlite_local_promotion_gate_v1",
             "candidate_path": candidate_path,
@@ -132,7 +146,10 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("Missing required file", result.stderr)
             self.assertIn("local_promotion_gate.json", result.stderr)
-            self.assertEqual("live-metadata", (target_dir / "metadata.json").read_text(encoding="utf-8"))
+            self.assertEqual(
+                "live-metadata",
+                (target_dir / "metadata.json").read_text(encoding="utf-8"),
+            )
 
     def test_rejects_required_root_level_report_directory(self):
         with tempfile.TemporaryDirectory(prefix="azlite-runpod-promote-") as tmp:
@@ -142,7 +159,9 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
 
             self.write_candidate_artifact(candidate_dir)
             self.write_root_reports(downloaded_root)
-            (downloaded_root / "local_promotion_gate.json").mkdir(parents=True, exist_ok=True)
+            (downloaded_root / "local_promotion_gate.json").mkdir(
+                parents=True, exist_ok=True
+            )
 
             result = self.run_script(str(downloaded_root))
 
@@ -245,7 +264,10 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
             )
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
-            self.assertEqual(payload["metadata"], json.loads((target_dir / "metadata.json").read_text(encoding="utf-8")))
+            self.assertEqual(
+                payload["metadata"],
+                json.loads((target_dir / "metadata.json").read_text(encoding="utf-8")),
+            )
 
     def test_promotes_candidate_artifact_and_root_reports(self):
         with tempfile.TemporaryDirectory(prefix="azlite-runpod-promote-") as tmp:
@@ -269,14 +291,30 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
             )
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
-            self.assertEqual(payload["metadata"], json.loads((target_dir / "metadata.json").read_text(encoding="utf-8")))
-            self.assertEqual(payload["weights"], json.loads((target_dir / "weights.json").read_text(encoding="utf-8")))
-            self.assertEqual(payload["arena_report"], json.loads((target_dir / "arena_report.json").read_text(encoding="utf-8")))
+            self.assertEqual(
+                payload["metadata"],
+                json.loads((target_dir / "metadata.json").read_text(encoding="utf-8")),
+            )
+            self.assertEqual(
+                payload["weights"],
+                json.loads((target_dir / "weights.json").read_text(encoding="utf-8")),
+            )
+            self.assertEqual(
+                payload["arena_report"],
+                json.loads(
+                    (target_dir / "arena_report.json").read_text(encoding="utf-8")
+                ),
+            )
 
             stdout_payload = json.loads(result.stdout)
             self.assertEqual(str(candidate_dir), stdout_payload["candidate_path"])
-            self.assertEqual(str(downloaded_root / "local_promotion_gate.json"), stdout_payload["gate_report_path"])
-            self.assertEqual(gate_report["candidate_path"], stdout_payload["candidate_path"])
+            self.assertEqual(
+                str(downloaded_root / "local_promotion_gate.json"),
+                stdout_payload["gate_report_path"],
+            )
+            self.assertEqual(
+                gate_report["candidate_path"], stdout_payload["candidate_path"]
+            )
 
     def test_rejects_target_when_existing_path_is_file(self):
         with tempfile.TemporaryDirectory(prefix="azlite-runpod-promote-") as tmp:
@@ -320,7 +358,9 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
             target_dir.mkdir(parents=True, exist_ok=True)
             (target_dir / "metadata.json").write_text("live-metadata", encoding="utf-8")
             (target_dir / "weights.json").write_text("live-weights", encoding="utf-8")
-            (target_dir / "arena_report.json").write_text("live-arena", encoding="utf-8")
+            (target_dir / "arena_report.json").write_text(
+                "live-arena", encoding="utf-8"
+            )
 
             promote_module = self.load_promote_module()
             original_rename = Path.rename
@@ -336,9 +376,18 @@ class PromoteRunpodCandidateScriptTest(unittest.TestCase):
                 with self.assertRaises(OSError):
                     promote_module.promote(candidate_dir, target_dir)
 
-            self.assertEqual("live-metadata", (target_dir / "metadata.json").read_text(encoding="utf-8"))
-            self.assertEqual("live-weights", (target_dir / "weights.json").read_text(encoding="utf-8"))
-            self.assertEqual("live-arena", (target_dir / "arena_report.json").read_text(encoding="utf-8"))
+            self.assertEqual(
+                "live-metadata",
+                (target_dir / "metadata.json").read_text(encoding="utf-8"),
+            )
+            self.assertEqual(
+                "live-weights",
+                (target_dir / "weights.json").read_text(encoding="utf-8"),
+            )
+            self.assertEqual(
+                "live-arena",
+                (target_dir / "arena_report.json").read_text(encoding="utf-8"),
+            )
 
 
 if __name__ == "__main__":

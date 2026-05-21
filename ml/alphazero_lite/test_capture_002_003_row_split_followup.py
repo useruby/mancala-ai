@@ -114,7 +114,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(payload), encoding="utf-8")
 
-    def valid_move_entry(self, *, move: int, visit_count: float, selection_score: float, used_fpu: bool) -> dict:
+    def valid_move_entry(
+        self, *, move: int, visit_count: float, selection_score: float, used_fpu: bool
+    ) -> dict:
         return {
             "move": move,
             "prior": 0.2 + (0.01 * move),
@@ -124,7 +126,14 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
             "visit_count": visit_count,
         }
 
-    def valid_trace_point(self, *, selected_move: int, simulation: float, visits: list[float], legal_moves: list[int]) -> dict:
+    def valid_trace_point(
+        self,
+        *,
+        selected_move: int,
+        simulation: float,
+        visits: list[float],
+        legal_moves: list[int],
+    ) -> dict:
         return {
             "selected_move": selected_move,
             "simulation": simulation,
@@ -174,7 +183,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
             "root_start": root_start,
             "snapshots": snapshots,
             "final_deltas": {
-                "selected_visits": float(final_visits[selected_move] - root_start_visits[selected_move]),
+                "selected_visits": float(
+                    final_visits[selected_move] - root_start_visits[selected_move]
+                ),
                 "reference_visits": float(max(final_visits) - min(root_start_visits)),
             },
         }
@@ -271,7 +282,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
                         "full_search_selected_move": 0,
                         "root_start": copy.deepcopy(row_002_full_search["root_start"]),
                         "snapshots": copy.deepcopy(row_002_full_search["snapshots"]),
-                        "final_deltas": copy.deepcopy(row_002_full_search["final_deltas"]),
+                        "final_deltas": copy.deepcopy(
+                            row_002_full_search["final_deltas"]
+                        ),
                         "missing_fields": [],
                         "probe_mode_traces": {
                             "policy_only": self.valid_probe_trace(
@@ -299,7 +312,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
                         "full_search_selected_move": 1,
                         "root_start": copy.deepcopy(row_003_full_search["root_start"]),
                         "snapshots": copy.deepcopy(row_003_full_search["snapshots"]),
-                        "final_deltas": copy.deepcopy(row_003_full_search["final_deltas"]),
+                        "final_deltas": copy.deepcopy(
+                            row_003_full_search["final_deltas"]
+                        ),
                         "missing_fields": [],
                         "probe_mode_traces": {
                             "policy_only": row_003_policy_only,
@@ -376,26 +391,34 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
                 else:
                     del payload["paired_summary"]["probe_mode_failure_paths"]
 
-                with self.assertRaisesRegex(ValueError, "probe_mode_failure_paths|paired_summary"):
+                with self.assertRaisesRegex(
+                    ValueError, "probe_mode_failure_paths|paired_summary"
+                ):
                     self.load_source_artifact(payload)
 
     def test_missing_policy_only_failure_path_entry_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["paired_summary"]["probe_mode_failure_paths"]["capture_available-003"]["policy_only"]
+        del payload["paired_summary"]["probe_mode_failure_paths"][
+            "capture_available-003"
+        ]["policy_only"]
 
         with self.assertRaisesRegex(ValueError, r"policy_only"):
             self.load_source_artifact(payload)
 
     def test_missing_value_only_failure_path_entry_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["paired_summary"]["probe_mode_failure_paths"]["capture_available-003"]["value_only"]
+        del payload["paired_summary"]["probe_mode_failure_paths"][
+            "capture_available-003"
+        ]["value_only"]
 
         with self.assertRaisesRegex(ValueError, r"value_only"):
             self.load_source_artifact(payload)
 
     def test_invalid_failure_path_value_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["paired_summary"]["probe_mode_failure_paths"]["capture_available-003"]["value_only"] = "bogus"
+        payload["paired_summary"]["probe_mode_failure_paths"]["capture_available-003"][
+            "value_only"
+        ] = "bogus"
 
         with self.assertRaisesRegex(ValueError, r"failure path"):
             self.load_source_artifact(payload)
@@ -409,23 +432,35 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
     def test_missing_probe_mode_selected_move_entry_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["paired_summary"]["probe_mode_selected_moves"]["capture_available-003"]["value_only"]
+        del payload["paired_summary"]["probe_mode_selected_moves"][
+            "capture_available-003"
+        ]["value_only"]
 
-        with self.assertRaisesRegex(ValueError, r"probe_mode_selected_moves|value_only"):
+        with self.assertRaisesRegex(
+            ValueError, r"probe_mode_selected_moves|value_only"
+        ):
             self.load_source_artifact(payload)
 
     def test_illegal_probe_mode_selected_move_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["paired_summary"]["probe_mode_selected_moves"]["capture_available-003"]["value_only"] = 8
+        payload["paired_summary"]["probe_mode_selected_moves"]["capture_available-003"][
+            "value_only"
+        ] = 8
 
-        with self.assertRaisesRegex(ValueError, r"probe_mode_selected_moves|value_only"):
+        with self.assertRaisesRegex(
+            ValueError, r"probe_mode_selected_moves|value_only"
+        ):
             self.load_source_artifact(payload)
 
     def test_mismatched_probe_mode_selected_move_summary_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["paired_summary"]["probe_mode_selected_moves"]["capture_available-003"]["value_only"] = 2
+        payload["paired_summary"]["probe_mode_selected_moves"]["capture_available-003"][
+            "value_only"
+        ] = 2
 
-        with self.assertRaisesRegex(ValueError, r"probe_mode_selected_moves|value_only"):
+        with self.assertRaisesRegex(
+            ValueError, r"probe_mode_selected_moves|value_only"
+        ):
             self.load_source_artifact(payload)
 
     def test_missing_shared_mechanism_supported_fails_closed(self):
@@ -453,7 +488,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
         payload = self.valid_source_artifact()
         payload["decision"] = "stop_unresolved"
 
-        with self.assertRaisesRegex(ValueError, r"write_row_split_followup_spec|decision"):
+        with self.assertRaisesRegex(
+            ValueError, r"write_row_split_followup_spec|decision"
+        ):
             self.load_source_artifact(payload)
 
     def test_missing_search_settings_key_fails_closed(self):
@@ -469,12 +506,19 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
         artifact = self.load_source_artifact(payload)
 
-        self.assertEqual(payload["settings"]["search_settings"], artifact["settings"]["search_settings"])
+        self.assertEqual(
+            payload["settings"]["search_settings"],
+            artifact["settings"]["search_settings"],
+        )
 
     def test_missing_seed_or_invalid_simulation_count_fails_closed(self):
         invalid_cases = [
             ("missing_seed", lambda payload: payload["settings"].pop("seed"), "seed"),
-            ("seed_not_int", lambda payload: payload["settings"].__setitem__("seed", "17"), "seed"),
+            (
+                "seed_not_int",
+                lambda payload: payload["settings"].__setitem__("seed", "17"),
+                "seed",
+            ),
             (
                 "simulation_count_not_positive",
                 lambda payload: payload["settings"].__setitem__("simulation_count", 0),
@@ -504,7 +548,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
         ]:
             with self.subTest(case=case_name):
                 payload = self.valid_source_artifact()
-                trace = payload["rows"]["capture_available-002"]["probe_mode_traces"]["full_search"]
+                trace = payload["rows"]["capture_available-002"]["probe_mode_traces"][
+                    "full_search"
+                ]
                 if root_start is None:
                     trace["root_start"] = None
                 if snapshots is not None:
@@ -515,26 +561,38 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
     def test_capture_003_empty_full_search_snapshots_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"]["snapshots"] = []
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"][
+            "snapshots"
+        ] = []
         payload["rows"]["capture_available-003"]["snapshots"] = []
 
-        with self.assertRaisesRegex(ValueError, r"capture_available-003|full_search snapshots"):
+        with self.assertRaisesRegex(
+            ValueError, r"capture_available-003|full_search snapshots"
+        ):
             self.load_source_artifact(payload)
 
-    def test_capture_003_missing_value_only_snapshots_without_declared_missing_fields_fails_closed(self):
+    def test_capture_003_missing_value_only_snapshots_without_declared_missing_fields_fails_closed(
+        self,
+    ):
         payload = self.valid_source_artifact()
-        trace = payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]
+        trace = payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "value_only"
+        ]
         trace["snapshots"] = []
 
         with self.assertRaisesRegex(ValueError, "capture_available-003"):
             self.load_source_artifact(payload)
 
-    def test_capture_003_missing_value_only_snapshots_with_declared_missing_fields_is_allowed(self):
+    def test_capture_003_missing_value_only_snapshots_with_declared_missing_fields_is_allowed(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         trace = row["probe_mode_traces"]["value_only"]
         trace["snapshots"] = []
-        row["missing_fields"] = list(row.get("missing_fields") or []) + ["value_only.snapshots"]
+        row["missing_fields"] = list(row.get("missing_fields") or []) + [
+            "value_only.snapshots"
+        ]
 
         artifact = self.load_source_artifact(payload)
 
@@ -544,23 +602,35 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
         )
         self.assertEqual(
             [],
-            artifact["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["snapshots"],
+            artifact["rows"]["capture_available-003"]["probe_mode_traces"][
+                "value_only"
+            ]["snapshots"],
         )
 
-    def test_capture_003_missing_value_only_root_start_without_declared_missing_fields_fails_closed(self):
+    def test_capture_003_missing_value_only_root_start_without_declared_missing_fields_fails_closed(
+        self,
+    ):
         payload = self.valid_source_artifact()
-        trace = payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]
+        trace = payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "value_only"
+        ]
         trace["root_start"] = None
 
-        with self.assertRaisesRegex(ValueError, r"value_only\.root_start|capture_available-003"):
+        with self.assertRaisesRegex(
+            ValueError, r"value_only\.root_start|capture_available-003"
+        ):
             self.load_source_artifact(payload)
 
-    def test_capture_003_missing_value_only_root_start_with_declared_missing_fields_is_allowed(self):
+    def test_capture_003_missing_value_only_root_start_with_declared_missing_fields_is_allowed(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         trace = row["probe_mode_traces"]["value_only"]
         trace["root_start"] = None
-        row["missing_fields"] = list(row.get("missing_fields") or []) + ["value_only.root_start"]
+        row["missing_fields"] = list(row.get("missing_fields") or []) + [
+            "value_only.root_start"
+        ]
 
         artifact = self.load_source_artifact(payload)
 
@@ -569,41 +639,59 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
             artifact["rows"]["capture_available-003"]["missing_fields"][-1],
         )
         self.assertIsNone(
-            artifact["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]
+            artifact["rows"]["capture_available-003"]["probe_mode_traces"][
+                "value_only"
+            ]["root_start"]
         )
 
-    def test_capture_003_declared_missing_value_only_root_start_does_not_allow_malformed_data(self):
+    def test_capture_003_declared_missing_value_only_root_start_does_not_allow_malformed_data(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         row["probe_mode_traces"]["value_only"]["root_start"] = "bad"
-        row["missing_fields"] = list(row.get("missing_fields") or []) + ["value_only.root_start"]
+        row["missing_fields"] = list(row.get("missing_fields") or []) + [
+            "value_only.root_start"
+        ]
 
         with self.assertRaisesRegex(ValueError, r"value_only\.root_start"):
             self.load_source_artifact(payload)
 
-    def test_capture_003_stale_missing_value_only_flags_fail_closed_when_trace_data_is_present(self):
+    def test_capture_003_stale_missing_value_only_flags_fail_closed_when_trace_data_is_present(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         row["missing_fields"] = ["value_only.root_start", "value_only.snapshots"]
 
-        with self.assertRaisesRegex(ValueError, r"missing_fields|value_only\.(root_start|snapshots)"):
+        with self.assertRaisesRegex(
+            ValueError, r"missing_fields|value_only\.(root_start|snapshots)"
+        ):
             self.load_source_artifact(payload)
 
-    def test_capture_003_missing_value_only_snapshots_with_root_start_present_and_declared_is_allowed(self):
+    def test_capture_003_missing_value_only_snapshots_with_root_start_present_and_declared_is_allowed(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         trace = row["probe_mode_traces"]["value_only"]
         trace.pop("snapshots")
-        row["missing_fields"] = list(row.get("missing_fields") or []) + ["value_only.snapshots"]
+        row["missing_fields"] = list(row.get("missing_fields") or []) + [
+            "value_only.snapshots"
+        ]
 
         artifact = self.load_source_artifact(payload)
 
         self.assertEqual(
             [],
-            artifact["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["snapshots"],
+            artifact["rows"]["capture_available-003"]["probe_mode_traces"][
+                "value_only"
+            ]["snapshots"],
         )
 
-    def test_capture_003_upstream_empty_value_only_trace_without_declared_missing_fields_is_allowed(self):
+    def test_capture_003_upstream_empty_value_only_trace_without_declared_missing_fields_is_allowed(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         trace = row["probe_mode_traces"]["value_only"]
@@ -612,27 +700,39 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
         artifact = self.load_source_artifact(payload)
 
-        self.assertEqual([], artifact["rows"]["capture_available-003"]["missing_fields"])
+        self.assertEqual(
+            [], artifact["rows"]["capture_available-003"]["missing_fields"]
+        )
         self.assertIsNone(
-            artifact["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]
+            artifact["rows"]["capture_available-003"]["probe_mode_traces"][
+                "value_only"
+            ]["root_start"]
         )
         self.assertEqual(
             [],
-            artifact["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["snapshots"],
+            artifact["rows"]["capture_available-003"]["probe_mode_traces"][
+                "value_only"
+            ]["snapshots"],
         )
 
     def test_capture_003_missing_fields_rejects_non_string_entries(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["missing_fields"] = [{"field": "value_only.root_start"}]
+        payload["rows"]["capture_available-003"]["missing_fields"] = [
+            {"field": "value_only.root_start"}
+        ]
 
         with self.assertRaisesRegex(ValueError, r"missing_fields.*strings"):
             self.load_source_artifact(payload)
 
-    def test_capture_003_declared_missing_value_only_snapshots_do_not_allow_malformed_data(self):
+    def test_capture_003_declared_missing_value_only_snapshots_do_not_allow_malformed_data(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         row["probe_mode_traces"]["value_only"]["snapshots"] = "bad"
-        row["missing_fields"] = list(row.get("missing_fields") or []) + ["value_only.snapshots"]
+        row["missing_fields"] = list(row.get("missing_fields") or []) + [
+            "value_only.snapshots"
+        ]
 
         with self.assertRaisesRegex(ValueError, r"value_only\.snapshots"):
             self.load_source_artifact(payload)
@@ -641,7 +741,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
         payload = self.valid_source_artifact()
         payload["rows"]["capture_available-003"].pop("root_start")
 
-        with self.assertRaisesRegex(ValueError, r"row capture_available-003 root_start"):
+        with self.assertRaisesRegex(
+            ValueError, r"row capture_available-003 root_start"
+        ):
             self.load_source_artifact(payload)
 
     def test_capture_003_missing_row_level_snapshots_fails_closed(self):
@@ -655,12 +757,16 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
         payload = self.valid_source_artifact()
         payload["rows"]["capture_available-003"].pop("final_deltas")
 
-        with self.assertRaisesRegex(ValueError, r"row capture_available-003 final_deltas"):
+        with self.assertRaisesRegex(
+            ValueError, r"row capture_available-003 final_deltas"
+        ):
             self.load_source_artifact(payload)
 
     def test_capture_003_full_search_root_start_wrong_type_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"]["root_start"] = []
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"][
+            "root_start"
+        ] = []
         payload["rows"]["capture_available-003"]["root_start"] = []
 
         with self.assertRaisesRegex(ValueError, r"full_search root_start"):
@@ -668,7 +774,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
     def test_capture_003_full_search_snapshots_wrong_type_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"]["snapshots"] = "bad"
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"][
+            "snapshots"
+        ] = "bad"
         payload["rows"]["capture_available-003"]["snapshots"] = "bad"
 
         with self.assertRaisesRegex(ValueError, r"full_search snapshots"):
@@ -676,7 +784,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
     def test_full_search_final_deltas_missing_required_key_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"]["final_deltas"]["selected_visits"]
+        del payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "full_search"
+        ]["final_deltas"]["selected_visits"]
         del payload["rows"]["capture_available-003"]["final_deltas"]["selected_visits"]
 
         with self.assertRaisesRegex(ValueError, r"final_deltas"):
@@ -684,106 +794,138 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
     def test_bool_selected_move_in_consumed_trace_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["selected_move"] = True
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "selected_move"
+        ] = True
 
         with self.assertRaisesRegex(ValueError, r"selected_move"):
             self.load_source_artifact(payload)
 
     def test_missing_capture_002_policy_only_selected_move_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["rows"]["capture_available-002"]["probe_mode_traces"]["policy_only"]["selected_move"]
+        del payload["rows"]["capture_available-002"]["probe_mode_traces"][
+            "policy_only"
+        ]["selected_move"]
 
         with self.assertRaisesRegex(ValueError, r"selected_move|policy_only"):
             self.load_source_artifact(payload)
 
     def test_illegal_selected_move_in_consumed_trace_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["selected_move"] = 5
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "selected_move"
+        ] = 5
 
         with self.assertRaisesRegex(ValueError, r"selected_move"):
             self.load_source_artifact(payload)
 
     def test_root_start_missing_required_moves_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"]["root_start"]["moves"]
+        del payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "full_search"
+        ]["root_start"]["moves"]
 
         with self.assertRaisesRegex(ValueError, r"root_start|moves"):
             self.load_source_artifact(payload)
 
     def test_snapshot_entry_missing_required_selected_move_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"]["snapshots"][0]["selected_move"]
+        del payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "full_search"
+        ]["snapshots"][0]["selected_move"]
 
         with self.assertRaisesRegex(ValueError, r"snapshots|selected_move"):
             self.load_source_artifact(payload)
 
     def test_move_entry_missing_required_selection_score_fails_closed(self):
         payload = self.valid_source_artifact()
-        del payload["rows"]["capture_available-003"]["probe_mode_traces"]["full_search"]["root_start"]["moves"][0]["selection_score"]
-        del payload["rows"]["capture_available-003"]["root_start"]["moves"][0]["selection_score"]
+        del payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "full_search"
+        ]["root_start"]["moves"][0]["selection_score"]
+        del payload["rows"]["capture_available-003"]["root_start"]["moves"][0][
+            "selection_score"
+        ]
 
         with self.assertRaisesRegex(ValueError, r"moves|selection_score"):
             self.load_source_artifact(payload)
 
     def test_malformed_numeric_field_in_final_deltas_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["final_deltas"]["selected_visits"] = "bad"
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "final_deltas"
+        ]["selected_visits"] = "bad"
 
         with self.assertRaisesRegex(ValueError, r"final_deltas|selected_visits"):
             self.load_source_artifact(payload)
 
     def test_null_consumed_final_deltas_field_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["final_deltas"]["selected_visits"] = None
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "final_deltas"
+        ]["selected_visits"] = None
 
         with self.assertRaisesRegex(ValueError, r"final_deltas|selected_visits"):
             self.load_source_artifact(payload)
 
     def test_non_numeric_root_start_simulation_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]["simulation"] = "bad"
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "root_start"
+        ]["simulation"] = "bad"
 
         with self.assertRaisesRegex(ValueError, r"root_start|simulation"):
             self.load_source_artifact(payload)
 
     def test_nan_consumed_numeric_field_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]["moves"][0]["prior"] = float("nan")
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "root_start"
+        ]["moves"][0]["prior"] = float("nan")
 
         with self.assertRaisesRegex(ValueError, r"prior"):
             self.load_source_artifact(payload)
 
     def test_non_list_snapshot_visits_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["snapshots"][0]["visits"] = "bad"
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "snapshots"
+        ][0]["visits"] = "bad"
 
         with self.assertRaisesRegex(ValueError, r"snapshots|visits"):
             self.load_source_artifact(payload)
 
     def test_non_numeric_entry_in_visits_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["snapshots"][0]["visits"][1] = "bad"
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "snapshots"
+        ][0]["visits"][1] = "bad"
 
         with self.assertRaisesRegex(ValueError, r"visits"):
             self.load_source_artifact(payload)
 
     def test_too_short_visits_list_for_legal_moves_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["snapshots"][0]["visits"] = [1.0, 0.0]
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "snapshots"
+        ][0]["visits"] = [1.0, 0.0]
 
         with self.assertRaisesRegex(ValueError, r"visits"):
             self.load_source_artifact(payload)
 
     def test_illegal_move_entry_move_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]["moves"][0]["move"] = 5
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "root_start"
+        ]["moves"][0]["move"] = 5
 
         with self.assertRaisesRegex(ValueError, r"moves|move"):
             self.load_source_artifact(payload)
 
     def test_duplicate_move_entry_in_moves_fails_closed(self):
         payload = self.valid_source_artifact()
-        moves = payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]["moves"]
+        moves = payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "value_only"
+        ]["root_start"]["moves"]
         moves[-1]["move"] = moves[0]["move"]
 
         with self.assertRaisesRegex(ValueError, r"moves|legal_moves"):
@@ -791,15 +933,21 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
 
     def test_missing_legal_move_entry_in_moves_fails_closed(self):
         payload = self.valid_source_artifact()
-        moves = payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]["moves"]
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]["moves"] = moves[:-1]
+        moves = payload["rows"]["capture_available-003"]["probe_mode_traces"][
+            "value_only"
+        ]["root_start"]["moves"]
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "root_start"
+        ]["moves"] = moves[:-1]
 
         with self.assertRaisesRegex(ValueError, r"moves|legal_moves"):
             self.load_source_artifact(payload)
 
     def test_non_bool_used_fpu_fails_closed(self):
         payload = self.valid_source_artifact()
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["root_start"]["moves"][0]["used_fpu"] = "bad"
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "root_start"
+        ]["moves"][0]["used_fpu"] = "bad"
 
         with self.assertRaisesRegex(ValueError, r"moves|used_fpu"):
             self.load_source_artifact(payload)
@@ -821,8 +969,12 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
     def test_out_of_range_probe_mode_selected_move_fails_closed(self):
         payload = self.valid_source_artifact()
         payload["rows"]["capture_available-003"]["legal_moves"] = [0, 1, 2, 3, 99]
-        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"]["selected_move"] = 99
-        payload["paired_summary"]["probe_mode_selected_moves"]["capture_available-003"]["value_only"] = 99
+        payload["rows"]["capture_available-003"]["probe_mode_traces"]["value_only"][
+            "selected_move"
+        ] = 99
+        payload["paired_summary"]["probe_mode_selected_moves"]["capture_available-003"][
+            "value_only"
+        ] = 99
 
         with self.assertRaisesRegex(ValueError, r"selected_move|legal_moves"):
             self.load_source_artifact(payload)
@@ -830,7 +982,9 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
     def test_full_search_alias_mismatch_fails_closed(self):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-002"]
-        row["full_search_selected_move"] = row["probe_mode_traces"]["full_search"]["selected_move"] + 1
+        row["full_search_selected_move"] = (
+            row["probe_mode_traces"]["full_search"]["selected_move"] + 1
+        )
 
         with self.assertRaisesRegex(ValueError, "full_search_selected_move"):
             self.load_source_artifact(payload)
@@ -865,8 +1019,12 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
             artifact["rows"]["capture_available-002"]["canonical_state"],
         )
         self.assertEqual(
-            payload["rows"]["capture_available-002"]["probe_mode_traces"]["full_search"]["root_start"],
-            artifact["rows"]["capture_available-002"]["probe_mode_traces"]["full_search"]["root_start"],
+            payload["rows"]["capture_available-002"]["probe_mode_traces"][
+                "full_search"
+            ]["root_start"],
+            artifact["rows"]["capture_available-002"]["probe_mode_traces"][
+                "full_search"
+            ]["root_start"],
         )
 
     def test_invalid_canonical_state_shape_fails_closed(self):
@@ -882,13 +1040,17 @@ class Capture002003RowSplitFollowupSourceArtifactTest(unittest.TestCase):
         for case_name, canonical_state, expected_error in invalid_cases:
             with self.subTest(case=case_name):
                 payload = self.valid_source_artifact()
-                payload["rows"]["capture_available-003"]["canonical_state"] = canonical_state
+                payload["rows"]["capture_available-003"]["canonical_state"] = (
+                    canonical_state
+                )
 
                 with self.assertRaisesRegex(ValueError, expected_error):
                     self.load_source_artifact(payload)
 
 
-class Capture002003RowSplitFollowupTraceTest(Capture002003RowSplitFollowupSourceArtifactTest):
+class Capture002003RowSplitFollowupTraceTest(
+    Capture002003RowSplitFollowupSourceArtifactTest
+):
     def test_visit_share_from_trace_uses_full_visit_distribution(self):
         trace_point = self.valid_trace_point(
             selected_move=1,
@@ -897,11 +1059,15 @@ class Capture002003RowSplitFollowupTraceTest(Capture002003RowSplitFollowupSource
             legal_moves=[0, 1, 2, 3, 4],
         )
 
-        visit_share = module._visit_share_from_trace(trace_point, selected_move=1, reference_move=2)
+        visit_share = module._visit_share_from_trace(
+            trace_point, selected_move=1, reference_move=2
+        )
 
         self.assertAlmostEqual(0.015625, visit_share)
 
-    def test_build_lane_002_uses_final_snapshot_visits_not_final_deltas_for_visit_share(self):
+    def test_build_lane_002_uses_final_snapshot_visits_not_final_deltas_for_visit_share(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-002"]
         full_search = row["probe_mode_traces"]["full_search"]
@@ -912,9 +1078,14 @@ class Capture002003RowSplitFollowupTraceTest(Capture002003RowSplitFollowupSource
 
         lane = module.build_lane_002(artifact)
 
-        self.assertAlmostEqual(1.0 / 22.0, lane["derived_metrics"]["final_selected_minus_reference_visit_share"])
+        self.assertAlmostEqual(
+            1.0 / 22.0,
+            lane["derived_metrics"]["final_selected_minus_reference_visit_share"],
+        )
 
-    def test_build_lane_003_uses_final_snapshot_visits_not_final_deltas_for_visit_share(self):
+    def test_build_lane_003_uses_final_snapshot_visits_not_final_deltas_for_visit_share(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         value_only = row["probe_mode_traces"]["value_only"]
@@ -927,8 +1098,14 @@ class Capture002003RowSplitFollowupTraceTest(Capture002003RowSplitFollowupSource
 
         lane = module.build_lane_003(artifact)
 
-        self.assertAlmostEqual(0.25, lane["derived_metrics"]["value_only_selected_minus_reference_visit_share"])
-        self.assertAlmostEqual(1.0 / 19.0, lane["derived_metrics"]["full_search_selected_minus_reference_visit_share"])
+        self.assertAlmostEqual(
+            0.25,
+            lane["derived_metrics"]["value_only_selected_minus_reference_visit_share"],
+        )
+        self.assertAlmostEqual(
+            1.0 / 19.0,
+            lane["derived_metrics"]["full_search_selected_minus_reference_visit_share"],
+        )
 
     def test_build_lane_002_populates_trace_inputs_and_derived_metrics(self):
         payload = self.valid_source_artifact()
@@ -1003,7 +1180,9 @@ class Capture002003RowSplitFollowupTraceTest(Capture002003RowSplitFollowupSource
             lane["derived_metrics"],
         )
 
-    def test_build_lane_003_sets_value_only_snapshot_metrics_to_null_when_declared_missing(self):
+    def test_build_lane_003_sets_value_only_snapshot_metrics_to_null_when_declared_missing(
+        self,
+    ):
         payload = self.valid_source_artifact()
         row = payload["rows"]["capture_available-003"]
         value_only = row["probe_mode_traces"]["value_only"]
@@ -1035,8 +1214,12 @@ class Capture002003RowSplitFollowupTraceTest(Capture002003RowSplitFollowupSource
         self.assertEqual(1, lane["derived_metrics"]["full_search_selected_move"])
         self.assertEqual(2, lane["derived_metrics"]["policy_only_selected_move"])
         self.assertAlmostEqual(0.41, lane["derived_metrics"]["policy_reference_prior"])
-        self.assertAlmostEqual(0.27, lane["derived_metrics"]["policy_value_selected_prior"])
-        self.assertEqual(["value_only.snapshots"], lane["derived_metrics"]["missing_fields"])
+        self.assertAlmostEqual(
+            0.27, lane["derived_metrics"]["policy_value_selected_prior"]
+        )
+        self.assertEqual(
+            ["value_only.snapshots"], lane["derived_metrics"]["missing_fields"]
+        )
         self.assertEqual(
             {
                 "player_empty_pits": [2],
@@ -1045,14 +1228,28 @@ class Capture002003RowSplitFollowupTraceTest(Capture002003RowSplitFollowupSource
             },
             lane["derived_metrics"]["rule_features"],
         )
-        self.assertIsNone(lane["derived_metrics"]["value_only_selected_minus_reference_q_margin"])
-        self.assertIsNone(lane["derived_metrics"]["value_only_selected_minus_reference_visit_share"])
-        self.assertIsNone(lane["derived_metrics"]["value_only_first_selected_visit_overtake_snapshot"])
-        self.assertIsNone(lane["derived_metrics"]["value_only_first_selected_q_overtake_snapshot"])
-        self.assertIsNone(lane["derived_metrics"]["value_only_first_selected_selection_score_overtake_snapshot"])
+        self.assertIsNone(
+            lane["derived_metrics"]["value_only_selected_minus_reference_q_margin"]
+        )
+        self.assertIsNone(
+            lane["derived_metrics"]["value_only_selected_minus_reference_visit_share"]
+        )
+        self.assertIsNone(
+            lane["derived_metrics"]["value_only_first_selected_visit_overtake_snapshot"]
+        )
+        self.assertIsNone(
+            lane["derived_metrics"]["value_only_first_selected_q_overtake_snapshot"]
+        )
+        self.assertIsNone(
+            lane["derived_metrics"][
+                "value_only_first_selected_selection_score_overtake_snapshot"
+            ]
+        )
 
 
-class Capture002003RowSplitFollowupLane002ClassificationTest(Capture002003RowSplitFollowupSourceArtifactTest):
+class Capture002003RowSplitFollowupLane002ClassificationTest(
+    Capture002003RowSplitFollowupSourceArtifactTest
+):
     FIXTURE_DIR = (
         Path(__file__).resolve().parent
         / "fixtures"
@@ -1061,7 +1258,9 @@ class Capture002003RowSplitFollowupLane002ClassificationTest(Capture002003RowSpl
     )
 
     def load_fixture(self, name: str) -> dict:
-        return json.loads((self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8"))
+        return json.loads(
+            (self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8")
+        )
 
     def assert_fixture_classification(self, name: str) -> None:
         fixture = self.load_fixture(name)
@@ -1072,13 +1271,20 @@ class Capture002003RowSplitFollowupLane002ClassificationTest(Capture002003RowSpl
         )
 
         self.assertEqual(fixture["expected_classification"], classification)
-        self.assertEqual(fixture["expected_classification"]["classification"], classification["classification"])
-        self.assertEqual(fixture["expected_classification"]["decision"], classification["decision"])
+        self.assertEqual(
+            fixture["expected_classification"]["classification"],
+            classification["classification"],
+        )
+        self.assertEqual(
+            fixture["expected_classification"]["decision"], classification["decision"]
+        )
 
     def test_selection_score_overtake_fixture(self):
         self.assert_fixture_classification("002_selection_score_overtake")
 
-    def test_selection_score_trace_fixture_records_selection_score_before_q_supports_move_zero(self):
+    def test_selection_score_trace_fixture_records_selection_score_before_q_supports_move_zero(
+        self,
+    ):
         fixture = self.load_fixture("002_selection_score_overtake")
 
         metrics = fixture["lane"]["derived_metrics"]
@@ -1141,8 +1347,13 @@ class Capture002003RowSplitFollowupLane002ClassificationTest(Capture002003RowSpl
 
         lane = module.build_lane_002(artifact)
 
-        self.assertEqual(1.0, lane["derived_metrics"]["first_selected_q_overtake_snapshot"])
-        self.assertEqual(1.0, lane["derived_metrics"]["first_selected_selection_score_overtake_snapshot"])
+        self.assertEqual(
+            1.0, lane["derived_metrics"]["first_selected_q_overtake_snapshot"]
+        )
+        self.assertEqual(
+            1.0,
+            lane["derived_metrics"]["first_selected_selection_score_overtake_snapshot"],
+        )
 
     def test_backup_accumulation_drift_fixture(self):
         self.assert_fixture_classification("002_backup_accumulation_drift")
@@ -1154,7 +1365,9 @@ class Capture002003RowSplitFollowupLane002ClassificationTest(Capture002003RowSpl
         self.assert_fixture_classification("002_unresolved")
 
 
-class Capture002003RowSplitFollowupLane003ClassificationTest(Capture002003RowSplitFollowupSourceArtifactTest):
+class Capture002003RowSplitFollowupLane003ClassificationTest(
+    Capture002003RowSplitFollowupSourceArtifactTest
+):
     FIXTURE_DIR = (
         Path(__file__).resolve().parent
         / "fixtures"
@@ -1163,7 +1376,9 @@ class Capture002003RowSplitFollowupLane003ClassificationTest(Capture002003RowSpl
     )
 
     def load_fixture(self, name: str) -> dict:
-        return json.loads((self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8"))
+        return json.loads(
+            (self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8")
+        )
 
     def assert_fixture_classification(self, name: str) -> None:
         fixture = self.load_fixture(name)
@@ -1174,19 +1389,28 @@ class Capture002003RowSplitFollowupLane003ClassificationTest(Capture002003RowSpl
         )
 
         self.assertEqual(fixture["expected_classification"], classification)
-        self.assertEqual(fixture["expected_classification"]["classification"], classification["classification"])
-        self.assertEqual(fixture["expected_classification"]["decision"], classification["decision"])
+        self.assertEqual(
+            fixture["expected_classification"]["classification"],
+            classification["classification"],
+        )
+        self.assertEqual(
+            fixture["expected_classification"]["decision"], classification["decision"]
+        )
 
     def test_value_only_child_q_prefers_wrong_move_fixture(self):
         self.assert_fixture_classification("003_value_only_child_q_prefers_wrong_move")
 
     def test_value_only_visit_amplification_without_q_fixture(self):
-        self.assert_fixture_classification("003_value_only_visit_amplification_without_q")
+        self.assert_fixture_classification(
+            "003_value_only_visit_amplification_without_q"
+        )
 
     def test_policy_value_conflict_fixture(self):
         self.assert_fixture_classification("003_policy_value_conflict")
 
-    def test_policy_value_conflict_fixture_keeps_policy_on_reference_while_value_only_visits_move_one(self):
+    def test_policy_value_conflict_fixture_keeps_policy_on_reference_while_value_only_visits_move_one(
+        self,
+    ):
         fixture = self.load_fixture("003_policy_value_conflict")
 
         metrics = fixture["lane"]["derived_metrics"]
@@ -1194,14 +1418,20 @@ class Capture002003RowSplitFollowupLane003ClassificationTest(Capture002003RowSpl
         self.assertEqual(2, metrics["reference_move"])
         self.assertEqual(2, metrics["policy_only_selected_move"])
         self.assertEqual(1, metrics["value_only_selected_move"])
-        self.assertGreater(metrics["policy_reference_prior"], metrics["policy_value_selected_prior"])
-        self.assertGreater(metrics["value_only_selected_minus_reference_visit_share"], 0.0)
+        self.assertGreater(
+            metrics["policy_reference_prior"], metrics["policy_value_selected_prior"]
+        )
+        self.assertGreater(
+            metrics["value_only_selected_minus_reference_visit_share"], 0.0
+        )
         self.assertEqual(
             "write_003_policy_value_conflict_spec",
             fixture["expected_classification"]["decision"],
         )
 
-    def test_policy_value_conflict_allows_visit_share_without_meaningful_q_when_policy_still_favors_reference(self):
+    def test_policy_value_conflict_allows_visit_share_without_meaningful_q_when_policy_still_favors_reference(
+        self,
+    ):
         lane = {
             "row_id": "capture_available-003",
             "missing_fields": [],
@@ -1228,15 +1458,21 @@ class Capture002003RowSplitFollowupLane003ClassificationTest(Capture002003RowSpl
             },
         }
 
-        classification = module.classify_lane_003(lane=lane, thresholds=module.THRESHOLDS)
+        classification = module.classify_lane_003(
+            lane=lane, thresholds=module.THRESHOLDS
+        )
 
         self.assertEqual("policy_value_conflict", classification["classification"])
-        self.assertEqual("write_003_policy_value_conflict_spec", classification["decision"])
+        self.assertEqual(
+            "write_003_policy_value_conflict_spec", classification["decision"]
+        )
 
     def test_rule_feature_value_collision_fixture(self):
         self.assert_fixture_classification("003_rule_feature_value_collision")
 
-    def test_reference_pit_stones_zero_alone_does_not_force_rule_feature_collision(self):
+    def test_reference_pit_stones_zero_alone_does_not_force_rule_feature_collision(
+        self,
+    ):
         lane = {
             "row_id": "capture_available-003",
             "missing_fields": [],
@@ -1263,7 +1499,9 @@ class Capture002003RowSplitFollowupLane003ClassificationTest(Capture002003RowSpl
             },
         }
 
-        classification = module.classify_lane_003(lane=lane, thresholds=module.THRESHOLDS)
+        classification = module.classify_lane_003(
+            lane=lane, thresholds=module.THRESHOLDS
+        )
 
         self.assertEqual("unresolved", classification["classification"])
         self.assertEqual("stop_003_unresolved", classification["decision"])
@@ -1300,7 +1538,9 @@ class Capture002003RowSplitFollowupDecisionTest(unittest.TestCase):
 
         self.assertEqual("write_003_rule_value_collision_spec", decision)
 
-    def test_returns_lane_002_decision_when_lane_002_is_actionable_and_lane_003_stops(self):
+    def test_returns_lane_002_decision_when_lane_002_is_actionable_and_lane_003_stops(
+        self,
+    ):
         decision = module.top_level_decision(
             lane_002={"decision": "write_002_child_value_audit_spec"},
             lane_003={
@@ -1312,7 +1552,9 @@ class Capture002003RowSplitFollowupDecisionTest(unittest.TestCase):
 
         self.assertEqual("write_002_child_value_audit_spec", decision)
 
-    def test_prefers_value_trace_capture_when_missing_trace_blocks_lane_003_interpretation(self):
+    def test_prefers_value_trace_capture_when_missing_trace_blocks_lane_003_interpretation(
+        self,
+    ):
         decision = module.top_level_decision(
             lane_002={"decision": "write_002_backup_accumulation_spec"},
             lane_003={
@@ -1324,7 +1566,9 @@ class Capture002003RowSplitFollowupDecisionTest(unittest.TestCase):
 
         self.assertEqual("write_003_value_trace_capture_spec", decision)
 
-    def test_prefers_value_trace_capture_for_upstream_empty_value_only_trace_without_missing_fields(self):
+    def test_prefers_value_trace_capture_for_upstream_empty_value_only_trace_without_missing_fields(
+        self,
+    ):
         decision = module.top_level_decision(
             lane_002={"decision": "write_002_backup_accumulation_spec"},
             lane_003={
@@ -1354,13 +1598,19 @@ class Capture002003RowSplitFollowupDecisionTest(unittest.TestCase):
         self.assertEqual("stop_row_split_unresolved", decision)
 
 
-class Capture002003RowSplitFollowupPayloadCliTest(Capture002003RowSplitFollowupSourceArtifactTest):
+class Capture002003RowSplitFollowupPayloadCliTest(
+    Capture002003RowSplitFollowupSourceArtifactTest
+):
     def build_classified_lanes(self) -> tuple[dict, dict, dict, str]:
         artifact = self.load_source_artifact(self.valid_source_artifact())
         lane_002 = module.build_lane_002(artifact)
-        lane_002.update(module.classify_lane_002(lane=lane_002, thresholds=module.THRESHOLDS))
+        lane_002.update(
+            module.classify_lane_002(lane=lane_002, thresholds=module.THRESHOLDS)
+        )
         lane_003 = module.build_lane_003(artifact)
-        lane_003.update(module.classify_lane_003(lane=lane_003, thresholds=module.THRESHOLDS))
+        lane_003.update(
+            module.classify_lane_003(lane=lane_003, thresholds=module.THRESHOLDS)
+        )
         decision = module.top_level_decision(lane_002=lane_002, lane_003=lane_003)
         return artifact, lane_002, lane_003, decision
 
@@ -1375,13 +1625,20 @@ class Capture002003RowSplitFollowupPayloadCliTest(Capture002003RowSplitFollowupS
         )
 
         self.assertEqual(module.SCHEMA, payload["schema"])
-        self.assertEqual(artifact["artifact_path"], payload["source_shared_drift_artifact"])
+        self.assertEqual(
+            artifact["artifact_path"], payload["source_shared_drift_artifact"]
+        )
         self.assertEqual(artifact["selected_artifact"], payload["selected_artifact"])
         self.assertEqual(module.THRESHOLDS, payload["thresholds"])
         self.assertEqual(artifact["settings"], payload["settings"])
         self.assertEqual(decision, payload["decision"])
-        self.assertEqual({"capture_available-002", "capture_available-003"}, set(payload["lanes"].keys()))
-        self.assertEqual("unresolved", payload["lanes"]["capture_available-002"]["classification"])
+        self.assertEqual(
+            {"capture_available-002", "capture_available-003"},
+            set(payload["lanes"].keys()),
+        )
+        self.assertEqual(
+            "unresolved", payload["lanes"]["capture_available-002"]["classification"]
+        )
         self.assertEqual(
             "stop_002_unresolved",
             payload["lanes"]["capture_available-002"]["decision"],
@@ -1440,8 +1697,12 @@ class Capture002003RowSplitFollowupPayloadCliTest(Capture002003RowSplitFollowupS
             self.assertEqual(0, exit_code)
             written_payload = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertEqual(module.SCHEMA, written_payload["schema"])
-            self.assertEqual("write_003_value_only_visit_trace_spec", written_payload["decision"])
-            self.assertEqual(str(source_path), written_payload["source_shared_drift_artifact"])
+            self.assertEqual(
+                "write_003_value_only_visit_trace_spec", written_payload["decision"]
+            )
+            self.assertEqual(
+                str(source_path), written_payload["source_shared_drift_artifact"]
+            )
             self.assertEqual(
                 {
                     "artifact_path": str(out_path),
@@ -1472,4 +1733,3 @@ class Capture002003RowSplitFollowupPayloadCliTest(Capture002003RowSplitFollowupS
                 json.dumps(payload, indent=2, sort_keys=True) + "\n",
                 out_path.read_text(encoding="utf-8"),
             )
-    

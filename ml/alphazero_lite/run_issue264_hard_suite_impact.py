@@ -48,9 +48,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def run_command(command: list[str], *, cwd: Path) -> str:
-    result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, check=False)
+    result = subprocess.run(
+        command, cwd=cwd, capture_output=True, text=True, check=False
+    )
     if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "command failed")
+        raise RuntimeError(
+            result.stderr.strip() or result.stdout.strip() or "command failed"
+        )
     return result.stdout
 
 
@@ -111,10 +115,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     labeling.write_jsonl(labeled_path, labeled_rows)
 
-    label_report = labeling.build_comparison_report(labeling.load_labeled_rows(labeled_path))
-    label_report_path.write_text(json.dumps(label_report, indent=2) + "\n", encoding="utf-8")
+    label_report = labeling.build_comparison_report(
+        labeling.load_labeled_rows(labeled_path)
+    )
+    label_report_path.write_text(
+        json.dumps(label_report, indent=2) + "\n", encoding="utf-8"
+    )
 
-    stronger_rows = [row for row in labeled_rows if row["teacher_profile"] == "stronger"]
+    stronger_rows = [
+        row for row in labeled_rows if row["teacher_profile"] == "stronger"
+    ]
     labeling.write_jsonl(stronger_dataset_path, stronger_rows)
 
     run_command(
@@ -200,7 +210,9 @@ def main(argv: list[str] | None = None) -> int:
         challenger_artifact_dir=challenger_artifact_dir,
         min_score=args.min_score,
     )
-    final_report_path.write_text(json.dumps(final_report, indent=2) + "\n", encoding="utf-8")
+    final_report_path.write_text(
+        json.dumps(final_report, indent=2) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

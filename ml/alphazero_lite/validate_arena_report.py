@@ -10,7 +10,10 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.report_validation import ArenaReportValidationError, validate_arena_report
+from ml.alphazero_lite.report_validation import (
+    ArenaReportValidationError,
+    validate_arena_report,
+)
 
 
 def parse_args() -> argparse.Namespace:

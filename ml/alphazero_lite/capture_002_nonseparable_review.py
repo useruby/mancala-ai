@@ -46,7 +46,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Review whether the validated 002 trace is genuinely not separable"
     )
     parser.add_argument("--source-selection-score-artifact", type=Path, required=True)
-    parser.add_argument("--source-trace-cadence-review-artifact", type=Path, required=True)
+    parser.add_argument(
+        "--source-trace-cadence-review-artifact", type=Path, required=True
+    )
     parser.add_argument("--source-threshold-review-artifact", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     return parser.parse_args(argv)
@@ -134,28 +136,42 @@ def validate_input_chain_identity(
 
     trace_capture_excerpt = trace_cadence_review_artifact.get("trace_capture_excerpt")
     if not isinstance(trace_capture_excerpt, dict):
-        raise ValueError("trace cadence review artifact trace_capture_excerpt must be an object")
+        raise ValueError(
+            "trace cadence review artifact trace_capture_excerpt must be an object"
+        )
     if trace_capture_excerpt.get("row_id") != default_identity["row_id"]:
-        raise ValueError("trace cadence review artifact trace_capture_excerpt row_id must match selection source")
+        raise ValueError(
+            "trace cadence review artifact trace_capture_excerpt row_id must match selection source"
+        )
     for field in ("reference_move", "full_search_selected_move"):
         excerpt_value = _validate_integer(
             trace_capture_excerpt.get(field),
             context=f"trace cadence review artifact trace_capture_excerpt.{field}",
         )
         if excerpt_value != default_identity[field]:
-            raise ValueError(f"trace cadence review artifact trace_capture_excerpt {field} must match selection source")
+            raise ValueError(
+                f"trace cadence review artifact trace_capture_excerpt {field} must match selection source"
+            )
 
-    selection_score_excerpt = trace_cadence_review_artifact.get("selection_score_excerpt")
+    selection_score_excerpt = trace_cadence_review_artifact.get(
+        "selection_score_excerpt"
+    )
     if not isinstance(selection_score_excerpt, dict):
-        raise ValueError("trace cadence review artifact selection_score_excerpt must be an object")
+        raise ValueError(
+            "trace cadence review artifact selection_score_excerpt must be an object"
+        )
     for field in (
         "final_selected_minus_reference_visit_share",
         "first_selected_material_visit_share_snapshot",
         "first_selected_meaningful_q_support_snapshot",
         "first_selected_selection_score_overtake_snapshot",
     ):
-        if selection_score_excerpt.get(field) != default_selection_score_artifact.get(field):
-            raise ValueError(f"trace cadence review artifact selection_score_excerpt {field} must match default selection score artifact")
+        if selection_score_excerpt.get(field) != default_selection_score_artifact.get(
+            field
+        ):
+            raise ValueError(
+                f"trace cadence review artifact selection_score_excerpt {field} must match default selection score artifact"
+            )
 
 
 def validate_trace_cadence_review_artifact_contract(artifact: dict) -> None:
@@ -173,7 +189,10 @@ def validate_default_selection_score_artifact(artifact: dict) -> None:
         raise ValueError(
             "default selection score artifact must use the baseline threshold configuration"
         )
-    if classification != "unresolved" or decision != DEFAULT_SELECTION_SCORE_UNRESOLVED_DECISION:
+    if (
+        classification != "unresolved"
+        or decision != DEFAULT_SELECTION_SCORE_UNRESOLVED_DECISION
+    ):
         raise ValueError(
             "default selection score artifact must be the unresolved baseline artifact"
         )
@@ -199,7 +218,9 @@ def validate_threshold_review_artifact(artifact: dict) -> None:
                 "threshold review artifact classification must match its supported-mechanism decision"
             )
         return
-    raise ValueError("threshold review artifact must represent a threshold-review prerequisite state")
+    raise ValueError(
+        "threshold review artifact must represent a threshold-review prerequisite state"
+    )
 
 
 def build_payload(
@@ -269,12 +290,12 @@ def build_payload(
             "source_threshold_review_artifact_path": source_threshold_review_artifact_path,
         },
         "thresholds_evaluated": {
-            "default_material_visit_share_margin": default_selection_score_artifact["thresholds"][
-                "material_visit_share_margin"
-            ],
-            "relaxed_material_visit_share_margin": threshold_review_artifact["thresholds"][
-                "material_visit_share_margin"
-            ],
+            "default_material_visit_share_margin": default_selection_score_artifact[
+                "thresholds"
+            ]["material_visit_share_margin"],
+            "relaxed_material_visit_share_margin": threshold_review_artifact[
+                "thresholds"
+            ]["material_visit_share_margin"],
         },
         "final_margin_summary": {
             "default_q_margin": default_selection_score_artifact.get(
@@ -329,10 +350,14 @@ def main(argv: list[str] | None = None) -> int:
         source_trace_cadence_review_artifact_path=str(
             args.source_trace_cadence_review_artifact
         ),
-        source_threshold_review_artifact_path=str(args.source_threshold_review_artifact),
+        source_threshold_review_artifact_path=str(
+            args.source_threshold_review_artifact
+        ),
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

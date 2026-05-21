@@ -72,7 +72,13 @@ def _validate_state(state: Any) -> dict[str, Any]:
     if not isinstance(state, dict):
         raise ValueError("suite row state must be a dictionary")
 
-    for key in ("player_pits", "opponent_pits", "player_store", "opponent_store", "current_player"):
+    for key in (
+        "player_pits",
+        "opponent_pits",
+        "player_store",
+        "opponent_store",
+        "current_player",
+    ):
         if key not in state:
             raise ValueError(f"suite row state is missing required field: {key}")
 
@@ -83,8 +89,12 @@ def _validate_state(state: Any) -> dict[str, Any]:
     if not isinstance(opponent_pits, list) or len(opponent_pits) != PITS_PER_PLAYER:
         raise ValueError("suite row state opponent_pits must be a list of 6 integers")
 
-    canonical_player_pits = [_require_int(value, "state.player_pits") for value in player_pits]
-    canonical_opponent_pits = [_require_int(value, "state.opponent_pits") for value in opponent_pits]
+    canonical_player_pits = [
+        _require_int(value, "state.player_pits") for value in player_pits
+    ]
+    canonical_opponent_pits = [
+        _require_int(value, "state.opponent_pits") for value in opponent_pits
+    ]
     player_store = _require_int(state["player_store"], "state.player_store")
     opponent_store = _require_int(state["opponent_store"], "state.opponent_store")
     current_player = _require_int(state["current_player"], "state.current_player")
@@ -105,9 +115,13 @@ def _validate_legal_moves(value: Any) -> tuple[int, ...]:
         raise ValueError("suite row legal_moves must be a non-empty list")
     legal_moves = tuple(_require_int(move, "legal_moves") for move in value)
     if any(move < 0 or move >= PITS_PER_PLAYER for move in legal_moves):
-        raise ValueError("suite row legal_moves must contain unique moves in range 0..5")
+        raise ValueError(
+            "suite row legal_moves must contain unique moves in range 0..5"
+        )
     if len(set(legal_moves)) != len(legal_moves):
-        raise ValueError("suite row legal_moves must contain unique moves in range 0..5")
+        raise ValueError(
+            "suite row legal_moves must contain unique moves in range 0..5"
+        )
     return legal_moves
 
 
@@ -126,7 +140,16 @@ def _validate_row(row: dict[str, Any]) -> ForensicPosition:
 
     _require_keys(
         row,
-        ("id", "state", "side_to_move", "legal_moves", "phase", "bucket", "tags", "source"),
+        (
+            "id",
+            "state",
+            "side_to_move",
+            "legal_moves",
+            "phase",
+            "bucket",
+            "tags",
+            "source",
+        ),
     )
 
     bucket = _require_non_empty_string(row["bucket"], "bucket")
@@ -181,13 +204,19 @@ def summarize_bucket(rows: list[dict[str, Any]]) -> dict[str, Any]:
     top1 = sum(1 for row in rows if bool(row.get("agrees_top1")))
     regrets = [float(row["regret"]) for row in rows if row.get("regret") is not None]
     blunders = sum(1 for regret in regrets if math.isfinite(regret) and regret > 0.0)
-    value_errors = [float(row["value_error"]) for row in rows if row.get("value_error") is not None]
+    value_errors = [
+        float(row["value_error"]) for row in rows if row.get("value_error") is not None
+    ]
     return {
         "positions": positions,
         "top1_agreement": 0.0 if positions == 0 else _round_metric(top1 / positions),
-        "average_regret": 0.0 if not regrets else _round_metric(sum(regrets) / len(regrets)),
+        "average_regret": 0.0
+        if not regrets
+        else _round_metric(sum(regrets) / len(regrets)),
         "blunder_rate": 0.0 if positions == 0 else _round_metric(blunders / positions),
-        "value_calibration_mae": None if not value_errors else _round_metric(sum(value_errors) / len(value_errors)),
+        "value_calibration_mae": None
+        if not value_errors
+        else _round_metric(sum(value_errors) / len(value_errors)),
     }
 
 
@@ -203,13 +232,11 @@ def summarize_system(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def summarize_bucket_matrix(system_rows: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, Any]]:
+def summarize_bucket_matrix(
+    system_rows: dict[str, list[dict[str, Any]]],
+) -> dict[str, dict[str, Any]]:
     bucket_names = sorted(
-        {
-            str(row["bucket"])
-            for rows in system_rows.values()
-            for row in rows
-        }
+        {str(row["bucket"]) for rows in system_rows.values() for row in rows}
     )
     matrix: dict[str, dict[str, Any]] = {}
     for bucket in bucket_names:

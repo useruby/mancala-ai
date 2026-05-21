@@ -11,19 +11,29 @@ from ml.alphazero_lite import capture_002_prior_pressure_component_audit as modu
 
 class Capture002PriorPressureComponentAuditContractTest(unittest.TestCase):
     def test_contract_constants_are_stable(self):
-        self.assertEqual("azlite_capture_002_prior_pressure_component_audit_v1", module.SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_prior_pressure_component_audit_v1", module.SCHEMA
+        )
         self.assertEqual(
             "azlite_capture_002_selection_score_component_audit_v1",
             module.SOURCE_SELECTION_SCORE_COMPONENT_AUDIT_SCHEMA,
         )
-        self.assertEqual("azlite_capture_002_metric_co_movement_audit_v1", module.SOURCE_METRIC_AUDIT_SCHEMA)
-        self.assertEqual("azlite_capture_002_selection_score_trace_v1", module.SOURCE_SELECTION_SCORE_SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_metric_co_movement_audit_v1",
+            module.SOURCE_METRIC_AUDIT_SCHEMA,
+        )
+        self.assertEqual(
+            "azlite_capture_002_selection_score_trace_v1",
+            module.SOURCE_SELECTION_SCORE_SCHEMA,
+        )
         self.assertEqual(
             "azlite_capture_002_trace_checkpoint_canonicalization_v1",
             module.SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA,
         )
         self.assertEqual("capture_available-002", module.ROW_ID)
-        self.assertEqual("prior_pressure_lead", module.EXPECTED_COMPONENT_AUDIT_CLASSIFICATION)
+        self.assertEqual(
+            "prior_pressure_lead", module.EXPECTED_COMPONENT_AUDIT_CLASSIFICATION
+        )
         self.assertEqual(
             "write_002_prior_pressure_component_spec",
             module.EXPECTED_COMPONENT_AUDIT_DECISION,
@@ -58,8 +68,12 @@ class Capture002PriorPressureComponentAuditContractTest(unittest.TestCase):
             Path("/tmp/selection_score_component_audit.json"),
             args.source_selection_score_component_audit_artifact,
         )
-        self.assertEqual(Path("/tmp/metric_audit.json"), args.source_metric_audit_artifact)
-        self.assertEqual(Path("/tmp/default.json"), args.source_selection_score_artifact)
+        self.assertEqual(
+            Path("/tmp/metric_audit.json"), args.source_metric_audit_artifact
+        )
+        self.assertEqual(
+            Path("/tmp/default.json"), args.source_selection_score_artifact
+        )
         self.assertEqual(
             Path("/tmp/relaxed.json"),
             args.source_threshold_relaxed_selection_score_artifact,
@@ -93,7 +107,9 @@ class Capture002PriorPressureComponentAuditContractTest(unittest.TestCase):
     def test_cli_test_case_only_exposes_cli_specific_tests(self):
         self.assertEqual(
             ["test_main_writes_sorted_json_and_prints_compact_summary_json"],
-            unittest.defaultTestLoader.getTestCaseNames(Capture002PriorPressureComponentAuditCliTest),
+            unittest.defaultTestLoader.getTestCaseNames(
+                Capture002PriorPressureComponentAuditCliTest
+            ),
         )
 
 
@@ -177,11 +193,16 @@ class Capture002PriorPressureComponentAuditTestSupport:
     ) -> dict:
         return {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
-            "classification": {"classification": "unresolved", "evidence_summary": "unresolved"},
+            "classification": {
+                "classification": "unresolved",
+                "evidence_summary": "unresolved",
+            },
             "decision": "write_002_unresolved_trace_review_spec",
             "insufficiency_reasons": [],
             "trace_origin": trace_origin,
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
             "thresholds": copy.deepcopy(thresholds),
             "trace_points": copy.deepcopy(trace_points),
         }
@@ -193,11 +214,16 @@ class Capture002PriorPressureComponentAuditTestSupport:
         decision: str = "write_002_selection_score_component_audit_spec",
         source_artifact: dict | None = None,
     ) -> dict:
-        source_artifact = copy.deepcopy(source_artifact or self.source_artifact_with_provenance())
+        source_artifact = copy.deepcopy(
+            source_artifact or self.source_artifact_with_provenance()
+        )
         return {
             "schema": module.SOURCE_METRIC_AUDIT_SCHEMA,
             "hypothesis": "metric_co_movement_audit",
-            "classification": {"classification": classification, "evidence_summary": "selection-score lead"},
+            "classification": {
+                "classification": classification,
+                "evidence_summary": "selection-score lead",
+            },
             "decision": decision,
             "input_artifacts": {
                 "source_decomposition_artifact_path": "/tmp/decomposition.json",
@@ -215,8 +241,16 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 "relaxed": {"q": None, "selection_score": None, "visit_share": None},
             },
             "first_material_checkpoints": {
-                "default": {"q": None, "selection_score": {"simulation": 1.0, "margin": 0.06}, "visit_share": None},
-                "relaxed": {"q": None, "selection_score": {"simulation": 1.0, "margin": 0.06}, "visit_share": None},
+                "default": {
+                    "q": None,
+                    "selection_score": {"simulation": 1.0, "margin": 0.06},
+                    "visit_share": None,
+                },
+                "relaxed": {
+                    "q": None,
+                    "selection_score": {"simulation": 1.0, "margin": 0.06},
+                    "visit_share": None,
+                },
             },
             "final_margin_summary": {
                 "default_q_margin": 0.0,
@@ -227,7 +261,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 "relaxed_visit_share_margin": 0.0,
             },
             "source_snapshots": {
-                "decomposition_classification": {"classification": "metric_co_movement"},
+                "decomposition_classification": {
+                    "classification": "metric_co_movement"
+                },
                 "default_trace_classification": {"classification": "unresolved"},
                 "relaxed_trace_classification": {"classification": "unresolved"},
                 "default_trace_origin": "extracted",
@@ -242,7 +278,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         decision: str = "write_002_prior_pressure_component_spec",
         source_artifact: dict | None = None,
     ) -> dict:
-        source_artifact = copy.deepcopy(source_artifact or self.source_artifact_with_provenance())
+        source_artifact = copy.deepcopy(
+            source_artifact or self.source_artifact_with_provenance()
+        )
         return {
             "schema": module.SOURCE_SELECTION_SCORE_COMPONENT_AUDIT_SCHEMA,
             "hypothesis": "selection_score_component_audit",
@@ -258,13 +296,21 @@ class Capture002PriorPressureComponentAuditTestSupport:
             },
             "source_artifact": source_artifact,
             "thresholds_evaluated": {
-                "selection_score": self.default_thresholds()["material_selection_score_margin"],
+                "selection_score": self.default_thresholds()[
+                    "material_selection_score_margin"
+                ],
                 "meaningful_q": self.default_thresholds()["meaningful_q_margin"],
             },
             "checkpoint_audit": [],
             "first_positive_checkpoints": {
-                "default": {"prior_pressure": {"simulation": 1.0}, "child_q_lift": None},
-                "relaxed": {"prior_pressure": {"simulation": 1.0}, "child_q_lift": None},
+                "default": {
+                    "prior_pressure": {"simulation": 1.0},
+                    "child_q_lift": None,
+                },
+                "relaxed": {
+                    "prior_pressure": {"simulation": 1.0},
+                    "child_q_lift": None,
+                },
             },
             "first_material_checkpoints": {
                 "default": {
@@ -301,7 +347,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 },
             },
             "source_snapshots": {
-                "metric_audit_classification": {"classification": "early_selection_score_only"},
+                "metric_audit_classification": {
+                    "classification": "early_selection_score_only"
+                },
                 "default_trace_classification": {"classification": "unresolved"},
                 "relaxed_trace_classification": {"classification": "unresolved"},
                 "default_trace_origin": "extracted",
@@ -335,7 +383,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 "source_selection_score_artifact_path": "/tmp/default.json",
                 "source_threshold_relaxed_selection_score_artifact_path": "/tmp/relaxed.json",
             },
-            "source_artifact": copy.deepcopy(source_artifact or self.source_artifact_with_provenance()),
+            "source_artifact": copy.deepcopy(
+                source_artifact or self.source_artifact_with_provenance()
+            ),
             "canonicalization_status": {"safe_for_followup_spec": True},
             "canonical_sequences_match": True,
             "canonical_checkpoint_sequences": {
@@ -387,7 +437,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
         checkpoint_canonicalization_artifact=None,
         source_checkpoint_canonicalization_artifact_path=None,
     ) -> dict:
-        valid_component_audit, valid_metric_audit, valid_default_trace, valid_relaxed_trace = self.valid_inputs()
+        (
+            valid_component_audit,
+            valid_metric_audit,
+            valid_default_trace,
+            valid_relaxed_trace,
+        ) = self.valid_inputs()
         return module.build_payload(
             component_audit or valid_component_audit,
             metric_audit or valid_metric_audit,
@@ -484,7 +539,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_rejects_non_dict_component_audit_classification(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["classification"] = "prior_pressure_lead"
 
         with self.assertRaisesRegex(
@@ -513,8 +570,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_rejects_wrong_component_audit_classification(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["classification"]["classification"] = "mixed_selection_score_signal"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["classification"]["classification"] = (
+            "mixed_selection_score_signal"
+        )
 
         with self.assertRaisesRegex(
             ValueError,
@@ -528,7 +589,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_rejects_wrong_component_audit_schema(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["schema"] = "wrong"
 
         with self.assertRaisesRegex(
@@ -543,7 +606,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_rejects_wrong_component_audit_decision(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["decision"] = "write_002_mixed_selection_score_component_spec"
 
         with self.assertRaisesRegex(
@@ -558,7 +623,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_rejects_component_audit_wrong_row_id(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["source_artifact"]["row_id"] = "capture_available-003"
 
         self.assert_build_payload_error(
@@ -570,7 +637,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_component_audit_non_integer_reference_move(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["source_artifact"]["reference_move"] = "2"
 
         self.assert_build_payload_error(
@@ -581,8 +650,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_component_audit_non_integer_full_search_selected_move(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_component_audit_non_integer_full_search_selected_move(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["source_artifact"]["full_search_selected_move"] = "0"
 
         self.assert_build_payload_error(
@@ -594,7 +667,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_component_audit_non_dict_selected_artifact(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["source_artifact"]["selected_artifact"] = "/tmp/not-an-object"
 
         self.assert_build_payload_error(
@@ -605,8 +680,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_metric_audit_reference_move_mismatch_vs_component_audit(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_metric_audit_reference_move_mismatch_vs_component_audit(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         metric_audit["source_artifact"]["reference_move"] = 1
 
         self.assert_build_payload_error(
@@ -629,7 +708,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_metric_audit_schema(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         metric_audit["schema"] = "wrong"
 
         self.assert_build_payload_error(
@@ -641,8 +722,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_metric_audit_classification(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        metric_audit["classification"]["classification"] = "mixed_selection_score_signal"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        metric_audit["classification"]["classification"] = (
+            "mixed_selection_score_signal"
+        )
 
         self.assert_build_payload_error(
             "metric audit artifact classification must be early_selection_score_only",
@@ -653,7 +738,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_metric_audit_decision(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         metric_audit["decision"] = "stop_002_metric_audit_inconclusive"
 
         self.assert_build_payload_error(
@@ -665,7 +752,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_metric_audit_wrong_row_id(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         metric_audit["source_artifact"]["row_id"] = "capture_available-003"
 
         self.assert_build_payload_error(
@@ -677,11 +766,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_mismatched_metric_audit_canonicalization_path(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
         )
-        metric_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/other.json"
+        component_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
+        metric_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/other.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -696,9 +789,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_unexpected_metric_audit_canonicalization_path_outside_canonical_mode(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        metric_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+    def test_build_payload_rejects_unexpected_metric_audit_canonicalization_path_outside_canonical_mode(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        metric_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         self.assert_build_payload_error(
             "metric audit input_artifacts source_checkpoint_canonicalization_artifact_path must match source path",
@@ -720,7 +819,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_default_trace_schema(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["schema"] = "wrong"
 
         self.assert_build_payload_error(
@@ -732,8 +833,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_default_trace_classification(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        default_trace["classification"]["classification"] = "mixed_selection_score_signal"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        default_trace["classification"]["classification"] = (
+            "mixed_selection_score_signal"
+        )
 
         self.assert_build_payload_error(
             "default trace artifact classification must be unresolved",
@@ -744,7 +849,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_default_trace_decision(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["decision"] = "write_002_selection_pressure_ablation_spec"
 
         self.assert_build_payload_error(
@@ -756,7 +863,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_default_trace_wrong_row_id(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["source_artifact"]["row_id"] = "capture_available-003"
 
         self.assert_build_payload_error(
@@ -767,8 +876,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_default_trace_full_search_selected_move_mismatch_vs_component_audit(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_default_trace_full_search_selected_move_mismatch_vs_component_audit(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["source_artifact"]["full_search_selected_move"] = 2
 
         self.assert_build_payload_error(
@@ -791,7 +904,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_relaxed_trace_schema(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["schema"] = "wrong"
 
         self.assert_build_payload_error(
@@ -803,8 +918,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_relaxed_trace_classification(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        relaxed_trace["classification"]["classification"] = "mixed_selection_score_signal"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        relaxed_trace["classification"]["classification"] = (
+            "mixed_selection_score_signal"
+        )
 
         self.assert_build_payload_error(
             "relaxed trace artifact classification must be unresolved",
@@ -815,7 +934,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_wrong_relaxed_trace_decision(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["decision"] = "write_002_selection_pressure_ablation_spec"
 
         self.assert_build_payload_error(
@@ -827,7 +948,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_relaxed_trace_wrong_row_id(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["source_artifact"]["row_id"] = "capture_available-003"
 
         self.assert_build_payload_error(
@@ -838,9 +961,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_relaxed_trace_selected_artifact_mismatch_vs_component_audit(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        relaxed_trace["source_artifact"]["selected_artifact"]["path"] = "/tmp/other-selected"
+    def test_build_payload_rejects_relaxed_trace_selected_artifact_mismatch_vs_component_audit(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        relaxed_trace["source_artifact"]["selected_artifact"]["path"] = (
+            "/tmp/other-selected"
+        )
 
         self.assert_build_payload_error(
             "relaxed trace artifact source_artifact.selected_artifact must match prior-pressure component audit upstream source_artifact.selected_artifact",
@@ -851,13 +980,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_preserves_canonicalization_input_path(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
         )
-        metric_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
-        )
+        component_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
+        metric_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         payload = self.build_payload(
             component_audit=component_audit,
@@ -865,12 +996,14 @@ class Capture002PriorPressureComponentAuditTestSupport:
             default_trace=default_trace,
             relaxed_trace=relaxed_trace,
             checkpoint_canonicalization_artifact=self.canonicalization_artifact(),
-            source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json"
+            source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
         )
 
         self.assertEqual(
             "/tmp/canonicalization.json",
-            payload["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"],
+            payload["input_artifacts"][
+                "source_checkpoint_canonicalization_artifact_path"
+            ],
         )
 
     def test_build_payload_rejects_canonicalization_path_without_artifact(self):
@@ -878,14 +1011,18 @@ class Capture002PriorPressureComponentAuditTestSupport:
             ValueError,
             "canonical mode requires checkpoint_canonicalization_artifact",
         ):
-            self.build_payload(source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json")
+            self.build_payload(
+                source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json"
+            )
 
     def test_build_payload_rejects_canonicalization_artifact_without_path(self):
         with self.assertRaisesRegex(
             ValueError,
             "canonical mode requires source_checkpoint_canonicalization_artifact_path",
         ):
-            self.build_payload(checkpoint_canonicalization_artifact=self.canonicalization_artifact())
+            self.build_payload(
+                checkpoint_canonicalization_artifact=self.canonicalization_artifact()
+            )
 
     def test_build_payload_rejects_wrong_canonicalization_schema(self):
         with self.assertRaisesRegex(
@@ -893,7 +1030,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             "canonicalization artifact has wrong schema",
         ):
             self.build_payload(
-                checkpoint_canonicalization_artifact=self.canonicalization_artifact(schema="wrong"),
+                checkpoint_canonicalization_artifact=self.canonicalization_artifact(
+                    schema="wrong"
+                ),
                 source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
             )
 
@@ -907,9 +1046,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_mismatched_component_audit_canonicalization_path(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/other.json"
+    def test_build_payload_rejects_mismatched_component_audit_canonicalization_path(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/other.json"
 
         with self.assertRaisesRegex(
             ValueError,
@@ -924,9 +1069,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 source_checkpoint_canonicalization_artifact_path="/tmp/canonicalization.json",
             )
 
-    def test_build_payload_rejects_unexpected_component_audit_canonicalization_path_outside_canonical_mode(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = "/tmp/canonicalization.json"
+    def test_build_payload_rejects_unexpected_component_audit_canonicalization_path_outside_canonical_mode(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream input_artifacts source_checkpoint_canonicalization_artifact_path must be absent outside canonical mode",
@@ -936,14 +1087,18 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_accepts_duplicate_equivalent_root_snapshots_with_valid_canonicalization_artifact(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
+    def test_build_payload_accepts_duplicate_equivalent_root_snapshots_with_valid_canonicalization_artifact(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
         )
-        metric_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
-        )
+        component_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
+        metric_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][0])
         duplicate_relaxed_point = copy.deepcopy(relaxed_trace["trace_points"][0])
         default_trace["trace_points"] = [
@@ -968,12 +1123,23 @@ class Capture002PriorPressureComponentAuditTestSupport:
 
         self.assertEqual(
             "/tmp/canonicalization.json",
-            payload["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"],
+            payload["input_artifacts"][
+                "source_checkpoint_canonicalization_artifact_path"
+            ],
         )
-        self.assertEqual(1.0, payload["branch_level_evidence"]["default"]["upstream_checkpoint_echo"]["simulation"])
+        self.assertEqual(
+            1.0,
+            payload["branch_level_evidence"]["default"]["upstream_checkpoint_echo"][
+                "simulation"
+            ],
+        )
 
-    def test_build_payload_rejects_duplicate_checkpoint_sequences_without_canonicalization_artifact(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_duplicate_checkpoint_sequences_without_canonicalization_artifact(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][0])
         duplicate_relaxed_point = copy.deepcopy(relaxed_trace["trace_points"][0])
         default_trace["trace_points"] = [
@@ -987,7 +1153,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace["trace_points"][1],
         ]
 
-        with self.assertRaisesRegex(ValueError, "checkpoint sequences must not contain duplicates"):
+        with self.assertRaisesRegex(
+            ValueError, "checkpoint sequences must not contain duplicates"
+        ):
             self.build_payload(
                 component_audit=component_audit,
                 metric_audit=metric_audit,
@@ -995,14 +1163,18 @@ class Capture002PriorPressureComponentAuditTestSupport:
                 relaxed_trace=relaxed_trace,
             )
 
-    def test_build_payload_rejects_conflicting_skipped_duplicates_in_canonical_mode(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
+    def test_build_payload_rejects_conflicting_skipped_duplicates_in_canonical_mode(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
         )
-        metric_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
-        )
+        component_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
+        metric_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][0])
         duplicate_default_point["selected_move"] = 2
         duplicate_relaxed_point = copy.deepcopy(relaxed_trace["trace_points"][0])
@@ -1031,13 +1203,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_rejects_canonical_sequence_mismatch(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
         )
-        metric_audit["input_artifacts"]["source_checkpoint_canonicalization_artifact_path"] = (
-            "/tmp/canonicalization.json"
-        )
+        component_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
+        metric_audit["input_artifacts"][
+            "source_checkpoint_canonicalization_artifact_path"
+        ] = "/tmp/canonicalization.json"
         duplicate_default_point = copy.deepcopy(default_trace["trace_points"][0])
         duplicate_relaxed_point = copy.deepcopy(relaxed_trace["trace_points"][0])
         default_trace["trace_points"] = [
@@ -1068,8 +1242,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_rejects_missing_default_prior_pressure_checkpoint(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["first_material_checkpoints"]["default"]["prior_pressure"] = None
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["first_material_checkpoints"]["default"]["prior_pressure"] = (
+            None
+        )
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream default first_material_checkpoints.prior_pressure must be present",
@@ -1080,8 +1258,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_missing_relaxed_prior_pressure_checkpoint(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["first_material_checkpoints"]["relaxed"]["prior_pressure"] = None
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["first_material_checkpoints"]["relaxed"]["prior_pressure"] = (
+            None
+        )
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream relaxed first_material_checkpoints.prior_pressure must be present",
@@ -1091,9 +1273,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_default_prior_pressure_checkpoint_missing_from_trace(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["first_material_checkpoints"]["default"]["prior_pressure"]["simulation"] = 9.0
+    def test_build_payload_rejects_default_prior_pressure_checkpoint_missing_from_trace(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["first_material_checkpoints"]["default"]["prior_pressure"][
+            "simulation"
+        ] = 9.0
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream default prior_pressure checkpoint simulation 9.0 is missing from validated trace",
@@ -1103,9 +1291,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_default_prior_pressure_selection_score_margin_mismatch(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["first_material_checkpoints"]["default"]["prior_pressure"]["selection_score_margin"] = 0.08
+    def test_build_payload_rejects_default_prior_pressure_selection_score_margin_mismatch(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["first_material_checkpoints"]["default"]["prior_pressure"][
+            "selection_score_margin"
+        ] = 0.08
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream default prior_pressure checkpoint selection_score_margin must match validated trace",
@@ -1116,8 +1310,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_relaxed_prior_pressure_q_margin_mismatch(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["first_material_checkpoints"]["relaxed"]["prior_pressure"]["q_margin"] = -0.03
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["first_material_checkpoints"]["relaxed"]["prior_pressure"][
+            "q_margin"
+        ] = -0.03
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream relaxed prior_pressure checkpoint q_margin must match validated trace",
@@ -1128,8 +1326,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_component_audit_mismatched_source_metric_path(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_metric_audit_artifact_path"] = "/tmp/other_metric_audit.json"
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["input_artifacts"]["source_metric_audit_artifact_path"] = (
+            "/tmp/other_metric_audit.json"
+        )
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream input_artifacts source_metric_audit_artifact_path must match source path",
@@ -1139,9 +1341,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_component_audit_mismatched_source_default_trace_path(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_selection_score_artifact_path"] = "/tmp/other_default.json"
+    def test_build_payload_rejects_component_audit_mismatched_source_default_trace_path(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["input_artifacts"]["source_selection_score_artifact_path"] = (
+            "/tmp/other_default.json"
+        )
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream input_artifacts source_selection_score_artifact_path must match source path",
@@ -1151,9 +1359,15 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_component_audit_mismatched_source_relaxed_trace_path(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        component_audit["input_artifacts"]["source_threshold_relaxed_selection_score_artifact_path"] = "/tmp/other_relaxed.json"
+    def test_build_payload_rejects_component_audit_mismatched_source_relaxed_trace_path(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        component_audit["input_artifacts"][
+            "source_threshold_relaxed_selection_score_artifact_path"
+        ] = "/tmp/other_relaxed.json"
 
         self.assert_build_payload_error(
             "prior-pressure component audit upstream input_artifacts source_threshold_relaxed_selection_score_artifact_path must match source path",
@@ -1164,7 +1378,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_rejects_missing_source_artifact(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["source_artifact"] = None
 
         with self.assertRaisesRegex(
@@ -1179,7 +1395,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_returns_source_artifact_copy(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         payload = self.build_payload(
             component_audit=component_audit,
@@ -1201,7 +1419,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_includes_branch_level_evidence(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         payload = self.build_payload(
             component_audit=component_audit,
@@ -1211,7 +1431,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
         self.assertIn("branch_level_evidence", payload)
-        self.assertEqual({"default", "relaxed"}, set(payload["branch_level_evidence"].keys()))
+        self.assertEqual(
+            {"default", "relaxed"}, set(payload["branch_level_evidence"].keys())
+        )
 
         for branch, visit_share_threshold in (("default", 0.05), ("relaxed", 0.04)):
             evidence = payload["branch_level_evidence"][branch]
@@ -1228,12 +1450,19 @@ class Capture002PriorPressureComponentAuditTestSupport:
             self.assertEqual(0.5, evidence["reference_visit_share"])
             self.assertEqual(0.05, evidence["selection_score_residual_threshold"])
             self.assertEqual(visit_share_threshold, evidence["visit_share_threshold"])
-            self.assertEqual("selection_score_residual_lead", evidence["explanation_candidate"])
+            self.assertEqual(
+                "selection_score_residual_lead", evidence["explanation_candidate"]
+            )
 
     def test_build_payload_rejects_malformed_branch_evidence_threshold_value(self):
-        for threshold_key in ("material_selection_score_margin", "material_visit_share_margin"):
+        for threshold_key in (
+            "material_selection_score_margin",
+            "material_visit_share_margin",
+        ):
             with self.subTest(threshold_key=threshold_key):
-                component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+                component_audit, metric_audit, default_trace, relaxed_trace = (
+                    self.valid_inputs()
+                )
                 if threshold_key == "material_selection_score_margin":
                     self.replace_branch_prior_pressure_checkpoint(
                         component_audit,
@@ -1272,7 +1501,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
                     )
 
     def test_build_payload_sets_visit_alignment_pressure_branch_candidate(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=0.06,
@@ -1294,11 +1525,19 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual("visit_alignment_pressure", payload["branch_level_evidence"]["default"]["explanation_candidate"])
-        self.assertEqual("visit_alignment_pressure", payload["branch_level_evidence"]["relaxed"]["explanation_candidate"])
+        self.assertEqual(
+            "visit_alignment_pressure",
+            payload["branch_level_evidence"]["default"]["explanation_candidate"],
+        )
+        self.assertEqual(
+            "visit_alignment_pressure",
+            payload["branch_level_evidence"]["relaxed"]["explanation_candidate"],
+        )
 
     def test_build_payload_sets_mixed_prior_pressure_signal_branch_candidate(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=0.05,
@@ -1329,8 +1568,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             payload["branch_level_evidence"]["relaxed"]["explanation_candidate"],
         )
 
-    def test_build_payload_rejects_non_earliest_material_default_prior_pressure_checkpoint(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_non_earliest_material_default_prior_pressure_checkpoint(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["trace_points"][0] = self.trace_point(
             simulation=1.0,
             q_margin=-0.02,
@@ -1363,7 +1606,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             )
 
     def test_build_payload_keeps_residual_absent_when_q_margin_is_missing(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=0.06,
@@ -1385,15 +1630,28 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertIsNone(payload["branch_level_evidence"]["default"]["selection_score_residual_margin"])
-        self.assertEqual("prior_pressure_component_inconclusive", payload["classification"]["classification"])
+        self.assertIsNone(
+            payload["branch_level_evidence"]["default"][
+                "selection_score_residual_margin"
+            ]
+        )
+        self.assertEqual(
+            "prior_pressure_component_inconclusive",
+            payload["classification"]["classification"],
+        )
 
-    def test_build_payload_uses_float_tolerance_residual_threshold_without_upstream_override(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_uses_float_tolerance_residual_threshold_without_upstream_override(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["thresholds_evaluated"] = {
             "meaningful_q": self.default_thresholds()["meaningful_q_margin"],
         }
-        near_threshold_margin = self.default_thresholds()["material_selection_score_margin"] - (module.FLOAT_TOLERANCE / 2)
+        near_threshold_margin = self.default_thresholds()[
+            "material_selection_score_margin"
+        ] - (module.FLOAT_TOLERANCE / 2)
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=near_threshold_margin,
@@ -1415,12 +1673,26 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual(module.FLOAT_TOLERANCE, payload["branch_level_evidence"]["default"]["selection_score_residual_threshold"])
-        self.assertEqual(module.FLOAT_TOLERANCE, payload["branch_level_evidence"]["relaxed"]["selection_score_residual_threshold"])
-        self.assertEqual("selection_score_residual_lead", payload["classification"]["classification"])
+        self.assertEqual(
+            module.FLOAT_TOLERANCE,
+            payload["branch_level_evidence"]["default"][
+                "selection_score_residual_threshold"
+            ],
+        )
+        self.assertEqual(
+            module.FLOAT_TOLERANCE,
+            payload["branch_level_evidence"]["relaxed"][
+                "selection_score_residual_threshold"
+            ],
+        )
+        self.assertEqual(
+            "selection_score_residual_lead", payload["classification"]["classification"]
+        )
 
     def test_build_payload_uses_stronger_upstream_residual_threshold_when_exposed(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         component_audit["thresholds_evaluated"] = {
             "selection_score": 0.08,
             "meaningful_q": self.default_thresholds()["meaningful_q_margin"],
@@ -1433,16 +1705,32 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual(0.08, payload["branch_level_evidence"]["default"]["selection_score_residual_threshold"])
-        self.assertEqual(0.08, payload["branch_level_evidence"]["relaxed"]["selection_score_residual_threshold"])
+        self.assertEqual(
+            0.08,
+            payload["branch_level_evidence"]["default"][
+                "selection_score_residual_threshold"
+            ],
+        )
+        self.assertEqual(
+            0.08,
+            payload["branch_level_evidence"]["relaxed"][
+                "selection_score_residual_threshold"
+            ],
+        )
         self.assertEqual(
             "prior_pressure_component_inconclusive",
             payload["classification"]["classification"],
         )
 
-    def test_build_payload_accepts_upstream_checkpoint_with_float_tolerance_boundary(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
-        near_threshold_margin = self.default_thresholds()["material_selection_score_margin"] - (module.FLOAT_TOLERANCE / 2)
+    def test_build_payload_accepts_upstream_checkpoint_with_float_tolerance_boundary(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
+        near_threshold_margin = self.default_thresholds()[
+            "material_selection_score_margin"
+        ] - (module.FLOAT_TOLERANCE / 2)
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=near_threshold_margin,
@@ -1464,7 +1752,10 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual(near_threshold_margin, payload["branch_level_evidence"]["default"]["selection_score_margin"])
+        self.assertEqual(
+            near_threshold_margin,
+            payload["branch_level_evidence"]["default"]["selection_score_margin"],
+        )
 
     def test_build_payload_includes_checkpoint_audit(self):
         payload = self.build_payload()
@@ -1475,7 +1766,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         self.assertEqual(2.0, payload["checkpoint_audit"][1]["simulation"])
 
     def test_build_payload_uses_relaxed_trace_values_in_checkpoint_audit(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         relaxed_trace["trace_points"][1] = self.trace_point(
             simulation=2.0,
             q_margin=0.42,
@@ -1491,13 +1784,21 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual(0.07, payload["checkpoint_audit"][1]["default"]["selection_score_margin"])
+        self.assertEqual(
+            0.07, payload["checkpoint_audit"][1]["default"]["selection_score_margin"]
+        )
         self.assertEqual(-0.01, payload["checkpoint_audit"][1]["default"]["q_margin"])
-        self.assertEqual(0.43, payload["checkpoint_audit"][1]["relaxed"]["selection_score_margin"])
+        self.assertEqual(
+            0.43, payload["checkpoint_audit"][1]["relaxed"]["selection_score_margin"]
+        )
         self.assertEqual(0.42, payload["checkpoint_audit"][1]["relaxed"]["q_margin"])
 
-    def test_build_payload_sets_prior_pressure_component_inconclusive_branch_candidate(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_sets_prior_pressure_component_inconclusive_branch_candidate(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=0.05,
@@ -1528,7 +1829,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             payload["branch_level_evidence"]["relaxed"]["explanation_candidate"],
         )
 
-    def test_build_payload_sets_overall_classification_selection_score_residual_lead(self):
+    def test_build_payload_sets_overall_classification_selection_score_residual_lead(
+        self,
+    ):
         payload = self.build_payload()
 
         self.assertEqual(
@@ -1551,7 +1854,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_sets_overall_classification_visit_alignment_pressure(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=0.06,
@@ -1573,7 +1878,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual("visit_alignment_pressure", payload["classification"]["classification"])
+        self.assertEqual(
+            "visit_alignment_pressure", payload["classification"]["classification"]
+        )
         self.assertEqual(
             module.CLASSIFICATION_DECISIONS["visit_alignment_pressure"],
             payload["decision"],
@@ -1589,8 +1896,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             payload["branch_disagreement_summary"],
         )
 
-    def test_build_payload_sets_overall_classification_mixed_when_branches_disagree(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_sets_overall_classification_mixed_when_branches_disagree(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint_for_branch(
             component_audit,
             branch="relaxed",
@@ -1612,9 +1923,17 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual("selection_score_residual_lead", payload["branch_level_evidence"]["default"]["explanation_candidate"])
-        self.assertEqual("visit_alignment_pressure", payload["branch_level_evidence"]["relaxed"]["explanation_candidate"])
-        self.assertEqual("mixed_prior_pressure_signal", payload["classification"]["classification"])
+        self.assertEqual(
+            "selection_score_residual_lead",
+            payload["branch_level_evidence"]["default"]["explanation_candidate"],
+        )
+        self.assertEqual(
+            "visit_alignment_pressure",
+            payload["branch_level_evidence"]["relaxed"]["explanation_candidate"],
+        )
+        self.assertEqual(
+            "mixed_prior_pressure_signal", payload["classification"]["classification"]
+        )
         self.assertEqual(
             module.CLASSIFICATION_DECISIONS["mixed_prior_pressure_signal"],
             payload["decision"],
@@ -1630,8 +1949,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             payload["branch_disagreement_summary"],
         )
 
-    def test_build_payload_sets_overall_classification_mixed_when_residual_and_visit_conflict_materially(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_sets_overall_classification_mixed_when_residual_and_visit_conflict_materially(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=0.20,
@@ -1653,9 +1976,17 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-        self.assertEqual("mixed_prior_pressure_signal", payload["branch_level_evidence"]["default"]["explanation_candidate"])
-        self.assertEqual("mixed_prior_pressure_signal", payload["branch_level_evidence"]["relaxed"]["explanation_candidate"])
-        self.assertEqual("mixed_prior_pressure_signal", payload["classification"]["classification"])
+        self.assertEqual(
+            "mixed_prior_pressure_signal",
+            payload["branch_level_evidence"]["default"]["explanation_candidate"],
+        )
+        self.assertEqual(
+            "mixed_prior_pressure_signal",
+            payload["branch_level_evidence"]["relaxed"]["explanation_candidate"],
+        )
+        self.assertEqual(
+            "mixed_prior_pressure_signal", payload["classification"]["classification"]
+        )
         self.assertEqual(
             module.CLASSIFICATION_DECISIONS["mixed_prior_pressure_signal"],
             payload["decision"],
@@ -1672,7 +2003,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
 
     def test_build_payload_sets_overall_classification_inconclusive(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         self.replace_branch_prior_pressure_checkpoint(
             component_audit,
             selection_score_margin=0.05,
@@ -1721,7 +2054,10 @@ class Capture002PriorPressureComponentAuditTestSupport:
             "selection_score_residual_lead",
             payload["classification"]["classification"],
         )
-        self.assertEqual(module.CLASSIFICATION_DECISIONS["selection_score_residual_lead"], payload["decision"])
+        self.assertEqual(
+            module.CLASSIFICATION_DECISIONS["selection_score_residual_lead"],
+            payload["decision"],
+        )
         self.assertEqual(
             {
                 "source_selection_score_component_audit_artifact_path": "/tmp/selection_score_component_audit.json",
@@ -1731,7 +2067,9 @@ class Capture002PriorPressureComponentAuditTestSupport:
             },
             payload["input_artifacts"],
         )
-        self.assertEqual(self.source_artifact_with_provenance(), payload["source_artifact"])
+        self.assertEqual(
+            self.source_artifact_with_provenance(), payload["source_artifact"]
+        )
 
     def test_build_payload_includes_final_payload_metadata(self):
         payload = self.build_payload()
@@ -1746,18 +2084,34 @@ class Capture002PriorPressureComponentAuditTestSupport:
         )
         self.assertEqual(
             {
-                "component_audit_classification": {"classification": "prior_pressure_lead", "evidence_summary": "prior-pressure lead"},
-                "metric_audit_classification": {"classification": "early_selection_score_only", "evidence_summary": "selection-score lead"},
-                "default_trace_classification": {"classification": "unresolved", "evidence_summary": "unresolved"},
-                "relaxed_trace_classification": {"classification": "unresolved", "evidence_summary": "unresolved"},
+                "component_audit_classification": {
+                    "classification": "prior_pressure_lead",
+                    "evidence_summary": "prior-pressure lead",
+                },
+                "metric_audit_classification": {
+                    "classification": "early_selection_score_only",
+                    "evidence_summary": "selection-score lead",
+                },
+                "default_trace_classification": {
+                    "classification": "unresolved",
+                    "evidence_summary": "unresolved",
+                },
+                "relaxed_trace_classification": {
+                    "classification": "unresolved",
+                    "evidence_summary": "unresolved",
+                },
                 "default_trace_origin": "extracted",
                 "relaxed_trace_origin": "extracted",
             },
             payload["source_snapshots"],
         )
 
-    def test_build_payload_rejects_malformed_trace_origin_used_by_source_snapshots(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_malformed_trace_origin_used_by_source_snapshots(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["trace_origin"] = ""
 
         self.assert_build_payload_error(
@@ -1768,8 +2122,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_empty_trace_points_before_payload_metadata_assembly(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_empty_trace_points_before_payload_metadata_assembly(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["trace_points"] = []
 
         self.assert_build_payload_error(
@@ -1780,8 +2138,12 @@ class Capture002PriorPressureComponentAuditTestSupport:
             relaxed_trace=relaxed_trace,
         )
 
-    def test_build_payload_rejects_malformed_thresholds_metadata_used_by_final_payload(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+    def test_build_payload_rejects_malformed_thresholds_metadata_used_by_final_payload(
+        self,
+    ):
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
         default_trace["thresholds"]["meaningful_q_margin"] = "invalid"
 
         self.assert_build_payload_error(
@@ -1803,7 +2165,9 @@ class Capture002PriorPressureComponentAuditCliTest(
     Capture002PriorPressureComponentAuditTestSupport, unittest.TestCase
 ):
     def test_main_writes_sorted_json_and_prints_compact_summary_json(self):
-        component_audit, metric_audit, default_trace, relaxed_trace = self.valid_inputs()
+        component_audit, metric_audit, default_trace, relaxed_trace = (
+            self.valid_inputs()
+        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
@@ -1815,11 +2179,21 @@ class Capture002PriorPressureComponentAuditCliTest(
 
             component_audit = copy.deepcopy(component_audit)
             metric_audit = copy.deepcopy(metric_audit)
-            component_audit["input_artifacts"]["source_metric_audit_artifact_path"] = str(metric_path)
-            component_audit["input_artifacts"]["source_selection_score_artifact_path"] = str(default_path)
-            component_audit["input_artifacts"]["source_threshold_relaxed_selection_score_artifact_path"] = str(relaxed_path)
-            metric_audit["input_artifacts"]["source_selection_score_artifact_path"] = str(default_path)
-            metric_audit["input_artifacts"]["source_threshold_relaxed_selection_score_artifact_path"] = str(relaxed_path)
+            component_audit["input_artifacts"]["source_metric_audit_artifact_path"] = (
+                str(metric_path)
+            )
+            component_audit["input_artifacts"][
+                "source_selection_score_artifact_path"
+            ] = str(default_path)
+            component_audit["input_artifacts"][
+                "source_threshold_relaxed_selection_score_artifact_path"
+            ] = str(relaxed_path)
+            metric_audit["input_artifacts"]["source_selection_score_artifact_path"] = (
+                str(default_path)
+            )
+            metric_audit["input_artifacts"][
+                "source_threshold_relaxed_selection_score_artifact_path"
+            ] = str(relaxed_path)
 
             component_path.write_text(json.dumps(component_audit), encoding="utf-8")
             metric_path.write_text(json.dumps(metric_audit), encoding="utf-8")
@@ -1849,10 +2223,14 @@ class Capture002PriorPressureComponentAuditCliTest(
                 metric_audit,
                 default_trace,
                 relaxed_trace,
-                source_selection_score_component_audit_artifact_path=str(component_path),
+                source_selection_score_component_audit_artifact_path=str(
+                    component_path
+                ),
                 source_metric_audit_artifact_path=str(metric_path),
                 source_selection_score_artifact_path=str(default_path),
-                source_threshold_relaxed_selection_score_artifact_path=str(relaxed_path),
+                source_threshold_relaxed_selection_score_artifact_path=str(
+                    relaxed_path
+                ),
             )
             self.assertEqual(
                 json.dumps(expected_payload, indent=2, sort_keys=True) + "\n",
@@ -1863,7 +2241,9 @@ class Capture002PriorPressureComponentAuditCliTest(
                     {
                         "artifact_path": str(out_path),
                         "schema": expected_payload["schema"],
-                        "classification": expected_payload["classification"]["classification"],
+                        "classification": expected_payload["classification"][
+                            "classification"
+                        ],
                         "decision": expected_payload["decision"],
                     }
                 )
@@ -1872,6 +2252,8 @@ class Capture002PriorPressureComponentAuditCliTest(
             )
 
 
-for _name in unittest.defaultTestLoader.getTestCaseNames(Capture002PriorPressureComponentAuditBuildPayloadTest):
+for _name in unittest.defaultTestLoader.getTestCaseNames(
+    Capture002PriorPressureComponentAuditBuildPayloadTest
+):
     if _name != "test_main_writes_sorted_json_and_prints_compact_summary_json":
         setattr(Capture002PriorPressureComponentAuditCliTest, _name, None)

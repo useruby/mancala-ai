@@ -93,7 +93,9 @@ def initialize_manifest(
         "candidate": {
             "artifact_path": str(candidate_path),
             "config_path": None if config_path is None else str(config_path),
-            "parent_artifact_path": None if parent_artifact_path is None else str(parent_artifact_path),
+            "parent_artifact_path": None
+            if parent_artifact_path is None
+            else str(parent_artifact_path),
         },
         "inputs": {},
         "artifacts": {},
@@ -120,7 +122,9 @@ def stage_command(*, stage: str, manifest: dict) -> list[str]:
     candidate = manifest.get("candidate", {})
     candidate_path = candidate.get("artifact_path")
     config_path = candidate.get("config_path")
-    parent_artifact_path = candidate.get("parent_artifact_path") or "model-artifact/current"
+    parent_artifact_path = (
+        candidate.get("parent_artifact_path") or "model-artifact/current"
+    )
     output_root = str(Path(manifest_path).parent) if manifest_path else "."
 
     if stage == "promotion_gate":
@@ -158,7 +162,8 @@ def stage_command(*, stage: str, manifest: dict) -> list[str]:
             python_executable(),
             "script/ai/model_robustness_confirmation",
             "--base-config",
-            config_path or "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json",
+            config_path
+            or "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json",
             "--parent-artifact",
             parent_artifact_path,
             "--current-path",
@@ -200,7 +205,9 @@ def record_artifact(manifest_path: Path, *, key: str, value: str) -> dict:
     return write_manifest(manifest_path, manifest)
 
 
-def record_multi_seed_runs(manifest_path: Path, *, seeds: list[int], summary_path: str, passed: bool) -> dict:
+def record_multi_seed_runs(
+    manifest_path: Path, *, seeds: list[int], summary_path: str, passed: bool
+) -> dict:
     manifest = load_manifest(manifest_path)
     manifest["multi_seed_confirmation"] = {
         "runs": [{"seed": seed, "passed": passed} for seed in seeds],
@@ -219,7 +226,9 @@ def promotion_failures_indicate_runtime_failure(failure_reasons: list[dict]) -> 
     return False
 
 
-def inspect_json_artifact(path: str | None, *, name: str) -> tuple[dict | None, str | None]:
+def inspect_json_artifact(
+    path: str | None, *, name: str
+) -> tuple[dict | None, str | None]:
     if not path:
         return None, f"{name}_missing"
 
@@ -298,9 +307,12 @@ def forensic_report_passed(payload: dict | None) -> bool | None:
         challenger_overall = payload["systems"]["challenger"]["overall"]
         current_overall = payload["systems"]["current"]["overall"]
         return (
-            float(challenger_overall["top1_agreement"]) >= float(current_overall["top1_agreement"])
-            and float(challenger_overall["average_regret"]) <= float(current_overall["average_regret"])
-            and float(challenger_overall["value_calibration_mae"]) <= float(current_overall["value_calibration_mae"])
+            float(challenger_overall["top1_agreement"])
+            >= float(current_overall["top1_agreement"])
+            and float(challenger_overall["average_regret"])
+            <= float(current_overall["average_regret"])
+            and float(challenger_overall["value_calibration_mae"])
+            <= float(current_overall["value_calibration_mae"])
         )
 
     forensic_quality = payload.get("forensic_quality", {})
@@ -324,7 +336,9 @@ def deduplicate_reasons(reasons: list[str]) -> list[str]:
 def evaluate_readiness(*, manifest_path: Path) -> dict:
     manifest = load_manifest(manifest_path)
     artifacts = manifest.get("artifacts", {})
-    missing_evidence = [key for key in required_artifact_keys() if not artifacts.get(key)]
+    missing_evidence = [
+        key for key in required_artifact_keys() if not artifacts.get(key)
+    ]
 
     readiness = {
         "state": "needs_runs",
@@ -370,7 +384,9 @@ def evaluate_readiness(*, manifest_path: Path) -> dict:
 
     promotion_shape_issue = validate_promotion_gate_report(promotion_gate_report)
     forensic_shape_issue = validate_forensic_report(forensic_report)
-    multi_seed_shape_issue = validate_multi_seed_summary_report(multi_seed_summary_report)
+    multi_seed_shape_issue = validate_multi_seed_summary_report(
+        multi_seed_summary_report
+    )
 
     if promotion_shape_issue:
         investigation_failures.append(promotion_shape_issue)
@@ -382,7 +398,11 @@ def evaluate_readiness(*, manifest_path: Path) -> dict:
         investigation_failures.append(multi_seed_shape_issue)
         multi_seed_summary_report = None
 
-    promotion_failure_reasons = [] if promotion_gate_report is None else promotion_gate_report.get("failure_reasons", [])
+    promotion_failure_reasons = (
+        []
+        if promotion_gate_report is None
+        else promotion_gate_report.get("failure_reasons", [])
+    )
     forensic_passed = forensic_report_passed(forensic_report)
 
     promotion_step_status = steps.get("promotion_gate", {}).get("status")
@@ -391,7 +411,10 @@ def evaluate_readiness(*, manifest_path: Path) -> dict:
 
     if promotion_step_status != "completed":
         investigation_failures.append("promotion_gate_incomplete")
-    elif promotion_gate_report is not None and promotion_gate_report.get("passed") is False:
+    elif (
+        promotion_gate_report is not None
+        and promotion_gate_report.get("passed") is False
+    ):
         blocking_failures.append("promotion_gate_failed")
         if promotion_failures_indicate_runtime_failure(promotion_failure_reasons):
             blocking_failures.append("runtime_failed")
@@ -406,7 +429,11 @@ def evaluate_readiness(*, manifest_path: Path) -> dict:
 
     run_count = len(runs)
     summary_status = summary.get("status")
-    multi_seed_report_passed = None if multi_seed_summary_report is None else multi_seed_summary_report.get("passed")
+    multi_seed_report_passed = (
+        None
+        if multi_seed_summary_report is None
+        else multi_seed_summary_report.get("passed")
+    )
     if multi_seed_summary_report is not None:
         manifest_multi_seed_passed = summary_status == "passed"
         if multi_seed_report_passed != manifest_multi_seed_passed:

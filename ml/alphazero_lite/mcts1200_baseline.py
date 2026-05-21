@@ -34,10 +34,16 @@ def add_early_search_option_args(parser: argparse.ArgumentParser) -> None:
         choices=EARLY_SUPPORTED_ROOT_POLICY_MODES,
         default=EARLY_DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
     )
-    parser.add_argument("--tactical-root-bias", type=float, default=EARLY_DEFAULT_SEARCH_OPTIONS["tactical_root_bias"])
+    parser.add_argument(
+        "--tactical-root-bias",
+        type=float,
+        default=EARLY_DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+    )
 
 
-def build_stub_search_options(args: argparse.Namespace) -> dict[str, str | bool | float]:
+def build_stub_search_options(
+    args: argparse.Namespace,
+) -> dict[str, str | bool | float]:
     return {
         "fpu_mode": args.fpu_mode,
         "reuse_subtree": bool(args.reuse_subtree),
@@ -71,6 +77,8 @@ def build_stub_search_profile(
         profile.update(extra_fields)
     profile["hash"] = "mcts1200-baseline-stub-profile"
     return profile
+
+
 if os.environ.get("AZLITE_MCTS1200_BASELINE_STUB") != "1":
     from ml.alphazero_lite.classic_mcts import MCTS
     from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
@@ -105,7 +113,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dynamic-budget-min-simulations", type=int)
     parser.add_argument("--dynamic-budget-max-simulations", type=int)
     parser.add_argument("--dynamic-budget-entropy-weight", type=float, default=0.8)
-    parser.add_argument("--dynamic-budget-low-margin-threshold", type=float, default=0.2)
+    parser.add_argument(
+        "--dynamic-budget-low-margin-threshold", type=float, default=0.2
+    )
     parser.add_argument("--dynamic-budget-low-margin-weight", type=float, default=1.5)
     parser.add_argument("--dynamic-budget-variance-weight", type=float, default=1.5)
     parser.add_argument("--exact-solve-enabled", action="store_true")
@@ -116,33 +126,64 @@ def parse_args() -> argparse.Namespace:
         parser.error("--exact-solve-enabled requires --exact-solve-stone-threshold")
     if args.exact_solve_stone_threshold is not None and not args.exact_solve_enabled:
         parser.error("--exact-solve-stone-threshold requires --exact-solve-enabled")
-    if args.exact_solve_stone_threshold is not None and int(args.exact_solve_stone_threshold) < 0:
+    if (
+        args.exact_solve_stone_threshold is not None
+        and int(args.exact_solve_stone_threshold) < 0
+    ):
         parser.error("--exact-solve-stone-threshold must be non-negative")
     if args.exact_solve_stone_threshold is not None and EndgameTablebase is not None:
-        args.exact_solve_stone_threshold = min(int(args.exact_solve_stone_threshold), EndgameTablebase.MAX_SOLVED_SEEDS)
+        args.exact_solve_stone_threshold = min(
+            int(args.exact_solve_stone_threshold), EndgameTablebase.MAX_SOLVED_SEEDS
+        )
     if args.dynamic_budget_enabled:
-        min_simulations = args.mcts_simulations if args.dynamic_budget_min_simulations is None else int(args.dynamic_budget_min_simulations)
-        max_simulations = args.mcts_simulations if args.dynamic_budget_max_simulations is None else int(args.dynamic_budget_max_simulations)
+        min_simulations = (
+            args.mcts_simulations
+            if args.dynamic_budget_min_simulations is None
+            else int(args.dynamic_budget_min_simulations)
+        )
+        max_simulations = (
+            args.mcts_simulations
+            if args.dynamic_budget_max_simulations is None
+            else int(args.dynamic_budget_max_simulations)
+        )
         probe_simulations = int(args.dynamic_budget_probe_simulations)
         float_knobs = {
-            "--dynamic-budget-entropy-weight": float(args.dynamic_budget_entropy_weight),
-            "--dynamic-budget-low-margin-threshold": float(args.dynamic_budget_low_margin_threshold),
-            "--dynamic-budget-low-margin-weight": float(args.dynamic_budget_low_margin_weight),
-            "--dynamic-budget-variance-weight": float(args.dynamic_budget_variance_weight),
+            "--dynamic-budget-entropy-weight": float(
+                args.dynamic_budget_entropy_weight
+            ),
+            "--dynamic-budget-low-margin-threshold": float(
+                args.dynamic_budget_low_margin_threshold
+            ),
+            "--dynamic-budget-low-margin-weight": float(
+                args.dynamic_budget_low_margin_weight
+            ),
+            "--dynamic-budget-variance-weight": float(
+                args.dynamic_budget_variance_weight
+            ),
         }
         if min_simulations < 1:
-            parser.error("--dynamic-budget-min-simulations must be >= 1 when dynamic budget is enabled")
+            parser.error(
+                "--dynamic-budget-min-simulations must be >= 1 when dynamic budget is enabled"
+            )
         if max_simulations < min_simulations:
-            parser.error("--dynamic-budget-max-simulations must be >= --dynamic-budget-min-simulations")
+            parser.error(
+                "--dynamic-budget-max-simulations must be >= --dynamic-budget-min-simulations"
+            )
         if probe_simulations < 1:
-            parser.error("--dynamic-budget-probe-simulations must be >= 1 when dynamic budget is enabled")
+            parser.error(
+                "--dynamic-budget-probe-simulations must be >= 1 when dynamic budget is enabled"
+            )
         if probe_simulations >= max_simulations:
-            parser.error("--dynamic-budget-probe-simulations must be < --dynamic-budget-max-simulations")
+            parser.error(
+                "--dynamic-budget-probe-simulations must be < --dynamic-budget-max-simulations"
+            )
         for name, value in float_knobs.items():
             if not math.isfinite(value):
                 parser.error(f"{name} must be finite")
         if not (0.0 <= float_knobs["--dynamic-budget-low-margin-threshold"] <= 1.0):
-            parser.error("--dynamic-budget-low-margin-threshold must be between 0 and 1")
+            parser.error(
+                "--dynamic-budget-low-margin-threshold must be between 0 and 1"
+            )
         if float_knobs["--dynamic-budget-entropy-weight"] < 0.0:
             parser.error("--dynamic-budget-entropy-weight must be >= 0")
         if float_knobs["--dynamic-budget-low-margin-weight"] < 0.0:
@@ -180,7 +221,9 @@ def initial_game() -> KalahGame:
     )
 
 
-def run_stub_worker(*, start_index: int, games: int, az_base_simulations: int, mcts_simulations: int) -> dict:
+def run_stub_worker(
+    *, start_index: int, games: int, az_base_simulations: int, mcts_simulations: int
+) -> dict:
     az_wins = 0
     mcts_wins = 0
     draws = 0
@@ -312,7 +355,9 @@ def run_worker(
         game = initial_game()
 
         while not game.over():
-            role = head_to_head_role_for(game_index=game_index, player=game.current_player)
+            role = head_to_head_role_for(
+                game_index=game_index, player=game.current_player
+            )
             is_dynamic = role == "dynamic"
             search = build_classic_mcts(
                 game=game,
@@ -320,9 +365,15 @@ def run_worker(
                 seed=seed,
                 mcts_simulations=mcts_simulations,
                 dynamic_budget_enabled=is_dynamic and dynamic_budget_enabled,
-                dynamic_budget_probe_simulations=dynamic_budget_probe_simulations if is_dynamic else 0,
-                dynamic_budget_min_simulations=dynamic_budget_min_simulations if is_dynamic else mcts_simulations,
-                dynamic_budget_max_simulations=dynamic_budget_max_simulations if is_dynamic else mcts_simulations,
+                dynamic_budget_probe_simulations=dynamic_budget_probe_simulations
+                if is_dynamic
+                else 0,
+                dynamic_budget_min_simulations=dynamic_budget_min_simulations
+                if is_dynamic
+                else mcts_simulations,
+                dynamic_budget_max_simulations=dynamic_budget_max_simulations
+                if is_dynamic
+                else mcts_simulations,
                 dynamic_budget_entropy_weight=dynamic_budget_entropy_weight,
                 dynamic_budget_low_margin_threshold=dynamic_budget_low_margin_threshold,
                 dynamic_budget_low_margin_weight=dynamic_budget_low_margin_weight,
@@ -341,8 +392,12 @@ def run_worker(
 
             target = dynamic_result if is_dynamic else fixed_result
             target["budget_sample_count"] += 1
-            target["budget_total_final_simulations"] += float(budget.get("final_simulations", 0.0))
-            target["budget_total_root_latency_ms"] += float(budget.get("root_latency_ms", 0.0))
+            target["budget_total_final_simulations"] += float(
+                budget.get("final_simulations", 0.0)
+            )
+            target["budget_total_root_latency_ms"] += float(
+                budget.get("root_latency_ms", 0.0)
+            )
 
             if relative_move is None:
                 break
@@ -374,7 +429,9 @@ def run_worker(
 def summarize_mode_results(results: list[dict], *, mode: str) -> dict:
     mode_results = []
     for parent_result in results:
-        mode_result = dict(parent_result.get(mode, empty_mode_result(games=0, start_index=0)))
+        mode_result = dict(
+            parent_result.get(mode, empty_mode_result(games=0, start_index=0))
+        )
         if "games" not in mode_result:
             inferred_games = int(parent_result.get("games", 0))
             if inferred_games <= 0:
@@ -391,10 +448,20 @@ def summarize_mode_results(results: list[dict], *, mode: str) -> dict:
     az_wins = sum(int(result.get("az_wins", 0)) for result in mode_results)
     mcts_wins = sum(int(result.get("mcts_wins", 0)) for result in mode_results)
     draws = sum(int(result.get("draws", 0)) for result in mode_results)
-    final_simulation_samples = sum(int(result.get("budget_sample_count", 0)) for result in mode_results)
-    latency_samples = sum(int(result.get("budget_sample_count", 0)) for result in mode_results)
-    total_final_simulations = sum(float(result.get("budget_total_final_simulations", 0.0)) for result in mode_results)
-    total_root_latency_ms = sum(float(result.get("budget_total_root_latency_ms", 0.0)) for result in mode_results)
+    final_simulation_samples = sum(
+        int(result.get("budget_sample_count", 0)) for result in mode_results
+    )
+    latency_samples = sum(
+        int(result.get("budget_sample_count", 0)) for result in mode_results
+    )
+    total_final_simulations = sum(
+        float(result.get("budget_total_final_simulations", 0.0))
+        for result in mode_results
+    )
+    total_root_latency_ms = sum(
+        float(result.get("budget_total_root_latency_ms", 0.0))
+        for result in mode_results
+    )
     if final_simulation_samples <= 0 and latency_samples <= 0:
         for result in mode_results:
             budget_summary = result.get("budget_summary")
@@ -404,10 +471,14 @@ def summarize_mode_results(results: list[dict], *, mode: str) -> dict:
             if weight <= 0:
                 weight = 1
             if budget_summary.get("mean_final_simulations") is not None:
-                total_final_simulations += float(budget_summary["mean_final_simulations"]) * weight
+                total_final_simulations += (
+                    float(budget_summary["mean_final_simulations"]) * weight
+                )
                 final_simulation_samples += weight
             if budget_summary.get("mean_root_latency_ms") is not None:
-                total_root_latency_ms += float(budget_summary["mean_root_latency_ms"]) * weight
+                total_root_latency_ms += (
+                    float(budget_summary["mean_root_latency_ms"]) * weight
+                )
                 latency_samples += weight
 
     score = None if games <= 0 else (az_wins + (0.5 * draws)) / float(games)
@@ -418,10 +489,14 @@ def summarize_mode_results(results: list[dict], *, mode: str) -> dict:
         "draws": draws,
         "score": score,
         "budget_summary": {
-            "mean_final_simulations": round(total_final_simulations / final_simulation_samples, 2)
+            "mean_final_simulations": round(
+                total_final_simulations / final_simulation_samples, 2
+            )
             if final_simulation_samples > 0
             else None,
-            "mean_root_latency_ms": round(total_root_latency_ms / latency_samples, 2) if latency_samples > 0 else None,
+            "mean_root_latency_ms": round(total_root_latency_ms / latency_samples, 2)
+            if latency_samples > 0
+            else None,
         },
     }
 
@@ -471,13 +546,23 @@ def build_report(
     )
     classic_mcts_dynamic_budget_config = {
         "enabled": comparison_enabled,
-        "probe_simulations": int(dynamic_budget_probe_simulations) if comparison_enabled else 0,
+        "probe_simulations": int(dynamic_budget_probe_simulations)
+        if comparison_enabled
+        else 0,
         "min_simulations": effective_dynamic_budget_min_simulations,
         "max_simulations": effective_dynamic_budget_max_simulations,
-        "entropy_weight": float(dynamic_budget_entropy_weight) if comparison_enabled else 0.0,
-        "low_margin_threshold": float(dynamic_budget_low_margin_threshold) if comparison_enabled else 0.0,
-        "low_margin_weight": float(dynamic_budget_low_margin_weight) if comparison_enabled else 0.0,
-        "variance_weight": float(dynamic_budget_variance_weight) if comparison_enabled else 0.0,
+        "entropy_weight": float(dynamic_budget_entropy_weight)
+        if comparison_enabled
+        else 0.0,
+        "low_margin_threshold": float(dynamic_budget_low_margin_threshold)
+        if comparison_enabled
+        else 0.0,
+        "low_margin_weight": float(dynamic_budget_low_margin_weight)
+        if comparison_enabled
+        else 0.0,
+        "variance_weight": float(dynamic_budget_variance_weight)
+        if comparison_enabled
+        else 0.0,
     }
     dynamic_summary = summarize_mode_results(results, mode="dynamic")
     fixed_summary = summarize_mode_results(results, mode="fixed")
@@ -490,18 +575,36 @@ def build_report(
         extra_fields={
             "az_base_simulations": int(az_base_simulations),
             "mcts_simulations": int(mcts_simulations),
-            "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts" if comparison_enabled else "fixed_classic_mcts",
+            "simulation_budget_policy": "fixed_vs_dynamic_classic_mcts"
+            if comparison_enabled
+            else "fixed_classic_mcts",
             "simulation_budget_min": effective_dynamic_budget_min_simulations,
             "simulation_budget_max": effective_dynamic_budget_max_simulations,
-            "simulation_budget_multipliers": "dynamic:adaptive,fixed:constant" if comparison_enabled else "fixed:constant",
+            "simulation_budget_multipliers": "dynamic:adaptive,fixed:constant"
+            if comparison_enabled
+            else "fixed:constant",
             "dynamic_budget_enabled": classic_mcts_dynamic_budget_config["enabled"],
-            "dynamic_budget_probe_simulations": classic_mcts_dynamic_budget_config["probe_simulations"],
-            "dynamic_budget_min_simulations": classic_mcts_dynamic_budget_config["min_simulations"],
-            "dynamic_budget_max_simulations": classic_mcts_dynamic_budget_config["max_simulations"],
-            "dynamic_budget_entropy_weight": classic_mcts_dynamic_budget_config["entropy_weight"],
-            "dynamic_budget_low_margin_threshold": classic_mcts_dynamic_budget_config["low_margin_threshold"],
-            "dynamic_budget_low_margin_weight": classic_mcts_dynamic_budget_config["low_margin_weight"],
-            "dynamic_budget_variance_weight": classic_mcts_dynamic_budget_config["variance_weight"],
+            "dynamic_budget_probe_simulations": classic_mcts_dynamic_budget_config[
+                "probe_simulations"
+            ],
+            "dynamic_budget_min_simulations": classic_mcts_dynamic_budget_config[
+                "min_simulations"
+            ],
+            "dynamic_budget_max_simulations": classic_mcts_dynamic_budget_config[
+                "max_simulations"
+            ],
+            "dynamic_budget_entropy_weight": classic_mcts_dynamic_budget_config[
+                "entropy_weight"
+            ],
+            "dynamic_budget_low_margin_threshold": classic_mcts_dynamic_budget_config[
+                "low_margin_threshold"
+            ],
+            "dynamic_budget_low_margin_weight": classic_mcts_dynamic_budget_config[
+                "low_margin_weight"
+            ],
+            "dynamic_budget_variance_weight": classic_mcts_dynamic_budget_config[
+                "variance_weight"
+            ],
             "exact_solve_enabled": bool(exact_solve_enabled),
             "exact_solve_stone_threshold": None
             if exact_solve_stone_threshold is None
@@ -509,7 +612,11 @@ def build_report(
         },
     )
     classic_mcts_mode = "dynamic" if bool(dynamic_budget_enabled) else "fixed"
-    budget_summary_source = "classic_mcts_dynamic_runtime" if bool(dynamic_budget_enabled) else "classic_mcts_fixed_runtime"
+    budget_summary_source = (
+        "classic_mcts_dynamic_runtime"
+        if bool(dynamic_budget_enabled)
+        else "classic_mcts_fixed_runtime"
+    )
     report = {
         "schema": "azlite_vs_mcts_v1",
         "classic_mcts_mode": classic_mcts_mode,
@@ -520,16 +627,33 @@ def build_report(
         "search_profile": search_profile,
         "search_profile_hash": search_profile["hash"],
         "classic_mcts_dynamic_budget_config": classic_mcts_dynamic_budget_config,
-        "az_wins": dynamic_summary["az_wins"] if bool(dynamic_budget_enabled) else fixed_summary["az_wins"],
-        "mcts_wins": dynamic_summary["mcts_wins"] if bool(dynamic_budget_enabled) else fixed_summary["mcts_wins"],
-        "draws": dynamic_summary["draws"] if bool(dynamic_budget_enabled) else fixed_summary["draws"],
-        "score": round(float(dynamic_summary["score"] if bool(dynamic_budget_enabled) else fixed_summary["score"]), 4),
+        "az_wins": dynamic_summary["az_wins"]
+        if bool(dynamic_budget_enabled)
+        else fixed_summary["az_wins"],
+        "mcts_wins": dynamic_summary["mcts_wins"]
+        if bool(dynamic_budget_enabled)
+        else fixed_summary["mcts_wins"],
+        "draws": dynamic_summary["draws"]
+        if bool(dynamic_budget_enabled)
+        else fixed_summary["draws"],
+        "score": round(
+            float(
+                dynamic_summary["score"]
+                if bool(dynamic_budget_enabled)
+                else fixed_summary["score"]
+            ),
+            4,
+        ),
         "budget_summary": {
             "source": budget_summary_source,
-            "mean_final_simulations": dynamic_summary["budget_summary"]["mean_final_simulations"]
+            "mean_final_simulations": dynamic_summary["budget_summary"][
+                "mean_final_simulations"
+            ]
             if bool(dynamic_budget_enabled)
             else fixed_summary["budget_summary"]["mean_final_simulations"],
-            "mean_root_latency_ms": dynamic_summary["budget_summary"]["mean_root_latency_ms"]
+            "mean_root_latency_ms": dynamic_summary["budget_summary"][
+                "mean_root_latency_ms"
+            ]
             if bool(dynamic_budget_enabled)
             else fixed_summary["budget_summary"]["mean_root_latency_ms"],
         },
@@ -542,15 +666,25 @@ def build_report(
             "comparison_mode": "classic_dynamic_vs_fixed",
             "runtime_target_ms": runtime_target_ms,
             "runtime_target_matched": (
-                runtime_target_ms is not None and dynamic_latency_ms is not None and dynamic_latency_ms >= runtime_target_ms
+                runtime_target_ms is not None
+                and dynamic_latency_ms is not None
+                and dynamic_latency_ms >= runtime_target_ms
             ),
             "seat_bias_neutralized": seat_bias_neutralized(results),
-            "dynamic_mean_final_simulations": dynamic_summary["budget_summary"]["mean_final_simulations"],
+            "dynamic_mean_final_simulations": dynamic_summary["budget_summary"][
+                "mean_final_simulations"
+            ],
             "dynamic_mean_root_latency_ms": dynamic_latency_ms,
-            "fixed_mean_final_simulations": fixed_summary["budget_summary"]["mean_final_simulations"],
+            "fixed_mean_final_simulations": fixed_summary["budget_summary"][
+                "mean_final_simulations"
+            ],
             "fixed_mean_root_latency_ms": runtime_target_ms,
-            "dynamic_score": None if dynamic_summary["score"] is None else round(float(dynamic_summary["score"]), 4),
-            "fixed_score": None if fixed_summary["score"] is None else round(float(fixed_summary["score"]), 4),
+            "dynamic_score": None
+            if dynamic_summary["score"] is None
+            else round(float(dynamic_summary["score"]), 4),
+            "fixed_score": None
+            if fixed_summary["score"] is None
+            else round(float(fixed_summary["score"]), 4),
         }
     return report
 
@@ -561,7 +695,10 @@ def main() -> None:
         raise SystemExit("--games must be > 0")
 
     challenger_path = Path(args.challenger_path).resolve()
-    if os.environ.get("AZLITE_MCTS1200_BASELINE_STUB") != "1" and not challenger_path.exists():
+    if (
+        os.environ.get("AZLITE_MCTS1200_BASELINE_STUB") != "1"
+        and not challenger_path.exists()
+    ):
         raise SystemExit(f"challenger path not found: {challenger_path}")
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -572,7 +709,9 @@ def main() -> None:
     starts = partition_starts(counts)
 
     results: list[dict] = []
-    with concurrent.futures.ProcessPoolExecutor(max_workers=max(1, args.workers)) as pool:
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=max(1, args.workers)
+    ) as pool:
         futures = [
             pool.submit(
                 run_worker,
@@ -584,13 +723,21 @@ def main() -> None:
                 mcts_simulations=args.mcts_simulations,
                 search_options=search_options,
                 dynamic_budget_enabled=bool(args.dynamic_budget_enabled),
-                dynamic_budget_probe_simulations=int(args.dynamic_budget_probe_simulations),
+                dynamic_budget_probe_simulations=int(
+                    args.dynamic_budget_probe_simulations
+                ),
                 dynamic_budget_min_simulations=args.dynamic_budget_min_simulations,
                 dynamic_budget_max_simulations=args.dynamic_budget_max_simulations,
                 dynamic_budget_entropy_weight=float(args.dynamic_budget_entropy_weight),
-                dynamic_budget_low_margin_threshold=float(args.dynamic_budget_low_margin_threshold),
-                dynamic_budget_low_margin_weight=float(args.dynamic_budget_low_margin_weight),
-                dynamic_budget_variance_weight=float(args.dynamic_budget_variance_weight),
+                dynamic_budget_low_margin_threshold=float(
+                    args.dynamic_budget_low_margin_threshold
+                ),
+                dynamic_budget_low_margin_weight=float(
+                    args.dynamic_budget_low_margin_weight
+                ),
+                dynamic_budget_variance_weight=float(
+                    args.dynamic_budget_variance_weight
+                ),
                 exact_solve_enabled=bool(args.exact_solve_enabled),
                 exact_solve_stone_threshold=args.exact_solve_stone_threshold,
             )
@@ -610,7 +757,9 @@ def main() -> None:
         dynamic_budget_min_simulations=args.dynamic_budget_min_simulations,
         dynamic_budget_max_simulations=args.dynamic_budget_max_simulations,
         dynamic_budget_entropy_weight=float(args.dynamic_budget_entropy_weight),
-        dynamic_budget_low_margin_threshold=float(args.dynamic_budget_low_margin_threshold),
+        dynamic_budget_low_margin_threshold=float(
+            args.dynamic_budget_low_margin_threshold
+        ),
         dynamic_budget_low_margin_weight=float(args.dynamic_budget_low_margin_weight),
         dynamic_budget_variance_weight=float(args.dynamic_budget_variance_weight),
         results=results,

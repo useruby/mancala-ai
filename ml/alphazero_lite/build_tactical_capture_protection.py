@@ -101,7 +101,9 @@ def move_outcome_features(raw_state: dict, move: int) -> dict[str, int | bool | 
     if not simulated.move(simulated.pit_index(move)):
         raise ValueError(f"illegal move {move} for motif features")
     state_after = simulated.to_state()
-    side_pits_after, _, side_store_after, _ = _side_view(state_after, player=original_player)
+    side_pits_after, _, side_store_after, _ = _side_view(
+        state_after, player=original_player
+    )
     store_gain = side_store_after - before_store
     capture = store_gain > 1
     captured_opposite_pit = None
@@ -112,7 +114,8 @@ def move_outcome_features(raw_state: dict, move: int) -> dict[str, int | bool | 
     return {
         "move": move,
         "capture": capture,
-        "extra_turn": simulated.current_player == original_player and not simulated.over(),
+        "extra_turn": simulated.current_player == original_player
+        and not simulated.over(),
         "store_gain": store_gain,
         "landing_pit": None if lands_in_store else landing_absolute % 6,
         "lands_in_store": lands_in_store,
@@ -175,7 +178,9 @@ def choose_candidate_conflict_moves(row: dict) -> dict[str, int]:
 
 def capture_shape_key(row: dict) -> tuple:
     conflict = choose_candidate_conflict_moves(row)
-    features = {feature["move"]: feature for feature in legal_move_features(row["raw_state"])}
+    features = {
+        feature["move"]: feature for feature in legal_move_features(row["raw_state"])
+    }
     capture = features[conflict["capture_move"]]
     extra_turn = features[conflict["extra_turn_move"]]
     return (
@@ -195,7 +200,10 @@ def extract_regression_motif_signature(raw_state: dict, *, expected_move: int) -
     extra_turns = [feature for feature in features.values() if feature["extra_turn"]]
     if not extra_turns:
         raise ValueError("regression motif requires an extra-turn competitor")
-    extra_turn = min(extra_turns, key=lambda feature: (-int(feature["store_gain"]), int(feature["move"])))
+    extra_turn = min(
+        extra_turns,
+        key=lambda feature: (-int(feature["store_gain"]), int(feature["move"])),
+    )
     return {
         "target_capture_move": int(expected_move),
         "tempting_extra_turn_move": int(extra_turn["move"]),
@@ -225,7 +233,9 @@ MOTIF_PROTECTIVE_SCORE_THRESHOLD = 11
 
 def score_candidate_support_row(row: dict, signature: dict) -> dict:
     conflict = choose_candidate_conflict_moves(row)
-    features = {feature["move"]: feature for feature in legal_move_features(row["raw_state"])}
+    features = {
+        feature["move"]: feature for feature in legal_move_features(row["raw_state"])
+    }
     capture = features[conflict["capture_move"]]
     extra_turn = features[conflict["extra_turn_move"]]
     policy = row["policy"]
@@ -243,9 +253,14 @@ def score_candidate_support_row(row: dict, signature: dict) -> dict:
         score += MOTIF_SCORE_CAPTURE_LANDING_MATCH
     if int(capture["captured_opposite_pit"]) == int(signature["capture_opposite_pit"]):
         score += MOTIF_SCORE_CAPTURE_OPPOSITE_MATCH
-    if bool(extra_turn["lands_in_store"]) == bool(signature["extra_turn_lands_in_store"]):
+    if bool(extra_turn["lands_in_store"]) == bool(
+        signature["extra_turn_lands_in_store"]
+    ):
         score += MOTIF_SCORE_EXTRA_TURN_STORE_FLAG_MATCH
-    if extra_turn["landing_pit"] is not None and extra_turn["landing_pit"] == signature["extra_turn_landing_pit"]:
+    if (
+        extra_turn["landing_pit"] is not None
+        and extra_turn["landing_pit"] == signature["extra_turn_landing_pit"]
+    ):
         score += MOTIF_SCORE_EXTRA_TURN_LANDING_MATCH
     if int(row.get("teacher_selected_move", -1)) == int(extra_turn["move"]):
         score += MOTIF_SCORE_TEACHER_SELECTED_IS_EXTRA_TURN
@@ -288,7 +303,9 @@ def load_forensic_reference_moves(path: Path | None) -> dict[str, int]:
     rows = challenger.get("rows")
     if not isinstance(rows, list):
         return {}
-    return build_forensic_reference_moves([row for row in rows if isinstance(row, dict)])
+    return build_forensic_reference_moves(
+        [row for row in rows if isinstance(row, dict)]
+    )
 
 
 def select_capture_rows(
@@ -308,9 +325,17 @@ def select_capture_rows(
         normalized = validate_tactical_capture_row(row)
         if normalized["canonical_state"] in excluded_canonical_states:
             continue
-        normalized.setdefault("raw_state", row.get("raw_state") or raw_state_from_canonical_state(normalized["canonical_state"]))
+        normalized.setdefault(
+            "raw_state",
+            row.get("raw_state")
+            or raw_state_from_canonical_state(normalized["canonical_state"]),
+        )
         scored = None
-        if regression_signature is not None and normalized.get("raw_state") and "teacher_selected_move" in normalized:
+        if (
+            regression_signature is not None
+            and normalized.get("raw_state")
+            and "teacher_selected_move" in normalized
+        ):
             try:
                 scored = score_candidate_support_row(normalized, regression_signature)
             except (KeyError, TypeError, ValueError):
@@ -320,7 +345,10 @@ def select_capture_rows(
             if not scored["motif_protective"]:
                 continue
         reference_move = forensic_reference_moves.get(normalized["canonical_state"])
-        contradictory = reference_move is not None and copied_row_policy_peak(normalized) != reference_move
+        contradictory = (
+            reference_move is not None
+            and copied_row_policy_peak(normalized) != reference_move
+        )
         if contradictory:
             if scored is None:
                 continue
@@ -343,7 +371,9 @@ def select_capture_rows(
             conflict = choose_candidate_conflict_moves(row)
         except (KeyError, TypeError, ValueError):
             return 0.0
-        return float(policy[conflict["capture_move"]]) - float(policy[conflict["extra_turn_move"]])
+        return float(policy[conflict["capture_move"]]) - float(
+            policy[conflict["extra_turn_move"]]
+        )
 
     def copied_row_sort_key(row: dict) -> tuple:
         return (
@@ -392,9 +422,15 @@ def select_capture_rows(
 def build_regression_row(*, regression_position: dict, teacher_labeler) -> dict:
     built = teacher_labeler(regression_position["state"])
     if built is None:
-        raise ValueError("teacher_labeler must return a labeled replay row for capture protection")
-    if int(built.get("teacher_selected_move", -1)) != int(regression_position["expected_move"]):
-        raise ValueError("teacher_selected_move must equal expected_move for capture protection row")
+        raise ValueError(
+            "teacher_labeler must return a labeled replay row for capture protection"
+        )
+    if int(built.get("teacher_selected_move", -1)) != int(
+        regression_position["expected_move"]
+    ):
+        raise ValueError(
+            "teacher_selected_move must equal expected_move for capture protection row"
+        )
 
     row = dict(built)
     bucket = row.get("bucket")
@@ -439,18 +475,35 @@ def validate_tactical_capture_row(row: dict) -> dict:
     normalized = dict(row)
     canonical_state = _require_present(normalized, "canonical_state")
     if not canonical_state:
-        raise ValueError("canonical_state is required for tactical capture protection rows")
+        raise ValueError(
+            "canonical_state is required for tactical capture protection rows"
+        )
 
     if _require_present(normalized, "bucket") != "capture_available":
         raise ValueError("bucket must equal capture_available")
     if _require_present(normalized, "bucket_group") != "tactical":
         raise ValueError("bucket_group must equal tactical")
-    if _require_present(normalized, "input_encoding") != CAPTURE_PROTECTION_INPUT_ENCODING:
-        raise ValueError(f"input_encoding must equal {CAPTURE_PROTECTION_INPUT_ENCODING}")
-    if _require_present(normalized, "policy_target_mode") != CAPTURE_PROTECTION_POLICY_TARGET_MODE:
-        raise ValueError(f"policy_target_mode must equal {CAPTURE_PROTECTION_POLICY_TARGET_MODE}")
-    if _require_present(normalized, "value_target_mode") != CAPTURE_PROTECTION_VALUE_TARGET_MODE:
-        raise ValueError(f"value_target_mode must equal {CAPTURE_PROTECTION_VALUE_TARGET_MODE}")
+    if (
+        _require_present(normalized, "input_encoding")
+        != CAPTURE_PROTECTION_INPUT_ENCODING
+    ):
+        raise ValueError(
+            f"input_encoding must equal {CAPTURE_PROTECTION_INPUT_ENCODING}"
+        )
+    if (
+        _require_present(normalized, "policy_target_mode")
+        != CAPTURE_PROTECTION_POLICY_TARGET_MODE
+    ):
+        raise ValueError(
+            f"policy_target_mode must equal {CAPTURE_PROTECTION_POLICY_TARGET_MODE}"
+        )
+    if (
+        _require_present(normalized, "value_target_mode")
+        != CAPTURE_PROTECTION_VALUE_TARGET_MODE
+    ):
+        raise ValueError(
+            f"value_target_mode must equal {CAPTURE_PROTECTION_VALUE_TARGET_MODE}"
+        )
 
     _require_present(normalized, "state")
     _require_present(normalized, "policy")
@@ -475,7 +528,11 @@ def build_capture_protection_dataset(
     if not forensic_reference_moves:
         forensic_reference_moves = build_forensic_reference_moves(tactical_rows)
 
-    protected_rows = [build_regression_row(regression_position=regression_position, teacher_labeler=teacher_labeler)]
+    protected_rows = [
+        build_regression_row(
+            regression_position=regression_position, teacher_labeler=teacher_labeler
+        )
+    ]
     regression_signature = extract_regression_motif_signature(
         regression_position["state"],
         expected_move=int(regression_position["expected_move"]),
@@ -484,14 +541,20 @@ def build_capture_protection_dataset(
     protected_rows.extend(
         select_capture_rows(
             tactical_rows,
-            excluded_canonical_states={row.get("canonical_state", "") for row in protected_rows},
+            excluded_canonical_states={
+                row.get("canonical_state", "") for row in protected_rows
+            },
             forensic_reference_moves=forensic_reference_moves,
             regression_signature=regression_signature,
         )
     )
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text("\n".join(json.dumps(row) for row in protected_rows) + ("\n" if protected_rows else ""), encoding="utf-8")
+    out_path.write_text(
+        "\n".join(json.dumps(row) for row in protected_rows)
+        + ("\n" if protected_rows else ""),
+        encoding="utf-8",
+    )
     return protected_rows
 
 
@@ -504,7 +567,9 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _build_regression_mined_row(raw_state: dict, *, source_id: str, move_number: int | None) -> dict:
+def _build_regression_mined_row(
+    raw_state: dict, *, source_id: str, move_number: int | None
+) -> dict:
     game = KalahGame.from_state(raw_state)
     return {
         "canonical_state": canonical_state_key(raw_state),
@@ -524,20 +589,38 @@ def _prove_capture_available_bucket(raw_state: dict) -> tuple[str, str]:
     legal_moves = game.possible_moves()
     if not legal_moves:
         raise ValueError("regression state must have at least one legal move")
-    if not any(bool(label_tactical_states._move_features(game, move)["capture"]) for move in legal_moves):
-        raise ValueError("default regression labeling must prove a capture_available move")
+    if not any(
+        bool(label_tactical_states._move_features(game, move)["capture"])
+        for move in legal_moves
+    ):
+        raise ValueError(
+            "default regression labeling must prove a capture_available move"
+        )
     bucket = "capture_available"
     return bucket, label_tactical_states.bucket_group(bucket)
 
 
-def teacher_label_regression_row(raw_state: dict, *, source_id: str = "capture_protection_regression", move_number: int | None = None) -> dict:
-    policy_target_mode = train.normalize_policy_target_mode(CAPTURE_PROTECTION_POLICY_TARGET_MODE)
-    value_target_mode = train.normalize_value_target_mode(CAPTURE_PROTECTION_VALUE_TARGET_MODE)
+def teacher_label_regression_row(
+    raw_state: dict,
+    *,
+    source_id: str = "capture_protection_regression",
+    move_number: int | None = None,
+) -> dict:
+    policy_target_mode = train.normalize_policy_target_mode(
+        CAPTURE_PROTECTION_POLICY_TARGET_MODE
+    )
+    value_target_mode = train.normalize_value_target_mode(
+        CAPTURE_PROTECTION_VALUE_TARGET_MODE
+    )
     if CAPTURE_PROTECTION_INPUT_ENCODING not in SUPPORTED_INPUT_ENCODINGS:
-        raise ValueError(f"unsupported input encoding: {CAPTURE_PROTECTION_INPUT_ENCODING}")
+        raise ValueError(
+            f"unsupported input encoding: {CAPTURE_PROTECTION_INPUT_ENCODING}"
+        )
 
     labeled = label_tactical_states.label_row(
-        _build_regression_mined_row(raw_state, source_id=source_id, move_number=move_number),
+        _build_regression_mined_row(
+            raw_state, source_id=source_id, move_number=move_number
+        ),
         policy_simulations=CAPTURE_PROTECTION_POLICY_SIMULATIONS,
         value_simulations=CAPTURE_PROTECTION_VALUE_SIMULATIONS,
         seed=CAPTURE_PROTECTION_SEED,
@@ -561,7 +644,9 @@ def main() -> None:
         out_path=Path(args.out),
         teacher_labeler=lambda raw_state: teacher_label_regression_row(
             raw_state,
-            source_id=str(regression_position.get("id", "capture_protection_regression")),
+            source_id=str(
+                regression_position.get("id", "capture_protection_regression")
+            ),
             move_number=regression_position.get("move_number"),
         ),
         forensic_suite_path=Path(args.forensic_suite) if args.forensic_suite else None,

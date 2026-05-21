@@ -12,7 +12,11 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from ml.alphazero_lite.arena import ArtifactEvaluator, build_eval_search_options, evaluate_artifact_position
+from ml.alphazero_lite.arena import (
+    ArtifactEvaluator,
+    build_eval_search_options,
+    evaluate_artifact_position,
+)
 from ml.alphazero_lite.forensic_suite import load_suite, summarize_bucket
 from ml.alphazero_lite.run_forensic_suite import build_row, run_reference
 
@@ -24,7 +28,9 @@ DEFAULT_SCHEMA = "search_ablation_report_v1"
 DEFAULT_MODES = ["classic_only", "policy_only", "value_only", "full"]
 
 
-def build_stub_rows_by_budget_and_mode(budgets: list[int], modes: list[str]) -> dict[int, dict[str, list[dict]]]:
+def build_stub_rows_by_budget_and_mode(
+    budgets: list[int], modes: list[str]
+) -> dict[int, dict[str, list[dict]]]:
     return {
         budget: {
             mode: [
@@ -70,7 +76,9 @@ def write_stub_report(args: argparse.Namespace) -> None:
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
 
-def build_real_rows_by_budget_and_mode(args: argparse.Namespace) -> dict[int, dict[str, list[dict]]]:
+def build_real_rows_by_budget_and_mode(
+    args: argparse.Namespace,
+) -> dict[int, dict[str, list[dict]]]:
     suite = load_suite(args.suite)
     search_options = build_eval_search_options()
     evaluator = ArtifactEvaluator(Path(args.artifact_path))
@@ -161,7 +169,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def build_position_matrix(rows_by_budget_and_mode: dict[int, dict[str, list[dict]]]) -> dict[str, dict]:
+def build_position_matrix(
+    rows_by_budget_and_mode: dict[int, dict[str, list[dict]]],
+) -> dict[str, dict]:
     budgets = sorted(rows_by_budget_and_mode)
     modes = sorted(
         {
@@ -191,7 +201,11 @@ def build_position_matrix(rows_by_budget_and_mode: dict[int, dict[str, list[dict
             bucket_name: {
                 budget: {
                     mode: summarize_bucket(
-                        [row for row in rows_by_budget_and_mode[budget].get(mode, []) if row["bucket"] == bucket_name]
+                        [
+                            row
+                            for row in rows_by_budget_and_mode[budget].get(mode, [])
+                            if row["bucket"] == bucket_name
+                        ]
                     )
                     for mode in modes
                 }
@@ -202,7 +216,11 @@ def build_position_matrix(rows_by_budget_and_mode: dict[int, dict[str, list[dict
     }
 
 
-def build_attribution_summary(*, overall: dict[int, dict[str, dict]], buckets: dict[str, dict[int, dict[str, dict]]]) -> dict[str, dict]:
+def build_attribution_summary(
+    *,
+    overall: dict[int, dict[str, dict]],
+    buckets: dict[str, dict[int, dict[str, dict]]],
+) -> dict[str, dict]:
     def extract_score(summary: dict) -> float:
         if "score" in summary:
             return float(summary["score"])

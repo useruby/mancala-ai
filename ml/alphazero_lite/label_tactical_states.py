@@ -40,7 +40,9 @@ class UnclassifiableMinedRowError(ValueError):
     pass
 
 
-def _side_view(state: dict[str, Any], player: int | None = None) -> tuple[list[int], list[int], int, int]:
+def _side_view(
+    state: dict[str, Any], player: int | None = None
+) -> tuple[list[int], list[int], int, int]:
     current_player = int(state["current_player"] if player is None else player)
     if current_player == 0:
         return (
@@ -64,10 +66,13 @@ def _move_features(game: KalahGame, move: int) -> dict[str, bool | int]:
     if not simulated.move(absolute_move):
         raise ValueError(f"illegal move {move} for state {game.to_state()}")
     state_after = simulated.to_state()
-    side_pits_after, _, side_store_after, _ = _side_view(state_after, player=original_player)
+    side_pits_after, _, side_store_after, _ = _side_view(
+        state_after, player=original_player
+    )
     player_store_gain = side_store_after - game.captured_seeds[original_player]
     return {
-        "extra_turn": simulated.current_player == original_player and not simulated.over(),
+        "extra_turn": simulated.current_player == original_player
+        and not simulated.over(),
         "capture": player_store_gain > 1,
         "swing": player_store_gain >= 4,
         "post_move_empty_pits": sum(1 for value in side_pits_after if value == 0),
@@ -91,7 +96,12 @@ def choose_bucket(raw_state: dict[str, Any], *, ply: int) -> str | None:
         return "sparse_endgame"
     if any(bool(feature["swing"]) for feature in features):
         return "high_value_swing"
-    if total_side <= 6 or total_opponent <= 6 or empty_player >= 4 or empty_opponent >= 4:
+    if (
+        total_side <= 6
+        or total_opponent <= 6
+        or empty_player >= 4
+        or empty_opponent >= 4
+    ):
         return "starvation_pressure"
     if abs(side_store - opponent_store) >= 8:
         return "high_imbalance"
@@ -125,16 +135,22 @@ def _policy_for_root(root: Any, *, legal_moves: list[int], mode: str) -> list[fl
     missing_moves = [move for move in legal_moves if visits[move] <= 0.0]
     if missing_moves:
         raise ValueError(f"teacher child_stats missing legal moves: {missing_moves}")
-    policy = self_play.build_policy_target(visits, legal_moves=legal_moves, temperature=1.0, mode=mode)
+    policy = self_play.build_policy_target(
+        visits, legal_moves=legal_moves, temperature=1.0, mode=mode
+    )
     if not np.isclose(sum(policy), 1.0, atol=1e-6):
         raise ValueError("teacher policy must sum to 1")
     for move, probability in enumerate(policy):
         if move not in legal_moves and probability != 0.0:
-            raise ValueError("teacher policy must assign zero probability to illegal moves")
+            raise ValueError(
+                "teacher policy must assign zero probability to illegal moves"
+            )
     return policy
 
 
-def _value_for_root(root: Any, *, raw_state: dict[str, Any], mode: str, move_index: int) -> float:
+def _value_for_root(
+    root: Any, *, raw_state: dict[str, Any], mode: str, move_index: int
+) -> float:
     search_value = self_play.value_from_classic_mcts_root(root)
     return self_play.build_value_target(
         search_value,
@@ -189,8 +205,12 @@ def _validate_mined_row(row: dict[str, Any]) -> dict[str, Any]:
         "raw_state": raw_state,
         "side_to_move": int(side_to_move),
         "legal_moves": row_legal_moves,
-        "selection_reasons": _copy_list_of_strings(row["selection_reasons"], field="selection_reasons"),
-        "source_artifacts": _copy_list_of_strings(row["source_artifacts"], field="source_artifacts"),
+        "selection_reasons": _copy_list_of_strings(
+            row["selection_reasons"], field="selection_reasons"
+        ),
+        "source_artifacts": _copy_list_of_strings(
+            row["source_artifacts"], field="source_artifacts"
+        ),
         "source_runs": _copy_list_of_dicts(row["source_runs"], field="source_runs"),
         "priority_score": priority_score,
         "ply": _row_ply(row),
@@ -212,18 +232,26 @@ def label_row(
     ply = normalized_row["ply"]
     bucket = choose_bucket(raw_state, ply=ply)
     if bucket is None:
-        raise UnclassifiableMinedRowError(f"unable to classify row at ply={ply}: {raw_state}")
+        raise UnclassifiableMinedRowError(
+            f"unable to classify row at ply={ply}: {raw_state}"
+        )
 
     game = KalahGame.from_state(raw_state)
     legal_moves = normalized_row["legal_moves"]
     teacher_seed = int(seed)
     teacher_policy_seed = teacher_seed
     teacher_value_seed = teacher_seed + 10_000
-    policy_search = classic_mcts.MCTS(game.clone(), simulations=int(policy_simulations), seed=teacher_policy_seed)
-    value_search = classic_mcts.MCTS(game.clone(), simulations=int(value_simulations), seed=teacher_value_seed)
+    policy_search = classic_mcts.MCTS(
+        game.clone(), simulations=int(policy_simulations), seed=teacher_policy_seed
+    )
+    value_search = classic_mcts.MCTS(
+        game.clone(), simulations=int(value_simulations), seed=teacher_value_seed
+    )
     policy_root = policy_search.search_root()
     value_root = value_search.search_root()
-    policy = _policy_for_root(policy_root, legal_moves=legal_moves, mode=policy_target_mode)
+    policy = _policy_for_root(
+        policy_root, legal_moves=legal_moves, mode=policy_target_mode
+    )
     teacher_selected_move = min(legal_moves, key=lambda move: (-policy[move], move))
 
     return {
@@ -233,7 +261,9 @@ def label_row(
         "side_to_move": normalized_row["side_to_move"],
         "legal_moves": legal_moves,
         "policy": policy,
-        "value": _value_for_root(value_root, raw_state=raw_state, mode=value_target_mode, move_index=ply),
+        "value": _value_for_root(
+            value_root, raw_state=raw_state, mode=value_target_mode, move_index=ply
+        ),
         "bucket": bucket,
         "bucket_group": bucket_group(bucket),
         "input_encoding": input_encoding,
@@ -253,7 +283,9 @@ def label_row(
             {
                 "move": int(move),
                 "visits": int(child.visits),
-                "win_rate": 0.0 if child.visits == 0 else float(child.wins) / float(child.visits),
+                "win_rate": 0.0
+                if child.visits == 0
+                else float(child.wins) / float(child.visits),
             }
             for move, child in sorted(policy_root.children.items())
         ],
@@ -270,7 +302,9 @@ def label_rows(
     value_target_mode: str,
     input_encoding: str,
 ) -> list[dict[str, Any]]:
-    normalized_policy_target_mode = train.normalize_policy_target_mode(policy_target_mode)
+    normalized_policy_target_mode = train.normalize_policy_target_mode(
+        policy_target_mode
+    )
     normalized_value_target_mode = train.normalize_value_target_mode(value_target_mode)
     if input_encoding not in SUPPORTED_INPUT_ENCODINGS:
         raise ValueError(f"unsupported input_encoding: {input_encoding}")
@@ -295,14 +329,12 @@ def label_rows(
 
 
 def _train_row_from_labeled_row(row: dict[str, Any]) -> dict[str, Any]:
-    return {
-        key: value
-        for key, value in row.items()
-        if key != "raw_state"
-    }
+    return {key: value for key, value in row.items() if key != "raw_state"}
 
 
-def split_train_rows(labeled_rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def split_train_rows(
+    labeled_rows: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     tactical_rows: list[dict[str, Any]] = []
     preservation_rows: list[dict[str, Any]] = []
     for row in labeled_rows:
@@ -342,7 +374,9 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", required=True, type=int)
     parser.add_argument("--policy-target-mode", required=True)
     parser.add_argument("--value-target-mode", required=True)
-    parser.add_argument("--input-encoding", choices=SUPPORTED_INPUT_ENCODINGS, required=True)
+    parser.add_argument(
+        "--input-encoding", choices=SUPPORTED_INPUT_ENCODINGS, required=True
+    )
     parser.add_argument("--out-labeled", required=True)
     parser.add_argument("--out-tactical-train", required=True)
     parser.add_argument("--out-preservation-train", required=True)

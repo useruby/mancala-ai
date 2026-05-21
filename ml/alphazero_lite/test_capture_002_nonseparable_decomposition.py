@@ -11,8 +11,13 @@ from ml.alphazero_lite import capture_002_nonseparable_decomposition as module
 
 class Capture002NonseparableDecompositionContractTest(unittest.TestCase):
     def test_contract_constants_are_stable(self):
-        self.assertEqual("azlite_capture_002_nonseparable_decomposition_v1", module.SCHEMA)
-        self.assertEqual("azlite_capture_002_selection_score_trace_v1", module.SOURCE_SELECTION_SCORE_SCHEMA)
+        self.assertEqual(
+            "azlite_capture_002_nonseparable_decomposition_v1", module.SCHEMA
+        )
+        self.assertEqual(
+            "azlite_capture_002_selection_score_trace_v1",
+            module.SOURCE_SELECTION_SCORE_SCHEMA,
+        )
         self.assertEqual(
             "azlite_capture_002_trace_cadence_review_v1",
             module.SOURCE_TRACE_CADENCE_REVIEW_SCHEMA,
@@ -48,9 +53,15 @@ class Capture002NonseparableDecompositionContractTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(Path("/tmp/default.json"), args.source_selection_score_artifact)
-        self.assertEqual(Path("/tmp/relaxed.json"), args.source_threshold_review_artifact)
-        self.assertEqual(Path("/tmp/cadence.json"), args.source_trace_cadence_review_artifact)
+        self.assertEqual(
+            Path("/tmp/default.json"), args.source_selection_score_artifact
+        )
+        self.assertEqual(
+            Path("/tmp/relaxed.json"), args.source_threshold_review_artifact
+        )
+        self.assertEqual(
+            Path("/tmp/cadence.json"), args.source_trace_cadence_review_artifact
+        )
         self.assertEqual(
             Path("/tmp/nonseparable.json"),
             args.source_nonseparable_review_artifact,
@@ -98,7 +109,10 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
     def default_selection_score_artifact(self, **overrides) -> dict:
         artifact = {
             "schema": module.SOURCE_SELECTION_SCORE_SCHEMA,
-            "classification": {"classification": "unresolved", "evidence_summary": "default unresolved"},
+            "classification": {
+                "classification": "unresolved",
+                "evidence_summary": "default unresolved",
+            },
             "decision": "write_002_unresolved_trace_review_spec",
             "insufficiency_reasons": [],
             "source_artifact": self.source_artifact(),
@@ -119,7 +133,10 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
 
     def threshold_review_artifact(self, **overrides) -> dict:
         artifact = self.default_selection_score_artifact(
-            classification={"classification": "unresolved", "evidence_summary": "relaxed unresolved"},
+            classification={
+                "classification": "unresolved",
+                "evidence_summary": "relaxed unresolved",
+            },
             thresholds={
                 "meaningful_q_margin": 0.03,
                 "material_selection_score_margin": 0.05,
@@ -129,11 +146,18 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
         artifact.update(overrides)
         return artifact
 
-    def trace_cadence_review_artifact(self, selection_score_artifact: dict | None = None, **overrides) -> dict:
-        selection_score_artifact = selection_score_artifact or self.default_selection_score_artifact()
+    def trace_cadence_review_artifact(
+        self, selection_score_artifact: dict | None = None, **overrides
+    ) -> dict:
+        selection_score_artifact = (
+            selection_score_artifact or self.default_selection_score_artifact()
+        )
         artifact = {
             "schema": module.SOURCE_TRACE_CADENCE_REVIEW_SCHEMA,
-            "classification": {"classification": "cadence_adequate", "evidence_summary": "adequate cadence"},
+            "classification": {
+                "classification": "cadence_adequate",
+                "evidence_summary": "adequate cadence",
+            },
             "decision": "continue_002_threshold_too_strict_check",
             "trace_capture_excerpt": {
                 "row_id": "capture_available-002",
@@ -171,10 +195,15 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
         trace_cadence_review_artifact: dict | None = None,
         **overrides,
     ) -> dict:
-        default_selection_score_artifact = default_selection_score_artifact or self.default_selection_score_artifact()
-        threshold_review_artifact = threshold_review_artifact or self.threshold_review_artifact()
-        trace_cadence_review_artifact = trace_cadence_review_artifact or self.trace_cadence_review_artifact(
-            default_selection_score_artifact
+        default_selection_score_artifact = (
+            default_selection_score_artifact or self.default_selection_score_artifact()
+        )
+        threshold_review_artifact = (
+            threshold_review_artifact or self.threshold_review_artifact()
+        )
+        trace_cadence_review_artifact = (
+            trace_cadence_review_artifact
+            or self.trace_cadence_review_artifact(default_selection_score_artifact)
         )
         artifact = {
             "schema": module.SOURCE_NONSEPARABLE_REVIEW_SCHEMA,
@@ -190,12 +219,12 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
                 "source_trace_cadence_review_artifact_path": "/tmp/cadence.json",
             },
             "thresholds_evaluated": {
-                "default_material_visit_share_margin": default_selection_score_artifact["thresholds"][
-                    "material_visit_share_margin"
-                ],
-                "relaxed_material_visit_share_margin": threshold_review_artifact["thresholds"][
-                    "material_visit_share_margin"
-                ],
+                "default_material_visit_share_margin": default_selection_score_artifact[
+                    "thresholds"
+                ]["material_visit_share_margin"],
+                "relaxed_material_visit_share_margin": threshold_review_artifact[
+                    "thresholds"
+                ]["material_visit_share_margin"],
             },
             "final_margin_summary": {
                 "default_q_margin": default_selection_score_artifact[
@@ -218,19 +247,29 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
                 ],
             },
             "source_snapshots": {
-                "default_classification": copy.deepcopy(default_selection_score_artifact["classification"]),
-                "cadence_classification": copy.deepcopy(trace_cadence_review_artifact["classification"]),
-                "threshold_classification": copy.deepcopy(threshold_review_artifact["classification"]),
+                "default_classification": copy.deepcopy(
+                    default_selection_score_artifact["classification"]
+                ),
+                "cadence_classification": copy.deepcopy(
+                    trace_cadence_review_artifact["classification"]
+                ),
+                "threshold_classification": copy.deepcopy(
+                    threshold_review_artifact["classification"]
+                ),
             },
         }
         artifact.update(overrides)
         return artifact
 
-    def build_payload(self, default=None, cadence=None, threshold=None, nonseparable=None) -> dict:
+    def build_payload(
+        self, default=None, cadence=None, threshold=None, nonseparable=None
+    ) -> dict:
         default = default or self.default_selection_score_artifact()
         threshold = threshold or self.threshold_review_artifact()
         cadence = cadence or self.trace_cadence_review_artifact(default)
-        nonseparable = nonseparable or self.nonseparable_review_artifact(default, threshold, cadence)
+        nonseparable = nonseparable or self.nonseparable_review_artifact(
+            default, threshold, cadence
+        )
         return module.build_payload(
             default,
             cadence,
@@ -242,15 +281,25 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
             source_nonseparable_review_artifact_path="/tmp/nonseparable.json",
         )
 
-    def test_build_payload_classifies_metric_co_movement_when_final_margins_move_together(self):
+    def test_build_payload_classifies_metric_co_movement_when_final_margins_move_together(
+        self,
+    ):
         payload = self.build_payload()
 
-        self.assertEqual("azlite_capture_002_nonseparable_decomposition_v1", payload["schema"])
-        self.assertEqual("metric_co_movement", payload["classification"]["classification"])
+        self.assertEqual(
+            "azlite_capture_002_nonseparable_decomposition_v1", payload["schema"]
+        )
+        self.assertEqual(
+            "metric_co_movement", payload["classification"]["classification"]
+        )
         self.assertEqual("stop_002_mechanism_not_isolated", payload["decision"])
         self.assertEqual(0.018, payload["final_margin_summary"]["relaxed_q_margin"])
-        self.assertEqual(4, payload["cadence_summary"]["unique_simulation_checkpoint_count"])
-        self.assertIsNotNone(payload["first_support_summary"]["selection_score_overtake_snapshot"])
+        self.assertEqual(
+            4, payload["cadence_summary"]["unique_simulation_checkpoint_count"]
+        )
+        self.assertIsNotNone(
+            payload["first_support_summary"]["selection_score_overtake_snapshot"]
+        )
         self.assertEqual("capture_available-002", payload["source_artifact"]["row_id"])
 
     def test_build_payload_preserves_full_source_artifact_provenance(self):
@@ -260,7 +309,9 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
 
         self.assertEqual(default["source_artifact"], payload["source_artifact"])
 
-    def test_build_payload_classifies_threshold_boundary_ambiguity_near_relaxed_visit_threshold(self):
+    def test_build_payload_classifies_threshold_boundary_ambiguity_near_relaxed_visit_threshold(
+        self,
+    ):
         default = self.default_selection_score_artifact(
             final_selected_minus_reference_q=-0.002,
             final_selected_minus_reference_selection_score=-0.001,
@@ -275,12 +326,18 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
         )
         cadence = self.trace_cadence_review_artifact(default)
 
-        payload = self.build_payload(default=default, threshold=threshold, cadence=cadence)
+        payload = self.build_payload(
+            default=default, threshold=threshold, cadence=cadence
+        )
 
-        self.assertEqual("threshold_boundary_ambiguity", payload["classification"]["classification"])
+        self.assertEqual(
+            "threshold_boundary_ambiguity", payload["classification"]["classification"]
+        )
         self.assertEqual("write_002_confidence_band_spec", payload["decision"])
 
-    def test_build_payload_classifies_signal_absent_when_all_final_margins_are_absent(self):
+    def test_build_payload_classifies_signal_absent_when_all_final_margins_are_absent(
+        self,
+    ):
         default = self.default_selection_score_artifact(
             final_selected_minus_reference_q=-0.02,
             final_selected_minus_reference_selection_score=-0.04,
@@ -295,7 +352,9 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
         )
         cadence = self.trace_cadence_review_artifact(default)
 
-        payload = self.build_payload(default=default, threshold=threshold, cadence=cadence)
+        payload = self.build_payload(
+            default=default, threshold=threshold, cadence=cadence
+        )
 
         self.assertEqual("signal_absent", payload["classification"]["classification"])
         self.assertEqual("write_002_child_value_source_audit_spec", payload["decision"])
@@ -315,50 +374,70 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
         )
         cadence = self.trace_cadence_review_artifact(default)
 
-        payload = self.build_payload(default=default, threshold=threshold, cadence=cadence)
+        payload = self.build_payload(
+            default=default, threshold=threshold, cadence=cadence
+        )
 
-        self.assertEqual("decomposition_inconclusive", payload["classification"]["classification"])
+        self.assertEqual(
+            "decomposition_inconclusive", payload["classification"]["classification"]
+        )
         self.assertEqual("stop_002_decomposition_inconclusive", payload["decision"])
 
     def test_build_payload_rejects_wrong_schemas(self):
         default = self.default_selection_score_artifact(schema="wrong")
 
-        with self.assertRaisesRegex(ValueError, "selection score artifact has wrong schema"):
+        with self.assertRaisesRegex(
+            ValueError, "selection score artifact has wrong schema"
+        ):
             self.build_payload(default=default)
 
     def test_build_payload_rejects_mismatched_source_identity(self):
         threshold = self.threshold_review_artifact()
         threshold["source_artifact"]["reference_move"] = 3
 
-        with self.assertRaisesRegex(ValueError, "selection score source identities must match"):
+        with self.assertRaisesRegex(
+            ValueError, "selection score source identities must match"
+        ):
             self.build_payload(threshold=threshold)
 
     def test_build_payload_rejects_mismatched_selected_artifact(self):
         threshold = self.threshold_review_artifact()
-        threshold["source_artifact"]["selected_artifact"]["selected_target"] = "/tmp/other"
+        threshold["source_artifact"]["selected_artifact"]["selected_target"] = (
+            "/tmp/other"
+        )
 
-        with self.assertRaisesRegex(ValueError, "selection score source identities must match"):
+        with self.assertRaisesRegex(
+            ValueError, "selection score source identities must match"
+        ):
             self.build_payload(threshold=threshold)
 
     def test_build_payload_rejects_mismatched_cadence_trace_identity(self):
         cadence = self.trace_cadence_review_artifact()
         cadence["trace_capture_excerpt"]["full_search_selected_move"] = 1
 
-        with self.assertRaisesRegex(ValueError, "trace cadence review artifact trace_capture_excerpt"):
+        with self.assertRaisesRegex(
+            ValueError, "trace cadence review artifact trace_capture_excerpt"
+        ):
             self.build_payload(cadence=cadence)
 
     def test_build_payload_rejects_mismatched_cadence_selection_excerpt(self):
         cadence = self.trace_cadence_review_artifact()
-        cadence["selection_score_excerpt"]["final_selected_minus_reference_visit_share"] = 0.99
+        cadence["selection_score_excerpt"][
+            "final_selected_minus_reference_visit_share"
+        ] = 0.99
 
         with self.assertRaisesRegex(ValueError, "selection_score_excerpt"):
             self.build_payload(cadence=cadence)
 
     def test_build_payload_rejects_mismatched_cadence_selection_score_input_path(self):
         cadence = self.trace_cadence_review_artifact()
-        cadence["input_artifacts"]["selection_score_artifact_path"] = "/tmp/other-default.json"
+        cadence["input_artifacts"]["selection_score_artifact_path"] = (
+            "/tmp/other-default.json"
+        )
 
-        with self.assertRaisesRegex(ValueError, "trace cadence review artifact input_artifacts"):
+        with self.assertRaisesRegex(
+            ValueError, "trace cadence review artifact input_artifacts"
+        ):
             self.build_payload(cadence=cadence)
 
     def test_build_payload_rejects_non_adequate_cadence(self):
@@ -367,7 +446,9 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
             decision="write_002_trace_cadence_capture_spec",
         )
 
-        with self.assertRaisesRegex(ValueError, "trace cadence review artifact must represent adequate cadence"):
+        with self.assertRaisesRegex(
+            ValueError, "trace cadence review artifact must represent adequate cadence"
+        ):
             self.build_payload(cadence=cadence)
 
     def test_build_payload_rejects_non_genuine_nonseparable_review(self):
@@ -376,14 +457,18 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
             decision="write_002_trace_cadence_capture_spec",
         )
 
-        with self.assertRaisesRegex(ValueError, "nonseparable review artifact must stop unresolved"):
+        with self.assertRaisesRegex(
+            ValueError, "nonseparable review artifact must stop unresolved"
+        ):
             self.build_payload(nonseparable=nonseparable)
 
     def test_build_payload_rejects_mismatched_nonseparable_summary(self):
         nonseparable = self.nonseparable_review_artifact()
         nonseparable["final_margin_summary"]["relaxed_q_margin"] = 0.99
 
-        with self.assertRaisesRegex(ValueError, "nonseparable review artifact final_margin_summary"):
+        with self.assertRaisesRegex(
+            ValueError, "nonseparable review artifact final_margin_summary"
+        ):
             self.build_payload(nonseparable=nonseparable)
 
     def test_main_writes_sorted_payload_and_prints_compact_json(self):
@@ -398,8 +483,12 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
             default = self.default_selection_score_artifact()
             threshold = self.threshold_review_artifact()
             cadence = self.trace_cadence_review_artifact(default)
-            cadence["input_artifacts"]["selection_score_artifact_path"] = str(default_path)
-            nonseparable = self.nonseparable_review_artifact(default, threshold, cadence)
+            cadence["input_artifacts"]["selection_score_artifact_path"] = str(
+                default_path
+            )
+            nonseparable = self.nonseparable_review_artifact(
+                default, threshold, cadence
+            )
             nonseparable["input_artifacts"] = {
                 "source_selection_score_artifact_path": str(default_path),
                 "source_threshold_review_artifact_path": str(threshold_path),
@@ -431,7 +520,9 @@ class Capture002NonseparableDecompositionBuildPayloadTest(unittest.TestCase):
             summary = json.loads(stdout.getvalue())
 
         self.assertEqual(0, exit_code)
-        self.assertEqual("metric_co_movement", payload["classification"]["classification"])
+        self.assertEqual(
+            "metric_co_movement", payload["classification"]["classification"]
+        )
         self.assertEqual(str(out_path), summary["artifact_path"])
         self.assertEqual(module.SCHEMA, summary["schema"])
         self.assertEqual("metric_co_movement", summary["classification"])

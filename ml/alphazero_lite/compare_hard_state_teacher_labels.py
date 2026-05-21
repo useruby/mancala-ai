@@ -31,7 +31,11 @@ def main() -> int:
 
     args.out_report.parent.mkdir(parents=True, exist_ok=True)
     args.out_report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"out_report": str(args.out_report), "pair_count": report["pair_count"]}))
+    print(
+        json.dumps(
+            {"out_report": str(args.out_report), "pair_count": report["pair_count"]}
+        )
+    )
     return 0
 
 

@@ -250,19 +250,33 @@ class ForensicSuiteTest(unittest.TestCase):
             suite[0].canonical_key,
         )
 
-    def write_basic_artifact(self, directory: Path, *, policy_bias: list[float] | None = None, value_bias: float = 0.0) -> Path:
+    def write_basic_artifact(
+        self,
+        directory: Path,
+        *,
+        policy_bias: list[float] | None = None,
+        value_bias: float = 0.0,
+    ) -> Path:
         artifact_dir = directory
         artifact_dir.mkdir(parents=True, exist_ok=True)
         (artifact_dir / "metadata.json").write_text(
-            json.dumps({"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}),
+            json.dumps(
+                {"input_encoding": "kalah_v1", "architecture": {"model_type": "mlp_v1"}}
+            ),
             encoding="utf-8",
         )
         (artifact_dir / "weights.json").write_text(
             json.dumps(
                 {
-                    "w1": [[0.1, 0.0, 0.0, 0.0], [0.0, 0.1, 0.0, 0.0]] + [[0.0, 0.0, 0.0, 0.0]] * 13,
+                    "w1": [[0.1, 0.0, 0.0, 0.0], [0.0, 0.1, 0.0, 0.0]]
+                    + [[0.0, 0.0, 0.0, 0.0]] * 13,
                     "b1": [0.0, 0.0, 0.0, 0.0],
-                    "w2": [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
+                    "w2": [
+                        [1.0, 0.0, 0.0, 0.0],
+                        [0.0, 1.0, 0.0, 0.0],
+                        [0.0, 0.0, 1.0, 0.0],
+                        [0.0, 0.0, 0.0, 1.0],
+                    ],
                     "b2": [0.0, 0.0, 0.0, 0.0],
                     "w_policy": [
                         [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -279,7 +293,9 @@ class ForensicSuiteTest(unittest.TestCase):
         )
         return artifact_dir
 
-    def test_summarize_bucket_reports_agreement_regret_blunder_rate_and_value_calibration(self):
+    def test_summarize_bucket_reports_agreement_regret_blunder_rate_and_value_calibration(
+        self,
+    ):
         summary = summarize_bucket(
             [
                 {
@@ -312,7 +328,9 @@ class ForensicSuiteTest(unittest.TestCase):
         self.assertEqual(-1.0, centered_value_from_probability(0.0))
 
     def test_stub_reference_clamps_teacher_value_range(self):
-        summary = run_forensic_suite._stub_reference(index=0, policy_simulations=7, value_simulations=1800)
+        summary = run_forensic_suite._stub_reference(
+            index=0, policy_simulations=7, value_simulations=1800
+        )
 
         self.assertGreaterEqual(summary["teacher_value"], -1.0)
         self.assertLessEqual(summary["teacher_value"], 1.0)
@@ -475,10 +493,30 @@ class ForensicSuiteTest(unittest.TestCase):
                 report["systems"]["current"]["buckets"]["incumbent_proxy_disagreement"],
             )
             self.assertEqual(1, report["buckets"]["opening_plies_1_8"]["positions"])
-            self.assertEqual(0.0, report["buckets"]["opening_plies_1_8"]["systems"]["current"]["top1_agreement"])
-            self.assertEqual(0.8, report["buckets"]["opening_plies_1_8"]["systems"]["challenger"]["average_regret"])
-            self.assertEqual(1.0, report["buckets"]["opening_plies_1_8"]["systems"]["challenger"]["blunder_rate"])
-            self.assertEqual(0.6, report["buckets"]["opening_plies_1_8"]["systems"]["challenger"]["value_calibration_mae"])
+            self.assertEqual(
+                0.0,
+                report["buckets"]["opening_plies_1_8"]["systems"]["current"][
+                    "top1_agreement"
+                ],
+            )
+            self.assertEqual(
+                0.8,
+                report["buckets"]["opening_plies_1_8"]["systems"]["challenger"][
+                    "average_regret"
+                ],
+            )
+            self.assertEqual(
+                1.0,
+                report["buckets"]["opening_plies_1_8"]["systems"]["challenger"][
+                    "blunder_rate"
+                ],
+            )
+            self.assertEqual(
+                0.6,
+                report["buckets"]["opening_plies_1_8"]["systems"]["challenger"][
+                    "value_calibration_mae"
+                ],
+            )
             self.assertEqual(2, len(report["systems"]["current"]["rows"]))
 
     def test_cli_stub_mode_handles_more_than_two_positions(self):
@@ -572,7 +610,9 @@ class ForensicSuiteTest(unittest.TestCase):
             self.assertEqual(3, report["positions"])
             self.assertEqual(3, len(report["systems"]["current"]["rows"]))
             self.assertEqual(3, len(report["systems"]["challenger"]["rows"]))
-            legal_moves_by_id = {row.id: set(row.legal_moves) for row in load_suite(suite_path)}
+            legal_moves_by_id = {
+                row.id: set(row.legal_moves) for row in load_suite(suite_path)
+            }
             for system_name in ("current", "challenger"):
                 for row in report["systems"][system_name]["rows"]:
                     self.assertIn(row["selected_move"], legal_moves_by_id[row["id"]])
@@ -665,24 +705,34 @@ class ForensicSuiteTest(unittest.TestCase):
                     "visits": [],
                 }
 
-            with mock.patch("ml.alphazero_lite.run_forensic_suite.parse_args", return_value=parse_args), mock.patch(
-                "ml.alphazero_lite.run_forensic_suite.ArtifactEvaluator",
-                FakeEvaluator,
-                create=True,
-            ), mock.patch(
-                "ml.alphazero_lite.run_forensic_suite.run_reference",
-                return_value={
-                    "selected_move": 0,
-                    "child_stats": [{"move": 0, "win_rate": 1.0, "visits": 1}],
-                    "teacher_value": 0.0,
-                },
-            ), mock.patch(
-                "ml.alphazero_lite.run_forensic_suite.evaluate_artifact_position",
-                side_effect=fake_evaluate,
+            with (
+                mock.patch(
+                    "ml.alphazero_lite.run_forensic_suite.parse_args",
+                    return_value=parse_args,
+                ),
+                mock.patch(
+                    "ml.alphazero_lite.run_forensic_suite.ArtifactEvaluator",
+                    FakeEvaluator,
+                    create=True,
+                ),
+                mock.patch(
+                    "ml.alphazero_lite.run_forensic_suite.run_reference",
+                    return_value={
+                        "selected_move": 0,
+                        "child_stats": [{"move": 0, "win_rate": 1.0, "visits": 1}],
+                        "teacher_value": 0.0,
+                    },
+                ),
+                mock.patch(
+                    "ml.alphazero_lite.run_forensic_suite.evaluate_artifact_position",
+                    side_effect=fake_evaluate,
+                ),
             ):
                 run_forensic_suite.main()
 
-            self.assertEqual([str(current_artifact), str(challenger_artifact)], created_evaluators)
+            self.assertEqual(
+                [str(current_artifact), str(challenger_artifact)], created_evaluators
+            )
             self.assertEqual(6, len(evaluate_calls))
             self.assertTrue(all("evaluator" in call for call in evaluate_calls))
             self.assertEqual(2, len({id(call["evaluator"]) for call in evaluate_calls}))
@@ -729,7 +779,9 @@ class ForensicSuiteBuilderTest(unittest.TestCase):
                 },
             ],
         ):
-            self.assertTrue(build_forensic_suite._is_proxy_disagreement_candidate(state, ply=9))
+            self.assertTrue(
+                build_forensic_suite._is_proxy_disagreement_candidate(state, ply=9)
+            )
 
         with mock.patch(
             "ml.alphazero_lite.build_forensic_suite._proxy_root_summary",
@@ -738,7 +790,9 @@ class ForensicSuiteBuilderTest(unittest.TestCase):
                 {"selected_move": 1, "child_stats": [{"move": 1, "win_rate": 0.8}]},
             ],
         ):
-            self.assertFalse(build_forensic_suite._is_proxy_disagreement_candidate(state, ply=9))
+            self.assertFalse(
+                build_forensic_suite._is_proxy_disagreement_candidate(state, ply=9)
+            )
 
     def test_proxy_disagreement_scores_challenger_move_from_challenger_summary(self):
         state = {
@@ -766,7 +820,9 @@ class ForensicSuiteBuilderTest(unittest.TestCase):
                 },
             ],
         ):
-            self.assertTrue(build_forensic_suite._is_proxy_disagreement_candidate(state, ply=9))
+            self.assertTrue(
+                build_forensic_suite._is_proxy_disagreement_candidate(state, ply=9)
+            )
 
     def test_choose_bucket_uses_current_player_perspective_for_player_one_state(self):
         state = {
@@ -777,10 +833,14 @@ class ForensicSuiteBuilderTest(unittest.TestCase):
             "current_player": 1,
         }
 
-        self.assertEqual("early_extra_turn", build_forensic_suite._choose_bucket(state, ply=9))
+        self.assertEqual(
+            "early_extra_turn", build_forensic_suite._choose_bucket(state, ply=9)
+        )
 
     def test_checked_in_suite_covers_all_required_buckets(self):
-        suite = load_suite(Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"))
+        suite = load_suite(
+            Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
+        )
         buckets = {row.bucket for row in suite}
         ids = [row.id for row in suite]
 
@@ -806,7 +866,9 @@ class ForensicSuiteBuilderTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             suite = load_suite(output_path)
-            self.assertTrue(any(row.bucket == "incumbent_proxy_disagreement" for row in suite))
+            self.assertTrue(
+                any(row.bucket == "incumbent_proxy_disagreement" for row in suite)
+            )
 
     def test_builder_has_no_external_tmp_loss_source_dependency(self):
         self.assertFalse(hasattr(build_forensic_suite, "LOSS_SOURCE"))
@@ -823,7 +885,8 @@ class ForensicSuiteBuilderTest(unittest.TestCase):
 
     def test_builder_uses_repo_owned_proxy_artifact(self):
         self.assertEqual(
-            build_forensic_suite.ROOT_DIR / "ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current",
+            build_forensic_suite.ROOT_DIR
+            / "ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current",
             build_forensic_suite.PROXY_ARTIFACT,
         )
 
@@ -843,13 +906,18 @@ class ForensicSuiteBuilderTest(unittest.TestCase):
             call_count += 1
             return candidates
 
-        with mock.patch("ml.alphazero_lite.build_forensic_suite._candidate_states", side_effect=fake_candidate_states):
+        with mock.patch(
+            "ml.alphazero_lite.build_forensic_suite._candidate_states",
+            side_effect=fake_candidate_states,
+        ):
             build_forensic_suite.build_rows()
 
         self.assertEqual(1, call_count)
 
     def test_checked_in_fixture_matches_builder_output_exactly(self):
-        fixture_path = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
+        fixture_path = Path(
+            "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+        )
         fixture_text = fixture_path.read_text(encoding="utf-8")
         built_text = build_forensic_suite.build_fixture_text()
         suite = load_suite(fixture_path)

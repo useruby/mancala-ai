@@ -152,8 +152,16 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
                                 "reference_move_visit_share": 0.4375,
                                 "selected_move_visit_share": 0.5,
                                 "visit_snapshots": [
-                                    {"simulation": 1, "selected_move": 2, "visits": [0.0, 0.0, 1.0]},
-                                    {"simulation": 16, "selected_move": 0, "visits": [8.0, 1.0, 7.0]},
+                                    {
+                                        "simulation": 1,
+                                        "selected_move": 2,
+                                        "visits": [0.0, 0.0, 1.0],
+                                    },
+                                    {
+                                        "simulation": 16,
+                                        "selected_move": 0,
+                                        "visits": [8.0, 1.0, 7.0],
+                                    },
                                 ],
                                 "child_stats": [
                                     {"move": 0, "q_value": 0.14, "visits": 8.0},
@@ -172,7 +180,13 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
                         "policy_only": {
                             "search_view": {
                                 "searched_selected_move": 4,
-                                "visit_distribution": {"0": 1.0, "1": 2.0, "2": 3.0, "3": 4.0, "4": 6.0},
+                                "visit_distribution": {
+                                    "0": 1.0,
+                                    "1": 2.0,
+                                    "2": 3.0,
+                                    "3": 4.0,
+                                    "4": 6.0,
+                                },
                                 "reference_move_visit_share": 0.375,
                                 "selected_move_visit_share": 0.375,
                                 "child_stats": [
@@ -188,7 +202,13 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
                         "value_only": {
                             "search_view": {
                                 "searched_selected_move": 4,
-                                "visit_distribution": {"0": 0.0, "1": 2.0, "2": 1.0, "3": 3.0, "4": 10.0},
+                                "visit_distribution": {
+                                    "0": 0.0,
+                                    "1": 2.0,
+                                    "2": 1.0,
+                                    "3": 3.0,
+                                    "4": 10.0,
+                                },
                                 "reference_move_visit_share": 0.625,
                                 "selected_move_visit_share": 0.625,
                                 "child_stats": [
@@ -204,7 +224,13 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
                         "full_search": {
                             "search_view": {
                                 "searched_selected_move": 1,
-                                "visit_distribution": {"0": 0.0, "1": 9.0, "2": 1.0, "3": 2.0, "4": 4.0},
+                                "visit_distribution": {
+                                    "0": 0.0,
+                                    "1": 9.0,
+                                    "2": 1.0,
+                                    "3": 2.0,
+                                    "4": 4.0,
+                                },
                                 "reference_move_visit_share": 0.25,
                                 "selected_move_visit_share": 0.5625,
                                 "child_stats": [
@@ -295,7 +321,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "wrong schema"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_non_dict_top_level_json(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_non_dict_top_level_json(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             self.write_raw(path, '[{"schema":"not-an-object-artifact"}]')
@@ -303,7 +331,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must be a JSON object"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_missing_required_row(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_missing_required_row(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -313,7 +343,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "capture_available-003"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_missing_full_search_settings(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_missing_full_search_settings(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -323,11 +355,15 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "search_settings"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_negative_flat_shape_selected_move(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_negative_flat_shape_selected_move(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["selected_move"] = -1
+            payload["rows"]["capture_available-003"]["full_search"][
+                "selected_move"
+            ] = -1
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "selected_move"):
@@ -353,7 +389,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "identical"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_selected_artifact(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_selected_artifact(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -368,7 +406,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "selected_artifact"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_missing_reference_move(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_missing_reference_move(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -378,7 +418,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "reference_move"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_non_dict_probe_mode_row(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_non_dict_probe_mode_row(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -388,84 +430,117 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "full_search"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_visit_snapshots_container(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_visit_snapshots_container(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["visit_snapshots"] = {
-                "simulation": 6
-            }
+            payload["rows"]["capture_available-003"]["full_search"][
+                "visit_snapshots"
+            ] = {"simulation": 6}
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "visit_snapshots"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_simulation_metadata(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_simulation_metadata(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["visit_snapshots"] = [
-                {"simulation": "six", "visits": [0.0, 3.0, 0.0, 0.0, 5.0, 0.0]}
-            ]
+            payload["rows"]["capture_available-003"]["full_search"][
+                "visit_snapshots"
+            ] = [{"simulation": "six", "visits": [0.0, 3.0, 0.0, 0.0, 5.0, 0.0]}]
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "simulation"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_non_numeric_visit_entry(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_non_numeric_visit_entry(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["visits"] = [0.0, "three", 0.0, 0.0, 5.0, 0.0]
+            payload["rows"]["capture_available-003"]["full_search"]["visits"] = [
+                0.0,
+                "three",
+                0.0,
+                0.0,
+                5.0,
+                0.0,
+            ]
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "visits"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_selected_move_out_of_range_for_visits(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_selected_move_out_of_range_for_visits(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
             payload["rows"]["capture_available-003"]["full_search"]["selected_move"] = 7
-            payload["rows"]["capture_available-003"]["full_search"]["visits"] = [0.0, 3.0, 0.0, 0.0, 5.0]
+            payload["rows"]["capture_available-003"]["full_search"]["visits"] = [
+                0.0,
+                3.0,
+                0.0,
+                0.0,
+                5.0,
+            ]
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "selected_move"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_snapshot_reference_move_out_of_range(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_snapshot_reference_move_out_of_range(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["visit_snapshots"] = [
-                {"simulation": 6, "visits": [0.0, 3.0, 0.0]}
-            ]
+            payload["rows"]["capture_available-003"]["full_search"][
+                "visit_snapshots"
+            ] = [{"simulation": 6, "visits": [0.0, 3.0, 0.0]}]
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "reference_move"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_prior_reference_move(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_prior_reference_move(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["prior_reference_move"] = "4"
+            payload["rows"]["capture_available-003"]["full_search"][
+                "prior_reference_move"
+            ] = "4"
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "prior_reference_move"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_prior_selected_move(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_prior_selected_move(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["prior_selected_move"] = "1"
+            payload["rows"]["capture_available-003"]["full_search"][
+                "prior_selected_move"
+            ] = "1"
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "prior_selected_move"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_child_stats_move(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_child_stats_move(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -477,27 +552,41 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "child_stats"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_selected_minus_reference_q_margin(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_selected_minus_reference_q_margin(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["selected_minus_reference_q_margin"] = "0.12"
+            payload["rows"]["capture_available-003"]["full_search"][
+                "selected_minus_reference_q_margin"
+            ] = "0.12"
             self.write_json(path, payload)
 
-            with self.assertRaisesRegex(ValueError, "selected_minus_reference_q_margin"):
+            with self.assertRaisesRegex(
+                ValueError, "selected_minus_reference_q_margin"
+            ):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_selected_minus_reference_visit_share(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_selected_minus_reference_visit_share(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["selected_minus_reference_visit_share"] = "0.12"
+            payload["rows"]["capture_available-003"]["full_search"][
+                "selected_minus_reference_visit_share"
+            ] = "0.12"
             self.write_json(path, payload)
 
-            with self.assertRaisesRegex(ValueError, "selected_minus_reference_visit_share"):
+            with self.assertRaisesRegex(
+                ValueError, "selected_minus_reference_visit_share"
+            ):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_child_stats_visits(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_child_stats_visits(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -509,35 +598,55 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "child_stats"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_selected_move(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_selected_move(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["visit_snapshots"] = [
-                {"simulation": 6, "selected_move": "1", "visits": [0.0, 3.0, 0.0, 0.0, 5.0, 0.0]}
+            payload["rows"]["capture_available-003"]["full_search"][
+                "visit_snapshots"
+            ] = [
+                {
+                    "simulation": 6,
+                    "selected_move": "1",
+                    "visits": [0.0, 3.0, 0.0, 0.0, 5.0, 0.0],
+                }
             ]
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "selected_move"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_reference_move_by_prior(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_reference_move_by_prior(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["visit_snapshots"] = [
-                {"simulation": 6, "reference_move_by_prior": "4", "visits": [0.0, 3.0, 0.0, 0.0, 5.0, 0.0]}
+            payload["rows"]["capture_available-003"]["full_search"][
+                "visit_snapshots"
+            ] = [
+                {
+                    "simulation": 6,
+                    "reference_move_by_prior": "4",
+                    "visits": [0.0, 3.0, 0.0, 0.0, 5.0, 0.0],
+                }
             ]
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "reference_move_by_prior"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_rank_fields(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_snapshot_rank_fields(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["visit_snapshots"] = [
+            payload["rows"]["capture_available-003"]["full_search"][
+                "visit_snapshots"
+            ] = [
                 {
                     "simulation": 6,
                     "reference_move_rank_by_visits": "1",
@@ -565,13 +674,19 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["selected_minus_reference_q_margin"] = True
+            payload["rows"]["capture_available-003"]["full_search"][
+                "selected_minus_reference_q_margin"
+            ] = True
             self.write_json(path, payload)
 
-            with self.assertRaisesRegex(ValueError, "selected_minus_reference_q_margin"):
+            with self.assertRaisesRegex(
+                ValueError, "selected_minus_reference_q_margin"
+            ):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_malformed_child_stats_q_value(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_malformed_child_stats_q_value(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -595,17 +710,23 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "child_stats"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_rejects_non_bool_tactical_bias_applied(self):
+    def test_load_source_arbitration_artifact_rejects_non_bool_tactical_bias_applied(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
-            payload["rows"]["capture_available-003"]["full_search"]["tactical_bias_applied"] = "yes"
+            payload["rows"]["capture_available-003"]["full_search"][
+                "tactical_bias_applied"
+            ] = "yes"
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "tactical_bias_applied"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_missing_required_full_search_setting_key(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_missing_required_full_search_setting_key(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -615,7 +736,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "tactical_root_bias"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_invalid_classification(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_invalid_classification(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -625,7 +748,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unsupported classification"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_mismatched_decision(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_mismatched_decision(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_source_artifact()
@@ -635,31 +760,43 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "decision"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_integer_selected_move(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_integer_selected_move(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["search_view"]["searched_selected_move"] = "1"
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "search_view"
+            ]["searched_selected_move"] = "1"
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "selected_move"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_numeric_visit_distribution_entry(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_numeric_visit_distribution_entry(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["search_view"]["visit_distribution"]["1"] = "9"
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "search_view"
+            ]["visit_distribution"]["1"] = "9"
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, r"search_view\.visit_distribution"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_negative_nested_visit_distribution_move_key(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_negative_nested_visit_distribution_move_key(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["search_view"]["visit_distribution"] = {
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "search_view"
+            ]["visit_distribution"] = {
                 "-1": 9.0,
                 "4": 4.0,
             }
@@ -668,54 +805,80 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, r"search_view\.visit_distribution"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_out_of_range_nested_move_index(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_out_of_range_nested_move_index(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["search_view"]["searched_selected_move"] = 999999
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "search_view"
+            ]["searched_selected_move"] = 999999
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "must be between 0 and 5"):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_out_of_range_nested_visit_distribution_move_key(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_out_of_range_nested_visit_distribution_move_key(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["search_view"]["visit_distribution"] = {
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "search_view"
+            ]["visit_distribution"] = {
                 "999999": 9.0,
                 "4": 4.0,
             }
             self.write_json(path, payload)
 
-            with self.assertRaisesRegex(ValueError, r"search_view\.visit_distribution.*between 0 and 5"):
+            with self.assertRaisesRegex(
+                ValueError, r"search_view\.visit_distribution.*between 0 and 5"
+            ):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_numeric_visit_share(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_numeric_visit_share(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["search_view"]["reference_move_visit_share"] = "0.25"
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "search_view"
+            ]["reference_move_visit_share"] = "0.25"
             self.write_json(path, payload)
 
-            with self.assertRaisesRegex(ValueError, r"search_view\.reference_move_visit_share"):
+            with self.assertRaisesRegex(
+                ValueError, r"search_view\.reference_move_visit_share"
+            ):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_numeric_q_margin(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_nested_non_numeric_q_margin(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["value_view"]["selected_minus_reference_q_margin"] = "0.06"
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "value_view"
+            ]["selected_minus_reference_q_margin"] = "0.06"
             self.write_json(path, payload)
 
-            with self.assertRaisesRegex(ValueError, "selected_minus_reference_q_margin"):
+            with self.assertRaisesRegex(
+                ValueError, "selected_minus_reference_q_margin"
+            ):
                 module.load_source_arbitration_artifact(path)
 
-    def test_load_source_arbitration_artifact_fails_closed_for_nested_missing_search_view_container(self):
+    def test_load_source_arbitration_artifact_fails_closed_for_nested_missing_search_view_container(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "source.json"
             payload = self.valid_nested_probe_views_source_artifact()
-            payload["rows"]["capture_available-003"]["probe_views"]["full_search"]["search_view"] = None
+            payload["rows"]["capture_available-003"]["probe_views"]["full_search"][
+                "search_view"
+            ] = None
             self.write_json(path, payload)
 
             with self.assertRaisesRegex(ValueError, "search_view"):
@@ -723,9 +886,13 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
 
     def test_load_source_arbitration_artifact_accepts_current_real_artifact_shape(self):
         if not self.REAL_SOURCE_ARTIFACT_PATH.exists():
-            self.skipTest(f"real artifact not available: {self.REAL_SOURCE_ARTIFACT_PATH}")
+            self.skipTest(
+                f"real artifact not available: {self.REAL_SOURCE_ARTIFACT_PATH}"
+            )
 
-        artifact = module.load_source_arbitration_artifact(self.REAL_SOURCE_ARTIFACT_PATH)
+        artifact = module.load_source_arbitration_artifact(
+            self.REAL_SOURCE_ARTIFACT_PATH
+        )
 
         self.assertEqual(str(self.REAL_SOURCE_ARTIFACT_PATH), artifact["artifact_path"])
         self.assertEqual(
@@ -777,7 +944,9 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
                 if key != "selected_minus_reference_visit_share"
             },
         )
-        self.assertAlmostEqual(0.1641, normalized_row["value_only"]["selected_minus_reference_visit_share"])
+        self.assertAlmostEqual(
+            0.1641, normalized_row["value_only"]["selected_minus_reference_visit_share"]
+        )
         self.assertEqual(
             {
                 "selected_move": 1,
@@ -797,7 +966,10 @@ class SharedFullSearchDriftDiagnosticSourceArtifactTest(unittest.TestCase):
                 if key != "selected_minus_reference_visit_share"
             },
         )
-        self.assertAlmostEqual(0.0156, normalized_row["full_search"]["selected_minus_reference_visit_share"])
+        self.assertAlmostEqual(
+            0.0156,
+            normalized_row["full_search"]["selected_minus_reference_visit_share"],
+        )
 
     def test_load_source_arbitration_artifact_preserves_nested_visit_snapshots(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -823,8 +995,14 @@ class SharedFullSearchDriftDiagnosticTraceTest(unittest.TestCase):
             legal_moves=[0, 1, 2, 3, 4, 5],
             reference_move=2,
             probe_modes={
-                "policy_only": {"selected_move": 2, "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]},
-                "value_only": {"selected_move": 2, "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]},
+                "policy_only": {
+                    "selected_move": 2,
+                    "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                },
+                "value_only": {
+                    "selected_move": 2,
+                    "visits": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                },
                 "full_search": {
                     "selected_move": 0,
                     "visits": [24.0, 8.0, 4.0, 0.0, 0.0, 0.0],
@@ -887,7 +1065,9 @@ class SharedFullSearchDriftDiagnosticTraceTest(unittest.TestCase):
         self.assertIn("probe_mode_traces", trace)
         self.assertAlmostEqual(
             20.0 / 36.0,
-            trace["probe_mode_traces"]["full_search"]["selected_minus_reference_visit_share"],
+            trace["probe_mode_traces"]["full_search"][
+                "selected_minus_reference_visit_share"
+            ],
         )
 
     def test_build_row_trace_records_missing_full_search_fields(self):
@@ -908,10 +1088,17 @@ class SharedFullSearchDriftDiagnosticTraceTest(unittest.TestCase):
         self.assertIsNone(trace["full_search_selected_move"])
         self.assertIsNone(trace["root_start"])
         self.assertEqual([], trace["snapshots"])
-        self.assertEqual({"selected_visits": None, "reference_visits": None}, trace["final_deltas"])
-        self.assertEqual(["canonical_state", "legal_moves", "full_search_selected_move"], trace["missing_fields"])
+        self.assertEqual(
+            {"selected_visits": None, "reference_visits": None}, trace["final_deltas"]
+        )
+        self.assertEqual(
+            ["canonical_state", "legal_moves", "full_search_selected_move"],
+            trace["missing_fields"],
+        )
 
-    def test_build_paired_summary_persists_probe_mode_selected_moves_by_row_then_mode(self):
+    def test_build_paired_summary_persists_probe_mode_selected_moves_by_row_then_mode(
+        self,
+    ):
         row_traces = [
             module.build_row_trace(
                 row_id="capture_available-002",
@@ -955,7 +1142,9 @@ class SharedFullSearchDriftDiagnosticTraceTest(unittest.TestCase):
             paired_summary["probe_mode_selected_moves"],
         )
 
-    def test_build_paired_summary_persists_failure_paths_and_flags_split_value_only_behavior(self):
+    def test_build_paired_summary_persists_failure_paths_and_flags_split_value_only_behavior(
+        self,
+    ):
         row_traces = [
             module.build_row_trace(
                 row_id="capture_available-002",
@@ -1000,7 +1189,9 @@ class SharedFullSearchDriftDiagnosticTraceTest(unittest.TestCase):
         )
         self.assertFalse(paired_summary["shared_mechanism_supported"])
 
-    def test_build_paired_summary_marks_full_search_after_value_divergence_as_diverged_before_full_search(self):
+    def test_build_paired_summary_marks_full_search_after_value_divergence_as_diverged_before_full_search(
+        self,
+    ):
         row_traces = [
             module.build_row_trace(
                 row_id="capture_available-002",
@@ -1030,7 +1221,9 @@ class SharedFullSearchDriftDiagnosticTraceTest(unittest.TestCase):
 
         self.assertEqual(
             "diverged_before_full_search",
-            paired_summary["probe_mode_failure_paths"]["capture_available-003"]["full_search"],
+            paired_summary["probe_mode_failure_paths"]["capture_available-003"][
+                "full_search"
+            ],
         )
 
     def test_build_paired_summary_uses_explicit_full_search_drift_path(self):
@@ -1122,7 +1315,9 @@ class SharedFullSearchDriftDiagnosticTraceTest(unittest.TestCase):
             paired_summary["probe_mode_failure_paths"],
         )
 
-    def test_build_paired_summary_does_not_support_shared_mechanism_with_incomplete_data(self):
+    def test_build_paired_summary_does_not_support_shared_mechanism_with_incomplete_data(
+        self,
+    ):
         row_traces = [
             module.build_row_trace(
                 row_id="capture_available-002",
@@ -1249,7 +1444,9 @@ class SharedFullSearchDriftDiagnosticClassificationTest(unittest.TestCase):
     )
 
     def load_fixture(self, name: str) -> dict:
-        return json.loads((self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8"))
+        return json.loads(
+            (self.FIXTURE_DIR / f"{name}.json").read_text(encoding="utf-8")
+        )
 
     def assert_fixture_classification(self, name: str) -> None:
         fixture = self.load_fixture(name)
@@ -1268,7 +1465,9 @@ class SharedFullSearchDriftDiagnosticClassificationTest(unittest.TestCase):
 
     def test_decision_for_classification_matches_contract(self):
         for classification, decision in module.CLASSIFICATION_DECISIONS.items():
-            self.assertEqual(decision, module.decision_for_classification(classification))
+            self.assertEqual(
+                decision, module.decision_for_classification(classification)
+            )
 
     def test_shared_mechanism_disproved_fixture(self):
         self.assert_fixture_classification("shared_mechanism_disproved")
@@ -1345,7 +1544,9 @@ class SharedFullSearchDriftDiagnosticClassificationTest(unittest.TestCase):
                 "classification": "shared_mechanism_disproved",
                 "evidence_summary": "The paired rows do not share the same failure path, so a single shared full-search drift mechanism is not supported.",
             },
-            module.classify_paired_summary(rows=rows, paired_summary=paired_summary, thresholds=module.THRESHOLDS),
+            module.classify_paired_summary(
+                rows=rows, paired_summary=paired_summary, thresholds=module.THRESHOLDS
+            ),
         )
 
     def test_missing_q_margin_fails_closed_to_unresolved(self):
@@ -1390,10 +1591,14 @@ class SharedFullSearchDriftDiagnosticClassificationTest(unittest.TestCase):
                 "classification": "unresolved",
                 "evidence_summary": "Shared full-search drift is supported, but the paired evidence does not isolate one approved mechanism.",
             },
-            module.classify_paired_summary(rows=rows, paired_summary=paired_summary, thresholds=module.THRESHOLDS),
+            module.classify_paired_summary(
+                rows=rows, paired_summary=paired_summary, thresholds=module.THRESHOLDS
+            ),
         )
 
-    def test_non_numeric_snapshot_metadata_fails_closed_to_unresolved_for_early_evidence_branch(self):
+    def test_non_numeric_snapshot_metadata_fails_closed_to_unresolved_for_early_evidence_branch(
+        self,
+    ):
         rows = {
             "capture_available-002": {
                 "full_search": {
@@ -1435,7 +1640,9 @@ class SharedFullSearchDriftDiagnosticClassificationTest(unittest.TestCase):
                 "classification": "unresolved",
                 "evidence_summary": "Shared full-search drift is supported, but the paired evidence does not isolate one approved mechanism.",
             },
-            module.classify_paired_summary(rows=rows, paired_summary=paired_summary, thresholds=module.THRESHOLDS),
+            module.classify_paired_summary(
+                rows=rows, paired_summary=paired_summary, thresholds=module.THRESHOLDS
+            ),
         )
 
     def test_single_snapshot_rows_can_supply_valid_early_evidence(self):
@@ -1599,7 +1806,9 @@ class SharedFullSearchDriftDiagnosticCliTest(unittest.TestCase):
             "decision": "write_fpu_root_pressure_spec",
         }
 
-    def test_main_writes_self_contained_artifact_using_source_arbitration_settings(self):
+    def test_main_writes_self_contained_artifact_using_source_arbitration_settings(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             source_path = Path(tmp) / "source_artifacts" / "arbitration.json"
             out_path = Path(tmp) / "artifacts" / "diagnostic.json"
@@ -1644,12 +1853,14 @@ class SharedFullSearchDriftDiagnosticCliTest(unittest.TestCase):
                 patch.object(module, "build_rows_payload", return_value=payload_rows),
                 redirect_stdout(stdout),
             ):
-                exit_code = module.main([
-                    "--source-arbitration-artifact",
-                    str(source_path),
-                    "--out",
-                    str(out_path),
-                ])
+                exit_code = module.main(
+                    [
+                        "--source-arbitration-artifact",
+                        str(source_path),
+                        "--out",
+                        str(out_path),
+                    ]
+                )
 
             self.assertEqual(0, exit_code)
             artifact = json.loads(out_path.read_text(encoding="utf-8"))
@@ -1659,7 +1870,9 @@ class SharedFullSearchDriftDiagnosticCliTest(unittest.TestCase):
                     "artifact_path": str(source_path),
                     "schema": module.SOURCE_ARBITRATION_SCHEMA,
                     "row_ids": list(module.ROW_IDS),
-                    "selected_artifact": self.valid_source_artifact()["selected_artifact"],
+                    "selected_artifact": self.valid_source_artifact()[
+                        "selected_artifact"
+                    ],
                     "settings": {
                         "search_settings": dict(self.REQUIRED_SEARCH_SETTINGS),
                         "seeds": [23, 23],
@@ -1670,7 +1883,10 @@ class SharedFullSearchDriftDiagnosticCliTest(unittest.TestCase):
                 },
                 artifact["source_arbitration_artifact"],
             )
-            self.assertEqual(self.valid_source_artifact()["selected_artifact"], artifact["selected_artifact"])
+            self.assertEqual(
+                self.valid_source_artifact()["selected_artifact"],
+                artifact["selected_artifact"],
+            )
             self.assertEqual(module.THRESHOLDS, artifact["thresholds"])
             self.assertEqual(
                 {

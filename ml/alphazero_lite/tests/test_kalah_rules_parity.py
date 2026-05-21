@@ -31,7 +31,9 @@ class KalahRulesParityTest(unittest.TestCase):
                 self.assertEqual(step["state"], game.to_state(), vector["id"])
                 self.assertEqual(step["winner"], game.winner, vector["id"])
                 self.assertEqual(step["over"], game.over(), vector["id"])
-                self.assertEqual(step["possible_moves"], game.possible_moves(), vector["id"])
+                self.assertEqual(
+                    step["possible_moves"], game.possible_moves(), vector["id"]
+                )
 
     def test_python_and_ruby_encoders_match_for_supported_input_encodings(self):
         fixture_path = Path("test/fixtures/ai/kalah_rule_vectors.json")
@@ -56,7 +58,9 @@ class KalahRulesParityTest(unittest.TestCase):
                         "bin/rails",
                         "runner",
                         runner,
-                        json.dumps({"input_encoding": input_encoding, "states": states}),
+                        json.dumps(
+                            {"input_encoding": input_encoding, "states": states}
+                        ),
                     ],
                     cwd=repo_root,
                     check=True,
@@ -64,10 +68,14 @@ class KalahRulesParityTest(unittest.TestCase):
                     text=True,
                 ).stdout
             )
-            python_vectors = [encoder(state, input_encoding=input_encoding) for state in states]
+            python_vectors = [
+                encoder(state, input_encoding=input_encoding) for state in states
+            ]
             self.assertEqual(ruby_vectors, python_vectors)
 
-    def test_kalah_v3_python_and_ruby_encoders_match_for_tactical_and_endgame_states(self):
+    def test_kalah_v3_python_and_ruby_encoders_match_for_tactical_and_endgame_states(
+        self,
+    ):
         encoder = self_play.encode_state
 
         repo_root = Path(__file__).resolve().parents[3]
@@ -99,9 +107,12 @@ class KalahRulesParityTest(unittest.TestCase):
         self.assertEqual(len(parity_cases), len(ruby_vectors))
         self.assertEqual(len(parity_cases), len(python_vectors))
 
-        for parity_case, ruby_vector, python_vector in zip(parity_cases, ruby_vectors, python_vectors):
+        for parity_case, ruby_vector, python_vector in zip(
+            parity_cases, ruby_vectors, python_vectors
+        ):
             with self.subTest(state_id=parity_case["id"]):
                 self.assertEqual(ruby_vector, python_vector)
+
 
 if __name__ == "__main__":
     unittest.main()

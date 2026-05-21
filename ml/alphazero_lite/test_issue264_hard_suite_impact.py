@@ -44,6 +44,7 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
             current_artifact.mkdir()
 
             with mock.patch.object(impact, "run_command") as run_command:
+
                 def side_effect(command, *, cwd):
                     if command[1].endswith("train.py"):
                         (out_dir / "challenger.npz").write_bytes(b"challenger")
@@ -51,8 +52,12 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
                     if command[1].endswith("export_artifact.py"):
                         artifact_dir = out_dir / "challenger_artifact"
                         artifact_dir.mkdir(parents=True, exist_ok=True)
-                        (artifact_dir / "weights.json").write_text("{}", encoding="utf-8")
-                        (artifact_dir / "metadata.json").write_text("{}", encoding="utf-8")
+                        (artifact_dir / "weights.json").write_text(
+                            "{}", encoding="utf-8"
+                        )
+                        (artifact_dir / "metadata.json").write_text(
+                            "{}", encoding="utf-8"
+                        )
                         return "exported artifact to challenger_artifact\n"
                     if command[1].endswith("arena.py"):
                         arena_report = {
@@ -69,7 +74,9 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
                                 "late": {"games": 2, "score": None},
                             },
                         }
-                        (out_dir / "arena_report.json").write_text(json.dumps(arena_report), encoding="utf-8")
+                        (out_dir / "arena_report.json").write_text(
+                            json.dumps(arena_report), encoding="utf-8"
+                        )
                         return "wrote arena report to arena_report.json\nscore=0.7500 passed=True\n"
                     raise AssertionError(command)
 
@@ -114,16 +121,28 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
                     os.chdir(original_cwd)
 
             self.assertEqual(0, exit_code)
-            report = json.loads((out_dir / "issue264_report.json").read_text(encoding="utf-8"))
+            report = json.loads(
+                (out_dir / "issue264_report.json").read_text(encoding="utf-8")
+            )
             self.assertEqual("issue264_hard_suite_impact_v1", report["schema"])
-            self.assertEqual("promote_to_standard_step", report["recommendation"]["recommendation"])
+            self.assertEqual(
+                "promote_to_standard_step", report["recommendation"]["recommendation"]
+            )
             self.assertEqual(0.75, report["arena"]["score"])
             self.assertEqual(1, report["label_report"]["pair_count"])
             self.assertEqual(3, run_command.call_count)
             self.assertTrue(Path(report["experiment"]["mined_jsonl"]).is_absolute())
-            self.assertEqual(str(mined_path.resolve()), report["experiment"]["mined_jsonl"])
-            self.assertEqual(str(init_checkpoint.resolve()), report["training"]["baseline_checkpoint"])
-            self.assertEqual(str((out_dir / "challenger.npz").resolve()), report["training"]["challenger_checkpoint"])
+            self.assertEqual(
+                str(mined_path.resolve()), report["experiment"]["mined_jsonl"]
+            )
+            self.assertEqual(
+                str(init_checkpoint.resolve()),
+                report["training"]["baseline_checkpoint"],
+            )
+            self.assertEqual(
+                str((out_dir / "challenger.npz").resolve()),
+                report["training"]["challenger_checkpoint"],
+            )
             self.assertEqual(
                 str((out_dir / "challenger_artifact").resolve()),
                 report["training"]["challenger_artifact_dir"],
@@ -135,17 +154,35 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
             train_cwd = run_command.call_args_list[0].kwargs["cwd"]
             self.assertEqual(repo_root.resolve(), train_cwd)
             self.assertEqual(expected_python, train_command[0])
-            self.assertEqual(str((repo_root / "ml/alphazero_lite/train.py").resolve()), train_command[1])
-            self.assertEqual(str((out_dir / "stronger_only.jsonl").resolve()), self._flag_value(train_command, "--data"))
-            self.assertEqual(str((out_dir / "challenger.npz").resolve()), self._flag_value(train_command, "--out"))
-            self.assertEqual(str(init_checkpoint.resolve()), self._flag_value(train_command, "--init-checkpoint"))
+            self.assertEqual(
+                str((repo_root / "ml/alphazero_lite/train.py").resolve()),
+                train_command[1],
+            )
+            self.assertEqual(
+                str((out_dir / "stronger_only.jsonl").resolve()),
+                self._flag_value(train_command, "--data"),
+            )
+            self.assertEqual(
+                str((out_dir / "challenger.npz").resolve()),
+                self._flag_value(train_command, "--out"),
+            )
+            self.assertEqual(
+                str(init_checkpoint.resolve()),
+                self._flag_value(train_command, "--init-checkpoint"),
+            )
 
             export_command = run_command.call_args_list[1].args[0]
             export_cwd = run_command.call_args_list[1].kwargs["cwd"]
             self.assertEqual(repo_root.resolve(), export_cwd)
             self.assertEqual(expected_python, export_command[0])
-            self.assertEqual(str((repo_root / "ml/alphazero_lite/export_artifact.py").resolve()), export_command[1])
-            self.assertEqual(str((out_dir / "challenger.npz").resolve()), self._flag_value(export_command, "--checkpoint"))
+            self.assertEqual(
+                str((repo_root / "ml/alphazero_lite/export_artifact.py").resolve()),
+                export_command[1],
+            )
+            self.assertEqual(
+                str((out_dir / "challenger.npz").resolve()),
+                self._flag_value(export_command, "--checkpoint"),
+            )
             self.assertEqual(
                 str((out_dir / "challenger_artifact").resolve()),
                 self._flag_value(export_command, "--out-dir"),
@@ -155,13 +192,22 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
             arena_cwd = run_command.call_args_list[2].kwargs["cwd"]
             self.assertEqual(repo_root.resolve(), arena_cwd)
             self.assertEqual(expected_python, arena_command[0])
-            self.assertEqual(str((repo_root / "ml/alphazero_lite/arena.py").resolve()), arena_command[1])
+            self.assertEqual(
+                str((repo_root / "ml/alphazero_lite/arena.py").resolve()),
+                arena_command[1],
+            )
             self.assertEqual(
                 str((out_dir / "challenger_artifact").resolve()),
                 self._flag_value(arena_command, "--challenger"),
             )
-            self.assertEqual(str(current_artifact.resolve()), self._flag_value(arena_command, "--current"))
-            self.assertEqual(str((out_dir / "arena_report.json").resolve()), self._flag_value(arena_command, "--out"))
+            self.assertEqual(
+                str(current_artifact.resolve()),
+                self._flag_value(arena_command, "--current"),
+            )
+            self.assertEqual(
+                str((out_dir / "arena_report.json").resolve()),
+                self._flag_value(arena_command, "--out"),
+            )
 
     def test_main_fails_when_arena_report_omits_hard_suite_buckets(self):
         with tempfile.TemporaryDirectory(prefix="issue264-impact-") as tmp:
@@ -197,7 +243,9 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, "arena report must include hard_suite_buckets"):
+            with self.assertRaisesRegex(
+                ValueError, "arena report must include hard_suite_buckets"
+            ):
                 impact.build_final_report_from_paths(
                     experiment={"top_n": 1, "seed": 42},
                     label_report_path=out_dir / "label_report.json",
@@ -217,10 +265,15 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
             venv_python.parent.mkdir(parents=True)
             venv_python.symlink_to(system_python)
 
-            self.assertEqual(str(venv_python), impact.resolve_python_executable(repo_root))
+            self.assertEqual(
+                str(venv_python), impact.resolve_python_executable(repo_root)
+            )
 
     def test_resolve_python_executable_falls_back_to_current_interpreter(self):
         with tempfile.TemporaryDirectory(prefix="issue264-impact-python-") as tmp:
             repo_root = Path(tmp)
 
-            self.assertEqual(str(Path(sys.executable).resolve()), impact.resolve_python_executable(repo_root))
+            self.assertEqual(
+                str(Path(sys.executable).resolve()),
+                impact.resolve_python_executable(repo_root),
+            )

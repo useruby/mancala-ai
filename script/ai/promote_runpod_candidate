@@ -5,12 +5,16 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 
 
-REQUIRED_ARTIFACT_FILES = ("weights.json", "metadata.json", "arena_report.json", "run_manifest.json")
+REQUIRED_ARTIFACT_FILES = (
+    "weights.json",
+    "metadata.json",
+    "arena_report.json",
+    "run_manifest.json",
+)
 REQUIRED_ROOT_REPORTS = (
     "local_promotion_gate.json",
     "candidate_vs_current_arena.json",
@@ -67,9 +71,13 @@ def detect_candidate_dir(downloaded_root: Path) -> Path:
             candidates.append(child)
 
     if not candidates:
-        raise SystemExit(f"Missing candidate artifact directory under {downloaded_root}")
+        raise SystemExit(
+            f"Missing candidate artifact directory under {downloaded_root}"
+        )
     if len(candidates) > 1:
-        raise SystemExit(f"Expected exactly one candidate artifact directory under {downloaded_root}")
+        raise SystemExit(
+            f"Expected exactly one candidate artifact directory under {downloaded_root}"
+        )
     return candidates[0]
 
 
@@ -80,7 +88,9 @@ def validate_gate_report(gate_report_path: Path, candidate_dir: Path) -> dict:
 
     reported_candidate_path = report.get("candidate_path")
     if not isinstance(reported_candidate_path, str) or not reported_candidate_path:
-        raise SystemExit("Gate report failed candidate-path consistency check: missing candidate_path")
+        raise SystemExit(
+            "Gate report failed candidate-path consistency check: missing candidate_path"
+        )
 
     if Path(reported_candidate_path).name != candidate_dir.name:
         raise SystemExit(
@@ -92,7 +102,9 @@ def validate_gate_report(gate_report_path: Path, candidate_dir: Path) -> dict:
 
 def promote(candidate_dir: Path, target_dir: Path) -> None:
     target_dir.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="azlite-runpod-promote-", dir=str(target_dir.parent)) as tmp:
+    with tempfile.TemporaryDirectory(
+        prefix="azlite-runpod-promote-", dir=str(target_dir.parent)
+    ) as tmp:
         tmp_root = Path(tmp)
         staging_dir = tmp_root / f"{target_dir.name}.staging"
         backup_dir = tmp_root / f"{target_dir.name}.backup"
@@ -140,7 +152,11 @@ def main() -> int:
                 "candidate_path": str(candidate_dir),
                 "gate_report_path": str(gate_report_path),
                 "target_path": str(target_dir),
-                "promoted_files": [name for name in REQUIRED_ARTIFACT_FILES if name != "run_manifest.json"],
+                "promoted_files": [
+                    name
+                    for name in REQUIRED_ARTIFACT_FILES
+                    if name != "run_manifest.json"
+                ],
             },
             indent=2,
         )

@@ -38,7 +38,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--stage",
         required=True,
-        choices=["promotion_gate", "forensic_suite", "multi_seed_confirmation", "readiness_report"],
+        choices=[
+            "promotion_gate",
+            "forensic_suite",
+            "multi_seed_confirmation",
+            "readiness_report",
+        ],
     )
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
@@ -51,18 +56,28 @@ def manifest_from_args(args: argparse.Namespace) -> dict:
         candidate = manifest.get("candidate", {})
 
         conflicts = []
-        if args.campaign_id is not None and manifest.get("campaign_id") != args.campaign_id:
+        if (
+            args.campaign_id is not None
+            and manifest.get("campaign_id") != args.campaign_id
+        ):
             conflicts.append("campaign_id")
-        if args.candidate_path is not None and candidate.get("artifact_path") != str(args.candidate_path):
+        if args.candidate_path is not None and candidate.get("artifact_path") != str(
+            args.candidate_path
+        ):
             conflicts.append("candidate.artifact_path")
-        if args.config_path is not None and candidate.get("config_path") != str(args.config_path):
+        if args.config_path is not None and candidate.get("config_path") != str(
+            args.config_path
+        ):
             conflicts.append("candidate.config_path")
-        if args.parent_artifact_path is not None and candidate.get("parent_artifact_path") != str(args.parent_artifact_path):
+        if args.parent_artifact_path is not None and candidate.get(
+            "parent_artifact_path"
+        ) != str(args.parent_artifact_path):
             conflicts.append("candidate.parent_artifact_path")
 
         if conflicts:
             raise SystemExit(
-                "provided arguments conflict with existing manifest " + ", ".join(conflicts)
+                "provided arguments conflict with existing manifest "
+                + ", ".join(conflicts)
             )
 
         return write_manifest(args.manifest_path, manifest)
@@ -73,7 +88,9 @@ def manifest_from_args(args: argparse.Namespace) -> dict:
     if args.candidate_path is None:
         missing.append("--candidate-path")
     if missing:
-        raise SystemExit(f"manifest does not exist; initialization requires: {', '.join(missing)}")
+        raise SystemExit(
+            f"manifest does not exist; initialization requires: {', '.join(missing)}"
+        )
 
     return initialize_manifest(
         manifest_path=args.manifest_path,
@@ -113,7 +130,9 @@ def main() -> int:
 
     if args.stub_promotion_report and args.stage == "promotion_gate":
         stub_report = require_stub_artifact(args.stub_promotion_report)
-        record_artifact(manifest_path, key="promotion_gate_report", value=args.stub_promotion_report)
+        record_artifact(
+            manifest_path, key="promotion_gate_report", value=args.stub_promotion_report
+        )
         record_step_result(
             manifest_path=manifest_path,
             step_name="promotion_gate",
@@ -135,7 +154,9 @@ def main() -> int:
 
     if args.stub_forensic_report and args.stage == "forensic_suite":
         stub_report = require_stub_artifact(args.stub_forensic_report)
-        record_artifact(manifest_path, key="forensic_report", value=args.stub_forensic_report)
+        record_artifact(
+            manifest_path, key="forensic_report", value=args.stub_forensic_report
+        )
         record_step_result(
             manifest_path=manifest_path,
             step_name="forensic_suite",
@@ -161,7 +182,9 @@ def main() -> int:
         passed = summary_payload.get("passed")
         if not isinstance(passed, bool):
             raise SystemExit("stub multi-seed summary must contain boolean 'passed'")
-        record_artifact(manifest_path, key="multi_seed_summary", value=args.stub_multi_seed_summary)
+        record_artifact(
+            manifest_path, key="multi_seed_summary", value=args.stub_multi_seed_summary
+        )
         record_multi_seed_runs(
             manifest_path,
             seeds=[41, 42, 43],

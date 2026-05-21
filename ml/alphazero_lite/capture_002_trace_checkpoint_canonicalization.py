@@ -34,7 +34,9 @@ def load_json(path: Path) -> dict:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Canonicalize duplicate checkpoints for capture 002 traces")
+    parser = argparse.ArgumentParser(
+        description="Canonicalize duplicate checkpoints for capture 002 traces"
+    )
     parser.add_argument("--source-selection-score-artifact", type=Path, required=True)
     parser.add_argument(
         "--source-threshold-relaxed-selection-score-artifact",
@@ -56,7 +58,11 @@ def _classification_name(artifact: dict, *, context: str) -> str:
 
 
 def _finite_number(value, *, context: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+    ):
         raise ValueError(f"{context} must be finite numeric")
     return float(value)
 
@@ -97,7 +103,9 @@ def _validate_source_artifact(source_artifact, *, context: str) -> dict:
             raise ValueError(f"{context} source_artifact.{key} must be an integer")
     selected_artifact = source_artifact.get("selected_artifact")
     if not isinstance(selected_artifact, dict):
-        raise ValueError(f"{context} source_artifact.selected_artifact must be an object")
+        raise ValueError(
+            f"{context} source_artifact.selected_artifact must be an object"
+        )
     return copy.deepcopy(source_artifact)
 
 
@@ -106,7 +114,9 @@ def _normalize_move_entry(move_entry: dict, *, context: str) -> dict:
         raise ValueError(f"{context} must be an object")
     unexpected_keys = set(move_entry) - ALLOWED_MOVE_ENTRY_KEYS
     if unexpected_keys:
-        raise ValueError(f"{context} contains unsupported keys: {sorted(unexpected_keys)}")
+        raise ValueError(
+            f"{context} contains unsupported keys: {sorted(unexpected_keys)}"
+        )
     if "move" not in move_entry:
         raise ValueError(f"{context}.move is required")
     move = move_entry["move"]
@@ -127,12 +137,16 @@ def _normalize_trace_point(trace_point: dict, *, context: str) -> dict:
         raise ValueError(f"{context} must be an object")
     unexpected_keys = set(trace_point) - ALLOWED_TRACE_POINT_KEYS
     if unexpected_keys:
-        raise ValueError(f"{context} contains unsupported keys: {sorted(unexpected_keys)}")
+        raise ValueError(
+            f"{context} contains unsupported keys: {sorted(unexpected_keys)}"
+        )
     for key in ("simulation", "selected_move", "visits", "moves"):
         if key not in trace_point:
             raise ValueError(f"{context}.{key} is required")
 
-    simulation = _finite_number(trace_point["simulation"], context=f"{context}.simulation")
+    simulation = _finite_number(
+        trace_point["simulation"], context=f"{context}.simulation"
+    )
     selected_move = trace_point["selected_move"]
     if isinstance(selected_move, bool) or not isinstance(selected_move, int):
         raise ValueError(f"{context}.selected_move must be an integer")
@@ -144,7 +158,9 @@ def _normalize_trace_point(trace_point: dict, *, context: str) -> dict:
 
     reference_move_by_prior = trace_point.get("reference_move_by_prior")
     if reference_move_by_prior is not None:
-        if isinstance(reference_move_by_prior, bool) or not isinstance(reference_move_by_prior, int):
+        if isinstance(reference_move_by_prior, bool) or not isinstance(
+            reference_move_by_prior, int
+        ):
             raise ValueError(f"{context}.reference_move_by_prior must be an integer")
         normalized["reference_move_by_prior"] = int(reference_move_by_prior)
 
@@ -170,9 +186,13 @@ def _normalize_trace_point(trace_point: dict, *, context: str) -> dict:
     return normalized
 
 
-def _validate_trace_artifact(artifact: dict, *, context: str) -> tuple[dict, dict, str, list[dict]]:
+def _validate_trace_artifact(
+    artifact: dict, *, context: str
+) -> tuple[dict, dict, str, list[dict]]:
     if artifact.get("schema") != SOURCE_SELECTION_SCORE_SCHEMA:
-        raise ValueError(f"selection score artifact has wrong schema: expected {SOURCE_SELECTION_SCORE_SCHEMA}")
+        raise ValueError(
+            f"selection score artifact has wrong schema: expected {SOURCE_SELECTION_SCORE_SCHEMA}"
+        )
     if _classification_name(artifact, context=context) != EXPECTED_TRACE_CLASSIFICATION:
         raise ValueError(f"{context} classification must be unresolved")
     if artifact.get("decision") != EXPECTED_TRACE_DECISION:
@@ -197,7 +217,9 @@ def _validate_trace_artifact(artifact: dict, *, context: str) -> tuple[dict, dic
     )
 
 
-def _group_trace_points_by_simulation(trace_points: list[dict]) -> tuple[list[tuple[float, list[dict]]] | None, str | None]:
+def _group_trace_points_by_simulation(
+    trace_points: list[dict],
+) -> tuple[list[tuple[float, list[dict]]] | None, str | None]:
     grouped: list[tuple[float, list[dict]]] = []
     seen_simulations: set[float] = set()
     for trace_point in trace_points:
@@ -213,7 +235,9 @@ def _group_trace_points_by_simulation(trace_points: list[dict]) -> tuple[list[tu
 
 
 def _analyze_branch_duplicates(trace_points: list[dict], *, branch: str) -> dict:
-    grouped_trace_points, grouping_error = _group_trace_points_by_simulation(trace_points)
+    grouped_trace_points, grouping_error = _group_trace_points_by_simulation(
+        trace_points
+    )
     if grouping_error is not None:
         return {
             "duplicate_summary": {
@@ -226,8 +250,15 @@ def _analyze_branch_duplicates(trace_points: list[dict], *, branch: str) -> dict
             "reason": f"{branch} trace cannot be canonicalized safely because {grouping_error}",
         }
 
-    canonical_checkpoint_sequence = [simulation for simulation, _group in grouped_trace_points]
-    if any(current <= previous for previous, current in zip(canonical_checkpoint_sequence, canonical_checkpoint_sequence[1:])):
+    canonical_checkpoint_sequence = [
+        simulation for simulation, _group in grouped_trace_points
+    ]
+    if any(
+        current <= previous
+        for previous, current in zip(
+            canonical_checkpoint_sequence, canonical_checkpoint_sequence[1:]
+        )
+    ):
         return {
             "duplicate_summary": {
                 "duplicate_count": 0,
@@ -281,11 +312,15 @@ def _analyze_branch_duplicates(trace_points: list[dict], *, branch: str) -> dict
         },
         "canonical_checkpoint_sequence": canonical_checkpoint_sequence,
         "status": "safe",
-        "reason": f"{branch} duplicate checkpoints are structurally equivalent" if duplicate_groups else f"{branch} trace has no duplicate checkpoints",
+        "reason": f"{branch} duplicate checkpoints are structurally equivalent"
+        if duplicate_groups
+        else f"{branch} trace has no duplicate checkpoints",
     }
 
 
-def _classification_and_status(default_branch: dict, relaxed_branch: dict) -> tuple[str, dict, bool]:
+def _classification_and_status(
+    default_branch: dict, relaxed_branch: dict
+) -> tuple[str, dict, bool]:
     branch_statuses = {default_branch["status"], relaxed_branch["status"]}
     if "conflicting" in branch_statuses:
         return (
@@ -334,7 +369,9 @@ def _classification_and_status(default_branch: dict, relaxed_branch: dict) -> tu
         )
 
     earliest_simulation = default_sequence[0]
-    if any(simulation > earliest_simulation for simulation in unique_duplicate_simulations):
+    if any(
+        simulation > earliest_simulation for simulation in unique_duplicate_simulations
+    ):
         return (
             "duplicate_equivalent_checkpoint",
             {
@@ -360,25 +397,39 @@ def build_payload(
     source_selection_score_artifact_path: str,
     source_threshold_relaxed_selection_score_artifact_path: str,
 ) -> dict:
-    default_source_artifact, default_thresholds, default_trace_origin, default_trace_points = _validate_trace_artifact(
+    (
+        default_source_artifact,
+        default_thresholds,
+        default_trace_origin,
+        default_trace_points,
+    ) = _validate_trace_artifact(
         default_trace_artifact,
         context="default trace artifact",
     )
-    relaxed_source_artifact, relaxed_thresholds, relaxed_trace_origin, relaxed_trace_points = _validate_trace_artifact(
+    (
+        relaxed_source_artifact,
+        relaxed_thresholds,
+        relaxed_trace_origin,
+        relaxed_trace_points,
+    ) = _validate_trace_artifact(
         relaxed_trace_artifact,
         context="relaxed trace artifact",
     )
 
     if default_source_artifact != relaxed_source_artifact:
-        raise ValueError("default and relaxed source_artifact provenance chains must match")
+        raise ValueError(
+            "default and relaxed source_artifact provenance chains must match"
+        )
     if default_trace_origin != relaxed_trace_origin:
         raise ValueError("default and relaxed trace_origin must match")
 
     default_branch = _analyze_branch_duplicates(default_trace_points, branch="default")
     relaxed_branch = _analyze_branch_duplicates(relaxed_trace_points, branch="relaxed")
-    classification_name, canonicalization_status, canonical_sequences_match = _classification_and_status(
-        default_branch,
-        relaxed_branch,
+    classification_name, canonicalization_status, canonical_sequences_match = (
+        _classification_and_status(
+            default_branch,
+            relaxed_branch,
+        )
     )
 
     return {
@@ -409,8 +460,12 @@ def build_payload(
         "canonical_sequences_match": canonical_sequences_match,
         "canonicalization_status": canonicalization_status,
         "source_snapshots": {
-            "default_trace_classification": copy.deepcopy(default_trace_artifact.get("classification")),
-            "relaxed_trace_classification": copy.deepcopy(relaxed_trace_artifact.get("classification")),
+            "default_trace_classification": copy.deepcopy(
+                default_trace_artifact.get("classification")
+            ),
+            "relaxed_trace_classification": copy.deepcopy(
+                relaxed_trace_artifact.get("classification")
+            ),
             "default_trace_point_count": len(default_trace_points),
             "relaxed_trace_point_count": len(relaxed_trace_points),
             "default_first_simulation": default_trace_points[0]["simulation"],
@@ -424,7 +479,9 @@ def build_payload(
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     default_trace_artifact = load_json(args.source_selection_score_artifact)
-    relaxed_trace_artifact = load_json(args.source_threshold_relaxed_selection_score_artifact)
+    relaxed_trace_artifact = load_json(
+        args.source_threshold_relaxed_selection_score_artifact
+    )
     payload = build_payload(
         default_trace_artifact,
         relaxed_trace_artifact,
@@ -434,7 +491,9 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

@@ -12,7 +12,12 @@ class CheckSuperhumanRegressionsScriptTest(unittest.TestCase):
             tmp_path = Path(tmp)
             out_path = tmp_path / "report.json"
             result = subprocess.run(
-                ["ruby", "script/ai/check_superhuman_regressions", "--out", str(out_path)],
+                [
+                    "ruby",
+                    "script/ai/check_superhuman_regressions",
+                    "--out",
+                    str(out_path),
+                ],
                 cwd=Path(__file__).resolve().parents[2],
                 env={
                     **os.environ,

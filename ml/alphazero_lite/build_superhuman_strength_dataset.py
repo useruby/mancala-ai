@@ -30,7 +30,9 @@ DEFAULT_SELECTIONS = (
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build a curated replay dataset for the superhuman strength experiment.")
+    parser = argparse.ArgumentParser(
+        description="Build a curated replay dataset for the superhuman strength experiment."
+    )
     parser.add_argument("--games-json", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     return parser.parse_args()
@@ -57,7 +59,9 @@ def sharpened_policy(legal_moves: list[int], chosen_move: int) -> list[float]:
     return policy
 
 
-def build_dataset_rows(games: list[dict], *, selections=DEFAULT_SELECTIONS) -> list[dict]:
+def build_dataset_rows(
+    games: list[dict], *, selections=DEFAULT_SELECTIONS
+) -> list[dict]:
     games_by_id = {int(game["id"]): game for game in games}
     rows: list[dict] = []
 
@@ -86,7 +90,9 @@ def build_dataset_rows(games: list[dict], *, selections=DEFAULT_SELECTIONS) -> l
         for prior_move in move_history[: move_number - 1]:
             relative_move = int(prior_move["pit"])
             if relative_move not in engine.possible_moves():
-                raise ValueError(f"illegal historical move {relative_move} before selection {selection}")
+                raise ValueError(
+                    f"illegal historical move {relative_move} before selection {selection}"
+                )
             engine.move(engine.pit_index(relative_move))
 
         selected_move = move_history[move_number - 1]

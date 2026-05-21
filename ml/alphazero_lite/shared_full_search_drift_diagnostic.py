@@ -51,7 +51,9 @@ def load_json(path: Path) -> dict:
 def _validate_selected_artifact(selected_artifact: dict) -> dict:
     path = selected_artifact.get("path")
     if not isinstance(path, str) or not path:
-        raise ValueError("source arbitration artifact selected_artifact must include non-empty string path")
+        raise ValueError(
+            "source arbitration artifact selected_artifact must include non-empty string path"
+        )
 
     provenance_source = selected_artifact.get("provenance_source")
     if not isinstance(provenance_source, str) or not provenance_source:
@@ -61,11 +63,17 @@ def _validate_selected_artifact(selected_artifact: dict) -> dict:
 
     selected_target = selected_artifact.get("selected_target")
     if selected_target is not None and not isinstance(selected_target, str):
-        raise ValueError("source arbitration artifact selected_artifact selected_target must be string or null")
+        raise ValueError(
+            "source arbitration artifact selected_artifact selected_target must be string or null"
+        )
 
     selected_artifact_path = selected_artifact.get("selected_artifact")
-    if selected_artifact_path is not None and not isinstance(selected_artifact_path, str):
-        raise ValueError("source arbitration artifact selected_artifact selected_artifact must be string or null")
+    if selected_artifact_path is not None and not isinstance(
+        selected_artifact_path, str
+    ):
+        raise ValueError(
+            "source arbitration artifact selected_artifact selected_artifact must be string or null"
+        )
 
     return dict(selected_artifact)
 
@@ -91,7 +99,9 @@ def _validate_optional_move_field(*, value, context: str) -> None:
 
 
 def _validate_optional_numeric_field(*, value, context: str) -> None:
-    if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float))):
+    if value is not None and (
+        isinstance(value, bool) or not isinstance(value, (int, float))
+    ):
         raise ValueError(f"{context} must be numeric")
 
 
@@ -114,7 +124,9 @@ def _validate_optional_legal_moves(*, value, context: str) -> None:
         if isinstance(move, bool) or not isinstance(move, int):
             raise ValueError(f"{context}[{index}] must be an integer")
         if not 0 <= move < PITS_PER_PLAYER:
-            raise ValueError(f"{context}[{index}] must be between 0 and {PITS_PER_PLAYER - 1}")
+            raise ValueError(
+                f"{context}[{index}] must be between 0 and {PITS_PER_PLAYER - 1}"
+            )
 
 
 def _validate_nested_move_field(*, value, context: str) -> None:
@@ -125,7 +137,9 @@ def _validate_nested_move_field(*, value, context: str) -> None:
 
 
 def _validate_nested_numeric_field(*, value, context: str) -> None:
-    if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float))):
+    if value is not None and (
+        isinstance(value, bool) or not isinstance(value, (int, float))
+    ):
         raise ValueError(f"{context} must be numeric")
 
 
@@ -142,11 +156,20 @@ def _validate_nested_visit_distribution(*, visit_distribution, context: str) -> 
         if str(move_index) != str(move):
             raise ValueError(f"{context} move keys must be integer-like")
         if not 0 <= move_index < PITS_PER_PLAYER:
-            raise ValueError(f"{context} move keys must be between 0 and {PITS_PER_PLAYER - 1}")
+            raise ValueError(
+                f"{context} move keys must be between 0 and {PITS_PER_PLAYER - 1}"
+            )
         _validate_nested_numeric_field(value=visit_count, context=f"{context}[{move}]")
 
 
-def _validate_visit_snapshots(*, row_id: str, probe_mode: str, reference_move: int, selected_move: int | None, visit_snapshots) -> None:
+def _validate_visit_snapshots(
+    *,
+    row_id: str,
+    probe_mode: str,
+    reference_move: int,
+    selected_move: int | None,
+    visit_snapshots,
+) -> None:
     if visit_snapshots is None:
         return
     if not isinstance(visit_snapshots, list):
@@ -161,7 +184,9 @@ def _validate_visit_snapshots(*, row_id: str, probe_mode: str, reference_move: i
             )
 
         simulation = snapshot.get("simulation")
-        if simulation is not None and (isinstance(simulation, bool) or not isinstance(simulation, (int, float))):
+        if simulation is not None and (
+            isinstance(simulation, bool) or not isinstance(simulation, (int, float))
+        ):
             raise ValueError(
                 f"source arbitration artifact row {row_id} {probe_mode} visit_snapshots[{index}] simulation must be numeric"
             )
@@ -211,7 +236,9 @@ def _validate_child_stats(*, row_id: str, probe_mode: str, child_stats) -> None:
     if child_stats is None:
         return
     if not isinstance(child_stats, list):
-        raise ValueError(f"source arbitration artifact row {row_id} {probe_mode} child_stats must be a list")
+        raise ValueError(
+            f"source arbitration artifact row {row_id} {probe_mode} child_stats must be a list"
+        )
 
     for index, child in enumerate(child_stats):
         if not isinstance(child, dict):
@@ -237,9 +264,13 @@ def _validate_child_stats(*, row_id: str, probe_mode: str, child_stats) -> None:
         )
 
 
-def _validate_probe_mode_summary(*, row_id: str, probe_mode: str, reference_move: int, probe_mode_summary: dict) -> None:
+def _validate_probe_mode_summary(
+    *, row_id: str, probe_mode: str, reference_move: int, probe_mode_summary: dict
+) -> None:
     selected_move = probe_mode_summary.get("selected_move")
-    if selected_move is not None and (isinstance(selected_move, bool) or not isinstance(selected_move, int)):
+    if selected_move is not None and (
+        isinstance(selected_move, bool) or not isinstance(selected_move, int)
+    ):
         raise ValueError(
             f"source arbitration artifact row {row_id} {probe_mode} selected_move must be an integer"
         )
@@ -302,7 +333,13 @@ def _validate_probe_mode_summary(*, row_id: str, probe_mode: str, reference_move
     )
 
 
-def _normalized_visit_distribution(*, visit_distribution: dict | None, child_stats, reference_move: int, selected_move: int | None):
+def _normalized_visit_distribution(
+    *,
+    visit_distribution: dict | None,
+    child_stats,
+    reference_move: int,
+    selected_move: int | None,
+):
     if visit_distribution is None:
         return None
     _validate_nested_visit_distribution(
@@ -329,7 +366,9 @@ def _normalized_visit_distribution(*, visit_distribution: dict | None, child_sta
     return visits
 
 
-def _normalize_probe_mode_summary(*, row: dict, row_id: str, probe_mode: str, reference_move: int) -> dict | None:
+def _normalize_probe_mode_summary(
+    *, row: dict, row_id: str, probe_mode: str, reference_move: int
+) -> dict | None:
     probe_mode_summary = row.get(probe_mode)
     if isinstance(probe_mode_summary, dict):
         return probe_mode_summary
@@ -345,9 +384,13 @@ def _normalize_probe_mode_summary(*, row: dict, row_id: str, probe_mode: str, re
     search_view = probe_view.get("search_view")
     value_view = probe_view.get("value_view")
     if not isinstance(search_view, dict):
-        raise ValueError(f"source arbitration artifact row {row_id} {probe_mode} search_view must be a dict")
+        raise ValueError(
+            f"source arbitration artifact row {row_id} {probe_mode} search_view must be a dict"
+        )
     if not isinstance(value_view, dict):
-        raise ValueError(f"source arbitration artifact row {row_id} {probe_mode} value_view must be a dict")
+        raise ValueError(
+            f"source arbitration artifact row {row_id} {probe_mode} value_view must be a dict"
+        )
 
     selected_move = search_view.get("searched_selected_move")
     _validate_nested_move_field(
@@ -378,9 +421,13 @@ def _normalize_probe_mode_summary(*, row: dict, row_id: str, probe_mode: str, re
     )
     selected_minus_reference_visit_share = None
     if reference_visit_share is not None and selected_visit_share is not None:
-        selected_minus_reference_visit_share = float(selected_visit_share) - float(reference_visit_share)
+        selected_minus_reference_visit_share = float(selected_visit_share) - float(
+            reference_visit_share
+        )
 
-    selected_minus_reference_q_margin = value_view.get("selected_minus_reference_q_margin")
+    selected_minus_reference_q_margin = value_view.get(
+        "selected_minus_reference_q_margin"
+    )
     _validate_nested_numeric_field(
         value=selected_minus_reference_q_margin,
         context=f"source arbitration artifact row {row_id} {probe_mode} selected_minus_reference_q_margin",
@@ -420,9 +467,13 @@ def load_source_arbitration_artifact(artifact_path: Path) -> dict:
             raise ValueError(f"missing required row id: {row_id}")
         reference_move = row.get("reference_move")
         if isinstance(reference_move, bool) or not isinstance(reference_move, int):
-            raise ValueError(f"source arbitration artifact row {row_id} must include integer reference_move")
+            raise ValueError(
+                f"source arbitration artifact row {row_id} must include integer reference_move"
+            )
         if reference_move < 0:
-            raise ValueError(f"source arbitration artifact row {row_id} reference_move must be non-negative")
+            raise ValueError(
+                f"source arbitration artifact row {row_id} reference_move must be non-negative"
+            )
         normalized_row = dict(row)
         _validate_optional_canonical_state(
             value=normalized_row.get("canonical_state"),
@@ -462,7 +513,9 @@ def load_source_arbitration_artifact(artifact_path: Path) -> dict:
 
     for key in REQUIRED_FULL_SEARCH_SETTINGS_KEYS:
         if key not in search_settings:
-            raise ValueError(f"source arbitration artifact search_settings missing required key: {key}")
+            raise ValueError(
+                f"source arbitration artifact search_settings missing required key: {key}"
+            )
 
     seeds = settings.get("seeds")
     if not isinstance(seeds, list) or not seeds:
@@ -470,12 +523,20 @@ def load_source_arbitration_artifact(artifact_path: Path) -> dict:
     if any(isinstance(seed, bool) or not isinstance(seed, int) for seed in seeds):
         raise ValueError("source arbitration artifact seeds must be integers")
     if len(set(seeds)) != 1:
-        raise ValueError("source arbitration artifact seeds must be identical to derive a single seed")
+        raise ValueError(
+            "source arbitration artifact seeds must be identical to derive a single seed"
+        )
     seed = seeds[0]
 
     simulation_count = settings.get("simulation_count")
-    if isinstance(simulation_count, bool) or not isinstance(simulation_count, int) or simulation_count <= 0:
-        raise ValueError("source arbitration artifact must include positive simulation_count")
+    if (
+        isinstance(simulation_count, bool)
+        or not isinstance(simulation_count, int)
+        or simulation_count <= 0
+    ):
+        raise ValueError(
+            "source arbitration artifact must include positive simulation_count"
+        )
 
     selected_artifact = artifact.get("selected_artifact")
     if not isinstance(selected_artifact, dict):
@@ -525,7 +586,9 @@ def load_source_arbitration_artifact(artifact_path: Path) -> dict:
     }
 
 
-def selected_minus_reference_visit_share(*, visits, selected_move: int | None, reference_move: int | None) -> float | None:
+def selected_minus_reference_visit_share(
+    *, visits, selected_move: int | None, reference_move: int | None
+) -> float | None:
     if visits is None or selected_move is None or reference_move is None:
         return None
 
@@ -604,8 +667,12 @@ def _normalize_legal_moves(legal_moves) -> list[int] | None:
     return [int(move) for move in legal_moves]
 
 
-def build_row_trace(*, row_id: str, canonical_state, legal_moves, reference_move: int, probe_modes: dict) -> dict:
-    canonical_state_value = canonical_state if isinstance(canonical_state, str) else None
+def build_row_trace(
+    *, row_id: str, canonical_state, legal_moves, reference_move: int, probe_modes: dict
+) -> dict:
+    canonical_state_value = (
+        canonical_state if isinstance(canonical_state, str) else None
+    )
     normalized_legal_moves = _normalize_legal_moves(legal_moves)
     full_search_trace = _build_mode_trace(
         reference_move=int(reference_move),
@@ -653,12 +720,20 @@ def _failure_path_for_probe_mode(
     if reference_move is None or selected_move is None:
         return "not_applicable"
     if probe_mode == "full_search":
-        if (prior_probe_paths or {}).get("policy_only") == "diverged_before_full_search":
+        if (prior_probe_paths or {}).get(
+            "policy_only"
+        ) == "diverged_before_full_search":
             return "diverged_before_full_search"
         if (prior_probe_paths or {}).get("value_only") == "diverged_before_full_search":
             return "diverged_before_full_search"
-        return "reference_kept" if selected_move == reference_move else "full_search_drift"
-    return "reference_kept" if selected_move == reference_move else "diverged_before_full_search"
+        return (
+            "reference_kept" if selected_move == reference_move else "full_search_drift"
+        )
+    return (
+        "reference_kept"
+        if selected_move == reference_move
+        else "diverged_before_full_search"
+    )
 
 
 def build_paired_summary(row_traces: list[dict]) -> dict:
@@ -670,7 +745,9 @@ def build_paired_summary(row_traces: list[dict]) -> dict:
 
     probe_mode_selected_moves = {
         row_trace["row_id"]: {
-            probe_mode: ((row_trace.get("probe_mode_traces") or {}).get(probe_mode) or {}).get("selected_move")
+            probe_mode: (
+                (row_trace.get("probe_mode_traces") or {}).get(probe_mode) or {}
+            ).get("selected_move")
             for probe_mode in PROBE_MODE_KEYS
         }
         for row_trace in row_traces
@@ -682,7 +759,9 @@ def build_paired_summary(row_traces: list[dict]) -> dict:
             row_paths[probe_mode] = _failure_path_for_probe_mode(
                 probe_mode=probe_mode,
                 reference_move=row_trace.get("reference_move"),
-                selected_move=((row_trace.get("probe_mode_traces") or {}).get(probe_mode) or {}).get("selected_move"),
+                selected_move=(
+                    (row_trace.get("probe_mode_traces") or {}).get(probe_mode) or {}
+                ).get("selected_move"),
                 prior_probe_paths=row_paths,
             )
         probe_mode_failure_paths[row_trace["row_id"]] = row_paths
@@ -693,7 +772,9 @@ def build_paired_summary(row_traces: list[dict]) -> dict:
         for failure_path in row_paths.values()
     } - PROBE_MODE_FAILURE_PATHS
     if invalid_paths:
-        raise ValueError(f"unsupported probe mode failure paths: {sorted(invalid_paths)}")
+        raise ValueError(
+            f"unsupported probe mode failure paths: {sorted(invalid_paths)}"
+        )
 
     full_search_comparable_paths = [
         row_paths["full_search"]
@@ -701,7 +782,8 @@ def build_paired_summary(row_traces: list[dict]) -> dict:
         if row_paths["full_search"] != "not_applicable"
     ]
     pre_full_search_kept = all(
-        row_paths.get("policy_only") == "reference_kept" and row_paths.get("value_only") == "reference_kept"
+        row_paths.get("policy_only") == "reference_kept"
+        and row_paths.get("value_only") == "reference_kept"
         for row_paths in probe_mode_failure_paths.values()
     )
 
@@ -720,7 +802,9 @@ def _full_search_row(rows: dict, row_id: str) -> dict:
     return dict(((rows.get(row_id) or {}).get("full_search") or {}))
 
 
-def _snapshot_is_early(*, snapshots: list[dict], thresholds: dict, simulation_count: int | None = None) -> bool:
+def _snapshot_is_early(
+    *, snapshots: list[dict], thresholds: dict, simulation_count: int | None = None
+) -> bool:
     minimum_count = int(thresholds["minimum_early_snapshot_count"])
     if len(snapshots) < minimum_count:
         return False
@@ -732,16 +816,26 @@ def _snapshot_is_early(*, snapshots: list[dict], thresholds: dict, simulation_co
 
     first_simulation = first_snapshot.get("simulation")
     last_simulation = last_snapshot.get("simulation")
-    if not isinstance(first_simulation, (int, float)) or not isinstance(last_simulation, (int, float)):
+    if not isinstance(first_simulation, (int, float)) or not isinstance(
+        last_simulation, (int, float)
+    ):
         return False
     if first_simulation <= 0 or last_simulation <= 0:
         return False
     if len(snapshots) == minimum_count == 1:
-        if isinstance(simulation_count, bool) or not isinstance(simulation_count, int) or simulation_count <= 0:
+        if (
+            isinstance(simulation_count, bool)
+            or not isinstance(simulation_count, int)
+            or simulation_count <= 0
+        ):
             return False
-        return (float(first_simulation) / float(simulation_count)) <= float(thresholds["early_snapshot_fraction"])
+        return (float(first_simulation) / float(simulation_count)) <= float(
+            thresholds["early_snapshot_fraction"]
+        )
 
-    return (float(first_simulation) / float(last_simulation)) <= float(thresholds["early_snapshot_fraction"])
+    return (float(first_simulation) / float(last_simulation)) <= float(
+        thresholds["early_snapshot_fraction"]
+    )
 
 
 def _prior_is_materially_distorted(*, row: dict, thresholds: dict) -> bool:
@@ -749,7 +843,9 @@ def _prior_is_materially_distorted(*, row: dict, thresholds: dict) -> bool:
     prior_selected_move = row.get("prior_selected_move")
     if prior_reference_move is None or prior_selected_move is None:
         return False
-    prior_distortion = 1.0 if int(prior_reference_move) != int(prior_selected_move) else 0.0
+    prior_distortion = (
+        1.0 if int(prior_reference_move) != int(prior_selected_move) else 0.0
+    )
     return prior_distortion >= float(thresholds["material_prior_distortion"])
 
 
@@ -782,14 +878,25 @@ def _all_rows_match(row_ids: list[str], rows: dict, predicate) -> bool:
 
 
 def _all_rows_have_numeric_q_margin(row_ids: list[str], rows: dict) -> bool:
-    return all(_q_margin(_full_search_row(rows, row_id)) is not None for row_id in row_ids)
+    return all(
+        _q_margin(_full_search_row(rows, row_id)) is not None for row_id in row_ids
+    )
 
 
 def _all_rows_have_numeric_visit_share_overtake(row_ids: list[str], rows: dict) -> bool:
-    return all(_visit_share_overtake(_full_search_row(rows, row_id)) is not None for row_id in row_ids)
+    return all(
+        _visit_share_overtake(_full_search_row(rows, row_id)) is not None
+        for row_id in row_ids
+    )
 
 
-def classify_paired_summary(*, rows: dict, paired_summary: dict, thresholds: dict, simulation_count: int | None = None) -> dict:
+def classify_paired_summary(
+    *,
+    rows: dict,
+    paired_summary: dict,
+    thresholds: dict,
+    simulation_count: int | None = None,
+) -> dict:
     row_ids = list(ROW_IDS)
     if not paired_summary.get("shared_mechanism_supported"):
         return {
@@ -805,7 +912,9 @@ def classify_paired_summary(*, rows: dict, paired_summary: dict, thresholds: dic
             return row_failure_path.get("full_search")
         return row_failure_path
 
-    if any(full_search_failure_path(row_id) != "full_search_drift" for row_id in row_ids):
+    if any(
+        full_search_failure_path(row_id) != "full_search_drift" for row_id in row_ids
+    ):
         return {
             "classification": "unresolved",
             "evidence_summary": "Shared full-search drift is supported, but the paired evidence does not isolate one approved mechanism.",
@@ -813,7 +922,9 @@ def classify_paired_summary(*, rows: dict, paired_summary: dict, thresholds: dic
 
     meaningful_q_margin = float(thresholds["meaningful_q_margin"])
     small_q_margin = float(thresholds["small_q_margin"])
-    meaningful_visit_share_overtake = float(thresholds["meaningful_visit_share_overtake"])
+    meaningful_visit_share_overtake = float(
+        thresholds["meaningful_visit_share_overtake"]
+    )
 
     def row_has_early_snapshot(row: dict) -> bool:
         return _snapshot_is_early(
@@ -823,50 +934,80 @@ def classify_paired_summary(*, rows: dict, paired_summary: dict, thresholds: dic
         )
 
     def row_is_early_prior_drift(row: dict) -> bool:
-        return row_has_early_snapshot(row) and _prior_is_materially_distorted(row=row, thresholds=thresholds)
+        return row_has_early_snapshot(row) and _prior_is_materially_distorted(
+            row=row, thresholds=thresholds
+        )
 
     def row_preserves_prior_early(row: dict) -> bool:
-        return row_has_early_snapshot(row) and not _prior_is_materially_distorted(row=row, thresholds=thresholds)
+        return row_has_early_snapshot(row) and not _prior_is_materially_distorted(
+            row=row, thresholds=thresholds
+        )
 
     if _all_rows_match(row_ids, rows, row_is_early_prior_drift):
-        if _all_rows_match(row_ids, rows, lambda row: bool(row.get("tactical_bias_applied"))) and _all_rows_match(
+        if _all_rows_match(
+            row_ids, rows, lambda row: bool(row.get("tactical_bias_applied"))
+        ) and _all_rows_match(
             row_ids,
             rows,
-            lambda row: (_q_margin(row) is not None) and _q_margin(row) <= small_q_margin,
+            lambda row: (
+                (_q_margin(row) is not None) and _q_margin(row) <= small_q_margin
+            ),
         ):
             return {
                 "classification": "tactical_root_bias_interaction",
                 "evidence_summary": "Both rows drift from the first search snapshot with small Q margins while tactical root bias is explicitly active.",
             }
 
-        if _all_rows_match(row_ids, rows, _drifting_child_has_no_q_or_visits) and _all_rows_match(
+        if _all_rows_match(
+            row_ids, rows, _drifting_child_has_no_q_or_visits
+        ) and _all_rows_match(
             row_ids,
             rows,
-            lambda row: (_q_margin(row) is not None) and _q_margin(row) <= small_q_margin,
+            lambda row: (
+                (_q_margin(row) is not None) and _q_margin(row) <= small_q_margin
+            ),
         ):
             return {
                 "classification": "fpu_or_unvisited_child_pressure",
                 "evidence_summary": "Both rows drift from the first search snapshot with small Q margins, and the drifting child remains unvisited or lacks an observed Q value.",
             }
 
-        if _all_rows_match(row_ids, rows, lambda row: (_q_margin(row) is not None) and _q_margin(row) <= small_q_margin):
+        if _all_rows_match(
+            row_ids,
+            rows,
+            lambda row: (
+                (_q_margin(row) is not None) and _q_margin(row) <= small_q_margin
+            ),
+        ):
             return {
                 "classification": "root_prior_decay",
                 "evidence_summary": "Both rows drift only after full search, early visits already tilt away from the prior reference move, and child Q margins stay below the meaningful threshold.",
             }
 
     if _all_rows_match(row_ids, rows, row_preserves_prior_early):
-        if _all_rows_match(row_ids, rows, lambda row: (_q_margin(row) is not None) and _q_margin(row) >= meaningful_q_margin):
+        if _all_rows_match(
+            row_ids,
+            rows,
+            lambda row: (
+                (_q_margin(row) is not None) and _q_margin(row) >= meaningful_q_margin
+            ),
+        ):
             return {
                 "classification": "child_value_override",
                 "evidence_summary": "Both rows preserve the prior reference move early, but child Q margins exceed the meaningful threshold and ultimately override it.",
             }
 
-        if _all_rows_have_numeric_q_margin(row_ids, rows) and _all_rows_have_numeric_visit_share_overtake(row_ids, rows) and _all_rows_match(
-            row_ids,
-            rows,
-            lambda row: _q_margin(row) <= small_q_margin
-            and _visit_share_overtake(row) >= meaningful_visit_share_overtake,
+        if (
+            _all_rows_have_numeric_q_margin(row_ids, rows)
+            and _all_rows_have_numeric_visit_share_overtake(row_ids, rows)
+            and _all_rows_match(
+                row_ids,
+                rows,
+                lambda row: (
+                    _q_margin(row) <= small_q_margin
+                    and _visit_share_overtake(row) >= meaningful_visit_share_overtake
+                ),
+            )
         ):
             return {
                 "classification": "backup_accumulation_drift",
@@ -887,9 +1028,15 @@ def build_rows_payload(*, source_arbitration_artifact: dict) -> dict[str, dict]:
     return {
         row_id: build_row_trace(
             row_id=row_id,
-            canonical_state=(source_arbitration_artifact["rows"][row_id] or {}).get("canonical_state"),
-            legal_moves=(source_arbitration_artifact["rows"][row_id] or {}).get("legal_moves"),
-            reference_move=int((source_arbitration_artifact["rows"][row_id] or {})["reference_move"]),
+            canonical_state=(source_arbitration_artifact["rows"][row_id] or {}).get(
+                "canonical_state"
+            ),
+            legal_moves=(source_arbitration_artifact["rows"][row_id] or {}).get(
+                "legal_moves"
+            ),
+            reference_move=int(
+                (source_arbitration_artifact["rows"][row_id] or {})["reference_move"]
+            ),
             probe_modes=source_arbitration_artifact["rows"][row_id],
         )
         for row_id in ROW_IDS
@@ -941,11 +1088,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    source_arbitration_artifact = load_source_arbitration_artifact(args.source_arbitration_artifact)
+    source_arbitration_artifact = load_source_arbitration_artifact(
+        args.source_arbitration_artifact
+    )
     rows = build_rows_payload(source_arbitration_artifact=source_arbitration_artifact)
-    payload = build_payload(source_arbitration_artifact=source_arbitration_artifact, rows=rows)
+    payload = build_payload(
+        source_arbitration_artifact=source_arbitration_artifact, rows=rows
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

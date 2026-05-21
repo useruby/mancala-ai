@@ -55,7 +55,11 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertTrue(out_path.exists())
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertTrue(rows)
             self.assertIn("state", rows[0])
             self.assertIn("policy", rows[0])
@@ -95,12 +99,18 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertRegex(result.stdout, r"teacher_search_reuse=true")
-            self.assertRegex(result.stdout, r"dataset_metrics .*teacher_search_reuse=true")
+            self.assertRegex(
+                result.stdout, r"dataset_metrics .*teacher_search_reuse=true"
+            )
 
-    def test_cli_reports_effective_teacher_search_reuse_false_for_classic_mcts_teacher(self):
+    def test_cli_reports_effective_teacher_search_reuse_false_for_classic_mcts_teacher(
+        self,
+    ):
         repo_root = Path(__file__).resolve().parents[2]
 
-        with tempfile.TemporaryDirectory(prefix="azlite-bootstrap-metrics-classic-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-bootstrap-metrics-classic-"
+        ) as tmp:
             out_path = Path(tmp) / "bootstrap.jsonl"
 
             result = subprocess.run(
@@ -131,7 +141,9 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertRegex(result.stdout, r"teacher_search_reuse=false")
-            self.assertRegex(result.stdout, r"dataset_metrics .*teacher_search_reuse=false")
+            self.assertRegex(
+                result.stdout, r"dataset_metrics .*teacher_search_reuse=false"
+            )
 
     def test_shape_policy_uses_true_dirichlet_sampler(self):
         fake_rng = mock.Mock()
@@ -139,7 +151,11 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         fake_generator = mock.Mock()
         fake_generator.dirichlet.return_value = [0.2, 0.8]
 
-        with mock.patch.object(generate_bootstrap_dataset.np.random, "default_rng", return_value=fake_generator):
+        with mock.patch.object(
+            generate_bootstrap_dataset.np.random,
+            "default_rng",
+            return_value=fake_generator,
+        ):
             policy = generate_bootstrap_dataset.shape_policy(
                 visits=[4.0, 1.0, 0.0, 0.0, 0.0, 0.0],
                 legal_moves=[0, 1],
@@ -190,7 +206,11 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertTrue(out_path.exists())
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertTrue(rows)
             for row in rows:
                 self.assertIn("state", row)
@@ -204,13 +224,15 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         from ml.alphazero_lite.classic_mcts import Node
         from ml.alphazero_lite.kalah_rules import KalahGame
 
-        game = KalahGame.from_state({
-            "player_pits": [4, 4, 4, 4, 4, 4],
-            "opponent_pits": [4, 4, 4, 4, 4, 4],
-            "player_store": 0,
-            "opponent_store": 0,
-            "current_player": 0,
-        })
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
         root = Node(game)
         child_a = Node(game, parent=root)
         child_a.visits = 5
@@ -230,13 +252,15 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         from ml.alphazero_lite.classic_mcts import Node
         from ml.alphazero_lite.kalah_rules import KalahGame
 
-        game = KalahGame.from_state({
-            "player_pits": [4, 4, 4, 4, 4, 4],
-            "opponent_pits": [4, 4, 4, 4, 4, 4],
-            "player_store": 0,
-            "opponent_store": 0,
-            "current_player": 0,
-        })
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
         root = Node(game)
         root.visits = 10
         root.wins = 7.0
@@ -250,13 +274,15 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         from ml.alphazero_lite.classic_mcts import Node
         from ml.alphazero_lite.kalah_rules import KalahGame
 
-        game = KalahGame.from_state({
-            "player_pits": [4, 4, 4, 4, 4, 4],
-            "opponent_pits": [4, 4, 4, 4, 4, 4],
-            "player_store": 0,
-            "opponent_store": 0,
-            "current_player": 0,
-        })
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
         root = Node(game)
 
         value = generate_bootstrap_dataset.value_from_classic_mcts_root(root)
@@ -267,7 +293,17 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         shallow_root = mock.Mock(q_value=0.25)
 
         class TrackingPUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, reuse_subtree=False, **kwargs):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                reuse_subtree=False,
+                **kwargs,
+            ):
                 del evaluator, c_puct, rng, kwargs
                 created_searches.append(
                     {
@@ -290,8 +326,9 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-bootstrap-worker-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(generate_bootstrap_dataset, "PUCT", TrackingPUCT), mock.patch.object(
-                generate_bootstrap_dataset, "MAX_MOVES", 1
+            with (
+                mock.patch.object(generate_bootstrap_dataset, "PUCT", TrackingPUCT),
+                mock.patch.object(generate_bootstrap_dataset, "MAX_MOVES", 1),
             ):
                 result_disabled = generate_bootstrap_dataset.run_worker(
                     worker_id=0,
@@ -349,7 +386,17 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         shallow_root = mock.Mock(q_value=0.25)
 
         class TrackingPUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, reuse_subtree=False, **kwargs):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                reuse_subtree=False,
+                **kwargs,
+            ):
                 del evaluator, c_puct, rng, kwargs
                 created_searches.append(
                     {
@@ -372,8 +419,9 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-bootstrap-worker-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(generate_bootstrap_dataset, "PUCT", TrackingPUCT), mock.patch.object(
-                generate_bootstrap_dataset, "MAX_MOVES", 1
+            with (
+                mock.patch.object(generate_bootstrap_dataset, "PUCT", TrackingPUCT),
+                mock.patch.object(generate_bootstrap_dataset, "MAX_MOVES", 1),
             ):
                 result_disabled = generate_bootstrap_dataset.run_worker(
                     worker_id=0,
@@ -437,7 +485,17 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         shallow_root = MutableRoot(0.25)
 
         class MutatingPUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, reuse_subtree=False, **kwargs):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                reuse_subtree=False,
+                **kwargs,
+            ):
                 del evaluator, c_puct, rng, reuse_subtree, kwargs
                 self._simulations = simulations
                 self._root = root
@@ -446,10 +504,14 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
                 del game, dirichlet_alpha, dirichlet_epsilon
                 if self._root is None:
                     shallow_values_seen.append(shallow_root.q_value)
-                    return np.array([6.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), shallow_root
+                    return np.array(
+                        [6.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32
+                    ), shallow_root
 
                 self._root.q_value = 0.75
-                return np.array([0.0, 6.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), self._root
+                return np.array(
+                    [0.0, 6.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32
+                ), self._root
 
         real_annotate_rows = generate_bootstrap_dataset.annotate_rows
 
@@ -460,9 +522,15 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-bootstrap-worker-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(generate_bootstrap_dataset, "PUCT", MutatingPUCT), mock.patch.object(
-                generate_bootstrap_dataset, "MAX_MOVES", 1
-            ), mock.patch.object(generate_bootstrap_dataset, "annotate_rows", side_effect=capture_annotate_rows):
+            with (
+                mock.patch.object(generate_bootstrap_dataset, "PUCT", MutatingPUCT),
+                mock.patch.object(generate_bootstrap_dataset, "MAX_MOVES", 1),
+                mock.patch.object(
+                    generate_bootstrap_dataset,
+                    "annotate_rows",
+                    side_effect=capture_annotate_rows,
+                ),
+            ):
                 result = generate_bootstrap_dataset.run_worker(
                     worker_id=0,
                     start_index=0,
@@ -484,21 +552,38 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
                     shard_path=str(shard_path),
                 )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertEqual(1, len(rows))
         self.assertEqual(1, len(captured_positions))
         self.assertEqual(1, len(shallow_values_seen))
         self.assertAlmostEqual(0.25, shallow_values_seen[0], places=6)
-        self.assertAlmostEqual(0.25, captured_positions[0]["root_search_value"], places=6)
+        self.assertAlmostEqual(
+            0.25, captured_positions[0]["root_search_value"], places=6
+        )
 
-    def test_run_worker_teacher_search_reuse_does_not_leak_into_next_real_reusable_root(self):
+    def test_run_worker_teacher_search_reuse_does_not_leak_into_next_real_reusable_root(
+        self,
+    ):
         created_searches = []
         chosen_child_marks = []
 
         class FakeRoot:
-            def __init__(self, name=None, *, game=None, prior=0.0, visit_count=0, value_sum=0.0, expanded=True):
+            def __init__(
+                self,
+                name=None,
+                *,
+                game=None,
+                prior=0.0,
+                visit_count=0,
+                value_sum=0.0,
+                expanded=True,
+            ):
                 self.name = name or "cloned"
                 self.q_value = 0.0
                 self.children = {}
@@ -522,7 +607,17 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         shallow_child.children[0] = teacher_child
 
         class TrackingPUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, reuse_subtree=False, **kwargs):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                reuse_subtree=False,
+                **kwargs,
+            ):
                 del evaluator, c_puct, rng, kwargs
                 created_searches.append(
                     {
@@ -536,11 +631,15 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
             def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
                 del game, dirichlet_alpha, dirichlet_epsilon
                 if self._root is None:
-                    return np.array([6.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), shallow_root
+                    return np.array(
+                        [6.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32
+                    ), shallow_root
 
                 chosen_child = self._root.child_for_action(0)
                 chosen_child.teacher_marks.append("teacher")
-                return np.array([6.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), self._root
+                return np.array(
+                    [6.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32
+                ), self._root
 
         real_annotate_rows = generate_bootstrap_dataset.annotate_rows
 
@@ -552,9 +651,15 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-bootstrap-worker-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(generate_bootstrap_dataset, "PUCT", TrackingPUCT), mock.patch.object(
-                generate_bootstrap_dataset, "MAX_MOVES", 2
-            ), mock.patch.object(generate_bootstrap_dataset, "annotate_rows", side_effect=capture_annotate_rows):
+            with (
+                mock.patch.object(generate_bootstrap_dataset, "PUCT", TrackingPUCT),
+                mock.patch.object(generate_bootstrap_dataset, "MAX_MOVES", 2),
+                mock.patch.object(
+                    generate_bootstrap_dataset,
+                    "annotate_rows",
+                    side_effect=capture_annotate_rows,
+                ),
+            ):
                 result = generate_bootstrap_dataset.run_worker(
                     worker_id=0,
                     start_index=0,
@@ -587,7 +692,9 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
     def test_cli_teacher_search_reuse_keeps_hybrid_teacher_output_deterministic(self):
         repo_root = Path(__file__).resolve().parents[2]
 
-        with tempfile.TemporaryDirectory(prefix="azlite-bootstrap-hybrid-reuse-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-bootstrap-hybrid-reuse-"
+        ) as tmp:
             first_out = Path(tmp) / "bootstrap-first.jsonl"
             second_out = Path(tmp) / "bootstrap-second.jsonl"
             command = [
@@ -630,8 +737,16 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
             )
             self.assertEqual(0, second.returncode, msg=second.stderr)
 
-            first_rows = [json.loads(line) for line in first_out.read_text(encoding="utf-8").splitlines() if line.strip()]
-            second_rows = [json.loads(line) for line in second_out.read_text(encoding="utf-8").splitlines() if line.strip()]
+            first_rows = [
+                json.loads(line)
+                for line in first_out.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            second_rows = [
+                json.loads(line)
+                for line in second_out.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertTrue(first_rows)
         self.assertEqual(first_rows, second_rows)

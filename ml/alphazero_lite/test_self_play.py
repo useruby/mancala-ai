@@ -14,11 +14,20 @@ import numpy as np
 from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite import self_play
 from ml.alphazero_lite import opponent_pool
-from ml.alphazero_lite.input_encodings import BASE_FEATURE_ORDER, KALAH_V3_EXTRA_FEATURE_ORDER
+from ml.alphazero_lite.input_encodings import (
+    BASE_FEATURE_ORDER,
+    KALAH_V3_EXTRA_FEATURE_ORDER,
+)
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 
-VALUE_TARGET_PARITY_FIXTURE = Path(__file__).resolve().parents[2] / "test" / "fixtures" / "ai" / "value_target_parity_cases.json"
+VALUE_TARGET_PARITY_FIXTURE = (
+    Path(__file__).resolve().parents[2]
+    / "test"
+    / "fixtures"
+    / "ai"
+    / "value_target_parity_cases.json"
+)
 
 
 def kalah_v3_feature_index(name: str) -> int:
@@ -51,7 +60,10 @@ class SelfPlayScriptTest(unittest.TestCase):
         def fake_access(path, mode):
             return path == executable_fallback and mode == os.X_OK
 
-        with mock.patch.object(Path, "is_file", fake_is_file), mock.patch("os.access", side_effect=fake_access):
+        with (
+            mock.patch.object(Path, "is_file", fake_is_file),
+            mock.patch("os.access", side_effect=fake_access),
+        ):
             self.assertEqual(str(executable_fallback), self.executable_python())
 
     def test_executable_python_falls_back_to_sys_executable(self):
@@ -71,7 +83,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             }
         )
 
-    def _write_checkpoint(self, directory: Path, name: str, *, input_features: int) -> Path:
+    def _write_checkpoint(
+        self, directory: Path, name: str, *, input_features: int
+    ) -> Path:
         checkpoint_path = directory / name
         np.savez(
             checkpoint_path,
@@ -93,7 +107,9 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         self.assertEqual(("priors-a", 0.25), cache.get("state-a"))
 
-    def test_eval_cache_evicts_least_recently_used_entry_when_max_entries_exceeded(self):
+    def test_eval_cache_evicts_least_recently_used_entry_when_max_entries_exceeded(
+        self,
+    ):
         cache = EvalCache(max_entries=2)
 
         cache.put("state-a", "value-a")
@@ -157,7 +173,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertAlmostEqual(0.55, target, places=6)
 
     def test_canonical_value_target_matches_shared_parity_fixture(self):
-        parity_cases = json.loads(VALUE_TARGET_PARITY_FIXTURE.read_text(encoding="utf-8"))
+        parity_cases = json.loads(
+            VALUE_TARGET_PARITY_FIXTURE.read_text(encoding="utf-8")
+        )
 
         for parity_case in parity_cases:
             with self.subTest(case=parity_case["name"]):
@@ -181,7 +199,10 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(0.0, target)
 
     def test_parse_args_accepts_hybrid_value_target_mode(self):
-        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "hybrid"]):
+        with mock.patch(
+            "sys.argv",
+            ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "hybrid"],
+        ):
             args = self_play.parse_args()
 
         self.assertEqual("hybrid", args.value_target_mode)
@@ -189,44 +210,80 @@ class SelfPlayScriptTest(unittest.TestCase):
     def test_parse_args_accepts_phase_aware_value_target_mode(self):
         with mock.patch(
             "sys.argv",
-            ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "phase_aware_sharpened"],
+            [
+                "self_play.py",
+                "--out",
+                "tmp.jsonl",
+                "--value-target-mode",
+                "phase_aware_sharpened",
+            ],
         ):
             args = self_play.parse_args()
 
         self.assertEqual("phase_aware_sharpened", args.value_target_mode)
 
     def test_parse_args_accepts_sharpened_value_target_mode(self):
-        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "sharpened"]):
+        with mock.patch(
+            "sys.argv",
+            ["self_play.py", "--out", "tmp.jsonl", "--value-target-mode", "sharpened"],
+        ):
             args = self_play.parse_args()
 
         self.assertEqual("sharpened", args.value_target_mode)
 
     def test_parse_args_accepts_sharpened_policy_target_mode(self):
-        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--policy-target-mode", "sharpened"]):
+        with mock.patch(
+            "sys.argv",
+            ["self_play.py", "--out", "tmp.jsonl", "--policy-target-mode", "sharpened"],
+        ):
             args = self_play.parse_args()
 
         self.assertEqual("sharpened", args.policy_target_mode)
 
     def test_parse_args_accepts_opponent_pool_config(self):
-        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--opponent-pool-config", "pool.json"]):
+        with mock.patch(
+            "sys.argv",
+            [
+                "self_play.py",
+                "--out",
+                "tmp.jsonl",
+                "--opponent-pool-config",
+                "pool.json",
+            ],
+        ):
             args = self_play.parse_args()
 
         self.assertEqual("pool.json", args.opponent_pool_config)
 
     def test_parse_args_accepts_opening_cache_path(self):
-        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--opening-cache", "opening-cache.json"]):
+        with mock.patch(
+            "sys.argv",
+            [
+                "self_play.py",
+                "--out",
+                "tmp.jsonl",
+                "--opening-cache",
+                "opening-cache.json",
+            ],
+        ):
             args = self_play.parse_args()
 
         self.assertEqual("opening-cache.json", args.opening_cache)
 
     def test_parse_args_accepts_evaluator_cache_size(self):
-        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--evaluator-cache-size", "128"]):
+        with mock.patch(
+            "sys.argv",
+            ["self_play.py", "--out", "tmp.jsonl", "--evaluator-cache-size", "128"],
+        ):
             args = self_play.parse_args()
 
         self.assertEqual(128, args.evaluator_cache_size)
 
     def test_parse_args_rejects_negative_evaluator_cache_size(self):
-        with mock.patch("sys.argv", ["self_play.py", "--out", "tmp.jsonl", "--evaluator-cache-size", "-1"]):
+        with mock.patch(
+            "sys.argv",
+            ["self_play.py", "--out", "tmp.jsonl", "--evaluator-cache-size", "-1"],
+        ):
             with self.assertRaisesRegex(SystemExit, "2"):
                 self_play.parse_args()
 
@@ -263,7 +320,9 @@ class SelfPlayScriptTest(unittest.TestCase):
     def test_load_opponent_checkpoints_requires_object_root(self):
         with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
             config_path = Path(tmp) / "pool.json"
-            config_path.write_text(json.dumps(["not", "an", "object"]), encoding="utf-8")
+            config_path.write_text(
+                json.dumps(["not", "an", "object"]), encoding="utf-8"
+            )
 
             with self.assertRaisesRegex(ValueError, "root must be a JSON object"):
                 opponent_pool.load_opponent_checkpoints(str(config_path))
@@ -271,7 +330,9 @@ class SelfPlayScriptTest(unittest.TestCase):
     def test_load_opponent_checkpoints_rejects_missing_checkpoint_path(self):
         with tempfile.TemporaryDirectory(prefix="azlite-opponent-pool-") as tmp:
             config_path = Path(tmp) / "pool.json"
-            config_path.write_text(json.dumps({"checkpoints": ["missing/model.npz"]}), encoding="utf-8")
+            config_path.write_text(
+                json.dumps({"checkpoints": ["missing/model.npz"]}), encoding="utf-8"
+            )
 
             with self.assertRaisesRegex(ValueError, "references missing checkpoint"):
                 opponent_pool.load_opponent_checkpoints(str(config_path))
@@ -282,7 +343,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             checkpoint_dir = tmp_path / "checkpoints"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
             config_path = tmp_path / "pool.json"
-            config_path.write_text(json.dumps({"checkpoints": [str(checkpoint_dir)]}), encoding="utf-8")
+            config_path.write_text(
+                json.dumps({"checkpoints": [str(checkpoint_dir)]}), encoding="utf-8"
+            )
 
             with self.assertRaisesRegex(ValueError, "non-file checkpoint"):
                 opponent_pool.load_opponent_checkpoints(str(config_path))
@@ -294,7 +357,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             checkpoint_path.write_text("", encoding="utf-8")
             weird_absolute = checkpoint_path.parent / "." / checkpoint_path.name
             config_path = tmp_path / "pool.json"
-            config_path.write_text(json.dumps({"checkpoints": [str(weird_absolute)]}), encoding="utf-8")
+            config_path.write_text(
+                json.dumps({"checkpoints": [str(weird_absolute)]}), encoding="utf-8"
+            )
 
             loaded = opponent_pool.load_opponent_checkpoints(str(config_path))
             self.assertEqual([str(checkpoint_path.resolve())], loaded)
@@ -390,7 +455,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertNotIn("c_puct", profile)
         self.assertNotIn("search_options", profile)
 
-    def test_build_search_options_normalizes_partial_value_trust_schedule_with_defaults(self):
+    def test_build_search_options_normalizes_partial_value_trust_schedule_with_defaults(
+        self,
+    ):
         options = self_play.build_search_options(
             value_trust_schedule={
                 "opening": 0.8,
@@ -419,7 +486,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                 priors = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
                 return priors, 0.0
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opponents-fingerprint-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opponents-fingerprint-"
+        ) as tmp:
             tmp_path = Path(tmp)
             shard_path = tmp_path / "worker.jsonl"
             opponent_pool_config_path = tmp_path / "pool.json"
@@ -453,7 +522,11 @@ class SelfPlayScriptTest(unittest.TestCase):
                     opponent_pool_config=str(opponent_pool_config_path),
                 )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertGreater(len(rows), 0)
 
             resolved_checkpoints = [
@@ -461,10 +534,15 @@ class SelfPlayScriptTest(unittest.TestCase):
                 str((tmp_path / "nested/opp_2.npz").resolve()),
             ]
             expected_fingerprint = hashlib.sha256(
-                json.dumps(resolved_checkpoints, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+                json.dumps(
+                    resolved_checkpoints, separators=(",", ":"), ensure_ascii=True
+                ).encode("utf-8")
             ).hexdigest()
 
-            self.assertEqual(expected_fingerprint, rows[0]["search_profile"]["opponent_pool_fingerprint"])
+            self.assertEqual(
+                expected_fingerprint,
+                rows[0]["search_profile"]["opponent_pool_fingerprint"],
+            )
 
     def test_encode_state_kalah_v3_exposes_extra_turn_and_capture_signals(self):
         extra_turn_state = {
@@ -482,8 +560,12 @@ class SelfPlayScriptTest(unittest.TestCase):
             "current_player": 0,
         }
 
-        extra_turn_features = self_play.encode_state(extra_turn_state, input_encoding="kalah_v3")
-        capture_features = self_play.encode_state(capture_state, input_encoding="kalah_v3")
+        extra_turn_features = self_play.encode_state(
+            extra_turn_state, input_encoding="kalah_v3"
+        )
+        capture_features = self_play.encode_state(
+            capture_state, input_encoding="kalah_v3"
+        )
 
         extra_turn_index = kalah_v3_feature_index("player_extra_turn_available")
         capture_index = kalah_v3_feature_index("player_capture_available")
@@ -493,7 +575,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(0.0, capture_features[extra_turn_index])
         self.assertEqual(1.0, capture_features[capture_index])
 
-    def test_encode_state_kalah_v3_does_not_count_terminal_store_move_as_extra_turn(self):
+    def test_encode_state_kalah_v3_does_not_count_terminal_store_move_as_extra_turn(
+        self,
+    ):
         state = {
             "player_pits": [0, 0, 0, 0, 0, 1],
             "opponent_pits": [0, 0, 0, 0, 0, 0],
@@ -505,7 +589,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         game = KalahGame.from_state(state)
         self.assertTrue(game.move(game.pit_index(5)))
         self.assertTrue(game.over())
-        self.assertFalse(self_play._is_immediate_extra_turn(KalahGame.from_state(state), 5))
+        self.assertFalse(
+            self_play._is_immediate_extra_turn(KalahGame.from_state(state), 5)
+        )
 
         features = self_play.encode_state(state, input_encoding="kalah_v3")
         extra_turn_index = kalah_v3_feature_index("player_extra_turn_available")
@@ -527,14 +613,18 @@ class SelfPlayScriptTest(unittest.TestCase):
             "current_player": 0,
         }
 
-        tactical_features = self_play.encode_state(tactical_state, input_encoding="kalah_v3")
+        tactical_features = self_play.encode_state(
+            tactical_state, input_encoding="kalah_v3"
+        )
         quiet_features = self_play.encode_state(quiet_state, input_encoding="kalah_v3")
 
         player_empty_index = kalah_v3_feature_index("player_empty_pit_ratio")
         player_high_seed_index = kalah_v3_feature_index("player_high_seed_ratio")
         player_one_to_store_index = kalah_v3_feature_index("player_one_to_store_ratio")
         player_remaining_index = kalah_v3_feature_index("player_remaining_stones")
-        opponent_extra_turn_index = kalah_v3_feature_index("opponent_extra_turn_available")
+        opponent_extra_turn_index = kalah_v3_feature_index(
+            "opponent_extra_turn_available"
+        )
         opponent_empty_index = kalah_v3_feature_index("opponent_empty_pit_ratio")
         opponent_remaining_index = kalah_v3_feature_index("opponent_remaining_stones")
 
@@ -545,8 +635,13 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(1.0, tactical_features[opponent_extra_turn_index])
         self.assertAlmostEqual(4.0 / 6.0, tactical_features[opponent_empty_index])
         self.assertAlmostEqual(2.0 / 48.0, tactical_features[opponent_remaining_index])
-        self.assertLess(tactical_features[player_remaining_index], quiet_features[player_remaining_index])
-        self.assertGreater(tactical_features[player_empty_index], quiet_features[player_empty_index])
+        self.assertLess(
+            tactical_features[player_remaining_index],
+            quiet_features[player_remaining_index],
+        )
+        self.assertGreater(
+            tactical_features[player_empty_index], quiet_features[player_empty_index]
+        )
 
     def test_checkpoint_evaluator_accepts_kalah_v3_placeholder_encoding(self):
         game = KalahGame.from_state(
@@ -574,13 +669,19 @@ class SelfPlayScriptTest(unittest.TestCase):
             checkpoint_path = Path(tmp) / "checkpoint.npz"
             np.savez(checkpoint_path, **checkpoint)
 
-            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v3")
+            evaluator = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v3"
+            )
 
-            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+            with mock.patch(
+                "ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state
+            ) as encode_state:
                 policy, value = evaluator.evaluate(game)
 
             encode_state.assert_called_once()
-            self.assertEqual("kalah_v3", encode_state.call_args.kwargs["input_encoding"])
+            self.assertEqual(
+                "kalah_v3", encode_state.call_args.kwargs["input_encoding"]
+            )
             self.assertEqual(6, len(policy))
             self.assertEqual(0.0, value)
 
@@ -602,36 +703,57 @@ class SelfPlayScriptTest(unittest.TestCase):
             checkpoint_path = Path(tmp) / "checkpoint.npz"
             np.savez(checkpoint_path, **checkpoint)
 
-            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v2")
+            evaluator = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v2"
+            )
 
-            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+            with mock.patch(
+                "ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state
+            ) as encode_state:
                 evaluator.evaluate(game)
 
             encode_state.assert_called_once()
-            self.assertEqual("kalah_v2", encode_state.call_args.kwargs["input_encoding"])
+            self.assertEqual(
+                "kalah_v2", encode_state.call_args.kwargs["input_encoding"]
+            )
 
     def test_checkpoint_evaluator_cache_computes_once_for_same_state_when_enabled(self):
         game = self._checkpoint_evaluator_test_game()
 
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
-            checkpoint_path = self._write_checkpoint(Path(tmp), "checkpoint.npz", input_features=15)
-            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1", cache_size=8)
+            checkpoint_path = self._write_checkpoint(
+                Path(tmp), "checkpoint.npz", input_features=15
+            )
+            evaluator = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v1", cache_size=8
+            )
 
-            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+            with mock.patch(
+                "ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state
+            ) as encode_state:
                 first_policy, first_value = evaluator.evaluate(game)
                 second_policy, second_value = evaluator.evaluate(game)
 
             encode_state.assert_called_once()
             np.testing.assert_allclose(first_policy, second_policy)
             self.assertEqual(first_value, second_value)
-            self.assertEqual({"enabled": True, "hits": 1, "misses": 1, "size": 1}, evaluator.cache_stats)
+            self.assertEqual(
+                {"enabled": True, "hits": 1, "misses": 1, "size": 1},
+                evaluator.cache_stats,
+            )
 
-    def test_checkpoint_evaluator_cached_policy_mutation_does_not_affect_later_evaluations(self):
+    def test_checkpoint_evaluator_cached_policy_mutation_does_not_affect_later_evaluations(
+        self,
+    ):
         game = self._checkpoint_evaluator_test_game()
 
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
-            checkpoint_path = self._write_checkpoint(Path(tmp), "checkpoint.npz", input_features=15)
-            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1", cache_size=8)
+            checkpoint_path = self._write_checkpoint(
+                Path(tmp), "checkpoint.npz", input_features=15
+            )
+            evaluator = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v1", cache_size=8
+            )
 
             first_policy, _first_value = evaluator.evaluate(game)
             first_policy[0] = 0.75
@@ -642,48 +764,85 @@ class SelfPlayScriptTest(unittest.TestCase):
             self.assertEqual(1.0 / 6.0, second_policy[0])
             self.assertEqual(1.0 / 6.0, second_policy[1])
 
-    def test_checkpoint_evaluator_cache_key_changes_with_input_encoding_and_checkpoint_identity(self):
+    def test_checkpoint_evaluator_cache_key_changes_with_input_encoding_and_checkpoint_identity(
+        self,
+    ):
         game = self._checkpoint_evaluator_test_game()
 
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
             tmp_path = Path(tmp)
-            checkpoint_v1 = self._write_checkpoint(tmp_path, "checkpoint_v1.npz", input_features=15)
-            checkpoint_v3 = self._write_checkpoint(tmp_path, "checkpoint_v3.npz", input_features=27)
-            duplicate_checkpoint_v1 = self._write_checkpoint(tmp_path, "checkpoint_v1_copy.npz", input_features=15)
+            checkpoint_v1 = self._write_checkpoint(
+                tmp_path, "checkpoint_v1.npz", input_features=15
+            )
+            checkpoint_v3 = self._write_checkpoint(
+                tmp_path, "checkpoint_v3.npz", input_features=27
+            )
+            duplicate_checkpoint_v1 = self._write_checkpoint(
+                tmp_path, "checkpoint_v1_copy.npz", input_features=15
+            )
 
-            evaluator_v1 = self_play.CheckpointEvaluator(checkpoint_v1, input_encoding="kalah_v1", cache_size=8)
-            evaluator_v3 = self_play.CheckpointEvaluator(checkpoint_v3, input_encoding="kalah_v3", cache_size=8)
+            evaluator_v1 = self_play.CheckpointEvaluator(
+                checkpoint_v1, input_encoding="kalah_v1", cache_size=8
+            )
+            evaluator_v3 = self_play.CheckpointEvaluator(
+                checkpoint_v3, input_encoding="kalah_v3", cache_size=8
+            )
             duplicate_evaluator_v1 = self_play.CheckpointEvaluator(
                 duplicate_checkpoint_v1,
                 input_encoding="kalah_v1",
                 cache_size=8,
             )
 
-            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+            with mock.patch(
+                "ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state
+            ) as encode_state:
                 evaluator_v1.evaluate(game)
                 evaluator_v3.evaluate(game)
                 duplicate_evaluator_v1.evaluate(game)
 
             self.assertEqual(3, encode_state.call_count)
-            self.assertNotEqual(evaluator_v1._cache_key_for(game), evaluator_v3._cache_key_for(game))
-            self.assertNotEqual(evaluator_v1._cache_key_for(game), duplicate_evaluator_v1._cache_key_for(game))
-            self.assertEqual({"enabled": True, "hits": 0, "misses": 1, "size": 1}, evaluator_v1.cache_stats)
-            self.assertEqual({"enabled": True, "hits": 0, "misses": 1, "size": 1}, evaluator_v3.cache_stats)
-            self.assertEqual({"enabled": True, "hits": 0, "misses": 1, "size": 1}, duplicate_evaluator_v1.cache_stats)
+            self.assertNotEqual(
+                evaluator_v1._cache_key_for(game), evaluator_v3._cache_key_for(game)
+            )
+            self.assertNotEqual(
+                evaluator_v1._cache_key_for(game),
+                duplicate_evaluator_v1._cache_key_for(game),
+            )
+            self.assertEqual(
+                {"enabled": True, "hits": 0, "misses": 1, "size": 1},
+                evaluator_v1.cache_stats,
+            )
+            self.assertEqual(
+                {"enabled": True, "hits": 0, "misses": 1, "size": 1},
+                evaluator_v3.cache_stats,
+            )
+            self.assertEqual(
+                {"enabled": True, "hits": 0, "misses": 1, "size": 1},
+                duplicate_evaluator_v1.cache_stats,
+            )
 
     def test_checkpoint_evaluator_disabled_cache_preserves_old_behavior(self):
         game = self._checkpoint_evaluator_test_game()
 
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
-            checkpoint_path = self._write_checkpoint(Path(tmp), "checkpoint.npz", input_features=15)
-            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+            checkpoint_path = self._write_checkpoint(
+                Path(tmp), "checkpoint.npz", input_features=15
+            )
+            evaluator = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v1"
+            )
 
-            with mock.patch("ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state) as encode_state:
+            with mock.patch(
+                "ml.alphazero_lite.self_play.encode_state", wraps=self_play.encode_state
+            ) as encode_state:
                 evaluator.evaluate(game)
                 evaluator.evaluate(game)
 
             self.assertEqual(2, encode_state.call_count)
-            self.assertEqual({"enabled": False, "hits": 0, "misses": 0, "size": 0}, evaluator.cache_stats)
+            self.assertEqual(
+                {"enabled": False, "hits": 0, "misses": 0, "size": 0},
+                evaluator.cache_stats,
+            )
 
     def test_checkpoint_evaluator_applies_residual_v3_specialized_heads(self):
         game = KalahGame.from_state(
@@ -734,14 +893,18 @@ class SelfPlayScriptTest(unittest.TestCase):
             "w_value": np.array([[1.0 / 6.0]], dtype=np.float32),
             "b_value": np.zeros(1, dtype=np.float32),
         }
-        expected_policy = self_play.softmax(np.array([1.0, 2.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32))
+        expected_policy = self_play.softmax(
+            np.array([1.0, 2.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+        )
         expected_value = float(np.tanh(0.5))
 
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
             checkpoint_path = Path(tmp) / "checkpoint.npz"
             np.savez(checkpoint_path, **checkpoint)
 
-            evaluator = self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+            evaluator = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v1"
+            )
             policy, value = evaluator.evaluate(game)
 
         np.testing.assert_allclose(expected_policy, policy, rtol=1e-6, atol=1e-6)
@@ -768,9 +931,13 @@ class SelfPlayScriptTest(unittest.TestCase):
             np.savez(checkpoint_path, **checkpoint)
 
             with self.assertRaisesRegex(ValueError, "missing specialized head weights"):
-                self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+                self_play.CheckpointEvaluator(
+                    checkpoint_path, input_encoding="kalah_v1"
+                )
 
-    def test_checkpoint_evaluator_rejects_shape_mismatched_residual_v3_specialized_heads(self):
+    def test_checkpoint_evaluator_rejects_shape_mismatched_residual_v3_specialized_heads(
+        self,
+    ):
         checkpoint = {
             "w_input": np.zeros((15, 2), dtype=np.float32),
             "b_input": np.zeros(2, dtype=np.float32),
@@ -793,7 +960,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             np.savez(checkpoint_path, **checkpoint)
 
             with self.assertRaisesRegex(ValueError, r"w_policy_hidden must have shape"):
-                self_play.CheckpointEvaluator(checkpoint_path, input_encoding="kalah_v1")
+                self_play.CheckpointEvaluator(
+                    checkpoint_path, input_encoding="kalah_v1"
+                )
 
     def test_puct_rejects_unsupported_root_policy_mode(self):
         with self.assertRaisesRegex(ValueError, "unsupported root_policy_mode"):
@@ -815,16 +984,24 @@ class SelfPlayScriptTest(unittest.TestCase):
         visits = np.array([70, 20, 10, 0, 0, 0], dtype=np.float32)
         legal_moves = [0, 1, 2]
 
-        target = self_play.build_policy_target(visits, legal_moves=legal_moves, temperature=1.0)
-        default_policy = self_play.policy_from_visits(visits, legal_moves=legal_moves, temperature=1.0)
+        target = self_play.build_policy_target(
+            visits, legal_moves=legal_moves, temperature=1.0
+        )
+        default_policy = self_play.policy_from_visits(
+            visits, legal_moves=legal_moves, temperature=1.0
+        )
 
         self.assertEqual(default_policy, target)
 
-    def test_build_policy_target_sharpened_preserves_legality_and_increases_top_move_separation(self):
+    def test_build_policy_target_sharpened_preserves_legality_and_increases_top_move_separation(
+        self,
+    ):
         visits = np.array([70, 20, 10, 0, 0, 0], dtype=np.float32)
         legal_moves = [0, 1, 2]
 
-        default_target = self_play.build_policy_target(visits, legal_moves=legal_moves, temperature=1.0)
+        default_target = self_play.build_policy_target(
+            visits, legal_moves=legal_moves, temperature=1.0
+        )
         sharpened_target = self_play.build_policy_target(
             visits,
             legal_moves=legal_moves,
@@ -842,11 +1019,15 @@ class SelfPlayScriptTest(unittest.TestCase):
             default_target[0] - default_target[1],
         )
 
-    def test_build_policy_target_sharpened_preserves_low_temperature_top_move_separation(self):
+    def test_build_policy_target_sharpened_preserves_low_temperature_top_move_separation(
+        self,
+    ):
         visits = np.array([70, 20, 10, 0, 0, 0], dtype=np.float32)
         legal_moves = [0, 1, 2]
 
-        default_target = self_play.build_policy_target(visits, legal_moves=legal_moves, temperature=0.0)
+        default_target = self_play.build_policy_target(
+            visits, legal_moves=legal_moves, temperature=0.0
+        )
         sharpened_target = self_play.build_policy_target(
             visits,
             legal_moves=legal_moves,
@@ -866,7 +1047,9 @@ class SelfPlayScriptTest(unittest.TestCase):
     def test_build_policy_target_from_distribution_sharpens_cached_teacher_policy(self):
         policy = [0.0, 0.75, 0.25, 0.0, 0.0, 0.0]
 
-        target = self_play.build_policy_target_from_distribution(policy, mode="sharpened")
+        target = self_play.build_policy_target_from_distribution(
+            policy, mode="sharpened"
+        )
 
         np.testing.assert_allclose(
             np.array([0.0, 0.9, 0.1, 0.0, 0.0, 0.0], dtype=np.float32),
@@ -1086,7 +1269,11 @@ class SelfPlayScriptTest(unittest.TestCase):
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertTrue(out_path.exists())
 
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertGreater(len(rows), 3)
 
             unique_states = set()
@@ -1094,7 +1281,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                 self.assertEqual("default", row["policy_target_mode"])
                 self.assertEqual("v1", row["search_profile"]["version"])
                 self.assertEqual("self_play", row["search_profile"]["kind"])
-                self.assertEqual(row["search_profile"]["hash"], row["search_profile_hash"])
+                self.assertEqual(
+                    row["search_profile"]["hash"], row["search_profile_hash"]
+                )
                 self.assertEqual(15, len(row["state"]))
                 self.assertEqual(6, len(row["policy"]))
                 self.assertAlmostEqual(1.0, sum(row["policy"]), places=4)
@@ -1109,7 +1298,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-metrics-") as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "self_play.jsonl"
-            checkpoint_path = self._write_checkpoint(tmp_path, "checkpoint.npz", input_features=15)
+            checkpoint_path = self._write_checkpoint(
+                tmp_path, "checkpoint.npz", input_features=15
+            )
 
             result = subprocess.run(
                 [
@@ -1143,7 +1334,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             self.assertRegex(result.stdout, r"cache_hit_rate=\d+(?:\.\d+)?")
 
     def test_cli_emits_cache_disabled_metric_when_evaluator_cache_is_off(self):
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-metrics-disabled-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-metrics-disabled-"
+        ) as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "self_play.jsonl"
 
@@ -1174,7 +1367,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             self.assertRegex(result.stdout, r"cache_misses=0")
 
     def test_cli_keeps_cache_disabled_metric_false_without_checkpoint_evaluator(self):
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-metrics-no-checkpoint-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-metrics-no-checkpoint-"
+        ) as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "self_play.jsonl"
 
@@ -1237,10 +1432,16 @@ class SelfPlayScriptTest(unittest.TestCase):
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertTrue(out_path.exists())
 
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
             self.assertGreater(len(rows), 0)
-            self.assertTrue(all(row["value_target_mode"] == "sharpened" for row in rows))
+            self.assertTrue(
+                all(row["value_target_mode"] == "sharpened" for row in rows)
+            )
 
     def test_cli_uses_indexed_hidden_layers_when_checkpoint_has_aliases(self):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-ckpt-") as tmp:
@@ -1295,7 +1496,11 @@ class SelfPlayScriptTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertTrue(out_path.exists())
-            rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertGreater(len(rows), 0)
             self.assertTrue(all(row["policy_target_mode"] == "default" for row in rows))
 
@@ -1345,7 +1550,16 @@ class SelfPlayScriptTest(unittest.TestCase):
         roots_to_return = [first_root, second_root]
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng
                 del search_options
                 created_roots.append(root)
@@ -1359,7 +1573,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
                 with mock.patch.object(self_play, "PUCT", FakePUCT):
                     result = self_play.run_self_play_worker(
                         worker_id=0,
@@ -1384,13 +1600,24 @@ class SelfPlayScriptTest(unittest.TestCase):
             self.assertEqual(2, result["rows_written"])
             self.assertEqual([None, second_root], created_roots)
 
-    def test_run_self_play_worker_actually_reuses_subtree_when_tree_reuse_path_enabled(self):
+    def test_run_self_play_worker_actually_reuses_subtree_when_tree_reuse_path_enabled(
+        self,
+    ):
         created_roots = []
         reused_roots = []
         real_puct = self_play.PUCT
 
         class TrackingPUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 created_roots.append(root)
                 self._root = root
                 self._delegate = real_puct(
@@ -1441,13 +1668,24 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertIsNotNone(created_roots[1])
         self.assertEqual([False, True], reused_roots)
 
-    def test_run_self_play_worker_persists_and_reuses_subtree_when_reuse_subtree_enabled(self):
+    def test_run_self_play_worker_persists_and_reuses_subtree_when_reuse_subtree_enabled(
+        self,
+    ):
         created_roots = []
         reused_roots = []
         real_puct = self_play.PUCT
 
         class TrackingPUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 created_roots.append(root)
                 self._root = root
                 self._delegate = real_puct(
@@ -1552,11 +1790,19 @@ class SelfPlayScriptTest(unittest.TestCase):
                     "current_player": self.current_player,
                 }
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-hit-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opening-cache-hit-"
+        ) as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
-                with mock.patch.object(self_play, "PUCT", side_effect=AssertionError("PUCT should not run on cache hit")):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
+                with mock.patch.object(
+                    self_play,
+                    "PUCT",
+                    side_effect=AssertionError("PUCT should not run on cache hit"),
+                ):
                     result = self_play.run_self_play_worker(
                         worker_id=0,
                         start_index=0,
@@ -1579,7 +1825,11 @@ class SelfPlayScriptTest(unittest.TestCase):
                         value_target_mode="sharpened",
                     )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertEqual(1, len(lookup_calls))
@@ -1592,7 +1842,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual("sharpened", rows[0]["policy_target_mode"])
         self.assertEqual("sharpened", rows[0]["policy_target_actual_mode"])
         self.assertEqual(cached_teacher_profile, rows[0]["teacher_search_profile"])
-        self.assertEqual(cached_teacher_profile["hash"], rows[0]["teacher_search_profile_hash"])
+        self.assertEqual(
+            cached_teacher_profile["hash"], rows[0]["teacher_search_profile_hash"]
+        )
         self.assertAlmostEqual(
             self_play.canonical_value_target(
                 outcome_value=1.0,
@@ -1626,7 +1878,12 @@ class SelfPlayScriptTest(unittest.TestCase):
             "search_profile": cached_teacher_profile,
             "entries": {
                 hashlib.sha256(
-                    json.dumps(opening_state, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+                    json.dumps(
+                        opening_state,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                        ensure_ascii=True,
+                    ).encode("utf-8")
                 ).hexdigest(): {
                     "state": opening_state,
                     "side_to_move": 0,
@@ -1672,14 +1929,24 @@ class SelfPlayScriptTest(unittest.TestCase):
             def to_state(self):
                 return dict(opening_state)
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-lazy-hit-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opening-cache-lazy-hit-"
+        ) as tmp:
             tmp_path = Path(tmp)
             shard_path = tmp_path / "worker.jsonl"
             opening_cache_path = tmp_path / "opening_cache.json"
-            opening_cache_path.write_text(json.dumps(opening_cache_payload), encoding="utf-8")
+            opening_cache_path.write_text(
+                json.dumps(opening_cache_payload), encoding="utf-8"
+            )
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
-                with mock.patch.object(self_play, "PUCT", side_effect=AssertionError("PUCT should not run on cache hit")):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
+                with mock.patch.object(
+                    self_play,
+                    "PUCT",
+                    side_effect=AssertionError("PUCT should not run on cache hit"),
+                ):
                     result = self_play.run_self_play_worker(
                         worker_id=0,
                         start_index=0,
@@ -1701,14 +1968,20 @@ class SelfPlayScriptTest(unittest.TestCase):
                         value_target_mode="sharpened",
                     )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertEqual(cached_policy, rows[0]["policy"])
         self.assertEqual("opening_cache", rows[0]["teacher_source"])
         self.assertEqual("default", rows[0]["policy_target_actual_mode"])
         self.assertEqual(cached_teacher_profile, rows[0]["teacher_search_profile"])
-        self.assertEqual(cached_teacher_profile["hash"], rows[0]["teacher_search_profile_hash"])
+        self.assertEqual(
+            cached_teacher_profile["hash"], rows[0]["teacher_search_profile_hash"]
+        )
         self.assertAlmostEqual(
             self_play.canonical_value_target(
                 outcome_value=1.0,
@@ -1763,7 +2036,16 @@ class SelfPlayScriptTest(unittest.TestCase):
                 return None
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
@@ -1771,10 +2053,14 @@ class SelfPlayScriptTest(unittest.TestCase):
                 visits = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
                 return visits, FakeRoot()
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-miss-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opening-cache-miss-"
+        ) as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
                 with mock.patch.object(self_play, "PUCT", FakePUCT):
                     result = self_play.run_self_play_worker(
                         worker_id=0,
@@ -1796,15 +2082,23 @@ class SelfPlayScriptTest(unittest.TestCase):
                         opening_cache=FakeOpeningCache(),
                     )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertEqual(1, len(lookup_calls))
         self.assertEqual("puct", rows[0]["teacher_source"])
         self.assertEqual(rows[0]["search_profile"], rows[0]["teacher_search_profile"])
-        self.assertEqual(rows[0]["search_profile_hash"], rows[0]["teacher_search_profile_hash"])
+        self.assertEqual(
+            rows[0]["search_profile_hash"], rows[0]["teacher_search_profile_hash"]
+        )
 
-    def test_run_self_play_worker_cache_miss_uses_gameplay_sampling_policy_not_sharpened_target(self):
+    def test_run_self_play_worker_cache_miss_uses_gameplay_sampling_policy_not_sharpened_target(
+        self,
+    ):
         lookup_calls = []
         created_games = []
 
@@ -1851,7 +2145,16 @@ class SelfPlayScriptTest(unittest.TestCase):
                 return None
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
@@ -1875,10 +2178,14 @@ class SelfPlayScriptTest(unittest.TestCase):
             created_games.append(game)
             return game
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-miss-sampling-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opening-cache-miss-sampling-"
+        ) as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", side_effect=build_game):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", side_effect=build_game
+            ):
                 with mock.patch.object(self_play, "PUCT", FakePUCT):
                     with mock.patch.object(self_play.random, "Random", FakeRandom):
                         result = self_play.run_self_play_worker(
@@ -1902,7 +2209,11 @@ class SelfPlayScriptTest(unittest.TestCase):
                             policy_target_mode="sharpened",
                         )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertEqual(1, len(lookup_calls))
@@ -1959,7 +2270,12 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertGreater(result["rows_written"], 0)
         loaded_paths = [path for path, _encoding in evaluator_paths]
         self.assertIn("primary.npz", loaded_paths)
-        self.assertTrue(any(path.endswith("opp_1.npz") or path.endswith("opp_2.npz") for path in loaded_paths))
+        self.assertTrue(
+            any(
+                path.endswith("opp_1.npz") or path.endswith("opp_2.npz")
+                for path in loaded_paths
+            )
+        )
 
     def test_search_preserves_value_sign_when_child_keeps_turn(self):
         class FakeGame:
@@ -1969,18 +2285,24 @@ class SelfPlayScriptTest(unittest.TestCase):
         parent = self_play.Node(game=FakeGame(0), expanded=True)
         child = self_play.Node(game=FakeGame(0), expanded=False)
         parent.children = {0: child}
-        puct = self_play.PUCT(evaluator=mock.Mock(), simulations=8, c_puct=1.25, rng=random.Random(42))
+        puct = self_play.PUCT(
+            evaluator=mock.Mock(), simulations=8, c_puct=1.25, rng=random.Random(42)
+        )
 
         with mock.patch.object(self_play, "terminal_value", return_value=None):
             with mock.patch.object(puct, "_select_child", return_value=child):
-                with mock.patch.object(puct, "_expand", return_value=(np.zeros(6, dtype=np.float32), 0.5)):
+                with mock.patch.object(
+                    puct, "_expand", return_value=(np.zeros(6, dtype=np.float32), 0.5)
+                ):
                     value = puct._search(parent)
 
         self.assertEqual(0.5, value)
         self.assertEqual(1, child.visit_count)
         self.assertEqual(0.5, child.value_sum)
 
-    def test_puct_value_only_mode_uses_flat_legal_priors_and_preserves_evaluator_value(self):
+    def test_puct_value_only_mode_uses_flat_legal_priors_and_preserves_evaluator_value(
+        self,
+    ):
         game = self._checkpoint_evaluator_test_game()
         node = self_play.Node(game=game)
         evaluator_priors = np.array([0.55, 0.05, 0.1, 0.1, 0.1, 0.1], dtype=np.float32)
@@ -2010,7 +2332,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         np.testing.assert_allclose(expected_priors, priors)
         self.assertEqual(0.75, value)
 
-    def test_puct_policy_only_mode_preserves_evaluator_priors_and_uses_neutral_value(self):
+    def test_puct_policy_only_mode_preserves_evaluator_priors_and_uses_neutral_value(
+        self,
+    ):
         game = self._checkpoint_evaluator_test_game()
         node = self_play.Node(game=game)
         evaluator_priors = np.array([0.55, 0.05, 0.1, 0.1, 0.1, 0.1], dtype=np.float32)
@@ -2074,8 +2398,12 @@ class SelfPlayScriptTest(unittest.TestCase):
             pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 
         parent = self_play.Node(game=FakeGame(), expanded=True, visit_count=10)
-        high_q_child = self_play.Node(game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4)
-        high_u_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=10, value_sum=3.0)
+        high_q_child = self_play.Node(
+            game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4
+        )
+        high_u_child = self_play.Node(
+            game=FakeGame(), prior=0.9, visit_count=10, value_sum=3.0
+        )
         parent.children = {0: high_q_child, 1: high_u_child}
 
         default_search = self_play.PUCT(
@@ -2089,7 +2417,12 @@ class SelfPlayScriptTest(unittest.TestCase):
             simulations=1,
             c_puct=1.25,
             rng=random.Random(7),
-            value_trust_schedule={"enabled": True, "opening": 0.1, "midgame": 1.0, "late": 1.0},
+            value_trust_schedule={
+                "enabled": True,
+                "opening": 0.1,
+                "midgame": 1.0,
+                "late": 1.0,
+            },
         )
 
         self.assertIs(high_q_child, default_search._select_child(parent))
@@ -2101,8 +2434,12 @@ class SelfPlayScriptTest(unittest.TestCase):
             pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 
         parent = self_play.Node(game=FakeGame(), expanded=True, visit_count=10)
-        best_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=1, value_sum=0.0)
-        other_child = self_play.Node(game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4)
+        best_child = self_play.Node(
+            game=FakeGame(), prior=0.9, visit_count=1, value_sum=0.0
+        )
+        other_child = self_play.Node(
+            game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4
+        )
         parent.children = {0: other_child, 1: best_child}
 
         search = self_play.PUCT(
@@ -2112,7 +2449,11 @@ class SelfPlayScriptTest(unittest.TestCase):
             rng=random.Random(7),
         )
 
-        with mock.patch.object(search, "_selection_entries", side_effect=AssertionError("telemetry path should not run")):
+        with mock.patch.object(
+            search,
+            "_selection_entries",
+            side_effect=AssertionError("telemetry path should not run"),
+        ):
             selected_child = search._select_child(parent)
 
         self.assertIs(best_child, selected_child)
@@ -2122,10 +2463,18 @@ class SelfPlayScriptTest(unittest.TestCase):
             current_player = 0
             pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 
-        root = self_play.Node(game=FakeGame(), expanded=True, visit_count=12, value_sum=6.0)
-        visited_child = self_play.Node(game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4)
-        unvisited_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=0, value_sum=0.0)
-        tied_prior_child = self_play.Node(game=FakeGame(), prior=0.9, visit_count=0, value_sum=0.0)
+        root = self_play.Node(
+            game=FakeGame(), expanded=True, visit_count=12, value_sum=6.0
+        )
+        visited_child = self_play.Node(
+            game=FakeGame(), prior=0.1, visit_count=2, value_sum=1.4
+        )
+        unvisited_child = self_play.Node(
+            game=FakeGame(), prior=0.9, visit_count=0, value_sum=0.0
+        )
+        tied_prior_child = self_play.Node(
+            game=FakeGame(), prior=0.9, visit_count=0, value_sum=0.0
+        )
         root.children = {2: tied_prior_child, 1: unvisited_child, 0: visited_child}
 
         search = self_play.PUCT(
@@ -2148,7 +2497,10 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(1, breakdown["reference_move"])
         self.assertEqual(1, breakdown["highest_prior_move"])
         self.assertEqual("highest_prior_move", breakdown["reference_move_kind"])
-        self.assertEqual("highest current PUCT selection score using deterministic telemetry ordering", breakdown["next_simulation_move_kind"])
+        self.assertEqual(
+            "highest current PUCT selection score using deterministic telemetry ordering",
+            breakdown["next_simulation_move_kind"],
+        )
         self.assertEqual(1, breakdown["next_simulation_move"])
         self.assertEqual(1, breakdown["policy_top_move"])
         self.assertEqual(0, breakdown["visit_top_move"])
@@ -2205,7 +2557,10 @@ class SelfPlayScriptTest(unittest.TestCase):
                 {"simulation": 4, "visits": [4.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
                 {"simulation": 8, "visits": [8.0, 0.0, 0.0, 0.0, 0.0, 0.0]},
             ],
-            [{"simulation": snapshot["simulation"], "visits": snapshot["visits"]} for snapshot in summary["visit_snapshots"]],
+            [
+                {"simulation": snapshot["simulation"], "visits": snapshot["visits"]}
+                for snapshot in summary["visit_snapshots"]
+            ],
         )
         self.assertEqual([8.0, 0.0, 0.0, 0.0, 0.0, 0.0], visits.tolist())
 
@@ -2253,7 +2608,9 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         with (
             mock.patch.object(search, "_root_for", return_value=root),
-            mock.patch.object(search, "_expand", return_value=(np.zeros(6, dtype=np.float32), 0.0)),
+            mock.patch.object(
+                search, "_expand", return_value=(np.zeros(6, dtype=np.float32), 0.0)
+            ),
             mock.patch.object(search, "_search", side_effect=scripted_search),
         ):
             visits, _returned_root = search.run(root.game)
@@ -2273,7 +2630,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(1, first_snapshot["reference_move_rank_by_selection_score"])
         self.assertEqual([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], first_snapshot["visits"])
 
-        first_snapshot_moves = {entry["move"]: entry for entry in first_snapshot["moves"]}
+        first_snapshot_moves = {
+            entry["move"]: entry for entry in first_snapshot["moves"]
+        }
         self.assertEqual({0, 1, 2}, set(first_snapshot_moves))
         self.assertEqual(0.2, first_snapshot_moves[0]["prior"])
         self.assertEqual(1, first_snapshot_moves[0]["visit_count"])
@@ -2310,11 +2669,17 @@ class SelfPlayScriptTest(unittest.TestCase):
             current_player = 0
             pits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 
-        root = self_play.Node(game=FakeGame(), expanded=True, visit_count=3, value_sum=1.5)
+        root = self_play.Node(
+            game=FakeGame(), expanded=True, visit_count=3, value_sum=1.5
+        )
         root.children = {
             0: self_play.Node(game=FakeGame(), prior=0.2, visit_count=1, value_sum=0.6),
-            1: self_play.Node(game=FakeGame(), prior=0.5, visit_count=1, value_sum=-0.2),
-            2: self_play.Node(game=FakeGame(), prior=0.8, visit_count=1, value_sum=-0.049519052838329),
+            1: self_play.Node(
+                game=FakeGame(), prior=0.5, visit_count=1, value_sum=-0.2
+            ),
+            2: self_play.Node(
+                game=FakeGame(), prior=0.8, visit_count=1, value_sum=-0.049519052838329
+            ),
         }
 
         default_search = self_play.PUCT(
@@ -2324,7 +2689,9 @@ class SelfPlayScriptTest(unittest.TestCase):
             rng=random.Random(7),
             root_policy_mode="visit_count",
         )
-        default_snapshot = default_search._build_root_visit_snapshot(root, simulation_index=3)
+        default_snapshot = default_search._build_root_visit_snapshot(
+            root, simulation_index=3
+        )
 
         self.assertEqual(2, default_snapshot["reference_move_by_prior"])
         self.assertEqual(3, default_snapshot["reference_move_rank_by_visits"])
@@ -2338,22 +2705,32 @@ class SelfPlayScriptTest(unittest.TestCase):
             rng=random.Random(7),
             root_policy_mode="deterministic",
         )
-        deterministic_snapshot = deterministic_search._build_root_visit_snapshot(root, simulation_index=3)
+        deterministic_snapshot = deterministic_search._build_root_visit_snapshot(
+            root, simulation_index=3
+        )
 
         self.assertEqual(2, deterministic_snapshot["reference_move_by_prior"])
         self.assertEqual(2, deterministic_snapshot["reference_move_rank_by_visits"])
         self.assertEqual(0, deterministic_search.select_root_move(root, [0, 1, 2]))
 
-    def test_run_self_play_worker_sharpened_row_preserves_winner_sign_when_search_disagrees(self):
-        default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=-0.4, winner=0)
+    def test_run_self_play_worker_sharpened_row_preserves_winner_sign_when_search_disagrees(
+        self,
+    ):
+        default_row, sharpened_row = self._emit_value_target_rows_for_search_value(
+            search_value=-0.4, winner=0
+        )
 
         self.assertEqual(1.0, default_row["value"])
         self.assertAlmostEqual(0.64, sharpened_row["value"], places=6)
         self.assertGreater(sharpened_row["value"], 0.0)
         self.assertLess(sharpened_row["value"], default_row["value"])
 
-    def test_run_self_play_worker_sharpened_row_preserves_loser_sign_when_search_disagrees(self):
-        default_row, sharpened_row = self._emit_value_target_rows_for_search_value(search_value=0.4, winner=1)
+    def test_run_self_play_worker_sharpened_row_preserves_loser_sign_when_search_disagrees(
+        self,
+    ):
+        default_row, sharpened_row = self._emit_value_target_rows_for_search_value(
+            search_value=0.4, winner=1
+        )
 
         self.assertEqual(-1.0, default_row["value"])
         self.assertAlmostEqual(-0.64, sharpened_row["value"], places=6)
@@ -2368,7 +2745,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         )
 
         self.assertEqual([0, 1], [row["move_index"] for row in rows])
-        self.assertTrue(all(row["value_target_mode"] == "phase_aware_sharpened" for row in rows))
+        self.assertTrue(
+            all(row["value_target_mode"] == "phase_aware_sharpened" for row in rows)
+        )
 
     def test_run_self_play_worker_hybrid_rows_preserve_move_index_and_mode(self):
         rows = self._emit_rows_for_value_target_mode(
@@ -2380,7 +2759,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual([0, 1], [row["move_index"] for row in rows])
         self.assertTrue(all(row["value_target_mode"] == "hybrid" for row in rows))
 
-    def test_run_self_play_worker_phase_aware_rows_preserve_winner_sign_with_bucket_strength(self):
+    def test_run_self_play_worker_phase_aware_rows_preserve_winner_sign_with_bucket_strength(
+        self,
+    ):
         rows = self._emit_rows_for_value_target_mode(
             search_values=[-0.4],
             winner=0,
@@ -2391,7 +2772,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertGreater(rows[0]["value"], 0.0)
         self.assertLess(rows[0]["value"], 1.0)
 
-    def test_run_self_play_worker_hybrid_rows_stay_bounded_and_deterministic_when_signals_disagree(self):
+    def test_run_self_play_worker_hybrid_rows_stay_bounded_and_deterministic_when_signals_disagree(
+        self,
+    ):
         first_rows = self._emit_rows_for_value_target_mode(
             search_values=[-0.8, -0.8, -0.8],
             winner=0,
@@ -2403,12 +2786,16 @@ class SelfPlayScriptTest(unittest.TestCase):
             value_target_mode="hybrid",
         )
 
-        self.assertEqual([row["value"] for row in first_rows], [row["value"] for row in second_rows])
+        self.assertEqual(
+            [row["value"] for row in first_rows], [row["value"] for row in second_rows]
+        )
         self.assertTrue(all(-1.0 <= row["value"] <= 1.0 for row in first_rows))
         self.assertGreater(first_rows[0]["value"], 0.0)
         self.assertLess(first_rows[0]["value"], 1.0)
 
-    def _emit_value_target_rows_for_search_value(self, *, search_value: float, winner: int):
+    def _emit_value_target_rows_for_search_value(
+        self, *, search_value: float, winner: int
+    ):
         default_row = self._emit_rows_for_value_target_mode(
             search_values=[search_value],
             winner=winner,
@@ -2422,7 +2809,9 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         return default_row, sharpened_row
 
-    def _emit_rows_for_value_target_mode(self, *, search_values: list[float], winner: int, value_target_mode: str):
+    def _emit_rows_for_value_target_mode(
+        self, *, search_values: list[float], winner: int, value_target_mode: str
+    ):
         run_state = {"run_count": 0}
 
         class FakeGame:
@@ -2463,7 +2852,16 @@ class SelfPlayScriptTest(unittest.TestCase):
                 return None
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root, search_options
 
             def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
@@ -2476,7 +2874,9 @@ class SelfPlayScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-row-") as tmp:
             out_path = Path(tmp) / f"{value_target_mode}.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
                 with mock.patch.object(self_play, "PUCT", FakePUCT):
                     self_play.run_self_play_worker(
                         worker_id=0,
@@ -2498,7 +2898,11 @@ class SelfPlayScriptTest(unittest.TestCase):
                         value_target_mode=value_target_mode,
                     )
 
-            return [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            return [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
     def test_main_merges_worker_shards_without_read_text(self):
         class FakeFuture:
@@ -2550,12 +2954,22 @@ class SelfPlayScriptTest(unittest.TestCase):
                 "8",
             ]
 
-            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
-                with mock.patch.object(Path, "read_text", side_effect=AssertionError("merge should stream shard lines")):
+            with mock.patch.object(
+                self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor
+            ):
+                with mock.patch.object(
+                    Path,
+                    "read_text",
+                    side_effect=AssertionError("merge should stream shard lines"),
+                ):
                     with mock.patch("sys.argv", argv):
                         self_play.main()
 
-            merged_rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            merged_rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             self.assertEqual([{"worker_id": 0}, {"worker_id": 1}], merged_rows)
 
     def test_main_passes_search_options_to_worker_submissions(self):
@@ -2616,7 +3030,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                 "0.2",
             ]
 
-            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+            with mock.patch.object(
+                self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor
+            ):
                 with mock.patch("sys.argv", argv):
                     self_play.main()
 
@@ -2661,7 +3077,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                     }
                 )
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-default-options-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-default-options-"
+        ) as tmp:
             out_path = Path(tmp) / "self_play.jsonl"
             argv = [
                 "self_play.py",
@@ -2677,7 +3095,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                 "8",
             ]
 
-            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+            with mock.patch.object(
+                self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor
+            ):
                 with mock.patch("sys.argv", argv):
                     self_play.main()
 
@@ -2720,7 +3140,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                     }
                 )
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-policy-target-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-policy-target-"
+        ) as tmp:
             out_path = Path(tmp) / "self_play.jsonl"
             argv = [
                 "self_play.py",
@@ -2738,7 +3160,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                 "sharpened",
             ]
 
-            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+            with mock.patch.object(
+                self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor
+            ):
                 with mock.patch("sys.argv", argv):
                     self_play.main()
 
@@ -2779,7 +3203,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                     }
                 )
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-opening-cache-main-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opening-cache-main-"
+        ) as tmp:
             tmp_path = Path(tmp)
             out_path = tmp_path / "self_play.jsonl"
             opening_state = {
@@ -2797,7 +3223,12 @@ class SelfPlayScriptTest(unittest.TestCase):
                         "opening_gate": {"max_ply": 10, "min_stones_in_pits": 36},
                         "entries": {
                             hashlib.sha256(
-                                json.dumps(opening_state, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+                                json.dumps(
+                                    opening_state,
+                                    sort_keys=True,
+                                    separators=(",", ":"),
+                                    ensure_ascii=True,
+                                ).encode("utf-8")
                             ).hexdigest(): {
                                 "state": opening_state,
                                 "side_to_move": 0,
@@ -2839,12 +3270,16 @@ class SelfPlayScriptTest(unittest.TestCase):
                 str(opening_cache_path),
             ]
 
-            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+            with mock.patch.object(
+                self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor
+            ):
                 with mock.patch("sys.argv", argv):
                     self_play.main()
 
         self.assertEqual(1, len(submitted_kwargs))
-        self.assertEqual(str(opening_cache_path), submitted_kwargs[0]["opening_cache_path"])
+        self.assertEqual(
+            str(opening_cache_path), submitted_kwargs[0]["opening_cache_path"]
+        )
         self.assertNotIn("opening_cache", submitted_kwargs[0])
 
     def test_main_passes_value_target_mode_to_worker_submissions(self):
@@ -2881,7 +3316,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                     }
                 )
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-target-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-value-target-"
+        ) as tmp:
             out_path = Path(tmp) / "self_play.jsonl"
             argv = [
                 "self_play.py",
@@ -2899,7 +3336,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                 "sharpened",
             ]
 
-            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+            with mock.patch.object(
+                self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor
+            ):
                 with mock.patch("sys.argv", argv):
                     self_play.main()
 
@@ -2940,7 +3379,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                     }
                 )
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-trust-main-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-value-trust-main-"
+        ) as tmp:
             out_path = Path(tmp) / "self_play.jsonl"
             argv = [
                 "self_play.py",
@@ -2956,7 +3397,9 @@ class SelfPlayScriptTest(unittest.TestCase):
                 "8",
             ]
 
-            with mock.patch.object(self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor):
+            with mock.patch.object(
+                self_play.concurrent.futures, "ProcessPoolExecutor", FakeExecutor
+            ):
                 with mock.patch("sys.argv", argv):
                     self_play.main()
 
@@ -2969,8 +3412,11 @@ class ClassicMCTSHelpersInSelfPlayTest(unittest.TestCase):
         """visits_from_classic_mcts_root should return a list[float] of length 6."""
         from ml.alphazero_lite.self_play import visits_from_classic_mcts_root
         from unittest.mock import MagicMock
-        child0 = MagicMock(); child0.visits = 50
-        child2 = MagicMock(); child2.visits = 30
+
+        child0 = MagicMock()
+        child0.visits = 50
+        child2 = MagicMock()
+        child2.visits = 30
         root = MagicMock()
         root.children = {0: child0, 2: child2}
         result = visits_from_classic_mcts_root(root)
@@ -2980,6 +3426,7 @@ class ClassicMCTSHelpersInSelfPlayTest(unittest.TestCase):
         """value_from_classic_mcts_root should map [0,1] win rate to [-1,1]."""
         from ml.alphazero_lite.self_play import value_from_classic_mcts_root
         from unittest.mock import MagicMock
+
         root = MagicMock()
         root.visits = 100
         root.wins = 75.0
@@ -2989,6 +3436,7 @@ class ClassicMCTSHelpersInSelfPlayTest(unittest.TestCase):
     def test_value_from_classic_mcts_root_returns_zero_for_unvisited(self):
         from ml.alphazero_lite.self_play import value_from_classic_mcts_root
         from unittest.mock import MagicMock
+
         root = MagicMock()
         root.visits = 0
         self.assertEqual(0.0, value_from_classic_mcts_root(root))
@@ -3034,7 +3482,16 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                 return None
 
         class FakePUCT:
-            def __init__(self, *, evaluator, simulations, c_puct, rng, root=None, **search_options):
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
                 del evaluator, simulations, c_puct, rng, root
                 captured_search_options.append(dict(search_options))
 
@@ -3043,12 +3500,19 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                 visits = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
                 return visits, FakeRoot()
 
-        value_trust_schedule = {"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15}
+        value_trust_schedule = {
+            "enabled": True,
+            "opening": 0.8,
+            "midgame": 1.0,
+            "late": 1.15,
+        }
 
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-value-trust-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
                 with mock.patch.object(self_play, "PUCT", FakePUCT):
                     result = self_play.run_self_play_worker(
                         worker_id=0,
@@ -3070,10 +3534,16 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                         value_trust_schedule=value_trust_schedule,
                     )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
-        self.assertEqual(value_trust_schedule, captured_search_options[0]["value_trust_schedule"])
+        self.assertEqual(
+            value_trust_schedule, captured_search_options[0]["value_trust_schedule"]
+        )
         self.assertNotIn("teacher_root_summary", rows[0])
 
     def test_classic_mcts_rows_include_root_summary_value_trust_metadata(self):
@@ -3136,10 +3606,14 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                     },
                 }
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-classic-summary-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-classic-summary-"
+        ) as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
                 with mock.patch.object(self_play, "ClassicMCTS", FakeClassicMCTS):
                     result = self_play.run_self_play_worker(
                         worker_id=0,
@@ -3159,10 +3633,19 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                         max_moves=2,
                         shard_path=str(shard_path),
                         player_mode="classic_mcts",
-                        value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15},
+                        value_trust_schedule={
+                            "enabled": True,
+                            "opening": 0.8,
+                            "midgame": 1.0,
+                            "late": 1.15,
+                        },
                     )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertEqual(
@@ -3235,10 +3718,14 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                     },
                 }
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-classic-default-summary-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-classic-default-summary-"
+        ) as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play.KalahGame, "from_state", return_value=FakeGame()):
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
                 with mock.patch.object(self_play, "ClassicMCTS", FakeClassicMCTS):
                     result = self_play.run_self_play_worker(
                         worker_id=0,
@@ -3260,7 +3747,11 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                         player_mode="classic_mcts",
                     )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertNotIn("teacher_root_summary", rows[0])
@@ -3273,10 +3764,14 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                 priors[0] = 1.0
                 return priors, 0.25
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-puct-summary-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-puct-summary-"
+        ) as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play, "HeuristicEvaluator", TinyDeterministicEvaluator):
+            with mock.patch.object(
+                self_play, "HeuristicEvaluator", TinyDeterministicEvaluator
+            ):
                 result = self_play.run_self_play_worker(
                     worker_id=0,
                     start_index=0,
@@ -3295,10 +3790,19 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                     max_moves=1,
                     shard_path=str(shard_path),
                     player_mode="puct",
-                    value_trust_schedule={"enabled": True, "opening": 0.8, "midgame": 1.0, "late": 1.15},
+                    value_trust_schedule={
+                        "enabled": True,
+                        "opening": 0.8,
+                        "midgame": 1.0,
+                        "late": 1.15,
+                    },
                 )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertEqual(
@@ -3321,10 +3825,14 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                 priors[0] = 1.0
                 return priors, 0.25
 
-        with tempfile.TemporaryDirectory(prefix="azlite-self-play-puct-default-summary-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-puct-default-summary-"
+        ) as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
 
-            with mock.patch.object(self_play, "HeuristicEvaluator", TinyDeterministicEvaluator):
+            with mock.patch.object(
+                self_play, "HeuristicEvaluator", TinyDeterministicEvaluator
+            ):
                 result = self_play.run_self_play_worker(
                     worker_id=0,
                     start_index=0,
@@ -3345,7 +3853,11 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
                     player_mode="puct",
                 )
 
-            rows = [json.loads(line) for line in shard_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
 
         self.assertEqual(1, result["rows_written"])
         self.assertNotIn("teacher_root_summary", rows[0])
@@ -3383,8 +3895,10 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
 
     def test_classic_mcts_player_mode_produces_valid_rows(self):
         """run_self_play_worker with player_mode=classic_mcts should write valid JSONL rows."""
-        import tempfile, json
+        import tempfile
+        import json
         from ml.alphazero_lite.self_play import run_self_play_worker
+
         with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as f:
             shard_path = f.name
         result = run_self_play_worker(
@@ -3410,7 +3924,12 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
         )
         self.assertGreater(result["rows_written"], 0)
         import pathlib
-        rows = [json.loads(line) for line in pathlib.Path(shard_path).read_text().splitlines() if line.strip()]
+
+        rows = [
+            json.loads(line)
+            for line in pathlib.Path(shard_path).read_text().splitlines()
+            if line.strip()
+        ]
         for row in rows:
             self.assertEqual(6, len(row["policy"]))
             self.assertAlmostEqual(1.0, sum(row["policy"]), places=5)
@@ -3421,6 +3940,7 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
         """classic_mcts player mode should produce output even when checkpoint is None."""
         import tempfile
         from ml.alphazero_lite.self_play import run_self_play_worker
+
         with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as f:
             shard_path = f.name
         # Should not raise even though checkpoint=None
@@ -3451,6 +3971,7 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
         """run_self_play_worker without player_mode (default puct) should still work."""
         import tempfile
         from ml.alphazero_lite.self_play import run_self_play_worker
+
         with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as f:
             shard_path = f.name
         result = run_self_play_worker(
@@ -3483,34 +4004,51 @@ class CanonicalValueTargetZeroSearchValueTest(unittest.TestCase):
     def test_zero_search_value_sharpened_returns_outcome_for_winner(self):
         """When search_value=0.0 (e.g. classic MCTS at 50/50), sharpened mode should return outcome_value directly."""
         from ml.alphazero_lite.self_play import canonical_value_target
+
         # Player wins (outcome=+1), but MCTS had 50/50 → search_value=0.0
-        result = canonical_value_target(outcome_value=1.0, search_value=0.0, mode="sharpened")
+        result = canonical_value_target(
+            outcome_value=1.0, search_value=0.0, mode="sharpened"
+        )
         self.assertEqual(1.0, result)
 
     def test_zero_search_value_sharpened_returns_outcome_for_loser(self):
         from ml.alphazero_lite.self_play import canonical_value_target
-        result = canonical_value_target(outcome_value=-1.0, search_value=0.0, mode="sharpened")
+
+        result = canonical_value_target(
+            outcome_value=-1.0, search_value=0.0, mode="sharpened"
+        )
         self.assertEqual(-1.0, result)
 
     def test_negative_zero_search_value_sharpened_returns_outcome(self):
         from ml.alphazero_lite.self_play import canonical_value_target
+
         # -0.0 is also a zero — should still fall back to outcome
-        result = canonical_value_target(outcome_value=1.0, search_value=-0.0, mode="sharpened")
+        result = canonical_value_target(
+            outcome_value=1.0, search_value=-0.0, mode="sharpened"
+        )
         self.assertEqual(1.0, result)
 
     def test_nonzero_search_value_still_sharpens(self):
         from ml.alphazero_lite.self_play import canonical_value_target
+
         # Non-zero search value: sharpening should still happen (result != raw outcome)
-        result_sharpened = canonical_value_target(outcome_value=1.0, search_value=0.5, mode="sharpened")
-        result_default = canonical_value_target(outcome_value=1.0, search_value=0.5, mode="default")
+        result_sharpened = canonical_value_target(
+            outcome_value=1.0, search_value=0.5, mode="sharpened"
+        )
+        result_default = canonical_value_target(
+            outcome_value=1.0, search_value=0.5, mode="default"
+        )
         # Both should be positive, but sharpened != default
         self.assertGreater(result_sharpened, 0.0)
         self.assertGreater(result_default, 0.0)
 
     def test_draw_outcome_with_zero_search_value_returns_zero(self):
         from ml.alphazero_lite.self_play import canonical_value_target
+
         # Draw (outcome=0.0) with zero search_value → should still be 0.0
-        result = canonical_value_target(outcome_value=0.0, search_value=0.0, mode="sharpened")
+        result = canonical_value_target(
+            outcome_value=0.0, search_value=0.0, mode="sharpened"
+        )
         self.assertEqual(0.0, result)
 
 

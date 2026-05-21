@@ -7,10 +7,16 @@ import math
 from pathlib import Path
 
 SCHEMA = "azlite_capture_002_residual_ablation_v1"
-SOURCE_SELECTION_SCORE_RESIDUAL_AUDIT_SCHEMA = "azlite_capture_002_selection_score_residual_audit_v1"
-SOURCE_PRIOR_PRESSURE_AUDIT_SCHEMA = "azlite_capture_002_prior_pressure_component_audit_v1"
+SOURCE_SELECTION_SCORE_RESIDUAL_AUDIT_SCHEMA = (
+    "azlite_capture_002_selection_score_residual_audit_v1"
+)
+SOURCE_PRIOR_PRESSURE_AUDIT_SCHEMA = (
+    "azlite_capture_002_prior_pressure_component_audit_v1"
+)
 SOURCE_SELECTION_SCORE_SCHEMA = "azlite_capture_002_selection_score_trace_v1"
-SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA = "azlite_capture_002_trace_checkpoint_canonicalization_v1"
+SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA = (
+    "azlite_capture_002_trace_checkpoint_canonicalization_v1"
+)
 ROW_ID = "capture_available-002"
 EXPECTED_RESIDUAL_AUDIT_CLASSIFICATION = "stable_selected_residual_advantage"
 EXPECTED_RESIDUAL_AUDIT_DECISION = "write_002_residual_ablation_spec"
@@ -36,16 +42,24 @@ EXPECTED_REFERENCE_MOVE = 2
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Ablate residual effects for capture 002")
-    parser.add_argument("--source-selection-score-residual-audit-artifact", type=Path, required=True)
-    parser.add_argument("--source-prior-pressure-audit-artifact", type=Path, required=True)
+    parser = argparse.ArgumentParser(
+        description="Ablate residual effects for capture 002"
+    )
+    parser.add_argument(
+        "--source-selection-score-residual-audit-artifact", type=Path, required=True
+    )
+    parser.add_argument(
+        "--source-prior-pressure-audit-artifact", type=Path, required=True
+    )
     parser.add_argument("--source-selection-score-artifact", type=Path, required=True)
     parser.add_argument(
         "--source-threshold-relaxed-selection-score-artifact",
         type=Path,
         required=True,
     )
-    parser.add_argument("--source-checkpoint-canonicalization-artifact", type=Path, required=False)
+    parser.add_argument(
+        "--source-checkpoint-canonicalization-artifact", type=Path, required=False
+    )
     parser.add_argument("--out", type=Path, required=True)
     return parser.parse_args(argv)
 
@@ -55,7 +69,11 @@ def load_json(path: Path) -> dict:
 
 
 def _finite_number(value, *, context: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+    ):
         raise ValueError(f"{context} must be finite numeric")
     return float(value)
 
@@ -70,7 +88,9 @@ def _validated_source_artifact(source_artifact: dict, *, context: str) -> dict:
         if isinstance(value, bool) or not isinstance(value, int):
             raise ValueError(f"{context}.{field} must be an integer")
     if source_artifact.get("full_search_selected_move") != EXPECTED_SELECTED_MOVE:
-        raise ValueError(f"{context}.full_search_selected_move must be {EXPECTED_SELECTED_MOVE}")
+        raise ValueError(
+            f"{context}.full_search_selected_move must be {EXPECTED_SELECTED_MOVE}"
+        )
     if source_artifact.get("reference_move") != EXPECTED_REFERENCE_MOVE:
         raise ValueError(f"{context}.reference_move must be {EXPECTED_REFERENCE_MOVE}")
     selected_artifact = source_artifact.get("selected_artifact")
@@ -101,24 +121,36 @@ def _normalized_projection_value(value):
 
 
 def _trace_point_projection(trace_point: dict, *, context: str) -> tuple[float, str]:
-    simulation = _finite_number(trace_point.get("simulation"), context=f"{context}.simulation")
+    simulation = _finite_number(
+        trace_point.get("simulation"), context=f"{context}.simulation"
+    )
     projection = {
         "simulation": copy.deepcopy(trace_point.get("simulation")),
         "selected_move": copy.deepcopy(trace_point.get("selected_move")),
-        "reference_move_by_prior": copy.deepcopy(trace_point.get("reference_move_by_prior")),
+        "reference_move_by_prior": copy.deepcopy(
+            trace_point.get("reference_move_by_prior")
+        ),
         "visits": copy.deepcopy(trace_point.get("visits")),
         "moves": copy.deepcopy(trace_point.get("moves")),
     }
-    return simulation, json.dumps(_normalized_projection_value(projection), sort_keys=True)
+    return simulation, json.dumps(
+        _normalized_projection_value(projection), sort_keys=True
+    )
 
 
-def _validated_canonical_trace_point_identity(trace_point: dict, *, branch: str) -> dict:
+def _validated_canonical_trace_point_identity(
+    trace_point: dict, *, branch: str
+) -> dict:
     selected_move = trace_point.get("selected_move")
     if isinstance(selected_move, bool) or not isinstance(selected_move, int):
-        raise ValueError(f"{branch} canonical trace point.selected_move must be an integer")
+        raise ValueError(
+            f"{branch} canonical trace point.selected_move must be an integer"
+        )
     reference_move = trace_point.get("reference_move_by_prior")
     if isinstance(reference_move, bool) or not isinstance(reference_move, int):
-        raise ValueError(f"{branch} canonical trace point.reference_move_by_prior must be an integer")
+        raise ValueError(
+            f"{branch} canonical trace point.reference_move_by_prior must be an integer"
+        )
     if reference_move != EXPECTED_REFERENCE_MOVE:
         raise ValueError(
             f"{branch} canonical trace point.reference_move_by_prior must be {EXPECTED_REFERENCE_MOVE}"
@@ -142,11 +174,17 @@ def _move_lookup(trace_point: dict, *, move: int, context: str) -> dict:
     raise ValueError(f"{context}.moves must include move {move}")
 
 
-def _canonical_checkpoint_echo_from_trace_point(trace_point: dict, *, branch: str, source_artifact: dict) -> dict:
+def _canonical_checkpoint_echo_from_trace_point(
+    trace_point: dict, *, branch: str, source_artifact: dict
+) -> dict:
     selected_move = source_artifact["full_search_selected_move"]
     reference_move = source_artifact["reference_move"]
-    selected_entry = _move_lookup(trace_point, move=selected_move, context=f"{branch} canonical trace point")
-    reference_entry = _move_lookup(trace_point, move=reference_move, context=f"{branch} canonical trace point")
+    selected_entry = _move_lookup(
+        trace_point, move=selected_move, context=f"{branch} canonical trace point"
+    )
+    reference_entry = _move_lookup(
+        trace_point, move=reference_move, context=f"{branch} canonical trace point"
+    )
     selected_score = _finite_number(
         selected_entry.get("selection_score"),
         context=f"{branch} canonical trace point selected selection_score",
@@ -173,7 +211,9 @@ def _canonical_checkpoint_echo_from_trace_point(trace_point: dict, *, branch: st
     }
 
 
-def _checkpoint_payload(*, default_trace_point: dict, relaxed_trace_point: dict, source_artifact: dict) -> dict:
+def _checkpoint_payload(
+    *, default_trace_point: dict, relaxed_trace_point: dict, source_artifact: dict
+) -> dict:
     return {
         "canonical_simulation": EXPECTED_CANONICAL_SIMULATION,
         "default_upstream_checkpoint_echo": _canonical_checkpoint_echo_from_trace_point(
@@ -230,7 +270,9 @@ def _canonical_trace_point_at_simulation(
         canonical_matches.append(trace_point)
         canonical_projections.add(projection)
     if not canonical_matches:
-        raise ValueError(f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}")
+        raise ValueError(
+            f"{branch} trace must include canonical simulation {EXPECTED_CANONICAL_SIMULATION}"
+        )
     if len(canonical_projections) > 1 and not canonicalization_mode:
         raise ValueError(
             f"{branch} raw duplicate {EXPECTED_CANONICAL_SIMULATION} checkpoint requires canonicalization artifact"
@@ -250,17 +292,24 @@ def _canonical_trace_point_at_simulation(
                 raise ValueError(
                     f"{branch} raw duplicate {EXPECTED_CANONICAL_SIMULATION} checkpoint must match canonical projection"
                 )
-    return _validated_canonical_trace_point_identity(canonical_trace_point, branch=branch)
+    return _validated_canonical_trace_point_identity(
+        canonical_trace_point, branch=branch
+    )
 
 
 def _validated_residual_audit_artifact(residual_audit_artifact: dict) -> dict:
     if not isinstance(residual_audit_artifact, dict):
         raise ValueError("selection-score residual audit artifact must be an object")
-    if residual_audit_artifact.get("schema") != SOURCE_SELECTION_SCORE_RESIDUAL_AUDIT_SCHEMA:
+    if (
+        residual_audit_artifact.get("schema")
+        != SOURCE_SELECTION_SCORE_RESIDUAL_AUDIT_SCHEMA
+    ):
         raise ValueError("selection-score residual audit artifact has wrong schema")
     classification = residual_audit_artifact.get("classification")
     if not isinstance(classification, dict):
-        raise ValueError("selection-score residual audit artifact classification must be an object")
+        raise ValueError(
+            "selection-score residual audit artifact classification must be an object"
+        )
     if classification.get("classification") != EXPECTED_RESIDUAL_AUDIT_CLASSIFICATION:
         raise ValueError(
             "selection-score residual audit artifact classification must be "
@@ -273,7 +322,9 @@ def _validated_residual_audit_artifact(residual_audit_artifact: dict) -> dict:
 
     checkpoint = residual_audit_artifact.get("checkpoint")
     if not isinstance(checkpoint, dict):
-        raise ValueError("selection-score residual audit artifact checkpoint must be an object")
+        raise ValueError(
+            "selection-score residual audit artifact checkpoint must be an object"
+        )
     canonical_simulation = _finite_number(
         checkpoint.get("canonical_simulation"),
         context="selection-score residual audit artifact checkpoint.canonical_simulation",
@@ -300,12 +351,20 @@ def _validated_residual_audit_input_artifacts(
 ) -> None:
     input_artifacts = residual_audit_artifact.get("input_artifacts")
     if not isinstance(input_artifacts, dict):
-        raise ValueError("selection-score residual audit artifact input_artifacts must be an object")
-    if input_artifacts.get("source_prior_pressure_audit_artifact_path") != source_prior_pressure_audit_artifact_path:
+        raise ValueError(
+            "selection-score residual audit artifact input_artifacts must be an object"
+        )
+    if (
+        input_artifacts.get("source_prior_pressure_audit_artifact_path")
+        != source_prior_pressure_audit_artifact_path
+    ):
         raise ValueError(
             "selection-score residual audit artifact input_artifacts source_prior_pressure_audit_artifact_path must match source path"
         )
-    if input_artifacts.get("source_selection_score_artifact_path") != source_selection_score_artifact_path:
+    if (
+        input_artifacts.get("source_selection_score_artifact_path")
+        != source_selection_score_artifact_path
+    ):
         raise ValueError(
             "selection-score residual audit artifact input_artifacts source_selection_score_artifact_path must match source path"
         )
@@ -318,10 +377,16 @@ def _validated_residual_audit_input_artifacts(
         )
 
 
-def _thresholds_payload(default_trace_artifact: dict, relaxed_trace_artifact: dict) -> dict:
+def _thresholds_payload(
+    default_trace_artifact: dict, relaxed_trace_artifact: dict
+) -> dict:
     return {
-        "default": _validated_trace_thresholds(default_trace_artifact, context="default trace artifact"),
-        "relaxed": _validated_trace_thresholds(relaxed_trace_artifact, context="relaxed trace artifact"),
+        "default": _validated_trace_thresholds(
+            default_trace_artifact, context="default trace artifact"
+        ),
+        "relaxed": _validated_trace_thresholds(
+            relaxed_trace_artifact, context="relaxed trace artifact"
+        ),
         "float_tolerance": FLOAT_TOLERANCE,
     }
 
@@ -343,10 +408,16 @@ def _source_snapshots_payload(
             raise ValueError(
                 "selection-score residual audit artifact source_snapshots.metric_audit_classification must be an object"
             )
-        payload["metric_audit_classification"] = copy.deepcopy(metric_audit_classification)
+        payload["metric_audit_classification"] = copy.deepcopy(
+            metric_audit_classification
+        )
 
-    payload["default_trace_classification"] = copy.deepcopy(default_trace_artifact.get("classification", {}))
-    payload["relaxed_trace_classification"] = copy.deepcopy(relaxed_trace_artifact.get("classification", {}))
+    payload["default_trace_classification"] = copy.deepcopy(
+        default_trace_artifact.get("classification", {})
+    )
+    payload["relaxed_trace_classification"] = copy.deepcopy(
+        relaxed_trace_artifact.get("classification", {})
+    )
     payload["default_trace_origin"] = default_trace_artifact.get("trace_origin")
     payload["relaxed_trace_origin"] = relaxed_trace_artifact.get("trace_origin")
     return payload
@@ -359,13 +430,17 @@ def _validated_prior_pressure_artifact(prior_pressure_artifact: dict) -> dict:
         raise ValueError("prior-pressure audit artifact has wrong schema")
     classification = prior_pressure_artifact.get("classification")
     if not isinstance(classification, dict):
-        raise ValueError("prior-pressure audit artifact classification must be an object")
+        raise ValueError(
+            "prior-pressure audit artifact classification must be an object"
+        )
     if classification.get("classification") != EXPECTED_PRIOR_PRESSURE_CLASSIFICATION:
         raise ValueError(
             f"prior-pressure audit artifact classification must be {EXPECTED_PRIOR_PRESSURE_CLASSIFICATION}"
         )
     if prior_pressure_artifact.get("decision") != EXPECTED_PRIOR_PRESSURE_DECISION:
-        raise ValueError(f"prior-pressure audit artifact decision must be {EXPECTED_PRIOR_PRESSURE_DECISION}")
+        raise ValueError(
+            f"prior-pressure audit artifact decision must be {EXPECTED_PRIOR_PRESSURE_DECISION}"
+        )
     _validated_source_artifact(
         prior_pressure_artifact.get("source_artifact"),
         context="prior-pressure audit artifact source_artifact",
@@ -377,14 +452,20 @@ def _validated_trace_artifact(trace_artifact: dict, *, branch: str) -> dict:
     if not isinstance(trace_artifact, dict):
         raise ValueError(f"{branch} trace artifact must be an object")
     if trace_artifact.get("schema") != SOURCE_SELECTION_SCORE_SCHEMA:
-        raise ValueError(f"{branch} trace artifact has wrong schema; expected {SOURCE_SELECTION_SCORE_SCHEMA}")
+        raise ValueError(
+            f"{branch} trace artifact has wrong schema; expected {SOURCE_SELECTION_SCORE_SCHEMA}"
+        )
     classification = trace_artifact.get("classification")
     if not isinstance(classification, dict):
         raise ValueError(f"{branch} trace artifact classification must be an object")
     if classification.get("classification") != EXPECTED_TRACE_CLASSIFICATION:
-        raise ValueError(f"{branch} trace artifact classification must be {EXPECTED_TRACE_CLASSIFICATION}")
+        raise ValueError(
+            f"{branch} trace artifact classification must be {EXPECTED_TRACE_CLASSIFICATION}"
+        )
     if trace_artifact.get("decision") != EXPECTED_TRACE_DECISION:
-        raise ValueError(f"{branch} trace artifact decision must be {EXPECTED_TRACE_DECISION}")
+        raise ValueError(
+            f"{branch} trace artifact decision must be {EXPECTED_TRACE_DECISION}"
+        )
     _validated_source_artifact(
         trace_artifact.get("source_artifact"),
         context=f"{branch} trace artifact source_artifact",
@@ -413,11 +494,17 @@ def _validated_trace_thresholds(trace_artifact: dict, *, context: str) -> dict:
         "material_visit_share_margin",
     ):
         try:
-            value = _finite_number(thresholds.get(key), context=f"{context} thresholds.{key}")
+            value = _finite_number(
+                thresholds.get(key), context=f"{context} thresholds.{key}"
+            )
         except ValueError as error:
-            raise ValueError(f"{context} thresholds.{key} must be finite non-negative numeric") from error
+            raise ValueError(
+                f"{context} thresholds.{key} must be finite non-negative numeric"
+            ) from error
         if value < 0.0:
-            raise ValueError(f"{context} thresholds.{key} must be finite non-negative numeric")
+            raise ValueError(
+                f"{context} thresholds.{key} must be finite non-negative numeric"
+            )
         validated_thresholds[key] = value
     return validated_thresholds
 
@@ -433,29 +520,53 @@ def _validated_canonicalization_artifact(
         return None
     if not isinstance(checkpoint_canonicalization_artifact, dict):
         raise ValueError("checkpoint canonicalization artifact must be an object")
-    if checkpoint_canonicalization_artifact.get("schema") != SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA:
+    if (
+        checkpoint_canonicalization_artifact.get("schema")
+        != SOURCE_CHECKPOINT_CANONICALIZATION_SCHEMA
+    ):
         raise ValueError("checkpoint canonicalization artifact has wrong schema")
-    if checkpoint_canonicalization_artifact.get("decision") != EXPECTED_CANONICALIZATION_DECISION:
+    if (
+        checkpoint_canonicalization_artifact.get("decision")
+        != EXPECTED_CANONICALIZATION_DECISION
+    ):
         raise ValueError(
             f"checkpoint canonicalization artifact decision must be {EXPECTED_CANONICALIZATION_DECISION}"
         )
-    if _source_artifact_identity(
-        checkpoint_canonicalization_artifact.get("source_artifact"),
-        context="checkpoint canonicalization artifact source_artifact",
-    ) != source_artifact_identity:
+    if (
+        _source_artifact_identity(
+            checkpoint_canonicalization_artifact.get("source_artifact"),
+            context="checkpoint canonicalization artifact source_artifact",
+        )
+        != source_artifact_identity
+    ):
         raise ValueError(
             "checkpoint canonicalization artifact source_artifact must match selection-score residual audit artifact source_artifact"
         )
-    canonical_checkpoint_sequences = checkpoint_canonicalization_artifact.get("canonical_checkpoint_sequences")
+    canonical_checkpoint_sequences = checkpoint_canonicalization_artifact.get(
+        "canonical_checkpoint_sequences"
+    )
     if not isinstance(canonical_checkpoint_sequences, dict):
-        raise ValueError("checkpoint canonicalization artifact canonical_checkpoint_sequences must be an object")
-    canonicalization_status = checkpoint_canonicalization_artifact.get("canonicalization_status")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonical_checkpoint_sequences must be an object"
+        )
+    canonicalization_status = checkpoint_canonicalization_artifact.get(
+        "canonicalization_status"
+    )
     if not isinstance(canonicalization_status, dict):
-        raise ValueError("checkpoint canonicalization artifact canonicalization_status.safe_for_followup_spec must be true")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonicalization_status.safe_for_followup_spec must be true"
+        )
     if canonicalization_status.get("safe_for_followup_spec") is not True:
-        raise ValueError("checkpoint canonicalization artifact canonicalization_status.safe_for_followup_spec must be true")
-    if checkpoint_canonicalization_artifact.get("canonical_sequences_match") is not True:
-        raise ValueError("checkpoint canonicalization artifact canonical_sequences_match must be true")
+        raise ValueError(
+            "checkpoint canonicalization artifact canonicalization_status.safe_for_followup_spec must be true"
+        )
+    if (
+        checkpoint_canonicalization_artifact.get("canonical_sequences_match")
+        is not True
+    ):
+        raise ValueError(
+            "checkpoint canonicalization artifact canonical_sequences_match must be true"
+        )
     trace_artifacts_by_branch = {
         "default": validated_default_trace_artifact,
         "relaxed": validated_relaxed_trace_artifact,
@@ -480,7 +591,9 @@ def _validated_canonicalization_artifact(
         trace_simulations = []
         previous_simulation = None
         seen_simulations = set()
-        for index, trace_point in enumerate(_validated_trace_points(trace_artifacts_by_branch[branch], branch=branch)):
+        for index, trace_point in enumerate(
+            _validated_trace_points(trace_artifacts_by_branch[branch], branch=branch)
+        ):
             simulation, _ = _trace_point_projection(
                 trace_point,
                 context=f"{branch} trace trace_points[{index}]",
@@ -542,7 +655,9 @@ def _residual_components(trace_point: dict, *, move: int, context: str) -> dict:
     }
 
 
-def _selected_move_from_scores(scores_by_move: dict[int, float], *, context: str) -> int:
+def _selected_move_from_scores(
+    scores_by_move: dict[int, float], *, context: str
+) -> int:
     if not scores_by_move:
         raise ValueError(f"{context} must include at least one legal move")
 
@@ -558,12 +673,16 @@ def _selected_move_from_scores(scores_by_move: dict[int, float], *, context: str
 def _baseline_replay_selected_move(trace_point: dict, *, branch: str) -> int:
     scores_by_move = {}
     for move in _legal_moves(trace_point, context=f"{branch} canonical trace point"):
-        move_entry = _move_lookup(trace_point, move=move, context=f"{branch} canonical trace point")
+        move_entry = _move_lookup(
+            trace_point, move=move, context=f"{branch} canonical trace point"
+        )
         scores_by_move[move] = _finite_number(
             move_entry.get("selection_score"),
             context=f"{branch} baseline_replay move {move} selection_score",
         )
-    return _selected_move_from_scores(scores_by_move, context=f"{branch} baseline_replay")
+    return _selected_move_from_scores(
+        scores_by_move, context=f"{branch} baseline_replay"
+    )
 
 
 def _selected_residual_neutralized_selected_move(
@@ -590,7 +709,9 @@ def _selected_residual_neutralized_selected_move(
                 move_entry.get("selection_score"),
                 context=f"{branch} selected_residual_neutralized move {move} selection_score",
             )
-    return _selected_move_from_scores(scores_by_move, context=f"{branch} selected_residual_neutralized")
+    return _selected_move_from_scores(
+        scores_by_move, context=f"{branch} selected_residual_neutralized"
+    )
 
 
 def _all_residuals_flattened_selected_move(trace_point: dict, *, branch: str) -> int:
@@ -607,7 +728,9 @@ def _all_residuals_flattened_selected_move(trace_point: dict, *, branch: str) ->
                 "all_residuals_flattened requires usable residual evidence for every legal move"
             ) from error
         scores_by_move[move] = components["non_residual_component"]
-    return _selected_move_from_scores(scores_by_move, context=f"{branch} all_residuals_flattened")
+    return _selected_move_from_scores(
+        scores_by_move, context=f"{branch} all_residuals_flattened"
+    )
 
 
 def _mode_outcome(
@@ -618,8 +741,12 @@ def _mode_outcome(
 ) -> dict:
     if mode == "baseline_replay":
         selected_moves_by_branch = {
-            "default": _baseline_replay_selected_move(default_trace_point, branch="default"),
-            "relaxed": _baseline_replay_selected_move(relaxed_trace_point, branch="relaxed"),
+            "default": _baseline_replay_selected_move(
+                default_trace_point, branch="default"
+            ),
+            "relaxed": _baseline_replay_selected_move(
+                relaxed_trace_point, branch="relaxed"
+            ),
         }
     elif mode == "selected_residual_neutralized":
         selected_moves_by_branch = {
@@ -634,18 +761,26 @@ def _mode_outcome(
         }
     elif mode == "all_residuals_flattened":
         selected_moves_by_branch = {
-            "default": _all_residuals_flattened_selected_move(default_trace_point, branch="default"),
-            "relaxed": _all_residuals_flattened_selected_move(relaxed_trace_point, branch="relaxed"),
+            "default": _all_residuals_flattened_selected_move(
+                default_trace_point, branch="default"
+            ),
+            "relaxed": _all_residuals_flattened_selected_move(
+                relaxed_trace_point, branch="relaxed"
+            ),
         }
     else:
         raise ValueError(f"unsupported mode: {mode}")
 
-    branches_agree = selected_moves_by_branch["default"] == selected_moves_by_branch["relaxed"]
+    branches_agree = (
+        selected_moves_by_branch["default"] == selected_moves_by_branch["relaxed"]
+    )
     selected_move = selected_moves_by_branch["default"] if branches_agree else None
     if mode == "baseline_replay":
         applied_edit_summary = "no ablation edit applied"
     elif mode == "selected_residual_neutralized":
-        applied_edit_summary = "neutralized residual contribution for move 0 at simulation 2.0"
+        applied_edit_summary = (
+            "neutralized residual contribution for move 0 at simulation 2.0"
+        )
     else:
         applied_edit_summary = "flattened residual contribution across all legal moves with usable evidence at simulation 2.0"
     return {
@@ -656,16 +791,24 @@ def _mode_outcome(
         "evidence_summary": (
             f"{mode} preserved move 0"
             if selected_move == EXPECTED_SELECTED_MOVE
-            else (f"{mode} changed away from move 0" if selected_move is not None else f"{mode} branches disagreed")
+            else (
+                f"{mode} changed away from move 0"
+                if selected_move is not None
+                else f"{mode} branches disagreed"
+            )
         ),
-        "failure_reason": None if branches_agree else "branch disagreement prevented a clean selected-move result",
+        "failure_reason": None
+        if branches_agree
+        else "branch disagreement prevented a clean selected-move result",
         "applied_edit_summary": applied_edit_summary,
         "branch_selected_moves": selected_moves_by_branch,
         "branches_agree": branches_agree,
     }
 
 
-def _classification_from_mode_results(mode_results: list[dict], *, validated_selected_move: int) -> str:
+def _classification_from_mode_results(
+    mode_results: list[dict], *, validated_selected_move: int
+) -> str:
     outcomes_by_mode = {entry["mode"]: entry for entry in mode_results}
     baseline_selected_move = outcomes_by_mode["baseline_replay"]["selected_move"]
     if baseline_selected_move is None:
@@ -695,18 +838,32 @@ def build_payload(
     source_checkpoint_canonicalization_artifact_path: str | None = None,
 ) -> dict:
     canonicalization_mode = checkpoint_canonicalization_artifact is not None
-    if not canonicalization_mode and source_checkpoint_canonicalization_artifact_path is not None:
+    if (
+        not canonicalization_mode
+        and source_checkpoint_canonicalization_artifact_path is not None
+    ):
         raise ValueError(
             "source_checkpoint_canonicalization_artifact_path requires checkpoint canonicalization artifact"
         )
-    if canonicalization_mode and source_checkpoint_canonicalization_artifact_path is None:
+    if (
+        canonicalization_mode
+        and source_checkpoint_canonicalization_artifact_path is None
+    ):
         raise ValueError(
             "checkpoint canonicalization artifact requires source_checkpoint_canonicalization_artifact_path"
         )
-    validated_residual_audit_artifact = _validated_residual_audit_artifact(residual_audit_artifact)
-    validated_prior_pressure_artifact = _validated_prior_pressure_artifact(prior_pressure_artifact)
-    validated_default_trace_artifact = _validated_trace_artifact(default_trace_artifact, branch="default")
-    validated_relaxed_trace_artifact = _validated_trace_artifact(relaxed_trace_artifact, branch="relaxed")
+    validated_residual_audit_artifact = _validated_residual_audit_artifact(
+        residual_audit_artifact
+    )
+    validated_prior_pressure_artifact = _validated_prior_pressure_artifact(
+        prior_pressure_artifact
+    )
+    validated_default_trace_artifact = _validated_trace_artifact(
+        default_trace_artifact, branch="default"
+    )
+    validated_relaxed_trace_artifact = _validated_trace_artifact(
+        relaxed_trace_artifact, branch="relaxed"
+    )
     _validated_residual_audit_input_artifacts(
         validated_residual_audit_artifact,
         source_prior_pressure_audit_artifact_path=source_prior_pressure_audit_artifact_path,
@@ -724,24 +881,33 @@ def build_payload(
         validated_default_trace_artifact=validated_default_trace_artifact,
         validated_relaxed_trace_artifact=validated_relaxed_trace_artifact,
     )
-    if _source_artifact_identity(
-        validated_prior_pressure_artifact.get("source_artifact"),
-        context="prior-pressure audit artifact source_artifact",
-    ) != source_artifact_identity:
+    if (
+        _source_artifact_identity(
+            validated_prior_pressure_artifact.get("source_artifact"),
+            context="prior-pressure audit artifact source_artifact",
+        )
+        != source_artifact_identity
+    ):
         raise ValueError(
             "prior-pressure audit artifact source_artifact must match selection-score residual audit artifact source_artifact"
         )
-    if _source_artifact_identity(
-        validated_default_trace_artifact.get("source_artifact"),
-        context="default trace artifact source_artifact",
-    ) != source_artifact_identity:
+    if (
+        _source_artifact_identity(
+            validated_default_trace_artifact.get("source_artifact"),
+            context="default trace artifact source_artifact",
+        )
+        != source_artifact_identity
+    ):
         raise ValueError(
             "default trace artifact source_artifact must match selection-score residual audit artifact source_artifact"
         )
-    if _source_artifact_identity(
-        validated_relaxed_trace_artifact.get("source_artifact"),
-        context="relaxed trace artifact source_artifact",
-    ) != source_artifact_identity:
+    if (
+        _source_artifact_identity(
+            validated_relaxed_trace_artifact.get("source_artifact"),
+            context="relaxed trace artifact source_artifact",
+        )
+        != source_artifact_identity
+    ):
         raise ValueError(
             "relaxed trace artifact source_artifact must match selection-score residual audit artifact source_artifact"
         )
@@ -816,7 +982,9 @@ def build_payload(
         "mode_results": mode_results,
         "mode_comparison": {
             "baseline_selected_move": mode_results[0]["selected_move"],
-            "selected_residual_neutralized_selected_move": mode_results[1]["selected_move"],
+            "selected_residual_neutralized_selected_move": mode_results[1][
+                "selected_move"
+            ],
             "selected_residual_neutralized_changed_away_from_baseline": (
                 mode_results[0]["selected_move"] is not None
                 and mode_results[1]["selected_move"] is not None
@@ -839,21 +1007,31 @@ def build_payload(
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    residual_audit_artifact = load_json(args.source_selection_score_residual_audit_artifact)
+    residual_audit_artifact = load_json(
+        args.source_selection_score_residual_audit_artifact
+    )
     prior_pressure_artifact = load_json(args.source_prior_pressure_audit_artifact)
     default_trace_artifact = load_json(args.source_selection_score_artifact)
-    relaxed_trace_artifact = load_json(args.source_threshold_relaxed_selection_score_artifact)
+    relaxed_trace_artifact = load_json(
+        args.source_threshold_relaxed_selection_score_artifact
+    )
     checkpoint_canonicalization_artifact = None
     if args.source_checkpoint_canonicalization_artifact is not None:
-        checkpoint_canonicalization_artifact = load_json(args.source_checkpoint_canonicalization_artifact)
+        checkpoint_canonicalization_artifact = load_json(
+            args.source_checkpoint_canonicalization_artifact
+        )
 
     payload = build_payload(
         residual_audit_artifact,
         prior_pressure_artifact,
         default_trace_artifact,
         relaxed_trace_artifact,
-        source_selection_score_residual_audit_artifact_path=str(args.source_selection_score_residual_audit_artifact),
-        source_prior_pressure_audit_artifact_path=str(args.source_prior_pressure_audit_artifact),
+        source_selection_score_residual_audit_artifact_path=str(
+            args.source_selection_score_residual_audit_artifact
+        ),
+        source_prior_pressure_audit_artifact_path=str(
+            args.source_prior_pressure_audit_artifact
+        ),
         source_selection_score_artifact_path=str(args.source_selection_score_artifact),
         source_threshold_relaxed_selection_score_artifact_path=str(
             args.source_threshold_relaxed_selection_score_artifact
@@ -867,7 +1045,9 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

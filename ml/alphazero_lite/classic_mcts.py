@@ -28,7 +28,9 @@ class Node:
             next_game.move(next_game.pit_index(action))
             self.children[action] = Node(next_game, self)
 
-    def select_child(self, c: float = math.sqrt(2.0), value_trust_multiplier: float = 1.0) -> "Node":
+    def select_child(
+        self, c: float = math.sqrt(2.0), value_trust_multiplier: float = 1.0
+    ) -> "Node":
         if not self.children:
             return self
 
@@ -41,7 +43,9 @@ class Node:
             if child.visits == 0:
                 score = float("inf")
             else:
-                exploitation = (child.wins / float(child.visits)) * value_trust_multiplier
+                exploitation = (
+                    child.wins / float(child.visits)
+                ) * value_trust_multiplier
                 exploration = c * math.sqrt(log_parent_visits / child.visits)
                 score = exploitation + exploration
 
@@ -103,7 +107,9 @@ def _validated_value_trust_schedule(raw_schedule: dict | None) -> ValueTrustSche
 
     allowed_keys = {"enabled", "opening", "midgame", "late"}
     if set(raw_schedule.keys()) - allowed_keys:
-        raise ValueError("value_trust_schedule keys must be enabled, opening, midgame, and late")
+        raise ValueError(
+            "value_trust_schedule keys must be enabled, opening, midgame, and late"
+        )
 
     enabled = raw_schedule.get("enabled", False)
     if not isinstance(enabled, bool):
@@ -165,18 +171,32 @@ class MCTS:
         self.early_stop_check_interval = max(int(early_stop_check_interval), 1)
         self.early_stop_top_visit_share = float(early_stop_top_visit_share)
         self.early_stop_required_checks = max(int(early_stop_required_checks), 1)
-        min_simulations = simulations if dynamic_budget_min_simulations is None else int(dynamic_budget_min_simulations)
-        max_simulations = simulations if dynamic_budget_max_simulations is None else int(dynamic_budget_max_simulations)
+        min_simulations = (
+            simulations
+            if dynamic_budget_min_simulations is None
+            else int(dynamic_budget_min_simulations)
+        )
+        max_simulations = (
+            simulations
+            if dynamic_budget_max_simulations is None
+            else int(dynamic_budget_max_simulations)
+        )
         probe_simulations = int(dynamic_budget_probe_simulations)
         if dynamic_budget_enabled:
             if min_simulations < 1:
                 raise ValueError("dynamic_budget_min_simulations must be >= 1")
             if max_simulations < min_simulations:
-                raise ValueError("dynamic_budget_max_simulations must be >= dynamic_budget_min_simulations")
+                raise ValueError(
+                    "dynamic_budget_max_simulations must be >= dynamic_budget_min_simulations"
+                )
             if probe_simulations < 1:
-                raise ValueError("dynamic_budget_probe_simulations must be >= 1 when dynamic budget is enabled")
+                raise ValueError(
+                    "dynamic_budget_probe_simulations must be >= 1 when dynamic budget is enabled"
+                )
             if probe_simulations >= max_simulations:
-                raise ValueError("dynamic_budget_probe_simulations must be < dynamic_budget_max_simulations")
+                raise ValueError(
+                    "dynamic_budget_probe_simulations must be < dynamic_budget_max_simulations"
+                )
         self.dynamic_budget_config = DynamicBudgetConfig(
             enabled=bool(dynamic_budget_enabled),
             probe_simulations=probe_simulations,
@@ -187,11 +207,15 @@ class MCTS:
             low_margin_weight=float(dynamic_budget_low_margin_weight),
             variance_weight=float(dynamic_budget_variance_weight),
         )
-        self.value_trust_schedule = _validated_value_trust_schedule(value_trust_schedule)
+        self.value_trust_schedule = _validated_value_trust_schedule(
+            value_trust_schedule
+        )
         self._last_root_budget_summary = RootBudgetSummary(
             dynamic_budget_enabled=bool(dynamic_budget_enabled),
             baseline_simulations=int(simulations),
-            probe_simulations=int(probe_simulations) if dynamic_budget_enabled else int(simulations),
+            probe_simulations=int(probe_simulations)
+            if dynamic_budget_enabled
+            else int(simulations),
             chosen_simulations=int(simulations),
             final_simulations=int(simulations),
             phase_bucket="fixed",
@@ -222,7 +246,9 @@ class MCTS:
                 {
                     "move": int(action),
                     "visits": int(child.visits),
-                    "win_rate": float(child.wins / child.visits) if child.visits else 0.0,
+                    "win_rate": float(child.wins / child.visits)
+                    if child.visits
+                    else 0.0,
                 }
             )
         selected_move = self._choose_move_from_root(root)
@@ -238,7 +264,9 @@ class MCTS:
         return {
             "enabled": bool(self.value_trust_schedule.enabled),
             "phase_bucket": phase_key,
-            "effective_multiplier": float(self._effective_value_trust_multiplier_for(game)),
+            "effective_multiplier": float(
+                self._effective_value_trust_multiplier_for(game)
+            ),
             "schedule": {
                 "opening": float(self.value_trust_schedule.opening),
                 "midgame": float(self.value_trust_schedule.midgame),
@@ -247,15 +275,21 @@ class MCTS:
         }
 
     def _value_trust_phase_key_for(self, game: KalahGame) -> str:
-        return {"early": "opening", "mid": "midgame", "late": "late"}[self.phase_bucket_for(game)]
+        return {"early": "opening", "mid": "midgame", "late": "late"}[
+            self.phase_bucket_for(game)
+        ]
 
     def _effective_value_trust_multiplier_for(self, game: KalahGame) -> float:
         if not self.value_trust_schedule.enabled:
             return 1.0
-        return float(getattr(self.value_trust_schedule, self._value_trust_phase_key_for(game)))
+        return float(
+            getattr(self.value_trust_schedule, self._value_trust_phase_key_for(game))
+        )
 
     def _select_guided_child(self, node: Node) -> Node:
-        return node.select_child(value_trust_multiplier=self._effective_value_trust_multiplier_for(node.game))
+        return node.select_child(
+            value_trust_multiplier=self._effective_value_trust_multiplier_for(node.game)
+        )
 
     def choose_playout_move(self, game: KalahGame) -> int | None:
         possible_actions = game.possible_moves()
@@ -272,7 +306,9 @@ class MCTS:
 
         for action in possible_actions:
             pit_index = game.pit_index(action)
-            score = self.kalah_playout_move_score(game, pit_index, player, before_store, current_total, opponent_total)
+            score = self.kalah_playout_move_score(
+                game, pit_index, player, before_store, current_total, opponent_total
+            )
             if score > best_score:
                 best_score = score
                 best_actions = [action]
@@ -299,7 +335,9 @@ class MCTS:
         if len(root.children) > 1:
             if self.dynamic_budget_config.enabled:
                 probe_budget = self.dynamic_budget_config.probe_simulations
-                probe_simulations_run = int(self.run_search(root, probe_budget, allow_early_stop=False))
+                probe_simulations_run = int(
+                    self.run_search(root, probe_budget, allow_early_stop=False)
+                )
                 probe_phase_bucket = self.phase_bucket_for(root.game)
                 probe_entropy = self.root_entropy(root)
                 probe_top_move_margin = self.top_move_margin(root)
@@ -327,7 +365,9 @@ class MCTS:
                     root_latency_ms=(time.perf_counter() - started) * 1000.0,
                 )
             else:
-                simulations_run = int(self.run_search(root, self.simulations, allow_early_stop=True))
+                simulations_run = int(
+                    self.run_search(root, self.simulations, allow_early_stop=True)
+                )
                 self._last_root_budget_summary = RootBudgetSummary(
                     dynamic_budget_enabled=False,
                     baseline_simulations=int(self.simulations),
@@ -352,7 +392,9 @@ class MCTS:
                     else int(self.simulations)
                 ),
                 final_simulations=0,
-                phase_bucket=self.phase_bucket_for(root.game) if self.dynamic_budget_config.enabled else "fixed",
+                phase_bucket=self.phase_bucket_for(root.game)
+                if self.dynamic_budget_config.enabled
+                else "fixed",
                 entropy=self.root_entropy(root),
                 top_move_margin=self.top_move_margin(root),
                 child_value_variance=self.child_value_variance(root),
@@ -382,7 +424,9 @@ class MCTS:
                 best_value = value
         return best_action
 
-    def run_search(self, node: Node, simulations_to_run: int, *, allow_early_stop: bool) -> int:
+    def run_search(
+        self, node: Node, simulations_to_run: int, *, allow_early_stop: bool
+    ) -> int:
         decisive_checks = 0
         simulations_run = 0
 
@@ -491,13 +535,21 @@ class MCTS:
         if total <= 0.0:
             return 0.0
         probabilities = [visit / total for visit in visits]
-        entropy = -sum(probability * math.log(probability) for probability in probabilities if probability > 0.0)
+        entropy = -sum(
+            probability * math.log(probability)
+            for probability in probabilities
+            if probability > 0.0
+        )
         max_entropy = math.log(len(node.children)) if len(node.children) > 1 else 1.0
         return 0.0 if max_entropy <= 0 else entropy / max_entropy
 
     def top_move_margin(self, node: Node) -> float:
         win_rates = sorted(
-            [(child.wins / float(child.visits)) for child in node.children.values() if child.visits > 0],
+            [
+                (child.wins / float(child.visits))
+                for child in node.children.values()
+                if child.visits > 0
+            ],
             reverse=True,
         )
         if len(node.children) > 1 and len(win_rates) < 2:
@@ -507,7 +559,11 @@ class MCTS:
         return win_rates[0] - win_rates[1]
 
     def child_value_variance(self, node: Node) -> float:
-        win_rates = [(child.wins / float(child.visits)) for child in node.children.values() if child.visits > 0]
+        win_rates = [
+            (child.wins / float(child.visits))
+            for child in node.children.values()
+            if child.visits > 0
+        ]
         if len(node.children) > 1 and len(win_rates) < 2:
             return 0.25
         if len(win_rates) < 2:
@@ -527,7 +583,10 @@ class MCTS:
         elif phase_bucket == "late":
             multiplier += 0.15
         multiplier += (entropy - 0.5) * self.dynamic_budget_config.entropy_weight
-        multiplier += max(0.0, self.dynamic_budget_config.low_margin_threshold - margin) * self.dynamic_budget_config.low_margin_weight
+        multiplier += (
+            max(0.0, self.dynamic_budget_config.low_margin_threshold - margin)
+            * self.dynamic_budget_config.low_margin_weight
+        )
         multiplier += variance * self.dynamic_budget_config.variance_weight
 
         unclamped = round(self.simulations * multiplier)
@@ -541,7 +600,10 @@ class MCTS:
         labels = [self.phase_bucket_for(node.game)]
         if self.root_entropy(node) >= 0.75:
             labels.append("high_entropy")
-        if self.top_move_margin(node) <= self.dynamic_budget_config.low_margin_threshold:
+        if (
+            self.top_move_margin(node)
+            <= self.dynamic_budget_config.low_margin_threshold
+        ):
             labels.append("low_margin")
         if self.child_value_variance(node) >= 0.02:
             labels.append("high_variance")
@@ -574,45 +636,71 @@ class MCTS:
         if remainder >= distance_to_store and remainder > 0:
             capture_gain += 1
 
-        current_total_after = current_total - seeds + self.kalah_current_side_hits(laps, remainder, distance_to_store)
-        opponent_total_after = opponent_total + self.kalah_opponent_side_hits(laps, remainder, distance_to_store)
+        current_total_after = (
+            current_total
+            - seeds
+            + self.kalah_current_side_hits(laps, remainder, distance_to_store)
+        )
+        opponent_total_after = opponent_total + self.kalah_opponent_side_hits(
+            laps, remainder, distance_to_store
+        )
 
         if not extra_turn:
-            landing_index = self.kalah_landing_index(player, pit_index, remainder, distance_to_store)
+            landing_index = self.kalah_landing_index(
+                player, pit_index, remainder, distance_to_store
+            )
             if landing_index is not None and game.pit_owner(landing_index) == player:
-                landing_seeds = self.kalah_pit_seeds_after_sowing(game, player, pit_index, landing_index, seeds)
+                landing_seeds = self.kalah_pit_seeds_after_sowing(
+                    game, player, pit_index, landing_index, seeds
+                )
                 opposite_index = game.opposite_pit_index(landing_index)
-                opposite_seeds = self.kalah_pit_seeds_after_sowing(game, player, pit_index, opposite_index, seeds)
+                opposite_seeds = self.kalah_pit_seeds_after_sowing(
+                    game, player, pit_index, opposite_index, seeds
+                )
                 if landing_seeds == 1 and opposite_seeds > 0:
                     capture_gain += landing_seeds + opposite_seeds
                     current_total_after -= landing_seeds
                     opponent_total_after -= opposite_seeds
 
-        if self.kalah_game_over_after_move(player, extra_turn, current_total_after, opponent_total_after):
+        if self.kalah_game_over_after_move(
+            player, extra_turn, current_total_after, opponent_total_after
+        ):
             if not extra_turn:
                 capture_gain += current_total_after
 
-        return (capture_gain * self.CAPTURE_WEIGHT) + (self.EXTRA_TURN_BONUS if extra_turn else 0.0)
+        return (capture_gain * self.CAPTURE_WEIGHT) + (
+            self.EXTRA_TURN_BONUS if extra_turn else 0.0
+        )
 
     def kalah_side_seed_totals(self, game: KalahGame, player: int) -> tuple[int, int]:
         current_start = player * PITS_PER_PLAYER
         opponent_start = (1 - player) * PITS_PER_PLAYER
-        current_total = sum(game.pits[current_start + offset] for offset in range(PITS_PER_PLAYER))
-        opponent_total = sum(game.pits[opponent_start + offset] for offset in range(PITS_PER_PLAYER))
+        current_total = sum(
+            game.pits[current_start + offset] for offset in range(PITS_PER_PLAYER)
+        )
+        opponent_total = sum(
+            game.pits[opponent_start + offset] for offset in range(PITS_PER_PLAYER)
+        )
         return current_total, opponent_total
 
-    def kalah_current_side_hits(self, laps: int, remainder: int, distance_to_store: int) -> int:
+    def kalah_current_side_hits(
+        self, laps: int, remainder: int, distance_to_store: int
+    ) -> int:
         hits = laps * PITS_PER_PLAYER
         hits += min(remainder, distance_to_store - 1)
         wrapped_hits = remainder - distance_to_store - PITS_PER_PLAYER
         return hits + max(wrapped_hits, 0)
 
-    def kalah_opponent_side_hits(self, laps: int, remainder: int, distance_to_store: int) -> int:
+    def kalah_opponent_side_hits(
+        self, laps: int, remainder: int, distance_to_store: int
+    ) -> int:
         hits = laps * PITS_PER_PLAYER
         tail_hits = remainder - distance_to_store
         return hits + min(max(tail_hits, 0), PITS_PER_PLAYER)
 
-    def kalah_landing_index(self, player: int, pit_index: int, remainder: int, distance_to_store: int) -> int | None:
+    def kalah_landing_index(
+        self, player: int, pit_index: int, remainder: int, distance_to_store: int
+    ) -> int | None:
         if remainder == 0:
             return pit_index
         if remainder < distance_to_store:
@@ -623,11 +711,26 @@ class MCTS:
         opponent_start = (1 - player) * PITS_PER_PLAYER
         if remainder <= distance_to_store + PITS_PER_PLAYER:
             return opponent_start + remainder - distance_to_store - 1
-        return (player * PITS_PER_PLAYER) + remainder - distance_to_store - PITS_PER_PLAYER - 1
+        return (
+            (player * PITS_PER_PLAYER)
+            + remainder
+            - distance_to_store
+            - PITS_PER_PLAYER
+            - 1
+        )
 
-    def kalah_pit_seeds_after_sowing(self, game: KalahGame, player: int, pit_index: int, target_index: int, seeds: int) -> int:
+    def kalah_pit_seeds_after_sowing(
+        self,
+        game: KalahGame,
+        player: int,
+        pit_index: int,
+        target_index: int,
+        seeds: int,
+    ) -> int:
         original_seeds = 0 if target_index == pit_index else game.pits[target_index]
-        return original_seeds + self.kalah_pit_hits(seeds, self.kalah_pit_distance(player, pit_index, target_index))
+        return original_seeds + self.kalah_pit_hits(
+            seeds, self.kalah_pit_distance(player, pit_index, target_index)
+        )
 
     def kalah_pit_hits(self, seeds: int, distance: int) -> int:
         if seeds < distance:
@@ -646,6 +749,16 @@ class MCTS:
             return distance_to_store + target_index - opponent_start + 1
         return distance_to_store + PITS_PER_PLAYER + target_index - current_start + 1
 
-    def kalah_game_over_after_move(self, player: int, extra_turn: bool, current_total_after: int, opponent_total_after: int) -> bool:
+    def kalah_game_over_after_move(
+        self,
+        player: int,
+        extra_turn: bool,
+        current_total_after: int,
+        opponent_total_after: int,
+    ) -> bool:
         next_player = player if extra_turn else 1 - player
-        return current_total_after == 0 if next_player == player else opponent_total_after == 0
+        return (
+            current_total_after == 0
+            if next_player == player
+            else opponent_total_after == 0
+        )

@@ -1,0 +1,35 @@
+[tool.ruff]
+target-version = "py312"
+extend-include = ["script/ai/*"]
+exclude = [
+    ".ruff_cache",
+    "script/ai/*.sh",
+    "script/ai/check_superhuman_regressions",
+    "script/ai/compare_superhuman_regressions",
+    "script/ai/promote_superhuman_candidate",
+    "script/ai/run_local_mix_ablation",
+    "script/ai/run_local_staged_ablation",
+    "script/ai/run_local_superhuman_strength_experiment",
+    "script/ai/runpod_remote_bootstrap.sh",
+    "script/ai/runpod_remote_run.sh",
+    "script/ai/runpod_superhuman_experiment",
+]
+force-exclude = true
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+exclude = [
+    "script/ai/*.sh",
+    "script/ai/check_superhuman_regressions",
+    "script/ai/compare_superhuman_regressions",
+    "script/ai/promote_superhuman_candidate",
+    "script/ai/run_local_mix_ablation",
+    "script/ai/run_local_staged_ablation",
+    "script/ai/run_local_superhuman_strength_experiment",
+    "script/ai/runpod_remote_bootstrap.sh",
+    "script/ai/runpod_remote_run.sh",
+    "script/ai/runpod_superhuman_experiment",
+]

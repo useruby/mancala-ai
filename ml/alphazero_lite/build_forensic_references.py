@@ -41,7 +41,11 @@ def _round_optional(value: Any) -> float | None:
 
 
 def _aggregate_teacher_value(seed_samples: list[dict[str, Any]]) -> float | None:
-    teacher_values = [float(sample["teacher_value"]) for sample in seed_samples if sample.get("teacher_value") is not None]
+    teacher_values = [
+        float(sample["teacher_value"])
+        for sample in seed_samples
+        if sample.get("teacher_value") is not None
+    ]
     if not teacher_values:
         return None
     return _round_optional(sum(teacher_values) / len(teacher_values))
@@ -54,15 +58,21 @@ def finalize_reference_row(
     state: dict[str, Any],
     seed_samples: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    observed_reference_moves = sorted({int(sample["reference_move"]) for sample in seed_samples})
+    observed_reference_moves = sorted(
+        {int(sample["reference_move"]) for sample in seed_samples}
+    )
     reference_unstable = len(observed_reference_moves) > 1
     stable_sample = seed_samples[0]
     row = {
         "id": row_id,
         "canonical_state": canonical_state,
         "state": state,
-        "reference_move": None if reference_unstable else int(stable_sample["reference_move"]),
-        "teacher_value": None if reference_unstable else _aggregate_teacher_value(seed_samples),
+        "reference_move": None
+        if reference_unstable
+        else int(stable_sample["reference_move"]),
+        "teacher_value": None
+        if reference_unstable
+        else _aggregate_teacher_value(seed_samples),
         "reference_unstable": reference_unstable,
         "observed_reference_moves": observed_reference_moves,
         "seed_samples": [
@@ -79,7 +89,9 @@ def finalize_reference_row(
     return row
 
 
-def finalize_reference_rows(evaluated_positions: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+def finalize_reference_rows(
+    evaluated_positions: Iterable[dict[str, Any]],
+) -> list[dict[str, Any]]:
     rows_by_canonical_state: dict[str, dict[str, Any]] = {}
     for position in evaluated_positions:
         canonical_state = str(position["canonical_state"])
@@ -102,12 +114,21 @@ def build_reference_artifact(
     value_simulations: int,
     seed: int,
     sample_seeds: Iterable[int] | None = None,
-    reference_runner: Callable[[dict[str, Any], int, int, int, int], dict[str, Any]] | None = None,
+    reference_runner: Callable[[dict[str, Any], int, int, int, int], dict[str, Any]]
+    | None = None,
 ) -> list[dict[str, Any]]:
     suite = load_suite(suite_path)
     artifact_path = Path(out_path)
-    value_reference_simulations = int(value_simulations) if int(value_simulations) > 0 else int(policy_simulations)
-    sampled_seeds = [int(value) for value in sample_seeds] if sample_seeds is not None else [int(seed)]
+    value_reference_simulations = (
+        int(value_simulations)
+        if int(value_simulations) > 0
+        else int(policy_simulations)
+    )
+    sampled_seeds = (
+        [int(value) for value in sample_seeds]
+        if sample_seeds is not None
+        else [int(seed)]
+    )
     if not sampled_seeds:
         raise ValueError("sample_seeds must not be empty")
 
@@ -136,7 +157,11 @@ def build_reference_artifact(
                     "seed": int(sample_seed),
                     "reference_move": int(reference["selected_move"]),
                     "teacher_value": reference.get("teacher_value"),
-                    **({"child_stats": reference["child_stats"]} if "child_stats" in reference else {}),
+                    **(
+                        {"child_stats": reference["child_stats"]}
+                        if "child_stats" in reference
+                        else {}
+                    ),
                 }
             )
 

@@ -28,18 +28,21 @@ def bootstrap_python() -> None:
     if candidate is None or Path(sys.executable).absolute() == candidate.absolute():
         return
 
-    os.execv(str(candidate), [str(candidate), str(Path(__file__).resolve()), *sys.argv[1:]])
+    os.execv(
+        str(candidate), [str(candidate), str(Path(__file__).resolve()), *sys.argv[1:]]
+    )
 
 
 bootstrap_python()
 
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from ml.alphazero_lite.run_targeted_source_coverage_redesign import main as run_redesign_main
-
 
 def main() -> None:
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from ml.alphazero_lite.run_targeted_source_coverage_redesign import (
+        main as run_redesign_main,
+    )
+
     os.chdir(REPO_ROOT)
     run_redesign_main()
 

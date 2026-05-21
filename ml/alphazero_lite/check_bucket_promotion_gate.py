@@ -52,7 +52,9 @@ def _shared_reference_provenance(report: dict[str, Any]) -> dict[str, Any]:
         or not isinstance(value_simulations, int)
         or not isinstance(sample_seeds, list)
         or not sample_seeds
-        or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in sample_seeds)
+        or any(
+            isinstance(seed, bool) or not isinstance(seed, int) for seed in sample_seeds
+        )
     ):
         raise ValueError("shared reference provenance is malformed")
 
@@ -63,14 +65,18 @@ def _shared_reference_provenance(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def validate_shared_reference_provenance(baseline: dict[str, Any], candidate: dict[str, Any]) -> None:
+def validate_shared_reference_provenance(
+    baseline: dict[str, Any], candidate: dict[str, Any]
+) -> None:
     baseline_provenance = _shared_reference_provenance(baseline)
     candidate_provenance = _shared_reference_provenance(candidate)
     if baseline_provenance != candidate_provenance:
         raise ValueError("shared reference provenance must match between reports")
 
 
-def system_metrics(report: dict[str, Any], bucket: str, system: str = "challenger") -> dict[str, Any]:
+def system_metrics(
+    report: dict[str, Any], bucket: str, system: str = "challenger"
+) -> dict[str, Any]:
     if bucket == "overall":
         systems = report.get("systems")
         if not isinstance(systems, dict) or system not in systems:
@@ -107,7 +113,9 @@ def metric(report: dict[str, Any], bucket: str, name: str) -> float:
         rows = report.get("systems", {}).get("challenger", {}).get("rows")
         if not isinstance(rows, list):
             raise ValueError("missing systems.challenger.rows")
-        bucket_rows = [row for row in rows if isinstance(row, dict) and row.get("bucket") == bucket]
+        bucket_rows = [
+            row for row in rows if isinstance(row, dict) and row.get("bucket") == bucket
+        ]
         if not bucket_rows:
             raise ValueError(f"missing challenger rows for {bucket}")
         if len(bucket_rows) != positions:
@@ -124,14 +132,23 @@ def metric(report: dict[str, Any], bucket: str, name: str) -> float:
             if not row.get("reference_unstable")
         ]
         if not stable_regret_values:
-            raise ValueError(f"bucket {bucket} requires at least one stable strict-metric row")
+            raise ValueError(
+                f"bucket {bucket} requires at least one stable strict-metric row"
+            )
         blunders = sum(1 for regret in stable_regret_values if regret >= 0.20)
         return round(blunders / len(stable_regret_values), 4)
 
     raise ValueError(f"missing metric {bucket}.{name}")
 
 
-def add_max_check(checks: list[dict[str, Any]], baseline: dict[str, Any], candidate: dict[str, Any], bucket: str, name: str, allowance: float) -> None:
+def add_max_check(
+    checks: list[dict[str, Any]],
+    baseline: dict[str, Any],
+    candidate: dict[str, Any],
+    bucket: str,
+    name: str,
+    allowance: float,
+) -> None:
     baseline_value = metric(baseline, bucket, name)
     candidate_value = metric(candidate, bucket, name)
     threshold = baseline_value + allowance
@@ -151,7 +168,14 @@ def add_max_check(checks: list[dict[str, Any]], baseline: dict[str, Any], candid
     )
 
 
-def add_min_check(checks: list[dict[str, Any]], baseline: dict[str, Any], candidate: dict[str, Any], bucket: str, name: str, allowance: float) -> None:
+def add_min_check(
+    checks: list[dict[str, Any]],
+    baseline: dict[str, Any],
+    candidate: dict[str, Any],
+    bucket: str,
+    name: str,
+    allowance: float,
+) -> None:
     baseline_value = metric(baseline, bucket, name)
     candidate_value = metric(candidate, bucket, name)
     threshold = baseline_value - allowance
@@ -186,30 +210,50 @@ def validate_report_shape(report: dict[str, Any]) -> None:
             raise ValueError(
                 f"bucket {bucket} requires at least {minimum_positions} positions"
             )
-        if isinstance(bucket_metrics.get("average_regret"), bool) or not isinstance(bucket_metrics.get("average_regret"), (int, float)):
+        if isinstance(bucket_metrics.get("average_regret"), bool) or not isinstance(
+            bucket_metrics.get("average_regret"), (int, float)
+        ):
             raise ValueError(f"bucket {bucket} missing average_regret")
-        if isinstance(bucket_metrics.get("top1_agreement"), bool) or not isinstance(bucket_metrics.get("top1_agreement"), (int, float)):
+        if isinstance(bucket_metrics.get("top1_agreement"), bool) or not isinstance(
+            bucket_metrics.get("top1_agreement"), (int, float)
+        ):
             raise ValueError(f"bucket {bucket} missing top1_agreement")
 
     overall = system_metrics(report, "overall")
-    if isinstance(overall.get("average_regret"), bool) or not isinstance(overall.get("average_regret"), (int, float)):
+    if isinstance(overall.get("average_regret"), bool) or not isinstance(
+        overall.get("average_regret"), (int, float)
+    ):
         raise ValueError("overall missing average_regret")
-    if isinstance(overall.get("top1_agreement"), bool) or not isinstance(overall.get("top1_agreement"), (int, float)):
+    if isinstance(overall.get("top1_agreement"), bool) or not isinstance(
+        overall.get("top1_agreement"), (int, float)
+    ):
         raise ValueError("overall missing top1_agreement")
 
 
-def evaluate_gate(baseline: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
+def evaluate_gate(
+    baseline: dict[str, Any], candidate: dict[str, Any]
+) -> dict[str, Any]:
     validate_report_shape(baseline)
     validate_report_shape(candidate)
     validate_shared_reference_provenance(baseline, candidate)
 
     checks: list[dict[str, Any]] = []
-    add_max_check(checks, baseline, candidate, "capture_available", "average_regret", 0.005)
-    add_max_check(checks, baseline, candidate, "capture_available", "blunder_rate_0_20", 0.02)
-    add_max_check(checks, baseline, candidate, "high_imbalance", "average_regret", 0.005)
-    add_max_check(checks, baseline, candidate, "high_value_swing", "average_regret", 0.005)
+    add_max_check(
+        checks, baseline, candidate, "capture_available", "average_regret", 0.005
+    )
+    add_max_check(
+        checks, baseline, candidate, "capture_available", "blunder_rate_0_20", 0.02
+    )
+    add_max_check(
+        checks, baseline, candidate, "high_imbalance", "average_regret", 0.005
+    )
+    add_max_check(
+        checks, baseline, candidate, "high_value_swing", "average_regret", 0.005
+    )
     add_min_check(checks, baseline, candidate, "sparse_endgame", "top1_agreement", 0.03)
-    add_max_check(checks, baseline, candidate, "opening_plies_1_8", "average_regret", 0.005)
+    add_max_check(
+        checks, baseline, candidate, "opening_plies_1_8", "average_regret", 0.005
+    )
     add_max_check(checks, baseline, candidate, "overall", "average_regret", 0.005)
     add_min_check(checks, baseline, candidate, "overall", "top1_agreement", 0.02)
 
@@ -268,7 +312,12 @@ def main() -> None:
         else:
             try:
                 load_validate_and_check_metrics(args.candidate_forensics)
-            except (OSError, json.JSONDecodeError, TypeError, ValueError) as candidate_error:
+            except (
+                OSError,
+                json.JSONDecodeError,
+                TypeError,
+                ValueError,
+            ) as candidate_error:
                 reported_error = candidate_error
         result = {
             "schema": "azlite_bucket_promotion_gate_v1",

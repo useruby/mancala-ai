@@ -1,7 +1,10 @@
 import unittest
 
 
-from ml.alphazero_lite.report_validation import ArenaReportValidationError, validate_arena_report
+from ml.alphazero_lite.report_validation import (
+    ArenaReportValidationError,
+    validate_arena_report,
+)
 
 
 class ArenaReportValidationTest(unittest.TestCase):
@@ -67,7 +70,9 @@ class ArenaReportValidationTest(unittest.TestCase):
             "promotion_decision": {"passed": True},
         }
 
-        result = validate_arena_report(report=report, min_score=0.55, min_confidence_lower_bound=0.6)
+        result = validate_arena_report(
+            report=report, min_score=0.55, min_confidence_lower_bound=0.6
+        )
 
         self.assertFalse(result["passed"])
         self.assertLess(result["confidence_lower_bound"], 0.6)
