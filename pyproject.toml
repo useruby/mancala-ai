@@ -4,8 +4,6 @@ extend-include = ["script/ai/*"]
 exclude = [
     ".ruff_cache",
     "script/ai/*.sh",
-    "script/ai/check_superhuman_regressions",
-    "script/ai/compare_superhuman_regressions",
     "script/ai/promote_superhuman_candidate",
     "script/ai/run_local_mix_ablation",
     "script/ai/run_local_staged_ablation",
@@ -23,8 +21,6 @@ ignore = ["E501"]
 [tool.ruff.format]
 exclude = [
     "script/ai/*.sh",
-    "script/ai/check_superhuman_regressions",
-    "script/ai/compare_superhuman_regressions",
     "script/ai/promote_superhuman_candidate",
     "script/ai/run_local_mix_ablation",
     "script/ai/run_local_staged_ablation",

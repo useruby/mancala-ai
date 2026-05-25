@@ -7624,7 +7624,7 @@ class PipelineScriptTest(unittest.TestCase):
         tactical_section = handoff.split("## Tactical Hard-State Replay Lane", 1)[1]
 
         self.assertIn(
-            "/tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json",
+            "/tmp/tactical-robustness-confirmation-results/tactical-robustness-confirmation/aggregate_summary.json",
             handoff,
         )
         self.assertIn("current_mcts_seed_2041.json", handoff)
@@ -8651,10 +8651,7 @@ class PipelineScriptTest(unittest.TestCase):
             report = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertFalse(report["passed"])
             self.assertEqual(
-                [
-                    {"code": "arena_score_below_threshold"},
-                    {"code": "candidate_not_stronger_than_hard"},
-                ],
+                [{"code": "arena_score_below_threshold"}],
                 report["failure_reasons"],
             )
 

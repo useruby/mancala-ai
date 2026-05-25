@@ -377,6 +377,316 @@ class LocalPromotionGateTest(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("missing value for --fpu-mode", result.stderr)
 
+    def test_prefilter_failed_arena_report_prevents_regression_check(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate = tmp_path / "candidate"
+            candidate.mkdir()
+            out_path = tmp_path / "report.json"
+
+            def write_json(path: Path, payload: dict) -> None:
+                path.write_text(json.dumps(payload), encoding="utf-8")
+
+            def fake_run_command(command):
+                if "--out" not in command:
+                    return
+
+                report_path = Path(command[command.index("--out") + 1])
+                if report_path.name == "candidate_vs_current_arena.json":
+                    write_json(
+                        report_path,
+                        {
+                            "schema": "arena_v1",
+                            "games_played": 120,
+                            "wins": 20,
+                            "losses": 80,
+                            "draws": 20,
+                            "promotion_decision": {"passed": False},
+                        },
+                    )
+                    return
+
+                if report_path.name == "candidate_vs_hard_arena.json":
+                    write_json(
+                        report_path,
+                        {
+                            "schema": "arena_v1",
+                            "games_played": 120,
+                            "wins": 72,
+                            "losses": 0,
+                            "draws": 48,
+                            "promotion_decision": {"passed": True},
+                        },
+                    )
+                    return
+
+                if report_path.name in {
+                    "candidate_vs_mcts1200.json",
+                    "current_vs_mcts1200.json",
+                }:
+                    write_json(
+                        report_path,
+                        {
+                            "schema": "arena_v1",
+                            "games": 40,
+                            "wins": 30,
+                            "losses": 2,
+                            "draws": 8,
+                            "az_wins": 30,
+                            "promotion_decision": {"passed": True},
+                        },
+                    )
+                    return
+
+                if report_path.name == "candidate_forensic_suite.json":
+                    self.write_passing_forensic_report(report_path)
+
+            def fail_regression_check(*_args, **_kwargs):
+                self.fail("regression check should not run after prefilter failure")
+
+            with (
+                mock.patch.object(
+                    module,
+                    "run_command",
+                    side_effect=fake_run_command,
+                ),
+                mock.patch.object(
+                    module,
+                    "run_regression_check",
+                    side_effect=fail_regression_check,
+                ),
+                mock.patch.object(
+                    module,
+                    "parse_args",
+                    return_value=argparse.Namespace(
+                        candidate_path=candidate,
+                        config_path=None,
+                        current_path="model-artifact/current",
+                        hard_path="model-artifact/current",
+                        regression_positions_path="test/fixtures/ai/superhuman_regression_positions.json",
+                        arena_games=120,
+                        mcts_games=40,
+                        min_arena_score=0.55,
+                        min_arena_games=120,
+                        min_mcts_games=40,
+                        hard_arena_games=120,
+                        hard_min_score=0.55,
+                        max_arena_move_time_mean_ms=None,
+                        max_arena_move_time_p95_ms=None,
+                        require_lossless=False,
+                        max_losses=0,
+                        skip_mcts_relative_check=False,
+                        out=out_path,
+                        stub_arena_report=None,
+                        stub_hard_report=None,
+                        stub_candidate_mcts_report=None,
+                        stub_current_mcts_report=None,
+                        stub_regression_report=None,
+                        stub_forensic_report=None,
+                        dry_run=False,
+                    ),
+                ),
+            ):
+                exit_code = module.main()
+
+                self.assertEqual(1, exit_code)
+                report = json.loads(out_path.read_text(encoding="utf-8"))
+                self.assertFalse(report["passed"])
+                self.assertEqual(
+                    [{"code": "arena_score_below_threshold"}],
+                    report["failure_reasons"],
+                )
+                self.assertTrue(
+                    report["arena_report_path"].endswith(
+                        "candidate_vs_current_arena.json"
+                    )
+                )
+                self.assertIsNone(report["hard_report_path"])
+                self.assertIsNone(report["candidate_mcts_report_path"])
+                self.assertIsNone(report["current_mcts_report_path"])
+                self.assertIsNone(report["regression_report_path"])
+                self.assertIsNone(report["forensic_report_path"])
+                self.assertIsNone(report["forensic_quality"])
+                self.assertIsNone(report["candidate_mcts_score"])
+                self.assertIsNone(report["current_mcts_score"])
+
+    def test_lossless_prefilter_failure_prevents_regression_check(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate = tmp_path / "candidate"
+            candidate.mkdir()
+            out_path = tmp_path / "report.json"
+
+            def write_json(path: Path, payload: dict) -> None:
+                path.write_text(json.dumps(payload), encoding="utf-8")
+
+            def fake_run_command(command):
+                if "--out" not in command:
+                    return
+
+                report_path = Path(command[command.index("--out") + 1])
+                if report_path.name == "candidate_vs_current_arena.json":
+                    write_json(
+                        report_path,
+                        {
+                            "schema": "arena_v1",
+                            "games_played": 120,
+                            "wins": 92,
+                            "losses": 1,
+                            "draws": 27,
+                            "promotion_decision": {"passed": True},
+                        },
+                    )
+                    return
+
+                self.fail(f"unexpected downstream command: {command}")
+
+            def fail_regression_check(*_args, **_kwargs):
+                self.fail("regression check should not run after prefilter failure")
+
+            with (
+                mock.patch.object(module, "run_command", side_effect=fake_run_command),
+                mock.patch.object(
+                    module,
+                    "run_regression_check",
+                    side_effect=fail_regression_check,
+                ),
+                mock.patch.object(
+                    module,
+                    "parse_args",
+                    return_value=argparse.Namespace(
+                        candidate_path=candidate,
+                        config_path=None,
+                        current_path="model-artifact/current",
+                        hard_path="model-artifact/current",
+                        regression_positions_path="test/fixtures/ai/superhuman_regression_positions.json",
+                        arena_games=120,
+                        mcts_games=40,
+                        min_arena_score=0.55,
+                        min_arena_games=120,
+                        min_mcts_games=40,
+                        hard_arena_games=120,
+                        hard_min_score=0.55,
+                        max_arena_move_time_mean_ms=None,
+                        max_arena_move_time_p95_ms=None,
+                        require_lossless=True,
+                        max_losses=0,
+                        skip_mcts_relative_check=False,
+                        out=out_path,
+                        stub_arena_report=None,
+                        stub_hard_report=None,
+                        stub_candidate_mcts_report=None,
+                        stub_current_mcts_report=None,
+                        stub_regression_report=None,
+                        stub_forensic_report=None,
+                        dry_run=False,
+                    ),
+                ),
+            ):
+                exit_code = module.main()
+
+            self.assertEqual(1, exit_code)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                [{"code": "arena_losses_above_threshold"}],
+                report["failure_reasons"],
+            )
+            self.assertIsNone(report["candidate_mcts_report_path"])
+            self.assertIsNone(report["current_mcts_report_path"])
+            self.assertIsNone(report["regression_report_path"])
+
+    def test_move_time_prefilter_failure_prevents_regression_check(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate = tmp_path / "candidate"
+            candidate.mkdir()
+            out_path = tmp_path / "report.json"
+
+            def write_json(path: Path, payload: dict) -> None:
+                path.write_text(json.dumps(payload), encoding="utf-8")
+
+            def fake_run_command(command):
+                if "--out" not in command:
+                    return
+
+                report_path = Path(command[command.index("--out") + 1])
+                if report_path.name == "candidate_vs_current_arena.json":
+                    write_json(
+                        report_path,
+                        {
+                            "schema": "arena_v1",
+                            "games_played": 120,
+                            "wins": 92,
+                            "losses": 0,
+                            "draws": 28,
+                            "promotion_decision": {"passed": True},
+                            "notes": {"move_time_mean_ms": 12.0},
+                        },
+                    )
+                    return
+
+                self.fail(f"unexpected downstream command: {command}")
+
+            def fail_regression_check(*_args, **_kwargs):
+                self.fail("regression check should not run after prefilter failure")
+
+            with (
+                mock.patch.object(module, "run_command", side_effect=fake_run_command),
+                mock.patch.object(
+                    module,
+                    "run_regression_check",
+                    side_effect=fail_regression_check,
+                ),
+                mock.patch.object(
+                    module,
+                    "parse_args",
+                    return_value=argparse.Namespace(
+                        candidate_path=candidate,
+                        config_path=None,
+                        current_path="model-artifact/current",
+                        hard_path="model-artifact/current",
+                        regression_positions_path="test/fixtures/ai/superhuman_regression_positions.json",
+                        arena_games=120,
+                        mcts_games=40,
+                        min_arena_score=0.55,
+                        min_arena_games=120,
+                        min_mcts_games=40,
+                        hard_arena_games=120,
+                        hard_min_score=0.55,
+                        max_arena_move_time_mean_ms=10.0,
+                        max_arena_move_time_p95_ms=None,
+                        require_lossless=False,
+                        max_losses=0,
+                        skip_mcts_relative_check=False,
+                        out=out_path,
+                        stub_arena_report=None,
+                        stub_hard_report=None,
+                        stub_candidate_mcts_report=None,
+                        stub_current_mcts_report=None,
+                        stub_regression_report=None,
+                        stub_forensic_report=None,
+                        dry_run=False,
+                    ),
+                ),
+            ):
+                exit_code = module.main()
+
+            self.assertEqual(1, exit_code)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                [{"code": "arena_move_time_mean_above_threshold"}],
+                report["failure_reasons"],
+            )
+            self.assertIsNone(report["candidate_mcts_report_path"])
+            self.assertIsNone(report["current_mcts_report_path"])
+            self.assertIsNone(report["regression_report_path"])
+
     def test_rejects_stub_mode_without_forensic_report(self):
         with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
             tmp = Path(tmp)

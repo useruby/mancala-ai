@@ -4,7 +4,7 @@ The final Task 1 targeting is the same for the Ruff hooks, while the generic hoo
 
 - `ml/alphazero_lite/**/*.py`
 - Python-typed entrypoints under `script/ai`
-- Excluded from `script/ai`: Bash entrypoints, `.sh` files, and Ruby entrypoints
+- Excluded from `script/ai`: Bash entrypoints, `.sh` files, and explicitly excluded non-target Python entrypoints
 - Generic pre-commit hooks also process: `requirements-dev.txt`, `pyproject.toml`, `.pre-commit-config.yaml`
 
 Pre-commit uses the shared strategy below for code hooks, which reduces drift with Ruff's `extend-include` plus excludes:
@@ -47,8 +47,8 @@ script/ai/runpod_training_experiment INCLUDED
 script/ai/run_local_mix_ablation EXCLUDED
 script/ai/promote_superhuman_candidate EXCLUDED
 script/ai/runpod_remote_run.sh EXCLUDED
-script/ai/check_superhuman_regressions EXCLUDED
-script/ai/compare_superhuman_regressions EXCLUDED
+script/ai/check_superhuman_regressions INCLUDED
+script/ai/compare_superhuman_regressions INCLUDED
 ```
 
 Pre-commit generic hook included-file proof run from the worktree root:
@@ -108,4 +108,4 @@ Observed excluded-file Ruff hook output:
 ruff (legacy alias)..................................(no files to check)Skipped
 ```
 
-These paired pre-commit runs show the final configured behavior directly: approved Python entrypoints are processed, while excluded Bash entries are skipped as non-targets. Ruff discovery above separately shows the excluded Ruby entrypoints as well.
+These paired pre-commit runs show the final configured behavior directly: approved Python entrypoints, including `script/ai/check_superhuman_regressions` and `script/ai/compare_superhuman_regressions`, are processed, while excluded Bash entries are skipped as non-targets.

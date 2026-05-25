@@ -15,7 +15,7 @@ This is the practical baseline for the next ML engineer iteration.
 
 - Improve candidate strength vs current without regressing `MCTS1200` baseline-relative score.
 - Reduce run-to-run variance by validating improvements across multiple seed schedules.
-- Keep artifact contract stable for Rails runtime (`weights.json` + metadata schema compatibility).
+- Keep artifact contract stable for the deployed runtime (`weights.json` + metadata schema compatibility).
 - Preserve iteration speed: prefer reproducible config-driven runs over ad-hoc command edits.
 
 ## Known Pain Points
@@ -171,7 +171,7 @@ Important:
 
 ## Hard-Bot Promotion Backlog Tracker
 
-Use the repo-owned backlog workflow when you want one tracked readiness campaign for a hard-bot candidate artifact.
+Use the repo-owned backlog tracker when you want one tracked readiness campaign for a hard-bot candidate artifact.
 
 Initialize or advance a campaign stage with:
 
@@ -190,6 +190,12 @@ Report the current readiness state with:
 script/ai/report_hard_bot_promotion_readiness \
   --manifest-path /tmp/hard-bot-campaign.json
 ```
+
+Current implementation note:
+
+- `script/ai/run_hard_bot_promotion_backlog` does not execute the full promotion workflow end-to-end.
+- It initializes or updates the manifest, prints the stage command in `--dry-run`, and can record stubbed stage outputs for the documented stages.
+- Use it as a campaign tracker and command generator, then run or supply the underlying stage outputs separately.
 
 The manifest is the audit trail for the workflow: it records the candidate artifact, generated reports, multi-seed confirmation evidence, and the final readiness state used to decide whether the candidate is promotion-ready.
 
@@ -263,7 +269,7 @@ Lane B evaluation flow:
 Notes:
 
 - `script/ai/local_promotion_gate` remains the promotion decision source of truth.
-- `script/ai/compare_superhuman_regressions` is for inspecting regression deltas; it does not replace the promotion gate.
+- `script/ai/compare_superhuman_regressions` is a Python entrypoint with a stable `script/ai/...` command name; it is for inspecting regression deltas and does not replace the promotion gate.
 - Keep the documented flow aligned with `script/ai/run_local_superhuman_strength_experiment` output fields and generated commands.
 
 ## Run Triage (Copy/Paste Checklist)
@@ -453,8 +459,16 @@ Final holdout workflow shape:
 
 ~~~bash
 # Multi-seed exploratory confirmation must complete before final holdout.
-# Use the top-level aggregate artifact from script/ai/model_robustness_confirmation.
-script/ai/runpod_model_robustness_confirmation
+# Do not use bare defaults here for a tactical candidate: the wrapper defaults target
+# the superhuman phase-2 config and parent artifact.
+# Point the wrapper at the exact tactical candidate/parent/config you want confirmed,
+# or provide an already-generated aggregate_summary.json from a matching confirmation run.
+script/ai/runpod_model_robustness_confirmation \
+  --base-config ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json \
+  --parent-artifact <tactical_parent_artifact> \
+  --current-path model-artifact/current \
+  --results-path storage/ai/alphazero_lite/versions/tactical-robustness-confirmation \
+  --local-results-path /tmp/tactical-robustness-confirmation-results
 
 .venv/bin/python ml/alphazero_lite/run_forensic_suite.py \
   --suite ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json \
@@ -549,15 +563,15 @@ script/ai/local_promotion_gate \
 .venv/bin/python ml/alphazero_lite/write_tactical_lane_decision.py \
   --bucket-gate artifacts/tactical_lane/final/bucket_gate.json \
   --promotion-gate artifacts/tactical_lane/final/local_promotion_gate.json \
-  --exploratory-summary /tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json \
+  --exploratory-summary /tmp/tactical-robustness-confirmation-results/tactical-robustness-confirmation/aggregate_summary.json \
   --out artifacts/tactical_lane/final/tactical_lane_decision.json
 ~~~
 
 Notes:
 
-- `script/ai/runpod_model_robustness_confirmation` downloads the required exploratory confirmation artifact to `/tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json` by default.
+- For tactical final holdout, only use `script/ai/runpod_model_robustness_confirmation` when its `--base-config`, `--parent-artifact`, and result paths are set for the tactical candidate being reviewed. The wrapper defaults are for the superhuman phase-2 lane and are not the right exploratory artifact for tactical holdout by themselves.
 - Final holdout requires both the exploratory confirmation artifact and the holdout gate artifacts above; `write_tactical_lane_decision.py` consumes both.
-- When re-entering the wrapper at `--start-stage decision`, pass `--exploratory-summary /tmp/runpod-robustness-confirmation-results/runpod-robustness-confirmation/aggregate_summary.json` if the confirmation artifact lives outside the run-local tree.
+- When re-entering the wrapper at `--start-stage decision`, pass the exact `aggregate_summary.json` path from the matching exploratory confirmation run if that artifact lives outside the run-local tree.
 
 ## Source Of Truth
 
@@ -597,5 +611,5 @@ Use this checklist before approving ML changes that touch promotion/evaluation o
 ### 4) Release Safety
 
 - [ ] Required artifacts exist (`weights.json`, `metadata.json`, `arena_report.json`, gate reports).
-- [ ] No schema-breaking changes to runtime contract unless explicitly coordinated with Rails runtime.
+- [ ] No schema-breaking changes to runtime contract unless explicitly coordinated with the deployed runtime owner.
 - [ ] Promotion decision is supported by both arena and baseline-relative MCTS checks.

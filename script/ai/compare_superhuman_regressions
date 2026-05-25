@@ -1,65 +1,145 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
+#!/usr/bin/env python3
+from __future__ import annotations
 
-require "json"
-require "optparse"
-require_relative "../../config/environment"
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
 
-options = {
-  positions: Rails.root.join("test/fixtures/ai/superhuman_regression_positions.json").to_s,
-  baseline_artifact: AI::AlphaZeroLite::Chooser::ARTIFACT_PATH.to_s,
-  candidate_artifact: AI::AlphaZeroLite::Chooser::ARTIFACT_PATH.to_s,
-  simulations: nil,
-  out: nil,
-  search_options: {}
-}
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
 
-parser = OptionParser.new do |opts|
-  opts.banner = "Usage: script/ai/compare_superhuman_regressions [--positions PATH] [--baseline-artifact PATH] [--candidate-artifact PATH] [--simulations N]"
+DEFAULT_POSITIONS_PATH = Path("test/fixtures/ai/superhuman_regression_positions.json")
+DEFAULT_ARTIFACT_PATH = Path("model-artifact/current")
+DEFAULT_SEED = 17
+DEFAULT_C_PUCT = 1.25
 
-  opts.on("--positions PATH") { |value| options[:positions] = value }
-  opts.on("--baseline-artifact PATH") { |value| options[:baseline_artifact] = value }
-  opts.on("--candidate-artifact PATH") { |value| options[:candidate_artifact] = value }
-  opts.on("--simulations N", Integer) { |value| options[:simulations] = value }
-  opts.on("--out PATH") { |value| options[:out] = value }
-  opts.on("--fpu-mode VALUE") { |value| options[:search_options][:fpu_mode] = value.to_sym }
-  opts.on("--reuse-subtree") { options[:search_options][:reuse_subtree] = true }
-  opts.on("--no-reuse-subtree") { options[:search_options][:reuse_subtree] = false }
-  opts.on("--normalize-values") { options[:search_options][:normalize_values] = true }
-  opts.on("--no-normalize-values") { options[:search_options][:normalize_values] = false }
-  opts.on("--root-policy-mode VALUE") { |value| options[:search_options][:root_policy_mode] = value.to_sym }
-  opts.on("--tactical-root-bias VALUE", Float) { |value| options[:search_options][:tactical_root_bias] = value }
-end
 
-parser.parse!(ARGV)
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="script/ai/compare_superhuman_regressions",
+        description="Compare AlphaZero-lite regression positions across two artifacts.",
+    )
+    parser.add_argument("--positions", default=str(DEFAULT_POSITIONS_PATH))
+    parser.add_argument("--baseline-artifact", default=str(DEFAULT_ARTIFACT_PATH))
+    parser.add_argument("--candidate-artifact", default=str(DEFAULT_ARTIFACT_PATH))
+    parser.add_argument("--simulations", type=int)
+    parser.add_argument("--out")
+    parser.add_argument("--fpu-mode")
+    parser.add_argument(
+        "--reuse-subtree",
+        dest="reuse_subtree",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+    )
+    parser.add_argument(
+        "--normalize-values",
+        dest="normalize_values",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+    )
+    parser.add_argument("--root-policy-mode")
+    parser.add_argument("--tactical-root-bias", type=float)
+    return parser
 
-search_options = options[:search_options].empty? ? nil : options[:search_options]
-baseline_results = AI::AlphaZeroLite::RegressionSuite.evaluate_positions(
-  path: options[:positions],
-  artifact_path: options[:baseline_artifact],
-  simulations: options[:simulations],
-  search_options: search_options
-)
-candidate_results = AI::AlphaZeroLite::RegressionSuite.evaluate_positions(
-  path: options[:positions],
-  artifact_path: options[:candidate_artifact],
-  simulations: options[:simulations],
-  search_options: search_options
-)
-comparisons = AI::AlphaZeroLite::RegressionSuite.compare_results(
-  baseline_results: baseline_results,
-  candidate_results: candidate_results
-)
 
-payload = JSON.pretty_generate(
-  baseline_artifact_path: options[:baseline_artifact],
-  candidate_artifact_path: options[:candidate_artifact],
-  positions_path: options[:positions],
-  comparisons: comparisons
-)
+def search_option_overrides(args: argparse.Namespace) -> dict:
+    overrides = {}
+    if args.fpu_mode is not None:
+        overrides["fpu_mode"] = args.fpu_mode
+    if args.reuse_subtree is not None:
+        overrides["reuse_subtree"] = bool(args.reuse_subtree)
+    if args.normalize_values is not None:
+        overrides["normalize_values"] = bool(args.normalize_values)
+    if args.root_policy_mode is not None:
+        overrides["root_policy_mode"] = args.root_policy_mode
+    if args.tactical_root_bias is not None:
+        overrides["tactical_root_bias"] = float(args.tactical_root_bias)
+    return overrides
 
-Pathname(options[:out]).write(payload) if options[:out]
-puts payload
 
-passed = baseline_results.any? && candidate_results.any? && comparisons.any? && comparisons.all? { |comparison| comparison.fetch(:candidate_passed) }
-exit(passed ? 0 : 1)
+def build_comparison_report(
+    *,
+    baseline_artifact_path: str | Path,
+    candidate_artifact_path: str | Path,
+    positions_path: str | Path,
+    comparisons: list[dict],
+) -> dict:
+    return {
+        "baseline_artifact_path": str(baseline_artifact_path),
+        "candidate_artifact_path": str(candidate_artifact_path),
+        "positions_path": str(positions_path),
+        "comparisons": comparisons,
+    }
+
+
+def stub_payload(args: argparse.Namespace) -> dict:
+    return build_comparison_report(
+        baseline_artifact_path=args.baseline_artifact,
+        candidate_artifact_path=args.candidate_artifact,
+        positions_path=args.positions,
+        comparisons=[],
+    )
+
+
+def write_payload(payload: dict, out_path: str | None) -> None:
+    rendered = json.dumps(payload, indent=2)
+    if out_path:
+        Path(out_path).write_text(rendered + "\n", encoding="utf-8")
+    print(rendered)
+
+
+def comparisons_passed(comparisons: list[dict]) -> bool:
+    return bool(comparisons) and all(
+        bool(comparison.get("candidate_passed")) for comparison in comparisons
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+
+    if os.environ.get("AZLITE_COMPARE_SUPERHUMAN_REGRESSIONS_STUB") == "1":
+        payload = stub_payload(args)
+        write_payload(payload, args.out)
+        return 0 if comparisons_passed(payload["comparisons"]) else 1
+
+    from ml.alphazero_lite import superhuman_regressions
+
+    overrides = search_option_overrides(args)
+    positions = superhuman_regressions.load_regression_positions(args.positions)
+    search_options = (
+        superhuman_regressions.build_search_options(**overrides) if overrides else None
+    )
+    baseline_results = superhuman_regressions.evaluate_regression_positions(
+        positions=positions,
+        artifact_path=args.baseline_artifact,
+        simulations=args.simulations,
+        seed=DEFAULT_SEED,
+        c_puct=DEFAULT_C_PUCT,
+        search_options=search_options,
+    )
+    candidate_results = superhuman_regressions.evaluate_regression_positions(
+        positions=positions,
+        artifact_path=args.candidate_artifact,
+        simulations=args.simulations,
+        seed=DEFAULT_SEED,
+        c_puct=DEFAULT_C_PUCT,
+        search_options=search_options,
+    )
+    comparisons = superhuman_regressions.compare_regression_results(
+        baseline_results=baseline_results,
+        candidate_results=candidate_results,
+    )
+    payload = build_comparison_report(
+        baseline_artifact_path=args.baseline_artifact,
+        candidate_artifact_path=args.candidate_artifact,
+        positions_path=args.positions,
+        comparisons=comparisons,
+    )
+    write_payload(payload, args.out)
+    return 0 if comparisons_passed(comparisons) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
