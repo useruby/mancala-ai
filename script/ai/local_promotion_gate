@@ -1096,8 +1096,11 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     prefilter_failure_reasons = computed_arena_prefilter_threshold_failures(
         args, arena_report
     )
-    promotion_decision_passed = arena_report.get("promotion_decision", {}).get(
-        "passed", True
+    promotion_decision = arena_report.get("promotion_decision")
+    promotion_decision_passed = (
+        isinstance(promotion_decision, dict)
+        and isinstance(promotion_decision.get("passed"), bool)
+        and promotion_decision["passed"]
     )
     if prefilter_failure_reasons or not promotion_decision_passed:
         for evaluation in report["evaluations"]:
@@ -1195,6 +1198,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     run_command(evaluations["candidate_forensic_suite"]["command"])
     regression_report = run_regression_check(
         [
+            python_executable(),
             "script/ai/check_superhuman_regressions",
             "--artifact",
             str(args.candidate_path),

@@ -112,7 +112,7 @@ def _results_by_id(results: list[dict]) -> dict[str, dict]:
     return indexed_results
 
 
-def _metadata_for(result: dict) -> tuple[str, int, tuple[int, ...]]:
+def _metadata_for(result: dict) -> tuple[str, int, tuple[int, ...], str, int | None]:
     return (
         str(result.get("description", "")),
         int(result["expected_move"]),

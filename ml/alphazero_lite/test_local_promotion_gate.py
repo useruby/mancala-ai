@@ -3705,6 +3705,273 @@ class LocalPromotionGateTest(unittest.TestCase):
         finally:
             module.repo_root = original_repo_root
 
+    def test_build_real_decision_report_runs_regression_check_via_python_executable(
+        self,
+    ):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp = Path(tmp)
+            candidate = tmp / "candidate"
+            current = tmp / "current"
+            candidate.mkdir()
+            current.mkdir()
+
+            args = argparse.Namespace(
+                candidate_path=candidate,
+                config_path=None,
+                current_path=str(current),
+                hard_path=None,
+                regression_positions_path="test/fixtures/ai/superhuman_regression_positions.json",
+                arena_games=120,
+                mcts_games=40,
+                min_arena_score=0.55,
+                min_arena_games=120,
+                min_mcts_games=40,
+                hard_arena_games=120,
+                hard_min_score=0.55,
+                max_arena_move_time_mean_ms=None,
+                max_arena_move_time_p95_ms=None,
+                require_lossless=False,
+                max_losses=0,
+                skip_mcts_relative_check=False,
+            )
+
+            report = {
+                "schema": "azlite_local_promotion_gate_v1",
+                "candidate_path": str(candidate),
+                "current_path": str(current),
+                "hard_path": None,
+                "report_path": str(tmp / "report.json"),
+                "regression_report_path": str(tmp / "candidate_regression_suite.json"),
+                "forensic_report_path": str(tmp / "candidate_forensic_suite.json"),
+                "evaluations": [
+                    module.build_evaluation(
+                        evaluation_id="candidate_vs_current_arena",
+                        subject=str(candidate),
+                        opponent=str(current),
+                        games=120,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.build_evaluation(
+                        evaluation_id="candidate_vs_mcts1200",
+                        subject=str(candidate),
+                        opponent="mcts1200",
+                        games=40,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.build_evaluation(
+                        evaluation_id="current_vs_mcts1200",
+                        subject=str(current),
+                        opponent="mcts1200",
+                        games=40,
+                        report_dir=tmp,
+                        mode="planned",
+                    ),
+                    module.forensic_evaluation(
+                        tmp, candidate_path=candidate, current_path=str(current)
+                    ),
+                ],
+                "endgame_exact_solve": module.build_endgame_exact_solve_section(
+                    status="planned_only",
+                    results_source="evaluation_plan",
+                    results=[],
+                ),
+            }
+
+            recorded_regression_command = None
+
+            def fake_run_command(command):
+                out_path = Path(command[command.index("--out") + 1])
+                if command[1] == "ml/alphazero_lite/arena.py":
+                    payload = {
+                        "schema": "arena_v1",
+                        "wins": 92,
+                        "losses": 0,
+                        "draws": 28,
+                        "games_played": 120,
+                        "promotion_decision": {"passed": True},
+                    }
+                elif command[1] == "ml/alphazero_lite/mcts1200_baseline.py":
+                    payload = {
+                        "schema": "azlite_vs_mcts_v1",
+                        "games": 40,
+                        "az_wins": 30 if str(candidate) in command else 24,
+                        "mcts_wins": 2 if str(candidate) in command else 8,
+                        "draws": 8,
+                    }
+                elif command[1] == "ml/alphazero_lite/run_forensic_suite.py":
+                    payload = {
+                        "schema": "azlite_forensic_suite_v1",
+                        "systems": {
+                            "current": {
+                                "overall": {
+                                    "top1_agreement": 0.70,
+                                    "average_regret": 0.10,
+                                    "blunder_rate": 0.03,
+                                }
+                            },
+                            "challenger": {
+                                "overall": {
+                                    "top1_agreement": 0.70,
+                                    "average_regret": 0.10,
+                                    "blunder_rate": 0.03,
+                                }
+                            },
+                        },
+                        "buckets": {
+                            "sparse_endgame": {
+                                "systems": {
+                                    "current": {
+                                        "top1_agreement": 0.60,
+                                        "average_regret": 0.10,
+                                        "blunder_rate": 0.04,
+                                    },
+                                    "challenger": {
+                                        "top1_agreement": 0.58,
+                                        "average_regret": 0.13,
+                                        "blunder_rate": 0.06,
+                                    },
+                                }
+                            },
+                            "capture_available": {
+                                "systems": {
+                                    "current": {
+                                        "top1_agreement": 0.65,
+                                        "average_regret": 0.12,
+                                        "blunder_rate": 0.04,
+                                    },
+                                    "challenger": {
+                                        "top1_agreement": 0.63,
+                                        "average_regret": 0.15,
+                                        "blunder_rate": 0.06,
+                                    },
+                                }
+                            },
+                        },
+                    }
+                else:
+                    raise AssertionError(f"unexpected command: {command}")
+                out_path.write_text(json.dumps(payload), encoding="utf-8")
+
+            def fake_run_regression_check(command, report_path):
+                nonlocal recorded_regression_command
+                recorded_regression_command = command
+                regression_report = {
+                    "passed": True,
+                    "artifact_path": str(candidate),
+                    "positions_path": "test/fixtures/ai/superhuman_regression_positions.json",
+                    "results": [],
+                }
+                report_path.write_text(json.dumps(regression_report), encoding="utf-8")
+                return regression_report
+
+            with (
+                mock.patch.object(module, "run_command", side_effect=fake_run_command),
+                mock.patch.object(
+                    module,
+                    "run_regression_check",
+                    side_effect=fake_run_regression_check,
+                ),
+                mock.patch.object(
+                    module, "python_executable", return_value="/tmp/shared-python"
+                ),
+            ):
+                module.build_real_decision_report(args, report)
+
+            self.assertEqual("/tmp/shared-python", recorded_regression_command[0])
+            self.assertEqual(
+                "script/ai/check_superhuman_regressions",
+                recorded_regression_command[1],
+            )
+
+    def test_missing_promotion_decision_fails_closed_during_prefilter_short_circuit(
+        self,
+    ):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            tmp_path = Path(tmp)
+            candidate = tmp_path / "candidate"
+            candidate.mkdir()
+            out_path = tmp_path / "report.json"
+
+            def write_json(path: Path, payload: dict) -> None:
+                path.write_text(json.dumps(payload), encoding="utf-8")
+
+            def fake_run_command(command):
+                if "--out" not in command:
+                    return
+
+                report_path = Path(command[command.index("--out") + 1])
+                if report_path.name == "candidate_vs_current_arena.json":
+                    write_json(
+                        report_path,
+                        {
+                            "schema": "arena_v1",
+                            "games_played": 120,
+                            "wins": 92,
+                            "losses": 0,
+                            "draws": 28,
+                        },
+                    )
+                    return
+
+                self.fail(f"unexpected downstream command: {command}")
+
+            def fail_regression_check(*_args, **_kwargs):
+                self.fail("regression check should not run after malformed prefilter")
+
+            with (
+                mock.patch.object(module, "run_command", side_effect=fake_run_command),
+                mock.patch.object(
+                    module,
+                    "run_regression_check",
+                    side_effect=fail_regression_check,
+                ),
+                mock.patch.object(
+                    module,
+                    "parse_args",
+                    return_value=argparse.Namespace(
+                        candidate_path=candidate,
+                        config_path=None,
+                        current_path="model-artifact/current",
+                        hard_path=None,
+                        regression_positions_path="test/fixtures/ai/superhuman_regression_positions.json",
+                        arena_games=120,
+                        mcts_games=40,
+                        min_arena_score=0.55,
+                        min_arena_games=120,
+                        min_mcts_games=40,
+                        hard_arena_games=120,
+                        hard_min_score=0.55,
+                        max_arena_move_time_mean_ms=None,
+                        max_arena_move_time_p95_ms=None,
+                        require_lossless=False,
+                        max_losses=0,
+                        skip_mcts_relative_check=False,
+                        out=out_path,
+                        stub_arena_report=None,
+                        stub_hard_report=None,
+                        stub_candidate_mcts_report=None,
+                        stub_current_mcts_report=None,
+                        stub_regression_report=None,
+                        stub_forensic_report=None,
+                        dry_run=False,
+                    ),
+                ),
+            ):
+                exit_code = module.main()
+
+            self.assertEqual(1, exit_code)
+            report = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                [{"code": "arena_prefilter_failed"}],
+                report["failure_reasons"],
+            )
+
     def test_forensic_quality_summary_extracts_overall_and_bucket_metrics(self):
         module = self.load_gate_module()
         report = {

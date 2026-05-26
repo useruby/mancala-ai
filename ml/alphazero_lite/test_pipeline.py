@@ -262,15 +262,20 @@ class PipelineScriptTest(unittest.TestCase):
         self, command: list[str], *, candidate_path: Path | None = None
     ) -> None:
         out_path = Path(command[command.index("--out") + 1])
-        command_name = Path(command[0]).name
         script_name = Path(command[1]).name if len(command) > 1 else ""
 
-        if command_name == "check_superhuman_regressions":
+        if script_name == "check_superhuman_regressions":
             payload = {"passed": True, "results": []}
         elif script_name == "run_forensic_suite.py":
             payload = self.passing_forensic_report()
         elif script_name == "arena.py":
-            payload = {"wins": 66, "losses": 42, "draws": 12, "games_played": 120}
+            payload = {
+                "wins": 66,
+                "losses": 42,
+                "draws": 12,
+                "games_played": 120,
+                "promotion_decision": {"passed": True},
+            }
         elif (
             script_name == "mcts1200_baseline.py"
             and candidate_path is not None
@@ -8453,7 +8458,7 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual(12, len(calls))
 
             for command in calls:
-                if Path(command[0]).name == "check_superhuman_regressions":
+                if Path(command[1]).name == "check_superhuman_regressions":
                     self.assertIn("--fpu-mode", command)
                     self.assertIn("parent_q", command)
                     self.assertIn("--reuse-subtree", command)
@@ -8561,7 +8566,10 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
-                if Path(command[0]).name == "check_superhuman_regressions":
+                if (
+                    len(command) > 1
+                    and Path(command[1]).name == "check_superhuman_regressions"
+                ):
                     out_path = Path(command[command.index("--out") + 1])
                     self.assertEqual(stale_regression_path, out_path)
                     return subprocess.CompletedProcess(
@@ -8605,7 +8613,10 @@ class PipelineScriptTest(unittest.TestCase):
             current_path.mkdir()
 
             def fake_run(command, cwd=None, capture_output=None, text=None, check=None):
-                if Path(command[0]).name == "check_superhuman_regressions":
+                if (
+                    len(command) > 1
+                    and Path(command[1]).name == "check_superhuman_regressions"
+                ):
                     out_path = Path(command[command.index("--out") + 1])
                     out_path.write_text(
                         json.dumps({"passed": True, "results": []}), encoding="utf-8"
@@ -8625,6 +8636,7 @@ class PipelineScriptTest(unittest.TestCase):
                         "losses": 60,
                         "draws": 6,
                         "games_played": 120,
+                        "promotion_decision": {"passed": True},
                     }
                 else:
                     payload = {"az_wins": 19, "mcts_wins": 13, "draws": 8, "games": 40}
@@ -8854,7 +8866,10 @@ class PipelineScriptTest(unittest.TestCase):
                     command, cwd=None, capture_output=None, text=None, check=None
                 ):
                     calls.append(command)
-                    if Path(command[0]).name == "check_superhuman_regressions":
+                    if (
+                        len(command) > 1
+                        and Path(command[1]).name == "check_superhuman_regressions"
+                    ):
                         out_path = Path(command[command.index("--out") + 1])
                         out_path.write_text(
                             json.dumps({"passed": True, "results": []}),
