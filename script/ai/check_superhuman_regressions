@@ -1,86 +1,123 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
+#!/usr/bin/env python3
+from __future__ import annotations
 
-require "json"
-require "optparse"
-require "pathname"
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
 
-if ENV["AZLITE_CHECK_SUPERHUMAN_REGRESSIONS_STUB"] == "1"
-  options = {
-    positions: "test/fixtures/ai/superhuman_regression_positions.json",
-    artifact: "model-artifact/current",
-    out: nil
-  }
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
 
-  OptionParser.new do |opts|
-    opts.on("--positions PATH") { |value| options[:positions] = value }
-    opts.on("--artifact PATH") { |value| options[:artifact] = value }
-    opts.on("--simulations N") { |_value| nil }
-    opts.on("--out PATH") { |value| options[:out] = value }
-    opts.on("--fpu-mode VALUE") { |_value| nil }
-    opts.on("--reuse-subtree")
-    opts.on("--no-reuse-subtree")
-    opts.on("--normalize-values")
-    opts.on("--no-normalize-values")
-    opts.on("--root-policy-mode VALUE") { |_value| nil }
-    opts.on("--tactical-root-bias VALUE") { |_value| nil }
-  end.parse!(ARGV)
+DEFAULT_POSITIONS_PATH = Path("test/fixtures/ai/superhuman_regression_positions.json")
+DEFAULT_ARTIFACT_PATH = Path("model-artifact/current")
+DEFAULT_SEED = 17
+DEFAULT_C_PUCT = 1.25
 
-  payload = JSON.pretty_generate(
-    passed: true,
-    artifact_path: options[:artifact],
-    positions_path: options[:positions],
-    results: []
-  )
-  Pathname(options[:out]).write(payload) if options[:out]
-  puts payload
-  exit(0)
-end
 
-require_relative "../../config/environment"
+def resolve_input_path(path_value: str) -> str:
+    path = Path(path_value)
+    if path.is_absolute() or path.exists():
+        return str(path)
 
-options = {
-  positions: Rails.root.join("test/fixtures/ai/superhuman_regression_positions.json").to_s,
-  artifact: AI::AlphaZeroLite::Chooser::ARTIFACT_PATH.to_s,
-  simulations: nil,
-  out: nil,
-  search_options: {}
-}
+    repo_path = REPO_ROOT / path
+    if repo_path.exists():
+        return str(repo_path)
 
-parser = OptionParser.new do |opts|
-  opts.banner = "Usage: script/ai/check_superhuman_regressions [--positions PATH] [--artifact PATH] [--simulations N]"
+    return str(path)
 
-  opts.on("--positions PATH") { |value| options[:positions] = value }
-  opts.on("--artifact PATH") { |value| options[:artifact] = value }
-  opts.on("--simulations N", Integer) { |value| options[:simulations] = value }
-  opts.on("--out PATH") { |value| options[:out] = value }
-  opts.on("--fpu-mode VALUE") { |value| options[:search_options][:fpu_mode] = value.to_sym }
-  opts.on("--reuse-subtree") { options[:search_options][:reuse_subtree] = true }
-  opts.on("--no-reuse-subtree") { options[:search_options][:reuse_subtree] = false }
-  opts.on("--normalize-values") { options[:search_options][:normalize_values] = true }
-  opts.on("--no-normalize-values") { options[:search_options][:normalize_values] = false }
-  opts.on("--root-policy-mode VALUE") { |value| options[:search_options][:root_policy_mode] = value.to_sym }
-  opts.on("--tactical-root-bias VALUE", Float) { |value| options[:search_options][:tactical_root_bias] = value }
-end
 
-parser.parse!(ARGV)
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="script/ai/check_superhuman_regressions",
+        description="Evaluate AlphaZero-lite regression positions against an artifact.",
+    )
+    parser.add_argument("--positions", default=str(DEFAULT_POSITIONS_PATH))
+    parser.add_argument("--artifact", default=str(DEFAULT_ARTIFACT_PATH))
+    parser.add_argument("--simulations", type=int)
+    parser.add_argument("--out")
+    parser.add_argument("--fpu-mode")
+    parser.add_argument(
+        "--reuse-subtree",
+        dest="reuse_subtree",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+    )
+    parser.add_argument(
+        "--normalize-values",
+        dest="normalize_values",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+    )
+    parser.add_argument("--root-policy-mode")
+    parser.add_argument("--tactical-root-bias", type=float)
+    return parser
 
-results = AI::AlphaZeroLite::RegressionSuite.evaluate_positions(
-  path: options[:positions],
-  artifact_path: options[:artifact],
-  simulations: options[:simulations],
-  search_options: options[:search_options].empty? ? nil : options[:search_options]
-)
 
-passed = results.any? && results.all? { |result| result.fetch(:passed) }
-payload = JSON.pretty_generate(
-  passed: passed,
-  artifact_path: options[:artifact],
-  positions_path: options[:positions],
-  results: results
-)
+def stub_payload(args: argparse.Namespace) -> dict:
+    return {
+        "passed": True,
+        "artifact_path": args.artifact,
+        "positions_path": args.positions,
+        "results": [],
+    }
 
-Pathname(options[:out]).write(payload) if options[:out]
-puts payload
 
-exit(passed ? 0 : 1)
+def search_option_overrides(args: argparse.Namespace) -> dict:
+    overrides = {}
+    if args.fpu_mode is not None:
+        overrides["fpu_mode"] = args.fpu_mode
+    if args.reuse_subtree is not None:
+        overrides["reuse_subtree"] = bool(args.reuse_subtree)
+    if args.normalize_values is not None:
+        overrides["normalize_values"] = bool(args.normalize_values)
+    if args.root_policy_mode is not None:
+        overrides["root_policy_mode"] = args.root_policy_mode
+    if args.tactical_root_bias is not None:
+        overrides["tactical_root_bias"] = float(args.tactical_root_bias)
+    return overrides
+
+
+def write_payload(payload: dict, out_path: str | None) -> None:
+    rendered = json.dumps(payload, indent=2)
+    if out_path:
+        Path(out_path).write_text(rendered + "\n", encoding="utf-8")
+    print(rendered)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+
+    if os.environ.get("AZLITE_CHECK_SUPERHUMAN_REGRESSIONS_STUB") == "1":
+        write_payload(stub_payload(args), args.out)
+        return 0
+
+    from ml.alphazero_lite import superhuman_regressions
+
+    overrides = search_option_overrides(args)
+    positions_path = resolve_input_path(args.positions)
+    positions = superhuman_regressions.load_regression_positions(positions_path)
+    results = superhuman_regressions.evaluate_regression_positions(
+        positions=positions,
+        artifact_path=args.artifact,
+        simulations=args.simulations,
+        seed=DEFAULT_SEED,
+        c_puct=DEFAULT_C_PUCT,
+        search_options=(
+            superhuman_regressions.build_search_options(**overrides)
+            if overrides
+            else None
+        ),
+    )
+    payload = superhuman_regressions.build_regression_report(
+        artifact_path=args.artifact,
+        positions_path=positions_path,
+        results=results,
+    )
+    write_payload(payload, args.out)
+    return 0 if payload["passed"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
