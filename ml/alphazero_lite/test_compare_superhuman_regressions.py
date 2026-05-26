@@ -155,7 +155,9 @@ def compare_regression_results(*, baseline_results, candidate_results):
             self.assertEqual(stdout_report, report)
             self.assert_report_contract(report)
             self.assertEqual("model-artifact/current", report["baseline_artifact_path"])
-            self.assertEqual("model-artifact/candidate", report["candidate_artifact_path"])
+            self.assertEqual(
+                "model-artifact/candidate", report["candidate_artifact_path"]
+            )
             self.assertEqual(
                 "test/fixtures/ai/superhuman_regression_positions.json",
                 report["positions_path"],
@@ -217,8 +219,12 @@ def compare_regression_results(*, baseline_results, candidate_results):
             self.assertEqual(0, result.returncode, msg=result.stderr)
             seen = json.loads(trace_path.read_text(encoding="utf-8"))
             self.assertEqual(str(positions_path), seen["positions_path"])
-            self.assertEqual(str(baseline_artifact_path), seen["baseline_artifact_path"])
-            self.assertEqual(str(candidate_artifact_path), seen["candidate_artifact_path"])
+            self.assertEqual(
+                str(baseline_artifact_path), seen["baseline_artifact_path"]
+            )
+            self.assertEqual(
+                str(candidate_artifact_path), seen["candidate_artifact_path"]
+            )
             self.assertEqual(384, seen["baseline_simulations"])
             self.assertEqual(384, seen["candidate_simulations"])
             self.assertEqual(17, seen["baseline_seed"])
@@ -261,7 +267,9 @@ def compare_regression_results(*, baseline_results, candidate_results):
 
             report = json.loads(out_path.read_text(encoding="utf-8"))
             self.assert_report_contract(report)
-            self.assertEqual(str(baseline_artifact_path), report["baseline_artifact_path"])
+            self.assertEqual(
+                str(baseline_artifact_path), report["baseline_artifact_path"]
+            )
             self.assertEqual(
                 str(candidate_artifact_path), report["candidate_artifact_path"]
             )

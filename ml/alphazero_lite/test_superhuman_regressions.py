@@ -335,7 +335,9 @@ class SuperhumanRegressionsTest(unittest.TestCase):
         self.assertFalse(report["passed"])
         self.assertEqual([], report["results"])
 
-    def test_compare_regression_results_returns_empty_comparisons_for_empty_inputs(self):
+    def test_compare_regression_results_returns_empty_comparisons_for_empty_inputs(
+        self,
+    ):
         comparisons = superhuman_regressions.compare_regression_results(
             baseline_results=[],
             candidate_results=[],

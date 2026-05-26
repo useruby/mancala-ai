@@ -38,7 +38,9 @@ def evaluate_regression_position(
     c_puct: float,
     search_options: dict | None = None,
 ) -> dict:
-    effective_simulations = DEFAULT_SIMULATIONS if simulations is None else int(simulations)
+    effective_simulations = (
+        DEFAULT_SIMULATIONS if simulations is None else int(simulations)
+    )
     summary = arena.evaluate_artifact_position(
         artifact_path=artifact_path,
         state=position["state"],
@@ -92,7 +94,8 @@ def build_regression_report(
     *, artifact_path: str | Path, positions_path: str | Path, results: list[dict]
 ) -> dict:
     return {
-        "passed": bool(results) and all(bool(result.get("passed")) for result in results),
+        "passed": bool(results)
+        and all(bool(result.get("passed")) for result in results),
         "artifact_path": str(artifact_path),
         "positions_path": str(positions_path),
         "results": results,
@@ -130,9 +133,7 @@ def compare_regression_results(
     for baseline in baseline_results:
         candidate = candidate_by_id[str(baseline["id"])]
         if _metadata_for(baseline) != _metadata_for(candidate):
-            raise ValueError(
-                f"mismatched regression metadata for id: {baseline['id']}"
-            )
+            raise ValueError(f"mismatched regression metadata for id: {baseline['id']}")
         baseline_passed = bool(baseline.get("passed"))
         candidate_passed = bool(candidate.get("passed"))
         comparisons.append(
