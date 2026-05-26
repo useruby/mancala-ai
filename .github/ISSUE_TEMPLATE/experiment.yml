@@ -1,0 +1,49 @@
+name: Experiment proposal or tracking
+description: Propose or document a focused ML experiment for this early repository
+title: "experiment: "
+labels: [experiment]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for focused experiment planning or tracking. Keep the proposal concrete and tied to an existing training or evaluation workflow.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal or hypothesis
+    validations:
+      required: true
+  - type: textarea
+    id: config_path
+    attributes:
+      label: Config path(s)
+      description: One or more config paths, or a brief note when the command defines the setup.
+      placeholder: ml/alphazero_lite/configs/example.json
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Exact command or wrapper you expect to run.
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Expected artifact or report paths
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: Success criteria
+    validations:
+      required: true
+  - type: textarea
+    id: decision_rule
+    attributes:
+      label: Decision rule
+      description: What result would cause you to continue, stop, or revert?
+    validations:
+      required: true

@@ -1,0 +1,40 @@
+name: Bug report
+description: Report a bug in the early Mancala AI repository
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an issue. This repository is still early, so focused reproduction details are more helpful than broad solution proposals.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is going wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Exact steps, commands, config paths, or inputs needed to reproduce the problem.
+      placeholder: |
+        1. Run ...
+        2. Use config ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and context
+      description: Python version, OS, relevant paths, or artifact/context details.
+    validations:
+      required: false
