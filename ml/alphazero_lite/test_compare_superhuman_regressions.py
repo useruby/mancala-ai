@@ -323,6 +323,50 @@ def compare_regression_results(*, baseline_results, candidate_results):
             self.assertIsNone(seen["baseline_simulations"])
             self.assertIsNone(seen["candidate_simulations"])
 
+    def test_python_entrypoint_resolves_default_positions_outside_repo_root(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/compare_superhuman_regressions"
+        baseline_artifact_path = repo_root / "model-artifact/current"
+        candidate_artifact_path = repo_root / "model-artifact/candidate"
+        positions_path = (
+            repo_root / "test/fixtures/ai/superhuman_regression_positions.json"
+        )
+
+        with tempfile.TemporaryDirectory(prefix="azlite-compare-regressions-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "report.json"
+            trace_path = tmp_path / "trace.json"
+            shim_root = tmp_path / "shim"
+            self.write_fake_superhuman_module(shim_root, trace_path)
+
+            result = subprocess.run(
+                [
+                    os.environ.get("PYTHON", "python"),
+                    str(script_path),
+                    "--baseline-artifact",
+                    str(baseline_artifact_path),
+                    "--candidate-artifact",
+                    str(candidate_artifact_path),
+                    "--out",
+                    str(out_path),
+                ],
+                cwd=tmp_path,
+                env={
+                    **os.environ,
+                    "PYTHONPATH": os.pathsep.join(
+                        filter(None, [str(shim_root), os.environ.get("PYTHONPATH")])
+                    ),
+                    "AZLITE_COMPARE_SUPERHUMAN_REGRESSIONS_TRACE": str(trace_path),
+                },
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            seen = json.loads(trace_path.read_text(encoding="utf-8"))
+            self.assertEqual(str(positions_path), seen["positions_path"])
+
 
 if __name__ == "__main__":
     unittest.main()

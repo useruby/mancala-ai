@@ -16,6 +16,18 @@ DEFAULT_SEED = 17
 DEFAULT_C_PUCT = 1.25
 
 
+def resolve_input_path(path_value: str) -> str:
+    path = Path(path_value)
+    if path.is_absolute() or path.exists():
+        return str(path)
+
+    repo_path = REPO_ROOT / path
+    if repo_path.exists():
+        return str(repo_path)
+
+    return str(path)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="script/ai/check_superhuman_regressions",
@@ -84,7 +96,8 @@ def main(argv: list[str] | None = None) -> int:
     from ml.alphazero_lite import superhuman_regressions
 
     overrides = search_option_overrides(args)
-    positions = superhuman_regressions.load_regression_positions(args.positions)
+    positions_path = resolve_input_path(args.positions)
+    positions = superhuman_regressions.load_regression_positions(positions_path)
     results = superhuman_regressions.evaluate_regression_positions(
         positions=positions,
         artifact_path=args.artifact,
@@ -99,7 +112,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     payload = superhuman_regressions.build_regression_report(
         artifact_path=args.artifact,
-        positions_path=args.positions,
+        positions_path=positions_path,
         results=results,
     )
     write_payload(payload, args.out)

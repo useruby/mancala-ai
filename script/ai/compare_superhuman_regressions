@@ -16,6 +16,18 @@ DEFAULT_SEED = 17
 DEFAULT_C_PUCT = 1.25
 
 
+def resolve_input_path(path_value: str) -> str:
+    path = Path(path_value)
+    if path.is_absolute() or path.exists():
+        return str(path)
+
+    repo_path = REPO_ROOT / path
+    if repo_path.exists():
+        return str(repo_path)
+
+    return str(path)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="script/ai/compare_superhuman_regressions",
@@ -107,7 +119,8 @@ def main(argv: list[str] | None = None) -> int:
     from ml.alphazero_lite import superhuman_regressions
 
     overrides = search_option_overrides(args)
-    positions = superhuman_regressions.load_regression_positions(args.positions)
+    positions_path = resolve_input_path(args.positions)
+    positions = superhuman_regressions.load_regression_positions(positions_path)
     search_options = (
         superhuman_regressions.build_search_options(**overrides) if overrides else None
     )
@@ -134,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
     payload = build_comparison_report(
         baseline_artifact_path=args.baseline_artifact,
         candidate_artifact_path=args.candidate_artifact,
-        positions_path=args.positions,
+        positions_path=positions_path,
         comparisons=comparisons,
     )
     write_payload(payload, args.out)
