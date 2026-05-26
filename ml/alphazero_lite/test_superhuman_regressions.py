@@ -325,6 +325,25 @@ class SuperhumanRegressionsTest(unittest.TestCase):
         self.assertEqual(1, len(comparisons))
         self.assertTrue(comparisons[0]["improved"])
 
+    def test_metadata_for_reads_optional_semantic_metadata_once(self):
+        result = {
+            "id": "capture-1",
+            "description": "Prefer the capture move.",
+            "expected_move": 1,
+            "acceptable_moves": [1],
+        }
+
+        with mock.patch(
+            "ml.alphazero_lite.superhuman_regressions._optional_semantic_metadata",
+            return_value={"token": "f67bd4k0", "move_number": 28},
+        ) as optional_semantic_metadata:
+            metadata = superhuman_regressions._metadata_for(result)
+
+        self.assertEqual(
+            ("Prefer the capture move.", 1, (1,), "f67bd4k0", 28), metadata
+        )
+        optional_semantic_metadata.assert_called_once_with(result)
+
     def test_build_regression_report_marks_empty_results_as_not_passed(self):
         report = superhuman_regressions.build_regression_report(
             artifact_path="baseline-artifact",

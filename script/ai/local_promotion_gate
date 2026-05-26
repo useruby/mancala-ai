@@ -280,10 +280,6 @@ def normalized_failure_reasons(report: dict) -> list[dict]:
 def arena_prefilter_failure_reasons(
     args: argparse.Namespace, arena_report: dict
 ) -> list[dict]:
-    existing_reasons = normalized_failure_reasons(arena_report)
-    if existing_reasons:
-        return existing_reasons
-
     failure_reasons = computed_arena_prefilter_threshold_failures(args, arena_report)
     return failure_reasons or [{"code": "arena_prefilter_failed"}]
 

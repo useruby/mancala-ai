@@ -113,12 +113,13 @@ def _results_by_id(results: list[dict]) -> dict[str, dict]:
 
 
 def _metadata_for(result: dict) -> tuple[str, int, tuple[int, ...], str, int | None]:
+    optional_metadata = _optional_semantic_metadata(result)
     return (
         str(result.get("description", "")),
         int(result["expected_move"]),
         tuple(int(move) for move in result.get("acceptable_moves", [])),
-        str(_optional_semantic_metadata(result)["token"]),
-        _optional_semantic_metadata(result)["move_number"],
+        str(optional_metadata["token"]),
+        optional_metadata["move_number"],
     )
 
 

@@ -201,6 +201,58 @@ class LocalPromotionGateTest(unittest.TestCase):
 
         self.assertEqual(str(workspace_python), resolved)
 
+    def test_arena_prefilter_failure_reasons_uses_computed_helper_for_existing_reasons(
+        self,
+    ):
+        module = self.load_gate_module()
+        args = argparse.Namespace()
+        arena_report = {"failure_reasons": [{"code": "arena_score_below_threshold"}]}
+
+        with (
+            mock.patch.object(
+                module,
+                "normalized_failure_reasons",
+                side_effect=AssertionError(
+                    "wrapper should delegate to computed helper"
+                ),
+            ),
+            mock.patch.object(
+                module,
+                "computed_arena_prefilter_threshold_failures",
+                return_value=[{"code": "arena_score_below_threshold"}],
+            ) as computed_failures,
+        ):
+            failure_reasons = module.arena_prefilter_failure_reasons(args, arena_report)
+
+        self.assertEqual([{"code": "arena_score_below_threshold"}], failure_reasons)
+        computed_failures.assert_called_once_with(args, arena_report)
+
+    def test_arena_prefilter_failure_reasons_adds_default_fallback_after_computed_helper(
+        self,
+    ):
+        module = self.load_gate_module()
+        args = argparse.Namespace()
+        arena_report = {}
+
+        with (
+            mock.patch.object(
+                module,
+                "normalized_failure_reasons",
+                side_effect=AssertionError(
+                    "wrapper should delegate to computed helper"
+                ),
+            ),
+            mock.patch.object(
+                module,
+                "computed_arena_prefilter_threshold_failures",
+                return_value=[],
+            ) as computed_failures,
+        ):
+            failure_reasons = module.arena_prefilter_failure_reasons(args, arena_report)
+
+        self.assertEqual([{"code": "arena_prefilter_failed"}], failure_reasons)
+        computed_failures.assert_called_once_with(args, arena_report)
+
     def write_forensic_report(
         self,
         path: Path,
