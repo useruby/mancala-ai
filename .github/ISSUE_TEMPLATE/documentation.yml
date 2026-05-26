@@ -1,0 +1,29 @@
+name: Documentation issue
+description: Report unclear, outdated, or missing documentation
+title: "docs: "
+labels: [documentation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository is still early. Please keep documentation issues focused and specific so they are easy to verify and fix.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear or missing?
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: File or section
+      description: Link or path to the relevant file or section if you have it.
+    validations:
+      required: false
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested correction
+      description: If you know the fix, describe the clearer wording or missing content.
+    validations:
+      required: false

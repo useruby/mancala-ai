@@ -88,7 +88,7 @@ Important metadata fields:
 
 ## RunPod notes
 
-Use the dedicated wrapper when you want RunPod to handle both the heavy pipeline run and the local promotion gate remotely.
+Use the dedicated RunPod wrapper when you want remote compute to handle the heavier pipeline run and promotion gate.
 
 ```bash
 script/ai/runpod_training_experiment \
@@ -127,7 +127,7 @@ script/ai/promote_superhuman_candidate \
   tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2
 ```
 
-Deploy and rollback happen from the main app repository using that repo's standard deploy flow; this worktree does not include the app-side `bin/kamal` entrypoints.
+Deploy and rollback happen from the main application repository using that repository's standard deploy flow.
 
 ## Local promotion gate
 

@@ -7,13 +7,17 @@ repos:
       - id: trailing-whitespace
         files: ^(ml/alphazero_lite/.*|script/ai/.*)$
         types_or: [python]
+      - id: trailing-whitespace
+        files: ^(README\.md|CONTRIBUTING\.md|SECURITY\.md|CODE_OF_CONDUCT\.md|\.github/pull_request_template\.md|\.github/ISSUE_TEMPLATE/.*\.ya?ml)$
       - id: end-of-file-fixer
         files: ^(requirements-dev\.txt|pyproject\.toml|\.pre-commit-config\.yaml)$
       - id: end-of-file-fixer
         files: ^(ml/alphazero_lite/.*|script/ai/.*)$
         types_or: [python]
+      - id: end-of-file-fixer
+        files: ^(README\.md|CONTRIBUTING\.md|SECURITY\.md|CODE_OF_CONDUCT\.md|\.github/pull_request_template\.md|\.github/ISSUE_TEMPLATE/.*\.ya?ml)$
       - id: check-yaml
-        files: ^(\.pre-commit-config\.yaml|\.github/workflows/.*\.ya?ml)$
+        files: ^(\.pre-commit-config\.yaml|\.github/workflows/.*\.ya?ml|\.github/ISSUE_TEMPLATE/.*\.ya?ml)$
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.13
     hooks:
