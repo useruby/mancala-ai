@@ -1,2 +1,2 @@
 [tools]
-"github:astral-sh/ruff" = "latest"
+"github:astral-sh/ruff" = "0.15.13"
