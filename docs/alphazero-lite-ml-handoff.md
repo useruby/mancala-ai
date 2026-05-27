@@ -578,7 +578,24 @@ Notes:
 - Treat script behavior and defaults as source-of-truth over this document:
   - `script/ai/local_promotion_gate`
   - `script/ai/runpod_training_experiment`
+  - `script/ai/run_local_superhuman_recovery`
+  - `script/ai/superhuman_budget_sweep`
 - If this document and script defaults diverge, follow scripts and update this handoff file in the same change.
+
+## Recovery Note
+
+- The regenerated `aggressive-v3-superhuman-iter2` recovery on `mancala-ai`
+  failed its native phase-2 prefilter at `896 vs 256` with arena score `0.5`
+  (`15W 15L 0D`).
+- The first `local_superhuman_budget_sweep` result tree was not authoritative:
+  the original sweep script labeled multiple budgets but still ran the fixed
+  phase-2 challenger budget. Ignore that artifact when interpreting strength.
+- The corrected sweep rerun, produced by `script/ai/superhuman_budget_sweep`
+  after the per-lane config rewrite fix, showed the same `0.5` arena score and
+  lossless failure reasons at every tested challenger budget `384..896`.
+- Treat the corrected rerun output as the authoritative conclusion: this
+  regenerated candidate did not recover promotion viability by changing the
+  challenger search budget alone.
 
 ## Review Checklist (High-Risk Areas)
 

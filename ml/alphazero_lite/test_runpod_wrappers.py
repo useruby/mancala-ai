@@ -66,6 +66,30 @@ class RunpodWrappersTest(unittest.TestCase):
         )
 
 
+class RunpodRerunWatchTest(unittest.TestCase):
+    def test_should_keep_waiting_when_marker_missing_but_timeout_not_reached(self):
+        from ml.alphazero_lite.runpod_rerun_watch import should_stop_watcher
+
+        self.assertFalse(
+            should_stop_watcher(
+                result_marker_exists=False,
+                elapsed_seconds=900,
+                max_seconds=15600,
+            )
+        )
+
+    def test_should_stop_once_timeout_is_reached_without_result_marker(self):
+        from ml.alphazero_lite.runpod_rerun_watch import should_stop_watcher
+
+        self.assertTrue(
+            should_stop_watcher(
+                result_marker_exists=False,
+                elapsed_seconds=15600,
+                max_seconds=15600,
+            )
+        )
+
+
 class RunpodTrainingExperimentValidationTest(unittest.TestCase):
     def write_downloaded_aggregate_summary(
         self, *, local_results_path, results_path, passed, lanes=None
@@ -127,6 +151,37 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
 
         return code, stdout.getvalue(), stderr.getvalue()
 
+    def run_superhuman_budget_sweep_wrapper(self, *, orchestrate_impl, cli_args):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/runpod_superhuman_budget_sweep"
+        fake_runpod_experiment = types.ModuleType("ml.alphazero_lite.runpod_experiment")
+        fake_runpod_experiment.build_dry_run_plan = lambda **kwargs: kwargs
+        fake_runpod_experiment.orchestrate = orchestrate_impl
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with mock.patch.dict(
+            sys.modules, {"ml.alphazero_lite.runpod_experiment": fake_runpod_experiment}
+        ):
+            with (
+                mock.patch.object(sys, "argv", [str(script_path), *cli_args]),
+                mock.patch("sys.stdout", stdout),
+                mock.patch("sys.stderr", stderr),
+            ):
+                try:
+                    runpy.run_path(str(script_path), run_name="__main__")
+                except SystemExit as exc:
+                    if isinstance(exc.code, int):
+                        code = exc.code
+                    else:
+                        if exc.code not in (None, ""):
+                            print(exc.code, file=sys.stderr)
+                        code = 1
+                else:
+                    code = 0
+
+        return code, stdout.getvalue(), stderr.getvalue()
+
     def test_runpod_model_robustness_confirmation_dry_run_builds_remote_confirmation_plan(
         self,
     ):
@@ -168,6 +223,102 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
                 "tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
             ],
             plan["include_paths"],
+        )
+
+    def test_runpod_superhuman_budget_sweep_dry_run_builds_remote_sweep_plan(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_superhuman_budget_sweep",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, msg=result.stderr)
+        plan = json.loads(result.stdout)
+        command = plan["command"]
+
+        self.assertIn("script/ai/superhuman_budget_sweep", command)
+        self.assertIn(
+            "--candidate-path /tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter2",
+            command,
+        )
+        self.assertIn("--current-path model-artifact/current", command)
+        self.assertIn("--simulations 384,512,640,768,896", command)
+        self.assertIn("--output-root /tmp/azlite_v3_superhuman_budget_sweep", command)
+        self.assertIn(
+            "cp -R /tmp/azlite_v3_superhuman_budget_sweep/. storage/ai/alphazero_lite/versions/runpod-superhuman-budget-sweep/;",
+            command,
+        )
+        self.assertEqual(
+            [
+                "script/ai/superhuman_budget_sweep",
+                "ml/alphazero_lite",
+                "model-artifact/current",
+                "tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter2",
+            ],
+            plan["include_paths"],
+        )
+
+    def test_runpod_superhuman_budget_sweep_exits_zero_when_downloaded_summary_passed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = (
+                "storage/ai/alphazero_lite/versions/runpod-superhuman-budget-sweep"
+            )
+
+            def fake_orchestrate(**kwargs):
+                aggregate_summary_path = self.write_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    passed=True,
+                    lanes=[
+                        {
+                            "simulation_budget": 384,
+                            "arena_score": 0.48,
+                            "report_path": "/tmp/sweep/384.json",
+                        },
+                        {
+                            "simulation_budget": 896,
+                            "arena_score": 0.62,
+                            "report_path": "/tmp/sweep/896.json",
+                        },
+                    ],
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                    "_aggregate_summary_path": str(aggregate_summary_path),
+                }
+
+            code, stdout, stderr = self.run_superhuman_budget_sweep_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=[
+                    "--local-results-path",
+                    str(local_results_path),
+                    "--results-path",
+                    results_path,
+                ],
+            )
+
+        self.assertEqual("", stderr)
+        self.assertEqual(0, code)
+        payload = json.loads(stdout)
+        self.assertTrue(payload["sweep_passed"])
+        self.assertEqual([384, 896], [lane["simulation_budget"] for lane in payload["lanes"]])
+        self.assertTrue(
+            payload["aggregate_summary_path"].endswith("aggregate_summary.json")
         )
 
     def test_runpod_model_robustness_confirmation_dry_run_wraps_robustness_run_and_copy_in_shell_block(
@@ -1148,6 +1299,162 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         )
         self.assertEqual(summary, written_summary)
 
+    def test_superhuman_budget_sweep_execute_budget_rewrites_lane_config_and_records_gate_summary(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/superhuman_budget_sweep"
+        loader = importlib.machinery.SourceFileLoader(
+            "superhuman_budget_sweep", str(script_path)
+        )
+        module = types.ModuleType(loader.name)
+        module.__file__ = str(script_path)
+        loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "candidate"
+            current_path = tmp_path / "current"
+            output_root = tmp_path / "budget-sweep"
+            candidate_path.mkdir()
+            current_path.mkdir()
+            lane_dir = output_root / "sim-512"
+            gate_report_path = lane_dir / "local_promotion_gate.json"
+            summary_path = lane_dir / "summary.json"
+
+            def fake_run_command(command, stage):
+                if stage == "simulation budget 512 local promotion gate":
+                    lane_config_path = Path(
+                        command[command.index("--config-path") + 1]
+                    )
+                    lane_config = json.loads(
+                        lane_config_path.read_text(encoding="utf-8")
+                    )
+                    arena_step = next(
+                        step
+                        for step in lane_config["steps"]
+                        if step.get("name") == "arena_confirm_report"
+                    )
+                    candidate_mcts_step = next(
+                        step
+                        for step in lane_config["steps"]
+                        if step.get("name") == "mcts1200_baseline_report"
+                    )
+                    arena_command = arena_step["command"]
+                    candidate_mcts_command = candidate_mcts_step["command"]
+
+                    self.assertEqual(
+                        "512",
+                        arena_command[
+                            arena_command.index("--challenger-simulations") + 1
+                        ],
+                    )
+                    self.assertEqual(
+                        "256",
+                        arena_command[
+                            arena_command.index("--current-simulations") + 1
+                        ],
+                    )
+                    self.assertEqual(
+                        "512",
+                        candidate_mcts_command[
+                            candidate_mcts_command.index("--az-base-simulations") + 1
+                        ],
+                    )
+
+                    gate_report_path.parent.mkdir(parents=True, exist_ok=True)
+                    gate_report_path.write_text(
+                        json.dumps(
+                            {
+                                "passed": True,
+                                "arena_score": 0.58,
+                                "candidate_mcts_score": 0.55,
+                                "current_mcts_score": 0.53,
+                                "failure_reasons": [],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    return
+                self.fail(f"unexpected stage: {stage}")
+
+            original_run_command = module.run_command
+            module.run_command = fake_run_command
+            try:
+                summary = module.execute_budget(
+                    simulation_budget=512,
+                    candidate_path=str(candidate_path),
+                    current_path=str(current_path),
+                    output_root=str(output_root),
+                )
+                written_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            finally:
+                module.run_command = original_run_command
+
+        self.assertTrue(summary["passed"])
+        self.assertEqual(512, summary["simulation_budget"])
+        self.assertEqual(0.58, summary["arena_score"])
+        self.assertEqual(summary, written_summary)
+
+    def test_superhuman_budget_sweep_execute_budget_uses_written_gate_report_after_failed_exit(
+        self,
+    ):
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "script/ai/superhuman_budget_sweep"
+        loader = importlib.machinery.SourceFileLoader(
+            "superhuman_budget_sweep", str(script_path)
+        )
+        module = types.ModuleType(loader.name)
+        module.__file__ = str(script_path)
+        loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            candidate_path = tmp_path / "candidate"
+            current_path = tmp_path / "current"
+            output_root = tmp_path / "budget-sweep"
+            candidate_path.mkdir()
+            current_path.mkdir()
+            lane_dir = output_root / "sim-384"
+            gate_report_path = lane_dir / "local_promotion_gate.json"
+
+            def fake_run_command(command, stage):
+                if stage == "simulation budget 384 local promotion gate":
+                    gate_report_path.parent.mkdir(parents=True, exist_ok=True)
+                    gate_report_path.write_text(
+                        json.dumps(
+                            {
+                                "passed": False,
+                                "arena_score": 0.5,
+                                "candidate_mcts_score": None,
+                                "current_mcts_score": None,
+                                "failure_reasons": [
+                                    {"code": "arena_score_below_threshold"}
+                                ],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    raise SystemExit("simulation budget 384 local promotion gate failed")
+                self.fail(f"unexpected stage: {stage}")
+
+            original_run_command = module.run_command
+            module.run_command = fake_run_command
+            try:
+                summary = module.execute_budget(
+                    simulation_budget=384,
+                    candidate_path=str(candidate_path),
+                    current_path=str(current_path),
+                    output_root=str(output_root),
+                )
+            finally:
+                module.run_command = original_run_command
+
+        self.assertFalse(summary["passed"])
+        self.assertEqual(384, summary["simulation_budget"])
+        self.assertEqual(0.5, summary["arena_score"])
+        self.assertEqual(
+            [{"code": "arena_score_below_threshold"}], summary["failure_reasons"]
+        )
+
     def test_model_robustness_confirmation_continues_after_manifest_backed_pipeline_failure(
         self,
     ):
@@ -1414,7 +1721,7 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn("must be a non-negative integer", result.stderr)
 
-    def test_runpod_training_experiment_dry_run_bundles_full_app_models_for_regression_gate(
+    def test_runpod_training_experiment_dry_run_excludes_missing_optional_bundle_paths(
         self,
     ):
         repo_root = Path(__file__).resolve().parents[2]
@@ -1435,7 +1742,41 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         self.assertEqual(0, result.returncode, msg=result.stderr)
         plan = json.loads(result.stdout)
 
-        self.assertIn("app/models", plan["include_paths"])
+        self.assertNotIn("Gemfile", plan["include_paths"])
+        self.assertNotIn("Gemfile.lock", plan["include_paths"])
+        self.assertNotIn("bin/rails", plan["include_paths"])
+        self.assertNotIn("app/models", plan["include_paths"])
+        self.assertNotIn("config", plan["include_paths"])
+        self.assertIn(
+            "test/fixtures/ai/superhuman_regression_positions.json",
+            plan["include_paths"],
+        )
+
+    def test_runpod_training_experiment_rejects_missing_explicit_promotion_current_path(
+        self,
+    ):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        result = subprocess.run(
+            [
+                "script/ai/runpod_training_experiment",
+                "--config-path",
+                "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase1.json",
+                "--promotion-current-path",
+                "tmp/does-not-exist-current-baseline",
+                "--dry-run",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn(
+            "promotion current path does not exist",
+            result.stderr,
+        )
 
 
 class RunpodStrongerBootstrapMoreDataWrapperTest(unittest.TestCase):

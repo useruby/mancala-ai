@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+
+BASE_CONFIG_PATH = Path("ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json")
+
+
+def existing_directory(path_value: str, *, label: str) -> Path:
+    path = Path(path_value)
+    if not path.exists():
+        raise SystemExit(f"{label} does not exist: {path_value}")
+    if not path.is_dir():
+        raise SystemExit(f"{label} must be a directory: {path_value}")
+    return path
+
+
+def positive_int_csv(value: str) -> list[int]:
+    budgets = []
+    for token in value.split(","):
+        stripped = token.strip()
+        if not stripped:
+            continue
+        parsed = int(stripped)
+        if parsed <= 0:
+            raise argparse.ArgumentTypeError("simulation budgets must be positive integers")
+        budgets.append(parsed)
+    if not budgets:
+        raise argparse.ArgumentTypeError("at least one simulation budget is required")
+    return budgets
+
+
+def run_command(command: list[str], stage: str) -> None:
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        details = (result.stderr or result.stdout).strip()
+        if details:
+            raise SystemExit(f"{stage} failed: {details}")
+        raise SystemExit(f"{stage} failed")
+
+
+def rewrite_step_flag(command: list[str], *, flag: str, value: int, step_name: str) -> None:
+    if flag not in command:
+        raise SystemExit(f"config step {step_name} missing required flag: {flag}")
+    index = command.index(flag)
+    if index + 1 >= len(command):
+        raise SystemExit(f"config step {step_name} missing value for flag: {flag}")
+    command[index + 1] = str(value)
+
+
+def write_lane_config(*, simulation_budget: int, lane_dir: Path) -> Path:
+    config = json.loads(BASE_CONFIG_PATH.read_text(encoding="utf-8"))
+    steps = config.get("steps")
+    if not isinstance(steps, list):
+        raise SystemExit("phase2 config missing steps list")
+
+    step_map = {
+        step.get("name"): step
+        for step in steps
+        if isinstance(step, dict) and isinstance(step.get("name"), str)
+    }
+    arena_step = step_map.get("arena_confirm_report")
+    candidate_mcts_step = step_map.get("mcts1200_baseline_report")
+    if not isinstance(arena_step, dict) or not isinstance(candidate_mcts_step, dict):
+        raise SystemExit("phase2 config missing required sweep steps")
+
+    arena_command = arena_step.get("command")
+    candidate_mcts_command = candidate_mcts_step.get("command")
+    if not isinstance(arena_command, list) or not isinstance(candidate_mcts_command, list):
+        raise SystemExit("phase2 config step commands must be lists")
+
+    rewrite_step_flag(
+        arena_command,
+        flag="--challenger-simulations",
+        value=simulation_budget,
+        step_name="arena_confirm_report",
+    )
+    rewrite_step_flag(
+        candidate_mcts_command,
+        flag="--az-base-simulations",
+        value=simulation_budget,
+        step_name="mcts1200_baseline_report",
+    )
+
+    lane_config_path = lane_dir / "phase2_budget_config.json"
+    lane_config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+    return lane_config_path
+
+
+def execute_budget(
+    *,
+    simulation_budget: int,
+    candidate_path: str,
+    current_path: str,
+    output_root: str,
+) -> dict:
+    lane_dir = Path(output_root) / f"sim-{simulation_budget}"
+    lane_dir.mkdir(parents=True, exist_ok=True)
+    gate_report_path = lane_dir / "local_promotion_gate.json"
+    summary_path = lane_dir / "summary.json"
+    lane_config_path = write_lane_config(
+        simulation_budget=simulation_budget,
+        lane_dir=lane_dir,
+    )
+
+    try:
+        run_command(
+            [
+                sys.executable,
+                "script/ai/local_promotion_gate",
+                "--candidate-path",
+                candidate_path,
+                "--current-path",
+                current_path,
+                "--arena-games",
+                "400",
+                "--mcts-games",
+                "40",
+                "--min-arena-score",
+                "0.55",
+                "--min-arena-games",
+                "400",
+                "--min-mcts-games",
+                "40",
+                "--max-losses",
+                "0",
+                "--require-lossless",
+                "--skip-mcts-relative-check",
+                "--config-path",
+                str(lane_config_path),
+                "--out",
+                str(gate_report_path),
+            ],
+            f"simulation budget {simulation_budget} local promotion gate",
+        )
+    except SystemExit:
+        if not gate_report_path.exists():
+            raise
+
+    gate_report = json.loads(gate_report_path.read_text(encoding="utf-8"))
+    summary = {
+        "simulation_budget": int(simulation_budget),
+        "report_path": str(gate_report_path),
+        "passed": bool(gate_report.get("passed")),
+        "arena_score": gate_report.get("arena_score"),
+        "candidate_mcts_score": gate_report.get("candidate_mcts_score"),
+        "current_mcts_score": gate_report.get("current_mcts_score"),
+        "failure_reasons": gate_report.get("failure_reasons", []),
+    }
+    summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    return summary
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="script/ai/superhuman_budget_sweep",
+        description="Run a budget sensitivity sweep for the superhuman phase2 candidate.",
+    )
+    parser.add_argument(
+        "--candidate-path",
+        default="/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter2",
+    )
+    parser.add_argument("--current-path", default="model-artifact/current")
+    parser.add_argument(
+        "--simulations",
+        type=positive_int_csv,
+        default=[384, 512, 640, 768, 896],
+        help="Comma-separated challenger simulation budgets",
+    )
+    parser.add_argument(
+        "--output-root", default="/tmp/azlite_v3_superhuman_budget_sweep"
+    )
+    parser.add_argument("--dry-run", action="store_true")
+    return parser
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    candidate_path = existing_directory(args.candidate_path, label="candidate path")
+    current_path = existing_directory(args.current_path, label="current path")
+    output_root = Path(args.output_root)
+
+    if args.dry_run:
+        plan = {
+            "candidate_path": str(candidate_path),
+            "current_path": str(current_path),
+            "simulations": args.simulations,
+            "output_root": str(output_root),
+            "aggregate_summary_path": str(output_root / "aggregate_summary.json"),
+        }
+        print(json.dumps(plan, indent=2))
+        return 0
+
+    output_root.mkdir(parents=True, exist_ok=True)
+    lanes = [
+        execute_budget(
+            simulation_budget=budget,
+            candidate_path=str(candidate_path),
+            current_path=str(current_path),
+            output_root=str(output_root),
+        )
+        for budget in args.simulations
+    ]
+    aggregate_summary = {
+        "candidate_path": str(candidate_path),
+        "current_path": str(current_path),
+        "passed": any(bool(lane["passed"]) for lane in lanes),
+        "lanes": lanes,
+    }
+    aggregate_summary_path = output_root / "aggregate_summary.json"
+    aggregate_summary_path.write_text(
+        json.dumps(aggregate_summary, indent=2), encoding="utf-8"
+    )
+    print(json.dumps(aggregate_summary, indent=2))
+    return 0 if aggregate_summary["passed"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
