@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+from ml.alphazero_lite.superhuman_runtime_config import (  # noqa: E402
+    apply_runtime_paths,
+    final_iteration,
+    load_json,
+    python_executable,
+    rewrite_python_commands,
+    write_json,
+)
+
+DEFAULT_BASE_CONFIG = "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json"
+DEFAULT_OUTPUT_ROOT = "tmp/local_superhuman_recovery"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Regenerate the superhuman iter2 candidate locally."
+    )
+    parser.add_argument("--base-config", default=DEFAULT_BASE_CONFIG)
+    parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
+    parser.add_argument("--current-path", default="model-artifact/current")
+    parser.add_argument("--workers", type=int, default=None)
+    parser.add_argument("--run-gate", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args()
+
+
+def resolve_repo_path(path_value: str) -> Path:
+    path = Path(path_value)
+    if not path.is_absolute():
+        path = REPO_ROOT / path
+    return path
+
+
+def build_runtime_config(
+    *,
+    base_config_path: Path,
+    runtime_config_path: Path,
+    versions_dir: Path,
+    current_path: Path,
+    python_bin: str,
+    workers: int | None,
+) -> dict:
+    config = load_json(base_config_path)
+    config = rewrite_python_commands(config, python_bin=python_bin)
+    config = apply_runtime_paths(
+        config,
+        versions_dir=versions_dir,
+        current_path=current_path,
+        parent_artifact_path=current_path,
+    )
+    if workers is not None:
+        for step in config.get("steps", []):
+            command = step.get("command")
+            if not isinstance(command, list) or "--workers" not in command:
+                continue
+            command[command.index("--workers") + 1] = str(workers)
+    write_json(runtime_config_path, config)
+    return config
+
+
+def run_command(command: list[str]) -> None:
+    result = subprocess.run(
+        command, cwd=REPO_ROOT, capture_output=True, text=True, check=False
+    )
+    if result.stdout:
+        print(
+            result.stdout,
+            file=sys.stderr,
+            end="" if result.stdout.endswith("\n") else "\n",
+        )
+    if result.stderr:
+        print(
+            result.stderr,
+            file=sys.stderr,
+            end="" if result.stderr.endswith("\n") else "\n",
+        )
+    if result.returncode != 0:
+        raise SystemExit(result.returncode)
+
+
+def main() -> int:
+    args = parse_args()
+    base_config_path = resolve_repo_path(args.base_config)
+    if not base_config_path.exists():
+        raise SystemExit(f"base config does not exist: {base_config_path}")
+
+    current_path = resolve_repo_path(args.current_path)
+    if not current_path.exists():
+        raise SystemExit(f"current path does not exist: {current_path}")
+
+    output_root = resolve_repo_path(args.output_root)
+    versions_dir = output_root / "versions"
+    runtime_config_path = output_root / "pipeline_config.json"
+    gate_report_path = output_root / "local_promotion_gate.json"
+    python_bin = python_executable(REPO_ROOT)
+
+    runtime_config = build_runtime_config(
+        base_config_path=base_config_path,
+        runtime_config_path=runtime_config_path,
+        versions_dir=versions_dir,
+        current_path=current_path,
+        python_bin=python_bin,
+        workers=args.workers,
+    )
+    candidate_dir_name = (
+        f"{runtime_config['run_id']}-iter{final_iteration(runtime_config)}"
+    )
+    candidate_path = versions_dir / candidate_dir_name
+
+    pipeline_command = [
+        python_bin,
+        "ml/alphazero_lite/pipeline.py",
+        "--config",
+        str(runtime_config_path),
+        "--iterations",
+        "1",
+    ]
+    gate_command = [
+        python_bin,
+        "script/ai/local_promotion_gate",
+        "--candidate-path",
+        str(candidate_path),
+        "--current-path",
+        str(current_path),
+        "--hard-path",
+        str(current_path),
+        "--config-path",
+        str(runtime_config_path),
+        "--out",
+        str(gate_report_path),
+    ]
+
+    if not args.dry_run:
+        run_command(pipeline_command)
+        if args.run_gate:
+            run_command(gate_command)
+
+    payload = {
+        "base_config_path": str(base_config_path),
+        "runtime_config_path": str(runtime_config_path),
+        "versions_dir": str(versions_dir),
+        "candidate_dir_name": candidate_dir_name,
+        "candidate_path": str(candidate_path),
+        "gate_report_path": str(gate_report_path),
+        "pipeline_command": pipeline_command,
+        "gate_command": gate_command,
+        "run_gate": bool(args.run_gate),
+    }
+    if args.run_gate and gate_report_path.exists():
+        payload["gate_report"] = json.loads(
+            gate_report_path.read_text(encoding="utf-8")
+        )
+    print(json.dumps(payload))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

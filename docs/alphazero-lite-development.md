@@ -370,6 +370,36 @@ Key infrastructure additions:
 - `skip_before_final_iteration` step flag
 - `--phase2-config` flag for chaining pipeline phases on a single pod
 
+### Phase 10: Superhuman Recovery Audit (May 27, 2026)
+
+- Recovered `aggressive-v3-superhuman-iter2` on the `mancala-ai` Intel 13900
+  server with `script/ai/run_local_superhuman_recovery --workers 24`
+- Recovered artifact path:
+  `/home/alex/Mancala/ai/server-session/tmp/local_superhuman_recovery/versions/aggressive-v3-superhuman-iter2`
+- Recovery prefilter result at the phase-2 config's native `896 vs 256`
+  arena settings: `15W 15L 0D`, score `0.5`, below the `0.55` threshold
+- Initial local budget-sweep tooling was found to be invalid because it labeled
+  lanes `384,512,640,768,896` while still evaluating the fixed phase-2
+  challenger budget `896`
+- After fixing the sweep to rewrite per-lane challenger budgets and to continue
+  after a failed gate lane writes its JSON report, the corrected rerun on
+  `mancala-ai` still failed at every tested challenger budget:
+
+| Challenger sims | Arena score | Result |
+|-----------------|-------------|--------|
+| 384 | 0.5 | fail |
+| 512 | 0.5 | fail |
+| 640 | 0.5 | fail |
+| 768 | 0.5 | fail |
+| 896 | 0.5 | fail |
+
+- Common failure reasons on every corrected lane:
+  `arena_score_below_threshold`, `arena_losses_above_threshold`
+- Conclusion: search-budget mismatch was not sufficient to explain the failed
+  regenerated candidate. The recovered `aggressive-v3-superhuman-iter2`
+  remained stuck at parity with the incumbent across the tested challenger
+  budgets and should not be treated as a salvageable promotion candidate.
+
 ### Ongoing: Inference & Search Micro-Optimizations
 
 Applied throughout the development cycle to reduce per-move latency:

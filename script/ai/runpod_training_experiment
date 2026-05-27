@@ -176,6 +176,27 @@ gate_config_path = phase2_config_path or config_path
 downloaded_results_root = str(Path(local_results_path) / Path(results_path).name)
 downloaded_candidate_path = str(Path(downloaded_results_root) / candidate_dir_name)
 
+
+def existing_include_paths(paths: list[str]) -> list[str]:
+    existing_paths = []
+    for path in list(dict.fromkeys(paths)):
+        if (REPO_ROOT / path).exists():
+            existing_paths.append(path)
+    return existing_paths
+
+
+def require_existing_repo_path(path_value: str, *, label: str) -> None:
+    if not (REPO_ROOT / path_value).exists():
+        print(f"{label} does not exist: {path_value}", file=sys.stderr)
+        sys.exit(1)
+
+
+if args.promotion_current_path != "model-artifact/current":
+    require_existing_repo_path(
+        args.promotion_current_path,
+        label="promotion current path",
+    )
+
 if phase2_config_path:
     pipeline_commands = [
         f".venv/bin/python ml/alphazero_lite/pipeline.py --config {shlex.quote(config_path)} --skip-step rules_parity_fuzz",
@@ -218,22 +239,25 @@ command = " && ".join(
     ]
 )
 
-include_paths = [
-    "ml/alphazero_lite",
-    "script/ai",
-    config_path,
-    "model-artifact/current",
-    "Gemfile",
-    "Gemfile.lock",
-    "bin/rails",
-    "app/models",
-    "config",
-    "test/fixtures/ai/superhuman_regression_positions.json",
-]
+include_paths = existing_include_paths(
+    [
+        "ml/alphazero_lite",
+        "script/ai",
+        config_path,
+        "model-artifact/current",
+        "Gemfile",
+        "Gemfile.lock",
+        "bin/rails",
+        "app/models",
+        "config",
+        "test/fixtures/ai/superhuman_regression_positions.json",
+    ]
+)
 if args.promotion_current_path != "model-artifact/current":
     include_paths.append(args.promotion_current_path)
 if phase2_config_path:
     include_paths.append(phase2_config_path)
+include_paths = existing_include_paths(include_paths)
 
 if args.dry_run:
     plan = build_dry_run_plan(

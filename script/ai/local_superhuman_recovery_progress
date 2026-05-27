@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+from datetime import UTC, datetime
+from pathlib import Path
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Report progress for the local superhuman recovery run."
+    )
+    parser.add_argument("--output-root", default="tmp/local_superhuman_recovery")
+    return parser.parse_args()
+
+
+def resolve_repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def resolve_output_root(path_value: str) -> Path:
+    path = Path(path_value)
+    if path.is_absolute():
+        return path
+    return resolve_repo_root() / path
+
+
+def load_runtime_config(config_path: Path) -> dict | None:
+    if not config_path.exists():
+        return None
+    return json.loads(config_path.read_text(encoding="utf-8"))
+
+
+def isoformat_mtime(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    return datetime.fromtimestamp(path.stat().st_mtime, UTC).isoformat()
+
+
+def file_summary(path: Path) -> dict:
+    return {
+        "path": str(path),
+        "exists": path.exists(),
+        "size_bytes": path.stat().st_size if path.exists() else 0,
+        "mtime": isoformat_mtime(path),
+    }
+
+
+def infer_status(
+    *,
+    gate_report: Path,
+    arena_report: Path,
+    checkpoint: Path,
+    model: Path,
+    bootstrap: Path,
+    self_play: Path,
+    config_exists: bool,
+) -> str:
+    if gate_report.exists():
+        return "completed"
+    if arena_report.exists():
+        return "arena"
+    if checkpoint.exists() or model.exists() or bootstrap.exists():
+        return "train"
+    if self_play.exists():
+        return "bootstrap"
+    if config_exists:
+        return "self_play"
+    return "not_started"
+
+
+def main() -> int:
+    args = parse_args()
+    output_root = resolve_output_root(args.output_root)
+    config_path = output_root / "pipeline_config.json"
+    config = load_runtime_config(config_path)
+
+    run_id = "aggressive-v3-superhuman"
+    iteration = 2
+    if config is not None:
+        run_id = str(config.get("run_id", run_id))
+        start_iteration = int(config.get("start_iteration", 2))
+        iterations = int(config.get("iterations", 1))
+        iteration = start_iteration + iterations - 1
+
+    versions_dir = output_root / "versions"
+    iter1_dir = versions_dir / f"{run_id}-iter1"
+    iter2_dir = versions_dir / f"{run_id}-iter{iteration}"
+
+    milestones = {
+        "iter2_self_play": file_summary(iter2_dir / "self_play.jsonl"),
+        "iter1_bootstrap": file_summary(iter1_dir / "mcts_bootstrap.jsonl"),
+        "iter2_checkpoint": file_summary(iter2_dir / "checkpoint.npz"),
+        "iter2_model": file_summary(iter2_dir / "model.npz"),
+        "iter2_arena": file_summary(iter2_dir / "arena_report.json"),
+        "gate_report": file_summary(output_root / "local_promotion_gate.json"),
+    }
+
+    status = infer_status(
+        gate_report=output_root / "local_promotion_gate.json",
+        arena_report=iter2_dir / "arena_report.json",
+        checkpoint=iter2_dir / "checkpoint.npz",
+        model=iter2_dir / "model.npz",
+        bootstrap=iter1_dir / "mcts_bootstrap.jsonl",
+        self_play=iter2_dir / "self_play.jsonl",
+        config_exists=config is not None,
+    )
+
+    payload = {
+        "output_root": str(output_root),
+        "config_exists": config is not None,
+        "run_id": run_id,
+        "iteration": iteration,
+        "status": status,
+        "milestones": milestones,
+    }
+    print(json.dumps(payload))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
