@@ -47,7 +47,16 @@ def file_summary(path: Path) -> dict:
     }
 
 
-def infer_status(*, gate_report: Path, arena_report: Path, checkpoint: Path, model: Path, bootstrap: Path, self_play: Path, config_exists: bool) -> str:
+def infer_status(
+    *,
+    gate_report: Path,
+    arena_report: Path,
+    checkpoint: Path,
+    model: Path,
+    bootstrap: Path,
+    self_play: Path,
+    config_exists: bool,
+) -> str:
     if gate_report.exists():
         return "completed"
     if arena_report.exists():

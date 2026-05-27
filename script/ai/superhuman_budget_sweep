@@ -8,7 +8,9 @@ import sys
 from pathlib import Path
 
 
-BASE_CONFIG_PATH = Path("ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json")
+BASE_CONFIG_PATH = Path(
+    "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json"
+)
 
 
 def existing_directory(path_value: str, *, label: str) -> Path:
@@ -28,7 +30,9 @@ def positive_int_csv(value: str) -> list[int]:
             continue
         parsed = int(stripped)
         if parsed <= 0:
-            raise argparse.ArgumentTypeError("simulation budgets must be positive integers")
+            raise argparse.ArgumentTypeError(
+                "simulation budgets must be positive integers"
+            )
         budgets.append(parsed)
     if not budgets:
         raise argparse.ArgumentTypeError("at least one simulation budget is required")
@@ -44,7 +48,9 @@ def run_command(command: list[str], stage: str) -> None:
         raise SystemExit(f"{stage} failed")
 
 
-def rewrite_step_flag(command: list[str], *, flag: str, value: int, step_name: str) -> None:
+def rewrite_step_flag(
+    command: list[str], *, flag: str, value: int, step_name: str
+) -> None:
     if flag not in command:
         raise SystemExit(f"config step {step_name} missing required flag: {flag}")
     index = command.index(flag)
@@ -71,7 +77,9 @@ def write_lane_config(*, simulation_budget: int, lane_dir: Path) -> Path:
 
     arena_command = arena_step.get("command")
     candidate_mcts_command = candidate_mcts_step.get("command")
-    if not isinstance(arena_command, list) or not isinstance(candidate_mcts_command, list):
+    if not isinstance(arena_command, list) or not isinstance(
+        candidate_mcts_command, list
+    ):
         raise SystemExit("phase2 config step commands must be lists")
 
     rewrite_step_flag(

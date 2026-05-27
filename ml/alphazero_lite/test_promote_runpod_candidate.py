@@ -72,13 +72,13 @@ class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
                     continue
                 worker_values.append(command[command.index("--workers") + 1])
 
-            self.assertEqual(
-                ["24", "24", "24", "24", "24", "24", "24"], worker_values
-            )
+            self.assertEqual(["24", "24", "24", "24", "24", "24", "24"], worker_values)
 
 
 class LocalSuperhumanRecoveryProgressTest(unittest.TestCase):
-    def run_progress_script(self, output_root: Path) -> subprocess.CompletedProcess[str]:
+    def run_progress_script(
+        self, output_root: Path
+    ) -> subprocess.CompletedProcess[str]:
         repo_root = Path(__file__).resolve().parents[2]
         return subprocess.run(
             [
@@ -120,11 +120,15 @@ class LocalSuperhumanRecoveryProgressTest(unittest.TestCase):
             output_root = Path(tmp) / "recovery"
             self.write_runtime_config(output_root)
             versions = output_root / "versions"
-            (versions / "aggressive-v3-superhuman-iter2").mkdir(parents=True, exist_ok=True)
-            (versions / "aggressive-v3-superhuman-iter1").mkdir(parents=True, exist_ok=True)
-            (versions / "aggressive-v3-superhuman-iter2" / "self_play.jsonl").write_text(
-                "selfplay", encoding="utf-8"
+            (versions / "aggressive-v3-superhuman-iter2").mkdir(
+                parents=True, exist_ok=True
             )
+            (versions / "aggressive-v3-superhuman-iter1").mkdir(
+                parents=True, exist_ok=True
+            )
+            (
+                versions / "aggressive-v3-superhuman-iter2" / "self_play.jsonl"
+            ).write_text("selfplay", encoding="utf-8")
             (
                 versions / "aggressive-v3-superhuman-iter1" / "mcts_bootstrap.jsonl"
             ).write_text("bootstrap", encoding="utf-8")

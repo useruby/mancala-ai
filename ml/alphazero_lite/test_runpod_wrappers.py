@@ -265,7 +265,9 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
             plan["include_paths"],
         )
 
-    def test_runpod_superhuman_budget_sweep_exits_zero_when_downloaded_summary_passed(self):
+    def test_runpod_superhuman_budget_sweep_exits_zero_when_downloaded_summary_passed(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             local_results_path = tmp_path / "downloaded-results"
@@ -316,7 +318,9 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         self.assertEqual(0, code)
         payload = json.loads(stdout)
         self.assertTrue(payload["sweep_passed"])
-        self.assertEqual([384, 896], [lane["simulation_budget"] for lane in payload["lanes"]])
+        self.assertEqual(
+            [384, 896], [lane["simulation_budget"] for lane in payload["lanes"]]
+        )
         self.assertTrue(
             payload["aggregate_summary_path"].endswith("aggregate_summary.json")
         )
@@ -1299,7 +1303,9 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         )
         self.assertEqual(summary, written_summary)
 
-    def test_superhuman_budget_sweep_execute_budget_rewrites_lane_config_and_records_gate_summary(self):
+    def test_superhuman_budget_sweep_execute_budget_rewrites_lane_config_and_records_gate_summary(
+        self,
+    ):
         repo_root = Path(__file__).resolve().parents[2]
         script_path = repo_root / "script/ai/superhuman_budget_sweep"
         loader = importlib.machinery.SourceFileLoader(
@@ -1322,9 +1328,7 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
 
             def fake_run_command(command, stage):
                 if stage == "simulation budget 512 local promotion gate":
-                    lane_config_path = Path(
-                        command[command.index("--config-path") + 1]
-                    )
+                    lane_config_path = Path(command[command.index("--config-path") + 1])
                     lane_config = json.loads(
                         lane_config_path.read_text(encoding="utf-8")
                     )
@@ -1349,9 +1353,7 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
                     )
                     self.assertEqual(
                         "256",
-                        arena_command[
-                            arena_command.index("--current-simulations") + 1
-                        ],
+                        arena_command[arena_command.index("--current-simulations") + 1],
                     )
                     self.assertEqual(
                         "512",
@@ -1433,7 +1435,9 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
                         ),
                         encoding="utf-8",
                     )
-                    raise SystemExit("simulation budget 384 local promotion gate failed")
+                    raise SystemExit(
+                        "simulation budget 384 local promotion gate failed"
+                    )
                 self.fail(f"unexpected stage: {stage}")
 
             original_run_command = module.run_command

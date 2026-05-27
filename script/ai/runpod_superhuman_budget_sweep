@@ -13,11 +13,15 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from ml.alphazero_lite.runpod_experiment import build_dry_run_plan, orchestrate  # noqa: E402
 
-DEFAULT_CANDIDATE_PATH = "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter2"
+DEFAULT_CANDIDATE_PATH = (
+    "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter2"
+)
 DEFAULT_CURRENT_PATH = "model-artifact/current"
 DEFAULT_SIMULATIONS = "384,512,640,768,896"
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_v3_superhuman_budget_sweep"
-DEFAULT_RESULTS_PATH = "storage/ai/alphazero_lite/versions/runpod-superhuman-budget-sweep"
+DEFAULT_RESULTS_PATH = (
+    "storage/ai/alphazero_lite/versions/runpod-superhuman-budget-sweep"
+)
 DEFAULT_LOCAL_RESULTS_PATH = "/tmp/runpod-superhuman-budget-sweep-results"
 DEFAULT_BUNDLE_PATH = str(
     REPO_ROOT / "tmp" / "runpod_superhuman_budget_sweep_bundle.tar.gz"
@@ -89,17 +93,24 @@ def downloaded_results_dir(local_results_path: str, results_path: str) -> Path:
 
 
 def aggregate_summary_path(local_results_path: str, results_path: str) -> Path:
-    return downloaded_results_dir(local_results_path, results_path) / DEFAULT_RESULT_SUMMARY_NAME
+    return (
+        downloaded_results_dir(local_results_path, results_path)
+        / DEFAULT_RESULT_SUMMARY_NAME
+    )
 
 
 def clear_downloaded_results_dir(local_results_path: str, results_path: str) -> None:
-    shutil.rmtree(downloaded_results_dir(local_results_path, results_path), ignore_errors=True)
+    shutil.rmtree(
+        downloaded_results_dir(local_results_path, results_path), ignore_errors=True
+    )
 
 
 def load_aggregate_summary(local_results_path: str, results_path: str) -> dict:
     summary_path = aggregate_summary_path(local_results_path, results_path)
     if not summary_path.exists():
-        raise SystemExit(f"Missing downloaded budget sweep aggregate summary: {summary_path}")
+        raise SystemExit(
+            f"Missing downloaded budget sweep aggregate summary: {summary_path}"
+        )
     payload = json.loads(summary_path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or not isinstance(payload.get("passed"), bool):
         raise SystemExit(
@@ -129,15 +140,27 @@ def main() -> int:
 
     dry_run_candidate_path = args.candidate_path
     dry_run_current_path = args.current_path
-    if Path(args.candidate_path).is_absolute() and not args.candidate_path.startswith("/tmp/"):
-        dry_run_candidate_path = str(REPO_ROOT / stage_absolute_bundle_path(args.candidate_path))
-        candidate_bundle_path = Path(dry_run_candidate_path).relative_to(REPO_ROOT).as_posix()
+    if Path(args.candidate_path).is_absolute() and not args.candidate_path.startswith(
+        "/tmp/"
+    ):
+        dry_run_candidate_path = str(
+            REPO_ROOT / stage_absolute_bundle_path(args.candidate_path)
+        )
+        candidate_bundle_path = (
+            Path(dry_run_candidate_path).relative_to(REPO_ROOT).as_posix()
+        )
     else:
         candidate_bundle_path = repo_bundle_path(args.candidate_path)
 
-    if Path(args.current_path).is_absolute() and not args.current_path.startswith("/tmp/"):
-        dry_run_current_path = str(REPO_ROOT / stage_absolute_bundle_path(args.current_path))
-        current_bundle_path = Path(dry_run_current_path).relative_to(REPO_ROOT).as_posix()
+    if Path(args.current_path).is_absolute() and not args.current_path.startswith(
+        "/tmp/"
+    ):
+        dry_run_current_path = str(
+            REPO_ROOT / stage_absolute_bundle_path(args.current_path)
+        )
+        current_bundle_path = (
+            Path(dry_run_current_path).relative_to(REPO_ROOT).as_posix()
+        )
     elif Path(args.current_path).is_absolute():
         current_bundle_path = repo_bundle_path(args.current_path)
     else:
@@ -201,7 +224,9 @@ def main() -> int:
         print(json.dumps(plan, indent=2))
         return 0
 
-    if Path(args.candidate_path).is_absolute() and not args.candidate_path.startswith("/tmp/"):
+    if Path(args.candidate_path).is_absolute() and not args.candidate_path.startswith(
+        "/tmp/"
+    ):
         candidate_bundle_path = stage_absolute_bundle_path(args.candidate_path)
     else:
         candidate_bundle_path = stage_tmp_bundle_path(args.candidate_path)
@@ -210,7 +235,9 @@ def main() -> int:
         if Path(args.current_path).is_absolute()
         else args.current_path
     )
-    if Path(args.current_path).is_absolute() and not args.current_path.startswith("/tmp/"):
+    if Path(args.current_path).is_absolute() and not args.current_path.startswith(
+        "/tmp/"
+    ):
         current_bundle_path = stage_absolute_bundle_path(args.current_path)
 
     include_paths = [

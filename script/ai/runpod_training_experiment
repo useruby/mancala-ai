@@ -239,18 +239,20 @@ command = " && ".join(
     ]
 )
 
-include_paths = existing_include_paths([
-    "ml/alphazero_lite",
-    "script/ai",
-    config_path,
-    "model-artifact/current",
-    "Gemfile",
-    "Gemfile.lock",
-    "bin/rails",
-    "app/models",
-    "config",
-    "test/fixtures/ai/superhuman_regression_positions.json",
-])
+include_paths = existing_include_paths(
+    [
+        "ml/alphazero_lite",
+        "script/ai",
+        config_path,
+        "model-artifact/current",
+        "Gemfile",
+        "Gemfile.lock",
+        "bin/rails",
+        "app/models",
+        "config",
+        "test/fixtures/ai/superhuman_regression_positions.json",
+    ]
+)
 if args.promotion_current_path != "model-artifact/current":
     include_paths.append(args.promotion_current_path)
 if phase2_config_path:
