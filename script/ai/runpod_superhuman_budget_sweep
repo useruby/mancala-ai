@@ -111,7 +111,12 @@ def load_aggregate_summary(local_results_path: str, results_path: str) -> dict:
         raise SystemExit(
             f"Missing downloaded budget sweep aggregate summary: {summary_path}"
         )
-    payload = json.loads(summary_path.read_text(encoding="utf-8"))
+    try:
+        payload = json.loads(summary_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise SystemExit(
+            f"Invalid downloaded budget sweep aggregate summary: {summary_path}"
+        ) from error
     if not isinstance(payload, dict) or not isinstance(payload.get("passed"), bool):
         raise SystemExit(
             f"Downloaded budget sweep aggregate summary must contain boolean 'passed': {summary_path}"
@@ -168,9 +173,12 @@ def main() -> int:
 
     include_paths = [
         "script/ai/superhuman_budget_sweep",
+        "script/ai/local_promotion_gate",
+        "script/ai/check_superhuman_regressions",
         "ml/alphazero_lite",
         "model-artifact/current",
         candidate_bundle_path,
+        "test/fixtures/ai/superhuman_regression_positions.json",
     ]
     if args.current_path != "model-artifact/current":
         include_paths.append(current_bundle_path)
@@ -242,9 +250,12 @@ def main() -> int:
 
     include_paths = [
         "script/ai/superhuman_budget_sweep",
+        "script/ai/local_promotion_gate",
+        "script/ai/check_superhuman_regressions",
         "ml/alphazero_lite",
         "model-artifact/current",
         candidate_bundle_path,
+        "test/fixtures/ai/superhuman_regression_positions.json",
     ]
     if args.current_path != "model-artifact/current":
         include_paths.append(current_bundle_path)

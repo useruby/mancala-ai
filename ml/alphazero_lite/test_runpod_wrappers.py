@@ -106,6 +106,18 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         aggregate_summary_path.write_text(json.dumps(payload), encoding="utf-8")
         return aggregate_summary_path
 
+    def write_malformed_downloaded_aggregate_summary(
+        self, *, local_results_path, results_path, payload_text
+    ):
+        aggregate_summary_path = (
+            Path(local_results_path)
+            / Path(results_path).name
+            / "aggregate_summary.json"
+        )
+        aggregate_summary_path.parent.mkdir(parents=True, exist_ok=True)
+        aggregate_summary_path.write_text(payload_text, encoding="utf-8")
+        return aggregate_summary_path
+
     def run_model_robustness_wrapper(self, *, orchestrate_impl, cli_args):
         repo_root = Path(__file__).resolve().parents[2]
         script_path = repo_root / "script/ai/runpod_model_robustness_confirmation"
@@ -258,11 +270,55 @@ class RunpodTrainingExperimentValidationTest(unittest.TestCase):
         self.assertEqual(
             [
                 "script/ai/superhuman_budget_sweep",
+                "script/ai/local_promotion_gate",
+                "script/ai/check_superhuman_regressions",
                 "ml/alphazero_lite",
                 "model-artifact/current",
                 "tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter2",
+                "test/fixtures/ai/superhuman_regression_positions.json",
             ],
             plan["include_paths"],
+        )
+
+    def test_runpod_superhuman_budget_sweep_reports_invalid_downloaded_summary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            local_results_path = tmp_path / "downloaded-results"
+            results_path = (
+                "storage/ai/alphazero_lite/versions/runpod-superhuman-budget-sweep"
+            )
+
+            def fake_orchestrate(**kwargs):
+                self.write_malformed_downloaded_aggregate_summary(
+                    local_results_path=kwargs["local_results_path"],
+                    results_path=kwargs["results_path"],
+                    payload_text="{not json}",
+                )
+                return {
+                    "pod_id": "pod-123",
+                    "bundle_path": "/tmp/bundle.tar.gz",
+                    "shell_plan": {"delete_command": "runpodctl pod delete pod-123"},
+                    "experiment_report_path": None,
+                    "experiment_passed": None,
+                    "manifest_path": None,
+                    "manifest_status": None,
+                }
+
+            code, stdout, stderr = self.run_superhuman_budget_sweep_wrapper(
+                orchestrate_impl=fake_orchestrate,
+                cli_args=[
+                    "--local-results-path",
+                    str(local_results_path),
+                    "--results-path",
+                    results_path,
+                ],
+            )
+
+        self.assertEqual("", stdout)
+        self.assertEqual(1, code)
+        self.assertIn(
+            "Invalid downloaded budget sweep aggregate summary",
+            stderr,
         )
 
     def test_runpod_superhuman_budget_sweep_exits_zero_when_downloaded_summary_passed(
