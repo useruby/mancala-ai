@@ -115,7 +115,7 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
             (repo_root / "ml/alphazero_lite/configs").mkdir(parents=True)
             (repo_root / "model-artifact/current").mkdir(parents=True)
             (
-                repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+                repo_root / "tmp/local_results_partial/aggressive-v3-superhuman-iter1"
             ).mkdir(parents=True)
 
             runner_path = repo_root / "script/ai/run_local_superhuman_phase2_ablation"
@@ -184,7 +184,7 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
 
             (
                 repo_root
-                / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1/self_play.jsonl"
+                / "tmp/local_results_partial/aggressive-v3-superhuman-iter1/self_play.jsonl"
             ).write_text(
                 '{"game": 1}\n',
                 encoding="utf-8",
@@ -198,7 +198,7 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
                     "--parent-artifact",
                     str(
                         repo_root
-                        / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+                        / "tmp/local_results_partial/aggressive-v3-superhuman-iter1"
                     ),
                 ],
                 cwd=repo_root,
@@ -241,7 +241,7 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
             self.assertEqual(
                 str(
                     repo_root
-                    / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+                    / "tmp/local_results_partial/aggressive-v3-superhuman-iter1"
                 ),
                 parent_comparison["baseline_artifact_path"],
             )
@@ -322,7 +322,7 @@ class SuperhumanPhase2AblationRunnerTest(unittest.TestCase):
             )
 
             parent_artifact = (
-                repo_root / "tmp/runpod_results_partial/aggressive-v3-superhuman-iter1"
+                repo_root / "tmp/local_results_partial/aggressive-v3-superhuman-iter1"
             )
             parent_artifact.mkdir(parents=True)
 

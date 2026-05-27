@@ -22,11 +22,9 @@ Ruff discovery proof run from the worktree root:
 FILES=$(./.venv/bin/ruff check script/ai --show-files)
 for path in \
   script/ai/diagnose_search_interaction \
-  script/ai/promote_runpod_candidate \
-  script/ai/runpod_training_experiment \
   script/ai/run_local_mix_ablation \
   script/ai/promote_superhuman_candidate \
-  script/ai/runpod_remote_run.sh \
+  script/ai/run_local_superhuman_recovery \
   script/ai/check_superhuman_regressions \
   script/ai/compare_superhuman_regressions
 do
@@ -42,11 +40,9 @@ Observed Ruff output:
 
 ```text
 script/ai/diagnose_search_interaction INCLUDED
-script/ai/promote_runpod_candidate INCLUDED
-script/ai/runpod_training_experiment INCLUDED
 script/ai/run_local_mix_ablation EXCLUDED
 script/ai/promote_superhuman_candidate EXCLUDED
-script/ai/runpod_remote_run.sh EXCLUDED
+script/ai/run_local_superhuman_recovery INCLUDED
 script/ai/check_superhuman_regressions INCLUDED
 script/ai/compare_superhuman_regressions INCLUDED
 ```
@@ -59,7 +55,7 @@ Pre-commit generic hook included-file proof run from the worktree root:
   pyproject.toml \
   .pre-commit-config.yaml \
   script/ai/diagnose_search_interaction \
-  script/ai/promote_runpod_candidate
+  script/ai/run_local_superhuman_recovery
 ```
 
 Observed included-file generic hook output:
@@ -86,7 +82,7 @@ Pre-commit Ruff hook included-file proof run from the worktree root:
 ```bash
 ./.venv/bin/pre-commit run ruff --files \
   script/ai/diagnose_search_interaction \
-  script/ai/promote_runpod_candidate
+  script/ai/run_local_superhuman_recovery
 ```
 
 Observed included-file Ruff hook output:
