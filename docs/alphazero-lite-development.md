@@ -9,8 +9,8 @@ plan, design, and implementation documents that lived in `docs/plans/` and
 
 ## 1. Project Overview
 
-**Goal:** Replace the remote LLM-based bot (Scaleway) with a local
-AlphaZero-lite neural network for the `hard` difficulty level,
+**Goal:** Replace the earlier LLM-based bot path with a local AlphaZero-lite
+neural network for the `hard` difficulty level,
 while keeping `easy`/`medium` on pure MCTS.
 
 **Outcome:** After ~20 experiment iterations exploring model architectures,
@@ -185,8 +185,8 @@ arena, candidate vs MCTS1200, current vs MCTS1200
 - **Multi-iteration:** `start_iteration` param allows numbering to begin at
   2+; `skip_before_final_iteration` step flag controls which stages run in
   intermediate iterations
-- **Phase chaining:** `--phase2-config` flag on `runpod_training_experiment`
-  runs two pipeline phases on a single pod
+- **Phase chaining:** use staged local configs or wrapper scripts such as
+  `script/ai/run_local_superhuman_recovery` when a lane needs multiple phases
 
 ### 4.2 Data Generation
 
@@ -234,18 +234,15 @@ exact engine the model must beat.
 - Staged training: bootstrap-heavy stage 1 -> self-play fine-tune stage 2
   (`--init-checkpoint`)
 
-### 4.5 RunPod Automation
+### 4.5 Local Experiment Automation
 
-- Pod profiles: `cpu3c` (8 vCPU, default), `cpu3c-16-32` (16 vCPU, large)
-- Named `--pod-profile` CLI option
-- Experiment runner handles pod lifecycle, config upload, execution, artifact
-  retrieval
-- `script/ai/runpod_superhuman_experiment` wraps
-  `runpod_training_experiment` with 400-game lossless gate defaults and a
-  strict `current` promotion target
+- Run the pipeline directly with local JSON configs for ordinary lanes
+- Use `script/ai/run_local_superhuman_recovery` when a lane needs generated
+  runtime configs, phase chaining, and an optional local gate pass
+- Use `script/ai/model_robustness_confirmation` for multi-seed local
+  confirmation sweeps
 - Use `script/ai/promote_superhuman_candidate <candidate_dir>` to publish a
-  downloaded candidate to `model-artifact/current` after the gate
-  report passes
+  validated local candidate to `model-artifact/current`
 
 ---
 
@@ -368,22 +365,22 @@ With classic MCTS teacher working, multi-iteration hybrid pipelines were built:
 Key infrastructure additions:
 - `start_iteration` param for pipeline
 - `skip_before_final_iteration` step flag
-- `--phase2-config` flag for chaining pipeline phases on a single pod
+- staged config generation for chaining pipeline phases in a single local run
 
 ### Phase 10: Superhuman Recovery Audit (May 27, 2026)
 
-- Recovered `aggressive-v3-superhuman-iter2` on the `mancala-ai` Intel 13900
-  server with `script/ai/run_local_superhuman_recovery --workers 24`
+- Recovered `aggressive-v3-superhuman-iter2` on the Intel 13900 machine with
+  `script/ai/run_local_superhuman_recovery --workers 24`
 - Recovered artifact path:
-  `/home/alex/Mancala/ai/server-session/tmp/local_superhuman_recovery/versions/aggressive-v3-superhuman-iter2`
+  `tmp/local_superhuman_recovery/versions/aggressive-v3-superhuman-iter2`
 - Recovery prefilter result at the phase-2 config's native `896 vs 256`
   arena settings: `15W 15L 0D`, score `0.5`, below the `0.55` threshold
 - Initial local budget-sweep tooling was found to be invalid because it labeled
   lanes `384,512,640,768,896` while still evaluating the fixed phase-2
   challenger budget `896`
 - After fixing the sweep to rewrite per-lane challenger budgets and to continue
-  after a failed gate lane writes its JSON report, the corrected rerun on
-  `mancala-ai` still failed at every tested challenger budget:
+  after a failed gate lane writes its JSON report, the corrected rerun still
+  failed at every tested challenger budget:
 
 | Challenger sims | Arena score | Result |
 |-----------------|-------------|--------|
@@ -454,8 +451,8 @@ path.
    search strategy) was the breakthrough that unlocked progress.
 
 4. **Ablations must be strict.** Small local signals (e.g., 0.1667 MCTS1200
-   score from 30 games) frequently did not survive strict 120-game validation
-   or RunPod reproduction. Do not promote based on noisy small-sample results.
+   score from 30 games) frequently did not survive strict 120-game validation.
+   Do not promote based on noisy small-sample results.
 
 5. **Optimize the right bottleneck.** Throughput optimizations were necessary
    for iteration speed, but quality improvements required understanding what

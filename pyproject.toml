@@ -8,9 +8,6 @@ exclude = [
     "script/ai/run_local_mix_ablation",
     "script/ai/run_local_staged_ablation",
     "script/ai/run_local_superhuman_strength_experiment",
-    "script/ai/runpod_remote_bootstrap.sh",
-    "script/ai/runpod_remote_run.sh",
-    "script/ai/runpod_superhuman_experiment",
 ]
 force-exclude = true
 
@@ -25,7 +22,4 @@ exclude = [
     "script/ai/run_local_mix_ablation",
     "script/ai/run_local_staged_ablation",
     "script/ai/run_local_superhuman_strength_experiment",
-    "script/ai/runpod_remote_bootstrap.sh",
-    "script/ai/runpod_remote_run.sh",
-    "script/ai/runpod_superhuman_experiment",
 ]

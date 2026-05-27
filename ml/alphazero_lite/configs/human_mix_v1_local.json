@@ -13,7 +13,7 @@
         ".venv/bin/python",
         "ml/alphazero_lite/train.py",
         "--data-files",
-        "tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2/self_play.jsonl,ml/alphazero_lite/human_games_combined.jsonl",
+        "tmp/local_superhuman_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2/self_play.jsonl,ml/alphazero_lite/human_games_combined.jsonl",
         "--replay-weights",
         "1,4",
         "--init-checkpoint",

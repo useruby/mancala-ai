@@ -5,7 +5,7 @@ This is the practical baseline for the next ML engineer iteration.
 ## Current Baseline
 
 - Runtime target in this handoff is local AlphaZero-lite for `hard` (the same infrastructure also supports the stricter `superhuman` lane); `easy` and `medium` remain pure MCTS.
-- Current promoted runtime artifact path is `model-artifact/current` (`weights.json`, `metadata.json`, `arena_report.json`). Downloaded RunPod candidate trees now have a wider stronger-lane contract and must be promoted with `script/ai/promote_runpod_candidate` instead of manual copies.
+- Current promoted runtime artifact path is `model-artifact/current` (`weights.json`, `metadata.json`, `arena_report.json`). Promote only validated local candidate directories.
 - Note: some pipeline configs reference `storage/ai/alphazero_lite/current` for historical compatibility. Before each lane, verify which path exists in your environment and set `current_path` consistently.
 - Search/eval gate is baseline-relative against `MCTS1200` (candidate must score at least as well as current).
 - Promotion gate uses `script/ai/local_promotion_gate` with defaults: arena `120` games, MCTS baseline `40` games, min arena score `0.55`, and candidate-vs-MCTS score must be >= current-vs-MCTS score.
@@ -23,11 +23,12 @@ This is the practical baseline for the next ML engineer iteration.
 - Historical false positives: strong AZ-vs-AZ arena results can still fail vs `MCTS1200`.
 - Teacher mismatch risk: changing teacher/search semantics without aligned evaluation can stall progress.
 - Variance at small sample sizes: short runs can suggest gains that disappear at confirmation scale.
-- Throughput constraints: long local runs are expensive; use RunPod wrapper for heavier experiments.
+- Throughput constraints: long local runs are still expensive, so prefer reproducible configs, worker tuning, and local wrappers over ad-hoc commands.
 
 ## Throughput Flags
 
-Use spare RAM to reduce repeated evaluator/search work before scaling up pod size.
+Use spare RAM to reduce repeated evaluator/search work before increasing worker
+counts or simulation budgets.
 
 - For checkpoint-guided self-play, enable `--evaluator-cache-size` when repeated state evaluation is likely.
 - For bootstrap runs using `--position-selection-mode hybrid_teacher`, enable `--teacher-search-reuse`.
@@ -54,120 +55,52 @@ Recommendation:
 
 ## Standard Experiment Command
 
-Use this as the default reproducible run entrypoint:
+Use this as the default reproducible local run entrypoint:
 
 ```bash
-script/ai/runpod_training_experiment \
-  --config-path ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_local.json \
-  --results-path storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap \
-  --local-results-path /tmp/runpod-results
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_local.json
 ```
 
 Notes:
 
-- Swap only `--config-path` (and optionally paths) per lane.
-- Wrapper runs pipeline + `local_promotion_gate` remotely and downloads outputs.
+- Swap only `--config` when moving between lanes.
+- Keep result directories explicit in the config or generated runtime config.
+- Run `script/ai/local_promotion_gate` against the exported candidate before any promotion decision.
 
-## Stronger-Bootstrap More-Data RunPod Wrapper
+## Local Robustness Confirmation
 
-Use the dedicated issue-#1 wrapper when you want the stronger-bootstrap more-data lane with a predictable downloaded result tree and a concise recommendation summary.
-
-Default command:
+Use the dedicated local sweep when you need multi-seed confirmation:
 
 ```bash
-script/ai/runpod_stronger_bootstrap_more_data_experiment
+script/ai/model_robustness_confirmation
 ```
 
 Default behavior:
 
-- uses `ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_more_data_local.json`
-- writes remote results under `storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data`
-- downloads results under `/tmp/runpod-stronger-bootstrap-more-data-results`
-- writes a lane summary to `<downloaded-results-root>/<remote-results-dir-name>/issue1_summary.json`
-- prints the same summary JSON to stdout, including the effective paths for the candidate artifact and key reports
-
-Override the result directory when you need reruns or alternate seeds without editing the wrapper:
-
-```bash
-script/ai/runpod_stronger_bootstrap_more_data_experiment \
-  --results-path storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap-more-data-seed43
-```
-
-Summary interpretation:
-
-- `confirm`: candidate passed the current issue checks, but alternate-seed confirmation is still required before treating it as promotion-ready
-- `pivot`: candidate beat current in arena play but regressed against `MCTS1200`, so the next task should target tactical or hard-state follow-up
-- `reject`: candidate failed the lane decision rules and should not be promoted
-
-Important:
-
-- the wrapper is orchestration plus reporting only; it does not change training or promotion semantics
-- do not manually copy files into `model-artifact/current`
-- use repo promotion tooling only after a candidate is validated and ready for promotion review
-
-## Robustness Confirmation On RunPod
-
-Use the dedicated wrapper for multi-seed confirmation runs that are too expensive locally:
-
-```bash
-script/ai/runpod_model_robustness_confirmation
-```
-
-Default behavior:
-
-- launches `script/ai/model_robustness_confirmation` remotely on RunPod
-- downloads the full confirmation output tree to `/tmp/runpod-robustness-confirmation-results`
-- preserves results even when the sweep exits non-zero because `passed=false`
-- reports final pass/fail from downloaded `aggregate_summary.json`
+- runs a five-lane local confirmation sweep under `/tmp/azlite_v3_robustness_confirmation`
+- preserves per-seed lane outputs even when `passed=false`
+- writes the top-level result to `aggregate_summary.json`
 
 Important:
 
 - `passed=false` is a completed experiment result, not an infrastructure failure
-- the top-level result file for confirmation runs is `aggregate_summary.json`
-- if `aggregate_summary.json` is malformed or missing, fall back to `run_manifest.json` triage to distinguish real run failure from transport/setup failure
-- long confirmation sweeps should prefer this wrapper over local execution
+- `aggregate_summary.json` is the top-level result file for confirmation runs
+- prefer this scripted local sweep over ad-hoc confirmation commands so the output tree stays consistent
 
-## Stronger-Lane Promotion Contract
+## Publishing A Validated Candidate
 
-Treat a downloaded RunPod result tree as usable only when the candidate leaf and root-level reports are complete.
-
-Candidate leaf (`<results>/<candidate_dir>/`):
-
-- `weights.json`
-- `metadata.json`
-- `arena_report.json`
-- `run_manifest.json`
-
-Root-level reports (`<results>/`):
-
-- `local_promotion_gate.json`
-- `candidate_vs_current_arena.json`
-- `candidate_vs_mcts1200.json`
-- `current_vs_mcts1200.json`
-- `candidate_regression_suite.json`
-
-If any item is missing, do not compare or promote; rerun/fix pipeline output first.
-
-## Promoting A Downloaded RunPod Candidate
-
-Do not manually copy files into `model-artifact/current`. Use the promotion helper so the gate report and candidate directory are validated before the local runtime artifact is swapped.
+Do not manually copy files into `model-artifact/current`. Use the local gate first, then publish the candidate artifact directory with the existing promotion helper.
 
 ```bash
-script/ai/promote_runpod_candidate /path/to/downloaded-results
+script/ai/promote_superhuman_candidate /path/to/candidate-artifact-directory
 ```
 
-Promotion flow:
+Before promotion:
 
-1. Confirm `<results>/local_promotion_gate.json` exists and has `passed=true`.
-2. Detect exactly one candidate artifact directory under the downloaded root.
-3. Validate that the gate report `candidate_path` matches the detected candidate directory name.
-4. Atomically replace `model-artifact/current` with the candidate runtime files (`weights.json`, `metadata.json`, `arena_report.json`).
-
-Important:
-
-- `run_manifest.json` and the root-level comparison/regression reports stay in the downloaded result tree for audit/debugging; they are not copied into `model-artifact/current`.
-- Do not touch `model-artifact/current` from an unvalidated RunPod download.
-- If the promotion helper rejects the tree, fix the result contract or rerun the lane; do not bypass the helper.
+1. Confirm the candidate directory contains `weights.json`, `metadata.json`, and `arena_report.json`.
+2. Confirm the matching `local_promotion_gate.json` exists and has `passed=true`.
+3. Keep the supporting comparison and regression reports with the run tree for audit/debugging.
 
 ## Hard-Bot Promotion Backlog Tracker
 
@@ -206,7 +139,7 @@ Use the ablation runner against a required parent artifact from a completed stro
 Runnable example:
 
 ```bash
-script/ai/run_local_superhuman_phase2_ablation --variant replay_balanced --parent-artifact tmp/runpod_results_partial/aggressive-v3-superhuman-iter1
+script/ai/run_local_superhuman_phase2_ablation --variant replay_balanced --parent-artifact tmp/local_results_partial/aggressive-v3-superhuman-iter1
 ```
 
 Initial variants run in this order:
@@ -463,12 +396,11 @@ Final holdout workflow shape:
 # the superhuman phase-2 config and parent artifact.
 # Point the wrapper at the exact tactical candidate/parent/config you want confirmed,
 # or provide an already-generated aggregate_summary.json from a matching confirmation run.
-script/ai/runpod_model_robustness_confirmation \
+script/ai/model_robustness_confirmation \
   --base-config ml/alphazero_lite/configs/aggressive_v3_tactical_replay_local.json \
   --parent-artifact <tactical_parent_artifact> \
   --current-path model-artifact/current \
-  --results-path storage/ai/alphazero_lite/versions/tactical-robustness-confirmation \
-  --local-results-path /tmp/tactical-robustness-confirmation-results
+  --output-root /tmp/tactical-robustness-confirmation
 
 .venv/bin/python ml/alphazero_lite/run_forensic_suite.py \
   --suite ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json \
@@ -563,13 +495,13 @@ script/ai/local_promotion_gate \
 .venv/bin/python ml/alphazero_lite/write_tactical_lane_decision.py \
   --bucket-gate artifacts/tactical_lane/final/bucket_gate.json \
   --promotion-gate artifacts/tactical_lane/final/local_promotion_gate.json \
-  --exploratory-summary /tmp/tactical-robustness-confirmation-results/tactical-robustness-confirmation/aggregate_summary.json \
+  --exploratory-summary /tmp/tactical-robustness-confirmation/aggregate_summary.json \
   --out artifacts/tactical_lane/final/tactical_lane_decision.json
 ~~~
 
 Notes:
 
-- For tactical final holdout, only use `script/ai/runpod_model_robustness_confirmation` when its `--base-config`, `--parent-artifact`, and result paths are set for the tactical candidate being reviewed. The wrapper defaults are for the superhuman phase-2 lane and are not the right exploratory artifact for tactical holdout by themselves.
+- For tactical final holdout, only use `script/ai/model_robustness_confirmation` when its `--base-config`, `--parent-artifact`, and output root are set for the tactical candidate being reviewed. The defaults target the superhuman phase-2 lane and are not the right exploratory artifact for tactical holdout by themselves.
 - Final holdout requires both the exploratory confirmation artifact and the holdout gate artifacts above; `write_tactical_lane_decision.py` consumes both.
 - When re-entering the wrapper at `--start-stage decision`, pass the exact `aggregate_summary.json` path from the matching exploratory confirmation run if that artifact lives outside the run-local tree.
 
@@ -577,15 +509,15 @@ Notes:
 
 - Treat script behavior and defaults as source-of-truth over this document:
   - `script/ai/local_promotion_gate`
-  - `script/ai/runpod_training_experiment`
   - `script/ai/run_local_superhuman_recovery`
+  - `script/ai/model_robustness_confirmation`
   - `script/ai/superhuman_budget_sweep`
 - If this document and script defaults diverge, follow scripts and update this handoff file in the same change.
 
 ## Recovery Note
 
-- The regenerated `aggressive-v3-superhuman-iter2` recovery on `mancala-ai`
-  failed its native phase-2 prefilter at `896 vs 256` with arena score `0.5`
+- The regenerated `aggressive-v3-superhuman-iter2` recovery failed its native
+  phase-2 prefilter at `896 vs 256` with arena score `0.5`
   (`15W 15L 0D`).
 - The first `local_superhuman_budget_sweep` result tree was not authoritative:
   the original sweep script labeled multiple budgets but still ran the fixed

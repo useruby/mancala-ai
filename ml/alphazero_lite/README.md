@@ -68,7 +68,7 @@ cp storage/ai/alphazero_lite/versions/azlite-local-001/weights.json model-artifa
 cp storage/ai/alphazero_lite/versions/azlite-local-001/metadata.json model-artifact/current/metadata.json
 ```
 
-`arena_report.json` is not written by `export_artifact.py`. Copy or promote that report only after `script/ai/local_promotion_gate` or the RunPod wrapper produces it.
+`arena_report.json` is not written by `export_artifact.py`. Copy or promote that report only after `script/ai/local_promotion_gate` or another local evaluation flow produces it.
 
 ## Output contract
 
@@ -86,52 +86,36 @@ Important metadata fields:
 - `policy_size = 6`
 - `architecture.policy_size = 6`
 
-## RunPod notes
+## Local experiment notes
 
-Use the dedicated RunPod wrapper when you want remote compute to handle the heavier pipeline run and promotion gate.
-
-```bash
-script/ai/runpod_training_experiment \
-  --config-path ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_local.json \
-  --results-path storage/ai/alphazero_lite/versions/runpod-stronger-bootstrap \
-  --local-results-path /tmp/runpod-results
-```
-
-The wrapper:
-
-- bundles `ml/alphazero_lite`, `script/ai`, the selected config, and `model-artifact/current`
-- runs `pipeline.py` remotely
-- runs `script/ai/local_promotion_gate` remotely against the produced candidate
-- downloads the remote results directory back under `--local-results-path` using the remote results directory name as the leaf folder
-- exits `0` when remote execution completed and results were downloaded, even if the candidate failed the promotion gate
-- uses the downloaded `local_promotion_gate.json` to report experiment success or failure
-
-By default it uses the `cpu3c-16-32` pod profile so heavier training and evaluation runs stop monopolizing the local laptop while still leaving room to scale up later if needed.
-
-### Superhuman quick commands
-
-Launch a superhuman training/evaluation run on RunPod with the lossless gate
-(400 arena games, 0 losses required):
+Run the pipeline directly on this machine for both routine and heavier training
+lanes:
 
 ```bash
-script/ai/runpod_superhuman_experiment \
-  --config-path ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase1.json \
-  --phase2-config ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase2.json
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/aggressive_v3_stronger_bootstrap_local.json
 ```
 
-After results download and gate pass, publish the candidate into the runtime
-`current` artifact path:
+For multi-step superhuman recovery work, use the existing local wrapper:
+
+```bash
+script/ai/run_local_superhuman_recovery --run-gate
+```
+
+After a local gate pass, publish the candidate into the runtime `current`
+artifact path:
 
 ```bash
 script/ai/promote_superhuman_candidate \
-  tmp/runpod_results/aggressive-v3-clone-extend-iter2/aggressive-v3-clone-extend-iter2
+  /path/to/candidate-artifact-directory
 ```
 
-Deploy and rollback happen from the main application repository using that repository's standard deploy flow.
+Deploy and rollback happen from the main application repository using that
+repository's standard deploy flow.
 
 ## Local promotion gate
 
-After exporting a local candidate artifact, run the local promotion gate before any stricter RunPod validation:
+After exporting a local candidate artifact, run the local promotion gate before promotion:
 
 ```bash
 script/ai/local_promotion_gate \
