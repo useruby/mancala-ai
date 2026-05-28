@@ -6,6 +6,8 @@ import os
 import sys
 from pathlib import Path
 
+from ml.alphazero_lite.worker_config import normalize_command_workers
+
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -98,6 +100,18 @@ def apply_budget_overrides(
         elif step_name == "mcts1200_baseline_report":
             set_flag(command, "--az-base-simulations", str(challenger_budget))
 
+    return updated
+
+
+def apply_shared_worker_normalization(
+    config: dict, *, workers: int | None = None
+) -> dict:
+    updated = copy.deepcopy(config)
+    for step in updated.get("steps", []):
+        command = step.get("command")
+        if not isinstance(command, list) or not command:
+            continue
+        step["command"] = normalize_command_workers(command, workers=workers)
     return updated
 
 

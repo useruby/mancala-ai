@@ -25,7 +25,7 @@ class PromoteSuperhumanCandidateUsageTest(unittest.TestCase):
 
 
 class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
-    def test_dry_run_workers_override_rewrites_runtime_config(self):
+    def test_dry_run_without_workers_flag_uses_shared_default_runtime_workers(self):
         repo_root = Path(__file__).resolve().parents[2]
 
         with tempfile.TemporaryDirectory(prefix="azlite-local-recovery-") as tmp:
@@ -37,8 +37,6 @@ class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
                     "--dry-run",
                     "--output-root",
                     str(output_root),
-                    "--workers",
-                    "24",
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -59,6 +57,41 @@ class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
                 worker_values.append(command[command.index("--workers") + 1])
 
             self.assertEqual(["24", "24", "24", "24", "24", "24", "24"], worker_values)
+
+    def test_dry_run_workers_override_rewrites_runtime_config(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-local-recovery-") as tmp:
+            output_root = Path(tmp) / "recovery"
+
+            result = subprocess.run(
+                [
+                    "script/ai/run_local_superhuman_recovery",
+                    "--dry-run",
+                    "--output-root",
+                    str(output_root),
+                    "--workers",
+                    "11",
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            payload = json.loads(result.stdout)
+            runtime_config = json.loads(
+                Path(payload["runtime_config_path"]).read_text(encoding="utf-8")
+            )
+            worker_values = []
+            for step in runtime_config["steps"]:
+                command = step.get("command")
+                if not isinstance(command, list) or "--workers" not in command:
+                    continue
+                worker_values.append(command[command.index("--workers") + 1])
+
+            self.assertEqual(["11", "11", "11", "11", "11", "11", "11"], worker_values)
 
 
 class LocalSuperhumanRecoveryProgressTest(unittest.TestCase):
