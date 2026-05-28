@@ -138,7 +138,9 @@ def steps_by_name(config: dict) -> dict[str, dict]:
     }
 
 
-def command_with_replacements(command: list[str], replacements: dict[str, str]) -> list[str]:
+def command_with_replacements(
+    command: list[str], replacements: dict[str, str]
+) -> list[str]:
     rendered: list[str] = []
     for token in command:
         rendered_token = token
@@ -180,7 +182,9 @@ def search_flags_as_cli(search_options: dict[str, str | bool | float]) -> list[s
     return flags
 
 
-def inject_search_flags(command: list[str], search_options: dict[str, str | bool | float]) -> list[str]:
+def inject_search_flags(
+    command: list[str], search_options: dict[str, str | bool | float]
+) -> list[str]:
     stripped = strip_search_flags(command)
     search_flags = search_flags_as_cli(search_options)
     try:
@@ -226,7 +230,9 @@ def infer_summary_format(args: argparse.Namespace) -> str:
     return "markdown" if Path(args.out).suffix.lower() == ".md" else "json"
 
 
-def base_step_commands(config: dict, *, candidate_path: str, current_path: str) -> dict[str, list[str]]:
+def base_step_commands(
+    config: dict, *, candidate_path: str, current_path: str
+) -> dict[str, list[str]]:
     steps = steps_by_name(config)
     replacements = {
         "{iter_dir}": candidate_path,
@@ -267,7 +273,9 @@ def build_variant_plan(
         arena_command = inject_search_flags(
             list(base_commands[ARENA_STEP_NAME]), spec["search_options"]
         )
-        arena_command = replace_flag_value(arena_command, "--challenger", candidate_path)
+        arena_command = replace_flag_value(
+            arena_command, "--challenger", candidate_path
+        )
         arena_command = replace_flag_value(arena_command, "--current", current_path)
         candidate_mcts_command = inject_search_flags(
             list(base_commands[CANDIDATE_MCTS_STEP_NAME]), spec["search_options"]
@@ -371,16 +379,22 @@ def render_markdown_summary(entries: list[dict], *, config_path: str) -> str:
         "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for entry in entries:
-        arena_score = "TBD" if entry["arena_score"] is None else f"{entry['arena_score']:.4f}"
+        arena_score = (
+            "TBD" if entry["arena_score"] is None else f"{entry['arena_score']:.4f}"
+        )
         mcts_score = (
-            "TBD" if entry["mcts1200_score"] is None else f"{entry['mcts1200_score']:.4f}"
+            "TBD"
+            if entry["mcts1200_score"] is None
+            else f"{entry['mcts1200_score']:.4f}"
         )
         runtime_value = (
             "TBD"
             if entry["runtime_seconds"] is None
             else f"{float(entry['runtime_seconds']):.2f}s"
         )
-        pass_value = "TBD" if entry["pass"] is None else ("pass" if entry["pass"] else "fail")
+        pass_value = (
+            "TBD" if entry["pass"] is None else ("pass" if entry["pass"] else "fail")
+        )
         notes = entry["notes"] or ""
         lines.append(
             "| {label} | {flags} | {arena} | {mcts} | {runtime} | {passed} | {notes} |".format(
@@ -396,7 +410,9 @@ def render_markdown_summary(entries: list[dict], *, config_path: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def write_summary(entries: list[dict], *, out_path: Path, summary_format: str, config_path: str) -> None:
+def write_summary(
+    entries: list[dict], *, out_path: Path, summary_format: str, config_path: str
+) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if summary_format == "markdown":
         out_path.write_text(
@@ -424,7 +440,9 @@ def main(argv: list[str] | None = None) -> int:
         report_dir=report_dir,
     )
     if args.dry_run:
-        entries = [summarize_variant_template(plans[spec["name"]]) for spec in VARIANT_SPECS]
+        entries = [
+            summarize_variant_template(plans[spec["name"]]) for spec in VARIANT_SPECS
+        ]
     else:
         entries = [execute_variant_plan(plans[spec["name"]]) for spec in VARIANT_SPECS]
     write_summary(

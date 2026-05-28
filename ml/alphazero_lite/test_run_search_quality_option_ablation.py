@@ -12,7 +12,9 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         from ml.alphazero_lite import run_search_quality_option_ablation as module
 
         config = module.load_json(module.DEFAULT_CONFIG_PATH)
-        with tempfile.TemporaryDirectory(prefix="azlite-search-quality-option-plan-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-search-quality-option-plan-"
+        ) as tmp:
             plans = module.build_variant_plan(
                 config,
                 candidate_path="/tmp/candidate-artifact",
@@ -23,9 +25,7 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         for spec in module.VARIANT_SPECS:
             plan = plans[spec["name"]]
             self.assertEqual("/tmp/candidate-artifact", plan["candidate_path"])
-            self.assertEqual(
-                "storage/ai/alphazero_lite/current", plan["current_path"]
-            )
+            self.assertEqual("storage/ai/alphazero_lite/current", plan["current_path"])
             self.assertEqual(
                 "/tmp/candidate-artifact",
                 module.command_flag_value(plan["arena_command"], "--challenger"),
@@ -52,15 +52,11 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
             )
             self.assertEqual(
                 "30",
-                module.command_flag_value(
-                    plan["candidate_mcts_command"], "--games"
-                ),
+                module.command_flag_value(plan["candidate_mcts_command"], "--games"),
             )
             self.assertEqual(
                 "42",
-                module.command_flag_value(
-                    plan["candidate_mcts_command"], "--seed"
-                ),
+                module.command_flag_value(plan["candidate_mcts_command"], "--seed"),
             )
             self.assertEqual(
                 "640",
@@ -91,7 +87,9 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         from ml.alphazero_lite import run_search_quality_option_ablation as module
 
         config = module.load_json(module.DEFAULT_CONFIG_PATH)
-        with tempfile.TemporaryDirectory(prefix="azlite-search-quality-option-flags-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-search-quality-option-flags-"
+        ) as tmp:
             plans = module.build_variant_plan(
                 config,
                 candidate_path="/tmp/candidate-artifact",
@@ -100,9 +98,13 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
             )
 
         parent_q_command = plans["parent_q_only"]["arena_command"]
-        self.assertEqual("parent_q", module.command_flag_value(parent_q_command, "--fpu-mode"))
+        self.assertEqual(
+            "parent_q", module.command_flag_value(parent_q_command, "--fpu-mode")
+        )
         self.assertFalse(module.command_has_flag(parent_q_command, "--reuse-subtree"))
-        self.assertFalse(module.command_has_flag(parent_q_command, "--normalize-values"))
+        self.assertFalse(
+            module.command_has_flag(parent_q_command, "--normalize-values")
+        )
         self.assertEqual(
             "deterministic",
             module.command_flag_value(parent_q_command, "--root-policy-mode"),
@@ -113,8 +115,12 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         )
 
         normalize_command = plans["normalize_values_only"]["arena_command"]
-        self.assertEqual("zero", module.command_flag_value(normalize_command, "--fpu-mode"))
-        self.assertTrue(module.command_has_flag(normalize_command, "--normalize-values"))
+        self.assertEqual(
+            "zero", module.command_flag_value(normalize_command, "--fpu-mode")
+        )
+        self.assertTrue(
+            module.command_has_flag(normalize_command, "--normalize-values")
+        )
         self.assertFalse(module.command_has_flag(normalize_command, "--reuse-subtree"))
 
         reuse_command = plans["reuse_subtree_only"]["arena_command"]
@@ -123,18 +129,26 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         self.assertFalse(module.command_has_flag(reuse_command, "--normalize-values"))
 
         tactical_command = plans["tactical_root_bias_only"]["arena_command"]
-        self.assertEqual("zero", module.command_flag_value(tactical_command, "--fpu-mode"))
+        self.assertEqual(
+            "zero", module.command_flag_value(tactical_command, "--fpu-mode")
+        )
         self.assertFalse(module.command_has_flag(tactical_command, "--reuse-subtree"))
-        self.assertFalse(module.command_has_flag(tactical_command, "--normalize-values"))
+        self.assertFalse(
+            module.command_has_flag(tactical_command, "--normalize-values")
+        )
         self.assertEqual(
             "0.1",
             module.command_flag_value(tactical_command, "--tactical-root-bias"),
         )
 
         all_flags_command = plans["all_search_quality_flags"]["arena_command"]
-        self.assertEqual("parent_q", module.command_flag_value(all_flags_command, "--fpu-mode"))
+        self.assertEqual(
+            "parent_q", module.command_flag_value(all_flags_command, "--fpu-mode")
+        )
         self.assertTrue(module.command_has_flag(all_flags_command, "--reuse-subtree"))
-        self.assertTrue(module.command_has_flag(all_flags_command, "--normalize-values"))
+        self.assertTrue(
+            module.command_has_flag(all_flags_command, "--normalize-values")
+        )
 
     def test_render_markdown_summary_lists_all_requested_columns(self):
         from ml.alphazero_lite import run_search_quality_option_ablation as module
@@ -157,13 +171,21 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         )
 
         self.assertIn("# Search-Quality Option Ablation Matrix", markdown)
-        self.assertIn("| Variant | Flags enabled | Arena score | MCTS1200 score | Runtime | Pass/fail | Notes |", markdown)
-        self.assertIn("| parent_q only | --fpu-mode parent_q | TBD | TBD | TBD | TBD |  |", markdown)
+        self.assertIn(
+            "| Variant | Flags enabled | Arena score | MCTS1200 score | Runtime | Pass/fail | Notes |",
+            markdown,
+        )
+        self.assertIn(
+            "| parent_q only | --fpu-mode parent_q | TBD | TBD | TBD | TBD |  |",
+            markdown,
+        )
 
     def test_main_runs_all_variants_against_stub_evaluators(self):
         runner = Path(__file__).with_name("run_search_quality_option_ablation.py")
 
-        with tempfile.TemporaryDirectory(prefix="azlite-search-quality-option-live-") as tmp:
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-search-quality-option-live-"
+        ) as tmp:
             out_path = Path(tmp) / "summary.json"
             report_dir = Path(tmp) / "reports"
             env = os.environ.copy()
