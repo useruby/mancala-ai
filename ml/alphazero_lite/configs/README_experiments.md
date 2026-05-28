@@ -235,3 +235,37 @@ Validate each config before running:
 .venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_temp_long_explore.json
 .venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_temp_deterministic_late.json
 ```
+
+# Hard-State Replay Weight Sweep
+
+`ml/alphazero_lite/run_hard_state_replay_experiment.py` builds one leak-checked hard-state training set with the existing mining and dual-budget teacher-labeling tools, then materializes three runtime variants that differ only in the appended hard-state replay weight.
+
+Fixed variables: the base config controls self-play, train, export, arena, MCTS1200, benchmark, and hard-state validation settings. The wrapper appends only one additional replay source at weights `1`, `2`, and `4`.
+
+Guardrails:
+
+- `--mine-inputs` must not equal or contain the hard-state validation holdout path.
+- The shared train replay dataset is written as `hard_state_train_seed{seed}.jsonl` to keep train and holdout artifacts clearly separated.
+- Do not promote a candidate that improves only the mined set; require arena, MCTS1200, and benchmark support as well.
+
+Example:
+
+```bash
+.venv/bin/python ml/alphazero_lite/run_hard_state_replay_experiment.py \
+  --run-id aggressive-v3-hard-state-replay-w124 \
+  --output-root /tmp/azlite_hard_state_replay \
+  --mine-inputs /tmp/azlite/exploratory/arena_loss_vs_current.json,/tmp/azlite/exploratory/arena_loss_vs_mcts1200.json \
+  --base-config ml/alphazero_lite/configs/aggressive_v3_targeted_hard_state_replay.json
+```
+
+Outputs:
+
+- shared mined set: `{output_root}/{run_id}/inputs/mined_hard_states_train_seed42.jsonl`
+- shared stronger-teacher train set: `{output_root}/{run_id}/inputs/hard_state_train_seed42.jsonl`
+- per-weight runtime configs under `{output_root}/{run_id}/variants/w1`, `w2`, and `w4`
+- report scaffold: `{output_root}/{run_id}/reports/hard_state_replay_experiment_report.json`
+
+Recommended base config: `ml/alphazero_lite/configs/aggressive_v3_targeted_hard_state_replay.json`
+
+- keeps the incumbent hard-state finetune train/eval lane
+- removes unrelated fixed replay so the only replay intervention is the mined hard-state dataset weight
