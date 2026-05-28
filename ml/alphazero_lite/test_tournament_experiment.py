@@ -23,6 +23,8 @@ class TournamentExperimentTest(unittest.TestCase):
         self.assertIn("10", command)
         self.assertIn("--out", command)
         self.assertIn("/tmp/report.json", command)
+        self.assertIn("--workers", command)
+        self.assertEqual("24", command[command.index("--workers") + 1])
         self.assertIn("--root-policy-mode", command)
         self.assertIn("visit_count", command)
         self.assertIn("--tactical-root-bias", command)

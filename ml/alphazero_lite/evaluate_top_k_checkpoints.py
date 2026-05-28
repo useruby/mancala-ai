@@ -14,6 +14,7 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.superhuman_runtime_config import python_executable, repo_root
+from ml.alphazero_lite.worker_config import DEFAULT_WORKERS, normalize_command_workers
 
 
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
@@ -21,7 +22,6 @@ DEFAULT_MODEL_TYPE = "residual_v3"
 DEFAULT_INPUT_ENCODING = "kalah_v3"
 DEFAULT_RULES_VERSION = "kalah_v1"
 DEFAULT_GAMES = 60
-DEFAULT_WORKERS = 6
 DEFAULT_CHALLENGER_SIMULATIONS = 640
 DEFAULT_CURRENT_SIMULATIONS = 256
 DEFAULT_MIN_SCORE = 0.55
@@ -114,7 +114,7 @@ def build_arena_command(
     games: int,
     workers: int,
 ) -> list[str]:
-    return [
+    command = [
         python_bin,
         "ml/alphazero_lite/arena.py",
         "--challenger",
@@ -127,13 +127,12 @@ def build_arena_command(
         str(DEFAULT_CHALLENGER_SIMULATIONS),
         "--current-simulations",
         str(DEFAULT_CURRENT_SIMULATIONS),
-        "--workers",
-        str(workers),
         "--out",
         str(report_path),
         "--min-score",
         str(DEFAULT_MIN_SCORE),
     ]
+    return normalize_command_workers(command, workers=workers)
 
 
 def run_command(command: list[str]) -> None:

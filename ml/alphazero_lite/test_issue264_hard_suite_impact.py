@@ -13,6 +13,115 @@ class Issue264HardSuiteImpactCliTest(unittest.TestCase):
     def _flag_value(self, command, flag):
         return command[command.index(flag) + 1]
 
+    def test_main_uses_shared_default_workers_when_flag_omitted(self):
+        with tempfile.TemporaryDirectory(prefix="issue264-impact-") as tmp:
+            tmp_path = Path(tmp)
+            mined_path = tmp_path / "mined.jsonl"
+            init_checkpoint = tmp_path / "baseline.npz"
+            current_artifact = tmp_path / "current_artifact"
+            out_dir = tmp_path / "out"
+            mined_path.write_text(
+                json.dumps(
+                    {
+                        "canonical_state": "state-a",
+                        "state": {
+                            "player_pits": [4, 4, 4, 4, 4, 4],
+                            "opponent_pits": [4, 4, 4, 4, 4, 4],
+                            "player_store": 0,
+                            "opponent_store": 0,
+                            "current_player": 0,
+                        },
+                        "legal_moves": [0, 1, 2, 3, 4, 5],
+                        "priority_score": 13.5,
+                        "selection_reasons": ["large_value_error"],
+                        "source_artifacts": ["/tmp/mined.jsonl"],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            init_checkpoint.write_bytes(b"baseline")
+            current_artifact.mkdir()
+
+            with mock.patch.object(impact, "run_command") as run_command:
+
+                def side_effect(command, *, cwd):
+                    if command[1].endswith("train.py"):
+                        (out_dir / "challenger.npz").write_bytes(b"challenger")
+                        return "saved checkpoint to challenger.npz\n"
+                    if command[1].endswith("export_artifact.py"):
+                        artifact_dir = out_dir / "challenger_artifact"
+                        artifact_dir.mkdir(parents=True, exist_ok=True)
+                        (artifact_dir / "weights.json").write_text(
+                            "{}", encoding="utf-8"
+                        )
+                        (artifact_dir / "metadata.json").write_text(
+                            "{}", encoding="utf-8"
+                        )
+                        return "exported artifact to challenger_artifact\n"
+                    if command[1].endswith("arena.py"):
+                        arena_report = {
+                            "schema": "arena_v1",
+                            "games_played": 6,
+                            "wins": 4,
+                            "losses": 1,
+                            "draws": 1,
+                            "score": 0.75,
+                            "promotion_decision": {"passed": True},
+                            "hard_suite_buckets": {
+                                "opening": {"games": 2, "score": 0.5},
+                                "midgame": {"games": 2, "score": 1.0},
+                                "late": {"games": 2, "score": None},
+                            },
+                        }
+                        (out_dir / "arena_report.json").write_text(
+                            json.dumps(arena_report), encoding="utf-8"
+                        )
+                        return "wrote arena report to arena_report.json\nscore=0.7500 passed=True\n"
+                    raise AssertionError(command)
+
+                run_command.side_effect = side_effect
+
+                original_cwd = Path.cwd()
+                os.chdir(tmp_path)
+                try:
+                    exit_code = impact.main(
+                        [
+                            "--mined-jsonl",
+                            "mined.jsonl",
+                            "--out-dir",
+                            "out",
+                            "--init-checkpoint",
+                            "baseline.npz",
+                            "--current-artifact",
+                            "current_artifact",
+                            "--top-n",
+                            "1",
+                            "--canonical-budget",
+                            "32",
+                            "--stronger-budget",
+                            "64",
+                            "--epochs",
+                            "1",
+                            "--batch-size",
+                            "8",
+                            "--games",
+                            "6",
+                            "--challenger-simulations",
+                            "32",
+                            "--current-simulations",
+                            "32",
+                            "--min-score",
+                            "0.6",
+                        ]
+                    )
+                finally:
+                    os.chdir(original_cwd)
+
+            self.assertEqual(0, exit_code)
+            arena_command = run_command.call_args_list[2].args[0]
+            self.assertEqual("24", self._flag_value(arena_command, "--workers"))
+
     def test_main_runs_train_export_and_arena_and_writes_combined_report(self):
         with tempfile.TemporaryDirectory(prefix="issue264-impact-") as tmp:
             tmp_path = Path(tmp)

@@ -13,6 +13,8 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
+from ml.alphazero_lite.worker_config import normalize_command_workers
+
 
 DEFAULT_CONFIG_PATH = (
     "ml/alphazero_lite/configs/aggressive_v2_search_quality_local.json"
@@ -338,6 +340,9 @@ def build_variant_plan(
         current_mcts_command[current_mcts_command.index("--out") + 1] = str(
             current_mcts_out
         )
+        arena_command = normalize_command_workers(arena_command)
+        candidate_mcts_command = normalize_command_workers(candidate_mcts_command)
+        current_mcts_command = normalize_command_workers(current_mcts_command)
         plans[spec["name"]] = {
             "name": spec["name"],
             "label": spec["label"],
