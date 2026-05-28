@@ -2589,7 +2589,9 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertEqual(0, validate.returncode, msg=validate.stderr)
             self.assertIn("arena_report_valid", validate.stdout)
 
-    def test_validate_arena_report_strict_ci_mode_fails_when_lower_bound_is_below_threshold(self):
+    def test_validate_arena_report_strict_ci_mode_fails_when_lower_bound_is_below_threshold(
+        self,
+    ):
         python = self.executable_python()
         with tempfile.TemporaryDirectory(prefix="azlite-arena-") as tmp:
             report_path = Path(tmp) / "arena_report.json"

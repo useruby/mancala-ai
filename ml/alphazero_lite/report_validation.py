@@ -17,7 +17,7 @@ def validate_arena_report(
     report: dict[str, Any],
     min_score: float,
     min_confidence_lower_bound: float | None = None,
- ) -> dict[str, Any]:
+) -> dict[str, Any]:
     if report.get("schema") != EXPECTED_ARENA_SCHEMA:
         raise_validation("SCHEMA", f"schema must be {EXPECTED_ARENA_SCHEMA}")
 
@@ -111,7 +111,9 @@ def wilson_interval_95(*, score: float, sample_size: int) -> dict[str, float | s
     }
 
 
-def wilson_interval(*, score: float, sample_size: int, z: float = 1.96) -> dict[str, float]:
+def wilson_interval(
+    *, score: float, sample_size: int, z: float = 1.96
+) -> dict[str, float]:
     if sample_size <= 0:
         return {"lower": 0.0, "upper": 0.0}
 
