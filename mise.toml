@@ -1,2 +1,4 @@
 [tools]
 "github:astral-sh/ruff" = "0.15.13"
+node = "latest"
+npm = "latest"
