@@ -13,6 +13,7 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite import hard_state_teacher_labeling as labeling
+from ml.alphazero_lite.worker_config import DEFAULT_WORKERS
 
 
 def resolve_absolute_path(path: Path) -> Path:
@@ -42,7 +43,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--games", required=True, type=int)
     parser.add_argument("--challenger-simulations", required=True, type=int)
     parser.add_argument("--current-simulations", required=True, type=int)
-    parser.add_argument("--workers", required=True, type=int)
+    parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS)
     parser.add_argument("--min-score", required=True, type=float)
     return parser.parse_args(argv)
 

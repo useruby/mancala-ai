@@ -73,6 +73,17 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
             self.assertEqual("/tmp/candidate-artifact", plan["candidate_path"])
             self.assertEqual("storage/ai/alphazero_lite/current", plan["current_path"])
             self.assertEqual(
+                "24", module.command_flag_value(plan["arena_command"], "--workers")
+            )
+            self.assertEqual(
+                "24",
+                module.command_flag_value(plan["candidate_mcts_command"], "--workers"),
+            )
+            self.assertEqual(
+                "24",
+                module.command_flag_value(plan["current_mcts_command"], "--workers"),
+            )
+            self.assertEqual(
                 "/tmp/candidate-artifact",
                 module.command_flag_value(plan["arena_command"], "--challenger"),
             )

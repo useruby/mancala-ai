@@ -11,6 +11,7 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.tournament_decision import pick_best_topk, summarize_tournament
+from ml.alphazero_lite.worker_config import normalize_command_workers
 
 
 def parse_args() -> argparse.Namespace:
@@ -60,7 +61,7 @@ def mcts_baseline_command(
     mcts_simulations: int,
     out_path: Path,
 ) -> list[str]:
-    return [
+    command = [
         ".venv/bin/python",
         "ml/alphazero_lite/mcts1200_baseline.py",
         "--challenger-path",
@@ -71,8 +72,6 @@ def mcts_baseline_command(
         str(az_base_simulations),
         "--mcts-simulations",
         str(mcts_simulations),
-        "--workers",
-        "6",
         "--root-policy-mode",
         "visit_count",
         "--tactical-root-bias",
@@ -80,6 +79,37 @@ def mcts_baseline_command(
         "--out",
         str(out_path),
     ]
+    return normalize_command_workers(command)
+
+
+def arena_confirm_command(
+    *,
+    winner_dir: str,
+    confirm_games: int,
+    challenger_sims: int,
+    current_sims: int,
+    arena_path: Path,
+    min_arena_score: float,
+) -> list[str]:
+    command = [
+        ".venv/bin/python",
+        "ml/alphazero_lite/arena.py",
+        "--challenger",
+        winner_dir,
+        "--current",
+        "model-artifact/current",
+        "--games",
+        str(confirm_games),
+        "--challenger-simulations",
+        str(challenger_sims),
+        "--current-simulations",
+        str(current_sims),
+        "--out",
+        str(arena_path),
+        "--min-score",
+        str(min_arena_score),
+    ]
+    return normalize_command_workers(command)
 
 
 def main() -> None:
@@ -181,26 +211,14 @@ def main() -> None:
 
         arena_path = out_dir / f"seed-{seed}-arena-confirm.json"
         run(
-            [
-                ".venv/bin/python",
-                "ml/alphazero_lite/arena.py",
-                "--challenger",
-                winner_dir,
-                "--current",
-                "model-artifact/current",
-                "--games",
-                str(args.confirm_games),
-                "--challenger-simulations",
-                str(args.challenger_sims),
-                "--current-simulations",
-                str(args.current_sims),
-                "--workers",
-                "6",
-                "--out",
-                str(arena_path),
-                "--min-score",
-                str(args.min_arena_score),
-            ]
+            arena_confirm_command(
+                winner_dir=winner_dir,
+                confirm_games=args.confirm_games,
+                challenger_sims=args.challenger_sims,
+                current_sims=args.current_sims,
+                arena_path=arena_path,
+                min_arena_score=args.min_arena_score,
+            )
         )
         arena_score = parse_arena_score(arena_path)
 
