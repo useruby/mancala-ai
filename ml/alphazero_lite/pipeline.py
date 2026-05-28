@@ -28,6 +28,7 @@ from ml.alphazero_lite.report_validation import (
 )
 from ml.alphazero_lite.run_manifest import build_manifest, write_manifest
 from ml.alphazero_lite.self_play import normalize_value_trust_schedule
+from ml.alphazero_lite.worker_config import normalize_command_workers
 
 
 def parse_args() -> argparse.Namespace:
@@ -173,7 +174,8 @@ def build_step_command(step: dict) -> list[str] | object:
     command = step.get("command", [])
     if not isinstance(command, list) or not command:
         return command
-    return append_step_search_option_flags(step, command)
+    command = append_step_search_option_flags(step, command)
+    return normalize_command_workers(command)
 
 
 def has_explicit_value_trust_flag(command: list[str]) -> bool:

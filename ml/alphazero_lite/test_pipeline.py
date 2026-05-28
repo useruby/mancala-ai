@@ -1015,8 +1015,69 @@ class PipelineScriptTest(unittest.TestCase):
         ):
             build_step_command(step)
 
+    def test_build_step_command_appends_default_workers_for_supported_tool(self):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--workers",
+                "24",
+            ],
+            build_step_command(step),
+        )
+
+    def test_build_step_command_rewrites_existing_workers_to_shared_default(self):
+        step = {
+            "name": "arena_confirm_report",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/arena.py",
+                "--games",
+                "120",
+                "--workers",
+                "6",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/arena.py",
+                "--games",
+                "120",
+                "--workers",
+                "24",
+            ],
+            build_step_command(step),
+        )
+
+    def test_build_step_command_leaves_unsupported_command_unchanged(self):
+        command = [sys.executable, "ml/alphazero_lite/train.py", "--epochs", "2"]
+        step = {"name": "train", "command": command}
+
+        self.assertEqual(command, build_step_command(step))
+
     def test_build_step_command_leaves_command_unchanged_when_schedule_is_absent(self):
-        command = [sys.executable, "ml/alphazero_lite/self_play.py", "--games", "100"]
+        command = [
+            sys.executable,
+            "ml/alphazero_lite/self_play.py",
+            "--games",
+            "100",
+            "--workers",
+            "24",
+        ]
         step = {
             "name": "self_play",
             "command": command,
@@ -5512,7 +5573,7 @@ class PipelineScriptTest(unittest.TestCase):
             ("arena_confirm_report", "arena_report.json", "120"),
         ):
             rendered = render_command(
-                steps[step_name],
+                build_step_command({"name": step_name, "command": steps[step_name]}),
                 iteration=1,
                 iter_dir=iter_dir,
                 run_id="aggressive-v1",
@@ -5540,7 +5601,8 @@ class PipelineScriptTest(unittest.TestCase):
             self.assertEqual(".venv/bin/python", rendered[0])
             self.assertEqual("ml/alphazero_lite/arena.py", rendered[1])
             self.assertIn("--workers", rendered)
-            self.assertIn("6", rendered)
+            self.assertIn("24", rendered)
+            self.assertNotIn("6", rendered)
             self.assertIn("--games", rendered)
             self.assertIn(games, rendered)
             self.assertIn("--out", rendered)
@@ -5649,7 +5711,12 @@ class PipelineScriptTest(unittest.TestCase):
         iter_dir = repo_root / "tmp" / "aggressive-v1-iter1"
 
         rendered = render_command(
-            steps["mcts1200_baseline_report"],
+            build_step_command(
+                {
+                    "name": "mcts1200_baseline_report",
+                    "command": steps["mcts1200_baseline_report"],
+                }
+            ),
             iteration=1,
             iter_dir=iter_dir,
             run_id="aggressive-v1",
