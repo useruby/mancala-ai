@@ -91,4 +91,6 @@ class EvaluateTopKCheckpointsTest(unittest.TestCase):
         self.assertIn("ml/alphazero_lite/arena.py", first["arena_command"])
         self.assertIn("--challenger-simulations", first["arena_command"])
         self.assertIn("640", first["arena_command"])
-        self.assertFalse((iter_dir / "top_k_exports" / "checkpoint" / "metadata.json").exists())
+        self.assertFalse(
+            (iter_dir / "top_k_exports" / "checkpoint" / "metadata.json").exists()
+        )
