@@ -1,136 +1,185 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env python3
+from __future__ import annotations
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
-CURRENT_PATH="storage/ai/alphazero_lite/current"
-HARD_PATH="storage/ai/alphazero_lite/current"
-DRY_RUN=0
+import argparse
+import subprocess
+from pathlib import Path
 
-usage() {
-  cat <<'EOF'
-Usage: script/ai/run_alpha_zero_post_merge_batch [--dry-run]
 
-Runs the first post-merge AlphaZero-lite training batch in the fixed order
-documented in ml/alphazero_lite/configs/README_post_merge_runs.md.
+CURRENT_PATH = "storage/ai/alphazero_lite/current"
+HARD_PATH = "storage/ai/alphazero_lite/current"
 
---dry-run  Print validation, pipeline, top-k, and promotion-gate commands
-           without running them.
-EOF
-}
+RUNS = [
+    {
+        "run_id": "aggressive-v3-clone-extend",
+        "config": "ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase1.json",
+        "iter_dir": "/tmp/azlite_v3_clone_extend_versions/aggressive-v3-clone-extend-iter1",
+    },
+    {
+        "run_id": "exp-v3-replay-bootstrap-w1",
+        "config": "ml/alphazero_lite/configs/exp_v3_replay_bootstrap_w1.json",
+        "iter_dir": "/tmp/azlite_exp_v3_replay_bootstrap_w1_versions/exp-v3-replay-bootstrap-w1-iter1",
+    },
+    {
+        "run_id": "exp-v3-replay-bootstrap-w2",
+        "config": "ml/alphazero_lite/configs/exp_v3_replay_bootstrap_w2.json",
+        "iter_dir": "/tmp/azlite_exp_v3_replay_bootstrap_w2_versions/exp-v3-replay-bootstrap-w2-iter1",
+    },
+    {
+        "run_id": "exp-v3-replay-bootstrap-w8",
+        "config": "ml/alphazero_lite/configs/exp_v3_replay_bootstrap_w8.json",
+        "iter_dir": "/tmp/azlite_exp_v3_replay_bootstrap_w8_versions/exp-v3-replay-bootstrap-w8-iter1",
+    },
+    {
+        "run_id": "exp-v3-selfplay-sims384",
+        "config": "ml/alphazero_lite/configs/exp_v3_selfplay_sims384.json",
+        "iter_dir": "/tmp/azlite_exp_v3_selfplay_sims384_versions/exp-v3-selfplay-sims384-iter1",
+    },
+    {
+        "run_id": "exp-v3-value-w060",
+        "config": "ml/alphazero_lite/configs/exp_v3_value_w060.json",
+        "iter_dir": "/tmp/azlite_exp_v3_value_w060_versions/exp-v3-value-w060-iter1",
+    },
+    {
+        "run_id": "exp-v3-temp-sharp-late",
+        "config": "ml/alphazero_lite/configs/exp_v3_temp_sharp_late.json",
+        "iter_dir": "/tmp/azlite_exp_v3_temp_sharp_late_versions/exp-v3-temp-sharp-late-iter1",
+    },
+]
 
-print_header() {
-  printf '\n== %s ==\n' "$1"
-}
 
-print_command() {
-  local quoted=()
-  local arg
-  for arg in "$@"; do
-    quoted+=("$(printf '%q' "$arg")")
-  done
-  printf '%s\n' "${quoted[*]}"
-}
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the first post-merge AlphaZero-lite experiment batch."
+    )
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args()
 
-run_or_print() {
-  if [[ "$DRY_RUN" -eq 1 ]]; then
-    print_command "$@"
-  else
-    print_command "$@"
-    "$@"
-  fi
-}
 
-require_file() {
-  local path="$1"
-  if [[ ! -e "$path" ]]; then
-    printf 'missing required path: %s\n' "$path" >&2
-    exit 1
-  fi
-}
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
 
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run)
-      DRY_RUN=1
-      ;;
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    *)
-      printf 'unknown argument: %s\n' "$arg" >&2
-      usage >&2
-      exit 1
-      ;;
-  esac
-done
 
-require_file "$PYTHON_BIN"
-if [[ "$DRY_RUN" -eq 0 ]]; then
-  require_file "$ROOT_DIR/$CURRENT_PATH"
-  require_file "$ROOT_DIR/$HARD_PATH"
-fi
+def python_bin(root: Path) -> Path:
+    return root / ".venv/bin/python"
 
-CONFIGS=(
-  "aggressive-v3-clone-extend|ml/alphazero_lite/configs/aggressive_v3_clone_extend_phase1.json|/tmp/azlite_v3_clone_extend_versions/aggressive-v3-clone-extend-iter1"
-  "exp-v3-replay-bootstrap-w1|ml/alphazero_lite/configs/exp_v3_replay_bootstrap_w1.json|/tmp/azlite_exp_v3_replay_bootstrap_w1_versions/exp-v3-replay-bootstrap-w1-iter1"
-  "exp-v3-replay-bootstrap-w2|ml/alphazero_lite/configs/exp_v3_replay_bootstrap_w2.json|/tmp/azlite_exp_v3_replay_bootstrap_w2_versions/exp-v3-replay-bootstrap-w2-iter1"
-  "exp-v3-replay-bootstrap-w8|ml/alphazero_lite/configs/exp_v3_replay_bootstrap_w8.json|/tmp/azlite_exp_v3_replay_bootstrap_w8_versions/exp-v3-replay-bootstrap-w8-iter1"
-  "exp-v3-selfplay-sims384|ml/alphazero_lite/configs/exp_v3_selfplay_sims384.json|/tmp/azlite_exp_v3_selfplay_sims384_versions/exp-v3-selfplay-sims384-iter1"
-  "exp-v3-value-w060|ml/alphazero_lite/configs/exp_v3_value_w060.json|/tmp/azlite_exp_v3_value_w060_versions/exp-v3-value-w060-iter1"
-  "exp-v3-temp-sharp-late|ml/alphazero_lite/configs/exp_v3_temp_sharp_late.json|/tmp/azlite_exp_v3_temp_sharp_late_versions/exp-v3-temp-sharp-late-iter1"
-)
 
-print_header "Post-Merge AlphaZero-lite Batch"
-printf 'Current path: %s\n' "$CURRENT_PATH"
-printf 'Hard path: %s\n' "$HARD_PATH"
-if [[ "$DRY_RUN" -eq 1 ]]; then
-  printf 'Mode: dry-run\n'
-else
-  printf 'Mode: execute\n'
-fi
+def print_header(title: str) -> None:
+    print(f"\n== {title} ==")
 
-for entry in "${CONFIGS[@]}"; do
-  IFS='|' read -r run_id config_path iter_dir <<< "$entry"
-  print_header "$run_id"
 
-  printf 'Validate config\n'
-  run_or_print "$PYTHON_BIN" -m json.tool "$config_path"
+def print_command(command: list[str]) -> None:
+    print(subprocess.list2cmdline(command))
 
-  printf 'Run pipeline\n'
-  run_or_print "$PYTHON_BIN" ml/alphazero_lite/pipeline.py --config "$config_path"
 
-  printf 'Top-k evaluation command\n'
-  print_command \
-    "$PYTHON_BIN" ml/alphazero_lite/evaluate_top_k_checkpoints.py \
-    --iter-dir "$iter_dir" \
-    --current-path "$CURRENT_PATH" \
-    --games 60
+def run_or_print(command: list[str], *, dry_run: bool, root: Path) -> None:
+    print_command(command)
+    if dry_run:
+        return
+    subprocess.run(command, cwd=root, check=True)
 
-  printf 'Local promotion gate example after choosing the strongest top-k export\n'
-  print_command \
-    script/ai/local_promotion_gate \
-    --candidate-path "$iter_dir/top_k_exports/checkpoint_or_checkpoint.topN" \
-    --current-path "$CURRENT_PATH" \
-    --hard-path "$HARD_PATH" \
-    --config-path "$config_path" \
-    --out "/tmp/azlite/$run_id-local-promotion.json"
-done
 
-print_header "Final Confirmation Reminder"
-print_command \
-  script/ai/local_promotion_gate \
-  --candidate-path /path/to/top_k_exports/checkpoint_or_checkpoint.topN \
-  --current-path "$CURRENT_PATH" \
-  --hard-path "$HARD_PATH" \
-  --config-path ml/alphazero_lite/configs/THE_WINNING_CONFIG.json \
-  --arena-games 240 \
-  --mcts-games 80 \
-  --out /tmp/azlite/THE_WINNING_RUN-confirm-promotion.json
-print_command \
-  "$PYTHON_BIN" ml/alphazero_lite/validate_arena_report.py \
-  --report /path/to/gate-arena-report.json \
-  --min-score 0.55 \
-  --require-pass \
-  --require-ci-above-threshold
+def require_path(path: Path) -> None:
+    if not path.exists():
+        raise SystemExit(f"missing required path: {path}")
+
+
+def main() -> None:
+    args = parse_args()
+    root = repo_root()
+    python = python_bin(root)
+    require_path(python)
+
+    if not args.dry_run:
+        require_path(root / CURRENT_PATH)
+        require_path(root / HARD_PATH)
+
+    print_header("Post-Merge AlphaZero-lite Batch")
+    print(f"Current path: {CURRENT_PATH}")
+    print(f"Hard path: {HARD_PATH}")
+    print(f"Mode: {'dry-run' if args.dry_run else 'execute'}")
+
+    for run in RUNS:
+        print_header(run["run_id"])
+
+        print("Validate config")
+        run_or_print(
+            [str(python), "-m", "json.tool", run["config"]],
+            dry_run=args.dry_run,
+            root=root,
+        )
+
+        print("Run pipeline")
+        run_or_print(
+            [str(python), "ml/alphazero_lite/pipeline.py", "--config", run["config"]],
+            dry_run=args.dry_run,
+            root=root,
+        )
+
+        print("Top-k evaluation command")
+        print_command(
+            [
+                str(python),
+                "ml/alphazero_lite/evaluate_top_k_checkpoints.py",
+                "--iter-dir",
+                run["iter_dir"],
+                "--current-path",
+                CURRENT_PATH,
+                "--games",
+                "60",
+            ]
+        )
+
+        print("Local promotion gate example after choosing the strongest top-k export")
+        print_command(
+            [
+                "script/ai/local_promotion_gate",
+                "--candidate-path",
+                f"{run['iter_dir']}/top_k_exports/checkpoint_or_checkpoint.topN",
+                "--current-path",
+                CURRENT_PATH,
+                "--hard-path",
+                HARD_PATH,
+                "--config-path",
+                run["config"],
+                "--out",
+                f"/tmp/azlite/{run['run_id']}-local-promotion.json",
+            ]
+        )
+
+    print_header("Final Confirmation Reminder")
+    print_command(
+        [
+            "script/ai/local_promotion_gate",
+            "--candidate-path",
+            "/path/to/top_k_exports/checkpoint_or_checkpoint.topN",
+            "--current-path",
+            CURRENT_PATH,
+            "--hard-path",
+            HARD_PATH,
+            "--config-path",
+            "ml/alphazero_lite/configs/THE_WINNING_CONFIG.json",
+            "--arena-games",
+            "240",
+            "--mcts-games",
+            "80",
+            "--out",
+            "/tmp/azlite/THE_WINNING_RUN-confirm-promotion.json",
+        ]
+    )
+    print_command(
+        [
+            str(python),
+            "ml/alphazero_lite/validate_arena_report.py",
+            "--report",
+            "/path/to/gate-arena-report.json",
+            "--min-score",
+            "0.55",
+            "--require-pass",
+            "--require-ci-above-threshold",
+        ]
+    )
+
+
+if __name__ == "__main__":
+    main()
