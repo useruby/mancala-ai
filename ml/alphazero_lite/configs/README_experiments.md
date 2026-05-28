@@ -113,3 +113,65 @@ Validate each config before running:
 .venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_selfplay_sims384.json
 .venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_selfplay_sims768_small.json
 ```
+
+# Value-Loss-Weight Ablation
+
+Hypothesis: the current `--value-loss-weight 0.3` in the v3 `residual_v3` lane may underweight or overweight value learning.
+
+Changed variable: the `train` step `--value-loss-weight` only.
+
+- `exp_v3_value_w015.json`: `0.15`
+- `exp_v3_value_w060.json`: `0.6`
+- `exp_v3_value_w100.json`: `1.0`
+
+Expected failure mode: lower training loss without stronger play is not enough.
+
+Track these metrics across runs:
+
+- `arena_report` score
+- `mcts1200_report` score
+- `value_loss`
+- `best_val_loss`
+- hard-state reports, if available in the evaluation flow
+
+Decision rule: keep a variant only if game strength improves, not merely `value_loss`.
+
+Run each config with `pipeline.py`:
+
+```bash
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_value_w015.json
+
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_value_w060.json
+
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_value_w100.json
+```
+
+Run `local_promotion_gate` on each produced candidate:
+
+```bash
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_value_w015_versions/exp-v3-value-w015-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_value_w015.json \
+  --out /tmp/azlite/exp-v3-value-w015-local-promotion.json
+
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_value_w060_versions/exp-v3-value-w060-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_value_w060.json \
+  --out /tmp/azlite/exp-v3-value-w060-local-promotion.json
+
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_value_w100_versions/exp-v3-value-w100-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_value_w100.json \
+  --out /tmp/azlite/exp-v3-value-w100-local-promotion.json
+```
+
+Validate each config before running:
+
+```bash
+.venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_value_w015.json
+.venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_value_w060.json
+.venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_value_w100.json
+```
