@@ -12,49 +12,57 @@ import statistics
 import time
 from pathlib import Path
 
-import numpy as np
+ARENA_STUB_MODE = os.environ.get("AZLITE_ARENA_STUB") == "1"
 
 try:
-    from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
-    from ml.alphazero_lite.kalah_rules import KalahGame
-    from ml.alphazero_lite.opening_cache import (
-        load_opening_cache,
-        state_qualifies_for_opening_cache,
-    )
-    from ml.alphazero_lite.search_ablation import build_mode_config, neutral_value
-    from ml.alphazero_lite.self_play import (
-        ClassicMCTS,
-        PUCT,
-        DEFAULT_EVAL_SEARCH_OPTIONS,
-        DEFAULT_SEARCH_OPTIONS,
-        add_search_option_args,
-        build_eval_search_options,
-        build_search_profile,
-        build_search_options,
-        encode_state,
-        search_options_from_args,
-        value_from_classic_mcts_root,
-        visits_from_classic_mcts_root,
-    )
+    from ml.alphazero_lite.report_validation import wilson_interval_95
 except ModuleNotFoundError:
-    from input_encodings import DEFAULT_INPUT_ENCODING
-    from kalah_rules import KalahGame
-    from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
-    from search_ablation import build_mode_config, neutral_value
-    from self_play import (
-        ClassicMCTS,
-        PUCT,
-        DEFAULT_EVAL_SEARCH_OPTIONS,
-        DEFAULT_SEARCH_OPTIONS,
-        add_search_option_args,
-        build_eval_search_options,
-        build_search_profile,
-        build_search_options,
-        encode_state,
-        search_options_from_args,
-        value_from_classic_mcts_root,
-        visits_from_classic_mcts_root,
-    )
+    from report_validation import wilson_interval_95
+
+if not ARENA_STUB_MODE:
+    import numpy as np
+
+    try:
+        from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
+        from ml.alphazero_lite.kalah_rules import KalahGame
+        from ml.alphazero_lite.opening_cache import (
+            load_opening_cache,
+            state_qualifies_for_opening_cache,
+        )
+        from ml.alphazero_lite.search_ablation import build_mode_config, neutral_value
+        from ml.alphazero_lite.self_play import (
+            ClassicMCTS,
+            PUCT,
+            DEFAULT_EVAL_SEARCH_OPTIONS,
+            DEFAULT_SEARCH_OPTIONS,
+            add_search_option_args,
+            build_eval_search_options,
+            build_search_profile,
+            build_search_options,
+            encode_state,
+            search_options_from_args,
+            value_from_classic_mcts_root,
+            visits_from_classic_mcts_root,
+        )
+    except ModuleNotFoundError:
+        from input_encodings import DEFAULT_INPUT_ENCODING
+        from kalah_rules import KalahGame
+        from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
+        from search_ablation import build_mode_config, neutral_value
+        from self_play import (
+            ClassicMCTS,
+            PUCT,
+            DEFAULT_EVAL_SEARCH_OPTIONS,
+            DEFAULT_SEARCH_OPTIONS,
+            add_search_option_args,
+            build_eval_search_options,
+            build_search_profile,
+            build_search_options,
+            encode_state,
+            search_options_from_args,
+            value_from_classic_mcts_root,
+            visits_from_classic_mcts_root,
+        )
 
 
 EARLY_DEFAULT_SEARCH_OPTIONS = {
@@ -70,6 +78,10 @@ EARLY_DEFAULT_EVAL_SEARCH_OPTIONS = {
     "tactical_root_bias": 0.1,
 }
 EARLY_SUPPORTED_ROOT_POLICY_MODES = ("deterministic", "visit_count")
+
+if ARENA_STUB_MODE:
+    DEFAULT_SEARCH_OPTIONS = EARLY_DEFAULT_SEARCH_OPTIONS
+    DEFAULT_EVAL_SEARCH_OPTIONS = EARLY_DEFAULT_EVAL_SEARCH_OPTIONS
 
 
 def add_early_search_option_args(parser: argparse.ArgumentParser) -> None:
@@ -186,6 +198,20 @@ def build_stub_search_profile(
     }
 
 
+def attach_score_confidence_interval(report: dict, *, threshold: float) -> None:
+    games = int(report["games_played"])
+    score = float(report["score"])
+    report["games"] = games
+    report["confidence_interval_95"] = wilson_interval_95(
+        score=score, sample_size=games
+    )
+    report["threshold"] = float(threshold)
+    report["threshold_margin"] = score - float(threshold)
+    lower = float(report["confidence_interval_95"]["lower"])
+    upper = float(report["confidence_interval_95"]["upper"])
+    report["unstable_decision"] = lower <= float(threshold) <= upper
+
+
 def run_stub_main(argv: list[str] | None = None) -> int:
     args = parse_stub_args(argv)
     out_path = Path(args.out)
@@ -234,6 +260,7 @@ def run_stub_main(argv: list[str] | None = None) -> int:
         },
         "opening_cache_summary": stub_opening_cache_summary(training_summary),
     }
+    attach_score_confidence_interval(report, threshold=float(args.min_score))
     value_trust_summary = stub_value_trust_summary(search_options)
     if value_trust_summary is not None:
         report["value_trust_summary"] = value_trust_summary
@@ -869,6 +896,7 @@ def aggregate_worker_reports(
         report["value_trust_summary"] = emitted_value_trust_summary
     attach_budget_summary(report)
     report["score"] = score
+    attach_score_confidence_interval(report, threshold=float(min_score))
     return report
 
 
@@ -1221,6 +1249,7 @@ def main() -> None:
             },
             "hard_suite_buckets": hard_suite_buckets,
         }
+        attach_score_confidence_interval(report, threshold=float(args.min_score))
         if "value_trust_schedule" in search_options:
             report["value_trust_summary"] = {
                 "enabled": bool(search_options["value_trust_schedule"]["enabled"]),
@@ -1315,4 +1344,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if ARENA_STUB_MODE:
+        raise SystemExit(run_stub_main())
     main()

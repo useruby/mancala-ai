@@ -421,16 +421,24 @@ def build_promotion_checks_from_reports(
     mcts_score = (mcts_wins + (0.5 * mcts_draws)) / mcts_games
     mcts_passed = mcts_score >= float(min_mcts_score)
 
-    arena_check: dict[str, int | float | bool | str] = {
+    arena_check: dict[str, object] = {
         "id": "promotion_arena",
         "description": "Candidate versus current arena gate",
         "passed": check_passed,
+        "games": games_played,
         "score": round(score, 4),
         "games_played": games_played,
         "wins": wins,
         "losses": losses,
         "draws": draws,
         "declared_passed": declared,
+        "confidence_interval_95": {
+            "lower": round(float(arena_result["confidence_interval_95"]["lower"]), 4),
+            "upper": round(float(arena_result["confidence_interval_95"]["upper"]), 4),
+        },
+        "threshold": round(float(arena_result["threshold"]), 4),
+        "threshold_margin": round(float(arena_result["threshold_margin"]), 4),
+        "unstable_decision": bool(arena_result["unstable_decision"]),
         "min_score": float(min_score),
     }
     if min_confidence_lower_bound is not None:

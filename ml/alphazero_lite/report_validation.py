@@ -17,7 +17,7 @@ def validate_arena_report(
     report: dict[str, Any],
     min_score: float,
     min_confidence_lower_bound: float | None = None,
-) -> dict[str, float | int | bool | None]:
+ ) -> dict[str, Any]:
     if report.get("schema") != EXPECTED_ARENA_SCHEMA:
         raise_validation("SCHEMA", f"schema must be {EXPECTED_ARENA_SCHEMA}")
 
@@ -35,11 +35,13 @@ def validate_arena_report(
 
     score = (wins + (draws * 0.5)) / games_played
     score_passed = score >= float(min_score)
-    confidence_lower_bound = wilson_lower_bound(score=score, sample_size=games_played)
+    confidence_interval = wilson_interval_95(score=score, sample_size=games_played)
+    confidence_lower_bound = confidence_interval["lower"]
     confidence_passed = True
     if min_confidence_lower_bound is not None:
         confidence_passed = confidence_lower_bound >= float(min_confidence_lower_bound)
     passed = score_passed and confidence_passed
+    threshold = float(min_score)
 
     decision = report.get("promotion_decision")
     if not isinstance(decision, dict):
@@ -60,6 +62,13 @@ def validate_arena_report(
         "score_passed": score_passed,
         "confidence_passed": confidence_passed,
         "confidence_lower_bound": confidence_lower_bound,
+        "confidence_upper_bound": confidence_interval["upper"],
+        "confidence_interval_95": confidence_interval,
+        "threshold": threshold,
+        "threshold_margin": score - threshold,
+        "unstable_decision": (
+            confidence_lower_bound <= threshold <= confidence_interval["upper"]
+        ),
         "min_score": float(min_score),
         "min_confidence_lower_bound": (
             float(min_confidence_lower_bound)
@@ -89,8 +98,22 @@ def raise_validation(suffix: str, message: str) -> None:
 
 
 def wilson_lower_bound(*, score: float, sample_size: int, z: float = 1.96) -> float:
+    return wilson_interval(score=score, sample_size=sample_size, z=z)["lower"]
+
+
+def wilson_interval_95(*, score: float, sample_size: int) -> dict[str, float | str]:
+    interval = wilson_interval(score=score, sample_size=sample_size, z=1.96)
+    return {
+        "lower": interval["lower"],
+        "upper": interval["upper"],
+        "method": "wilson_score",
+        "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+    }
+
+
+def wilson_interval(*, score: float, sample_size: int, z: float = 1.96) -> dict[str, float]:
     if sample_size <= 0:
-        return 0.0
+        return {"lower": 0.0, "upper": 0.0}
 
     denominator = 1.0 + ((z**2) / sample_size)
     center = score + ((z**2) / (2.0 * sample_size))
@@ -99,4 +122,7 @@ def wilson_lower_bound(*, score: float, sample_size: int, z: float = 1.96) -> fl
         * (((score * (1.0 - score)) + ((z**2) / (4.0 * sample_size))) / sample_size)
         ** 0.5
     )
-    return max(0.0, (center - margin) / denominator)
+    return {
+        "lower": max(0.0, (center - margin) / denominator),
+        "upper": min(1.0, (center + margin) / denominator),
+    }

@@ -21,6 +21,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report", required=True)
     parser.add_argument("--min-score", type=float, default=0.55)
     parser.add_argument("--require-pass", action="store_true")
+    parser.add_argument("--require-ci-above-threshold", action="store_true")
     return parser.parse_args()
 
 
@@ -29,7 +30,13 @@ def main() -> None:
     report_path = Path(args.report)
     report = json.loads(report_path.read_text(encoding="utf-8"))
     try:
-        result = validate_arena_report(report=report, min_score=args.min_score)
+        result = validate_arena_report(
+            report=report,
+            min_score=args.min_score,
+            min_confidence_lower_bound=(
+                args.min_score if args.require_ci_above_threshold else None
+            ),
+        )
     except ArenaReportValidationError as error:
         raise SystemExit(str(error)) from error
 
