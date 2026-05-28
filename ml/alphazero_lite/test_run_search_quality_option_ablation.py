@@ -5,9 +5,50 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 class SearchQualityOptionAblationTest(unittest.TestCase):
+    def test_derive_candidate_path_uses_final_iteration_directory(self):
+        from ml.alphazero_lite import run_search_quality_option_ablation as module
+
+        candidate_path = module.derive_candidate_path(
+            {
+                "run_id": "aggressive-v2-search-quality-local",
+                "start_iteration": 2,
+                "iterations": 3,
+                "versions_dir": "/tmp/azlite_v2_search_quality_local_versions",
+            }
+        )
+
+        self.assertEqual(
+            "/tmp/azlite_v2_search_quality_local_versions/aggressive-v2-search-quality-local-iter4",
+            candidate_path,
+        )
+
+    def test_resolve_step_command_falls_back_to_sys_executable_without_repo_venv(self):
+        from ml.alphazero_lite import run_search_quality_option_ablation as module
+
+        command = [
+            ".venv/bin/python",
+            "ml/alphazero_lite/arena.py",
+            "--out",
+            "/tmp/report.json",
+        ]
+
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-search-quality-option-root-"
+        ) as tmp:
+            resolved_repo_root = Path(tmp) / "repo"
+            resolved_repo_root.mkdir()
+
+            resolved = module.resolve_step_command(
+                command, resolved_repo_root=resolved_repo_root
+            )
+
+        self.assertEqual(sys.executable, resolved[0])
+        self.assertEqual(command[1:], resolved[1:])
+
     def test_build_variant_plan_keeps_baseline_eval_budgets_and_paths(self):
         from ml.alphazero_lite import run_search_quality_option_ablation as module
 
@@ -15,12 +56,17 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(
             prefix="azlite-search-quality-option-plan-"
         ) as tmp:
-            plans = module.build_variant_plan(
-                config,
-                candidate_path="/tmp/candidate-artifact",
-                current_path="storage/ai/alphazero_lite/current",
-                report_dir=Path(tmp),
-            )
+            with mock.patch.object(
+                module,
+                "resolve_step_command",
+                side_effect=lambda command, resolved_repo_root: command,
+            ):
+                plans = module.build_variant_plan(
+                    config,
+                    candidate_path="/tmp/candidate-artifact",
+                    current_path="storage/ai/alphazero_lite/current",
+                    report_dir=Path(tmp),
+                )
 
         for spec in module.VARIANT_SPECS:
             plan = plans[spec["name"]]
@@ -90,12 +136,17 @@ class SearchQualityOptionAblationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(
             prefix="azlite-search-quality-option-flags-"
         ) as tmp:
-            plans = module.build_variant_plan(
-                config,
-                candidate_path="/tmp/candidate-artifact",
-                current_path="storage/ai/alphazero_lite/current",
-                report_dir=Path(tmp),
-            )
+            with mock.patch.object(
+                module,
+                "resolve_step_command",
+                side_effect=lambda command, resolved_repo_root: command,
+            ):
+                plans = module.build_variant_plan(
+                    config,
+                    candidate_path="/tmp/candidate-artifact",
+                    current_path="storage/ai/alphazero_lite/current",
+                    report_dir=Path(tmp),
+                )
 
         parent_q_command = plans["parent_q_only"]["arena_command"]
         self.assertEqual(

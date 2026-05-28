@@ -130,6 +130,10 @@ def load_json(path: str | Path) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
 def steps_by_name(config: dict) -> dict[str, dict]:
     return {
         str(step["name"]): step
@@ -218,8 +222,30 @@ def replace_flag_value(command: list[str], flag: str, value: str) -> list[str]:
     return updated
 
 
+def resolve_step_command(command: list[str], *, resolved_repo_root: Path) -> list[str]:
+    if not command:
+        return command
+
+    executable = command[0]
+    if executable != ".venv/bin/python":
+        return command
+
+    local_venv = resolved_repo_root / executable
+    if local_venv.exists():
+        return command
+
+    for ancestor in resolved_repo_root.parents:
+        candidate = ancestor / executable
+        if candidate.exists():
+            return [str(candidate), *command[1:]]
+
+    return [sys.executable, *command[1:]]
+
+
 def derive_candidate_path(config: dict) -> str:
-    iteration = int(config.get("start_iteration", 1))
+    start_iteration = int(config.get("start_iteration", 1))
+    total_iterations = int(config.get("iterations", 1))
+    iteration = start_iteration + total_iterations - 1
     versions_dir = Path(str(config["versions_dir"]))
     return str(versions_dir / f"{config['run_id']}-iter{iteration}")
 
@@ -233,25 +259,38 @@ def infer_summary_format(args: argparse.Namespace) -> str:
 def base_step_commands(
     config: dict, *, candidate_path: str, current_path: str
 ) -> dict[str, list[str]]:
+    resolved_repo_root = repo_root()
     steps = steps_by_name(config)
+    iteration = (
+        int(config.get("start_iteration", 1)) + int(config.get("iterations", 1)) - 1
+    )
     replacements = {
         "{iter_dir}": candidate_path,
         "{current_path}": current_path,
         "{parent_checkpoint}": str(Path(candidate_path) / "checkpoint.npz"),
-        "{iteration}": "1",
+        "{iteration}": str(iteration),
         "{run_id}": str(config["run_id"]),
         "{replay_data}": "",
         "{replay_weights}": "",
     }
     return {
-        ARENA_STEP_NAME: command_with_replacements(
-            list(steps[ARENA_STEP_NAME]["command"]), replacements
+        ARENA_STEP_NAME: resolve_step_command(
+            command_with_replacements(
+                list(steps[ARENA_STEP_NAME]["command"]), replacements
+            ),
+            resolved_repo_root=resolved_repo_root,
         ),
-        CANDIDATE_MCTS_STEP_NAME: command_with_replacements(
-            list(steps[CANDIDATE_MCTS_STEP_NAME]["command"]), replacements
+        CANDIDATE_MCTS_STEP_NAME: resolve_step_command(
+            command_with_replacements(
+                list(steps[CANDIDATE_MCTS_STEP_NAME]["command"]), replacements
+            ),
+            resolved_repo_root=resolved_repo_root,
         ),
-        CURRENT_MCTS_STEP_NAME: command_with_replacements(
-            list(steps[CURRENT_MCTS_STEP_NAME]["command"]), replacements
+        CURRENT_MCTS_STEP_NAME: resolve_step_command(
+            command_with_replacements(
+                list(steps[CURRENT_MCTS_STEP_NAME]["command"]), replacements
+            ),
+            resolved_repo_root=resolved_repo_root,
         ),
     }
 
