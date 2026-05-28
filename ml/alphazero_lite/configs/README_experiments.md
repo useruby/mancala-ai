@@ -175,3 +175,63 @@ Validate each config before running:
 .venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_value_w060.json
 .venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_value_w100.json
 ```
+
+# Self-Play Temperature Schedule Ablation
+
+Hypothesis: changing only the self-play temperature schedule in the AlphaZero-lite v3 clone/extend phase-1 lane will show whether the lane benefits more from longer opening exploration, a sharper late collapse, or nearly deterministic late play.
+
+Changed variables: the `self_play` step `--temperature`, `--temperature-late`, and `--temperature-threshold` only.
+
+- `exp_v3_temp_sharp_late.json`: `--temperature 1.0`, `--temperature-late 0.05`, `--temperature-threshold 10`
+- `exp_v3_temp_long_explore.json`: `--temperature 1.1`, `--temperature-late 0.15`, `--temperature-threshold 18`
+- `exp_v3_temp_deterministic_late.json`: `--temperature 1.0`, `--temperature-late 0.01`, `--temperature-threshold 8`
+
+Keep games, simulations, model type, target modes, replay weights, seed sweep, and evaluation unchanged.
+
+Run each config with `pipeline.py`:
+
+```bash
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_temp_sharp_late.json
+
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_temp_long_explore.json
+
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_temp_deterministic_late.json
+```
+
+Run `local_promotion_gate` on each produced candidate:
+
+```bash
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_temp_sharp_late_versions/exp-v3-temp-sharp-late-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_temp_sharp_late.json \
+  --out /tmp/azlite/exp-v3-temp-sharp-late-local-promotion.json
+
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_temp_long_explore_versions/exp-v3-temp-long-explore-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_temp_long_explore.json \
+  --out /tmp/azlite/exp-v3-temp-long-explore-local-promotion.json
+
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_temp_deterministic_late_versions/exp-v3-temp-deterministic-late-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_temp_deterministic_late.json \
+  --out /tmp/azlite/exp-v3-temp-deterministic-late-local-promotion.json
+```
+
+Compare these outputs across runs:
+
+- `arena_report`
+- `mcts1200_report`
+- average game length, if already logged
+- policy entropy, if available in self-play outputs
+- hard/tactical failure reports, if available
+
+Validate each config before running:
+
+```bash
+.venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_temp_sharp_late.json
+.venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_temp_long_explore.json
+.venv/bin/python -m json.tool ml/alphazero_lite/configs/exp_v3_temp_deterministic_late.json
+```
