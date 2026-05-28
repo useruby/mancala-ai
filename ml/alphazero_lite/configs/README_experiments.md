@@ -136,6 +136,38 @@ Track these metrics across runs:
 
 Decision rule: keep a variant only if game strength improves, not merely `value_loss`.
 
+Run each config with `pipeline.py`:
+
+```bash
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_value_w015.json
+
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_value_w060.json
+
+.venv/bin/python ml/alphazero_lite/pipeline.py \
+  --config ml/alphazero_lite/configs/exp_v3_value_w100.json
+```
+
+Run `local_promotion_gate` on each produced candidate:
+
+```bash
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_value_w015_versions/exp-v3-value-w015-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_value_w015.json \
+  --out /tmp/azlite/exp-v3-value-w015-local-promotion.json
+
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_value_w060_versions/exp-v3-value-w060-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_value_w060.json \
+  --out /tmp/azlite/exp-v3-value-w060-local-promotion.json
+
+script/ai/local_promotion_gate \
+  --candidate-path /tmp/azlite_exp_v3_value_w100_versions/exp-v3-value-w100-iter1 \
+  --config-path ml/alphazero_lite/configs/exp_v3_value_w100.json \
+  --out /tmp/azlite/exp-v3-value-w100-local-promotion.json
+```
+
 Validate each config before running:
 
 ```bash
