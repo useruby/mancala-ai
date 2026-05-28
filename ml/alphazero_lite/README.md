@@ -70,6 +70,17 @@ cp storage/ai/alphazero_lite/versions/azlite-local-001/metadata.json model-artif
 
 `arena_report.json` is not written by `export_artifact.py`. Copy or promote that report only after `script/ai/local_promotion_gate` or another local evaluation flow produces it.
 
+If you train with `--save-top-k 3`, treat validation loss as a checkpoint triage signal only. Lower held-out loss does not reliably mean stronger play, so promotion decisions should come from arena strength instead.
+
+After any iteration directory that saved `checkpoint.npz` plus `checkpoint.top*.npz`, screen all saved candidates like this:
+
+```bash
+.venv/bin/python ml/alphazero_lite/evaluate_top_k_checkpoints.py \
+  --iter-dir /tmp/azlite_v3_clone_extend_versions/aggressive-v3-clone-extend-iter1
+```
+
+That writes `top_k_evaluation_summary.json`, exports each saved checkpoint under `{iter_dir}/top_k_exports/`, and runs each one against `storage/ai/alphazero_lite/current` with the usual v3 lane arena budget. Keep the strongest arena candidate for normal screening, reject the rest, and only promote after that chosen artifact still passes `script/ai/local_promotion_gate`.
+
 ## Output contract
 
 The export script writes:
