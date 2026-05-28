@@ -47,9 +47,9 @@
         "--input-encoding",
         "kalah_v3",
         "--policy-target-mode",
-        "sharpened",
+        "default",
         "--value-target-mode",
-        "sharpened"
+        "default"
       ]
     },
     {
@@ -103,9 +103,9 @@
         "--save-top-k",
         "3",
         "--policy-target-mode",
-        "sharpened",
+        "default",
         "--value-target-mode",
-        "sharpened"
+        "default"
       ]
     },
     {
