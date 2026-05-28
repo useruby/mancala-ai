@@ -50,7 +50,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--top-n", type=int, default=64)
     parser.add_argument("--canonical-budget", type=int, default=384)
     parser.add_argument("--stronger-budget", type=int, default=1200)
-    parser.add_argument("--variant-weights", default=",".join(str(v) for v in DEFAULT_VARIANT_WEIGHTS))
+    parser.add_argument(
+        "--variant-weights", default=",".join(str(v) for v in DEFAULT_VARIANT_WEIGHTS)
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args(argv)
@@ -78,7 +80,9 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
 
 
 def parse_csv_paths(root: Path, value: str) -> list[Path]:
-    return [resolve_path(root, item.strip()) for item in value.split(",") if item.strip()]
+    return [
+        resolve_path(root, item.strip()) for item in value.split(",") if item.strip()
+    ]
 
 
 def parse_variant_weights(value: str) -> list[int]:
@@ -128,7 +132,9 @@ def ensure_no_validation_leakage(
             )
 
 
-def derived_paths(root: Path, run_id: str, output_root: str, seed: int) -> dict[str, Path]:
+def derived_paths(
+    root: Path, run_id: str, output_root: str, seed: int
+) -> dict[str, Path]:
     base_dir = resolve_path(root, output_root) / run_id
     inputs_dir = base_dir / "inputs"
     reports_dir = base_dir / "reports"
@@ -143,7 +149,8 @@ def derived_paths(root: Path, run_id: str, output_root: str, seed: int) -> dict[
         / f"mined_hard_states_train_seed{seed}_report.json",
         "dual_budget_labels": inputs_dir / f"hard_state_labels_seed{seed}.jsonl",
         "stronger_train": inputs_dir / f"hard_state_train_seed{seed}.jsonl",
-        "label_comparison": reports_dir / f"hard_state_label_comparison_seed{seed}.json",
+        "label_comparison": reports_dir
+        / f"hard_state_label_comparison_seed{seed}.json",
         "report_template": reports_dir / "hard_state_replay_experiment_report.json",
         "manifest": base_dir / "manifest.json",
     }
@@ -217,7 +224,9 @@ def candidate_dir_for_config(config: dict) -> Path:
     start_iteration = int(config.get("start_iteration", 1))
     iterations = int(config.get("iterations", 1))
     final_iteration = start_iteration + iterations - 1
-    return Path(str(config["versions_dir"])) / f"{config['run_id']}-iter{final_iteration}"
+    return (
+        Path(str(config["versions_dir"])) / f"{config['run_id']}-iter{final_iteration}"
+    )
 
 
 def build_runtime_config(
@@ -247,7 +256,9 @@ def build_runtime_config(
     return config, runtime_config_path
 
 
-def variant_report_stub(*, weight: int, runtime_config_path: Path, config: dict) -> dict[str, object]:
+def variant_report_stub(
+    *, weight: int, runtime_config_path: Path, config: dict
+) -> dict[str, object]:
     candidate_dir = candidate_dir_for_config(config)
     return {
         "hard_state_weight": weight,
@@ -368,7 +379,9 @@ def main(argv: list[str] | None = None) -> int:
     comparison: dict[str, object] | None = None
     shared_dataset_summary: dict[str, object] | None = None
     if not args.dry_run:
-        stronger_rows, comparison = stronger_rows_from_dual_budget(paths["dual_budget_labels"])
+        stronger_rows, comparison = stronger_rows_from_dual_budget(
+            paths["dual_budget_labels"]
+        )
         write_jsonl(paths["stronger_train"], stronger_rows)
         write_json(paths["label_comparison"], comparison)
         shared_dataset_summary = dataset_summary(
