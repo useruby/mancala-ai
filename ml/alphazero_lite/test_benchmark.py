@@ -1464,8 +1464,13 @@ class BenchmarkScriptTest(unittest.TestCase):
             report = json.loads(out_path.read_text(encoding="utf-8"))
             arena_check = report["checks"][0]
             self.assertEqual("promotion_arena", arena_check["id"])
+            self.assertEqual(60, arena_check["games"])
             self.assertIn("confidence_lower_bound", arena_check)
             self.assertIn("confidence_passed", arena_check)
+            self.assertIn("confidence_interval_95", arena_check)
+            self.assertIn("threshold", arena_check)
+            self.assertIn("threshold_margin", arena_check)
+            self.assertIn("unstable_decision", arena_check)
             self.assertIn("min_confidence_lower_bound", arena_check)
             self.assertEqual(0.45, arena_check["min_confidence_lower_bound"])
 

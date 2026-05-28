@@ -2331,6 +2331,39 @@ class ArenaScriptTest(unittest.TestCase):
             report["hard_suite_buckets"],
         )
 
+    def test_aggregate_worker_reports_includes_confidence_interval_fields(self):
+        report = arena.aggregate_worker_reports(
+            games=4,
+            min_score=0.55,
+            challenger_path=Path("challenger"),
+            current_path=Path("current"),
+            challenger_simulations=32,
+            current_simulations=16,
+            seed=42,
+            workers=1,
+            search_options=arena.build_eval_search_options(),
+            results=[
+                {
+                    "wins": 2,
+                    "losses": 1,
+                    "draws": 1,
+                    "move_durations_ms": [10.0, 12.0],
+                    "search_profile": {"hash": "abc"},
+                    "search_profile_hash": "abc",
+                    "hard_suite_buckets": arena.empty_hard_suite_buckets(),
+                }
+            ],
+        )
+
+        self.assertEqual(4, report["games"])
+        self.assertEqual(0.625, report["score"])
+        self.assertEqual(0.55, report["threshold"])
+        self.assertAlmostEqual(0.075, report["threshold_margin"])
+        self.assertIn("confidence_interval_95", report)
+        self.assertIn("lower", report["confidence_interval_95"])
+        self.assertIn("upper", report["confidence_interval_95"])
+        self.assertIsInstance(report["unstable_decision"], bool)
+
     def test_aggregate_worker_reports_emits_opening_cache_summary_from_runtime_metrics(
         self,
     ):
@@ -2555,6 +2588,46 @@ class ArenaScriptTest(unittest.TestCase):
             )
             self.assertEqual(0, validate.returncode, msg=validate.stderr)
             self.assertIn("arena_report_valid", validate.stdout)
+
+    def test_validate_arena_report_strict_ci_mode_fails_when_lower_bound_is_below_threshold(
+        self,
+    ):
+        python = self.executable_python()
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-") as tmp:
+            report_path = Path(tmp) / "arena_report.json"
+            report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 4,
+                        "wins": 3,
+                        "losses": 1,
+                        "draws": 0,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            validate = subprocess.run(
+                [
+                    python,
+                    "ml/alphazero_lite/validate_arena_report.py",
+                    "--report",
+                    str(report_path),
+                    "--min-score",
+                    "0.55",
+                    "--require-pass",
+                    "--require-ci-above-threshold",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(1, validate.returncode)
+            self.assertIn("arena_prefilter_failed", validate.stderr)
 
     def test_cli_records_multi_worker_distribution_when_workers_requested(self):
         python = self.executable_python()
