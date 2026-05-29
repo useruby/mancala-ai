@@ -78,7 +78,9 @@ class SuperhumanRuntimeConfigTest(unittest.TestCase):
 
         self.assertEqual(
             "11",
-            updated["steps"][0]["command"][updated["steps"][0]["command"].index("--workers") + 1],
+            updated["steps"][0]["command"][
+                updated["steps"][0]["command"].index("--workers") + 1
+            ],
         )
         self.assertEqual(
             "200000",
