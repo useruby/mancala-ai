@@ -249,10 +249,6 @@ def _variant_outcome(
         projection_summary=projection_summary,
         out_path=projected_trace_capture_path,
     )
-    write_json(projected_trace_capture_path, projected_trace_capture)
-    projected_trace_capture["artifact_write_summary"]["trace_capture_sha256"] = (
-        capture_002_trace_capture.sha256_file(projected_trace_capture_path)
-    )
 
     regenerated_shared_drift = None
     regenerated_shared_drift_path = (
@@ -300,6 +296,10 @@ def _variant_outcome(
             "regenerated_shared_drift_skip_reason"
         ] = "pair_projected_trace_not_downstream_ready"
 
+    write_json(projected_trace_capture_path, projected_trace_capture)
+    projected_trace_capture["artifact_write_summary"]["trace_capture_sha256"] = (
+        capture_002_trace_capture.sha256_file(projected_trace_capture_path)
+    )
     write_json(projected_trace_capture_path, projected_trace_capture)
 
     default_decision = None if default_trace is None else default_trace.get("decision")
@@ -382,18 +382,33 @@ def _variant_outcome(
 
 
 def _top_level_classification(variants: list[dict]) -> tuple[str, str, str]:
-    relieved = [variant for variant in variants if variant["pressure_relieved"]]
+    downstream_valid_variants = [
+        variant
+        for variant in variants
+        if isinstance(variant.get("default_trace"), dict)
+        and isinstance(variant.get("relaxed_trace"), dict)
+    ]
+    relieved = [
+        variant for variant in downstream_valid_variants if variant["pressure_relieved"]
+    ]
     if relieved:
         labels = ", ".join(variant["variant"] for variant in relieved)
         return (
             "selection_pressure_variant_sensitive",
             "write_002_search_pressure_variant_followup_spec",
-            f"Selection-score pressure is relieved by at least one search variant: {labels}.",
+            "Selection-score pressure is relieved by at least one downstream-valid "
+            f"search variant: {labels}.",
+        )
+    if not downstream_valid_variants:
+        return (
+            "selection_pressure_review_prerequisite_blocked",
+            "stop_002_selection_pressure_ablation_inconclusive",
+            "No downstream-valid variant produced paired traces suitable for pressure review.",
         )
     return (
         "selection_pressure_persists",
         "stop_002_selection_pressure_ablation_inconclusive",
-        "Selection-score pressure persists across the tested search variants.",
+        "Selection-score pressure persists across the downstream-valid tested search variants.",
     )
 
 

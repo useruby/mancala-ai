@@ -18,6 +18,7 @@ SOURCE_CLASSIFICATION_DECISIONS = {
 CLASSIFICATION_DECISIONS = {
     "stable_non_residual_selection_advantage": "write_002_non_residual_mechanism_review_spec",
     "search_option_sensitive": "write_002_search_pressure_variant_followup_spec",
+    "mixed_downstream_valid_outcome": "stop_002_non_residual_mechanism_review_inconclusive",
     "review_prerequisite_blocked": "stop_002_non_residual_mechanism_review_inconclusive",
 }
 PRESSURE_DECISION = "write_002_selection_pressure_ablation_spec"
@@ -99,14 +100,14 @@ def build_payload(
 ) -> dict:
     artifact = _validated_artifact(selection_pressure_ablation_artifact)
     variants = artifact["variants"]
-    relieved_variants = [
-        variant for variant in variants if variant["pressure_relieved"]
-    ]
     downstream_valid_variants = [
         variant
         for variant in variants
         if isinstance(variant.get("default_trace"), dict)
         and isinstance(variant.get("relaxed_trace"), dict)
+    ]
+    relieved_variants = [
+        variant for variant in downstream_valid_variants if variant["pressure_relieved"]
     ]
     persistent_variants = [
         variant
@@ -117,16 +118,28 @@ def build_payload(
 
     if relieved_variants:
         classification_name = "search_option_sensitive"
-        evidence_summary = "At least one tested search variant relieved the early selection-score lead."
-    elif persistent_variants:
+        evidence_summary = (
+            "At least one downstream-valid tested search variant relieved the early "
+            "selection-score lead."
+        )
+    elif not downstream_valid_variants:
+        classification_name = "review_prerequisite_blocked"
+        evidence_summary = (
+            "No downstream-valid variant remained available for a non-residual "
+            "mechanism review."
+        )
+    elif len(persistent_variants) == len(downstream_valid_variants):
         classification_name = "stable_non_residual_selection_advantage"
         evidence_summary = (
             "Every downstream-valid tested variant preserved the early selection-score lead;"
             " the observed mechanism is not explained by the tested search-pressure settings."
         )
     else:
-        classification_name = "review_prerequisite_blocked"
-        evidence_summary = "No downstream-valid variant remained available for a non-residual mechanism review."
+        classification_name = "mixed_downstream_valid_outcome"
+        evidence_summary = (
+            "Downstream-valid tested variants did not agree on a single non-residual "
+            "mechanism outcome."
+        )
 
     return {
         "schema": SCHEMA,

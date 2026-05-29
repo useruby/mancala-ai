@@ -12,6 +12,7 @@
 - Top-level result:
   - classification: `selection_pressure_persists`
   - decision: `stop_002_selection_pressure_ablation_inconclusive`
+  - evidence scope: downstream-valid tested variants only
 
 ## Variants Tested
 
@@ -24,9 +25,18 @@
 
 ## Key Results
 
-- Every tested variant still classified as:
+- `6` variants were tested total.
+- `4` variants produced downstream-valid paired traces:
+  - `baseline_full`
+  - `full_fpu_zero`
+  - `full_root_visit_count`
+  - `full_quality_off`
+- Those `4` downstream-valid variants all still classified as:
   - `selection_score_pressure_confirmed`
   - decision: `write_002_selection_pressure_ablation_spec`
+- `2` variants did not produce downstream-valid traces:
+  - `value_only`
+  - `policy_only`
 - Baseline harmonized trace:
   - first selection-score overtake at simulation `1`
   - first material visit-share support at simulation `2`
@@ -39,6 +49,6 @@
 
 ## Interpretation
 
-- The pair-harmonized `capture_002` signal is not explained away by disabling the main search-pressure knobs tested here.
-- This suggests the selected-move advantage is robust under these search-option ablations and is not just a fragile artifact of one deterministic search setting bundle.
+- The pair-harmonized `capture_002` signal is not explained away by the tested search-pressure knobs among the variants that stayed downstream-valid.
+- This suggests the selected-move advantage is robust under that downstream-valid subset of search-option ablations and is not just a fragile artifact of one deterministic search setting bundle.
 - The branch therefore stops as inconclusive for search-pressure relief rather than yielding a clean pressure-sensitive mechanism split.

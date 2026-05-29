@@ -274,10 +274,6 @@ def main(argv: list[str] | None = None) -> int:
         projection_summary=projection_summary,
         out_path=projected_trace_capture_path,
     )
-    write_json(projected_trace_capture_path, projected_trace_capture_artifact)
-    projected_trace_capture_artifact["artifact_write_summary"][
-        "trace_capture_sha256"
-    ] = capture_002_trace_capture.sha256_file(projected_trace_capture_path)
 
     regenerated_shared_drift_path = (
         out_root / "capture_002_trace_pair_projected_shared_drift.json"
@@ -306,6 +302,10 @@ def main(argv: list[str] | None = None) -> int:
             "regenerated_shared_drift_skip_reason"
         ] = "pair_projected_trace_not_downstream_ready"
 
+    write_json(projected_trace_capture_path, projected_trace_capture_artifact)
+    projected_trace_capture_artifact["artifact_write_summary"][
+        "trace_capture_sha256"
+    ] = capture_002_trace_capture.sha256_file(projected_trace_capture_path)
     write_json(projected_trace_capture_path, projected_trace_capture_artifact)
 
     paths = {
