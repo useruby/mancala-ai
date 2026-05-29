@@ -237,8 +237,6 @@ def main(argv: list[str] | None = None) -> int:
             if indexed[(row_id, transform_name, 1200)]["selected_move"] == 2:
                 failures.append("002@1200_revert_2")
         if row_id == "capture_available-003":
-            baseline_384 = indexed[(row_id, FOLLOWUP_TRANSFORM_NAMES[0], 384)]
-            del baseline_384
             if indexed[(row_id, transform_name, 384)]["selected_move"] != 1:
                 failures.append("003@384_fail")
             if indexed[(row_id, transform_name, 1200)]["selected_move"] != 1:

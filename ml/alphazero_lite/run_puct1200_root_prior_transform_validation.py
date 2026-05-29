@@ -133,7 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     summary = {
         "schema": SCHEMA,
         "artifact_path": str(artifact_path),
-        "validation_path": str(validation_path),
+        "validation_path": str(args.validation_path),
         "root_prior_transform": str(args.root_prior_transform),
         "validation_report_path": str(validation_report_path),
         "summary_path": str(summary_path),

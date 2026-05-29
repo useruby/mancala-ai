@@ -5,7 +5,7 @@
 This run validates the narrow root-prior transform on the broader forensic hard-state suite using direct artifact PUCT search at 1200 simulations.
 
 - artifact: `/tmp/azlite_rule_conditioned_opening_full_guarded/rule-conditioned-opening-full-guarded/w2/versions/aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1`
-- validation path: `/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json`
+- validation path: `ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json`
 - root prior transform: `seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5`
 - validation report: `/tmp/azlite_puct1200_root_prior_transform_validation/hard_state_validation_puct1200.json`
 
