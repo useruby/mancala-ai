@@ -9603,6 +9603,10 @@ class PipelineScriptTest(unittest.TestCase):
         self.assertTrue(generated_config_path.exists())
 
         generated_config = json.loads(generated_config_path.read_text(encoding="utf-8"))
+        gates = generated_config["gates"]
+        self.assertNotIn("rules_parity_report", gates)
+        self.assertIn("perspective_audit_report", gates)
+        self.assertIn("max_runtime_parity_delta", gates)
         step_names = [step["name"] for step in generated_config["steps"]]
         self.assertNotIn("arena_prefilter_ruby_sweep", step_names)
         self.assertNotIn("mcts1200_baseline_report", step_names)
@@ -9656,6 +9660,12 @@ class PipelineScriptTest(unittest.TestCase):
 
         stage1_config = json.loads(stage1_config_path.read_text(encoding="utf-8"))
         stage2_config = json.loads(stage2_config_path.read_text(encoding="utf-8"))
+        self.assertNotIn("rules_parity_report", stage1_config["gates"])
+        self.assertIn("perspective_audit_report", stage1_config["gates"])
+        self.assertIn("max_runtime_parity_delta", stage1_config["gates"])
+        self.assertNotIn("rules_parity_report", stage2_config["gates"])
+        self.assertIn("perspective_audit_report", stage2_config["gates"])
+        self.assertIn("max_runtime_parity_delta", stage2_config["gates"])
 
         stage1_train = next(
             step["command"]
