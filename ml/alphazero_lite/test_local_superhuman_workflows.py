@@ -49,6 +49,11 @@ class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
             runtime_config = json.loads(
                 Path(payload["runtime_config_path"]).read_text(encoding="utf-8")
             )
+            self_play_command = next(
+                step["command"]
+                for step in runtime_config["steps"]
+                if step.get("name") == "self_play"
+            )
             worker_values = []
             for step in runtime_config["steps"]:
                 command = step.get("command")
@@ -56,7 +61,16 @@ class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
                     continue
                 worker_values.append(command[command.index("--workers") + 1])
 
+            self.assertEqual(
+                "high_memory_local", runtime_config.get("memory_speed_profile")
+            )
             self.assertEqual(["24", "24", "24", "24", "24", "24", "24"], worker_values)
+            self.assertEqual(
+                "200000",
+                self_play_command[
+                    self_play_command.index("--evaluator-cache-size") + 1
+                ],
+            )
 
     def test_dry_run_workers_override_rewrites_runtime_config(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -84,6 +98,11 @@ class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
             runtime_config = json.loads(
                 Path(payload["runtime_config_path"]).read_text(encoding="utf-8")
             )
+            self_play_command = next(
+                step["command"]
+                for step in runtime_config["steps"]
+                if step.get("name") == "self_play"
+            )
             worker_values = []
             for step in runtime_config["steps"]:
                 command = step.get("command")
@@ -92,6 +111,12 @@ class RunLocalSuperhumanRecoveryTest(unittest.TestCase):
                 worker_values.append(command[command.index("--workers") + 1])
 
             self.assertEqual(["11", "11", "11", "11", "11", "11", "11"], worker_values)
+            self.assertEqual(
+                "200000",
+                self_play_command[
+                    self_play_command.index("--evaluator-cache-size") + 1
+                ],
+            )
 
 
 class LocalSuperhumanRecoveryProgressTest(unittest.TestCase):

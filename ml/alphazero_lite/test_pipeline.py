@@ -12,6 +12,7 @@ from unittest import mock
 
 from ml.alphazero_lite.pipeline import (
     build_step_command,
+    build_planned_step_result,
     environment_report,
     load_config,
     render_command,
@@ -313,30 +314,53 @@ class PipelineScriptTest(unittest.TestCase):
             ):
                 with self.subTest(config=path.name, step=step["name"]):
                     config_path = str(path)
+                    memory_speed_profile = config.get("memory_speed_profile")
+                    effective_command = build_step_command(
+                        step,
+                        memory_speed_profile=memory_speed_profile,
+                    )
 
-                    if "--checkpoint" in command:
+                    if "--checkpoint" in effective_command:
                         found_checkpoint_self_play = True
                         self.assertIn(
                             "--evaluator-cache-size",
-                            command,
-                            msg=f"{config_path}: checkpoint self_play step must set --evaluator-cache-size",
+                            effective_command,
+                            msg=(
+                                f"{config_path}: checkpoint self_play step must render "
+                                "--evaluator-cache-size"
+                            ),
                         )
-                        cache_size_index = command.index("--evaluator-cache-size")
+                        cache_size_index = effective_command.index(
+                            "--evaluator-cache-size"
+                        )
                         self.assertLess(
                             cache_size_index + 1,
-                            len(command),
-                            msg=f"{config_path}: checkpoint self_play step sets --evaluator-cache-size without a value",
+                            len(effective_command),
+                            msg=(
+                                f"{config_path}: checkpoint self_play step renders "
+                                "--evaluator-cache-size without a value"
+                            ),
                         )
                         self.assertEqual(
-                            "50000",
-                            command[cache_size_index + 1],
-                            msg=f"{config_path}: checkpoint self_play step must set --evaluator-cache-size 50000",
+                            (
+                                "200000"
+                                if memory_speed_profile == "high_memory_local"
+                                else "50000"
+                            ),
+                            effective_command[cache_size_index + 1],
+                            msg=(
+                                f"{config_path}: checkpoint self_play step must render "
+                                "the expected --evaluator-cache-size for its profile"
+                            ),
                         )
                     else:
                         self.assertNotIn(
                             "--evaluator-cache-size",
-                            command,
-                            msg=f"{config_path}: non-checkpoint self_play step must not set --evaluator-cache-size",
+                            effective_command,
+                            msg=(
+                                f"{config_path}: non-checkpoint self_play step must not render "
+                                "--evaluator-cache-size"
+                            ),
                         )
 
         self.assertTrue(
@@ -355,14 +379,18 @@ class PipelineScriptTest(unittest.TestCase):
             ):
                 with self.subTest(config=path.name, step=step["name"]):
                     config_path = str(path)
+                    effective_command = build_step_command(
+                        step,
+                        memory_speed_profile=config.get("memory_speed_profile"),
+                    )
                     has_hybrid_teacher_mode = any(
                         flag == "--position-selection-mode"
                         and value == "hybrid_teacher"
-                        for flag, value in zip(command, command[1:])
+                        for flag, value in zip(effective_command, effective_command[1:])
                     )
                     teacher_mode = (
-                        self.command_flag_value(command, "--teacher-mode")
-                        if "--teacher-mode" in command
+                        self.command_flag_value(effective_command, "--teacher-mode")
+                        if "--teacher-mode" in effective_command
                         else "puct"
                     )
                     has_hybrid_teacher_puct_semantics = (
@@ -373,7 +401,7 @@ class PipelineScriptTest(unittest.TestCase):
                         found_hybrid_teacher_puct_bootstrap = True
                         self.assertIn(
                             "--teacher-search-reuse",
-                            command,
+                            effective_command,
                             msg=(
                                 f"{config_path}: hybrid_teacher bootstrap step with effective "
                                 "teacher-mode puct must set --teacher-search-reuse"
@@ -382,7 +410,7 @@ class PipelineScriptTest(unittest.TestCase):
                     else:
                         self.assertNotIn(
                             "--teacher-search-reuse",
-                            command,
+                            effective_command,
                             msg=(
                                 f"{config_path}: bootstrap step without effective hybrid_teacher + puct semantics "
                                 "must not set --teacher-search-reuse"
@@ -959,6 +987,22 @@ class PipelineScriptTest(unittest.TestCase):
             "1.15", self.command_flag_value(rendered_self_play, "--value-trust-late")
         )
 
+    def test_superhuman_phase2_profile_renders_memory_speed_flags(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        config = load_config(
+            repo_root / "ml/alphazero_lite/configs/aggressive_v3_superhuman_phase2.json"
+        )
+        self_play = build_step_command(
+            self.config_steps_by_name(config)["self_play"],
+            memory_speed_profile=config.get("memory_speed_profile"),
+        )
+
+        self.assertEqual("high_memory_local", config.get("memory_speed_profile"))
+        self.assertEqual(
+            "200000",
+            self.command_flag_value(self_play, "--evaluator-cache-size"),
+        )
+
     def command_flag_value(self, command: list[str], flag: str) -> str:
         return command[command.index(flag) + 1]
 
@@ -1062,6 +1106,288 @@ class PipelineScriptTest(unittest.TestCase):
             ],
             build_step_command(step),
         )
+
+    def test_build_step_command_applies_memory_speed_profile_to_checkpoint_self_play(
+        self,
+    ):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--checkpoint",
+                "parent.npz",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--checkpoint",
+                "parent.npz",
+                "--workers",
+                "24",
+                "--evaluator-cache-size",
+                "200000",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_build_step_command_does_not_add_cache_for_non_checkpoint_self_play(
+        self,
+    ):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--workers",
+                "24",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_build_step_command_applies_memory_speed_profile_to_hybrid_teacher_bootstrap(
+        self,
+    ):
+        step = {
+            "name": "mcts_bootstrap_dataset",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--games",
+                "32",
+                "--position-selection-mode",
+                "hybrid_teacher",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--games",
+                "32",
+                "--position-selection-mode",
+                "hybrid_teacher",
+                "--workers",
+                "24",
+                "--teacher-search-reuse",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_build_step_command_leaves_explicit_bootstrap_teacher_reuse_intact(
+        self,
+    ):
+        command = [
+            sys.executable,
+            "ml/alphazero_lite/generate_bootstrap_dataset.py",
+            "--games",
+            "32",
+            "--position-selection-mode",
+            "hybrid_teacher",
+            "--teacher-search-reuse",
+        ]
+        step = {"name": "mcts_bootstrap_dataset", "command": command}
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--games",
+                "32",
+                "--position-selection-mode",
+                "hybrid_teacher",
+                "--teacher-search-reuse",
+                "--workers",
+                "24",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_build_step_command_does_not_add_teacher_search_reuse_for_non_puct_bootstrap(
+        self,
+    ):
+        step = {
+            "name": "mcts_bootstrap_dataset",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--games",
+                "32",
+                "--position-selection-mode",
+                "hybrid_teacher",
+                "--teacher-mode",
+                "classic_mcts",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--games",
+                "32",
+                "--position-selection-mode",
+                "hybrid_teacher",
+                "--teacher-mode",
+                "classic_mcts",
+                "--workers",
+                "24",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_build_step_command_rejects_unknown_memory_speed_profile(self):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--checkpoint",
+                "parent.npz",
+            ],
+        }
+
+        with self.assertRaisesRegex(
+            ValueError, "unsupported memory_speed_profile: high-memory-local"
+        ):
+            build_step_command(step, memory_speed_profile="high-memory-local")
+
+    def test_build_step_command_supports_equals_form_memory_profile_flags(self):
+        step = {
+            "name": "mcts_bootstrap_dataset",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--games",
+                "32",
+                "--position-selection-mode=hybrid_teacher",
+                "--teacher-mode=puct",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--games",
+                "32",
+                "--position-selection-mode=hybrid_teacher",
+                "--teacher-mode=puct",
+                "--workers",
+                "24",
+                "--teacher-search-reuse",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_build_step_command_rewrites_equals_form_checkpoint_cache_flag(self):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--checkpoint=parent.npz",
+                "--evaluator-cache-size=50000",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--checkpoint=parent.npz",
+                "--evaluator-cache-size=200000",
+                "--workers",
+                "24",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_build_step_command_normalizes_equals_form_worker_override_to_shared_default(
+        self,
+    ):
+        step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--checkpoint=parent.npz",
+                "--workers=8",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--games",
+                "100",
+                "--checkpoint=parent.npz",
+                "--workers=24",
+                "--evaluator-cache-size",
+                "200000",
+            ],
+            build_step_command(step, memory_speed_profile="high_memory_local"),
+        )
+
+    def test_pipeline_main_rejects_unknown_memory_speed_profile(self):
+        from ml.alphazero_lite import pipeline
+
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="pipeline-invalid-profile-") as tmp:
+            config_path = Path(tmp) / "config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "invalid-profile",
+                        "versions_dir": str(Path(tmp) / "versions"),
+                        "memory_speed_profile": "high-memory-local",
+                        "iterations": 1,
+                        "steps": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            argv = [
+                str((repo_root / "ml/alphazero_lite/pipeline.py").resolve()),
+                "--config",
+                str(config_path),
+            ]
+
+            with mock.patch.object(sys, "argv", argv):
+                with self.assertRaisesRegex(
+                    SystemExit, "unsupported memory_speed_profile: high-memory-local"
+                ):
+                    pipeline.main()
 
     def test_build_step_command_leaves_unsupported_command_unchanged(self):
         command = [sys.executable, "ml/alphazero_lite/train.py", "--epochs", "2"]
@@ -1695,6 +2021,54 @@ class PipelineScriptTest(unittest.TestCase):
 
             self.assertEqual("completed", result["status"])
             self.assertTrue((iter_dir / "venv_fallback.txt").exists())
+
+    def test_run_step_applies_memory_speed_profile_to_rendered_command(self):
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-pipeline-memory-profile-"
+        ) as tmp:
+            repo_root = Path(tmp)
+            iter_dir = repo_root / "iter"
+            iter_dir.mkdir(parents=True)
+            parent_dir = repo_root / "parent"
+            parent_dir.mkdir(parents=True)
+            checkpoint_path = parent_dir / "checkpoint.npz"
+            checkpoint_path.write_text("stub", encoding="utf-8")
+            step = {
+                "name": "profile_probe",
+                "command": [
+                    sys.executable,
+                    "ml/alphazero_lite/self_play.py",
+                    "--checkpoint",
+                    str(checkpoint_path),
+                ],
+            }
+
+            with mock.patch(
+                "subprocess.run",
+                return_value=mock.Mock(returncode=0, stdout="", stderr=""),
+            ) as run_subprocess:
+                result = run_step(
+                    step,
+                    iteration=1,
+                    iter_dir=iter_dir,
+                    run_id="profile-probe",
+                    versions_dir=iter_dir,
+                    repo_root=repo_root,
+                    current_path="model-artifact/current",
+                    parent_model_dir=parent_dir,
+                    parent_checkpoint=checkpoint_path,
+                    replay_data="",
+                    replay_weights="",
+                    memory_speed_profile="high_memory_local",
+                )
+
+            self.assertEqual("completed", result["status"])
+            captured_command = run_subprocess.call_args.args[0]
+            self.assertIn("--evaluator-cache-size", captured_command)
+            self.assertEqual(
+                "200000",
+                captured_command[captured_command.index("--evaluator-cache-size") + 1],
+            )
 
     def test_resolve_step_command_falls_back_to_sys_executable_when_no_venv_exists(
         self,
@@ -5014,6 +5388,227 @@ class PipelineScriptTest(unittest.TestCase):
                 ).read_text(encoding="utf-8")
             )
             self.assertEqual("planned", manifest["status"])
+
+    def test_pipeline_dry_run_materializes_memory_profile_flags_in_manifest_steps(self):
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-pipeline-dry-run-memory-profile-"
+        ) as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-memory-profile",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(tmp_path / "runtime-current"),
+                        "memory_speed_profile": "high_memory_local",
+                        "steps": [
+                            {
+                                "name": "self_play",
+                                "command": [
+                                    sys.executable,
+                                    "ml/alphazero_lite/self_play.py",
+                                    "--games",
+                                    "100",
+                                    "--checkpoint",
+                                    "{iter_dir}/parent.npz",
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/pipeline.py",
+                    "--config",
+                    str(config_path),
+                    "--dry-run",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            manifest = json.loads(
+                (
+                    out_dir / "dry-run-memory-profile-iter1" / "run_manifest.json"
+                ).read_text(encoding="utf-8")
+            )
+
+            self.assertEqual("planned", manifest["status"])
+            self.assertEqual(1, len(manifest["steps"]))
+            self.assertEqual("self_play", manifest["steps"][0]["name"])
+            self.assertIn("--evaluator-cache-size", manifest["steps"][0]["command"])
+            self.assertEqual(
+                "200000",
+                manifest["steps"][0]["command"][
+                    manifest["steps"][0]["command"].index("--evaluator-cache-size") + 1
+                ],
+            )
+
+    def test_pipeline_dry_run_skips_skip_before_final_iteration_steps_on_non_final_iterations(
+        self,
+    ):
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-pipeline-dry-run-skip-final-"
+        ) as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "dry-run-skip-final",
+                        "seed": 42,
+                        "iterations": 2,
+                        "versions_dir": str(out_dir),
+                        "current_path": str(tmp_path / "runtime-current"),
+                        "steps": [
+                            {
+                                "name": "always_step",
+                                "command": [sys.executable, "-c", "pass"],
+                            },
+                            {
+                                "name": "final_only_gate",
+                                "skip_before_final_iteration": True,
+                                "command": [sys.executable, "-c", "pass"],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/pipeline.py",
+                    "--config",
+                    str(config_path),
+                    "--dry-run",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            manifest = json.loads(
+                (out_dir / "dry-run-skip-final-iter1" / "run_manifest.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+
+            self.assertEqual(
+                ["always_step", "final_only_gate"],
+                [step["name"] for step in manifest["steps"]],
+            )
+            final_only = next(
+                step for step in manifest["steps"] if step["name"] == "final_only_gate"
+            )
+            self.assertEqual("skipped", final_only["status"])
+            self.assertEqual("skip_before_final_iteration", final_only["reason"])
+
+    def test_build_planned_step_result_resolves_python_command_like_execution(self):
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-pipeline-dry-run-resolve-"
+        ) as tmp:
+            workspace_root = Path(tmp) / "workspace"
+            workspace_python = workspace_root / ".venv/bin/python"
+            repo_root = workspace_root / "nested/worktree"
+            iter_dir = repo_root / "iter"
+            parent_dir = repo_root / "parent"
+            workspace_python.parent.mkdir(parents=True)
+            iter_dir.mkdir(parents=True)
+            parent_dir.mkdir(parents=True)
+            workspace_python.symlink_to(Path(sys.executable))
+
+            result = build_planned_step_result(
+                {
+                    "name": "resolve_probe",
+                    "command": [".venv/bin/python", "-c", "pass"],
+                },
+                iteration=1,
+                final_iteration=1,
+                iter_dir=iter_dir,
+                run_id="dry-run-resolve",
+                versions_dir=iter_dir,
+                repo_root=repo_root,
+                current_path="model-artifact/current",
+                parent_model_dir=parent_dir,
+                parent_checkpoint=parent_dir / "model.npz",
+                replay_data="",
+                replay_weights="",
+            )
+
+            self.assertEqual(
+                str(workspace_python),
+                result["command"][0],
+            )
+
+    def test_build_step_command_handles_malformed_trailing_memory_profile_flags(
+        self,
+    ):
+        self_play_step = {
+            "name": "self_play",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--checkpoint",
+                "parent.npz",
+                "--evaluator-cache-size",
+            ],
+        }
+        bootstrap_step = {
+            "name": "mcts_bootstrap_dataset",
+            "command": [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--position-selection-mode",
+                "--teacher-mode",
+            ],
+        }
+
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/self_play.py",
+                "--checkpoint",
+                "parent.npz",
+                "--evaluator-cache-size",
+                "200000",
+                "--workers",
+                "24",
+            ],
+            build_step_command(
+                self_play_step, memory_speed_profile="high_memory_local"
+            ),
+        )
+        self.assertEqual(
+            [
+                sys.executable,
+                "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                "--position-selection-mode",
+                "--teacher-mode",
+                "--workers",
+                "24",
+            ],
+            build_step_command(
+                bootstrap_step, memory_speed_profile="high_memory_local"
+            ),
+        )
 
     def test_pipeline_dry_run_rejects_nested_value_trust_schedule_when_command_has_explicit_flag(
         self,

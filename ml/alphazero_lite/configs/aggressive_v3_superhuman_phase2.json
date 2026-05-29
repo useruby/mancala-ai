@@ -4,6 +4,7 @@
   "iterations": 1,
   "start_iteration": 2,
   "replay_window": 3,
+  "memory_speed_profile": "high_memory_local",
   "versions_dir": "/tmp/azlite_v3_superhuman_versions",
   "current_path": "/tmp/azlite_v3_superhuman_versions/aggressive-v3-superhuman-iter1",
   "steps": [
@@ -62,9 +63,7 @@
         "--policy-target-mode",
         "sharpened",
         "--value-target-mode",
-        "sharpened",
-        "--evaluator-cache-size",
-        "50000"
+        "sharpened"
       ]
     },
     {
