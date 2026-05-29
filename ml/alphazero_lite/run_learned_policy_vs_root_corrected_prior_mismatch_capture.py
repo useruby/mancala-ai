@@ -99,67 +99,6 @@ def _policy_rank(row_payload: dict) -> list[int]:
     return _ranked_moves(distribution)
 
 
-def _row_002_move_table(focus_interventions: dict) -> list[dict]:
-    moves = sorted(
-        {
-            int(move)
-            for intervention in INTERVENTIONS
-            for move in (
-                (
-                    (
-                        (focus_interventions[intervention].get("row_views") or {}).get(
-                            "policy_view"
-                        )
-                        or {}
-                    ).get("raw_policy_distribution")
-                    or {}
-                ).keys()
-            )
-        }
-    )
-    rows = []
-    for move in moves:
-        rows.append(
-            {
-                "move": move,
-                "original_prior_probability": (
-                    (
-                        (
-                            focus_interventions["original_prior"].get("row_views") or {}
-                        ).get("policy_view")
-                        or {}
-                    ).get("raw_policy_distribution")
-                    or {}
-                ).get(str(move)),
-                "zero_wrong_prior_probability": (
-                    (
-                        (
-                            focus_interventions["zero_wrong_extra_turn_prior"].get(
-                                "trace_excerpt"
-                            )
-                            or {}
-                        ).get("selection_breakdown")
-                        or {}
-                    ).get("moves")
-                    or []
-                ),
-                "swap_prior_probability": (
-                    (
-                        (
-                            focus_interventions["swap_reference_and_wrong"].get(
-                                "trace_excerpt"
-                            )
-                            or {}
-                        ).get("selection_breakdown")
-                        or {}
-                    ).get("moves")
-                    or []
-                ),
-            }
-        )
-    return rows
-
-
 def _normalized_prior_by_move(row_payload: dict) -> dict[str, float] | None:
     moves = (
         ((row_payload.get("trace_excerpt") or {}).get("selection_breakdown") or {}).get(
