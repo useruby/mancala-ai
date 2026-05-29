@@ -78,7 +78,7 @@ NUMERIC_CANDIDATE_METRICS = (
 def _coerce_metric_value(metrics: dict[str, Any], field: str) -> float:
     value = metrics.get(field, 0.0)
     if value is None:
-        raise ValueError(f"candidate metric {field} must be numeric")
+        return 0.0
 
     try:
         return float(value)

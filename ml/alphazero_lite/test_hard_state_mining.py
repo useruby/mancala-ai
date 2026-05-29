@@ -1013,7 +1013,7 @@ class HardStateMiningTest(unittest.TestCase):
             ValueError, "candidate metric regret must be numeric"
         ):
             hard_state_mining.deduplicate_candidates(
-                [self.make_candidate(metrics={"regret": None})]
+                [self.make_candidate(metrics={"regret": "oops"})]
             )
 
     def test_cli_rejects_malformed_json_without_traceback(self):
@@ -1303,7 +1303,7 @@ class HardStateMiningTest(unittest.TestCase):
             ):
                 hard_state_mining.load_artifacts([str(input_path)])
 
-    def test_extract_candidates_rejects_non_numeric_forensic_threshold_metrics(self):
+    def test_extract_candidates_treats_null_forensic_threshold_metrics_as_zero(self):
         from ml.alphazero_lite import hard_state_mining
 
         artifacts = [
@@ -1317,6 +1317,7 @@ class HardStateMiningTest(unittest.TestCase):
                                 "state": self.sample_state(),
                                 "side_to_move": 0,
                                 "legal_moves": [0, 1],
+                                "agrees_top1": False,
                                 "value_error": None,
                             }
                         ]
@@ -1325,7 +1326,7 @@ class HardStateMiningTest(unittest.TestCase):
             }
         ]
 
-        with self.assertRaisesRegex(
-            ValueError, "candidate metric value_error must be numeric"
-        ):
-            hard_state_mining.extract_candidates(artifacts)
+        extracted = hard_state_mining.extract_candidates(artifacts)
+        deduplicated = hard_state_mining.deduplicate_candidates(extracted)
+
+        self.assertEqual(0.0, deduplicated[0]["metadata"]["max_value_error"])
