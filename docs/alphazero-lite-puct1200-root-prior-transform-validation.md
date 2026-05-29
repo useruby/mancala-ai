@@ -17,18 +17,6 @@ This run validates the narrow root-prior transform on the broader forensic hard-
 - value calibration mae: `0.4405`
 - bucket count: `8`
 
-## Baseline Comparison
-
-Compared against the same guarded `w2` artifact with no root-prior transform on the same `224`-position forensic suite:
-
-- policy top1 agreement: `0.0 -> 0.0`
-- average regret: `0.0907 -> 0.0907`
-- value calibration mae: `0.4405 -> 0.4405`
-
-Bucket deltas were also `0.0` across the reported suite buckets.
-
 ## Notes
 
 - overall summary: `{'positions': 224, 'top1_agreement': 0.0, 'average_regret': 0.0907, 'blunder_rate': 0.4955, 'value_calibration_mae': 0.4405}`
-- interpretation: the transform is narrow enough that it improves the targeted opening-capture failure without moving broad forensic-suite aggregates at PUCT1200
-- recommendation: keep it as an explicit optional evaluation/search mode rather than changing default search behavior

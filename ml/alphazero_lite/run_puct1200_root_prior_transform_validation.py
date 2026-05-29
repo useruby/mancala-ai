@@ -57,32 +57,35 @@ def python_bin(root: Path) -> str:
 def build_markdown(summary: dict) -> str:
     report = summary["validation_report"]
     overall = report.get("overall") or {}
-    return "\n".join(
-        [
-            "# PUCT1200 Root-Prior Transform Validation",
-            "",
-            "## Context",
-            "",
-            "This run validates the narrow root-prior transform on the broader forensic hard-state suite using direct artifact PUCT search at 1200 simulations.",
-            "",
-            f"- artifact: `{summary['artifact_path']}`",
-            f"- validation path: `{summary['validation_path']}`",
-            f"- root prior transform: `{summary['root_prior_transform']}`",
-            f"- validation report: `{summary['validation_report_path']}`",
-            "",
-            "## Overall",
-            "",
-            f"- position count: `{report.get('position_count')}`",
-            f"- policy top1 agreement: `{report.get('policy_top1_agreement')}`",
-            f"- average regret: `{report.get('average_regret')}`",
-            f"- value calibration mae: `{report.get('value_calibration_mae')}`",
-            f"- bucket count: `{len(report.get('buckets') or {})}`",
-            "",
-            "## Notes",
-            "",
-            f"- overall summary: `{overall}`",
-        ]
-    ) + "\n"
+    return (
+        "\n".join(
+            [
+                "# PUCT1200 Root-Prior Transform Validation",
+                "",
+                "## Context",
+                "",
+                "This run validates the narrow root-prior transform on the broader forensic hard-state suite using direct artifact PUCT search at 1200 simulations.",
+                "",
+                f"- artifact: `{summary['artifact_path']}`",
+                f"- validation path: `{summary['validation_path']}`",
+                f"- root prior transform: `{summary['root_prior_transform']}`",
+                f"- validation report: `{summary['validation_report_path']}`",
+                "",
+                "## Overall",
+                "",
+                f"- position count: `{report.get('position_count')}`",
+                f"- policy top1 agreement: `{report.get('policy_top1_agreement')}`",
+                f"- average regret: `{report.get('average_regret')}`",
+                f"- value calibration mae: `{report.get('value_calibration_mae')}`",
+                f"- bucket count: `{len(report.get('buckets') or {})}`",
+                "",
+                "## Notes",
+                "",
+                f"- overall summary: `{overall}`",
+            ]
+        )
+        + "\n"
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -94,7 +97,9 @@ def main(argv: list[str] | None = None) -> int:
     output_root.mkdir(parents=True, exist_ok=True)
     validation_report_path = output_root / "hard_state_validation_puct1200.json"
     summary_path = output_root / "puct1200_root_prior_transform_validation_summary.json"
-    report_path = root / "docs/alphazero-lite-puct1200-root-prior-transform-validation.md"
+    report_path = (
+        root / "docs/alphazero-lite-puct1200-root-prior-transform-validation.md"
+    )
 
     command = [
         python_bin(root),

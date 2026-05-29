@@ -75,9 +75,7 @@ def move_feature_annotations_for(
     return annotations
 
 
-def _mass_shift(
-    before: np.ndarray, after: np.ndarray, legal_moves: list[int]
-) -> float:
+def _mass_shift(before: np.ndarray, after: np.ndarray, legal_moves: list[int]) -> float:
     if not legal_moves:
         return 0.0
     return round(
@@ -121,7 +119,9 @@ def _scaled_transform(
     scale_for_move,
 ) -> tuple[np.ndarray, dict]:
     adjusted = np.asarray(original_prior, dtype=np.float32).copy()
-    scale_factors = {int(move): float(scale_for_move(int(move))) for move in legal_moves}
+    scale_factors = {
+        int(move): float(scale_for_move(int(move))) for move in legal_moves
+    }
     for move in legal_moves:
         adjusted[move] *= scale_factors[int(move)]
     transformed = normalize_legal_prior(adjusted, legal_moves)
@@ -218,11 +218,13 @@ def _conditional_seed4_extra_turn_damp(
         legal_moves=legal_moves,
         original_prior=original_prior,
         move_feature_annotations=move_feature_annotations,
-        scale_for_move=lambda move: scale
-        if state_condition
-        and move_feature_annotations[int(move)]["gives_extra_turn"]
-        and int(move_feature_annotations[int(move)]["seed_count"]) == 4
-        else 1.0,
+        scale_for_move=lambda move: (
+            scale
+            if state_condition
+            and move_feature_annotations[int(move)]["gives_extra_turn"]
+            and int(move_feature_annotations[int(move)]["seed_count"]) == 4
+            else 1.0
+        ),
     )
 
 
@@ -267,9 +269,9 @@ def apply_root_prior_transform(
             legal_moves=legal_moves,
             original_prior=original,
             move_feature_annotations=move_feature_annotations,
-            scale_for_move=lambda move: 0.50
-            if move_feature_annotations[int(move)]["gives_extra_turn"]
-            else 1.0,
+            scale_for_move=lambda move: (
+                0.50 if move_feature_annotations[int(move)]["gives_extra_turn"] else 1.0
+            ),
         )
 
     if transform_name == "extra_turn_damp_025":
@@ -278,9 +280,9 @@ def apply_root_prior_transform(
             legal_moves=legal_moves,
             original_prior=original,
             move_feature_annotations=move_feature_annotations,
-            scale_for_move=lambda move: 0.25
-            if move_feature_annotations[int(move)]["gives_extra_turn"]
-            else 1.0,
+            scale_for_move=lambda move: (
+                0.25 if move_feature_annotations[int(move)]["gives_extra_turn"] else 1.0
+            ),
         )
 
     if transform_name == "no_extra_turn_capture_boost_2x":
@@ -289,10 +291,12 @@ def apply_root_prior_transform(
             legal_moves=legal_moves,
             original_prior=original,
             move_feature_annotations=move_feature_annotations,
-            scale_for_move=lambda move: 2.0
-            if move_feature_annotations[int(move)]["produces_capture"]
-            and not move_feature_annotations[int(move)]["gives_extra_turn"]
-            else 1.0,
+            scale_for_move=lambda move: (
+                2.0
+                if move_feature_annotations[int(move)]["produces_capture"]
+                and not move_feature_annotations[int(move)]["gives_extra_turn"]
+                else 1.0
+            ),
         )
 
     if transform_name == "hybrid_damp050_captureboost2x":
@@ -302,13 +306,17 @@ def apply_root_prior_transform(
             original_prior=original,
             move_feature_annotations=move_feature_annotations,
             scale_for_move=lambda move: (
-                0.50 if move_feature_annotations[int(move)]["gives_extra_turn"] else 1.0
-            )
-            * (
-                2.0
-                if move_feature_annotations[int(move)]["produces_capture"]
-                and not move_feature_annotations[int(move)]["gives_extra_turn"]
-                else 1.0
+                (
+                    0.50
+                    if move_feature_annotations[int(move)]["gives_extra_turn"]
+                    else 1.0
+                )
+                * (
+                    2.0
+                    if move_feature_annotations[int(move)]["produces_capture"]
+                    and not move_feature_annotations[int(move)]["gives_extra_turn"]
+                    else 1.0
+                )
             ),
         )
 
@@ -351,7 +359,10 @@ def apply_root_prior_transform(
             require_exactly_four_legal=False,
         )
 
-    if transform_name == "seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5":
+    if (
+        transform_name
+        == "seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5"
+    ):
         return _conditional_seed4_extra_turn_damp(
             transform_name=transform_name,
             legal_moves=legal_moves,

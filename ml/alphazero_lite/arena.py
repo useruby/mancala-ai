@@ -49,7 +49,10 @@ if not ARENA_STUB_MODE:
             visits_from_classic_mcts_root,
         )
     except ModuleNotFoundError:
-        from root_prior_transforms import ARENA_TRANSFORM_NAMES, build_root_prior_override
+        from root_prior_transforms import (
+            ARENA_TRANSFORM_NAMES,
+            build_root_prior_override,
+        )
         from input_encodings import DEFAULT_INPUT_ENCODING
         from kalah_rules import KalahGame
         from opening_cache import load_opening_cache, state_qualifies_for_opening_cache

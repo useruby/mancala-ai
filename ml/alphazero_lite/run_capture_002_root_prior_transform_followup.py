@@ -27,7 +27,6 @@ from ml.alphazero_lite.run_capture_002_003_search_prior_control_experiment impor
     SEARCH_CONTROL_OVERRIDES,
 )
 from ml.alphazero_lite.run_rule_conditioned_opening_full_guarded_experiment import (
-    MATERIAL_DEGRADE_MARGIN,
     build_probe_row,
     load_json,
     repo_root,
@@ -72,7 +71,9 @@ def resolve_path(root: Path, value: str) -> Path:
     return path if path.is_absolute() else root / path
 
 
-def metric_for_move(distribution: dict[str, float] | None, move: int | None) -> float | None:
+def metric_for_move(
+    distribution: dict[str, float] | None, move: int | None
+) -> float | None:
     if distribution is None or move is None:
         return None
     value = distribution.get(str(move))
@@ -120,8 +121,12 @@ def build_markdown(summary: dict) -> str:
                 selected_is_reference=str(result["selected_is_reference"]).lower(),
                 reference_visit_share=result["reference_visit_share"],
                 selected_minus_reference_q=result["selected_minus_reference_q"],
-                original_reference_prior=result["original_prior"][str(result["reference_move"])],
-                transformed_reference_prior=result["transformed_prior"][str(result["reference_move"])],
+                original_reference_prior=result["original_prior"][
+                    str(result["reference_move"])
+                ],
+                transformed_reference_prior=result["transformed_prior"][
+                    str(result["reference_move"])
+                ],
                 gate_pass=str(result["gate_pass"]).lower(),
                 notes=result["notes"],
             )
@@ -159,7 +164,9 @@ def main(argv: list[str] | None = None) -> int:
         probe_row = build_probe_row(reference_row)
         state = validated_diagnostic_state(row=probe_row)
         legal_moves = list(probe_row["legal_moves"])
-        move_features = move_feature_annotations_for(state=state, legal_moves=legal_moves)
+        move_features = move_feature_annotations_for(
+            state=state, legal_moves=legal_moves
+        )
         for transform_name in FOLLOWUP_TRANSFORM_NAMES:
             override = build_root_prior_override(transform_name)
             for simulations in SIMULATION_BUDGETS:
@@ -195,8 +202,12 @@ def main(argv: list[str] | None = None) -> int:
                         "transform_name": transform_name,
                         "simulations": simulations,
                         "reference_move": int(probe_row["reference_move"]),
-                        "selected_move": row_view["search_view"]["searched_selected_move"],
-                        "selected_is_reference": row_view["search_view"]["searched_selected_move"]
+                        "selected_move": row_view["search_view"][
+                            "searched_selected_move"
+                        ],
+                        "selected_is_reference": row_view["search_view"][
+                            "searched_selected_move"
+                        ]
                         == int(probe_row["reference_move"]),
                         "reference_visit_share": metric_for_move(
                             visit_share, int(probe_row["reference_move"])
@@ -232,7 +243,11 @@ def main(argv: list[str] | None = None) -> int:
                 failures.append("003@384_fail")
             if indexed[(row_id, transform_name, 1200)]["selected_move"] != 1:
                 failures.append("003@1200_fail")
-        if row_id in {"capture_available-006", "capture_available-007", "capture_available-008"}:
+        if row_id in {
+            "capture_available-006",
+            "capture_available-007",
+            "capture_available-008",
+        }:
             if not indexed[(row_id, transform_name, 384)]["selected_is_reference"]:
                 failures.append(f"{row_id}@384_regress")
             if not indexed[(row_id, transform_name, 1200)]["selected_is_reference"]:
@@ -262,7 +277,15 @@ def main(argv: list[str] | None = None) -> int:
     }
     write_json(summary_path, summary)
     report_path.write_text(build_markdown(summary), encoding="utf-8")
-    print(json.dumps({"summary_path": str(summary_path), "report_path": str(report_path), "recommendation": recommendation}))
+    print(
+        json.dumps(
+            {
+                "summary_path": str(summary_path),
+                "report_path": str(report_path),
+                "recommendation": recommendation,
+            }
+        )
+    )
     return 0
 
 

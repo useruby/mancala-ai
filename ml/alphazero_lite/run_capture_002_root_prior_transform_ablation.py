@@ -117,7 +117,8 @@ def guard_row_ids(all_capture_row_ids: list[str]) -> list[str]:
     return [
         row_id
         for row_id in all_capture_row_ids
-        if row_id not in PRIMARY_ROW_IDS and row_id in set(EXPLICIT_GUARD_ROW_IDS + tuple(all_capture_row_ids))
+        if row_id not in PRIMARY_ROW_IDS
+        and row_id in set(EXPLICIT_GUARD_ROW_IDS + tuple(all_capture_row_ids))
     ]
 
 
@@ -146,7 +147,9 @@ def visit_share_by_move(search_view: dict) -> dict[str, float] | None:
     }
 
 
-def metric_for_move(distribution: dict[str, float] | None, move: int | None) -> float | None:
+def metric_for_move(
+    distribution: dict[str, float] | None, move: int | None
+) -> float | None:
     if distribution is None or move is None:
         return None
     value = distribution.get(str(move))
@@ -190,12 +193,16 @@ def build_result_entry(
         "selected_move": selected_move,
         "reference_move": reference_move,
         "selected_is_reference": selected_move == reference_move,
-        "reference_visit_share": metric_for_move(visit_share_distribution, reference_move),
+        "reference_visit_share": metric_for_move(
+            visit_share_distribution, reference_move
+        ),
         "wrong_extra_turn_move": wrong_extra_turn_move,
         "wrong_extra_turn_visit_share": metric_for_move(
             visit_share_distribution, wrong_extra_turn_move
         ),
-        "selected_minus_reference_q": value_view.get("selected_minus_reference_q_margin"),
+        "selected_minus_reference_q": value_view.get(
+            "selected_minus_reference_q_margin"
+        ),
         "q_by_move": value_view.get("per_child_q_values"),
         "visit_share_by_move": visit_share_distribution,
         "root_prior_transform_mass_shift": float(transform_telemetry["mass_shift"]),
@@ -203,7 +210,8 @@ def build_result_entry(
         if selected_move == reference_move
         else (
             "selected_wrong_extra_turn"
-            if wrong_extra_turn_move is not None and selected_move == wrong_extra_turn_move
+            if wrong_extra_turn_move is not None
+            and selected_move == wrong_extra_turn_move
             else "selected_non_reference"
         ),
     }
@@ -248,9 +256,12 @@ def evaluate_local_gate(
             if (
                 transformed_share is not None
                 and baseline_share is not None
-                and float(transformed_share) < float(baseline_share) - MATERIAL_DEGRADE_MARGIN
+                and float(transformed_share)
+                < float(baseline_share) - MATERIAL_DEGRADE_MARGIN
             ):
-                failures.append(f"row_003_{budget}_reference_visit_share_materially_degraded")
+                failures.append(
+                    f"row_003_{budget}_reference_visit_share_materially_degraded"
+                )
 
         for row_id in guard_rows:
             for budget in (384, 1200):
@@ -287,7 +298,9 @@ def classify_results(*, artifact_summaries: list[dict]) -> tuple[str, str, str]:
             "only uniform legal prior cleared the local gate",
         )
     if any(
-        summary["results_indexed"][("capture_available-002", name, 384)]["selected_move"]
+        summary["results_indexed"][("capture_available-002", name, 384)][
+            "selected_move"
+        ]
         == 4
         and not summary["local_gate"][name]["pass"]
         for summary in artifact_summaries
@@ -305,7 +318,9 @@ def classify_results(*, artifact_summaries: list[dict]) -> tuple[str, str, str]:
     )
 
 
-def choose_best_candidate_transform(candidate_summary: dict, guard_rows: list[str]) -> str | None:
+def choose_best_candidate_transform(
+    candidate_summary: dict, guard_rows: list[str]
+) -> str | None:
     viable = [
         name
         for name in ARENA_TRANSFORM_NAMES
@@ -451,7 +466,9 @@ def build_markdown(summary: dict) -> str:
                             simulations=simulations,
                             selected_move=result.get("selected_move"),
                             reference_move=result.get("reference_move"),
-                            selected_is_reference=str(result.get("selected_is_reference")).lower(),
+                            selected_is_reference=str(
+                                result.get("selected_is_reference")
+                            ).lower(),
                             reference_visit_share=result.get("reference_visit_share"),
                             wrong_extra_turn_visit_share=result.get(
                                 "wrong_extra_turn_visit_share"
@@ -462,9 +479,9 @@ def build_markdown(summary: dict) -> str:
                             original_reference_prior=result["original_prior"].get(
                                 str(result.get("reference_move"))
                             ),
-                            transformed_reference_prior=result[
-                                "transformed_prior"
-                            ].get(str(result.get("reference_move"))),
+                            transformed_reference_prior=result["transformed_prior"].get(
+                                str(result.get("reference_move"))
+                            ),
                             original_wrong_extra_turn_prior=None
                             if wrong_move is None
                             else result["original_prior"].get(str(wrong_move)),
@@ -503,7 +520,9 @@ def build_markdown(summary: dict) -> str:
                             simulations=simulations,
                             selected_move=result.get("selected_move"),
                             reference_move=result.get("reference_move"),
-                            selected_is_reference=str(result.get("selected_is_reference")).lower(),
+                            selected_is_reference=str(
+                                result.get("selected_is_reference")
+                            ).lower(),
                             reference_visit_share=result.get("reference_visit_share"),
                             wrong_extra_turn_visit_share=result.get(
                                 "wrong_extra_turn_visit_share"
@@ -514,9 +533,9 @@ def build_markdown(summary: dict) -> str:
                             original_reference_prior=result["original_prior"].get(
                                 str(result.get("reference_move"))
                             ),
-                            transformed_reference_prior=result[
-                                "transformed_prior"
-                            ].get(str(result.get("reference_move"))),
+                            transformed_reference_prior=result["transformed_prior"].get(
+                                str(result.get("reference_move"))
+                            ),
                             original_wrong_extra_turn_prior=None,
                             transformed_wrong_extra_turn_prior=None,
                             local_gate_pass=str(
@@ -544,11 +563,7 @@ def build_markdown(summary: dict) -> str:
         ]
     )
     for artifact in summary["artifacts"]:
-        viable = [
-            name
-            for name, gate in artifact["local_gate"].items()
-            if gate["pass"]
-        ]
+        viable = [name for name, gate in artifact["local_gate"].items() if gate["pass"]]
         lines.append(
             f"- `{artifact['artifact']}` viable transforms: `{', '.join(viable) if viable else 'none'}`"
         )
@@ -575,7 +590,8 @@ def main(argv: list[str] | None = None) -> int:
     output_root.mkdir(parents=True, exist_ok=True)
     summary_path = output_root / "root_prior_transform_ablation_summary.json"
     report_path = (
-        root / "docs/alphazero-lite-capture-002-root-prior-transform-ablation-results.md"
+        root
+        / "docs/alphazero-lite-capture-002-root-prior-transform-ablation-results.md"
     )
 
     arena_module = importlib.import_module("ml.alphazero_lite.arena")
@@ -589,7 +605,9 @@ def main(argv: list[str] | None = None) -> int:
             state = validated_diagnostic_state(row=probe_row)
             legal_moves = list(probe_row["legal_moves"])
             reference_move = int(probe_row["reference_move"])
-            move_features = move_feature_annotations_for(state=state, legal_moves=legal_moves)
+            move_features = move_feature_annotations_for(
+                state=state, legal_moves=legal_moves
+            )
             wrong_extra_turn_move = wrong_extra_turn_move_for(
                 row_id=row_id,
                 legal_moves=legal_moves,
@@ -609,7 +627,9 @@ def main(argv: list[str] | None = None) -> int:
                         ablation_mode="full",
                         root_prior_override=override,
                     )
-                    row_view = build_row_views(row=probe_row, probe_summary=probe_summary)
+                    row_view = build_row_views(
+                        row=probe_row, probe_summary=probe_summary
+                    )
                     prior_before = np.asarray(
                         (probe_summary.get("root_prior_telemetry") or {}).get("before")
                         or probe_summary.get("policy")
@@ -689,11 +709,7 @@ def main(argv: list[str] | None = None) -> int:
         "all_capture_row_ids": all_capture_row_ids,
         "guard_row_ids": guards,
         "artifacts": [
-            {
-                key: value
-                for key, value in artifact.items()
-                if key != "results_indexed"
-            }
+            {key: value for key, value in artifact.items() if key != "results_indexed"}
             for artifact in artifact_summaries
         ],
         "arena_results": arena_results,
@@ -702,7 +718,9 @@ def main(argv: list[str] | None = None) -> int:
         "recommended_next_branch": recommended_next_branch,
     }
     write_json(summary_path, summary)
-    report_path.write_text(build_markdown({**summary, "artifacts": artifact_summaries}), encoding="utf-8")
+    report_path.write_text(
+        build_markdown({**summary, "artifacts": artifact_summaries}), encoding="utf-8"
+    )
     print(
         json.dumps(
             {
