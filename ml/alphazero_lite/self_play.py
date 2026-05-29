@@ -13,7 +13,7 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 
@@ -849,6 +849,7 @@ class PUCT:
         tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
         value_trust_schedule: dict | None = None,
         ablation_mode: str | None = None,
+        root_prior_override: Callable[..., np.ndarray] | None = None,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -862,8 +863,11 @@ class PUCT:
         self.tactical_root_bias = float(tactical_root_bias)
         self.value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
         self.ablation_mode = build_mode_config(ablation_mode or "full")
+        self.root_prior_override = root_prior_override
         self._last_root: Node | None = None
         self._last_visit_snapshots: list[dict] = []
+        self._last_root_prior_before: list[float] | None = None
+        self._last_root_prior_after: list[float] | None = None
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -892,6 +896,8 @@ class PUCT:
     ) -> tuple[np.ndarray, Node]:
         root = self._root_for(root_game)
         self._last_visit_snapshots = []
+        self._last_root_prior_before = None
+        self._last_root_prior_after = None
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -938,6 +944,14 @@ class PUCT:
             "value_trust": self._value_trust_summary_for(self._last_root.game),
             "selection_breakdown": selection_breakdown,
             "visit_snapshots": list(self._last_visit_snapshots),
+            "root_prior_telemetry": {
+                "before": None
+                if self._last_root_prior_before is None
+                else list(self._last_root_prior_before),
+                "after": None
+                if self._last_root_prior_after is None
+                else list(self._last_root_prior_after),
+            },
         }
 
     def _build_root_visit_snapshot(self, root: Node, *, simulation_index: int) -> dict:
@@ -1340,6 +1354,11 @@ class PUCT:
 
         if is_root:
             masked = self.apply_tactical_root_bias(node.game, masked)
+            self._last_root_prior_before = [float(prior) for prior in masked.tolist()]
+            masked = self._apply_root_prior_override(
+                node.game, masked=masked, legal_moves=legal_moves
+            )
+            self._last_root_prior_after = [float(prior) for prior in masked.tolist()]
 
         for move in legal_moves:
             if move not in node.children:
@@ -1351,6 +1370,41 @@ class PUCT:
 
         node.expanded = True
         return masked, value
+
+    def _apply_root_prior_override(
+        self, game: KalahGame, *, masked: np.ndarray, legal_moves: list[int]
+    ) -> np.ndarray:
+        if self.root_prior_override is None or not legal_moves:
+            return masked
+
+        overridden = np.asarray(
+            self.root_prior_override(
+                game=game.clone(),
+                legal_moves=list(legal_moves),
+                priors=np.asarray(masked, dtype=np.float32).copy(),
+            ),
+            dtype=np.float32,
+        )
+        if overridden.shape != masked.shape:
+            raise ValueError(
+                "root_prior_override must return a prior vector with matching shape"
+            )
+
+        normalized = np.zeros_like(masked)
+        normalized[legal_moves] = overridden[legal_moves]
+        if np.any(~np.isfinite(normalized[legal_moves])):
+            raise ValueError("root_prior_override returned non-finite legal priors")
+        if np.any(normalized[legal_moves] < 0.0):
+            raise ValueError("root_prior_override returned negative legal priors")
+
+        total = float(np.sum(normalized[legal_moves]))
+        if total <= 0.0:
+            uniform = 1.0 / len(legal_moves)
+            normalized[legal_moves] = uniform
+            return normalized.astype(np.float32)
+
+        normalized[legal_moves] /= total
+        return normalized.astype(np.float32)
 
     def apply_tactical_root_bias(
         self, game: KalahGame, priors: np.ndarray

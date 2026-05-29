@@ -496,6 +496,7 @@ def evaluate_artifact_position(
     c_puct: float,
     search_options: dict,
     ablation_mode: str = "full",
+    root_prior_override=None,
 ) -> dict:
     game = KalahGame.from_state(state)
     normalized_mode = build_mode_config(ablation_mode)
@@ -593,6 +594,7 @@ def evaluate_artifact_position(
         root_policy_mode=str(search_options["root_policy_mode"]),
         tactical_root_bias=float(search_options["tactical_root_bias"]),
         ablation_mode=str(normalized_mode["name"]),
+        root_prior_override=root_prior_override,
         **puct_kwargs,
     )
     visits, root = search.run(game)
@@ -622,6 +624,9 @@ def evaluate_artifact_position(
         candidate_visit_snapshots = root_summary.get("visit_snapshots")
         if isinstance(candidate_visit_snapshots, list):
             root_visit_snapshots = candidate_visit_snapshots
+        root_prior_telemetry = root_summary.get("root_prior_telemetry")
+    else:
+        root_prior_telemetry = None
     policy = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
     child_stats = []
     for move in legal_moves:
@@ -654,6 +659,8 @@ def evaluate_artifact_position(
         result["selection_breakdown"] = root_selection_breakdown
     if root_visit_snapshots is not None:
         result["visit_snapshots"] = root_visit_snapshots
+    if isinstance(root_prior_telemetry, dict):
+        result["root_prior_telemetry"] = root_prior_telemetry
     return result
 
 
