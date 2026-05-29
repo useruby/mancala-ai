@@ -66,6 +66,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--artifact-simulations", type=int, default=384)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--root-prior-transform", default=None)
     parser.add_argument("--out", required=True)
     return parser.parse_args()
 
@@ -100,6 +101,7 @@ def main() -> None:
             seed=int(args.seed) + 1000 + index,
             c_puct=float(args.c_puct),
             search_options=search_options,
+            root_prior_transform=args.root_prior_transform,
         )
         rows.append(
             build_row(
@@ -116,6 +118,7 @@ def main() -> None:
         "schema": "azlite_hard_state_validation_v1",
         "artifact_path": str(artifact_path),
         "validation_path": str(validation_path),
+        "root_prior_transform": args.root_prior_transform,
         "position_count": len(suite),
         "policy_top1_agreement": overall["top1_agreement"],
         "average_regret": overall["average_regret"],

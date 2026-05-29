@@ -1,0 +1,52 @@
+{
+  "run_id": "aggressive-v3-superhuman-search-control-root-prior-transform-seed4",
+  "steps": [
+    {
+      "name": "arena_confirm_report",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/arena.py",
+        "--fpu-mode",
+        "parent_q",
+        "--reuse-subtree",
+        "--normalize-values",
+        "--root-policy-mode",
+        "deterministic",
+        "--tactical-root-bias",
+        "0.1",
+        "--root-prior-transform",
+        "seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5"
+      ]
+    },
+    {
+      "name": "mcts1200_baseline_report",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/mcts1200_baseline.py",
+        "--fpu-mode",
+        "parent_q",
+        "--reuse-subtree",
+        "--normalize-values",
+        "--root-policy-mode",
+        "deterministic",
+        "--tactical-root-bias",
+        "0.1"
+      ]
+    },
+    {
+      "name": "current_mcts1200_baseline_report",
+      "command": [
+        ".venv/bin/python",
+        "ml/alphazero_lite/mcts1200_baseline.py",
+        "--fpu-mode",
+        "parent_q",
+        "--reuse-subtree",
+        "--normalize-values",
+        "--root-policy-mode",
+        "deterministic",
+        "--tactical-root-bias",
+        "0.1"
+      ]
+    }
+  ]
+}
