@@ -53,8 +53,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--run-id", default=DEFAULT_RUN_ID)
     parser.add_argument("--root-prior-summary", default=DEFAULT_ROOT_PRIOR_SUMMARY)
     parser.add_argument("--guarded-w2-gate", default=DEFAULT_GUARDED_W2_GATE)
-    parser.add_argument("--prior-calibration-gate", default=DEFAULT_PRIOR_CALIBRATION_GATE)
-    parser.add_argument("--prior-calibration-arena", default=DEFAULT_PRIOR_CALIBRATION_ARENA)
+    parser.add_argument(
+        "--prior-calibration-gate", default=DEFAULT_PRIOR_CALIBRATION_GATE
+    )
+    parser.add_argument(
+        "--prior-calibration-arena", default=DEFAULT_PRIOR_CALIBRATION_ARENA
+    )
     parser.add_argument("--guarded-w2-train-log", default=DEFAULT_GUARDED_W2_TRAIN_LOG)
     parser.add_argument(
         "--prior-calibration-train-log", default=DEFAULT_PRIOR_CALIBRATION_TRAIN_LOG
@@ -130,7 +134,9 @@ def main(argv: list[str] | None = None) -> int:
         "prior_calibration_gate": resolve_path(root, args.prior_calibration_gate),
         "prior_calibration_arena": resolve_path(root, args.prior_calibration_arena),
         "guarded_w2_train_log": resolve_path(root, args.guarded_w2_train_log),
-        "prior_calibration_train_log": resolve_path(root, args.prior_calibration_train_log),
+        "prior_calibration_train_log": resolve_path(
+            root, args.prior_calibration_train_log
+        ),
     }
 
     artifact_path = (
@@ -179,7 +185,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     write_json(summary_path, summary)
 
-    report_path = root / "docs/alphazero-lite-guarded-w2-root-vs-learned-prior-persistence-review.md"
+    report_path = (
+        root
+        / "docs/alphazero-lite-guarded-w2-root-vs-learned-prior-persistence-review.md"
+    )
     report_path.write_text(build_markdown(summary), encoding="utf-8")
     print(
         json.dumps(

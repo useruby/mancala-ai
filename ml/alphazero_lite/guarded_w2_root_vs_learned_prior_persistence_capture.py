@@ -135,9 +135,10 @@ def _row_decision(row_payload: dict) -> str:
             and swapped["searched_selected_move"] == row_payload["reference_move"]
             and original["searched_selected_move"] != row_payload["reference_move"]
         ):
-            if original["policy_reference_probability"] is not None and float(
-                original["policy_reference_probability"]
-            ) < 0.1:
+            if (
+                original["policy_reference_probability"] is not None
+                and float(original["policy_reference_probability"]) < 0.1
+            ):
                 return "non_root_policy_mismatch"
             return "backup_or_search_stage_gap"
     return "reference_preserved_under_root_override"
@@ -164,7 +165,9 @@ def build_payload(*, artifact_path: str, reference_artifact: dict) -> dict:
         }
         row_payload["decision"] = _row_decision(row_payload)
         rows[row_id] = row_payload
-        decisions[row_payload["decision"]] = decisions.get(row_payload["decision"], 0) + 1
+        decisions[row_payload["decision"]] = (
+            decisions.get(row_payload["decision"], 0) + 1
+        )
 
     if rows["capture_available-002"]["decision"] == "non_root_policy_mismatch":
         next_branch = "learned_policy_vs_root_corrected_prior_capture"

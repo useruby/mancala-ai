@@ -147,7 +147,9 @@ def main(argv: list[str] | None = None) -> int:
         "policy_target_gate": resolve_path(root, args.policy_target_gate),
         "value_target_aligned_gate": resolve_path(root, args.value_target_aligned_gate),
         "policy_target_arena": resolve_path(root, args.policy_target_arena),
-        "value_target_aligned_arena": resolve_path(root, args.value_target_aligned_arena),
+        "value_target_aligned_arena": resolve_path(
+            root, args.value_target_aligned_arena
+        ),
         "guarded_w2_runtime_config": resolve_path(root, args.guarded_w2_runtime_config),
     }
 
@@ -190,10 +192,14 @@ def main(argv: list[str] | None = None) -> int:
         "input_artifacts": {key: str(path) for key, path in resolved_paths.items()},
         "artifact": artifact,
     }
-    summary_path = out_root / "capture_002_003_guarded_w2_config_derivation_summary.json"
+    summary_path = (
+        out_root / "capture_002_003_guarded_w2_config_derivation_summary.json"
+    )
     write_json(summary_path, summary)
 
-    report_path = root / "docs/alphazero-lite-capture-002-003-guarded-w2-config-derivation.md"
+    report_path = (
+        root / "docs/alphazero-lite-capture-002-003-guarded-w2-config-derivation.md"
+    )
     report_path.write_text(build_markdown(summary), encoding="utf-8")
     print(
         json.dumps(

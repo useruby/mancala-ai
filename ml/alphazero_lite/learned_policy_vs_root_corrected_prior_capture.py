@@ -94,7 +94,9 @@ def _capture_one(
     reference_selection_score = selection_score_by_move(probe_summary, reference_move)
     selected_selection_score = None
     if selected_move is not None:
-        selected_selection_score = selection_score_by_move(probe_summary, int(selected_move))
+        selected_selection_score = selection_score_by_move(
+            probe_summary, int(selected_move)
+        )
     return {
         "intervention": intervention,
         "reference_move": reference_move,
@@ -144,14 +146,19 @@ def build_payload(*, artifact_path: str, reference_artifact: dict) -> dict:
 
     if (
         primary_original["searched_selected_move"] != primary_original["reference_move"]
-        and primary_zero_wrong["searched_selected_move"] == primary_zero_wrong["reference_move"]
+        and primary_zero_wrong["searched_selected_move"]
+        == primary_zero_wrong["reference_move"]
         and primary_swap["searched_selected_move"] == primary_swap["reference_move"]
     ):
-        classification = "learned_prior_underweights_reference_and_overweights_wrong_extra_turn"
+        classification = (
+            "learned_prior_underweights_reference_and_overweights_wrong_extra_turn"
+        )
         recommendation = "write_learned_policy_vs_root_corrected_prior_review_spec"
     else:
         classification = "mismatch_not_isolated"
-        recommendation = "stop_learned_policy_vs_root_corrected_prior_capture_inconclusive"
+        recommendation = (
+            "stop_learned_policy_vs_root_corrected_prior_capture_inconclusive"
+        )
 
     return {
         "schema": SCHEMA,

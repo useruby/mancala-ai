@@ -6,9 +6,7 @@ import json
 from pathlib import Path
 
 
-SCHEMA = (
-    "azlite_capture_002_003_guarded_w2_root_vs_learned_prior_persistence_review_v1"
-)
+SCHEMA = "azlite_capture_002_003_guarded_w2_root_vs_learned_prior_persistence_review_v1"
 SOURCE_ROOT_PRIOR_SCHEMA = "azlite_capture_002_root_prior_intervention_v1"
 EXPECTED_ROOT_CLASSIFICATION = "policy_prior_sensitive"
 CLASSIFICATION_DECISIONS = {
@@ -87,7 +85,9 @@ def _guarded_root_prior_artifact(summary: dict, *, guarded_candidate_path: str) 
             and artifact.get("artifact_path") == guarded_candidate_path
         ):
             if artifact.get("classification") != EXPECTED_ROOT_CLASSIFICATION:
-                raise ValueError("guarded w2 root prior artifact must be policy_prior_sensitive")
+                raise ValueError(
+                    "guarded w2 root prior artifact must be policy_prior_sensitive"
+                )
             return copy.deepcopy(artifact)
     raise ValueError("guarded w2 root prior artifact not found in summary")
 
@@ -118,7 +118,9 @@ def _row003_root_preserved(result: dict | None) -> bool:
     )
 
 
-def _intervention_summary(index: dict[tuple[str, str, int], dict], intervention: str) -> dict:
+def _intervention_summary(
+    index: dict[tuple[str, str, int], dict], intervention: str
+) -> dict:
     row_002_selected_budgets = []
     row_003_preserved_budgets = []
     for budget in (32, 64, 128, 384, 1200):
@@ -212,13 +214,13 @@ def build_payload(
     row_002_prior_improved = float(learned_002["policy_reference_probability"]) > float(
         guarded_002["policy_reference_probability"]
     )
-    row_002_visit_share_improved = float(learned_002["reference_move_visit_share"]) > float(
-        guarded_002["reference_move_visit_share"]
-    )
+    row_002_visit_share_improved = float(
+        learned_002["reference_move_visit_share"]
+    ) > float(guarded_002["reference_move_visit_share"])
     row_002_selection_still_not_fixed = int(learned_002["searched_selected_move"]) != 4
-    row_002_q_margin_worsened = float(learned_002["selected_minus_reference_q_margin"]) > float(
-        guarded_002["selected_minus_reference_q_margin"]
-    )
+    row_002_q_margin_worsened = float(
+        learned_002["selected_minus_reference_q_margin"]
+    ) > float(guarded_002["selected_minus_reference_q_margin"])
     arena_score = float(validated_arena.get("score", 0.0))
 
     if (
@@ -236,9 +238,7 @@ def build_payload(
         )
     else:
         classification_name = "review_prerequisite_blocked"
-        evidence_summary = (
-            "The guarded w2 root-prior evidence and learned retry evidence did not support a clean persistence review conclusion."
-        )
+        evidence_summary = "The guarded w2 root-prior evidence and learned retry evidence did not support a clean persistence review conclusion."
 
     return {
         "schema": SCHEMA,

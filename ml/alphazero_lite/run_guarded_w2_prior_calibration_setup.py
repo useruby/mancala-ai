@@ -12,7 +12,9 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 
-DEFAULT_REFERENCE_ARTIFACT = "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+DEFAULT_REFERENCE_ARTIFACT = (
+    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+)
 DEFAULT_BASE_RUNTIME_CONFIG = (
     "/tmp/azlite_rule_conditioned_opening_full_guarded/"
     "rule-conditioned-opening-full-guarded/w2/runtime_config.json"
@@ -135,8 +137,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def build_runtime_config(*, base_runtime_config: dict, run_root: Path, seed: int, calibration_artifact_path: Path) -> dict:
-    runtime_config = align_target_modes(apply_runtime_seed(base_runtime_config, seed=seed))
+def build_runtime_config(
+    *,
+    base_runtime_config: dict,
+    run_root: Path,
+    seed: int,
+    calibration_artifact_path: Path,
+) -> dict:
+    runtime_config = align_target_modes(
+        apply_runtime_seed(base_runtime_config, seed=seed)
+    )
     runtime_config["run_id"] = f"{runtime_config['run_id']}-prior-calibration"
     runtime_config["versions_dir"] = str(run_root / "versions")
     fixed_replay_sources = list(runtime_config.get("fixed_replay_sources", []))
@@ -157,8 +167,12 @@ def main(argv: list[str] | None = None) -> int:
 
     reference_artifact_path = resolve_path(root, args.reference_artifact)
     base_runtime_config_path = resolve_path(root, args.base_runtime_config)
-    calibration_artifact_path = run_root / "capture_002_003_guarded_w2_prior_calibration_artifact.jsonl"
-    calibration_summary_path = run_root / "capture_002_003_guarded_w2_prior_calibration_artifact_summary.json"
+    calibration_artifact_path = (
+        run_root / "capture_002_003_guarded_w2_prior_calibration_artifact.jsonl"
+    )
+    calibration_summary_path = (
+        run_root / "capture_002_003_guarded_w2_prior_calibration_artifact_summary.json"
+    )
 
     subprocess.run(
         [

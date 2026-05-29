@@ -138,19 +138,23 @@ def build_markdown(spec_payload: dict) -> str:
     ]
     for item in spec_payload["required_outputs"]:
         lines.append(f"- {item}")
-    lines.extend([
-        "",
-        "## Constraints",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Constraints",
+            "",
+        ]
+    )
     for item in spec_payload["constraints"]:
         lines.append(f"- {item}")
-    lines.extend([
-        "",
-        "## Exit Criteria",
-        "",
-        "This branch is complete when one diagnostic artifact and note make the learned-policy mismatch explicit enough to explain why row `002` needs root correction while row `003` does not, or explicitly state what missing telemetry remains.",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Exit Criteria",
+            "",
+            "This branch is complete when one diagnostic artifact and note make the learned-policy mismatch explicit enough to explain why row `002` needs root correction while row `003` does not, or explicitly state what missing telemetry remains.",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -168,7 +172,10 @@ def main(argv: list[str] | None = None) -> int:
     summary_path = out_root / "learned_policy_vs_root_corrected_prior_review_spec.json"
     write_json(summary_path, payload)
 
-    report_path = root / "docs/alphazero-lite-learned-policy-vs-root-corrected-prior-review-spec.md"
+    report_path = (
+        root
+        / "docs/alphazero-lite-learned-policy-vs-root-corrected-prior-review-spec.md"
+    )
     report_path.write_text(build_markdown(payload), encoding="utf-8")
     print(
         json.dumps(

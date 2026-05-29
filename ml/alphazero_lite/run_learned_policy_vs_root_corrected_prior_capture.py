@@ -17,7 +17,9 @@ DEFAULT_ARTIFACT_PATH = (
     "rule-conditioned-opening-full-guarded/w2/versions/"
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
-DEFAULT_REFERENCE_ARTIFACT = "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+DEFAULT_REFERENCE_ARTIFACT = (
+    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+)
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_learned_policy_vs_root_corrected_prior_capture"
 DEFAULT_RUN_ID = "learned-policy-vs-root-corrected-prior-capture"
 
@@ -120,10 +122,14 @@ def main(argv: list[str] | None = None) -> int:
         "schema": artifact.get("schema"),
         "artifact": artifact,
     }
-    summary_path = out_root / "learned_policy_vs_root_corrected_prior_capture_summary.json"
+    summary_path = (
+        out_root / "learned_policy_vs_root_corrected_prior_capture_summary.json"
+    )
     write_json(summary_path, summary)
 
-    report_path = root / "docs/alphazero-lite-learned-policy-vs-root-corrected-prior-capture.md"
+    report_path = (
+        root / "docs/alphazero-lite-learned-policy-vs-root-corrected-prior-capture.md"
+    )
     report_path.write_text(build_markdown(summary), encoding="utf-8")
     print(
         json.dumps(

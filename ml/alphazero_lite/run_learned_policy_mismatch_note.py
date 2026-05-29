@@ -72,26 +72,29 @@ def build_payload(mismatch_capture: dict, *, mismatch_capture_path: str) -> dict
 
 
 def build_markdown(payload: dict) -> str:
-    return "\n".join(
-        [
-            "# AlphaZero-lite Learned Policy Mismatch Note",
-            "",
-            "## Outcome",
-            "",
-            f"- classification: `{payload['classification']}`",
-            f"- decision: `{payload['decision']}`",
-            "",
-            "## Conclusion",
-            "",
-            f"- {payload['conclusion']['summary']}",
-            f"- focus row: `{payload['conclusion']['focus_row_id']}`",
-            f"- preservation row: `{payload['conclusion']['preservation_row_id']}`",
-            "",
-            "Supporting artifact:",
-            "",
-            f"- `{payload['input_artifacts']['mismatch_capture_path']}`",
-        ]
-    ) + "\n"
+    return (
+        "\n".join(
+            [
+                "# AlphaZero-lite Learned Policy Mismatch Note",
+                "",
+                "## Outcome",
+                "",
+                f"- classification: `{payload['classification']}`",
+                f"- decision: `{payload['decision']}`",
+                "",
+                "## Conclusion",
+                "",
+                f"- {payload['conclusion']['summary']}",
+                f"- focus row: `{payload['conclusion']['focus_row_id']}`",
+                f"- preservation row: `{payload['conclusion']['preservation_row_id']}`",
+                "",
+                "Supporting artifact:",
+                "",
+                f"- `{payload['input_artifacts']['mismatch_capture_path']}`",
+            ]
+        )
+        + "\n"
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -102,7 +105,8 @@ def main(argv: list[str] | None = None) -> int:
     out_root.mkdir(parents=True, exist_ok=True)
 
     payload = build_payload(
-        load_json(mismatch_capture_path), mismatch_capture_path=str(mismatch_capture_path)
+        load_json(mismatch_capture_path),
+        mismatch_capture_path=str(mismatch_capture_path),
     )
     summary_path = out_root / "learned_policy_mismatch_note.json"
     write_json(summary_path, payload)

@@ -16,7 +16,9 @@ DEFAULT_CAPTURE_ARTIFACT = (
     "learned-policy-vs-root-corrected-prior-capture/"
     "learned_policy_vs_root_corrected_prior_capture.json"
 )
-DEFAULT_OUTPUT_ROOT = "/tmp/azlite_learned_policy_vs_root_corrected_prior_mismatch_capture"
+DEFAULT_OUTPUT_ROOT = (
+    "/tmp/azlite_learned_policy_vs_root_corrected_prior_mismatch_capture"
+)
 DEFAULT_RUN_ID = "learned-policy-vs-root-corrected-prior-mismatch-capture"
 SCHEMA = "azlite_learned_policy_vs_root_corrected_prior_mismatch_capture_v1"
 FOCUS_ROW = "capture_available-002"
@@ -69,9 +71,10 @@ def _ranked_moves(distribution: dict[str, float] | None) -> list[int]:
 
 def _selection_breakdown_rank(row_payload: dict) -> list[int]:
     moves = (
-        (((row_payload.get("trace_excerpt") or {}).get("selection_breakdown") or {}).get("moves"))
-        or []
-    )
+        ((row_payload.get("trace_excerpt") or {}).get("selection_breakdown") or {}).get(
+            "moves"
+        )
+    ) or []
     ranked = sorted(
         moves,
         key=lambda item: (
@@ -102,7 +105,15 @@ def _row_002_move_table(focus_interventions: dict) -> list[dict]:
             int(move)
             for intervention in INTERVENTIONS
             for move in (
-                (((focus_interventions[intervention].get("row_views") or {}).get("policy_view") or {}).get("raw_policy_distribution") or {}).keys()
+                (
+                    (
+                        (focus_interventions[intervention].get("row_views") or {}).get(
+                            "policy_view"
+                        )
+                        or {}
+                    ).get("raw_policy_distribution")
+                    or {}
+                ).keys()
             )
         }
     )
@@ -112,14 +123,37 @@ def _row_002_move_table(focus_interventions: dict) -> list[dict]:
             {
                 "move": move,
                 "original_prior_probability": (
-                    ((focus_interventions["original_prior"].get("row_views") or {}).get("policy_view") or {}).get("raw_policy_distribution")
+                    (
+                        (
+                            focus_interventions["original_prior"].get("row_views") or {}
+                        ).get("policy_view")
+                        or {}
+                    ).get("raw_policy_distribution")
                     or {}
                 ).get(str(move)),
                 "zero_wrong_prior_probability": (
-                    (((focus_interventions["zero_wrong_extra_turn_prior"].get("trace_excerpt") or {}).get("selection_breakdown") or {}).get("moves") or [])
+                    (
+                        (
+                            focus_interventions["zero_wrong_extra_turn_prior"].get(
+                                "trace_excerpt"
+                            )
+                            or {}
+                        ).get("selection_breakdown")
+                        or {}
+                    ).get("moves")
+                    or []
                 ),
                 "swap_prior_probability": (
-                    (((focus_interventions["swap_reference_and_wrong"].get("trace_excerpt") or {}).get("selection_breakdown") or {}).get("moves") or [])
+                    (
+                        (
+                            focus_interventions["swap_reference_and_wrong"].get(
+                                "trace_excerpt"
+                            )
+                            or {}
+                        ).get("selection_breakdown")
+                        or {}
+                    ).get("moves")
+                    or []
                 ),
             }
         )
@@ -128,9 +162,10 @@ def _row_002_move_table(focus_interventions: dict) -> list[dict]:
 
 def _normalized_prior_by_move(row_payload: dict) -> dict[str, float] | None:
     moves = (
-        (((row_payload.get("trace_excerpt") or {}).get("selection_breakdown") or {}).get("moves"))
-        or []
-    )
+        ((row_payload.get("trace_excerpt") or {}).get("selection_breakdown") or {}).get(
+            "moves"
+        )
+    ) or []
     if not moves:
         return None
     return {
@@ -148,29 +183,40 @@ def build_payload(capture_artifact: dict, *, capture_artifact_path: str) -> dict
         raise ValueError("capture artifact must isolate the learned-prior mismatch")
 
     focus_interventions = dict(capture_artifact["focus_row"]["interventions"])
-    preservation_interventions = dict(capture_artifact["preservation_row"]["interventions"])
+    preservation_interventions = dict(
+        capture_artifact["preservation_row"]["interventions"]
+    )
 
     move_table = []
     moves = sorted(
         {
             int(move)
             for move in (
-                (((focus_interventions["original_prior"].get("row_views") or {}).get("policy_view") or {}).get("raw_policy_distribution") or {}).keys()
+                (
+                    (
+                        (
+                            focus_interventions["original_prior"].get("row_views") or {}
+                        ).get("policy_view")
+                        or {}
+                    ).get("raw_policy_distribution")
+                    or {}
+                ).keys()
             )
         }
     )
-    zero_wrong_priors = _normalized_prior_by_move(
-        focus_interventions["zero_wrong_extra_turn_prior"]
-    ) or {}
-    swap_priors = _normalized_prior_by_move(
-        focus_interventions["swap_reference_and_wrong"]
-    ) or {}
-    original_priors = (
-        ((focus_interventions["original_prior"].get("row_views") or {}).get("policy_view") or {}).get(
-            "raw_policy_distribution"
-        )
+    zero_wrong_priors = (
+        _normalized_prior_by_move(focus_interventions["zero_wrong_extra_turn_prior"])
         or {}
     )
+    swap_priors = (
+        _normalized_prior_by_move(focus_interventions["swap_reference_and_wrong"]) or {}
+    )
+    original_priors = (
+        (focus_interventions["original_prior"].get("row_views") or {}).get(
+            "policy_view"
+        )
+        or {}
+    ).get("raw_policy_distribution") or {}
     for move in moves:
         move_key = str(move)
         move_table.append(
@@ -239,31 +285,37 @@ def build_markdown(payload: dict) -> str:
         lines.append(
             f"| `{row['move']}` | `{row['learned_policy_probability']}` | `{row['zero_wrong_root_corrected_prior']}` | `{row['swap_root_corrected_prior']}` |"
         )
-    lines.extend([
-        "",
-        "## Row 002 Rankings",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Row 002 Rankings",
+            "",
+        ]
+    )
     for intervention, ranking in payload["row_002_ranking_comparison"].items():
         lines.append(
             f"- `{intervention}`: policy `{ranking['policy_rank']}`, selection_score `{ranking['selection_score_rank']}`, final_visit `{ranking['final_visit_rank']}`, selected `{ranking['selected_move']}`"
         )
-    lines.extend([
-        "",
-        "## Row 003 Preservation",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Row 003 Preservation",
+            "",
+        ]
+    )
     for intervention, summary in payload["row_003_preservation_comparison"].items():
         lines.append(
             f"- `{intervention}`: selected `{summary['selected_move']}`, reference visit share `{summary['reference_move_visit_share']}`"
         )
-    lines.extend([
-        "",
-        "## Conclusion",
-        "",
-        "- row `002` needs root correction because the learned guarded-`w2` policy both underweights the reference move and leaves too much mass on the wrong extra-turn branch",
-        "- row `003` remains stable under the same corrections, so the mismatch is row-specific rather than a generic extra-turn suppression issue",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Conclusion",
+            "",
+            "- row `002` needs root correction because the learned guarded-`w2` policy both underweights the reference move and leaves too much mass on the wrong extra-turn branch",
+            "- row `003` remains stable under the same corrections, so the mismatch is row-specific rather than a generic extra-turn suppression issue",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -278,7 +330,9 @@ def main(argv: list[str] | None = None) -> int:
         load_json(capture_artifact_path),
         capture_artifact_path=str(capture_artifact_path),
     )
-    artifact_path = out_root / "learned_policy_vs_root_corrected_prior_mismatch_capture.json"
+    artifact_path = (
+        out_root / "learned_policy_vs_root_corrected_prior_mismatch_capture.json"
+    )
     write_json(artifact_path, payload)
 
     summary = {
@@ -288,10 +342,16 @@ def main(argv: list[str] | None = None) -> int:
         "classification": payload["classification"],
         "decision": payload["decision"],
     }
-    summary_path = out_root / "learned_policy_vs_root_corrected_prior_mismatch_capture_summary.json"
+    summary_path = (
+        out_root
+        / "learned_policy_vs_root_corrected_prior_mismatch_capture_summary.json"
+    )
     write_json(summary_path, summary)
 
-    report_path = root / "docs/alphazero-lite-learned-policy-vs-root-corrected-prior-mismatch-capture.md"
+    report_path = (
+        root
+        / "docs/alphazero-lite-learned-policy-vs-root-corrected-prior-mismatch-capture.md"
+    )
     report_path.write_text(build_markdown(payload), encoding="utf-8")
     print(
         json.dumps(

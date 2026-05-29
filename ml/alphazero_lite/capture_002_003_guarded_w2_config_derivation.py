@@ -46,9 +46,13 @@ def _validate_root_prior_summary(summary: dict) -> dict:
         if not isinstance(artifact, dict):
             raise ValueError("root prior artifact entries must be objects")
         if artifact.get("classification") != EXPECTED_CLASSIFICATION:
-            raise ValueError("root prior summary must classify artifacts as policy_prior_sensitive")
+            raise ValueError(
+                "root prior summary must classify artifacts as policy_prior_sensitive"
+            )
         if artifact.get("recommended_next_branch") != EXPECTED_NEXT_BRANCH:
-            raise ValueError("root prior summary must recommend the policy-prior calibration experiment")
+            raise ValueError(
+                "root prior summary must recommend the policy-prior calibration experiment"
+            )
     return copy.deepcopy(summary)
 
 

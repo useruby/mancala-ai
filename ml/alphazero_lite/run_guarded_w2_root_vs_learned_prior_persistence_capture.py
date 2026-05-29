@@ -17,7 +17,9 @@ DEFAULT_ARTIFACT_PATH = (
     "rule-conditioned-opening-full-guarded/w2/versions/"
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
-DEFAULT_REFERENCE_ARTIFACT = "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+DEFAULT_REFERENCE_ARTIFACT = (
+    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+)
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_guarded_w2_root_vs_learned_prior_persistence_capture"
 DEFAULT_RUN_ID = "guarded-w2-root-vs-learned-prior-persistence-capture"
 
@@ -97,7 +99,9 @@ def main(argv: list[str] | None = None) -> int:
     python = python_bin(root)
     out_root = resolve_path(root, args.output_root) / args.run_id
     out_root.mkdir(parents=True, exist_ok=True)
-    artifact_path = out_root / "guarded_w2_root_vs_learned_prior_persistence_capture.json"
+    artifact_path = (
+        out_root / "guarded_w2_root_vs_learned_prior_persistence_capture.json"
+    )
 
     resolved_artifact_path = resolve_path(root, args.artifact_path)
     resolved_reference_artifact = resolve_path(root, args.reference_artifact)
@@ -126,10 +130,15 @@ def main(argv: list[str] | None = None) -> int:
         "schema": artifact.get("schema"),
         "artifact": artifact,
     }
-    summary_path = out_root / "guarded_w2_root_vs_learned_prior_persistence_capture_summary.json"
+    summary_path = (
+        out_root / "guarded_w2_root_vs_learned_prior_persistence_capture_summary.json"
+    )
     write_json(summary_path, summary)
 
-    report_path = root / "docs/alphazero-lite-guarded-w2-root-vs-learned-prior-persistence-capture.md"
+    report_path = (
+        root
+        / "docs/alphazero-lite-guarded-w2-root-vs-learned-prior-persistence-capture.md"
+    )
     report_path.write_text(build_markdown(summary), encoding="utf-8")
     print(
         json.dumps(

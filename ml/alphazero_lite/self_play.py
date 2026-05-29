@@ -1386,7 +1386,9 @@ class PUCT:
             dtype=np.float32,
         )
         if overridden.shape != masked.shape:
-            raise ValueError("root_prior_override must return a prior vector with matching shape")
+            raise ValueError(
+                "root_prior_override must return a prior vector with matching shape"
+            )
 
         normalized = np.zeros_like(masked)
         normalized[legal_moves] = overridden[legal_moves]

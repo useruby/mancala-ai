@@ -72,7 +72,9 @@ def resolve_path(root: Path, value: str) -> Path:
     return path if path.is_absolute() else root / path
 
 
-def parse_artifact_paths(root: Path, current_path: str, candidate_paths: str) -> list[dict]:
+def parse_artifact_paths(
+    root: Path, current_path: str, candidate_paths: str
+) -> list[dict]:
     resolved = [
         {"artifact_label": "current", "artifact_path": resolve_path(root, current_path)}
     ]
@@ -85,7 +87,9 @@ def parse_artifact_paths(root: Path, current_path: str, candidate_paths: str) ->
     return resolved
 
 
-def _distribution_for_moves(priors: np.ndarray, legal_moves: list[int]) -> dict[int, float]:
+def _distribution_for_moves(
+    priors: np.ndarray, legal_moves: list[int]
+) -> dict[int, float]:
     return {int(move): float(priors[move]) for move in legal_moves}
 
 
@@ -99,7 +103,9 @@ def _renormalize_legal(priors: np.ndarray, legal_moves: list[int]) -> np.ndarray
     return normalized
 
 
-def _strongest_competitor_move(*, row_id: str, legal_moves: list[int], reference_move: int, priors: np.ndarray) -> int:
+def _strongest_competitor_move(
+    *, row_id: str, legal_moves: list[int], reference_move: int, priors: np.ndarray
+) -> int:
     if row_id == "capture_available-002" and 2 in legal_moves and 2 != reference_move:
         return 2
     competitors = [move for move in legal_moves if move != reference_move]
@@ -131,7 +137,9 @@ def build_root_prior_override(*, row_id: str, reference_move: int, intervention:
             return _renormalize_legal(adjusted, legal_moves)
 
         if intervention == "equalize_reference_and_wrong":
-            target = max(float(adjusted[reference_move]), float(adjusted[competitor_move]))
+            target = max(
+                float(adjusted[reference_move]), float(adjusted[competitor_move])
+            )
             adjusted[reference_move] = target
             adjusted[competitor_move] = target
             return _renormalize_legal(adjusted, legal_moves)
@@ -153,7 +161,9 @@ def build_root_prior_override(*, row_id: str, reference_move: int, intervention:
                 other_total = float(np.sum(baseline[other_moves]))
                 remaining = 1.0 - FORCE_REFERENCE_PRIOR
                 if other_total > 0.0:
-                    adjusted[other_moves] = remaining * (baseline[other_moves] / other_total)
+                    adjusted[other_moves] = remaining * (
+                        baseline[other_moves] / other_total
+                    )
                 else:
                     adjusted[other_moves] = remaining / len(other_moves)
             return _renormalize_legal(adjusted, legal_moves)
@@ -163,7 +173,9 @@ def build_root_prior_override(*, row_id: str, reference_move: int, intervention:
     return override
 
 
-def metric_from_distribution(distribution: dict[str, float] | None, move: int) -> float | None:
+def metric_from_distribution(
+    distribution: dict[str, float] | None, move: int
+) -> float | None:
     if distribution is None:
         return None
     value = distribution.get(str(move))
@@ -199,14 +211,23 @@ def selection_score_by_move(probe_summary: dict, move: int) -> float | None:
     return None
 
 
-def first_budget_reference_selected(results: list[dict], reference_move: int) -> int | None:
+def first_budget_reference_selected(
+    results: list[dict], reference_move: int
+) -> int | None:
     for result in sorted(results, key=lambda item: int(item["simulations"])):
         if result["selected_move"] == reference_move:
             return int(result["simulations"])
     return None
 
 
-def pass_fail_reason(*, row_id: str, selected_move: int | None, reference_move: int, competitor_move: int, first_budget_selected: int | None) -> str:
+def pass_fail_reason(
+    *,
+    row_id: str,
+    selected_move: int | None,
+    reference_move: int,
+    competitor_move: int,
+    first_budget_selected: int | None,
+) -> str:
     if selected_move == reference_move:
         if row_id == "capture_available-003":
             return "pass_reference_preserved"
@@ -234,9 +255,14 @@ def classify_artifact(rows: dict[str, list[dict]]) -> tuple[str, str, str]:
         return any(result["selected_is_reference"] for result in row_results)
 
     if (
-        selected(row_002["uniform_legal_prior"]) or selected(row_002["equalize_reference_and_wrong"])
-    ) and all(result["selected_is_reference"] for result in row_003["original_prior"]) and all(
-        result["selected_is_reference"] for result in row_003["uniform_legal_prior"]
+        (
+            selected(row_002["uniform_legal_prior"])
+            or selected(row_002["equalize_reference_and_wrong"])
+        )
+        and all(result["selected_is_reference"] for result in row_003["original_prior"])
+        and all(
+            result["selected_is_reference"] for result in row_003["uniform_legal_prior"]
+        )
     ):
         return (
             "policy_prior_sensitive",
@@ -266,8 +292,11 @@ def classify_artifact(rows: dict[str, list[dict]]) -> tuple[str, str, str]:
             "002 still rejected the reference after near-zero competitor prior",
         )
 
-    if any(not result["selected_is_reference"] for result in row_003["uniform_legal_prior"]) or any(
-        not result["selected_is_reference"] for result in row_003["equalize_reference_and_wrong"]
+    if any(
+        not result["selected_is_reference"] for result in row_003["uniform_legal_prior"]
+    ) or any(
+        not result["selected_is_reference"]
+        for result in row_003["equalize_reference_and_wrong"]
     ):
         return (
             "row_pair_prior_tradeoff",
@@ -303,7 +332,9 @@ def build_markdown(summary: dict) -> str:
         f"- output summary: `{summary['summary_path']}`",
     ]
     for artifact in summary["artifacts"]:
-        lines.append(f"- artifact `{artifact['artifact']}`: `{artifact['artifact_path']}`")
+        lines.append(
+            f"- artifact `{artifact['artifact']}`: `{artifact['artifact_path']}`"
+        )
     lines.extend(
         [
             "",
@@ -334,15 +365,25 @@ def build_markdown(summary: dict) -> str:
                     competitor_move=result["competitor_move"],
                     selected_move=result["selected_move"],
                     selected_is_reference=str(result["selected_is_reference"]).lower(),
-                    reference_prior_before=float(result["reference_prior_before"] or 0.0),
-                    competitor_prior_before=float(result["competitor_prior_before"] or 0.0),
+                    reference_prior_before=float(
+                        result["reference_prior_before"] or 0.0
+                    ),
+                    competitor_prior_before=float(
+                        result["competitor_prior_before"] or 0.0
+                    ),
                     reference_prior_after=float(result["reference_prior_after"] or 0.0),
-                    competitor_prior_after=float(result["competitor_prior_after"] or 0.0),
+                    competitor_prior_after=float(
+                        result["competitor_prior_after"] or 0.0
+                    ),
                     reference_visit_share=float(result["reference_visit_share"] or 0.0),
-                    competitor_visit_share=float(result["competitor_visit_share"] or 0.0),
+                    competitor_visit_share=float(
+                        result["competitor_visit_share"] or 0.0
+                    ),
                     reference_q=float(result["reference_q"] or 0.0),
                     competitor_q=float(result["competitor_q"] or 0.0),
-                    selected_minus_reference_q=float(result["selected_minus_reference_q"] or 0.0),
+                    selected_minus_reference_q=float(
+                        result["selected_minus_reference_q"] or 0.0
+                    ),
                     decision=result["decision"],
                     notes=result["notes"],
                 )
@@ -373,7 +414,9 @@ def main(argv: list[str] | None = None) -> int:
     out_root = resolve_path(root, args.output_root) / args.run_id
     out_root.mkdir(parents=True, exist_ok=True)
     summary_path = out_root / "root_prior_intervention_summary.json"
-    report_path = root / "docs/alphazero-lite-capture-002-root-prior-intervention-results.md"
+    report_path = (
+        root / "docs/alphazero-lite-capture-002-root-prior-intervention-results.md"
+    )
 
     artifacts_summary = []
     for artifact_spec in artifact_specs:
@@ -405,10 +448,22 @@ def main(argv: list[str] | None = None) -> int:
                         if intervention == "original_prior"
                         else override,
                     )
-                    row_view = build_row_views(row=probe_row, probe_summary=probe_summary)
+                    row_view = build_row_views(
+                        row=probe_row, probe_summary=probe_summary
+                    )
                     prior_telemetry = probe_summary.get("root_prior_telemetry") or {}
-                    before = np.asarray(prior_telemetry.get("before") or probe_summary.get("policy") or [], dtype=np.float32)
-                    after = np.asarray(prior_telemetry.get("after") or probe_summary.get("policy") or [], dtype=np.float32)
+                    before = np.asarray(
+                        prior_telemetry.get("before")
+                        or probe_summary.get("policy")
+                        or [],
+                        dtype=np.float32,
+                    )
+                    after = np.asarray(
+                        prior_telemetry.get("after")
+                        or probe_summary.get("policy")
+                        or [],
+                        dtype=np.float32,
+                    )
                     competitor_move = _strongest_competitor_move(
                         row_id=row_id,
                         legal_moves=legal_moves,
@@ -418,15 +473,19 @@ def main(argv: list[str] | None = None) -> int:
                     selected_move = row_view["search_view"]["searched_selected_move"]
                     reference_q = child_q_by_move(row_view, reference_move)
                     competitor_q = child_q_by_move(row_view, competitor_move)
-                    selected_q = None if selected_move is None else child_q_by_move(row_view, selected_move)
+                    selected_q = (
+                        None
+                        if selected_move is None
+                        else child_q_by_move(row_view, selected_move)
+                    )
                     reference_visit_share = visit_share_for_move(
                         row_view["search_view"], reference_move
                     )
                     competitor_visit_share = visit_share_for_move(
                         row_view["search_view"], competitor_move
                     )
-                    selected_visit_share = (
-                        row_view["search_view"].get("selected_move_visit_share")
+                    selected_visit_share = row_view["search_view"].get(
+                        "selected_move_visit_share"
                     )
                     result = {
                         "artifact": artifact_spec["artifact_label"],
@@ -439,16 +498,30 @@ def main(argv: list[str] | None = None) -> int:
                         "wrong_or_competitor_move": competitor_move,
                         "selected_move": selected_move,
                         "selected_is_reference": selected_move == reference_move,
-                        "selected_is_wrong_extra_turn": row_id == "capture_available-002" and selected_move == 2,
+                        "selected_is_wrong_extra_turn": row_id
+                        == "capture_available-002"
+                        and selected_move == 2,
                         "reference_visit_share": reference_visit_share,
                         "wrong_or_competitor_visit_share": competitor_visit_share,
                         "competitor_visit_share": competitor_visit_share,
-                        "reference_prior_before": None if before.size == 0 else float(before[reference_move]),
-                        "wrong_or_competitor_prior_before": None if before.size == 0 else float(before[competitor_move]),
-                        "competitor_prior_before": None if before.size == 0 else float(before[competitor_move]),
-                        "reference_prior_after": None if after.size == 0 else float(after[reference_move]),
-                        "wrong_or_competitor_prior_after": None if after.size == 0 else float(after[competitor_move]),
-                        "competitor_prior_after": None if after.size == 0 else float(after[competitor_move]),
+                        "reference_prior_before": None
+                        if before.size == 0
+                        else float(before[reference_move]),
+                        "wrong_or_competitor_prior_before": None
+                        if before.size == 0
+                        else float(before[competitor_move]),
+                        "competitor_prior_before": None
+                        if before.size == 0
+                        else float(before[competitor_move]),
+                        "reference_prior_after": None
+                        if after.size == 0
+                        else float(after[reference_move]),
+                        "wrong_or_competitor_prior_after": None
+                        if after.size == 0
+                        else float(after[competitor_move]),
+                        "competitor_prior_after": None
+                        if after.size == 0
+                        else float(after[competitor_move]),
                         "reference_q": reference_q,
                         "wrong_or_competitor_q": competitor_q,
                         "competitor_q": competitor_q,
@@ -467,7 +540,10 @@ def main(argv: list[str] | None = None) -> int:
                         "decision": "reference_selected"
                         if selected_move == reference_move
                         else "reference_not_selected",
-                        "notes": "002 positive-control" if intervention == "force_reference_prior_advantage" and row_id == "capture_available-002" else "",
+                        "notes": "002 positive-control"
+                        if intervention == "force_reference_prior_advantage"
+                        and row_id == "capture_available-002"
+                        else "",
                     }
                     per_intervention_results.append(result)
                     artifact_results.append(result)
@@ -476,7 +552,9 @@ def main(argv: list[str] | None = None) -> int:
                     per_intervention_results, reference_move=reference_move
                 )
                 for result in per_intervention_results:
-                    result["first_budget_where_reference_becomes_selected"] = first_budget
+                    result["first_budget_where_reference_becomes_selected"] = (
+                        first_budget
+                    )
                     result["pass_fail_reason"] = pass_fail_reason(
                         row_id=row_id,
                         selected_move=result["selected_move"],
@@ -485,8 +563,13 @@ def main(argv: list[str] | None = None) -> int:
                         first_budget_selected=first_budget,
                     )
 
-        grouped_rows = {row_id: [r for r in artifact_results if r["row_id"] == row_id] for row_id in ROW_IDS}
-        classification, next_branch, classification_notes = classify_artifact(grouped_rows)
+        grouped_rows = {
+            row_id: [r for r in artifact_results if r["row_id"] == row_id]
+            for row_id in ROW_IDS
+        }
+        classification, next_branch, classification_notes = classify_artifact(
+            grouped_rows
+        )
         artifacts_summary.append(
             {
                 "artifact": artifact_spec["artifact_label"],
@@ -521,7 +604,9 @@ def main(argv: list[str] | None = None) -> int:
     }
     write_json(summary_path, summary)
     report_path.write_text(build_markdown(summary), encoding="utf-8")
-    print(json.dumps({"summary_path": str(summary_path), "report_path": str(report_path)}))
+    print(
+        json.dumps({"summary_path": str(summary_path), "report_path": str(report_path)})
+    )
     return 0
 
 

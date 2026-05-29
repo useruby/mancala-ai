@@ -59,7 +59,9 @@ def build_rows(
     state_encoder: Callable[[dict[str, Any], str], Any] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     reference_rows = rows_by_id(list(reference_artifact["rows"]))
-    resolved_state_encoder = encode_raw_state if state_encoder is None else state_encoder
+    resolved_state_encoder = (
+        encode_raw_state if state_encoder is None else state_encoder
+    )
 
     rows: list[dict[str, Any]] = []
     repeated_row_ids: list[str] = []
@@ -91,7 +93,9 @@ def build_rows(
             "selection_reasons": [
                 "guarded_w2_prior_calibration",
                 "policy_prior_sensitive_row_pair",
-                "row_002_weighted_reference_support" if row_id == "capture_available-002" else "row_003_preservation_guard",
+                "row_002_weighted_reference_support"
+                if row_id == "capture_available-002"
+                else "row_003_preservation_guard",
             ],
             "source_artifacts": [str(reference_artifact_path)],
             "source_runs": [
@@ -120,7 +124,9 @@ def build_rows(
             "teacher_child_stats": list(reference_row["child_stats"]),
             "replay_role": REPLAY_ROLE,
             "reference_move": reference_move,
-            "row_weight_intent": "optimize" if row_id == "capture_available-002" else "preserve",
+            "row_weight_intent": "optimize"
+            if row_id == "capture_available-002"
+            else "preserve",
         }
 
         for copy_index in range(multiplicity):

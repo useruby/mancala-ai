@@ -128,7 +128,7 @@ def build_markdown(spec_payload: dict) -> str:
         "",
         "The guarded `w2` base is responsive to root-only prior correction, but the corresponding learned prior-calibration retry only lifts row `002` prior support slightly and still search-selects move `2`.",
         "",
-        "That means the current gap is no longer just \"does prior matter\".",
+        'That means the current gap is no longer just "does prior matter".',
         "",
         "It is now:\n",
         "why does the root-only corrected prior produce the desired selection, while the learned policy/search stack does not preserve that correction end to end?",
@@ -146,25 +146,29 @@ def build_markdown(spec_payload: dict) -> str:
     ]
     for item in spec_payload["required_outputs"]:
         lines.append(f"- {item}")
-    lines.extend([
-        "",
-        "## Concrete Questions",
-        "",
-        "1. On row `002`, where does the root-only corrected trajectory diverge from the learned-policy trajectory: pre-expansion prior, early visit accumulation, child Q ranking, or later backup/selection score evolution?",
-        "2. Does the learned guarded-`w2` policy understate only the reference move, or does it also overstate the wrong extra-turn move in a way that root correction temporarily masks?",
-        "3. Why does row `003` remain preserved under the persistent root interventions while row `002` does not persist under learned prior pressure?",
-        "",
-        "## Constraints",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Concrete Questions",
+            "",
+            "1. On row `002`, where does the root-only corrected trajectory diverge from the learned-policy trajectory: pre-expansion prior, early visit accumulation, child Q ranking, or later backup/selection score evolution?",
+            "2. Does the learned guarded-`w2` policy understate only the reference move, or does it also overstate the wrong extra-turn move in a way that root correction temporarily masks?",
+            "3. Why does row `003` remain preserved under the persistent root interventions while row `002` does not persist under learned prior pressure?",
+            "",
+            "## Constraints",
+            "",
+        ]
+    )
     for item in spec_payload["constraints"]:
         lines.append(f"- {item}")
-    lines.extend([
-        "",
-        "## Exit Criteria",
-        "",
-        "This branch is complete when one diagnostic artifact and note explain where the persistence gap appears between root-only corrected search and the learned guarded-`w2` policy/search stack, or explicitly state what missing telemetry is still required.",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Exit Criteria",
+            "",
+            "This branch is complete when one diagnostic artifact and note explain where the persistence gap appears between root-only corrected search and the learned guarded-`w2` policy/search stack, or explicitly state what missing telemetry is still required.",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -182,7 +186,10 @@ def main(argv: list[str] | None = None) -> int:
     summary_path = out_root / "guarded_w2_root_vs_learned_prior_persistence_spec.json"
     write_json(summary_path, payload)
 
-    report_path = root / "docs/alphazero-lite-guarded-w2-root-vs-learned-prior-persistence-spec.md"
+    report_path = (
+        root
+        / "docs/alphazero-lite-guarded-w2-root-vs-learned-prior-persistence-spec.md"
+    )
     report_path.write_text(build_markdown(payload), encoding="utf-8")
     print(
         json.dumps(
