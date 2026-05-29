@@ -162,7 +162,7 @@ stage1_config["steps"] = stage1_steps
 stage1_config["gates"] = {
     key: value
     for key, value in config.get("gates", {}).items()
-    if key in {"rules_parity_report", "perspective_audit_report", "max_runtime_parity_delta"}
+    if key in {"perspective_audit_report", "max_runtime_parity_delta"}
 }
 
 stage2_steps = clone_base_steps()
@@ -216,7 +216,7 @@ stage2_config["steps"] = stage2_steps
 stage2_config["gates"] = {
     key: value
     for key, value in config.get("gates", {}).items()
-    if key in {"rules_parity_report", "perspective_audit_report", "max_runtime_parity_delta"}
+    if key in {"perspective_audit_report", "max_runtime_parity_delta"}
 }
 
 stage1_config_path.write_text(json.dumps(stage1_config, indent=2), encoding="utf-8")

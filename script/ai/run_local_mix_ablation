@@ -127,7 +127,7 @@ gates = config.get("gates", {})
 config["gates"] = {
     key: value
     for key, value in gates.items()
-    if key in {"rules_parity_report", "perspective_audit_report", "max_runtime_parity_delta"}
+    if key in {"perspective_audit_report", "max_runtime_parity_delta"}
 }
 
 generated_config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")

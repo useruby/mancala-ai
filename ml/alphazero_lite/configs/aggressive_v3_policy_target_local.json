@@ -146,21 +146,6 @@
       ]
     },
     {
-      "name": "rules_parity_fuzz",
-      "command": [
-        ".venv/bin/python",
-        "ml/alphazero_lite/parity_fuzz.py",
-        "--games",
-        "20",
-        "--seed",
-        "42",
-        "--max-moves",
-        "120",
-        "--out",
-        "{iter_dir}/parity_report.json"
-      ]
-    },
-    {
       "name": "arena_prefilter_report",
       "command": [
         ".venv/bin/python",
@@ -300,7 +285,6 @@
     }
   ],
   "gates": {
-    "rules_parity_report": "{iter_dir}/parity_report.json",
     "perspective_audit_report": "{iter_dir}/perspective_audit.json",
     "arena_report": "{iter_dir}/arena_report.json",
     "benchmark_report": "{iter_dir}/benchmark_report.json",

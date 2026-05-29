@@ -446,8 +446,6 @@ def execute_lane(lane: dict, lane_config: dict, *, current_path: str) -> dict:
                 "ml/alphazero_lite/pipeline.py",
                 "--config",
                 str(config_path),
-                "--skip-step",
-                "rules_parity_fuzz",
             ],
             stage=f"lane {lane['seed']} pipeline",
         )

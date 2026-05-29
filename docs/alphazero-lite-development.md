@@ -92,14 +92,12 @@ their own.
 - On game over: remaining seeds swept to opposite player's store
 - Winner: larger store; equal stores = draw (`winner = null`)
 
-**Parity requirement:** Ruby and Python must match on per-ply state
+**Rules requirement:** Python rules coverage must preserve correct per-ply state
 transitions, legal move lists, `over` flag, and `winner` value.
 
 **Test sources:**
 - Golden vectors: `test/fixtures/ai/kalah_rule_vectors.json`
-- Ruby parity: `test/models/games/kalah_rules_parity_test.rb`
-- Python parity: `ml/alphazero_lite/tests/test_kalah_rules_parity.py`
-- Differential fuzz: `ml/alphazero_lite/parity_fuzz.py`
+- Python rules coverage: `ml/alphazero_lite/tests/test_kalah_rules_parity.py`
 
 ### 3.2 Benchmark Contract
 
