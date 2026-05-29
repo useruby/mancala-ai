@@ -11,6 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 from ml.alphazero_lite.superhuman_runtime_config import (  # noqa: E402
+    apply_memory_speed_profile,
     apply_shared_worker_normalization,
     apply_runtime_paths,
     final_iteration,
@@ -60,6 +61,9 @@ def build_runtime_config(
         versions_dir=versions_dir,
         current_path=current_path,
         parent_artifact_path=current_path,
+    )
+    config = apply_memory_speed_profile(
+        config, memory_speed_profile=config.get("memory_speed_profile")
     )
     config = apply_shared_worker_normalization(config, workers=workers)
     write_json(runtime_config_path, config)

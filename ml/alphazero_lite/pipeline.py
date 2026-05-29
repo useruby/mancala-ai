@@ -28,7 +28,10 @@ from ml.alphazero_lite.report_validation import (
 )
 from ml.alphazero_lite.run_manifest import build_manifest, write_manifest
 from ml.alphazero_lite.self_play import normalize_value_trust_schedule
-from ml.alphazero_lite.worker_config import normalize_command_workers
+from ml.alphazero_lite.worker_config import (
+    SUPPORTED_MEMORY_SPEED_PROFILES,
+    normalize_memory_speed_profile,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -44,6 +47,14 @@ def parse_args() -> argparse.Namespace:
 def load_config(path: Path) -> dict:
     raw = path.read_text(encoding="utf-8")
     return json.loads(raw)
+
+
+def validate_memory_speed_profile(config: dict) -> None:
+    memory_speed_profile = config.get("memory_speed_profile")
+    if memory_speed_profile is None:
+        return
+    if memory_speed_profile not in SUPPORTED_MEMORY_SPEED_PROFILES:
+        raise SystemExit(f"unsupported memory_speed_profile: {memory_speed_profile}")
 
 
 def checkpoint_feature_count(checkpoint_path: Path) -> int | None:
@@ -170,12 +181,16 @@ def append_step_search_option_flags(step: dict, command: list[str]) -> list[str]
     return augmented
 
 
-def build_step_command(step: dict) -> list[str] | object:
+def build_step_command(
+    step: dict, *, memory_speed_profile: str | None = None
+) -> list[str] | object:
     command = step.get("command", [])
     if not isinstance(command, list) or not command:
         return command
     command = append_step_search_option_flags(step, command)
-    return normalize_command_workers(command)
+    return normalize_memory_speed_profile(
+        command, memory_speed_profile=memory_speed_profile
+    )
 
 
 def has_explicit_value_trust_flag(command: list[str]) -> bool:
@@ -608,10 +623,11 @@ def run_step(
     parent_checkpoint: Path,
     replay_data: str,
     replay_weights: str,
+    memory_speed_profile: str | None = None,
     hard_state_validation_path: str = "",
 ) -> dict:
     name = step.get("name", "unnamed_step")
-    command = build_step_command(step)
+    command = build_step_command(step, memory_speed_profile=memory_speed_profile)
     if not isinstance(command, list) or not command:
         return {
             "name": name,
@@ -652,6 +668,60 @@ def run_step(
         "returncode": result.returncode,
         "duration_s": duration,
         "log_path": str(log_path),
+    }
+
+
+def build_planned_step_result(
+    step: dict,
+    *,
+    iteration: int,
+    final_iteration: int,
+    iter_dir: Path,
+    run_id: str,
+    versions_dir: Path,
+    repo_root: Path,
+    current_path: str,
+    parent_model_dir: Path,
+    parent_checkpoint: Path,
+    replay_data: str,
+    replay_weights: str,
+    memory_speed_profile: str | None = None,
+    hard_state_validation_path: str = "",
+) -> dict:
+    name = step.get("name", "unnamed_step")
+    if step.get("skip_before_final_iteration") and iteration < final_iteration:
+        return {
+            "name": name,
+            "status": "skipped",
+            "reason": "skip_before_final_iteration",
+        }
+
+    command = build_step_command(step, memory_speed_profile=memory_speed_profile)
+    if not isinstance(command, list) or not command:
+        return {
+            "name": name,
+            "status": "failed",
+            "error": "step command must be a non-empty list",
+        }
+
+    rendered = render_command(
+        command,
+        iteration=iteration,
+        iter_dir=iter_dir,
+        run_id=run_id,
+        versions_dir=versions_dir,
+        current_path=current_path,
+        parent_model_dir=parent_model_dir,
+        parent_checkpoint=parent_checkpoint,
+        replay_data=replay_data,
+        replay_weights=replay_weights,
+        hard_state_validation_path=hard_state_validation_path,
+    )
+    rendered = resolve_step_command(rendered, repo_root=repo_root)
+    return {
+        "name": name,
+        "status": "planned",
+        "command": rendered,
     }
 
 
@@ -866,6 +936,7 @@ def main() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     config_path = Path(args.config)
     config = load_config(config_path)
+    validate_memory_speed_profile(config)
 
     run_id = config.get("run_id", "aggressive-v1")
     seed = int(config.get("seed", 42))
@@ -889,6 +960,7 @@ def main() -> None:
     )
     steps = config.get("steps", [])
     gates = config.get("gates", {})
+    memory_speed_profile = config.get("memory_speed_profile")
     replay_window = max(1, int(config.get("replay_window", 1)))
     include_current_iteration = has_self_play_step(steps)
     validate_pipeline_step_config(steps)
@@ -961,7 +1033,32 @@ def main() -> None:
 
         skipped_steps = set(args.skip_step)
 
-        if not args.dry_run:
+        if args.dry_run:
+            for step in steps:
+                if step.get("name") in skipped_steps:
+                    continue
+                step_result = build_planned_step_result(
+                    step,
+                    iteration=iteration,
+                    final_iteration=final_iteration,
+                    iter_dir=iter_dir,
+                    run_id=run_id,
+                    versions_dir=versions_dir,
+                    repo_root=repo_root,
+                    current_path=current_path,
+                    parent_model_dir=parent_model_dir,
+                    parent_checkpoint=parent_checkpoint,
+                    replay_data=replay_data,
+                    replay_weights=replay_weights,
+                    memory_speed_profile=memory_speed_profile,
+                    hard_state_validation_path=hard_state_validation_path,
+                )
+                manifest["steps"].append(step_result)
+                if step_result["status"] == "failed":
+                    manifest["status"] = "failed"
+                    write_manifest(iter_dir / "run_manifest.json", manifest)
+                    raise SystemExit(1)
+        else:
             for step in steps:
                 if (
                     step.get("skip_before_final_iteration")
@@ -998,6 +1095,7 @@ def main() -> None:
                     parent_checkpoint=parent_checkpoint,
                     replay_data=replay_data,
                     replay_weights=replay_weights,
+                    memory_speed_profile=memory_speed_profile,
                     hard_state_validation_path=hard_state_validation_path,
                 )
                 manifest["steps"].append(step_result)

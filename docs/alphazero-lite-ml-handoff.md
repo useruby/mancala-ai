@@ -495,7 +495,7 @@ script/ai/local_promotion_gate \
 .venv/bin/python ml/alphazero_lite/write_tactical_lane_decision.py \
   --bucket-gate artifacts/tactical_lane/final/bucket_gate.json \
   --promotion-gate artifacts/tactical_lane/final/local_promotion_gate.json \
-  --exploratory-summary /tmp/tactical-robustness-confirmation/aggregate_summary.json \
+  --exploratory-summary /tmp/tactical-robustness-confirmation-results/tactical-robustness-confirmation/aggregate_summary.json \
   --out artifacts/tactical_lane/final/tactical_lane_decision.json
 ~~~
 

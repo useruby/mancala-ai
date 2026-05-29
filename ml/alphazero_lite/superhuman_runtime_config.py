@@ -6,7 +6,10 @@ import os
 import sys
 from pathlib import Path
 
-from ml.alphazero_lite.worker_config import normalize_command_workers
+from ml.alphazero_lite.worker_config import (
+    normalize_command_workers,
+    normalize_memory_speed_profile,
+)
 
 
 def repo_root() -> Path:
@@ -112,6 +115,47 @@ def apply_shared_worker_normalization(
         if not isinstance(command, list) or not command:
             continue
         step["command"] = normalize_command_workers(command, workers=workers)
+    return updated
+
+
+def apply_memory_speed_profile(
+    config: dict, *, memory_speed_profile: str | None = None
+) -> dict:
+    def worker_override(command: list[str]) -> int | None:
+        if "--workers" in command:
+            worker_index = command.index("--workers") + 1
+            if worker_index >= len(command):
+                return None
+            worker_value = command[worker_index]
+            if worker_value.startswith("--"):
+                return None
+            try:
+                return int(worker_value)
+            except ValueError:
+                return None
+
+        for token in command:
+            if token.startswith("--workers="):
+                worker_value = token.removeprefix("--workers=")
+                try:
+                    return int(worker_value)
+                except ValueError:
+                    return None
+        return None
+
+    updated = copy.deepcopy(config)
+    for step in updated.get("steps", []):
+        command = step.get("command")
+        if not isinstance(command, list) or not command:
+            continue
+        workers = worker_override(command)
+        step["command"] = normalize_memory_speed_profile(
+            command, memory_speed_profile=memory_speed_profile
+        )
+        if workers is not None:
+            step["command"] = normalize_command_workers(
+                step["command"], workers=workers
+            )
     return updated
 
 
