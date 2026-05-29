@@ -437,7 +437,7 @@ class PipelineScriptTest(unittest.TestCase):
                         "iterations": 1,
                         "steps": [
                             {
-                                "name": "first_step",
+                                "name": "kept_step",
                                 "command": [
                                     "python3",
                                     "-c",
@@ -445,7 +445,7 @@ class PipelineScriptTest(unittest.TestCase):
                                 ],
                             },
                             {
-                                "name": "rules_parity_fuzz",
+                                "name": "skipped_step",
                                 "command": ["python3", "-c", "raise SystemExit(9)"],
                             },
                         ],
@@ -461,7 +461,7 @@ class PipelineScriptTest(unittest.TestCase):
                     "--config",
                     str(config_path),
                     "--skip-step",
-                    "rules_parity_fuzz",
+                    "skipped_step",
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -477,14 +477,14 @@ class PipelineScriptTest(unittest.TestCase):
             )
             self.assertEqual("completed", manifest["status"])
             self.assertEqual(
-                ["first_step"], [step["name"] for step in manifest["steps"]]
+                ["kept_step"], [step["name"] for step in manifest["steps"]]
             )
 
-    def test_pipeline_skip_rules_parity_fuzz_also_skips_parity_gate(self):
+    def test_pipeline_skip_step_omits_skipped_command(self):
         repo_root = Path(__file__).resolve().parents[2]
 
-        with tempfile.TemporaryDirectory(prefix="pipeline-skip-gate-") as tmp:
-            run_id = "skip-parity-gate"
+        with tempfile.TemporaryDirectory(prefix="pipeline-skip-step-") as tmp:
+            run_id = "skip-generic-step"
             config_path = Path(tmp) / "config.json"
             versions_dir = Path(tmp) / "versions"
             config_path.write_text(
@@ -496,17 +496,22 @@ class PipelineScriptTest(unittest.TestCase):
                         "iterations": 1,
                         "steps": [
                             {
-                                "name": "rules_parity_fuzz",
+                                "name": "write_kept_file",
                                 "command": [
                                     "python3",
                                     "-c",
-                                    "from pathlib import Path; Path('{iter_dir}/parity_report.json').write_text('{}')",
+                                    "from pathlib import Path; Path('{iter_dir}/kept.txt').write_text('ok')",
+                                ],
+                            },
+                            {
+                                "name": "write_skipped_file",
+                                "command": [
+                                    "python3",
+                                    "-c",
+                                    "from pathlib import Path; Path('{iter_dir}/skipped.txt').write_text('skip')",
                                 ],
                             },
                         ],
-                        "gates": {
-                            "rules_parity_report": "{iter_dir}/parity_report.json",
-                        },
                     }
                 ),
                 encoding="utf-8",
@@ -519,7 +524,7 @@ class PipelineScriptTest(unittest.TestCase):
                     "--config",
                     str(config_path),
                     "--skip-step",
-                    "rules_parity_fuzz",
+                    "write_skipped_file",
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -528,13 +533,9 @@ class PipelineScriptTest(unittest.TestCase):
             )
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
-            manifest = json.loads(
-                (versions_dir / f"{run_id}-iter1" / "run_manifest.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-            self.assertEqual("completed", manifest["status"])
-            self.assertEqual([], manifest["gate_failures"])
+            iter_dir = versions_dir / f"{run_id}-iter1"
+            self.assertTrue((iter_dir / "kept.txt").exists())
+            self.assertFalse((iter_dir / "skipped.txt").exists())
 
     def test_pipeline_writes_environment_report(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -2084,70 +2085,6 @@ class PipelineScriptTest(unittest.TestCase):
 
         self.assertEqual([sys.executable, "-c", "print('ok')"], resolved)
 
-    def test_run_fails_when_rules_parity_gate_fails(self):
-        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
-            tmp_path = Path(tmp)
-            config_path = tmp_path / "config.yaml"
-            out_dir = tmp_path / "versions"
-
-            config_path.write_text(
-                json.dumps(
-                    {
-                        "run_id": "aggressive-v1",
-                        "seed": 42,
-                        "iterations": 1,
-                        "versions_dir": str(out_dir),
-                        "current_path": "storage/ai/alphazero_lite/current",
-                        "steps": [
-                            {
-                                "name": "write_parity_report",
-                                "command": [
-                                    sys.executable,
-                                    "-c",
-                                    (
-                                        "import json,sys; "
-                                        "path=sys.argv[1]; "
-                                        "json.dump(dict(schema='kalah_parity_fuzz_v1', parity_passed=False, mismatch_count=1), open(path,'w',encoding='utf-8'))"
-                                    ),
-                                    "{iter_dir}/parity_report.json",
-                                ],
-                            }
-                        ],
-                        "gates": {
-                            "rules_parity_report": "{iter_dir}/parity_report.json",
-                        },
-                    }
-                ),
-                encoding="utf-8",
-            )
-
-            result = subprocess.run(
-                [
-                    self.executable_python(),
-                    "ml/alphazero_lite/pipeline.py",
-                    "--config",
-                    str(config_path),
-                ],
-                cwd=Path(__file__).resolve().parents[2],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-
-            self.assertNotEqual(0, result.returncode)
-            manifest = json.loads(
-                (out_dir / "aggressive-v1-iter1" / "run_manifest.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-            self.assertEqual("failed", manifest["status"])
-            self.assertTrue(
-                any(
-                    failure["code"] == "rules_parity_failed"
-                    for failure in manifest["gate_failures"]
-                )
-            )
-
     def test_run_fails_when_arena_gate_score_below_threshold(self):
         with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
             tmp_path = Path(tmp)
@@ -2213,6 +2150,137 @@ class PipelineScriptTest(unittest.TestCase):
                 )
             )
 
+    def test_run_fails_when_obsolete_rules_parity_gate_is_configured(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.yaml"
+            out_dir = tmp_path / "versions"
+            marker_path = out_dir / "aggressive-v1-iter1" / "marker.txt"
+            missing_parent_path = tmp_path / "missing-parent"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "aggressive-v1",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "parent_artifact_path": str(missing_parent_path),
+                        "steps": [
+                            {
+                                "name": "write_marker",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "from pathlib import Path; Path('{iter_dir}/marker.txt').write_text('ok', encoding='utf-8')",
+                                ],
+                            }
+                        ],
+                        "gates": {
+                            "rules_parity_report": None,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/pipeline.py",
+                    "--config",
+                    str(config_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertFalse(marker_path.exists())
+            self.assertNotIn("missing parent_artifact_path", result.stderr)
+            manifest = json.loads(
+                (out_dir / "aggressive-v1-iter1" / "run_manifest.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual("failed", manifest["status"])
+            self.assertEqual([], manifest["steps"])
+            self.assertIn(
+                {
+                    "code": "obsolete_gate",
+                    "message": "obsolete/unsupported gate configured: rules_parity_report",
+                },
+                manifest["gate_failures"],
+            )
+
+    def test_dry_run_fails_when_obsolete_rules_parity_gate_is_configured(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-pipeline-dry-run-") as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "config.json"
+            out_dir = tmp_path / "versions"
+            marker_path = out_dir / "aggressive-v1-iter1" / "marker.txt"
+
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "aggressive-v1",
+                        "seed": 42,
+                        "iterations": 1,
+                        "versions_dir": str(out_dir),
+                        "current_path": "storage/ai/alphazero_lite/current",
+                        "steps": [
+                            {
+                                "name": "write_marker",
+                                "command": [
+                                    sys.executable,
+                                    "-c",
+                                    "from pathlib import Path; Path('{iter_dir}/marker.txt').write_text('ok', encoding='utf-8')",
+                                ],
+                            }
+                        ],
+                        "gates": {
+                            "rules_parity_report": None,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/pipeline.py",
+                    "--config",
+                    str(config_path),
+                    "--dry-run",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertNotIn("pipeline_dry_run_complete", result.stdout)
+            self.assertFalse(marker_path.exists())
+            manifest = json.loads(
+                (out_dir / "aggressive-v1-iter1" / "run_manifest.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual("failed", manifest["status"])
+            self.assertEqual([], manifest["steps"])
+            self.assertIn(
+                {
+                    "code": "obsolete_gate",
+                    "message": "obsolete/unsupported gate configured: rules_parity_report",
+                },
+                manifest["gate_failures"],
+            )
+
     def test_run_passes_when_all_configured_gates_pass(self):
         with tempfile.TemporaryDirectory(prefix="azlite-pipeline-") as tmp:
             tmp_path = Path(tmp)
@@ -2236,7 +2304,6 @@ class PipelineScriptTest(unittest.TestCase):
                                     (
                                         "import json,sys,pathlib; "
                                         "iter_dir=pathlib.Path(sys.argv[1]); "
-                                        "json.dump(dict(schema='kalah_parity_fuzz_v1', parity_passed=True, mismatch_count=0), open(iter_dir/'parity_report.json','w',encoding='utf-8')); "
                                         "json.dump(dict(schema='arena_v1', games_played=10, wins=7, losses=3, draws=0, promotion_decision=dict(passed=True)), open(iter_dir/'arena_report.json','w',encoding='utf-8')); "
                                         "json.dump(dict(schema='azlite_benchmark_v1', checks=[dict(id='az_identity', passed=True), dict(id='runtime_parity', passed=True)]), open(iter_dir/'benchmark_report.json','w',encoding='utf-8'))"
                                     ),
@@ -2245,7 +2312,6 @@ class PipelineScriptTest(unittest.TestCase):
                             }
                         ],
                         "gates": {
-                            "rules_parity_report": "{iter_dir}/parity_report.json",
                             "arena_report": "{iter_dir}/arena_report.json",
                             "benchmark_report": "{iter_dir}/benchmark_report.json",
                             "min_arena_score": 0.55,
@@ -6552,6 +6618,11 @@ class PipelineScriptTest(unittest.TestCase):
                 variant_config = self.load_v2_local_config(filename)
                 variant_steps = self.config_steps_by_name(variant_config)
 
+                self.assertNotIn("rules_parity_fuzz", base_steps)
+                self.assertNotIn("rules_parity_fuzz", variant_steps)
+                self.assertNotIn("rules_parity_report", base_config["gates"])
+                self.assertNotIn("rules_parity_report", variant_config["gates"])
+
                 self.assertEqual(set(base_config), set(variant_config))
                 self.assertEqual(base_config["seed"], variant_config["seed"])
                 self.assertEqual(
@@ -6569,7 +6640,6 @@ class PipelineScriptTest(unittest.TestCase):
                 for step_name in (
                     "perspective_audit",
                     "export_artifact",
-                    "rules_parity_fuzz",
                     "arena_prefilter_report",
                     "arena_prefilter_validate",
                     "arena_confirm_report",
@@ -6713,6 +6783,11 @@ class PipelineScriptTest(unittest.TestCase):
         variant_steps = self.config_steps_by_name(variant_config)
         iter_dir = repo_root / "tmp" / "aggressive-v2-search-quality-local-iter1"
 
+        self.assertNotIn("rules_parity_fuzz", base_steps)
+        self.assertNotIn("rules_parity_fuzz", variant_steps)
+        self.assertNotIn("rules_parity_report", base_config["gates"])
+        self.assertNotIn("rules_parity_report", variant_config["gates"])
+
         self.assertEqual("aggressive-v2-search-quality-local", variant_config["run_id"])
         self.assertEqual(
             "/tmp/azlite_v2_search_quality_local_versions",
@@ -6750,7 +6825,6 @@ class PipelineScriptTest(unittest.TestCase):
             "mcts_bootstrap_dataset",
             "train",
             "export_artifact",
-            "rules_parity_fuzz",
             "arena_prefilter_validate",
             "arena_validate",
         ):
@@ -6804,6 +6878,11 @@ class PipelineScriptTest(unittest.TestCase):
         base_steps = self.config_steps_by_name(base_config)
         variant_steps = self.config_steps_by_name(variant_config)
         iter_dir = repo_root / "tmp" / "aggressive-v3-tactical-encoding-local-iter1"
+
+        self.assertNotIn("rules_parity_fuzz", base_steps)
+        self.assertNotIn("rules_parity_fuzz", variant_steps)
+        self.assertNotIn("rules_parity_report", base_config["gates"])
+        self.assertNotIn("rules_parity_report", variant_config["gates"])
 
         self.assertEqual(
             "aggressive-v3-tactical-encoding-local", variant_config["run_id"]
@@ -6864,7 +6943,6 @@ class PipelineScriptTest(unittest.TestCase):
 
         for step_name in (
             "perspective_audit",
-            "rules_parity_fuzz",
             "arena_prefilter_report",
             "arena_prefilter_validate",
             "arena_confirm_report",
@@ -7095,7 +7173,6 @@ class PipelineScriptTest(unittest.TestCase):
             "self_play",
             "perspective_audit",
             "mcts_bootstrap_dataset",
-            "rules_parity_fuzz",
             "arena_prefilter_report",
             "arena_prefilter_validate",
             "arena_confirm_report",
@@ -7140,7 +7217,6 @@ class PipelineScriptTest(unittest.TestCase):
             "self_play",
             "perspective_audit",
             "mcts_bootstrap_dataset",
-            "rules_parity_fuzz",
             "arena_prefilter_report",
             "arena_prefilter_validate",
             "arena_confirm_report",
@@ -7271,7 +7347,6 @@ class PipelineScriptTest(unittest.TestCase):
         for step_name in (
             "perspective_audit",
             "export_artifact",
-            "rules_parity_fuzz",
             "arena_prefilter_report",
             "arena_prefilter_validate",
             "arena_confirm_report",
@@ -7377,7 +7452,6 @@ class PipelineScriptTest(unittest.TestCase):
         for step_name in (
             "perspective_audit",
             "export_artifact",
-            "rules_parity_fuzz",
             "arena_prefilter_report",
             "arena_prefilter_validate",
             "arena_confirm_report",
@@ -7952,7 +8026,6 @@ class PipelineScriptTest(unittest.TestCase):
         for step_name in (
             "perspective_audit",
             "export_artifact",
-            "rules_parity_fuzz",
             "arena_prefilter_report",
             "arena_prefilter_validate",
             "arena_confirm_report",
@@ -8083,7 +8156,6 @@ class PipelineScriptTest(unittest.TestCase):
         for step_name in (
             "perspective_audit",
             "export_artifact",
-            "rules_parity_fuzz",
             "arena_prefilter_report",
             "arena_prefilter_validate",
             "arena_confirm_report",
