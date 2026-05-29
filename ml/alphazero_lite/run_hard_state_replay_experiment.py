@@ -229,17 +229,64 @@ def candidate_dir_for_config(config: dict) -> Path:
     )
 
 
+def _rewrite_command_seed_flags(
+    command: list[object], *, original_seed: int, new_seed: int
+) -> list[object]:
+    rewritten = list(command)
+    if "--seed" in rewritten:
+        seed_index = rewritten.index("--seed")
+        if seed_index + 1 < len(rewritten):
+            rewritten[seed_index + 1] = str(new_seed)
+
+    if "--seed-sweep" in rewritten:
+        seed_sweep_index = rewritten.index("--seed-sweep")
+        if seed_sweep_index + 1 < len(rewritten):
+            raw_seed_sweep = str(rewritten[seed_sweep_index + 1])
+            try:
+                sweep_values = [
+                    int(value.strip())
+                    for value in raw_seed_sweep.split(",")
+                    if value.strip()
+                ]
+            except ValueError:
+                sweep_values = []
+            if sweep_values:
+                rewritten[seed_sweep_index + 1] = ",".join(
+                    str(new_seed + (value - original_seed)) for value in sweep_values
+                )
+    return rewritten
+
+
+def apply_runtime_seed(config: dict, *, seed: int) -> dict:
+    rewritten = json.loads(json.dumps(config))
+    original_seed = int(rewritten.get("seed", seed))
+    rewritten["seed"] = int(seed)
+    for step in rewritten.get("steps", []):
+        if not isinstance(step, dict):
+            continue
+        command = step.get("command")
+        if not isinstance(command, list):
+            continue
+        step["command"] = _rewrite_command_seed_flags(
+            command,
+            original_seed=original_seed,
+            new_seed=int(seed),
+        )
+    return rewritten
+
+
 def build_runtime_config(
     *,
     base_config: dict,
     run_root: Path,
     stronger_train_path: Path,
     weight: int,
+    seed: int,
     current_path: str | None,
     hard_state_validation_path: str | None,
 ) -> tuple[dict, Path]:
     variant_root = run_root / f"w{weight}"
-    config = json.loads(json.dumps(base_config))
+    config = apply_runtime_seed(base_config, seed=seed)
     config["run_id"] = f"{config['run_id']}-hard-state-replay-w{weight}"
     config["versions_dir"] = str(variant_root / "versions")
     if current_path is not None:
@@ -397,6 +444,7 @@ def main(argv: list[str] | None = None) -> int:
             run_root=paths["variants_dir"],
             stronger_train_path=paths["stronger_train"],
             weight=weight,
+            seed=args.seed,
             current_path=args.current_path,
             hard_state_validation_path=None
             if hard_state_validation_path is None
