@@ -20,6 +20,9 @@ from ml.alphazero_lite.run_rule_conditioned_opening_full_guarded_experiment impo
     write_json,
 )
 from ml.alphazero_lite.run_search_quality_option_ablation import inject_search_flags
+from ml.alphazero_lite.run_search_quality_option_ablation import (
+    resolve_step_command as resolve_search_step_command,
+)
 
 
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
@@ -109,21 +112,31 @@ def control_commands(
     current_path: Path,
     out_dir: Path,
 ) -> dict[str, list[str]]:
+    resolved_repo_root = repo_root()
     steps = steps_by_name(search_control_config)
-    base_arena = replace_placeholder_tokens(
-        list(steps["arena_confirm_report"]["command"]),
-        candidate_path=str(candidate_path),
-        current_path=str(current_path),
+    base_arena = resolve_search_step_command(
+        replace_placeholder_tokens(
+            list(steps["arena_confirm_report"]["command"]),
+            candidate_path=str(candidate_path),
+            current_path=str(current_path),
+        ),
+        resolved_repo_root=resolved_repo_root,
     )
-    base_candidate_mcts = replace_placeholder_tokens(
-        list(steps["mcts1200_baseline_report"]["command"]),
-        candidate_path=str(candidate_path),
-        current_path=str(current_path),
+    base_candidate_mcts = resolve_search_step_command(
+        replace_placeholder_tokens(
+            list(steps["mcts1200_baseline_report"]["command"]),
+            candidate_path=str(candidate_path),
+            current_path=str(current_path),
+        ),
+        resolved_repo_root=resolved_repo_root,
     )
-    base_current_mcts = replace_placeholder_tokens(
-        list(steps["current_mcts1200_baseline_report"]["command"]),
-        candidate_path=str(candidate_path),
-        current_path=str(current_path),
+    base_current_mcts = resolve_search_step_command(
+        replace_placeholder_tokens(
+            list(steps["current_mcts1200_baseline_report"]["command"]),
+            candidate_path=str(candidate_path),
+            current_path=str(current_path),
+        ),
+        resolved_repo_root=resolved_repo_root,
     )
 
     arena_command = inject_search_flags(
