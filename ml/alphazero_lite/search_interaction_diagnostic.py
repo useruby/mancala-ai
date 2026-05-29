@@ -866,6 +866,7 @@ def probe_artifact_position(
     evaluator=None,
     search_options=None,
     ablation_mode="full",
+    root_prior_override=None,
 ) -> dict:
     arena = load_arena_module()
     if evaluator is None:
@@ -889,6 +890,7 @@ def probe_artifact_position(
             field_name="search_options",
         ),
         ablation_mode=resolved_ablation_mode,
+        root_prior_override=root_prior_override,
     )
 
 
