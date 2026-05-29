@@ -247,15 +247,15 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     root = repo_root()
     holdout_path = resolve_path(root, args.holdout_path)
+    excluded_keys = holdout_keys(holdout_path)
     self_play_files = discover_self_play_files(
         [value.strip() for value in args.inputs.split(",") if value.strip()]
     )
     candidates = collect_candidates(
         self_play_files,
-        excluded_keys=holdout_keys(holdout_path),
+        excluded_keys=excluded_keys,
     )
     seen_keys = {candidate["canonical_state"] for candidate in candidates}
-    excluded_keys = holdout_keys(holdout_path)
     candidates.extend(
         collect_proxy_candidates(
             excluded_keys=excluded_keys,
