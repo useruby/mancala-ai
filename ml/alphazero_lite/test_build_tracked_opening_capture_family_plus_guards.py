@@ -5,7 +5,9 @@ import unittest
 
 class BuildTrackedOpeningCaptureFamilyPlusGuardsTest(unittest.TestCase):
     def test_build_rows_replaces_old_opening_rows_with_tracked_rows(self) -> None:
-        from ml.alphazero_lite import build_tracked_opening_capture_family_plus_guards as module
+        from ml.alphazero_lite import (
+            build_tracked_opening_capture_family_plus_guards as module,
+        )
 
         tracked_rows = [
             {
@@ -27,13 +29,24 @@ class BuildTrackedOpeningCaptureFamilyPlusGuardsTest(unittest.TestCase):
             {"replay_role": "nearby_preservation", "teacher_selected_move": 0},
         ]
 
-        rows, summary = module.build_rows(tracked_rows=tracked_rows, guard_rows=guard_rows)
+        rows, summary = module.build_rows(
+            tracked_rows=tracked_rows, guard_rows=guard_rows
+        )
 
         self.assertEqual(4, len(rows))
-        self.assertEqual(1, summary["replay_role_counts"]["opening_capture_extra_turn_reference"])
-        self.assertEqual(1, summary["replay_role_counts"]["opening_capture_no_extra_turn_reference"])
-        self.assertEqual(["capture_available-005", "capture_available-006"], summary["tracked_row_ids"])
-        self.assertEqual({0: 1, 1: 1, 2: 1, 4: 1}, summary["teacher_selected_move_distribution"])
+        self.assertEqual(
+            1, summary["replay_role_counts"]["opening_capture_extra_turn_reference"]
+        )
+        self.assertEqual(
+            1, summary["replay_role_counts"]["opening_capture_no_extra_turn_reference"]
+        )
+        self.assertEqual(
+            ["capture_available-005", "capture_available-006"],
+            summary["tracked_row_ids"],
+        )
+        self.assertEqual(
+            {0: 1, 1: 1, 2: 1, 4: 1}, summary["teacher_selected_move_distribution"]
+        )
         self.assertEqual(
             {
                 "opening_capture_extra_turn_reference": 1,

@@ -5,7 +5,9 @@ import unittest
 
 class BuildTrackedOpeningCapturePolicyArtifactTest(unittest.TestCase):
     def test_derive_policy_normalizes_child_visits(self) -> None:
-        from ml.alphazero_lite import build_tracked_opening_capture_policy_artifact as module
+        from ml.alphazero_lite import (
+            build_tracked_opening_capture_policy_artifact as module,
+        )
 
         policy = module.derive_policy(
             [
@@ -18,8 +20,12 @@ class BuildTrackedOpeningCapturePolicyArtifactTest(unittest.TestCase):
         self.assertEqual(0.25, policy[4])
         self.assertAlmostEqual(1.0, sum(policy))
 
-    def test_build_artifact_rows_uses_reference_moves_not_existing_opening_replay_moves(self) -> None:
-        from ml.alphazero_lite import build_tracked_opening_capture_policy_artifact as module
+    def test_build_artifact_rows_uses_reference_moves_not_existing_opening_replay_moves(
+        self,
+    ) -> None:
+        from ml.alphazero_lite import (
+            build_tracked_opening_capture_policy_artifact as module,
+        )
 
         candidate_forensics = {
             "systems": {
@@ -112,8 +118,12 @@ class BuildTrackedOpeningCapturePolicyArtifactTest(unittest.TestCase):
             summary["reference_extra_turn_by_row"],
         )
 
-    def test_replay_role_for_reference_move_distinguishes_extra_turn_polarity(self) -> None:
-        from ml.alphazero_lite import build_tracked_opening_capture_policy_artifact as module
+    def test_replay_role_for_reference_move_distinguishes_extra_turn_polarity(
+        self,
+    ) -> None:
+        from ml.alphazero_lite import (
+            build_tracked_opening_capture_policy_artifact as module,
+        )
 
         no_extra_turn_state = {
             "player_pits": [5, 4, 4, 0, 5, 0],

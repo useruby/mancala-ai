@@ -106,7 +106,9 @@ class BuildCapture002003RuleCollisionGuardArtifactTest(unittest.TestCase):
         self.assertEqual(
             {
                 module.RULE_COLLISION_EXTRA_TURN_GUARD_ROLE: ["capture_available-003"],
-                module.RULE_COLLISION_NO_EXTRA_TURN_GUARD_ROLE: ["capture_available-002"],
+                module.RULE_COLLISION_NO_EXTRA_TURN_GUARD_ROLE: [
+                    "capture_available-002"
+                ],
             },
             summary["row_ids_by_replay_role"],
         )

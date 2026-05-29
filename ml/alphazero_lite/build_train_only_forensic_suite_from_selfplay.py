@@ -13,11 +13,17 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite import build_forensic_suite
-from ml.alphazero_lite.forensic_suite import REQUIRED_BUCKETS, canonical_state_key, load_suite
+from ml.alphazero_lite.forensic_suite import (
+    REQUIRED_BUCKETS,
+    canonical_state_key,
+    load_suite,
+)
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 
-DEFAULT_HOLDOUT_PATH = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
+DEFAULT_HOLDOUT_PATH = Path(
+    "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+)
 DEFAULT_TARGET_SIZE = 224
 DEFAULT_MIN_PER_BUCKET = 12
 
@@ -65,9 +71,13 @@ def discover_self_play_files(inputs: list[str]) -> list[Path]:
 
 def decode_state(features: list[Any]) -> dict[str, Any]:
     if not isinstance(features, list) or len(features) < 15:
-        raise ValueError("self-play row state must be a feature list with at least 15 values")
+        raise ValueError(
+            "self-play row state must be a feature list with at least 15 values"
+        )
     return {
-        "player_pits": [max(0, int(round(float(features[idx]) * 48.0))) for idx in range(6)],
+        "player_pits": [
+            max(0, int(round(float(features[idx]) * 48.0))) for idx in range(6)
+        ],
         "opponent_pits": [
             max(0, int(round(float(features[6 + idx]) * 48.0))) for idx in range(6)
         ],
@@ -81,7 +91,9 @@ def holdout_keys(path: Path) -> set[str]:
     return {position.canonical_key for position in load_suite(path)}
 
 
-def row_from_self_play(*, row: dict[str, Any], source_path: Path, line_number: int) -> dict[str, Any] | None:
+def row_from_self_play(
+    *, row: dict[str, Any], source_path: Path, line_number: int
+) -> dict[str, Any] | None:
     state = decode_state(row["state"])
     game = KalahGame.from_state(state)
     legal_moves = game.possible_moves()
@@ -104,7 +116,9 @@ def row_from_self_play(*, row: dict[str, Any], source_path: Path, line_number: i
     }
 
 
-def collect_candidates(self_play_files: list[Path], *, excluded_keys: set[str]) -> list[dict[str, Any]]:
+def collect_candidates(
+    self_play_files: list[Path], *, excluded_keys: set[str]
+) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     seen: set[str] = set()
     for source_path in self_play_files:
@@ -127,7 +141,9 @@ def collect_candidates(self_play_files: list[Path], *, excluded_keys: set[str]) 
                 candidate["canonical_state"] = key
                 candidates.append(candidate)
     if not candidates:
-        raise ValueError("no train-only forensic candidates found after holdout exclusion")
+        raise ValueError(
+            "no train-only forensic candidates found after holdout exclusion"
+        )
     return candidates
 
 
@@ -221,7 +237,8 @@ def build_suite_rows(
     missing = sorted(REQUIRED_BUCKETS - present_buckets)
     if missing:
         raise ValueError(
-            "train-only forensic suite is missing required buckets: " + ", ".join(missing)
+            "train-only forensic suite is missing required buckets: "
+            + ", ".join(missing)
         )
     return rows
 

@@ -38,14 +38,18 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
     )
 
 
-def build_rows(*, opening_family_rows: list[dict], rule_collision_guard_rows: list[dict]) -> tuple[list[dict], dict]:
+def build_rows(
+    *, opening_family_rows: list[dict], rule_collision_guard_rows: list[dict]
+) -> tuple[list[dict], dict]:
     rows = [
         *[json.loads(json.dumps(row)) for row in opening_family_rows],
         *[json.loads(json.dumps(row)) for row in rule_collision_guard_rows],
     ]
     replay_role_counts = Counter(str(row.get("replay_role", "")) for row in rows)
     teacher_move_counts = Counter(
-        int(row["teacher_selected_move"]) for row in rows if "teacher_selected_move" in row
+        int(row["teacher_selected_move"])
+        for row in rows
+        if "teacher_selected_move" in row
     )
     row_ids_by_replay_role: dict[str, list[str]] = {}
     teacher_move_counts_by_replay_role: dict[str, Counter[int]] = {}
@@ -77,13 +81,16 @@ def build_rows(*, opening_family_rows: list[dict], rule_collision_guard_rows: li
         "replay_role_counts": dict(sorted(replay_role_counts.items())),
         "teacher_selected_move_distribution": dict(sorted(teacher_move_counts.items())),
         "row_ids_by_replay_role": {
-            role: row_ids_by_replay_role[role] for role in sorted(row_ids_by_replay_role)
+            role: row_ids_by_replay_role[role]
+            for role in sorted(row_ids_by_replay_role)
         },
         "teacher_selected_move_distribution_by_replay_role": {
             role: dict(sorted(teacher_move_counts_by_replay_role[role].items()))
             for role in sorted(teacher_move_counts_by_replay_role)
         },
-        "reference_extra_turn_by_row": dict(sorted(reference_extra_turn_by_row.items())),
+        "reference_extra_turn_by_row": dict(
+            sorted(reference_extra_turn_by_row.items())
+        ),
         "tracked_opening_row_ids": tracked_opening_row_ids,
         "rule_collision_guard_row_ids": rule_collision_guard_row_ids,
         "rule_collision_guard_count": len(rule_collision_guard_row_ids),

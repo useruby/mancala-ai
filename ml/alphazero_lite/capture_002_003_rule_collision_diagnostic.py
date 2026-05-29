@@ -92,7 +92,9 @@ def simulate_move_rule_features(*, state: dict, move: int) -> dict:
 
     pit_seeds = game.pits[absolute_index]
     game.pits[absolute_index] = 0
-    last_pit_index, extra_turn = game._seeding(absolute_index, pit_seeds, original_player)
+    last_pit_index, extra_turn = game._seeding(
+        absolute_index, pit_seeds, original_player
+    )
 
     landing_pit = None
     lands_in_store = bool(extra_turn)
@@ -292,9 +294,7 @@ def infer_diagnosis(*, rows: dict[str, dict]) -> dict:
         row_002_tracked_selected["extra_turn_available"]
         and row_002_broader_selected["extra_turn_available"]
     )
-    row_002_reference_is_not_extra_turn = not row_002_reference[
-        "extra_turn_available"
-    ]
+    row_002_reference_is_not_extra_turn = not row_002_reference["extra_turn_available"]
     row_003_reference_is_extra_turn = row_003_reference["extra_turn_available"]
     row_003_stays_reference = (
         row_003["search_runs"]["tracked"]["searched_selected_move"]
@@ -306,11 +306,11 @@ def infer_diagnosis(*, rows: dict[str, dict]) -> dict:
     )
     row_002_reference_is_not_capture = not row_002_reference["capture_legal"]
     broader_q_prefers_reference = (
-        (row_002_broader.get("selected_minus_reference_q_margin") or 0.0) < 0.0
+        row_002_broader.get("selected_minus_reference_q_margin") or 0.0
+    ) < 0.0
+    tracked_q_is_near_neutral = (
+        abs(row_002_tracked.get("selected_minus_reference_q_margin") or 0.0) <= 0.02
     )
-    tracked_q_is_near_neutral = abs(
-        row_002_tracked.get("selected_minus_reference_q_margin") or 0.0
-    ) <= 0.02
 
     if (
         row_002_wrong_move_is_extra_turn
@@ -337,7 +337,10 @@ def infer_diagnosis(*, rows: dict[str, dict]) -> dict:
             "evidence": evidence,
         }
 
-    if row_002_reference["capture_legal"] and not row_002_tracked_selected["capture_legal"]:
+    if (
+        row_002_reference["capture_legal"]
+        and not row_002_tracked_selected["capture_legal"]
+    ):
         return {
             "best_explanation": "no_extra_turn_capture_undervaluation",
             "recommendation": "row_pair_diagnostic_replay_artifact",
@@ -414,7 +417,9 @@ def main(argv: list[str] | None = None) -> int:
         broader_arbitration_path=args.broader_arbitration,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(
         json.dumps(
             {

@@ -12,7 +12,9 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 
-DEFAULT_GUARD_SOURCE = Path("ml/alphazero_lite/tactical_opening_capture_family_replay.jsonl")
+DEFAULT_GUARD_SOURCE = Path(
+    "ml/alphazero_lite/tactical_opening_capture_family_replay.jsonl"
+)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -41,7 +43,9 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
     )
 
 
-def build_rows(*, tracked_rows: list[dict], guard_rows: list[dict]) -> tuple[list[dict], dict]:
+def build_rows(
+    *, tracked_rows: list[dict], guard_rows: list[dict]
+) -> tuple[list[dict], dict]:
     preserved_guard_rows = [
         json.loads(json.dumps(row))
         for row in guard_rows
@@ -55,7 +59,9 @@ def build_rows(*, tracked_rows: list[dict], guard_rows: list[dict]) -> tuple[lis
     rows = [*preserved_guard_rows, *normalized_tracked_rows]
     replay_role_counts = Counter(str(row.get("replay_role", "")) for row in rows)
     teacher_move_counts = Counter(
-        int(row["teacher_selected_move"]) for row in rows if "teacher_selected_move" in row
+        int(row["teacher_selected_move"])
+        for row in rows
+        if "teacher_selected_move" in row
     )
     tracked_replay_role_counts = Counter(
         str(row.get("replay_role", "")) for row in normalized_tracked_rows
@@ -83,18 +89,20 @@ def build_rows(*, tracked_rows: list[dict], guard_rows: list[dict]) -> tuple[lis
         "replay_role_counts": dict(sorted(replay_role_counts.items())),
         "teacher_selected_move_distribution": dict(sorted(teacher_move_counts.items())),
         "tracked_row_ids": [
-            row.get("source_runs", [{}])[0].get("id")
-            for row in normalized_tracked_rows
+            row.get("source_runs", [{}])[0].get("id") for row in normalized_tracked_rows
         ],
         "tracked_replay_role_counts": dict(sorted(tracked_replay_role_counts.items())),
         "row_ids_by_replay_role": {
-            role: row_ids_by_replay_role[role] for role in sorted(row_ids_by_replay_role)
+            role: row_ids_by_replay_role[role]
+            for role in sorted(row_ids_by_replay_role)
         },
         "teacher_selected_move_distribution_by_replay_role": {
             role: dict(sorted(teacher_move_counts_by_replay_role[role].items()))
             for role in sorted(teacher_move_counts_by_replay_role)
         },
-        "reference_extra_turn_by_row": dict(sorted(reference_extra_turn_by_row.items())),
+        "reference_extra_turn_by_row": dict(
+            sorted(reference_extra_turn_by_row.items())
+        ),
         "guard_row_count": len(preserved_guard_rows),
     }
     return rows, summary

@@ -11,7 +11,9 @@ from ml.alphazero_lite import backfill_batch1_hard_state_forensics as module
 class BackfillBatch1HardStateForensicsTest(TestCase):
     def test_validate_suite_path_rejects_holdout_suite(self) -> None:
         root = module.repo_root()
-        with self.assertRaisesRegex(ValueError, "must not be the hard-state validation holdout"):
+        with self.assertRaisesRegex(
+            ValueError, "must not be the hard-state validation holdout"
+        ):
             module.validate_suite_path(root, root / module.DEFAULT_HOLDOUT_SUITE)
 
     def test_build_plan_blocks_without_train_suite(self) -> None:
@@ -37,5 +39,9 @@ class BackfillBatch1HardStateForensicsTest(TestCase):
                 seed=42,
             )
 
-            self.assertEqual("no train-only forensic suite supplied", plan["blocked_reason"])
-            self.assertEqual("blocked_missing_train_suite", plan["variants"][0]["status"])
+            self.assertEqual(
+                "no train-only forensic suite supplied", plan["blocked_reason"]
+            )
+            self.assertEqual(
+                "blocked_missing_train_suite", plan["variants"][0]["status"]
+            )

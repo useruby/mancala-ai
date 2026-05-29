@@ -9,7 +9,9 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_HOLDOUT_SUITE = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
+DEFAULT_HOLDOUT_SUITE = Path(
+    "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+)
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
 
 
@@ -59,7 +61,9 @@ def discover_gate_reports(gate_root: Path) -> list[Path]:
     return reports
 
 
-def validate_suite_path(root: Path, suite_path: Path | None) -> tuple[Path | None, str | None]:
+def validate_suite_path(
+    root: Path, suite_path: Path | None
+) -> tuple[Path | None, str | None]:
     if suite_path is None:
         return None, "no train-only forensic suite supplied"
 
@@ -226,7 +230,11 @@ def main(argv: list[str] | None = None) -> int:
     execution = execute_plan(plan, dry_run=args.dry_run)
     manifest_path = out_root / "manifest.json"
     write_json(manifest_path, {**plan, "execution": execution})
-    print(json.dumps({"manifest": str(manifest_path), "blocked_reason": plan["blocked_reason"]}))
+    print(
+        json.dumps(
+            {"manifest": str(manifest_path), "blocked_reason": plan["blocked_reason"]}
+        )
+    )
     return 0
 
 

@@ -14,7 +14,6 @@ if __package__ in (None, ""):
 
 from ml.alphazero_lite.build_tracked_opening_capture_policy_artifact import (
     EXTRA_TURN_REPLAY_ROLE,
-    NO_EXTRA_TURN_REPLAY_ROLE,
     encode_raw_state,
     replay_role_for_reference_move,
 )
@@ -84,7 +83,9 @@ def build_rows(
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     reference_rows = rows_by_id(list(reference_artifact["rows"]))
     diagnostic_rows = rule_collision_diagnostic.get("rows") or {}
-    resolved_state_encoder = encode_raw_state if state_encoder is None else state_encoder
+    resolved_state_encoder = (
+        encode_raw_state if state_encoder is None else state_encoder
+    )
 
     rows: list[dict[str, Any]] = []
     replay_role_counts: Counter[str] = Counter()
@@ -98,7 +99,9 @@ def build_rows(
         diagnostic_row = diagnostic_rows[row_id]
         raw_state = dict(reference_row["state"])
         reference_move = int(reference_row["reference_move"])
-        replay_role = guard_replay_role(raw_state=raw_state, reference_move=reference_move)
+        replay_role = guard_replay_role(
+            raw_state=raw_state, reference_move=reference_move
+        )
         reference_extra_turn_available = (
             replay_role == RULE_COLLISION_EXTRA_TURN_GUARD_ROLE
         )
@@ -163,7 +166,9 @@ def build_rows(
         replay_role_counts[replay_role] += 1
         teacher_move_counts[reference_move] += 1
         row_ids_by_replay_role.setdefault(replay_role, []).append(row_id)
-        teacher_move_counts_by_replay_role.setdefault(replay_role, Counter())[reference_move] += 1
+        teacher_move_counts_by_replay_role.setdefault(replay_role, Counter())[
+            reference_move
+        ] += 1
         reference_extra_turn_by_row[row_id] = reference_extra_turn_available
 
     summary = {
@@ -173,13 +178,16 @@ def build_rows(
         "replay_role_counts": dict(sorted(replay_role_counts.items())),
         "teacher_selected_move_distribution": dict(sorted(teacher_move_counts.items())),
         "row_ids_by_replay_role": {
-            role: row_ids_by_replay_role[role] for role in sorted(row_ids_by_replay_role)
+            role: row_ids_by_replay_role[role]
+            for role in sorted(row_ids_by_replay_role)
         },
         "teacher_selected_move_distribution_by_replay_role": {
             role: dict(sorted(teacher_move_counts_by_replay_role[role].items()))
             for role in sorted(teacher_move_counts_by_replay_role)
         },
-        "reference_extra_turn_by_row": dict(sorted(reference_extra_turn_by_row.items())),
+        "reference_extra_turn_by_row": dict(
+            sorted(reference_extra_turn_by_row.items())
+        ),
     }
     return rows, summary
 

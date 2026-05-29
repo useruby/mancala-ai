@@ -83,7 +83,9 @@ def encode_raw_state(*, raw_state: dict[str, Any], input_encoding: str):
     return self_play.encode_state(raw_state, input_encoding=input_encoding)
 
 
-def replay_role_for_reference_move(*, raw_state: dict[str, Any], reference_move: int) -> str:
+def replay_role_for_reference_move(
+    *, raw_state: dict[str, Any], reference_move: int
+) -> str:
     move_features = simulate_move_rule_features(state=raw_state, move=reference_move)
     if move_features["extra_turn_available"]:
         return EXTRA_TURN_REPLAY_ROLE
@@ -124,7 +126,9 @@ def build_artifact_rows(
         NO_EXTRA_TURN_REPLAY_ROLE: Counter(),
     }
     reference_extra_turn_by_row: dict[str, bool] = {}
-    resolved_state_encoder = encode_raw_state if state_encoder is None else state_encoder
+    resolved_state_encoder = (
+        encode_raw_state if state_encoder is None else state_encoder
+    )
 
     for summary_row in move_selection_summary:
         row_id = str(summary_row["id"])
@@ -139,11 +143,20 @@ def build_artifact_rows(
         )
         reference_extra_turn_available = replay_role == EXTRA_TURN_REPLAY_ROLE
 
-        if summary_row["baseline_prior"] != reference_move and summary_row["baseline_search"] != reference_move:
+        if (
+            summary_row["baseline_prior"] != reference_move
+            and summary_row["baseline_search"] != reference_move
+        ):
             mechanism = "wrong_family_unrecovered"
-        elif summary_row["baseline_prior"] != reference_move and summary_row["baseline_search"] == reference_move:
+        elif (
+            summary_row["baseline_prior"] != reference_move
+            and summary_row["baseline_search"] == reference_move
+        ):
             mechanism = "search_rescued_wrong_family"
-        elif summary_row["baseline_prior"] == reference_move and summary_row["baseline_search"] == reference_move:
+        elif (
+            summary_row["baseline_prior"] == reference_move
+            and summary_row["baseline_search"] == reference_move
+        ):
             mechanism = "correct_family_preserved"
         else:
             mechanism = "other"
@@ -180,11 +193,19 @@ def build_artifact_rows(
                     }
                 ],
                 "priority_score": priority_score(candidate_row),
-                "teacher_policy_simulations": int(reference_artifact["reference"]["policy_simulations"]),
-                "teacher_value_simulations": int(reference_artifact["reference"]["value_simulations"]),
+                "teacher_policy_simulations": int(
+                    reference_artifact["reference"]["policy_simulations"]
+                ),
+                "teacher_value_simulations": int(
+                    reference_artifact["reference"]["value_simulations"]
+                ),
                 "teacher_seed": int(reference_artifact["reference"]["sample_seeds"][0]),
-                "teacher_policy_seed": int(reference_artifact["reference"]["sample_seeds"][0]),
-                "teacher_value_seed": int(reference_artifact["reference"]["sample_seeds"][0]),
+                "teacher_policy_seed": int(
+                    reference_artifact["reference"]["sample_seeds"][0]
+                ),
+                "teacher_value_seed": int(
+                    reference_artifact["reference"]["sample_seeds"][0]
+                ),
                 "teacher_selected_move": reference_move,
                 "teacher_child_stats": list(reference_row["child_stats"]),
                 "replay_role": replay_role,
@@ -220,7 +241,9 @@ def build_artifact_rows(
             for role in sorted(teacher_move_counts_by_replay_role)
             if teacher_move_counts_by_replay_role[role]
         },
-        "reference_extra_turn_by_row": dict(sorted(reference_extra_turn_by_row.items())),
+        "reference_extra_turn_by_row": dict(
+            sorted(reference_extra_turn_by_row.items())
+        ),
     }
     return artifact_rows, summary
 
@@ -246,7 +269,8 @@ def main(argv: list[str] | None = None) -> int:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(
-        "\n".join(json.dumps(row) for row in artifact_rows) + ("\n" if artifact_rows else ""),
+        "\n".join(json.dumps(row) for row in artifact_rows)
+        + ("\n" if artifact_rows else ""),
         encoding="utf-8",
     )
 
