@@ -2,7 +2,6 @@ import json
 import unittest
 from pathlib import Path
 
-from ml.alphazero_lite import self_play
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 
@@ -28,6 +27,7 @@ class KalahRulesParityTest(unittest.TestCase):
                 self.assertEqual(
                     step["possible_moves"], game.possible_moves(), vector["id"]
                 )
+
 
 if __name__ == "__main__":
     unittest.main()
