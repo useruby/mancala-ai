@@ -55,26 +55,32 @@ def _validated_artifact(artifact: dict) -> dict:
     if not isinstance(artifact, dict):
         raise ValueError("selection-pressure ablation artifact must be an object")
     if artifact.get("schema") != SOURCE_SELECTION_PRESSURE_ABLATION_SCHEMA:
-        raise ValueError(
-            "selection-pressure ablation artifact has wrong schema"
-        )
+        raise ValueError("selection-pressure ablation artifact has wrong schema")
     if artifact.get("row_id") != ROW_ID:
-        raise ValueError(f"selection-pressure ablation artifact row_id must be {ROW_ID}")
+        raise ValueError(
+            f"selection-pressure ablation artifact row_id must be {ROW_ID}"
+        )
     classification = artifact.get("classification")
     if not isinstance(classification, dict):
-        raise ValueError("selection-pressure ablation artifact classification must be an object")
+        raise ValueError(
+            "selection-pressure ablation artifact classification must be an object"
+        )
     classification_name = classification.get("classification")
     expected_decision = SOURCE_CLASSIFICATION_DECISIONS.get(classification_name)
     decision = artifact.get("decision")
     if not isinstance(decision, str) or not decision:
-        raise ValueError("selection-pressure ablation artifact decision must be a non-empty string")
+        raise ValueError(
+            "selection-pressure ablation artifact decision must be a non-empty string"
+        )
     if expected_decision is None or decision != expected_decision:
         raise ValueError(
             "selection-pressure ablation artifact must use a supported classification/decision pair"
         )
     variants = artifact.get("variants")
     if not isinstance(variants, list) or not variants:
-        raise ValueError("selection-pressure ablation artifact variants must be a non-empty list")
+        raise ValueError(
+            "selection-pressure ablation artifact variants must be a non-empty list"
+        )
     validated_variants = [
         _validated_variant(variant, index=index)
         for index, variant in enumerate(variants)
@@ -93,7 +99,9 @@ def build_payload(
 ) -> dict:
     artifact = _validated_artifact(selection_pressure_ablation_artifact)
     variants = artifact["variants"]
-    relieved_variants = [variant for variant in variants if variant["pressure_relieved"]]
+    relieved_variants = [
+        variant for variant in variants if variant["pressure_relieved"]
+    ]
     downstream_valid_variants = [
         variant
         for variant in variants
@@ -109,9 +117,7 @@ def build_payload(
 
     if relieved_variants:
         classification_name = "search_option_sensitive"
-        evidence_summary = (
-            "At least one tested search variant relieved the early selection-score lead."
-        )
+        evidence_summary = "At least one tested search variant relieved the early selection-score lead."
     elif persistent_variants:
         classification_name = "stable_non_residual_selection_advantage"
         evidence_summary = (
@@ -120,9 +126,7 @@ def build_payload(
         )
     else:
         classification_name = "review_prerequisite_blocked"
-        evidence_summary = (
-            "No downstream-valid variant remained available for a non-residual mechanism review."
-        )
+        evidence_summary = "No downstream-valid variant remained available for a non-residual mechanism review."
 
     return {
         "schema": SCHEMA,
@@ -142,7 +146,9 @@ def build_payload(
             "downstream_valid_variant_count": len(downstream_valid_variants),
             "persistent_variant_count": len(persistent_variants),
             "relieved_variant_count": len(relieved_variants),
-            "persistent_variants": [variant["variant"] for variant in persistent_variants],
+            "persistent_variants": [
+                variant["variant"] for variant in persistent_variants
+            ],
             "relieved_variants": [variant["variant"] for variant in relieved_variants],
         },
         "source_snapshot": {

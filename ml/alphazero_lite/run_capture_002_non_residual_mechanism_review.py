@@ -46,11 +46,15 @@ def load_json(path: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def run_command(command: list[str], *, cwd: Path) -> None:
-    completed = subprocess.run(command, cwd=cwd, check=True, capture_output=True, text=True)
+    completed = subprocess.run(
+        command, cwd=cwd, check=True, capture_output=True, text=True
+    )
     if completed.stdout:
         sys.stdout.write(completed.stdout)
     if completed.stderr:
@@ -60,7 +64,9 @@ def run_command(command: list[str], *, cwd: Path) -> None:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     root = repo_root()
-    source_artifact_path = resolve_path(root, args.source_selection_pressure_ablation_artifact)
+    source_artifact_path = resolve_path(
+        root, args.source_selection_pressure_ablation_artifact
+    )
     out_root = resolve_path(root, args.output_root) / args.run_id
     out_root.mkdir(parents=True, exist_ok=True)
 

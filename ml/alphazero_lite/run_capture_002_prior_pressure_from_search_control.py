@@ -26,7 +26,9 @@ DEFAULT_CANDIDATE_PATH = (
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
-DEFAULT_REFERENCE_ARTIFACT = "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+DEFAULT_REFERENCE_ARTIFACT = (
+    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+)
 DEFAULT_SEARCH_CONTROL_CONFIG = (
     "ml/alphazero_lite/configs/aggressive_v3_superhuman_search_control.json"
 )
@@ -60,7 +62,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--candidate-path", default=DEFAULT_CANDIDATE_PATH)
     parser.add_argument("--current-path", default=DEFAULT_CURRENT_PATH)
     parser.add_argument("--reference-artifact", default=DEFAULT_REFERENCE_ARTIFACT)
-    parser.add_argument("--search-control-config", default=DEFAULT_SEARCH_CONTROL_CONFIG)
+    parser.add_argument(
+        "--search-control-config", default=DEFAULT_SEARCH_CONTROL_CONFIG
+    )
     parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args(argv)
@@ -77,14 +81,20 @@ def load_json(path: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
-def run_command(command: list[str], *, cwd: Path, dry_run: bool, log_path: Path) -> None:
+def run_command(
+    command: list[str], *, cwd: Path, dry_run: bool, log_path: Path
+) -> None:
     if dry_run:
         write_json(log_path, {"command": command, "cwd": str(cwd), "dry_run": True})
         return
-    completed = subprocess.run(command, cwd=cwd, text=True, capture_output=True, check=False)
+    completed = subprocess.run(
+        command, cwd=cwd, text=True, capture_output=True, check=False
+    )
     write_json(
         log_path,
         {
@@ -121,13 +131,17 @@ def arbitration_probe_row(reference_row: dict) -> dict:
     return {
         "id": str(reference_row["id"]),
         "canonical_state": str(reference_row["canonical_state"]),
-        "legal_moves": [int(child["move"]) for child in list(reference_row["child_stats"])],
+        "legal_moves": [
+            int(child["move"]) for child in list(reference_row["child_stats"])
+        ],
         "reference_move": int(reference_row["reference_move"]),
         "state": dict(reference_row["state"]),
     }
 
 
-def arbitration_rows(*, candidate_path: Path, reference_artifact_path: Path) -> dict[str, dict]:
+def arbitration_rows(
+    *, candidate_path: Path, reference_artifact_path: Path
+) -> dict[str, dict]:
     resolved_reference_rows = reference_rows(load_json(reference_artifact_path))
     rows = {}
     for row_id in ROW_IDS:
@@ -148,7 +162,9 @@ def arbitration_rows(*, candidate_path: Path, reference_artifact_path: Path) -> 
                 search_options=dict(SEARCH_OPTIONS),
                 ablation_mode=ablation_mode,
             )
-            probe_views[probe_key] = build_row_views(row=probe_row, probe_summary=summary)
+            probe_views[probe_key] = build_row_views(
+                row=probe_row, probe_summary=summary
+            )
         rows[row_id] = {
             **probe_views["full_search"],
             "probe_views": probe_views,
@@ -225,8 +241,12 @@ def main(argv: list[str] | None = None) -> int:
     paths = {
         "arbitration": str(arbitration_path),
         "shared_full_search_drift": str(out_root / "shared_full_search_drift.json"),
-        "selection_score_trace": str(out_root / "capture_002_selection_score_trace.json"),
-        "selection_score_trace_relaxed": str(out_root / "capture_002_selection_score_trace_relaxed.json"),
+        "selection_score_trace": str(
+            out_root / "capture_002_selection_score_trace.json"
+        ),
+        "selection_score_trace_relaxed": str(
+            out_root / "capture_002_selection_score_trace_relaxed.json"
+        ),
         "trace_capture": str(out_root / "capture_002_trace_capture.json"),
     }
 
@@ -286,7 +306,12 @@ def main(argv: list[str] | None = None) -> int:
     ]
 
     for name, command in initial_commands:
-        run_command(command, cwd=root, dry_run=args.dry_run, log_path=out_root / f"{name}.log.json")
+        run_command(
+            command,
+            cwd=root,
+            dry_run=args.dry_run,
+            log_path=out_root / f"{name}.log.json",
+        )
 
     stopped_early = False
     stop_reason = None
@@ -315,8 +340,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if not stopped_early:
         downstream_paths = {
-            "trace_cadence_review": str(out_root / "capture_002_trace_cadence_review.json"),
-            "nonseparable_review": str(out_root / "capture_002_nonseparable_review.json"),
+            "trace_cadence_review": str(
+                out_root / "capture_002_trace_cadence_review.json"
+            ),
+            "nonseparable_review": str(
+                out_root / "capture_002_nonseparable_review.json"
+            ),
             "trace_checkpoint_canonicalization": str(
                 out_root / "capture_002_trace_checkpoint_canonicalization.json"
             ),
@@ -458,7 +487,10 @@ def main(argv: list[str] | None = None) -> int:
 
         for name, command in downstream_commands:
             run_command(
-                command, cwd=root, dry_run=args.dry_run, log_path=out_root / f"{name}.log.json"
+                command,
+                cwd=root,
+                dry_run=args.dry_run,
+                log_path=out_root / f"{name}.log.json",
             )
 
         if not args.dry_run:
@@ -488,7 +520,9 @@ def main(argv: list[str] | None = None) -> int:
 
     summary_path = out_root / "capture_002_prior_pressure_summary.json"
     write_json(summary_path, summary)
-    print(json.dumps({"summary_path": str(summary_path), "dry_run": bool(args.dry_run)}))
+    print(
+        json.dumps({"summary_path": str(summary_path), "dry_run": bool(args.dry_run)})
+    )
     return 0
 
 

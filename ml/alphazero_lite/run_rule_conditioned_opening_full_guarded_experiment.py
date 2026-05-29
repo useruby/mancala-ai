@@ -36,7 +36,9 @@ DEFAULT_BASE_CONFIG = (
 )
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_rule_conditioned_opening_full_guarded"
-DEFAULT_REFERENCE_ARTIFACT = "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+DEFAULT_REFERENCE_ARTIFACT = (
+    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+)
 DEFAULT_WEIGHTS = (1, 2)
 ARTIFACT_POLICY_TARGET_MODE = "sharpened"
 ARTIFACT_VALUE_TARGET_MODE = "sharpened"
@@ -73,7 +75,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--artifact-path", default=DEFAULT_ARTIFACT_PATH)
     parser.add_argument("--current-path", default=DEFAULT_CURRENT_PATH)
     parser.add_argument("--base-config", default=DEFAULT_BASE_CONFIG)
-    parser.add_argument("--weights", default=",".join(str(weight) for weight in DEFAULT_WEIGHTS))
+    parser.add_argument(
+        "--weights", default=",".join(str(weight) for weight in DEFAULT_WEIGHTS)
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args(argv)
@@ -90,7 +94,9 @@ def load_json(path: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def parse_weights(raw_value: str) -> list[int]:
@@ -198,7 +204,9 @@ def candidate_dir_for_config(config: dict) -> Path:
     start_iteration = int(config.get("start_iteration", 1))
     iterations = int(config.get("iterations", 1))
     final_iteration = start_iteration + iterations - 1
-    return Path(str(config["versions_dir"])) / f"{config['run_id']}-iter{final_iteration}"
+    return (
+        Path(str(config["versions_dir"])) / f"{config['run_id']}-iter{final_iteration}"
+    )
 
 
 def run_command(
@@ -219,7 +227,9 @@ def run_command(
             write_json(log_path, result)
         return result
 
-    completed = subprocess.run(command, cwd=cwd, text=True, capture_output=True, check=False)
+    completed = subprocess.run(
+        command, cwd=cwd, text=True, capture_output=True, check=False
+    )
     result = {
         "command": command,
         "cwd": str(cwd),
@@ -293,7 +303,9 @@ def build_probe_row(reference_row: dict) -> dict:
     return {
         "id": str(reference_row["id"]),
         "canonical_state": str(reference_row["canonical_state"]),
-        "legal_moves": [int(child["move"]) for child in list(reference_row["child_stats"])],
+        "legal_moves": [
+            int(child["move"]) for child in list(reference_row["child_stats"])
+        ],
         "reference_move": int(reference_row["reference_move"]),
         "state": dict(reference_row["state"]),
     }
@@ -343,7 +355,13 @@ def extract_row_metrics(*, row_view: dict, reference_move: int) -> dict:
     }
 
 
-def highest_wrong_extra_turn_move(*, state: dict, legal_moves: list[int], reference_move: int, visit_distribution: dict) -> tuple[int | None, float | None]:
+def highest_wrong_extra_turn_move(
+    *,
+    state: dict,
+    legal_moves: list[int],
+    reference_move: int,
+    visit_distribution: dict,
+) -> tuple[int | None, float | None]:
     total_visits = sum(float(value) for value in visit_distribution.values())
     if total_visits <= 0.0:
         return None, None
@@ -437,7 +455,8 @@ def gate_row_payload(
         if (
             candidate_reference_share is not None
             and incumbent_reference_share is not None
-            and candidate_reference_share < incumbent_reference_share - MATERIAL_DEGRADE_MARGIN
+            and candidate_reference_share
+            < incumbent_reference_share - MATERIAL_DEGRADE_MARGIN
         ):
             fail_reasons.append("row_003_reference_visit_share_materially_degraded")
         if not fail_reasons:
@@ -522,9 +541,10 @@ def run_local_gate(
         )
 
     gate_pass = all(bool(rows[row_id]["pass"]) for row_id in ROW_IDS)
-    if rows["capture_available-002"]["candidate"]["searched_selected_move"] != rows[
-        "capture_available-002"
-    ]["reference_move"]:
+    if (
+        rows["capture_available-002"]["candidate"]["searched_selected_move"]
+        != rows["capture_available-002"]["reference_move"]
+    ):
         reason = "row_002_local_rule_collision_persists"
     elif not rows["capture_available-003"]["pass"]:
         reason = "row_003_regressed"
@@ -585,7 +605,10 @@ def benchmark_pass(report: dict) -> bool | None:
 
 
 def top_k_checkpoints_present(iter_dir: Path) -> bool:
-    return any(iter_dir.glob("checkpoint.top*.npz")) or (iter_dir / "checkpoint.npz").exists()
+    return (
+        any(iter_dir.glob("checkpoint.top*.npz"))
+        or (iter_dir / "checkpoint.npz").exists()
+    )
 
 
 def build_variant_configs(
@@ -598,7 +621,9 @@ def build_variant_configs(
     current_path: str,
 ) -> tuple[dict, Path, dict, Path]:
     runtime_config = align_target_modes(apply_runtime_seed(base_config, seed=seed))
-    runtime_config["run_id"] = f"{runtime_config['run_id']}-rule-conditioned-opening-full-guarded-w{weight}"
+    runtime_config["run_id"] = (
+        f"{runtime_config['run_id']}-rule-conditioned-opening-full-guarded-w{weight}"
+    )
     runtime_config["versions_dir"] = str(variant_root / "versions")
     runtime_config["current_path"] = current_path
     runtime_config["parent_artifact_path"] = current_path
@@ -637,7 +662,11 @@ def decide_variant_outcome(variant: dict) -> str:
 
 
 def final_next_action(variants: list[dict]) -> str:
-    gate_passers = [variant for variant in variants if (variant.get("row_pair_gate") or {}).get("pass")]
+    gate_passers = [
+        variant
+        for variant in variants
+        if (variant.get("row_pair_gate") or {}).get("pass")
+    ]
     if not gate_passers:
         return "Search-prior control next; stop replay lanes because both weights failed the 002/003 local gate."
 
@@ -648,10 +677,11 @@ def final_next_action(variants: list[dict]) -> str:
         and float((variant.get("arena_report") or {})["score"]) > 0.5
     ]
     if improved:
-        best = max(improved, key=lambda variant: float((variant.get("arena_report") or {})["score"]))
-        return (
-            f"Rerun replay weight {best['replay_weight']} with two more full runtime seeds."
+        best = max(
+            improved,
+            key=lambda variant: float((variant.get("arena_report") or {})["score"]),
         )
+        return f"Rerun replay weight {best['replay_weight']} with two more full runtime seeds."
 
     collapsed = [
         variant
@@ -688,11 +718,15 @@ def main(argv: list[str] | None = None) -> int:
     if not artifact_path.exists():
         raise SystemExit(f"artifact path does not exist: {artifact_path}")
     if not artifact_summary_path.exists():
-        raise SystemExit(f"artifact summary path does not exist: {artifact_summary_path}")
+        raise SystemExit(
+            f"artifact summary path does not exist: {artifact_summary_path}"
+        )
     if not current_path.exists():
         raise SystemExit(f"current path does not exist: {current_path}")
     if not reference_artifact_path.exists():
-        raise SystemExit(f"reference artifact path does not exist: {reference_artifact_path}")
+        raise SystemExit(
+            f"reference artifact path does not exist: {reference_artifact_path}"
+        )
 
     base_config = load_json(base_config_path)
     artifact_summary = load_json(artifact_summary_path)
@@ -736,17 +770,20 @@ def main(argv: list[str] | None = None) -> int:
             "candidate_dir": str(candidate_dir),
             "candidate_artifact_path": str(candidate_dir),
             "artifact_row_count": artifact_summary.get("row_count"),
-            "has_002_guard": "capture_available-002" in list(
-                artifact_summary.get("rule_collision_guard_row_ids") or []
-            ),
-            "has_003_guard": "capture_available-003" in list(
-                artifact_summary.get("rule_collision_guard_row_ids") or []
-            ),
+            "has_002_guard": "capture_available-002"
+            in list(artifact_summary.get("rule_collision_guard_row_ids") or []),
+            "has_003_guard": "capture_available-003"
+            in list(artifact_summary.get("rule_collision_guard_row_ids") or []),
         }
 
         pipeline_log = variant_root / "pipeline_pre_gate_command.json"
         run_command(
-            [python, str(root / "ml/alphazero_lite/pipeline.py"), "--config", str(pre_gate_config_path)],
+            [
+                python,
+                str(root / "ml/alphazero_lite/pipeline.py"),
+                "--config",
+                str(pre_gate_config_path),
+            ],
             cwd=root,
             dry_run=args.dry_run,
             log_path=pipeline_log,
@@ -813,7 +850,9 @@ def main(argv: list[str] | None = None) -> int:
             arena_report = load_json(candidate_dir / "arena_report.json")
             mcts_report = load_json(candidate_dir / "mcts1200_report.json")
             benchmark_report = load_json(candidate_dir / "benchmark_report.json")
-            current_mcts_report = load_json(candidate_dir / "current_mcts1200_report.json")
+            current_mcts_report = load_json(
+                candidate_dir / "current_mcts1200_report.json"
+            )
             variant_payload["hard_state_validation"] = {
                 "average_regret": hard_state_report.get("average_regret"),
                 "value_calibration_mae": hard_state_report.get("value_calibration_mae"),
@@ -821,8 +860,12 @@ def main(argv: list[str] | None = None) -> int:
             }
             variant_payload["arena_report"] = {
                 "score": arena_score(arena_report),
-                "ci_low": (arena_report.get("confidence_interval_95") or {}).get("lower"),
-                "ci_high": (arena_report.get("confidence_interval_95") or {}).get("upper"),
+                "ci_low": (arena_report.get("confidence_interval_95") or {}).get(
+                    "lower"
+                ),
+                "ci_high": (arena_report.get("confidence_interval_95") or {}).get(
+                    "upper"
+                ),
                 "unstable_decision": arena_report.get("unstable_decision"),
                 "report_path": str(candidate_dir / "arena_report.json"),
             }
@@ -871,7 +914,9 @@ def main(argv: list[str] | None = None) -> int:
     manifest["recommended_next_action"] = final_next_action(manifest["variants"])
     manifest_path = run_root / "experiment_summary.json"
     write_json(manifest_path, manifest)
-    print(json.dumps({"summary_path": str(manifest_path), "dry_run": bool(args.dry_run)}))
+    print(
+        json.dumps({"summary_path": str(manifest_path), "dry_run": bool(args.dry_run)})
+    )
     return 0
 
 

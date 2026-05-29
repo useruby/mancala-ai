@@ -108,29 +108,27 @@ def load_json(path: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def _source_row(trace_capture_artifact: dict) -> dict:
     source_payload = (
-        (trace_capture_artifact.get("source_shared_drift_artifact") or {}).get(
-            "source_payload"
-        )
-        or {}
-    )
+        trace_capture_artifact.get("source_shared_drift_artifact") or {}
+    ).get("source_payload") or {}
     row = ((source_payload.get("rows") or {}).get(ROW_ID)) or {}
     if not isinstance(row, dict) or not row:
-        raise SystemExit("source trace capture artifact must embed source_shared_drift row 002")
+        raise SystemExit(
+            "source trace capture artifact must embed source_shared_drift row 002"
+        )
     return row
 
 
 def _source_settings(trace_capture_artifact: dict) -> dict:
     source_payload = (
-        (trace_capture_artifact.get("source_shared_drift_artifact") or {}).get(
-            "source_payload"
-        )
-        or {}
-    )
+        trace_capture_artifact.get("source_shared_drift_artifact") or {}
+    ).get("source_payload") or {}
     settings = source_payload.get("settings") or {}
     if not isinstance(settings, dict):
         raise SystemExit("source trace capture artifact must embed source settings")
@@ -141,11 +139,8 @@ def _candidate_path(trace_capture_artifact: dict, override: str | None) -> str:
     if override:
         return override
     selected_artifact = (
-        (trace_capture_artifact.get("source_shared_drift_artifact") or {}).get(
-            "selected_artifact"
-        )
-        or {}
-    )
+        trace_capture_artifact.get("source_shared_drift_artifact") or {}
+    ).get("selected_artifact") or {}
     path = selected_artifact.get("path")
     if not isinstance(path, str) or not path:
         raise SystemExit("candidate path missing from source trace capture artifact")
@@ -193,7 +188,9 @@ def _base_search_options(settings: dict) -> dict:
         "fpu_mode": str(search_settings.get("fpu_mode", "parent_q")),
         "reuse_subtree": bool(search_settings.get("reuse_subtree", True)),
         "normalize_values": bool(search_settings.get("normalize_values", True)),
-        "root_policy_mode": str(search_settings.get("root_policy_mode", "deterministic")),
+        "root_policy_mode": str(
+            search_settings.get("root_policy_mode", "deterministic")
+        ),
         "tactical_root_bias": float(search_settings.get("tactical_root_bias", 0.1)),
     }
 
@@ -214,7 +211,6 @@ def _variant_outcome(
     candidate_path: str,
     variant_dir: Path,
 ) -> dict:
-    source_row = _source_row(trace_capture_artifact)
     settings = _source_settings(trace_capture_artifact)
     probe_row = _probe_row(trace_capture_artifact)
     state = validated_diagnostic_state(row=probe_row)
@@ -259,10 +255,14 @@ def _variant_outcome(
     )
 
     regenerated_shared_drift = None
-    regenerated_shared_drift_path = variant_dir / "capture_002_pair_projected_shared_drift.json"
+    regenerated_shared_drift_path = (
+        variant_dir / "capture_002_pair_projected_shared_drift.json"
+    )
     if not projected_trace_capture["insufficiency_reasons"]:
-        regenerated_shared_drift = capture_002_trace_capture.build_regenerated_shared_drift_artifact(
-            projected_trace_capture
+        regenerated_shared_drift = (
+            capture_002_trace_capture.build_regenerated_shared_drift_artifact(
+                projected_trace_capture
+            )
         )
 
     default_trace = None
@@ -288,9 +288,12 @@ def _variant_outcome(
             loaded_source,
             material_visit_share_margin=0.04,
         )
-        write_json(variant_dir / "capture_002_selection_score_trace.json", default_trace)
         write_json(
-            variant_dir / "capture_002_selection_score_trace_relaxed.json", relaxed_trace
+            variant_dir / "capture_002_selection_score_trace.json", default_trace
+        )
+        write_json(
+            variant_dir / "capture_002_selection_score_trace_relaxed.json",
+            relaxed_trace,
         )
     else:
         projected_trace_capture["artifact_write_summary"][

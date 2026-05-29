@@ -26,7 +26,9 @@ DEFAULT_OUTPUT_ROOT = "/tmp/azlite_capture_002_trace_pair_harmonization"
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-id", required=True)
-    parser.add_argument("--source-trace-capture-artifact", default=DEFAULT_TRACE_CAPTURE_PATH)
+    parser.add_argument(
+        "--source-trace-capture-artifact", default=DEFAULT_TRACE_CAPTURE_PATH
+    )
     parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
     return parser.parse_args(argv)
 
@@ -46,7 +48,9 @@ def load_json(path: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def _finite_number(value) -> float | None:
@@ -117,7 +121,9 @@ def pair_project_trace_points(trace_capture_artifact: dict) -> tuple[list[dict],
     rerun_trace = trace_capture_artifact.get("rerun_trace") or {}
     rerun_trace_points = rerun_trace.get("trace_points")
     if not isinstance(rerun_trace_points, list) or not rerun_trace_points:
-        raise SystemExit("trace capture artifact must include non-empty rerun_trace.trace_points")
+        raise SystemExit(
+            "trace capture artifact must include non-empty rerun_trace.trace_points"
+        )
 
     projected_trace_points = []
     selected_move_rewrites = 0
@@ -139,7 +145,9 @@ def pair_project_trace_points(trace_capture_artifact: dict) -> tuple[list[dict],
                 {
                     "trace_point_index": index,
                     "simulation": projected_trace_point.get("simulation"),
-                    "original_selected_move": projected_trace_point.get("selected_move"),
+                    "original_selected_move": projected_trace_point.get(
+                        "selected_move"
+                    ),
                     "projected_selected_move": projected_selected_move,
                     "reason": reason,
                 }
@@ -169,8 +177,8 @@ def build_pair_projected_trace_capture_artifact(
     reference_move = row_context.get("reference_move")
     full_search_selected_move = row_context.get("full_search_selected_move")
     extracted_trace_points = (
-        ((source_artifact.get("extracted_trace") or {}).get("trace_points")) or []
-    )
+        (source_artifact.get("extracted_trace") or {}).get("trace_points")
+    ) or []
     insufficiency_reasons = capture_002_trace_capture._validate_trace_points(
         trace_points=projected_trace_points,
         reference_move=reference_move,
@@ -181,9 +189,10 @@ def build_pair_projected_trace_capture_artifact(
         final_trace_points=projected_trace_points,
     )
     trace_diff_summary["full_search_selected_move"] = full_search_selected_move
-    trace_diff_summary["final_trace_matches_full_search_selected_move"] = bool(
-        projected_trace_points
-    ) and projected_trace_points[-1].get("selected_move") == full_search_selected_move
+    trace_diff_summary["final_trace_matches_full_search_selected_move"] = (
+        bool(projected_trace_points)
+        and projected_trace_points[-1].get("selected_move") == full_search_selected_move
+    )
 
     return {
         "schema": capture_002_trace_capture.SCHEMA,
@@ -256,7 +265,9 @@ def main(argv: list[str] | None = None) -> int:
         source_trace_capture_artifact
     )
 
-    projected_trace_capture_path = out_root / "capture_002_trace_pair_projected_capture.json"
+    projected_trace_capture_path = (
+        out_root / "capture_002_trace_pair_projected_capture.json"
+    )
     projected_trace_capture_artifact = build_pair_projected_trace_capture_artifact(
         source_trace_capture_artifact,
         projected_trace_points=projected_trace_points,
@@ -264,11 +275,13 @@ def main(argv: list[str] | None = None) -> int:
         out_path=projected_trace_capture_path,
     )
     write_json(projected_trace_capture_path, projected_trace_capture_artifact)
-    projected_trace_capture_artifact["artifact_write_summary"]["trace_capture_sha256"] = (
-        capture_002_trace_capture.sha256_file(projected_trace_capture_path)
-    )
+    projected_trace_capture_artifact["artifact_write_summary"][
+        "trace_capture_sha256"
+    ] = capture_002_trace_capture.sha256_file(projected_trace_capture_path)
 
-    regenerated_shared_drift_path = out_root / "capture_002_trace_pair_projected_shared_drift.json"
+    regenerated_shared_drift_path = (
+        out_root / "capture_002_trace_pair_projected_shared_drift.json"
+    )
     regenerated_shared_drift_artifact = None
     if not projected_trace_capture_artifact["insufficiency_reasons"]:
         regenerated_shared_drift_artifact = (
@@ -315,11 +328,9 @@ def main(argv: list[str] | None = None) -> int:
         stop_reason = "pair_projected_trace_not_downstream_ready"
     else:
         paths["pair_projected_shared_drift"] = str(regenerated_shared_drift_path)
-        loaded_harmonized_source = (
-            capture_002_selection_score_trace.load_source_shared_drift_artifact_document(
-                regenerated_shared_drift_artifact,
-                artifact_path=str(regenerated_shared_drift_path),
-            )
+        loaded_harmonized_source = capture_002_selection_score_trace.load_source_shared_drift_artifact_document(
+            regenerated_shared_drift_artifact,
+            artifact_path=str(regenerated_shared_drift_path),
         )
         default_selection_score = capture_002_selection_score_trace.build_payload(
             loaded_harmonized_source
@@ -328,13 +339,17 @@ def main(argv: list[str] | None = None) -> int:
             loaded_harmonized_source,
             material_visit_share_margin=0.04,
         )
-        default_selection_score_path = out_root / "capture_002_pair_projected_selection_score_trace.json"
+        default_selection_score_path = (
+            out_root / "capture_002_pair_projected_selection_score_trace.json"
+        )
         relaxed_selection_score_path = (
             out_root / "capture_002_pair_projected_selection_score_trace_relaxed.json"
         )
         write_json(default_selection_score_path, default_selection_score)
         write_json(relaxed_selection_score_path, relaxed_selection_score)
-        paths["pair_projected_selection_score_trace"] = str(default_selection_score_path)
+        paths["pair_projected_selection_score_trace"] = str(
+            default_selection_score_path
+        )
         paths["pair_projected_selection_score_trace_relaxed"] = str(
             relaxed_selection_score_path
         )

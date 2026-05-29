@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -24,7 +23,9 @@ from ml.alphazero_lite.run_search_quality_option_ablation import inject_search_f
 
 
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
-DEFAULT_REFERENCE_ARTIFACT = "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+DEFAULT_REFERENCE_ARTIFACT = (
+    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+)
 DEFAULT_SEARCH_CONTROL_CONFIG = (
     "ml/alphazero_lite/configs/aggressive_v3_superhuman_search_control.json"
 )
@@ -52,7 +53,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--candidate-paths", default=DEFAULT_CANDIDATE_PATHS)
     parser.add_argument("--current-path", default=DEFAULT_CURRENT_PATH)
     parser.add_argument("--reference-artifact", default=DEFAULT_REFERENCE_ARTIFACT)
-    parser.add_argument("--search-control-config", default=DEFAULT_SEARCH_CONTROL_CONFIG)
+    parser.add_argument(
+        "--search-control-config", default=DEFAULT_SEARCH_CONTROL_CONFIG
+    )
     parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args(argv)
@@ -64,7 +67,9 @@ def resolve_path(root: Path, value: str) -> Path:
 
 
 def parse_candidate_paths(root: Path, value: str) -> list[Path]:
-    paths = [resolve_path(root, item.strip()) for item in value.split(",") if item.strip()]
+    paths = [
+        resolve_path(root, item.strip()) for item in value.split(",") if item.strip()
+    ]
     if not paths:
         raise SystemExit("--candidate-paths must resolve to at least one candidate")
     return paths
@@ -85,7 +90,9 @@ def steps_by_name(config: dict) -> dict[str, dict]:
     }
 
 
-def replace_placeholder_tokens(command: list[str], *, candidate_path: str, current_path: str) -> list[str]:
+def replace_placeholder_tokens(
+    command: list[str], *, candidate_path: str, current_path: str
+) -> list[str]:
     rendered = []
     for token in command:
         value = str(token)
@@ -306,7 +313,9 @@ def main(argv: list[str] | None = None) -> int:
 
     summary_path = run_root / "search_prior_control_summary.json"
     write_json(summary_path, summary)
-    print(json.dumps({"summary_path": str(summary_path), "dry_run": bool(args.dry_run)}))
+    print(
+        json.dumps({"summary_path": str(summary_path), "dry_run": bool(args.dry_run)})
+    )
     return 0
 
 
