@@ -42,7 +42,9 @@ DEFAULT_CANDIDATE_PATH = (
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
 DEFAULT_TRANSFORM = "seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5"
-DEFAULT_REFERENCE_ARTIFACT = "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+DEFAULT_REFERENCE_ARTIFACT = (
+    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+)
 DEFAULT_VALIDATION_PATH = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
 DEFAULT_SEEDS = "11,23,37"
 SCHEMA = "azlite_root_prior_transform_rollout_validation_v1"
@@ -172,7 +174,9 @@ def arena_budget_rows() -> list[dict]:
     ]
 
 
-def arena_report_row(*, row: dict, budget: dict, seed: int, report: dict, report_path: Path) -> dict:
+def arena_report_row(
+    *, row: dict, budget: dict, seed: int, report: dict, report_path: Path
+) -> dict:
     interval = report.get("confidence_interval_95") or {}
     return {
         "comparison_id": row["comparison_id"],
@@ -196,7 +200,14 @@ def arena_report_row(*, row: dict, budget: dict, seed: int, report: dict, report
     }
 
 
-def hard_state_report_row(*, artifact: str, transform: str | None, simulations: int, report: dict, report_path: Path) -> dict:
+def hard_state_report_row(
+    *,
+    artifact: str,
+    transform: str | None,
+    simulations: int,
+    report: dict,
+    report_path: Path,
+) -> dict:
     telemetry = report.get("root_prior_transform_telemetry") or {}
     return {
         "artifact": artifact,
@@ -215,10 +226,18 @@ def hard_state_report_row(*, artifact: str, transform: str | None, simulations: 
     }
 
 
-def collect_local_guard_results(*, artifact_path: Path, artifact_name: str, transform_name: str | None, reference_rows: dict[str, dict]) -> list[dict]:
+def collect_local_guard_results(
+    *,
+    artifact_path: Path,
+    artifact_name: str,
+    transform_name: str | None,
+    reference_rows: dict[str, dict],
+) -> list[dict]:
     arena = __import__("ml.alphazero_lite.arena", fromlist=["ArtifactEvaluator"])
     evaluator = arena.ArtifactEvaluator(artifact_path)
-    override = None if transform_name is None else build_root_prior_override(transform_name)
+    override = (
+        None if transform_name is None else build_root_prior_override(transform_name)
+    )
     results = []
     for row_id in LOCAL_GUARD_ROW_IDS:
         reference_row = reference_rows[row_id]
@@ -245,11 +264,19 @@ def collect_local_guard_results(*, artifact_path: Path, artifact_name: str, tran
             passes = selected_is_reference
             if row_id == "capture_available-005":
                 baseline_non_reference = True
-                passes = True if not selected_is_reference and baseline_non_reference else selected_is_reference
+                passes = (
+                    True
+                    if not selected_is_reference and baseline_non_reference
+                    else selected_is_reference
+                )
                 note_parts.append("reported_only_not_hard_fail")
             elif row_id in {"capture_available-002", "capture_available-003"}:
                 passes = selected_is_reference
-            elif row_id in {"capture_available-006", "capture_available-007", "capture_available-008"}:
+            elif row_id in {
+                "capture_available-006",
+                "capture_available-007",
+                "capture_available-008",
+            }:
                 passes = selected_is_reference
             if not selected_is_reference:
                 note_parts.append("selected_non_reference")
@@ -262,7 +289,9 @@ def collect_local_guard_results(*, artifact_path: Path, artifact_name: str, tran
                     "selected_move": selected_move,
                     "reference_move": reference_move,
                     "selected_is_reference": selected_is_reference,
-                    "reference_visit_share": metric_for_move(visit_share, reference_move),
+                    "reference_visit_share": metric_for_move(
+                        visit_share, reference_move
+                    ),
                     "pass": passes,
                     "notes": ",".join(note_parts) if note_parts else "ok",
                 }
@@ -297,17 +326,26 @@ def classify(summary: dict) -> tuple[str, str]:
         if row["comparison_id"] == "A3_current_transform_vs_current_baseline"
     ]
     hard_index = {
-        (row["artifact"], row["transform"], row["simulations"]): row for row in hard_rows
+        (row["artifact"], row["transform"], row["simulations"]): row
+        for row in hard_rows
     }
     hard_worsened = False
     unexpected_high_activation = False
     for simulations in (384, 1200):
         baseline = hard_index.get(("guarded-w2", None, simulations))
-        transformed = hard_index.get(("guarded-w2", summary["transform_name"], simulations))
+        transformed = hard_index.get(
+            ("guarded-w2", summary["transform_name"], simulations)
+        )
         if baseline and transformed:
-            if float(transformed["average_regret"]) > float(baseline["average_regret"]) + 0.01:
+            if (
+                float(transformed["average_regret"])
+                > float(baseline["average_regret"]) + 0.01
+            ):
                 hard_worsened = True
-            if float(transformed["blunder_rate"]) > float(baseline["blunder_rate"]) + 0.01:
+            if (
+                float(transformed["blunder_rate"])
+                > float(baseline["blunder_rate"]) + 0.01
+            ):
                 hard_worsened = True
             activation_rate = transformed.get("activation_rate")
             if activation_rate is not None and float(activation_rate) > 0.1:
@@ -328,18 +366,29 @@ def classify(summary: dict) -> tuple[str, str]:
             "do not promote; rerun fair-budget or improve evaluation design.",
         )
     if candidate_superhuman_scores and candidate_equal_budget_scores:
-        if max(candidate_superhuman_scores) > 0.55 and max(candidate_equal_budget_scores) <= 0.55:
+        if (
+            max(candidate_superhuman_scores) > 0.55
+            and max(candidate_equal_budget_scores) <= 0.55
+        ):
             return (
                 "budget_advantage_not_transform_evidence",
                 "do not promote; rerun fair-budget or improve evaluation design.",
             )
     if current_transform_scores and candidate_equal_budget_scores:
-        if abs(max(current_transform_scores) - max(candidate_equal_budget_scores)) <= 0.05:
+        if (
+            abs(max(current_transform_scores) - max(candidate_equal_budget_scores))
+            <= 0.05
+        ):
             return (
                 "search_patch_not_model_improvement",
                 "evaluate transform as an optional search mode on current, not as a guarded-w2 model promotion.",
             )
-    if candidate_equal_budget_scores and max(candidate_equal_budget_scores) > 0.55 and not guard_fail and not hard_worsened:
+    if (
+        candidate_equal_budget_scores
+        and max(candidate_equal_budget_scores) > 0.55
+        and not guard_fail
+        and not hard_worsened
+    ):
         return (
             "transform_candidate_validated",
             "run a larger 400+ game promotion-style PUCT arena confirmation with strict CI.",
@@ -352,7 +401,9 @@ def classify(summary: dict) -> tuple[str, str]:
         ),
         default=0.0,
     )
-    if max_activation_rate < 0.01 and any(float(row["score"]) > 0.55 for row in arena_rows):
+    if max_activation_rate < 0.01 and any(
+        float(row["score"]) > 0.55 for row in arena_rows
+    ):
         return (
             "likely_evaluation_artifact",
             "rerun with more games and inspect activation logs before making claims.",
@@ -467,7 +518,9 @@ def main(argv: list[str] | None = None) -> int:
     reference_artifact_path = Path(DEFAULT_REFERENCE_ARTIFACT)
     validation_path = resolve_path(root, DEFAULT_VALIDATION_PATH)
     summary_path = out_root / "root_prior_transform_rollout_validation_summary.json"
-    report_path = root / "docs/alphazero-lite-root-prior-transform-rollout-validation-results.md"
+    report_path = (
+        root / "docs/alphazero-lite-root-prior-transform-rollout-validation-results.md"
+    )
     out_root.mkdir(parents=True, exist_ok=True)
     seeds = parse_seeds(args.seeds)
 
@@ -651,7 +704,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run:
         summary["classification"] = "dry_run_only"
         summary["interpretation"] = "No evaluations were executed."
-        summary["recommended_next_action"] = "run the planned rollout validation matrix."
+        summary["recommended_next_action"] = (
+            "run the planned rollout validation matrix."
+        )
     else:
         classification, next_action = classify(
             {**summary, "transform_name": args.transform_name}

@@ -1151,9 +1151,7 @@ def run_arena_worker(
             "challenger_simulations": int(challenger_simulations),
             "current_simulations": int(current_simulations),
             **(
-                {
-                    "root_prior_transform": str(effective_challenger_root_prior_transform)
-                }
+                {"root_prior_transform": str(effective_challenger_root_prior_transform)}
                 if effective_challenger_root_prior_transform
                 else {}
             ),
@@ -1167,7 +1165,11 @@ def run_arena_worker(
                 else {}
             ),
             **(
-                {"current_root_prior_transform": str(effective_current_root_prior_transform)}
+                {
+                    "current_root_prior_transform": str(
+                        effective_current_root_prior_transform
+                    )
+                }
                 if effective_current_root_prior_transform
                 else {}
             ),

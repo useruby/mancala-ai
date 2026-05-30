@@ -96,7 +96,8 @@ def _telemetry(
     return {
         "transform_name": transform_name,
         "activated": any(
-            not np.isclose(float(before[move]), float(after[move])) for move in legal_moves
+            not np.isclose(float(before[move]), float(after[move]))
+            for move in legal_moves
         ),
         "legal_move_count": len(legal_moves),
         "context_counts": _context_counts(move_feature_annotations),
@@ -119,7 +120,9 @@ def _telemetry(
 def summarize_root_prior_telemetry(entries: list[dict] | None) -> dict:
     telemetry_entries = [entry for entry in (entries or []) if isinstance(entry, dict)]
     root_states_evaluated = len(telemetry_entries)
-    activated_entries = [entry for entry in telemetry_entries if bool(entry.get("activated"))]
+    activated_entries = [
+        entry for entry in telemetry_entries if bool(entry.get("activated"))
+    ]
     activation_count = len(activated_entries)
     activation_rate = (
         None
@@ -143,7 +146,11 @@ def summarize_root_prior_telemetry(entries: list[dict] | None) -> dict:
     }
     changed_pattern_counts: Counter[str] = Counter()
     for entry in activated_entries:
-        context = entry.get("context_counts") if isinstance(entry.get("context_counts"), dict) else {}
+        context = (
+            entry.get("context_counts")
+            if isinstance(entry.get("context_counts"), dict)
+            else {}
+        )
         context_totals["seed4_extra_turn_count"] += int(
             context.get("seed4_extra_turn_count", 0)
         )
@@ -155,14 +162,20 @@ def summarize_root_prior_telemetry(entries: list[dict] | None) -> dict:
         )
         context_totals["legal_move_count"] += int(entry.get("legal_move_count", 0))
 
-        per_move = entry.get("per_move") if isinstance(entry.get("per_move"), dict) else {}
+        per_move = (
+            entry.get("per_move") if isinstance(entry.get("per_move"), dict) else {}
+        )
         for move_payload in per_move.values():
             if not isinstance(move_payload, dict):
                 continue
             delta = float(move_payload.get("delta", 0.0))
             if np.isclose(delta, 0.0):
                 continue
-            features = move_payload.get("features") if isinstance(move_payload.get("features"), dict) else {}
+            features = (
+                move_payload.get("features")
+                if isinstance(move_payload.get("features"), dict)
+                else {}
+            )
             pattern = (
                 f"extra_turn={int(bool(features.get('gives_extra_turn', False)))}|"
                 f"capture={int(bool(features.get('produces_capture', False)))}|"
@@ -190,7 +203,9 @@ def merge_root_prior_telemetry_summaries(summaries: list[dict] | None) -> dict:
     root_states_evaluated = sum(
         int(summary.get("root_states_evaluated", 0)) for summary in normalized
     )
-    activation_count = sum(int(summary.get("activation_count", 0)) for summary in normalized)
+    activation_count = sum(
+        int(summary.get("activation_count", 0)) for summary in normalized
+    )
     activation_rate = (
         None
         if root_states_evaluated <= 0
@@ -203,7 +218,9 @@ def merge_root_prior_telemetry_summaries(summaries: list[dict] | None) -> dict:
         if summary.get("average_mass_shift") is not None
     )
     average_mass_shift = (
-        None if activation_count <= 0 else round(weighted_mass_shift / activation_count, 4)
+        None
+        if activation_count <= 0
+        else round(weighted_mass_shift / activation_count, 4)
     )
     context_totals = {
         "seed4_extra_turn_count": 0,
