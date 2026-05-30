@@ -122,6 +122,13 @@ def resolve_path(root: Path, value: str) -> Path:
     return path if path.is_absolute() else root / path
 
 
+def display_path(root: Path, path: Path) -> str:
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path)
+
+
 def artifact_label(path: Path) -> str:
     return "current" if path.name == "current" else path.name
 
@@ -618,7 +625,7 @@ def select_search_move(
 def rollout_outcome_for_side(state: dict[str, Any], *, side_to_move: int) -> float:
     game = KalahGame.from_state(state)
     if not game.over():
-        return 0.0
+        return 0.5
     if game.winner is None:
         return 0.5
     return 1.0 if int(game.winner) == int(side_to_move) else 0.0
@@ -651,14 +658,12 @@ def continue_game_after_move(
         )
         if annotations[int(move)]["produces_capture"]:
             capture_events += 1
-        if annotations[int(move)]["gives_extra_turn"]:
-            extra_turn_events += 1
         acting_player = int(game.current_player)
         if not game.move(game.pit_index(move)):
             raise ValueError("illegal move during rollout")
         move_count += 1
-        if game.current_player == acting_player:
-            extra_turn_events += 0
+        if game.current_player == acting_player and not game.over():
+            extra_turn_events += 1
 
     apply_move_and_track(first_move)
     while not game.over() and move_count < 200:
@@ -791,8 +796,8 @@ def build_markdown(summary: dict[str, Any]) -> str:
         "This experiment tests whether the narrow root-prior transform activates in realistic or semi-realistic positions and whether activation changes downstream search or outcome.",
         "",
         f"- transform: `{summary['transform_name']}`",
-        f"- current artifact: `{summary['current_path']}`",
-        f"- guarded-w2 artifact: `{summary['guarded_w2_path']}`",
+        f"- current artifact: `{summary['current_path_display']}`",
+        f"- guarded-w2 artifact: `{summary['guarded_w2_path_display']}`",
         f"- classification: `{summary['classification']}`",
         f"- deployment-gate activation count: `{summary['deployment_gate_activation_count']}` / `{summary['deployment_gate_states_scanned']}`",
         f"- deployment-gate activation rate: `{summary['deployment_gate_activation_rate']}`",
@@ -876,7 +881,7 @@ def build_markdown(summary: dict[str, Any]) -> str:
             "",
             "## Recommended Next Action",
             "",
-            f"Recommendation: **{summary['recommended_next_action']}**.",
+            f"Recommendation: **{summary['recommended_next_action']}**",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -1209,7 +1214,9 @@ def main(argv: list[str] | None = None) -> int:
         "schema": SCHEMA,
         "transform_name": args.transform_name,
         "current_path": str(current_path),
+        "current_path_display": display_path(root, current_path),
         "guarded_w2_path": str(guarded_w2_path),
+        "guarded_w2_path_display": display_path(root, guarded_w2_path),
         "reference_artifact": str(reference_path),
         "scan_min_non_guard_activations": int(args.scan_min_non_guard_activations),
         "scan_min_non_guard_rate": float(args.scan_min_non_guard_rate),

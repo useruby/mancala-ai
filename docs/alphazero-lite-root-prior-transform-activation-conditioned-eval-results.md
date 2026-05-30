@@ -5,7 +5,7 @@
 This experiment tests whether the narrow root-prior transform activates in realistic or semi-realistic positions and whether activation changes downstream search or outcome.
 
 - transform: `seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5`
-- current artifact: `/home/alex/Mancala/ai/storage/ai/alphazero_lite/current`
+- current artifact: `storage/ai/alphazero_lite/current`
 - guarded-w2 artifact: `/tmp/azlite_rule_conditioned_opening_full_guarded/rule-conditioned-opening-full-guarded/w2/versions/aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1`
 - classification: `transform_too_rare_for_deployment`
 - deployment-gate activation count: `6` / `14586`
@@ -56,4 +56,4 @@ Not run because the activation-rate gate did not justify continuing to paired se
 
 ## Recommended Next Action
 
-Recommendation: **abandon this transform as a deployment feature; move to input encoding / policy-target audit.**.
+Recommendation: **abandon this transform as a deployment feature; move to input encoding / policy-target audit.**
