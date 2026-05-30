@@ -86,12 +86,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--reference-artifact", default=DEFAULT_REFERENCE_ARTIFACT)
     parser.add_argument("--transform-name", default=DEFAULT_TRANSFORM)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
-    parser.add_argument("--random-prefix-count", type=int, default=DEFAULT_RANDOM_PREFIX_COUNT)
-    parser.add_argument("--random-prefix-min-plies", type=int, default=DEFAULT_RANDOM_PREFIX_MIN_PLIES)
-    parser.add_argument("--random-prefix-max-plies", type=int, default=DEFAULT_RANDOM_PREFIX_MAX_PLIES)
-    parser.add_argument("--self-play-sample-limit", type=int, default=DEFAULT_SELF_PLAY_SAMPLE_LIMIT)
+    parser.add_argument(
+        "--random-prefix-count", type=int, default=DEFAULT_RANDOM_PREFIX_COUNT
+    )
+    parser.add_argument(
+        "--random-prefix-min-plies", type=int, default=DEFAULT_RANDOM_PREFIX_MIN_PLIES
+    )
+    parser.add_argument(
+        "--random-prefix-max-plies", type=int, default=DEFAULT_RANDOM_PREFIX_MAX_PLIES
+    )
+    parser.add_argument(
+        "--self-play-sample-limit", type=int, default=DEFAULT_SELF_PLAY_SAMPLE_LIMIT
+    )
     parser.add_argument("--activated-limit", type=int, default=DEFAULT_ACTIVATED_LIMIT)
-    parser.add_argument("--changed-state-limit", type=int, default=DEFAULT_CHANGED_STATE_LIMIT)
+    parser.add_argument(
+        "--changed-state-limit", type=int, default=DEFAULT_CHANGED_STATE_LIMIT
+    )
     parser.add_argument("--continuations", type=int, default=DEFAULT_CONTINUATIONS)
     parser.add_argument("--outcome-budget", type=int, default=DEFAULT_OUTCOME_BUDGET)
     parser.add_argument(
@@ -139,7 +149,9 @@ def decode_v3_state(features: list[Any]) -> dict[str, Any]:
     if not isinstance(features, list) or len(features) < 15:
         raise ValueError("encoded state must be a feature list with at least 15 values")
     return {
-        "player_pits": [max(0, int(round(float(features[idx]) * 48.0))) for idx in range(6)],
+        "player_pits": [
+            max(0, int(round(float(features[idx]) * 48.0))) for idx in range(6)
+        ],
         "opponent_pits": [
             max(0, int(round(float(features[6 + idx]) * 48.0))) for idx in range(6)
         ],
@@ -186,7 +198,9 @@ def state_after_random_prefix(*, seed: int, plies: int) -> dict[str, Any] | None
     return game.to_state()
 
 
-def collect_states_from_finished_games(games_path: Path, *, limit: int) -> list[dict[str, Any]]:
+def collect_states_from_finished_games(
+    games_path: Path, *, limit: int
+) -> list[dict[str, Any]]:
     payload = json.loads(games_path.read_text(encoding="utf-8"))
     if not isinstance(payload, list):
         return []
@@ -269,13 +283,17 @@ def telemetry_for_state(
     )
     return {
         "legal_moves": [int(move) for move in legal_moves],
-        "move_annotations": {str(move): dict(annotations[move]) for move in legal_moves},
+        "move_annotations": {
+            str(move): dict(annotations[move]) for move in legal_moves
+        },
         "telemetry": telemetry,
         "transformed_prior": [float(value) for value in transformed.tolist()],
     }
 
 
-def fixture_state_entries(reference_rows: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def fixture_state_entries(
+    reference_rows: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
     for row_id, row in reference_rows.items():
         if not row_id.startswith("capture_available-"):
@@ -295,7 +313,9 @@ def fixture_state_entries(reference_rows: dict[str, dict[str, Any]]) -> list[dic
     return entries
 
 
-def guard_state_entries(reference_rows: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def guard_state_entries(
+    reference_rows: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
     for row_id in LOCAL_GUARD_ROW_IDS:
         row = reference_rows[row_id]
@@ -335,10 +355,14 @@ def summarize_scan_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "artifact": artifact,
                 "states_scanned": len(items),
                 "activation_count": activation_count,
-                "activation_rate": round(activation_count / len(items), 4) if items else None,
+                "activation_rate": round(activation_count / len(items), 4)
+                if items
+                else None,
                 "median_ply": statistics.median(plies) if plies else None,
                 "ply_distribution": dict(sorted(Counter(plies).items())),
-                "legal_move_count_distribution": dict(sorted(legal_move_counts.items())),
+                "legal_move_count_distribution": dict(
+                    sorted(legal_move_counts.items())
+                ),
                 "side_to_move_distribution": dict(sorted(side_counts.items())),
                 "notes": ",".join(notes) if notes else "ok",
             }
@@ -355,7 +379,9 @@ def scan_source_entries(
     rows: list[dict[str, Any]] = []
     for entry in entries:
         state = entry["state"]
-        telemetry_bundle = telemetry_for_state(state=state, transform_name=transform_name)
+        telemetry_bundle = telemetry_for_state(
+            state=state, transform_name=transform_name
+        )
         if telemetry_bundle is None:
             continue
         telemetry = telemetry_bundle["telemetry"]
@@ -476,7 +502,9 @@ def build_activated_state_rows(
                     for move in telemetry_bundle["legal_moves"]
                 },
                 "transformed_prior_by_move": {
-                    str(move): round(float(telemetry_bundle["transformed_prior"][move]), 4)
+                    str(move): round(
+                        float(telemetry_bundle["transformed_prior"][move]), 4
+                    )
                     for move in telemetry_bundle["legal_moves"]
                 },
                 "fixture_row_id": fixture_row_id,
@@ -523,20 +551,27 @@ def paired_search_for_state(
     base_selected = base_summary.get("selected_move")
     transformed_selected = transformed_summary.get("selected_move")
     changed = base_selected != transformed_selected
-    base_telemetry = (base_summary.get("root_prior_telemetry") or {}) if isinstance(base_summary, dict) else {}
     transformed_telemetry = (
-        (transformed_summary.get("root_prior_telemetry") or {}) if isinstance(transformed_summary, dict) else {}
+        (transformed_summary.get("root_prior_telemetry") or {})
+        if isinstance(transformed_summary, dict)
+        else {}
     )
-    legal_moves = list(base_summary.get("legal_moves") or transformed_summary.get("legal_moves") or [])
-    before = transformed_telemetry.get("before") or base_summary.get("policy") or []
-    after = transformed_telemetry.get("after") or transformed_summary.get("policy") or []
-    base_move_features = move_feature_annotations_for(state=state, legal_moves=legal_moves)
+    legal_moves = list(
+        base_summary.get("legal_moves") or transformed_summary.get("legal_moves") or []
+    )
+    base_move_features = move_feature_annotations_for(
+        state=state, legal_moves=legal_moves
+    )
     changed_to_capture = None
     changed_from_extra_turn = None
     if changed and transformed_selected is not None:
-        changed_to_capture = bool(base_move_features[int(transformed_selected)]["produces_capture"])
+        changed_to_capture = bool(
+            base_move_features[int(transformed_selected)]["produces_capture"]
+        )
     if changed and base_selected is not None:
-        changed_from_extra_turn = bool(base_move_features[int(base_selected)]["gives_extra_turn"])
+        changed_from_extra_turn = bool(
+            base_move_features[int(base_selected)]["gives_extra_turn"]
+        )
     return {
         "selected_move_no_transform": base_selected,
         "selected_move_transform": transformed_selected,
@@ -547,7 +582,11 @@ def paired_search_for_state(
         "visit_share_by_move_after": policy_distribution(transformed_summary),
         "q_by_move_before": child_metric_by_move(base_summary, "q_value"),
         "q_by_move_after": child_metric_by_move(transformed_summary, "q_value"),
-        "prior_mass_shift": (transformed_telemetry.get("mass_shift") if isinstance(transformed_telemetry, dict) else None),
+        "prior_mass_shift": (
+            transformed_telemetry.get("mass_shift")
+            if isinstance(transformed_telemetry, dict)
+            else None
+        ),
         "transform_activation_telemetry": transformed_telemetry,
     }
 
@@ -607,7 +646,9 @@ def continue_game_after_move(
     def apply_move_and_track(move: int) -> None:
         nonlocal capture_events, extra_turn_events, move_count
         before = game.to_state()
-        annotations = move_feature_annotations_for(state=before, legal_moves=game.possible_moves())
+        annotations = move_feature_annotations_for(
+            state=before, legal_moves=game.possible_moves()
+        )
         if annotations[int(move)]["produces_capture"]:
             capture_events += 1
         if annotations[int(move)]["gives_extra_turn"]:
@@ -641,7 +682,9 @@ def continue_game_after_move(
     }
 
 
-def mean_confidence_interval(values: list[float]) -> tuple[float | None, float | None, float | None]:
+def mean_confidence_interval(
+    values: list[float],
+) -> tuple[float | None, float | None, float | None]:
     if not values:
         return None, None, None
     mean = statistics.fmean(values)
@@ -656,7 +699,8 @@ def gate_scan_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [
         row
         for row in summary_rows
-        if row["source"] not in NON_DEPLOYMENT_GATE_SOURCES and row["states_scanned"] > 0
+        if row["source"] not in NON_DEPLOYMENT_GATE_SOURCES
+        and row["states_scanned"] > 0
     ]
 
 
@@ -665,8 +709,14 @@ def classify_summary(summary: dict[str, Any]) -> tuple[str, str]:
     gate_activations = sum(int(row["activation_count"]) for row in gate_rows)
     gate_scanned = sum(int(row["states_scanned"]) for row in gate_rows)
     gate_rate = 0.0 if gate_scanned <= 0 else gate_activations / gate_scanned
-    min_activations = int(summary.get("scan_min_non_guard_activations", DEFAULT_SCAN_MIN_NON_GUARD_ACTIVATIONS))
-    min_rate = float(summary.get("scan_min_non_guard_rate", DEFAULT_SCAN_MIN_NON_GUARD_RATE))
+    min_activations = int(
+        summary.get(
+            "scan_min_non_guard_activations", DEFAULT_SCAN_MIN_NON_GUARD_ACTIVATIONS
+        )
+    )
+    min_rate = float(
+        summary.get("scan_min_non_guard_rate", DEFAULT_SCAN_MIN_NON_GUARD_RATE)
+    )
     if gate_activations < min_activations or gate_rate < min_rate:
         return (
             "transform_too_rare_for_deployment",
@@ -698,12 +748,14 @@ def classify_summary(summary: dict[str, Any]) -> tuple[str, str]:
         current_means = [
             float(row["mean_outcome_delta"])
             for row in outcome_rows
-            if row.get("artifact") == "current" and row.get("mean_outcome_delta") is not None
+            if row.get("artifact") == "current"
+            and row.get("mean_outcome_delta") is not None
         ]
         guarded_means = [
             float(row["mean_outcome_delta"])
             for row in outcome_rows
-            if row.get("artifact") == "guarded-w2" and row.get("mean_outcome_delta") is not None
+            if row.get("artifact") == "guarded-w2"
+            and row.get("mean_outcome_delta") is not None
         ]
         if current_means and guarded_means:
             current_best = max(current_means)
@@ -786,7 +838,9 @@ def build_markdown(summary: dict[str, Any]) -> str:
             )
         )
     if not paired_rows:
-        lines.append("No paired search run because the activation-rate gate stopped the experiment after Step 1.")
+        lines.append(
+            "No paired search run because the activation-rate gate stopped the experiment after Step 1."
+        )
     lines.extend(
         [
             "",
@@ -804,7 +858,9 @@ def build_markdown(summary: dict[str, Any]) -> str:
             )
         )
     if not outcome_rows:
-        lines.append("No outcome rollout run because the activation-rate gate stopped the experiment after Step 1.")
+        lines.append(
+            "No outcome rollout run because the activation-rate gate stopped the experiment after Step 1."
+        )
     lines.extend(
         [
             "",
@@ -837,7 +893,8 @@ def main(argv: list[str] | None = None) -> int:
     activated_states_path = out_root / "activated_states.jsonl"
     summary_path = out_root / "activation_conditioned_eval_summary.json"
     report_path = (
-        root / "docs/alphazero-lite-root-prior-transform-activation-conditioned-eval-results.md"
+        root
+        / "docs/alphazero-lite-root-prior-transform-activation-conditioned-eval-results.md"
     )
 
     reference_rows = row_map_from_reference(load_json(reference_path))
@@ -933,9 +990,15 @@ def main(argv: list[str] | None = None) -> int:
     non_guard_activated_rows = [
         row
         for row in scan_rows
-        if bool(row["activated"]) and not bool(row.get("is_guard_row")) and row["source_group"] != "guard_rows"
+        if bool(row["activated"])
+        and not bool(row.get("is_guard_row"))
+        and row["source_group"] != "guard_rows"
     ]
-    activated_guard_rows = [row for row in scan_rows if bool(row["activated"]) and bool(row.get("is_guard_row"))]
+    activated_guard_rows = [
+        row
+        for row in scan_rows
+        if bool(row["activated"]) and bool(row.get("is_guard_row"))
+    ]
     non_guard_activated_rows.sort(
         key=lambda row: (
             int(row["source_group"] == "guard_rows"),
@@ -944,7 +1007,9 @@ def main(argv: list[str] | None = None) -> int:
             row["artifact"],
         )
     )
-    selected_activated_rows = activated_guard_rows + non_guard_activated_rows[: int(args.activated_limit)]
+    selected_activated_rows = (
+        activated_guard_rows + non_guard_activated_rows[: int(args.activated_limit)]
+    )
 
     evaluators = {
         "current": ArtifactEvaluator(current_path),
@@ -961,18 +1026,19 @@ def main(argv: list[str] | None = None) -> int:
     paired_search_rows: list[dict[str, Any]] = []
     outcome_rows: list[dict[str, Any]] = []
     paired_search_summary: list[dict[str, Any]] = []
-    non_guard_activation_count = len(non_guard_activated_rows)
     gate_rows = gate_scan_rows(activation_scan)
     gate_activation_count = sum(int(row["activation_count"]) for row in gate_rows)
     gate_scanned = sum(int(row["states_scanned"]) for row in gate_rows)
     gate_rate = 0.0 if gate_scanned <= 0 else gate_activation_count / gate_scanned
-    continue_beyond_scan = (
-        gate_activation_count >= int(args.scan_min_non_guard_activations)
-        and gate_rate >= float(args.scan_min_non_guard_rate)
-    )
+    continue_beyond_scan = gate_activation_count >= int(
+        args.scan_min_non_guard_activations
+    ) and gate_rate >= float(args.scan_min_non_guard_rate)
 
     if continue_beyond_scan:
-        for artifact, artifact_path in (("current", current_path), ("guarded-w2", guarded_w2_path)):
+        for artifact, artifact_path in (
+            ("current", current_path),
+            ("guarded-w2", guarded_w2_path),
+        ):
             evaluator = evaluators[artifact]
             artifact_rows = [
                 row
@@ -1005,7 +1071,9 @@ def main(argv: list[str] | None = None) -> int:
                     paired_search_rows.append(paired)
                     budget_rows.append(paired)
 
-                changed_count = sum(1 for row in budget_rows if row["selected_move_changed"])
+                changed_count = sum(
+                    1 for row in budget_rows if row["selected_move_changed"]
+                )
                 reference_improvement_count = sum(
                     1
                     for row in budget_rows
@@ -1029,7 +1097,9 @@ def main(argv: list[str] | None = None) -> int:
                         "simulations": budget,
                         "activated_states": len(budget_rows),
                         "changed_selection_count": changed_count,
-                        "changed_selection_rate": round(changed_count / len(budget_rows), 4)
+                        "changed_selection_rate": round(
+                            changed_count / len(budget_rows), 4
+                        )
                         if budget_rows
                         else None,
                         "reference_improvement_count": reference_improvement_count,
@@ -1037,7 +1107,9 @@ def main(argv: list[str] | None = None) -> int:
                         "average_prior_mass_shift": round(statistics.fmean(shifts), 4)
                         if shifts
                         else None,
-                        "notes": "ok" if budget_rows else "no_non_guard_activated_states",
+                        "notes": "ok"
+                        if budget_rows
+                        else "no_non_guard_activated_states",
                     }
                 )
 
@@ -1073,7 +1145,8 @@ def main(argv: list[str] | None = None) -> int:
                 source_state = next(
                     row["state"]
                     for row in activated_state_rows
-                    if row["artifact"] == artifact and row["source"] == changed_row["source"]
+                    if row["artifact"] == artifact
+                    and row["source"] == changed_row["source"]
                 )
                 branch_deltas: list[float] = []
                 for continuation_index in range(int(args.continuations)):
@@ -1101,7 +1174,9 @@ def main(argv: list[str] | None = None) -> int:
                         simulations=int(args.outcome_budget),
                         seed=branch_seed,
                     )
-                    delta = float(transform_result["outcome"] - no_transform_result["outcome"])
+                    delta = float(
+                        transform_result["outcome"] - no_transform_result["outcome"]
+                    )
                     deltas.append(delta)
                     branch_deltas.append(delta)
                 mean_delta = statistics.fmean(branch_deltas) if branch_deltas else 0.0
@@ -1118,7 +1193,9 @@ def main(argv: list[str] | None = None) -> int:
                     "simulations": int(args.outcome_budget),
                     "changed_states": len(changed_candidates),
                     "continuations_per_state": int(args.continuations),
-                    "mean_outcome_delta": None if mean_delta is None else round(mean_delta, 4),
+                    "mean_outcome_delta": None
+                    if mean_delta is None
+                    else round(mean_delta, 4),
                     "ci_low": None if ci_low is None else round(ci_low, 4),
                     "ci_high": None if ci_high is None else round(ci_high, 4),
                     "positive_count": positive_count,
@@ -1142,7 +1219,9 @@ def main(argv: list[str] | None = None) -> int:
         "non_guard_activated_state_count": len(non_guard_activated_rows),
         "deployment_gate_activation_count": gate_activation_count,
         "deployment_gate_states_scanned": gate_scanned,
-        "deployment_gate_activation_rate": round(gate_rate, 6) if gate_scanned > 0 else None,
+        "deployment_gate_activation_rate": round(gate_rate, 6)
+        if gate_scanned > 0
+        else None,
         "activated_states_path": str(activated_states_path),
         "paired_search_rows": paired_search_rows,
         "paired_search_summary": paired_search_summary,
