@@ -292,6 +292,18 @@ def validate_pipeline_step_config(steps: list[dict]) -> None:
         validate_self_play_value_trust_schedule(step, command)
 
 
+def config_gate_failures(gates: dict) -> list[dict]:
+    failures: list[dict] = []
+    if "rules_parity_report" in gates:
+        failures.append(
+            {
+                "code": "obsolete_gate",
+                "message": "obsolete/unsupported gate configured: rules_parity_report",
+            }
+        )
+    return failures
+
+
 def render_path(
     path: str,
     *,
@@ -740,39 +752,7 @@ def gate_failures(
     skipped_steps: set[str],
     hard_state_validation_path: str = "",
 ) -> list[dict]:
-    failures: list[dict] = []
-
-    rules_parity_report = gates.get("rules_parity_report")
-    if rules_parity_report and "rules_parity_fuzz" not in skipped_steps:
-        parity_path = render_path(
-            rules_parity_report,
-            iteration=iteration,
-            iter_dir=iter_dir,
-            run_id=run_id,
-            versions_dir=versions_dir,
-            current_path=current_path,
-            parent_model_dir=parent_model_dir,
-            parent_checkpoint=parent_checkpoint,
-            replay_data=replay_data,
-            replay_weights=replay_weights,
-            hard_state_validation_path=hard_state_validation_path,
-        )
-        if not parity_path.exists():
-            failures.append(
-                {
-                    "code": "rules_parity_report_missing",
-                    "message": f"missing rules parity report: {parity_path}",
-                }
-            )
-        else:
-            payload = json.loads(parity_path.read_text(encoding="utf-8"))
-            if not payload.get("parity_passed", False):
-                failures.append(
-                    {
-                        "code": "rules_parity_failed",
-                        "message": "rules parity check did not pass",
-                    }
-                )
+    failures = config_gate_failures(gates)
 
     perspective_audit_report = gates.get("perspective_audit_report")
     if perspective_audit_report:
@@ -964,6 +944,31 @@ def main() -> None:
     replay_window = max(1, int(config.get("replay_window", 1)))
     include_current_iteration = has_self_play_step(steps)
     validate_pipeline_step_config(steps)
+    startup_gate_failures = config_gate_failures(gates)
+    if startup_gate_failures:
+        iter_dir = versions_dir / f"{run_id}-iter{start_iteration}"
+        iter_dir.mkdir(parents=True, exist_ok=True)
+        (iter_dir / "environment.json").write_text(
+            json.dumps(environment_report(), indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        manifest = build_manifest(
+            run_id=run_id,
+            iteration=start_iteration,
+            seed=seed,
+            config_path=str(config_path),
+            parent_version=parent_artifact_path,
+            status="failed",
+            notes={
+                "phase": "phase_1_scaffold",
+                "dry_run": bool(args.dry_run),
+                "parent_artifact_path": parent_artifact_path,
+            },
+        )
+        manifest["steps"] = []
+        manifest["gate_failures"] = list(startup_gate_failures)
+        write_manifest(iter_dir / "run_manifest.json", manifest)
+        raise SystemExit(1)
     fixed_replay_sources = load_fixed_replay_sources(config, repo_root=repo_root)
     hard_state_validation_path = str(config.get("hard_state_validation_path", ""))
     validate_startup_paths(
@@ -1021,6 +1026,7 @@ def main() -> None:
         )
 
         manifest["steps"] = []
+        manifest["gate_failures"] = []
         replay_data, replay_weights = resolve_replay_context(
             iteration=iteration,
             iter_dir=iter_dir,
