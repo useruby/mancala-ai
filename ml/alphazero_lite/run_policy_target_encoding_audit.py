@@ -613,26 +613,50 @@ def dataset_policy_target_consistency(reference_rows: dict[str, dict]) -> dict:
         )
     reference_scanned = 0
     reference_conflicts = 0
+    reference_extra_turn_top_rate_num = 0
+    reference_no_extra_turn_capture_top_rate_num = 0
+    reference_rows_with_conflict = 0
     for row_id, row in reference_rows.items():
         raw_state = dict(row["state"])
         canonical = canonical_state_key(raw_state)
         consequence_table = move_consequence_table(raw_state)
         top_move = int(row["reference_move"])
+        policy = teacher_policy_from_child_stats(list(row.get("child_stats") or []))
         reference_scanned += 1
         canonical_targets[canonical].add(top_move)
         canonical_sources[canonical].add(str(REFERENCE_ARTIFACT))
         if len(canonical_targets[canonical]) > 1:
             reference_conflicts += 1
+        top_consequence = consequence_table[top_move]
+        if top_consequence["gives_extra_turn"]:
+            reference_extra_turn_top_rate_num += 1
+        if (
+            top_consequence["produces_capture"]
+            and not top_consequence["gives_extra_turn"]
+        ):
+            reference_no_extra_turn_capture_top_rate_num += 1
+        best_extra_turn_mass = 0.0
+        best_no_extra_turn_capture_mass = 0.0
+        for consequence in consequence_table:
+            move = int(consequence["move_index"])
+            if not consequence["legal"]:
+                continue
+            mass = float(policy[move])
+            if consequence["gives_extra_turn"]:
+                best_extra_turn_mass = max(best_extra_turn_mass, mass)
+            if consequence["produces_capture"] and not consequence["gives_extra_turn"]:
+                best_no_extra_turn_capture_mass = max(
+                    best_no_extra_turn_capture_mass, mass
+                )
+        if best_extra_turn_mass >= 0.6 and best_no_extra_turn_capture_mass >= 0.2:
+            reference_rows_with_conflict += 1
         all_row_summaries.append(
             {
                 "source": str(REFERENCE_ARTIFACT),
                 "canonical_state": canonical,
                 "target_top_move": top_move,
-                "target_bucket": normalized_bucket_name(consequence_table[top_move]),
-                "bucket_mass": bucket_mass(
-                    teacher_policy_from_child_stats(list(row.get("child_stats") or [])),
-                    consequence_table,
-                ),
+                "target_bucket": normalized_bucket_name(top_consequence),
+                "bucket_mass": bucket_mass(policy, consequence_table),
             }
         )
     per_source_rows.append(
@@ -641,9 +665,15 @@ def dataset_policy_target_consistency(reference_rows: dict[str, dict]) -> dict:
             "rows": reference_scanned,
             "duplicate_canonical_states": 0,
             "conflicting_policy_targets": reference_conflicts,
-            "extra_turn_top_move_rate": 0.0,
-            "no_extra_turn_capture_top_move_rate": 0.0,
-            "rows_with_extra_turn_over_no_extra_turn_capture_conflict": 0,
+            "extra_turn_top_move_rate": 0.0
+            if reference_scanned == 0
+            else round(reference_extra_turn_top_rate_num / reference_scanned, 4),
+            "no_extra_turn_capture_top_move_rate": 0.0
+            if reference_scanned == 0
+            else round(
+                reference_no_extra_turn_capture_top_rate_num / reference_scanned, 4
+            ),
+            "rows_with_extra_turn_over_no_extra_turn_capture_conflict": reference_rows_with_conflict,
             "notes": "shared forensic reference artifact",
         }
     )

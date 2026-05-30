@@ -47,7 +47,7 @@ Summary:
 | `tactical_balanced_replay_source.jsonl` | `198` | `0` | `0` | `0.2525` | `0.1313` | `0` |
 | `tactical_capture_protection.jsonl` | `5` | `0` | `0` | `0.8` | `0.2` | `0` |
 | `human_games_combined.jsonl` | `0` | `0` | `0` | `0.0` | `0.0` | `0` |
-| forensic references | `224` | `0` | `0` | `0.0` | `0.0` | `0` |
+| forensic references | `224` | `0` | `0` | `0.2991` | `0.0536` | `0` |
 
 Interpretation:
 
