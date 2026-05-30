@@ -34,6 +34,14 @@ def load_suite(*args, **kwargs):
     return impl(*args, **kwargs)
 
 
+def summarize_root_prior_telemetry(*args, **kwargs):
+    from ml.alphazero_lite.root_prior_transforms import (
+        summarize_root_prior_telemetry as impl,
+    )
+
+    return impl(*args, **kwargs)
+
+
 def summarize_system(*args, **kwargs):
     from ml.alphazero_lite.forensic_suite import summarize_system as impl
 
@@ -67,8 +75,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--root-prior-transform", default=None)
+    parser.add_argument("--report-rows", action="store_true")
     parser.add_argument("--out", required=True)
     return parser.parse_args()
+
+
+def telemetry_summary_from_rows(rows: list[dict]) -> dict:
+    return summarize_root_prior_telemetry(
+        [
+            row.get("root_prior_telemetry")
+            for row in rows
+            if isinstance(row.get("root_prior_telemetry"), dict)
+        ]
+    )
 
 
 def main() -> None:
@@ -110,6 +129,8 @@ def main() -> None:
                 system=system,
             )
         )
+        if isinstance(system.get("root_prior_telemetry"), dict):
+            rows[-1]["root_prior_telemetry"] = system["root_prior_telemetry"]
 
     summary = summarize_system(rows)
     bucket_matrix = summarize_bucket_matrix({"artifact": rows})
@@ -125,7 +146,10 @@ def main() -> None:
         "value_calibration_mae": overall["value_calibration_mae"],
         "overall": overall,
         "buckets": bucket_matrix,
+        "root_prior_transform_telemetry": telemetry_summary_from_rows(rows),
     }
+    if bool(args.report_rows):
+        report["rows"] = rows
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
