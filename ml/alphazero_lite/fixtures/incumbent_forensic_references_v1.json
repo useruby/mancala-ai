@@ -1,6 +1,6 @@
 {
   "schema": "azlite_forensic_references_v1",
-  "suite_path": "/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+  "suite_path": "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
   "reference": {
     "policy_simulations": 30000,
     "value_simulations": 30000,

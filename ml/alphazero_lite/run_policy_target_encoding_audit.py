@@ -41,7 +41,7 @@ GUARDED_W2_ARTIFACT = Path(
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
 REFERENCE_ARTIFACT = Path(
-    "/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
 )
 FORENSIC_SUITE = Path(
     "/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"

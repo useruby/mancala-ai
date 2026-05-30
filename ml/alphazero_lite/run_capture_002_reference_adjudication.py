@@ -48,20 +48,18 @@ OPTIONAL_CLASSIC_BUDGET = 30000
 PUCT_BUDGETS = (384, 1200, 2400, 5000)
 SEEDS = (11, 23, 37, 42, 101, 202, 303)
 DEFAULT_FIXTURE_PATH = Path(
-    "/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
 )
 DEFAULT_OLD_REFERENCE_ARTIFACT = Path(
-    "/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
 )
-DEFAULT_CURRENT_ARTIFACT = Path(
-    "/home/alex/Mancala/ai/storage/ai/alphazero_lite/current"
-)
+DEFAULT_CURRENT_ARTIFACT = Path("storage/ai/alphazero_lite/current")
 DEFAULT_OUTPUT_DIR = Path("/tmp/azlite_capture_002_reference_adjudication")
 DEFAULT_SUMMARY_PATH = (
     DEFAULT_OUTPUT_DIR / "capture_002_reference_adjudication_summary.json"
 )
 DEFAULT_REPORT_PATH = Path(
-    "/home/alex/Mancala/ai/docs/alphazero-lite-capture-002-reference-adjudication-results.md"
+    "docs/alphazero-lite-capture-002-reference-adjudication-results.md"
 )
 DEFAULT_CANDIDATE_ARTIFACT_PATH = (
     DEFAULT_OUTPUT_DIR / "incumbent_forensic_suite_v1_references_adjudicated.json"
@@ -140,6 +138,12 @@ def q_from_win_rate(win_rate: float) -> float:
 
 def centered_from_probability(probability: float) -> float:
     return (2.0 * float(probability)) - 1.0
+
+
+def centered_from_probability_or_none(probability: float | None) -> float | None:
+    if probability is None:
+        return None
+    return centered_from_probability(float(probability))
 
 
 def aggregate_probability(child_stats: list[dict[str, Any]]) -> float | None:
@@ -1106,13 +1110,17 @@ def main(argv: list[str] | None = None) -> int:
                 result = classic_run_for_state(
                     state=dict(child_state), budget=budget, seed=seed
                 )
-                raw_centered = centered_from_probability(
-                    float(result["teacher_probability"])
+                raw_centered = centered_from_probability_or_none(
+                    result["teacher_probability"]
                 )
-                root_centered = state_to_root_perspective_value(
-                    raw_value=raw_centered,
-                    state=child_state,
-                    root_player=root_player_002,
+                root_centered = (
+                    None
+                    if raw_centered is None
+                    else state_to_root_perspective_value(
+                        raw_value=raw_centered,
+                        state=child_state,
+                        root_player=root_player_002,
+                    )
                 )
                 child_raw[(child_from_move, budget, seed)] = {
                     **result,
@@ -1398,8 +1406,8 @@ def main(argv: list[str] | None = None) -> int:
                 {
                     "seed": int(seed),
                     "reference_move": int(result["selected_move"]),
-                    "teacher_value": centered_from_probability(
-                        float(result["teacher_probability"])
+                    "teacher_value": centered_from_probability_or_none(
+                        result["teacher_probability"]
                     ),
                     "child_stats": list(result["child_stats"]),
                 }
@@ -1434,9 +1442,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     patch_path = None
-    if changed_or_unstable_rows == [ROOT_ROW_ID] or set(changed_or_unstable_rows) == {
-        ROOT_ROW_ID
-    }:
+    if set(changed_or_unstable_rows) == {ROOT_ROW_ID}:
         patch_rows = [row for row in candidate_rows if row["id"] == ROOT_ROW_ID]
         patch_artifact = {
             "schema": "azlite_forensic_references_v1",
