@@ -51,22 +51,22 @@
 
 | artifact | child_move | simulations | child_selected_move | child_value_raw | child_value_root_perspective | visit_entropy | q_summary | child4_minus_child2_root_value | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| current | 2 | 64 | 3 | 0.063 | 0.063 | 0.7305 | `{"0": -0.1554, "1": -0.1741, "3": 0.0436, "4": 0.0355, "5": 0.0672}` | -0.1766 | direct artifact PUCT from child afterstate |
-| current | 2 | 128 | 5 | 0.063 | 0.063 | 0.6854 | `{"0": -0.1554, "1": -0.01, "3": 0.0436, "4": 0.0355, "5": 0.1043}` | -0.1766 | direct artifact PUCT from child afterstate |
-| current | 2 | 384 | 5 | 0.063 | 0.063 | 0.3985 | `{"0": -0.1554, "1": -0.0141, "3": 0.0436, "4": 0.0272, "5": 0.0827}` | -0.1766 | direct artifact PUCT from child afterstate |
-| current | 2 | 1200 | 5 | 0.063 | 0.063 | 0.1844 | `{"0": -0.0501, "1": -0.0163, "3": 0.0436, "4": 0.0136, "5": 0.1157}` | -0.1766 | direct artifact PUCT from child afterstate |
-| current | 4 | 64 | 5 | 0.1136 | -0.1136 | 0.3438 | `{"0": 0.0, "1": -0.0472, "2": -0.1455, "3": -0.2038, "4": 0.0367, "5": -0.0056}` | -0.1766 | direct artifact PUCT from child afterstate |
-| current | 4 | 128 | 4 | 0.1136 | -0.1136 | 0.5488 | `{"0": -0.0915, "1": -0.0472, "2": -0.1234, "3": -0.2038, "4": 0.0298, "5": -0.0056}` | -0.1766 | direct artifact PUCT from child afterstate |
-| current | 4 | 384 | 5 | 0.1136 | -0.1136 | 0.503 | `{"0": -0.0915, "1": -0.0843, "2": -0.0471, "3": -0.2038, "4": -0.0269, "5": -0.0296}` | -0.1766 | direct artifact PUCT from child afterstate |
-| current | 4 | 1200 | 4 | 0.1136 | -0.1136 | 0.6405 | `{"0": -0.0915, "1": -0.0728, "2": -0.0722, "3": -0.1479, "4": -0.0663, "5": -0.0699}` | -0.1766 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 2 | 64 | 4 | 0.0613 | 0.0613 | 0.6512 | `{"0": -0.058, "1": -0.0603, "3": -0.0034, "4": -0.0068, "5": -0.0386}` | -0.1336 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 2 | 128 | 4 | 0.0613 | 0.0613 | 0.7477 | `{"0": -0.058, "1": -0.0603, "3": -0.0176, "4": -0.0188, "5": 0.0303}` | -0.1336 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 2 | 384 | 5 | 0.0613 | 0.0613 | 0.4949 | `{"0": -0.0573, "1": -0.0836, "3": -0.0176, "4": -0.0188, "5": 0.0775}` | -0.1336 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 2 | 1200 | 5 | 0.0613 | 0.0613 | 0.2461 | `{"0": -0.0555, "1": -0.0172, "3": -0.0176, "4": -0.0188, "5": 0.0973}` | -0.1336 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 4 | 64 | 5 | 0.0723 | -0.0723 | 0.6032 | `{"0": 0.0027, "1": -0.0579, "2": -0.035, "3": -0.0634, "4": 0.0097, "5": 0.0554}` | -0.1336 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 4 | 128 | 5 | 0.0723 | -0.0723 | 0.4895 | `{"0": 0.0027, "1": -0.0579, "2": 0.0069, "3": -0.0634, "4": 0.0045, "5": 0.0379}` | -0.1336 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 4 | 384 | 5 | 0.0723 | -0.0723 | 0.4389 | `{"0": 0.0101, "1": -0.0579, "2": -0.0101, "3": 0.0326, "4": 0.0124, "5": 0.0279}` | -0.1336 | direct artifact PUCT from child afterstate |
-| guarded-w2 | 4 | 1200 | 5 | 0.0723 | -0.0723 | 0.4097 | `{"0": 0.0101, "1": -0.0139, "2": -0.0212, "3": 0.0231, "4": 0.0094, "5": 0.0279}` | -0.1336 | direct artifact PUCT from child afterstate |
+| current | 2 | 64 | 3 | 0.0386 | 0.0386 | 0.7305 | `{"0": -0.1554, "1": -0.1741, "3": 0.0436, "4": 0.0355, "5": 0.0672}` | -0.0203 | direct artifact PUCT from child afterstate |
+| current | 2 | 128 | 5 | 0.0735 | 0.0735 | 0.6854 | `{"0": -0.1554, "1": -0.01, "3": 0.0436, "4": 0.0355, "5": 0.1043}` | -0.0766 | direct artifact PUCT from child afterstate |
+| current | 2 | 384 | 5 | 0.0729 | 0.0729 | 0.3985 | `{"0": -0.1554, "1": -0.0141, "3": 0.0436, "4": 0.0272, "5": 0.0827}` | -0.0423 | direct artifact PUCT from child afterstate |
+| current | 2 | 1200 | 5 | 0.1097 | 0.1097 | 0.1844 | `{"0": -0.0501, "1": -0.0163, "3": 0.0436, "4": 0.0136, "5": 0.1157}` | -0.0407 | direct artifact PUCT from child afterstate |
+| current | 4 | 64 | 5 | -0.0183 | 0.0183 | 0.3438 | `{"0": 0.0, "1": -0.0472, "2": -0.1455, "3": -0.2038, "4": 0.0367, "5": -0.0056}` | -0.0203 | direct artifact PUCT from child afterstate |
+| current | 4 | 128 | 4 | 0.0031 | -0.0031 | 0.5488 | `{"0": -0.0915, "1": -0.0472, "2": -0.1234, "3": -0.2038, "4": 0.0298, "5": -0.0056}` | -0.0766 | direct artifact PUCT from child afterstate |
+| current | 4 | 384 | 5 | -0.0306 | 0.0306 | 0.503 | `{"0": -0.0915, "1": -0.0843, "2": -0.0471, "3": -0.2038, "4": -0.0269, "5": -0.0296}` | -0.0423 | direct artifact PUCT from child afterstate |
+| current | 4 | 1200 | 4 | -0.069 | 0.069 | 0.6405 | `{"0": -0.0915, "1": -0.0728, "2": -0.0722, "3": -0.1479, "4": -0.0663, "5": -0.0699}` | -0.0407 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 2 | 64 | 4 | -0.0111 | -0.0111 | 0.6512 | `{"0": -0.058, "1": -0.0603, "3": -0.0034, "4": -0.0068, "5": -0.0386}` | -0.0203 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 2 | 128 | 4 | -0.0048 | -0.0048 | 0.7477 | `{"0": -0.058, "1": -0.0603, "3": -0.0176, "4": -0.0188, "5": 0.0303}` | -0.0222 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 2 | 384 | 5 | 0.0527 | 0.0527 | 0.4949 | `{"0": -0.0573, "1": -0.0836, "3": -0.0176, "4": -0.0188, "5": 0.0775}` | -0.0767 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 2 | 1200 | 5 | 0.0871 | 0.0871 | 0.2461 | `{"0": -0.0555, "1": -0.0172, "3": -0.0176, "4": -0.0188, "5": 0.0973}` | -0.1125 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 4 | 64 | 5 | 0.0314 | -0.0314 | 0.6032 | `{"0": 0.0027, "1": -0.0579, "2": -0.035, "3": -0.0634, "4": 0.0097, "5": 0.0554}` | -0.0203 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 4 | 128 | 5 | 0.027 | -0.027 | 0.4895 | `{"0": 0.0027, "1": -0.0579, "2": 0.0069, "3": -0.0634, "4": 0.0045, "5": 0.0379}` | -0.0222 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 4 | 384 | 5 | 0.024 | -0.024 | 0.4389 | `{"0": 0.0101, "1": -0.0579, "2": -0.0101, "3": 0.0326, "4": 0.0124, "5": 0.0279}` | -0.0767 | direct artifact PUCT from child afterstate |
+| guarded-w2 | 4 | 1200 | 5 | 0.0254 | -0.0254 | 0.4097 | `{"0": 0.0101, "1": -0.0139, "2": -0.0212, "3": 0.0231, "4": 0.0094, "5": 0.0279}` | -0.1125 | direct artifact PUCT from child afterstate |
 
 ## Root selection-score trace with child-value annotations
 
@@ -3633,22 +3633,22 @@
 | current | original | 1200 | 2 | false | 1117 | 18 | 0.1028 | 0.0391 | 0.2211 | selected_non_reference | diagnostic-only intervention |
 | current | root_prior_equalized | 384 | 2 | false | 276 | 70 | 0.0686 | 0.0074 | 0.219 | selected_non_reference | diagnostic-only intervention |
 | current | root_prior_equalized | 1200 | 2 | false | 1077 | 70 | 0.0997 | 0.0074 | 0.2547 | selected_non_reference | diagnostic-only intervention |
-| current | child_value_override_teacher | 384 | 2 | false | 277 | 68 | 0.0714 | 0.0203 | 0.2004 | selected_non_reference | diagnostic-only intervention |
-| current | child_value_override_teacher | 1200 | 2 | false | 1067 | 68 | 0.0999 | 0.0203 | 0.4726 | selected_non_reference | diagnostic-only intervention |
-| current | child_value_override_neural_swapped | 384 | 2 | false | 265 | 70 | 0.071 | 0.0081 | 0.252 | selected_non_reference | diagnostic-only intervention |
-| current | child_value_override_neural_swapped | 1200 | 2 | false | 1064 | 70 | 0.0995 | 0.0081 | 0.5522 | selected_non_reference | diagnostic-only intervention |
-| current | root_q_init_teacher | 384 | 2 | false | 277 | 68 | 0.0714 | 0.0203 | 0.2004 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
-| current | root_q_init_teacher | 1200 | 2 | false | 1067 | 68 | 0.0999 | 0.0203 | 0.4726 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
+| current | child_value_override_teacher | 384 | 2 | false | 287 | 2 | 0.0681 | -0.2455 | 0.3234 | selected_non_reference | diagnostic-only intervention |
+| current | child_value_override_teacher | 1200 | 2 | false | 1102 | 3 | 0.1025 | -0.1658 | 0.0899 | selected_non_reference | diagnostic-only intervention |
+| current | child_value_override_neural_swapped | 384 | 2 | false | 264 | 70 | 0.0716 | 0.0099 | 0.2461 | selected_non_reference | diagnostic-only intervention |
+| current | child_value_override_neural_swapped | 1200 | 2 | false | 1063 | 70 | 0.0996 | 0.0099 | 0.5406 | selected_non_reference | diagnostic-only intervention |
+| current | root_q_init_teacher | 384 | 2 | false | 287 | 2 | 0.0681 | -0.2455 | 0.3234 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
+| current | root_q_init_teacher | 1200 | 2 | false | 1102 | 3 | 0.1025 | -0.1658 | 0.0899 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
 | guarded-w2 | original | 384 | 2 | false | 234 | 1 | 0.0159 | -0.0723 | 0.0021 | selected_non_reference | diagnostic-only intervention |
 | guarded-w2 | original | 1200 | 2 | false | 1037 | 10 | 0.0781 | -0.0016 | 0.2087 | selected_non_reference | diagnostic-only intervention |
 | guarded-w2 | root_prior_equalized | 384 | 2 | false | 220 | 15 | 0.017 | -0.038 | 0.3027 | selected_non_reference | diagnostic-only intervention |
 | guarded-w2 | root_prior_equalized | 1200 | 2 | false | 1034 | 15 | 0.0774 | -0.038 | 0.29 | selected_non_reference | diagnostic-only intervention |
-| guarded-w2 | child_value_override_teacher | 384 | 2 | false | 320 | 24 | 0.0311 | -0.0176 | 0.3483 | selected_non_reference | diagnostic-only intervention |
-| guarded-w2 | child_value_override_teacher | 1200 | 2 | false | 1130 | 24 | 0.0867 | -0.0176 | 0.4779 | selected_non_reference | diagnostic-only intervention |
-| guarded-w2 | child_value_override_neural_swapped | 384 | 1 | false | 108 | 13 | -0.0203 | -0.032 | 0.0851 | selected_non_reference | diagnostic-only intervention |
-| guarded-w2 | child_value_override_neural_swapped | 1200 | 2 | false | 920 | 13 | 0.0659 | -0.032 | 0.423 | selected_non_reference | diagnostic-only intervention |
-| guarded-w2 | root_q_init_teacher | 384 | 2 | false | 320 | 24 | 0.0311 | -0.0176 | 0.3483 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
-| guarded-w2 | root_q_init_teacher | 1200 | 2 | false | 1130 | 24 | 0.0867 | -0.0176 | 0.4779 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
+| guarded-w2 | child_value_override_teacher | 384 | 1 | false | 120 | 1 | -0.0132 | -0.5658 | 0.1799 | selected_non_reference | diagnostic-only intervention |
+| guarded-w2 | child_value_override_teacher | 1200 | 2 | false | 921 | 2 | 0.0668 | -0.2081 | 0.0018 | selected_non_reference | diagnostic-only intervention |
+| guarded-w2 | child_value_override_neural_swapped | 384 | 2 | false | 213 | 15 | 0.0143 | -0.0291 | 0.331 | selected_non_reference | diagnostic-only intervention |
+| guarded-w2 | child_value_override_neural_swapped | 1200 | 2 | false | 1025 | 15 | 0.0758 | -0.0291 | 0.4537 | selected_non_reference | diagnostic-only intervention |
+| guarded-w2 | root_q_init_teacher | 384 | 1 | false | 120 | 1 | -0.0132 | -0.5658 | 0.1799 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
+| guarded-w2 | root_q_init_teacher | 1200 | 2 | false | 921 | 2 | 0.0668 | -0.2081 | 0.0018 | selected_non_reference | implemented as root-child first-expansion override; clean root-Q preseed hook not present |
 
 ## Interpretation
 

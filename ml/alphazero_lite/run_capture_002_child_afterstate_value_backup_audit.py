@@ -190,6 +190,16 @@ def state_to_root_perspective_value(
     )
 
 
+def root_to_state_perspective_value(
+    *, root_value: float, state: dict, root_player: int
+) -> float:
+    return (
+        float(root_value)
+        if int(state["current_player"]) == int(root_player)
+        else -float(root_value)
+    )
+
+
 def child_state_from_move(root_state: dict, move: int) -> dict:
     game = KalahGame.from_state(root_state)
     succeeded = game.move(game.pit_index(move))
@@ -418,16 +428,18 @@ def puct_child_audit(
             str(int(entry["move"])): round_float(float(entry.get("q_value", 0.0)))
             for entry in result.get("child_stats") or []
         }
+        selection_breakdown = result.get("selection_breakdown") or {}
+        child_search_value_raw = float(selection_breakdown.get("parent_q_value", 0.0))
         rows.append(
             {
                 "artifact": artifact_label,
                 "child_move": int(child_move),
                 "simulations": int(simulations),
                 "child_selected_move": result.get("selected_move"),
-                "child_value_raw": round_float(float(result.get("value", 0.0))),
+                "child_value_raw": round_float(child_search_value_raw),
                 "child_value_root_perspective": round_float(
                     state_to_root_perspective_value(
-                        raw_value=float(result.get("value", 0.0)),
+                        raw_value=child_search_value_raw,
                         state=child_state,
                         root_player=root_player,
                     )
@@ -744,6 +756,11 @@ def counterfactual_rows_for_artifact(
     seed: int,
     c_puct: float,
 ) -> list[dict]:
+    root_player = int(root_state["current_player"])
+    child_states = {
+        WRONG_MOVE: child_state_from_move(root_state, WRONG_MOVE),
+        REFERENCE_MOVE: child_state_from_move(root_state, REFERENCE_MOVE),
+    }
     interventions = {
         "original": {"root_prior_override": None, "child_value_overrides": None},
         "root_prior_equalized": {
@@ -753,22 +770,46 @@ def counterfactual_rows_for_artifact(
         "child_value_override_teacher": {
             "root_prior_override": None,
             "child_value_overrides": {
-                WRONG_MOVE: float(teacher_child_values[WRONG_MOVE]),
-                REFERENCE_MOVE: float(teacher_child_values[REFERENCE_MOVE]),
+                WRONG_MOVE: root_to_state_perspective_value(
+                    root_value=float(teacher_child_values[WRONG_MOVE]),
+                    state=child_states[WRONG_MOVE],
+                    root_player=root_player,
+                ),
+                REFERENCE_MOVE: root_to_state_perspective_value(
+                    root_value=float(teacher_child_values[REFERENCE_MOVE]),
+                    state=child_states[REFERENCE_MOVE],
+                    root_player=root_player,
+                ),
             },
         },
         "child_value_override_neural_swapped": {
             "root_prior_override": None,
             "child_value_overrides": {
-                WRONG_MOVE: float(neural_child_values[REFERENCE_MOVE]),
-                REFERENCE_MOVE: float(neural_child_values[WRONG_MOVE]),
+                WRONG_MOVE: root_to_state_perspective_value(
+                    root_value=float(neural_child_values[REFERENCE_MOVE]),
+                    state=child_states[WRONG_MOVE],
+                    root_player=root_player,
+                ),
+                REFERENCE_MOVE: root_to_state_perspective_value(
+                    root_value=float(neural_child_values[WRONG_MOVE]),
+                    state=child_states[REFERENCE_MOVE],
+                    root_player=root_player,
+                ),
             },
         },
         "root_q_init_teacher": {
             "root_prior_override": None,
             "child_value_overrides": {
-                WRONG_MOVE: float(teacher_child_values[WRONG_MOVE]),
-                REFERENCE_MOVE: float(teacher_child_values[REFERENCE_MOVE]),
+                WRONG_MOVE: root_to_state_perspective_value(
+                    root_value=float(teacher_child_values[WRONG_MOVE]),
+                    state=child_states[WRONG_MOVE],
+                    root_player=root_player,
+                ),
+                REFERENCE_MOVE: root_to_state_perspective_value(
+                    root_value=float(teacher_child_values[REFERENCE_MOVE]),
+                    state=child_states[REFERENCE_MOVE],
+                    root_player=root_player,
+                ),
             },
         },
     }
