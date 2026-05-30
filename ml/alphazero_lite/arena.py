@@ -1321,18 +1321,20 @@ def run_arena_worker(
                     opening_cache_miss_latency_ms.append(total_duration_ms)
 
                 if hasattr(search, "select_root_move") and root is not None:
+                    root_summary = (
+                        search.root_summary()
+                        if hasattr(search, "root_summary")
+                        else None
+                    )
                     if (
                         value_trust_summary is None
                         and "value_trust_schedule" in normalized_search_options
-                        and hasattr(search, "root_summary")
+                        and isinstance(root_summary, dict)
                     ):
-                        root_summary = search.root_summary()
-                        if isinstance(root_summary, dict):
-                            candidate_value_trust = root_summary.get("value_trust")
-                            if isinstance(candidate_value_trust, dict):
-                                value_trust_summary = candidate_value_trust
-                    if hasattr(search, "root_summary"):
-                        root_summary = search.root_summary()
+                        candidate_value_trust = root_summary.get("value_trust")
+                        if isinstance(candidate_value_trust, dict):
+                            value_trust_summary = candidate_value_trust
+                    if isinstance(root_summary, dict):
                         root_prior_telemetry = root_summary.get("root_prior_telemetry")
                         if isinstance(root_prior_telemetry, dict):
                             if acting_player == challenger_player:

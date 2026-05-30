@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -90,7 +91,7 @@ def artifact_label(path: Path) -> str:
 
 
 def run_command(command: list[str], *, cwd: Path, dry_run: bool) -> dict:
-    rendered = " ".join(command)
+    rendered = shlex.join(command)
     if dry_run:
         return {"command": command, "rendered_command": rendered, "executed": False}
     completed = subprocess.run(
@@ -263,12 +264,7 @@ def collect_local_guard_results(
             note_parts: list[str] = []
             passes = selected_is_reference
             if row_id == "capture_available-005":
-                baseline_non_reference = True
-                passes = (
-                    True
-                    if not selected_is_reference and baseline_non_reference
-                    else selected_is_reference
-                )
+                passes = True
                 note_parts.append("reported_only_not_hard_fail")
             elif row_id in {"capture_available-002", "capture_available-003"}:
                 passes = selected_is_reference
