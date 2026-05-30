@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": {
+    "python": {
+      "command": ["npx", "-y", "-p", "basedpyright", "basedpyright-langserver", "--stdio"],
+      "extensions": ["py"],
+      "initialization": {
+        "basedpyright": {
+          "analysis": {
+            "diagnosticMode": "openFilesOnly",
+            "typeCheckingMode": "basic"
+          }
+        }
+      }
+    },
+    "python-ruff": {
+      "command": ["ruff", "server"],
+      "extensions": ["py"]
+    }
+  }
+}

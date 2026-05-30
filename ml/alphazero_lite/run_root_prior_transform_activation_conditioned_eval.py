@@ -47,7 +47,7 @@ DEFAULT_GUARDED_W2_PATH = (
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
 DEFAULT_REFERENCE_ARTIFACT = (
-    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
 )
 DEFAULT_TRANSFORM = "seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5"
 DEFAULT_RANDOM_PREFIX_COUNT = 800
