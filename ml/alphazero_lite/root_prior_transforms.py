@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from typing import Callable
 
 import numpy as np
@@ -94,6 +95,11 @@ def _telemetry(
 ) -> dict:
     return {
         "transform_name": transform_name,
+        "activated": any(
+            not np.isclose(float(before[move]), float(after[move])) for move in legal_moves
+        ),
+        "legal_move_count": len(legal_moves),
+        "context_counts": _context_counts(move_feature_annotations),
         "mass_shift": _mass_shift(before, after, legal_moves),
         "per_move": {
             str(move): {
@@ -107,6 +113,131 @@ def _telemetry(
             }
             for move in legal_moves
         },
+    }
+
+
+def summarize_root_prior_telemetry(entries: list[dict] | None) -> dict:
+    telemetry_entries = [entry for entry in (entries or []) if isinstance(entry, dict)]
+    root_states_evaluated = len(telemetry_entries)
+    activated_entries = [entry for entry in telemetry_entries if bool(entry.get("activated"))]
+    activation_count = len(activated_entries)
+    activation_rate = (
+        None
+        if root_states_evaluated <= 0
+        else round(activation_count / root_states_evaluated, 4)
+    )
+    average_mass_shift = (
+        None
+        if activation_count <= 0
+        else round(
+            sum(float(entry.get("mass_shift", 0.0)) for entry in activated_entries)
+            / activation_count,
+            4,
+        )
+    )
+    context_totals = {
+        "seed4_extra_turn_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "legal_move_count": 0,
+    }
+    changed_pattern_counts: Counter[str] = Counter()
+    for entry in activated_entries:
+        context = entry.get("context_counts") if isinstance(entry.get("context_counts"), dict) else {}
+        context_totals["seed4_extra_turn_count"] += int(
+            context.get("seed4_extra_turn_count", 0)
+        )
+        context_totals["no_extra_turn_capture_count"] += int(
+            context.get("no_extra_turn_capture_count", 0)
+        )
+        context_totals["no_extra_turn_noncapture_seed5_count"] += int(
+            context.get("no_extra_turn_noncapture_seed5_count", 0)
+        )
+        context_totals["legal_move_count"] += int(entry.get("legal_move_count", 0))
+
+        per_move = entry.get("per_move") if isinstance(entry.get("per_move"), dict) else {}
+        for move_payload in per_move.values():
+            if not isinstance(move_payload, dict):
+                continue
+            delta = float(move_payload.get("delta", 0.0))
+            if np.isclose(delta, 0.0):
+                continue
+            features = move_payload.get("features") if isinstance(move_payload.get("features"), dict) else {}
+            pattern = (
+                f"extra_turn={int(bool(features.get('gives_extra_turn', False)))}|"
+                f"capture={int(bool(features.get('produces_capture', False)))}|"
+                f"seed_count={int(features.get('seed_count', 0))}|"
+                f"delta_sign={'up' if delta > 0.0 else 'down'}"
+            )
+            changed_pattern_counts[pattern] += 1
+
+    top_changed_move_feature_patterns = [
+        {"pattern": pattern, "count": count}
+        for pattern, count in changed_pattern_counts.most_common(5)
+    ]
+    return {
+        "root_states_evaluated": root_states_evaluated,
+        "activation_count": activation_count,
+        "activation_rate": activation_rate,
+        "average_mass_shift": average_mass_shift,
+        "legal_move_context_counts": context_totals,
+        "top_changed_move_feature_patterns": top_changed_move_feature_patterns,
+    }
+
+
+def merge_root_prior_telemetry_summaries(summaries: list[dict] | None) -> dict:
+    normalized = [summary for summary in (summaries or []) if isinstance(summary, dict)]
+    root_states_evaluated = sum(
+        int(summary.get("root_states_evaluated", 0)) for summary in normalized
+    )
+    activation_count = sum(int(summary.get("activation_count", 0)) for summary in normalized)
+    activation_rate = (
+        None
+        if root_states_evaluated <= 0
+        else round(activation_count / root_states_evaluated, 4)
+    )
+    weighted_mass_shift = sum(
+        float(summary.get("average_mass_shift", 0.0))
+        * int(summary.get("activation_count", 0))
+        for summary in normalized
+        if summary.get("average_mass_shift") is not None
+    )
+    average_mass_shift = (
+        None if activation_count <= 0 else round(weighted_mass_shift / activation_count, 4)
+    )
+    context_totals = {
+        "seed4_extra_turn_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "legal_move_count": 0,
+    }
+    changed_pattern_counts: Counter[str] = Counter()
+    for summary in normalized:
+        context = summary.get("legal_move_context_counts")
+        if isinstance(context, dict):
+            for key in context_totals:
+                context_totals[key] += int(context.get(key, 0))
+        top_patterns = summary.get("top_changed_move_feature_patterns")
+        if isinstance(top_patterns, list):
+            for row in top_patterns:
+                if not isinstance(row, dict):
+                    continue
+                pattern = row.get("pattern")
+                if not isinstance(pattern, str) or not pattern:
+                    continue
+                changed_pattern_counts[pattern] += int(row.get("count", 0))
+
+    top_changed_move_feature_patterns = [
+        {"pattern": pattern, "count": count}
+        for pattern, count in changed_pattern_counts.most_common(5)
+    ]
+    return {
+        "root_states_evaluated": root_states_evaluated,
+        "activation_count": activation_count,
+        "activation_rate": activation_rate,
+        "average_mass_shift": average_mass_shift,
+        "legal_move_context_counts": context_totals,
+        "top_changed_move_feature_patterns": top_changed_move_feature_patterns,
     }
 
 
@@ -386,13 +517,15 @@ def build_root_prior_override(
     def override(*, game, legal_moves: list[int], priors: np.ndarray) -> np.ndarray:
         state = game.to_state()
         annotations = move_feature_annotations_for(state=state, legal_moves=legal_moves)
-        transformed, _telemetry_payload = apply_root_prior_transform(
+        transformed, telemetry_payload = apply_root_prior_transform(
             state=state,
             legal_moves=legal_moves,
             original_root_prior=np.asarray(priors, dtype=np.float32),
             move_feature_annotations=annotations,
             transform_name=transform_name,
         )
+        override.last_telemetry = telemetry_payload
         return transformed
 
+    override.last_telemetry = None
     return override

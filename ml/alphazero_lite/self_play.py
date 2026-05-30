@@ -868,6 +868,7 @@ class PUCT:
         self._last_visit_snapshots: list[dict] = []
         self._last_root_prior_before: list[float] | None = None
         self._last_root_prior_after: list[float] | None = None
+        self._last_root_prior_telemetry: dict | None = None
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -898,6 +899,7 @@ class PUCT:
         self._last_visit_snapshots = []
         self._last_root_prior_before = None
         self._last_root_prior_after = None
+        self._last_root_prior_telemetry = None
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -951,6 +953,11 @@ class PUCT:
                 "after": None
                 if self._last_root_prior_after is None
                 else list(self._last_root_prior_after),
+                **(
+                    self._last_root_prior_telemetry
+                    if isinstance(self._last_root_prior_telemetry, dict)
+                    else {}
+                ),
             },
         }
 
@@ -1384,6 +1391,9 @@ class PUCT:
                 priors=np.asarray(masked, dtype=np.float32).copy(),
             ),
             dtype=np.float32,
+        )
+        self._last_root_prior_telemetry = getattr(
+            self.root_prior_override, "last_telemetry", None
         )
         if overridden.shape != masked.shape:
             raise ValueError(

@@ -26,6 +26,8 @@ if not ARENA_STUB_MODE:
         from ml.alphazero_lite.root_prior_transforms import (
             ARENA_TRANSFORM_NAMES,
             build_root_prior_override,
+            merge_root_prior_telemetry_summaries,
+            summarize_root_prior_telemetry,
         )
         from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
         from ml.alphazero_lite.kalah_rules import KalahGame
@@ -52,6 +54,8 @@ if not ARENA_STUB_MODE:
         from root_prior_transforms import (
             ARENA_TRANSFORM_NAMES,
             build_root_prior_override,
+            merge_root_prior_telemetry_summaries,
+            summarize_root_prior_telemetry,
         )
         from input_encodings import DEFAULT_INPUT_ENCODING
         from kalah_rules import KalahGame
@@ -127,9 +131,20 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--opening-cache", default=None)
     parser.add_argument("--opening-cache-training-summary", default=None)
+    parser.add_argument("--random-opening-plies", type=int, default=0)
     parser.add_argument("--out", required=True)
     parser.add_argument(
         "--root-prior-transform",
+        choices=sorted(ARENA_TRANSFORM_NAMES),
+        default=None,
+    )
+    parser.add_argument(
+        "--challenger-root-prior-transform",
+        choices=sorted(ARENA_TRANSFORM_NAMES),
+        default=None,
+    )
+    parser.add_argument(
+        "--current-root-prior-transform",
         choices=sorted(ARENA_TRANSFORM_NAMES),
         default=None,
     )
@@ -312,9 +327,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--opening-cache", default=None)
     parser.add_argument("--opening-cache-training-summary", default=None)
+    parser.add_argument("--random-opening-plies", type=int, default=0)
     parser.add_argument("--out", required=True)
     parser.add_argument(
         "--root-prior-transform",
+        choices=sorted(ARENA_TRANSFORM_NAMES),
+        default=None,
+    )
+    parser.add_argument(
+        "--challenger-root-prior-transform",
+        choices=sorted(ARENA_TRANSFORM_NAMES),
+        default=None,
+    )
+    parser.add_argument(
+        "--current-root-prior-transform",
         choices=sorted(ARENA_TRANSFORM_NAMES),
         default=None,
     )
@@ -331,6 +357,27 @@ def partition_counts(total: int, workers: int) -> list[int]:
     base = total // workers
     remainder = total % workers
     return [base + (1 if i < remainder else 0) for i in range(workers)]
+
+
+def apply_random_opening_prefix(
+    game: KalahGame, *, pair_seed: int, opening_plies: int
+) -> int:
+    if opening_plies <= 0:
+        return 0
+
+    rng = np.random.default_rng(pair_seed)
+    applied = 0
+    for _ in range(opening_plies):
+        if game.over():
+            break
+        legal_moves = game.possible_moves()
+        if not legal_moves:
+            break
+        move = int(rng.choice(legal_moves))
+        if not game.move(game.pit_index(move)):
+            break
+        applied += 1
+    return applied
 
 
 class ArtifactEvaluator:
@@ -893,6 +940,22 @@ def aggregate_worker_reports(
     )
     if emitted_value_trust_summary is None:
         emitted_value_trust_summary = configured_value_trust_summary(search_options)
+    emitted_root_prior_telemetry = {
+        "challenger": merge_root_prior_telemetry_summaries(
+            [
+                (result.get("root_prior_telemetry") or {}).get("challenger")
+                for result in results
+                if isinstance(result.get("root_prior_telemetry"), dict)
+            ]
+        ),
+        "current": merge_root_prior_telemetry_summaries(
+            [
+                (result.get("root_prior_telemetry") or {}).get("current")
+                for result in results
+                if isinstance(result.get("root_prior_telemetry"), dict)
+            ]
+        ),
+    }
 
     report = {
         "schema": "arena_v1",
@@ -924,6 +987,30 @@ def aggregate_worker_reports(
                 ),
                 None,
             ),
+            "challenger_root_prior_transform": next(
+                (
+                    result.get("challenger_root_prior_transform")
+                    for result in results
+                    if result.get("challenger_root_prior_transform") is not None
+                ),
+                None,
+            ),
+            "current_root_prior_transform": next(
+                (
+                    result.get("current_root_prior_transform")
+                    for result in results
+                    if result.get("current_root_prior_transform") is not None
+                ),
+                None,
+            ),
+            "random_opening_plies": next(
+                (
+                    int(result.get("random_opening_plies", 0))
+                    for result in results
+                    if int(result.get("random_opening_plies", 0)) > 0
+                ),
+                0,
+            ),
             "move_time_mean_ms": round(statistics.fmean(move_durations_ms), 2)
             if move_durations_ms
             else 0.0,
@@ -932,6 +1019,7 @@ def aggregate_worker_reports(
         "hard_suite_buckets": merge_hard_suite_buckets(
             [result.get("hard_suite_buckets") for result in results]
         ),
+        "root_prior_telemetry": emitted_root_prior_telemetry,
     }
     report["opening_cache_summary"] = opening_cache_summary_for(
         results=results, training_summary=training_summary
@@ -1027,6 +1115,9 @@ def run_arena_worker(
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
     value_trust_schedule: dict | None = None,
     root_prior_transform: str | None = None,
+    challenger_root_prior_transform: str | None = None,
+    current_root_prior_transform: str | None = None,
+    random_opening_plies: int = 0,
     opening_cache=None,
     opening_cache_path: str | None = None,
 ) -> dict:
@@ -1044,6 +1135,12 @@ def run_arena_worker(
         tactical_root_bias=tactical_root_bias,
         value_trust_schedule=value_trust_schedule,
     )
+    effective_challenger_root_prior_transform = (
+        challenger_root_prior_transform
+        if challenger_root_prior_transform is not None
+        else root_prior_transform
+    )
+    effective_current_root_prior_transform = current_root_prior_transform
     search_profile = build_search_profile(
         kind="arena_eval",
         player_mode="puct",
@@ -1054,16 +1151,37 @@ def run_arena_worker(
             "challenger_simulations": int(challenger_simulations),
             "current_simulations": int(current_simulations),
             **(
-                {"root_prior_transform": str(root_prior_transform)}
-                if root_prior_transform
+                {
+                    "root_prior_transform": str(effective_challenger_root_prior_transform)
+                }
+                if effective_challenger_root_prior_transform
+                else {}
+            ),
+            **(
+                {
+                    "challenger_root_prior_transform": str(
+                        effective_challenger_root_prior_transform
+                    )
+                }
+                if effective_challenger_root_prior_transform
+                else {}
+            ),
+            **(
+                {"current_root_prior_transform": str(effective_current_root_prior_transform)}
+                if effective_current_root_prior_transform
                 else {}
             ),
         },
     )
     challenger_root_prior_override = (
         None
-        if root_prior_transform is None
-        else build_root_prior_override(root_prior_transform)
+        if effective_challenger_root_prior_transform is None
+        else build_root_prior_override(effective_challenger_root_prior_transform)
+    )
+    current_root_prior_override = (
+        None
+        if effective_current_root_prior_transform is None
+        else build_root_prior_override(effective_current_root_prior_transform)
     )
 
     wins = 0
@@ -1078,6 +1196,9 @@ def run_arena_worker(
     opening_cache_hit_latency_ms: list[float] = []
     opening_cache_miss_latency_ms: list[float] = []
     value_trust_summary = None
+    challenger_root_prior_telemetry_entries: list[dict] = []
+    current_root_prior_telemetry_entries: list[dict] = []
+    opening_prefix_plies_applied: list[int] = []
 
     for local_index in range(games):
         game_index = start_index + local_index
@@ -1091,6 +1212,13 @@ def run_arena_worker(
             }
         )
         challenger_player = 0 if game_index % 2 == 0 else 1
+        opening_prefix_plies_applied.append(
+            apply_random_opening_prefix(
+                game,
+                pair_seed=int(seed) + (game_index // 2),
+                opening_plies=int(random_opening_plies),
+            )
+        )
         reusable_roots = {
             0: None,
             1: None,
@@ -1174,7 +1302,7 @@ def run_arena_worker(
                     root_prior_override=(
                         challenger_root_prior_override
                         if acting_player == challenger_player
-                        else None
+                        else current_root_prior_override
                     ),
                     **puct_kwargs,
                 )
@@ -1201,6 +1329,18 @@ def run_arena_worker(
                             candidate_value_trust = root_summary.get("value_trust")
                             if isinstance(candidate_value_trust, dict):
                                 value_trust_summary = candidate_value_trust
+                    if hasattr(search, "root_summary"):
+                        root_summary = search.root_summary()
+                        root_prior_telemetry = root_summary.get("root_prior_telemetry")
+                        if isinstance(root_prior_telemetry, dict):
+                            if acting_player == challenger_player:
+                                challenger_root_prior_telemetry_entries.append(
+                                    root_prior_telemetry
+                                )
+                            else:
+                                current_root_prior_telemetry_entries.append(
+                                    root_prior_telemetry
+                                )
                     move = search.select_root_move(root, legal_moves)
                 else:
                     move = choose_best_move(visits, legal_moves)
@@ -1249,12 +1389,31 @@ def run_arena_worker(
         "search_profile_hash": search_profile["hash"],
         "value_trust_summary": value_trust_summary,
         "root_prior_transform": root_prior_transform,
+        "challenger_root_prior_transform": effective_challenger_root_prior_transform,
+        "current_root_prior_transform": effective_current_root_prior_transform,
+        "random_opening_plies": int(random_opening_plies),
+        "opening_prefix_plies_applied": opening_prefix_plies_applied,
+        "root_prior_telemetry": {
+            "challenger": summarize_root_prior_telemetry(
+                challenger_root_prior_telemetry_entries
+            ),
+            "current": summarize_root_prior_telemetry(
+                current_root_prior_telemetry_entries
+            ),
+        },
     }
 
 
 def main() -> None:
     args = parse_args()
     training_summary = load_training_summary(args.opening_cache_training_summary)
+
+    if args.root_prior_transform is not None:
+        if args.challenger_root_prior_transform is not None:
+            raise SystemExit(
+                "--root-prior-transform cannot be combined with --challenger-root-prior-transform"
+            )
+        args.challenger_root_prior_transform = args.root_prior_transform
 
     if os.environ.get("AZLITE_ARENA_STUB") == "1":
         out_path = Path(args.out)
@@ -1272,8 +1431,26 @@ def main() -> None:
                 "challenger_simulations": int(args.challenger_simulations),
                 "current_simulations": int(args.current_simulations),
                 **(
-                    {"root_prior_transform": str(args.root_prior_transform)}
-                    if args.root_prior_transform
+                    {"root_prior_transform": str(args.challenger_root_prior_transform)}
+                    if args.challenger_root_prior_transform
+                    else {}
+                ),
+                **(
+                    {
+                        "challenger_root_prior_transform": str(
+                            args.challenger_root_prior_transform
+                        )
+                    }
+                    if args.challenger_root_prior_transform
+                    else {}
+                ),
+                **(
+                    {
+                        "current_root_prior_transform": str(
+                            args.current_root_prior_transform
+                        )
+                    }
+                    if args.current_root_prior_transform
                     else {}
                 ),
             },
@@ -1311,10 +1488,17 @@ def main() -> None:
                 "search_profile": search_profile,
                 "search_profile_hash": search_profile["hash"],
                 "root_prior_transform": args.root_prior_transform,
+                "challenger_root_prior_transform": args.challenger_root_prior_transform,
+                "current_root_prior_transform": args.current_root_prior_transform,
+                "random_opening_plies": int(args.random_opening_plies),
                 "move_time_mean_ms": 120.0,
                 "move_time_p95_ms": 160.0,
             },
             "hard_suite_buckets": hard_suite_buckets,
+            "root_prior_telemetry": {
+                "challenger": summarize_root_prior_telemetry([]),
+                "current": summarize_root_prior_telemetry([]),
+            },
         }
         attach_score_confidence_interval(report, threshold=float(args.min_score))
         if "value_trust_schedule" in search_options:
@@ -1386,6 +1570,9 @@ def main() -> None:
                     tactical_root_bias=float(search_options["tactical_root_bias"]),
                     value_trust_schedule=search_options.get("value_trust_schedule"),
                     root_prior_transform=args.root_prior_transform,
+                    challenger_root_prior_transform=args.challenger_root_prior_transform,
+                    current_root_prior_transform=args.current_root_prior_transform,
+                    random_opening_plies=args.random_opening_plies,
                 )
             )
         results = [future.result() for future in futures]
