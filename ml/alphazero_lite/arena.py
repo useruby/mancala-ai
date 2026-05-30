@@ -23,6 +23,10 @@ if not ARENA_STUB_MODE:
     import numpy as np
 
     try:
+        from ml.alphazero_lite.root_prior_transforms import (
+            ARENA_TRANSFORM_NAMES,
+            build_root_prior_override,
+        )
         from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
         from ml.alphazero_lite.kalah_rules import KalahGame
         from ml.alphazero_lite.opening_cache import (
@@ -45,6 +49,10 @@ if not ARENA_STUB_MODE:
             visits_from_classic_mcts_root,
         )
     except ModuleNotFoundError:
+        from root_prior_transforms import (
+            ARENA_TRANSFORM_NAMES,
+            build_root_prior_override,
+        )
         from input_encodings import DEFAULT_INPUT_ENCODING
         from kalah_rules import KalahGame
         from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
@@ -82,6 +90,7 @@ EARLY_SUPPORTED_ROOT_POLICY_MODES = ("deterministic", "visit_count")
 if ARENA_STUB_MODE:
     DEFAULT_SEARCH_OPTIONS = EARLY_DEFAULT_SEARCH_OPTIONS
     DEFAULT_EVAL_SEARCH_OPTIONS = EARLY_DEFAULT_EVAL_SEARCH_OPTIONS
+    ARENA_TRANSFORM_NAMES = ()
 
 
 def add_early_search_option_args(parser: argparse.ArgumentParser) -> None:
@@ -119,6 +128,11 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--opening-cache", default=None)
     parser.add_argument("--opening-cache-training-summary", default=None)
     parser.add_argument("--out", required=True)
+    parser.add_argument(
+        "--root-prior-transform",
+        choices=sorted(ARENA_TRANSFORM_NAMES),
+        default=None,
+    )
     add_early_search_option_args(parser)
     parser.set_defaults(
         root_policy_mode=EARLY_DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
@@ -184,7 +198,7 @@ def stub_value_trust_summary(
 def build_stub_search_profile(
     args: argparse.Namespace, search_options: dict[str, str | bool | float]
 ) -> dict:
-    return {
+    profile = {
         "kind": "arena_eval",
         "player_mode": "puct",
         "simulations": max(
@@ -196,6 +210,9 @@ def build_stub_search_profile(
         "current_simulations": int(args.current_simulations),
         "hash": "arena-stub-profile",
     }
+    if args.root_prior_transform:
+        profile["root_prior_transform"] = str(args.root_prior_transform)
+    return profile
 
 
 def attach_score_confidence_interval(report: dict, *, threshold: float) -> None:
@@ -296,6 +313,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--opening-cache", default=None)
     parser.add_argument("--opening-cache-training-summary", default=None)
     parser.add_argument("--out", required=True)
+    parser.add_argument(
+        "--root-prior-transform",
+        choices=sorted(ARENA_TRANSFORM_NAMES),
+        default=None,
+    )
     add_search_option_args(parser)
     parser.set_defaults(
         root_policy_mode=DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
@@ -497,6 +519,7 @@ def evaluate_artifact_position(
     search_options: dict,
     ablation_mode: str = "full",
     root_prior_override=None,
+    root_prior_transform: str | None = None,
 ) -> dict:
     game = KalahGame.from_state(state)
     normalized_mode = build_mode_config(ablation_mode)
@@ -567,6 +590,12 @@ def evaluate_artifact_position(
         if artifact_path is None:
             raise ValueError("artifact_path is required when evaluator is not provided")
         evaluator = ArtifactEvaluator(Path(artifact_path))
+    if root_prior_override is not None and root_prior_transform is not None:
+        raise ValueError(
+            "root_prior_override and root_prior_transform cannot both be provided"
+        )
+    if root_prior_transform is not None:
+        root_prior_override = build_root_prior_override(root_prior_transform)
 
     root_value: float | None = None
 
@@ -887,6 +916,14 @@ def aggregate_worker_reports(
             "search_options": search_options,
             "search_profile": emitted_search_profile,
             "search_profile_hash": emitted_search_profile_hash,
+            "root_prior_transform": next(
+                (
+                    result.get("root_prior_transform")
+                    for result in results
+                    if result.get("root_prior_transform") is not None
+                ),
+                None,
+            ),
             "move_time_mean_ms": round(statistics.fmean(move_durations_ms), 2)
             if move_durations_ms
             else 0.0,
@@ -989,6 +1026,7 @@ def run_arena_worker(
     root_policy_mode: str = DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
     value_trust_schedule: dict | None = None,
+    root_prior_transform: str | None = None,
     opening_cache=None,
     opening_cache_path: str | None = None,
 ) -> dict:
@@ -1015,7 +1053,17 @@ def run_arena_worker(
         extra_fields={
             "challenger_simulations": int(challenger_simulations),
             "current_simulations": int(current_simulations),
+            **(
+                {"root_prior_transform": str(root_prior_transform)}
+                if root_prior_transform
+                else {}
+            ),
         },
+    )
+    challenger_root_prior_override = (
+        None
+        if root_prior_transform is None
+        else build_root_prior_override(root_prior_transform)
     )
 
     wins = 0
@@ -1123,6 +1171,11 @@ def run_arena_worker(
                     tactical_root_bias=float(
                         normalized_search_options["tactical_root_bias"]
                     ),
+                    root_prior_override=(
+                        challenger_root_prior_override
+                        if acting_player == challenger_player
+                        else None
+                    ),
                     **puct_kwargs,
                 )
                 started = time.perf_counter()
@@ -1195,6 +1248,7 @@ def run_arena_worker(
         "search_profile": search_profile,
         "search_profile_hash": search_profile["hash"],
         "value_trust_summary": value_trust_summary,
+        "root_prior_transform": root_prior_transform,
     }
 
 
@@ -1217,6 +1271,11 @@ def main() -> None:
             extra_fields={
                 "challenger_simulations": int(args.challenger_simulations),
                 "current_simulations": int(args.current_simulations),
+                **(
+                    {"root_prior_transform": str(args.root_prior_transform)}
+                    if args.root_prior_transform
+                    else {}
+                ),
             },
         )
         wins = int(args.games * 0.6)
@@ -1251,6 +1310,7 @@ def main() -> None:
                 "search_options": search_options,
                 "search_profile": search_profile,
                 "search_profile_hash": search_profile["hash"],
+                "root_prior_transform": args.root_prior_transform,
                 "move_time_mean_ms": 120.0,
                 "move_time_p95_ms": 160.0,
             },
@@ -1325,6 +1385,7 @@ def main() -> None:
                     root_policy_mode=str(search_options["root_policy_mode"]),
                     tactical_root_bias=float(search_options["tactical_root_bias"]),
                     value_trust_schedule=search_options.get("value_trust_schedule"),
+                    root_prior_transform=args.root_prior_transform,
                 )
             )
         results = [future.result() for future in futures]
