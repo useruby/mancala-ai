@@ -36,7 +36,7 @@ from ml.alphazero_lite.run_rule_conditioned_opening_full_guarded_experiment impo
 
 
 DEFAULT_REFERENCE_ARTIFACT = (
-    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
 )
 DEFAULT_ARTIFACT = (
     "/tmp/azlite_rule_conditioned_opening_full_guarded/"

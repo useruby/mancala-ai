@@ -27,7 +27,7 @@ DEFAULT_CANDIDATE_PATH = (
 )
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
 DEFAULT_REFERENCE_ARTIFACT = (
-    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
 )
 DEFAULT_SEARCH_CONTROL_CONFIG = (
     "ml/alphazero_lite/configs/aggressive_v3_superhuman_search_control.json"

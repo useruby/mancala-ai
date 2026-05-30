@@ -37,7 +37,7 @@ DEFAULT_BASE_CONFIG = (
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_rule_conditioned_opening_full_guarded"
 DEFAULT_REFERENCE_ARTIFACT = (
-    "/tmp/azlite_failure_family_diag/train_only_forensic_references.json"
+    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
 )
 DEFAULT_WEIGHTS = (1, 2)
 ARTIFACT_POLICY_TARGET_MODE = "sharpened"
