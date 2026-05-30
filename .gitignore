@@ -3,6 +3,8 @@
 /tmp/
 /.agents/
 /skills-lock.json
+/.codegraph/
+/docs/superpowers/
 .ruff_cache/
 **/__pycache__/
 *.pyc
