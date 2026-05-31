@@ -107,6 +107,61 @@ class RunCorrectedReferenceTargetedHardStateReplayTest(unittest.TestCase):
             [row["id"] for row in filtered["systems"]["challenger"]["rows"]],
         )
 
+    def test_apply_family_quota_backfills_from_primary_families(self) -> None:
+        from ml.alphazero_lite.run_corrected_reference_targeted_hard_state_replay import (
+            apply_family_quota,
+        )
+
+        rows = [
+            {
+                "canonical_state": f"capture-{index}",
+                "metadata": {
+                    "max_regret": 0.9 - (index * 0.01),
+                    "max_value_error": 0.4,
+                },
+            }
+            for index in range(4)
+        ]
+        rows.extend(
+            {
+                "canonical_state": f"opening-{index}",
+                "metadata": {
+                    "max_regret": 0.8 - (index * 0.01),
+                    "max_value_error": 0.3,
+                },
+            }
+            for index in range(3)
+        )
+        rows.extend(
+            {
+                "canonical_state": f"proxy-{index}",
+                "metadata": {
+                    "max_regret": 0.7 - (index * 0.01),
+                    "max_value_error": 0.2,
+                },
+            }
+            for index in range(3)
+        )
+
+        canonical_to_family = {
+            **{f"capture-{index}": "capture_available" for index in range(4)},
+            **{f"opening-{index}": "opening_plies_1_8" for index in range(3)},
+            **{f"proxy-{index}": "incumbent_proxy_disagreement" for index in range(3)},
+        }
+
+        selected, summary = apply_family_quota(
+            rows,
+            top_n=8,
+            canonical_to_family=canonical_to_family,
+        )
+
+        self.assertEqual(8, len(selected))
+        self.assertEqual(8, summary["selected_top_n"])
+        self.assertEqual(
+            1,
+            summary["family_selected_counts"]["incumbent_proxy_disagreement"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

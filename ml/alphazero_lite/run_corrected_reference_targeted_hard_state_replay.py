@@ -182,6 +182,8 @@ def apply_family_quota(
         remaining = []
         for family in spill_order:
             remaining.extend(rows_by_family.get(family, []))
+        for family in quotas:
+            remaining.extend(rows_by_family.get(family, []))
         for family, family_rows in rows_by_family.items():
             if family in quotas or family in spill_order:
                 continue

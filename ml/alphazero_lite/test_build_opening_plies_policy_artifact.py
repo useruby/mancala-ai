@@ -100,11 +100,43 @@ class BuildOpeningPliesPolicyArtifactTest(unittest.TestCase):
         self.assertEqual(4, rows[0]["teacher_selected_move"])
         self.assertEqual("preservation", rows[0]["bucket_group"])
         self.assertEqual(
-            "opening_plies_extra_turn_reference",
+            module.OPENING_NO_EXTRA_TURN_REPLAY_ROLE,
             rows[0]["replay_role"],
         )
-        self.assertTrue(rows[0]["reference_move_extra_turn_available"])
+        self.assertFalse(rows[0]["reference_move_extra_turn_available"])
         self.assertEqual(["opening_plies_1_8-004"], summary["row_ids"])
+
+    def test_opening_replay_role_distinguishes_no_extra_turn_rows(self) -> None:
+        from ml.alphazero_lite import build_opening_plies_policy_artifact as module
+
+        replay_role = module.opening_replay_role(
+            raw_state={
+                "player_pits": [4, 0, 5, 5, 5, 5],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 1,
+            },
+            reference_move=4,
+        )
+
+        self.assertEqual(module.OPENING_NO_EXTRA_TURN_REPLAY_ROLE, replay_role)
+
+    def test_opening_replay_role_distinguishes_extra_turn_rows(self) -> None:
+        from ml.alphazero_lite import build_opening_plies_policy_artifact as module
+
+        replay_role = module.opening_replay_role(
+            raw_state={
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            },
+            reference_move=2,
+        )
+
+        self.assertEqual(module.OPENING_EXTRA_TURN_REPLAY_ROLE, replay_role)
 
 
 if __name__ == "__main__":

@@ -24,6 +24,8 @@ DEFAULT_INPUT_ENCODING = "kalah_v3"
 DEFAULT_POLICY_TARGET_MODE = "sharpened"
 DEFAULT_VALUE_TARGET_MODE = "sharpened"
 OPENING_BUCKET = "opening_plies_1_8"
+OPENING_EXTRA_TURN_REPLAY_ROLE = "opening_plies_extra_turn_reference"
+OPENING_NO_EXTRA_TURN_REPLAY_ROLE = "opening_plies_no_extra_turn_reference"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -51,9 +53,9 @@ def opening_replay_role(*, raw_state: dict[str, Any], reference_move: int) -> st
         raw_state=raw_state,
         reference_move=reference_move,
     )
-    if base_role.endswith("extra_turn_reference"):
-        return "opening_plies_extra_turn_reference"
-    return "opening_plies_no_extra_turn_reference"
+    if base_role == "opening_capture_extra_turn_reference":
+        return OPENING_EXTRA_TURN_REPLAY_ROLE
+    return OPENING_NO_EXTRA_TURN_REPLAY_ROLE
 
 
 def build_artifact_rows(
@@ -122,8 +124,8 @@ def build_artifact_rows(
             raw_state=raw_state,
             reference_move=reference_move,
         )
-        reference_move_extra_turn_available = replay_role.endswith(
-            "extra_turn_reference"
+        reference_move_extra_turn_available = (
+            replay_role == OPENING_EXTRA_TURN_REPLAY_ROLE
         )
         artifact_rows.append(
             {

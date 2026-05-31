@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -144,9 +145,7 @@ class RunRuleConditionedOpeningFullGuardedExperimentTest(unittest.TestCase):
                     opening_subfamily_diagnostic_path=diagnostic_path,
                     opening_subfamily="opening_edge_move_5_preference",
                     run_root=run_root,
-                    python=str(
-                        Path(__file__).resolve().parents[2] / ".venv/bin/python"
-                    ),
+                    python=sys.executable,
                     dry_run=False,
                 )
             )

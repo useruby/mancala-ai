@@ -584,6 +584,7 @@ def run_search_policy_arbitration(
 def run_hard_state_validation(
     *,
     root: Path,
+    suite_path: Path,
     out_root: Path,
     current_path: Path,
     reference_path: Path,
@@ -595,7 +596,7 @@ def run_hard_state_validation(
         "-m",
         "ml.alphazero_lite.run_forensic_suite",
         "--suite",
-        str(DEFAULT_SUITE_PATH),
+        str(suite_path),
         "--current-artifact",
         str(current_path),
         "--challenger-artifact",
@@ -1066,6 +1067,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     hard_validation = run_hard_state_validation(
         root=root,
+        suite_path=args.suite_path,
         out_root=out_root,
         current_path=args.current_path,
         reference_path=effective_reference_path,
