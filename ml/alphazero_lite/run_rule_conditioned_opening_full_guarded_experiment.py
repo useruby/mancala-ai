@@ -7,6 +7,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -37,8 +38,9 @@ DEFAULT_BASE_CONFIG = (
 DEFAULT_CURRENT_PATH = "storage/ai/alphazero_lite/current"
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_rule_conditioned_opening_full_guarded"
 DEFAULT_REFERENCE_ARTIFACT = (
-    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json"
 )
+OPENING_SUBFAMILY_DIAGNOSTIC_SCHEMA = "azlite_opening_plies_subfamily_diagnostic_v1"
 DEFAULT_WEIGHTS = (1, 2)
 ARTIFACT_POLICY_TARGET_MODE = "sharpened"
 ARTIFACT_VALUE_TARGET_MODE = "sharpened"
@@ -73,6 +75,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--artifact-path", default=DEFAULT_ARTIFACT_PATH)
+    parser.add_argument("--opening-subfamily-diagnostic")
+    parser.add_argument("--opening-subfamily")
     parser.add_argument("--current-path", default=DEFAULT_CURRENT_PATH)
     parser.add_argument("--base-config", default=DEFAULT_BASE_CONFIG)
     parser.add_argument(
@@ -97,6 +101,77 @@ def write_json(path: Path, payload: dict) -> None:
     path.write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
+
+
+def load_opening_subfamily_filter(path: Path | None) -> dict[str, Any] | None:
+    if path is None:
+        return None
+    payload = load_json(path)
+    if payload.get("schema") != OPENING_SUBFAMILY_DIAGNOSTIC_SCHEMA:
+        raise SystemExit(
+            "opening subfamily diagnostic must use schema "
+            f"{OPENING_SUBFAMILY_DIAGNOSTIC_SCHEMA}: {path}"
+        )
+    rows = payload.get("rows")
+    if not isinstance(rows, list):
+        raise SystemExit(f"opening subfamily diagnostic must include rows list: {path}")
+    rows_by_subfamily: dict[str, list[str]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        row_id = row.get("row_id")
+        subfamily = row.get("subfamily")
+        if not isinstance(row_id, str) or not isinstance(subfamily, str):
+            continue
+        rows_by_subfamily.setdefault(subfamily, []).append(row_id)
+    return {
+        "path": str(path),
+        "rows_by_subfamily": {
+            subfamily: sorted(row_ids)
+            for subfamily, row_ids in sorted(rows_by_subfamily.items())
+        },
+    }
+
+
+def materialize_filtered_opening_artifact(
+    *,
+    root: Path,
+    artifact_path: Path,
+    artifact_summary_path: Path,
+    opening_subfamily_diagnostic_path: Path,
+    opening_subfamily: str,
+    run_root: Path,
+    python: str,
+    dry_run: bool,
+) -> tuple[Path, Path]:
+    filtered_dir = run_root / "filtered_opening_subfamily"
+    filtered_dir.mkdir(parents=True, exist_ok=True)
+    filtered_artifact_path = filtered_dir / f"{opening_subfamily}.jsonl"
+    filtered_summary_path = filtered_dir / f"{opening_subfamily}_summary.json"
+    command = [
+        python,
+        "-m",
+        "ml.alphazero_lite.filter_opening_family_artifact_by_subfamily",
+        "--artifact",
+        str(artifact_path),
+        "--artifact-summary",
+        str(artifact_summary_path),
+        "--opening-subfamily-diagnostic",
+        str(opening_subfamily_diagnostic_path),
+        "--subfamily",
+        opening_subfamily,
+        "--out",
+        str(filtered_artifact_path),
+        "--out-summary",
+        str(filtered_summary_path),
+    ]
+    run_command(
+        command,
+        cwd=root,
+        dry_run=dry_run,
+        log_path=filtered_dir / "filter_command.json",
+    )
+    return filtered_artifact_path, filtered_summary_path
 
 
 def parse_weights(raw_value: str) -> list[int]:
@@ -708,6 +783,12 @@ def main(argv: list[str] | None = None) -> int:
     artifact_summary_path = artifact_path.with_name(
         artifact_path.stem + "_summary.json"
     )
+    opening_subfamily_diagnostic_path = (
+        resolve_path(root, args.opening_subfamily_diagnostic)
+        if args.opening_subfamily_diagnostic
+        else None
+    )
+    opening_subfamily = args.opening_subfamily
     current_path = resolve_path(root, args.current_path)
     base_config_path = resolve_path(root, args.base_config)
     reference_artifact_path = resolve_path(root, DEFAULT_REFERENCE_ARTIFACT)
@@ -723,19 +804,66 @@ def main(argv: list[str] | None = None) -> int:
         )
     if not current_path.exists():
         raise SystemExit(f"current path does not exist: {current_path}")
+    if (
+        opening_subfamily_diagnostic_path is not None
+        and not opening_subfamily_diagnostic_path.exists()
+    ):
+        raise SystemExit(
+            "opening subfamily diagnostic path does not exist: "
+            f"{opening_subfamily_diagnostic_path}"
+        )
+    if opening_subfamily and opening_subfamily_diagnostic_path is None:
+        raise SystemExit("--opening-subfamily requires --opening-subfamily-diagnostic")
     if not reference_artifact_path.exists():
         raise SystemExit(
             f"reference artifact path does not exist: {reference_artifact_path}"
         )
 
     base_config = load_json(base_config_path)
-    artifact_summary = load_json(artifact_summary_path)
+    opening_subfamily_filter = load_opening_subfamily_filter(
+        opening_subfamily_diagnostic_path
+    )
+    selected_artifact_path = artifact_path
+    selected_artifact_summary_path = artifact_summary_path
+    if opening_subfamily:
+        if (
+            opening_subfamily_filter is None
+            or opening_subfamily not in (opening_subfamily_filter["rows_by_subfamily"])
+        ):
+            raise SystemExit(
+                f"opening subfamily not found in diagnostic: {opening_subfamily}"
+            )
+        assert opening_subfamily_diagnostic_path is not None
+        selected_artifact_path, selected_artifact_summary_path = (
+            materialize_filtered_opening_artifact(
+                root=root,
+                artifact_path=artifact_path,
+                artifact_summary_path=artifact_summary_path,
+                opening_subfamily_diagnostic_path=opening_subfamily_diagnostic_path,
+                opening_subfamily=opening_subfamily,
+                run_root=run_root,
+                python=python,
+                dry_run=args.dry_run,
+            )
+        )
+    artifact_summary = (
+        load_json(selected_artifact_summary_path)
+        if not args.dry_run
+        else load_json(artifact_summary_path)
+    )
     weights = parse_weights(args.weights)
     manifest = {
         "schema": "azlite_rule_conditioned_opening_full_guarded_experiment_v1",
         "run_id": args.run_id,
-        "artifact_path": str(artifact_path),
-        "artifact_summary_path": str(artifact_summary_path),
+        "artifact_path": str(selected_artifact_path),
+        "artifact_summary_path": str(selected_artifact_summary_path),
+        "opening_subfamily_diagnostic_path": None
+        if opening_subfamily_diagnostic_path is None
+        else str(opening_subfamily_diagnostic_path),
+        "opening_subfamily": opening_subfamily,
+        "opening_subfamily_rows_by_subfamily": None
+        if opening_subfamily_filter is None
+        else opening_subfamily_filter["rows_by_subfamily"],
         "base_config": str(base_config_path),
         "current_path": str(current_path),
         "seed": int(args.seed),
@@ -751,7 +879,7 @@ def main(argv: list[str] | None = None) -> int:
             build_variant_configs(
                 base_config=base_config,
                 variant_root=variant_root,
-                artifact_path=artifact_path,
+                artifact_path=selected_artifact_path,
                 weight=weight,
                 seed=args.seed,
                 current_path=str(current_path),
@@ -760,7 +888,7 @@ def main(argv: list[str] | None = None) -> int:
 
         candidate_dir = candidate_dir_for_config(runtime_config)
         parent_checkpoint = resolve_parent_checkpoint(current_path)
-        replay_data = str(artifact_path)
+        replay_data = str(selected_artifact_path)
         replay_weights = str(weight)
         variant_payload = {
             "variant": f"w{weight}",
@@ -770,6 +898,7 @@ def main(argv: list[str] | None = None) -> int:
             "candidate_dir": str(candidate_dir),
             "candidate_artifact_path": str(candidate_dir),
             "artifact_row_count": artifact_summary.get("row_count"),
+            "opening_subfamily": opening_subfamily,
             "has_002_guard": "capture_available-002"
             in list(artifact_summary.get("rule_collision_guard_row_ids") or []),
             "has_003_guard": "capture_available-003"

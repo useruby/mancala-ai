@@ -18,7 +18,7 @@ DEFAULT_ARTIFACT_PATH = (
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
 DEFAULT_REFERENCE_ARTIFACT = (
-    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json"
 )
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_guarded_w2_root_vs_learned_prior_persistence_capture"
 DEFAULT_RUN_ID = "guarded-w2-root-vs-learned-prior-persistence-capture"

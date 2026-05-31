@@ -9,8 +9,12 @@ import json
 import os
 import random
 import statistics
+import sys
 import time
 from pathlib import Path
+
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 ARENA_STUB_MODE = os.environ.get("AZLITE_ARENA_STUB") == "1"
 

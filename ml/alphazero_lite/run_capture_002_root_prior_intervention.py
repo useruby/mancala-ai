@@ -31,7 +31,7 @@ from ml.alphazero_lite.run_rule_conditioned_opening_full_guarded_experiment impo
 
 
 DEFAULT_REFERENCE_ARTIFACT = (
-    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json"
 )
 DEFAULT_OUTPUT_ROOT = "/tmp/azlite_capture_002_root_prior_intervention"
 DEFAULT_RUN_ID = "capture-002-root-prior-intervention"

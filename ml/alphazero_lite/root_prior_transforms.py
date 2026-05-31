@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from collections import Counter
+from pathlib import Path
+import sys
 from typing import Callable
 
 import numpy as np
+
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.capture_002_003_rule_collision_diagnostic import (
     simulate_move_rule_features,

@@ -62,7 +62,7 @@ def build_rows(
         row_id = row.get("source_runs", [{}])[0].get("id")
         if isinstance(row_id, str) and row_id:
             row_ids_by_replay_role.setdefault(replay_role, []).append(row_id)
-            if replay_role.startswith("opening_capture_"):
+            if replay_role.startswith(("opening_capture_", "opening_plies_")):
                 tracked_opening_row_ids.append(row_id)
             if replay_role.startswith("rule_collision_"):
                 rule_collision_guard_row_ids.append(row_id)

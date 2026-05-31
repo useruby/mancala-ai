@@ -63,6 +63,31 @@ class BuildRuleConditionedOpeningFamilyFullGuardedArtifactTest(unittest.TestCase
             summary["replay_role_counts"],
         )
 
+    def test_build_rows_keeps_opening_plies_rows_in_tracked_opening_summary(
+        self,
+    ) -> None:
+        from ml.alphazero_lite import (
+            build_rule_conditioned_opening_family_full_guarded_artifact as module,
+        )
+
+        rows, summary = module.build_rows(
+            opening_family_rows=[
+                {
+                    "teacher_selected_move": 4,
+                    "source_runs": [{"id": "opening_plies_1_8-004"}],
+                    "replay_role": "opening_plies_no_extra_turn_reference",
+                    "reference_move_extra_turn_available": False,
+                }
+            ],
+            rule_collision_guard_rows=[],
+        )
+
+        self.assertEqual(1, len(rows))
+        self.assertEqual(
+            ["opening_plies_1_8-004"],
+            summary["tracked_opening_row_ids"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -28,3 +28,6 @@ jobs:
 
       - name: Smoke test run manifest
         run: python -m unittest ml.alphazero_lite.test_run_manifest -v
+
+      - name: Validate forensic reference artifact
+        run: python -m ml.alphazero_lite.validate_forensic_reference_artifact
