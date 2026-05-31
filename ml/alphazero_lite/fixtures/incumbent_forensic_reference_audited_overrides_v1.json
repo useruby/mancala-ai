@@ -1,0 +1,392 @@
+{
+  "schema": "azlite_forensic_references_v1",
+  "meta": {
+    "generated_by": "azlite_capture_002_reference_adjudication_v1",
+    "scope": "audited_subset_overrides",
+    "missing_requested_rows": [
+      "capture_available-006"
+    ]
+  },
+  "rows": [
+    {
+      "id": "capture_available-002",
+      "canonical_state": "{\"current_player\":1,\"opponent_pits\":[5,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[1,0,7,6,6,5],\"player_store\":1}",
+      "state": {
+        "player_pits": [
+          1,
+          0,
+          7,
+          6,
+          6,
+          5
+        ],
+        "opponent_pits": [
+          5,
+          4,
+          4,
+          4,
+          4,
+          0
+        ],
+        "player_store": 1,
+        "opponent_store": 1,
+        "current_player": 1
+      },
+      "reference_move": 2,
+      "teacher_value": 0.7048,
+      "reference_unstable": false,
+      "observed_reference_moves": [
+        2
+      ],
+      "seed_samples": [
+        {
+          "seed": 11,
+          "reference_move": 2,
+          "teacher_value": 0.7094
+        },
+        {
+          "seed": 23,
+          "reference_move": 2,
+          "teacher_value": 0.6991
+        },
+        {
+          "seed": 37,
+          "reference_move": 2,
+          "teacher_value": 0.7045
+        },
+        {
+          "seed": 42,
+          "reference_move": 2,
+          "teacher_value": 0.7103
+        },
+        {
+          "seed": 101,
+          "reference_move": 2,
+          "teacher_value": 0.7057
+        },
+        {
+          "seed": 202,
+          "reference_move": 2,
+          "teacher_value": 0.6975
+        },
+        {
+          "seed": 303,
+          "reference_move": 2,
+          "teacher_value": 0.7069
+        }
+      ],
+      "child_stats": [
+        {
+          "move": 0,
+          "visits": 163,
+          "win_rate": 0.5245398773006135
+        },
+        {
+          "move": 1,
+          "visits": 382,
+          "win_rate": 0.6465968586387435
+        },
+        {
+          "move": 2,
+          "visits": 27148,
+          "win_rate": 0.8689958744658907
+        },
+        {
+          "move": 3,
+          "visits": 1305,
+          "win_rate": 0.7517241379310344
+        },
+        {
+          "move": 4,
+          "visits": 1002,
+          "win_rate": 0.7345309381237525
+        }
+      ]
+    },
+    {
+      "id": "capture_available-003",
+      "canonical_state": "{\"current_player\":1,\"opponent_pits\":[5,5,4,4,4,0],\"opponent_store\":1,\"player_pits\":[1,6,0,6,6,5],\"player_store\":1}",
+      "state": {
+        "player_pits": [
+          1,
+          6,
+          0,
+          6,
+          6,
+          5
+        ],
+        "opponent_pits": [
+          5,
+          5,
+          4,
+          4,
+          4,
+          0
+        ],
+        "player_store": 1,
+        "opponent_store": 1,
+        "current_player": 1
+      },
+      "reference_move": 2,
+      "teacher_value": 0.6774,
+      "reference_unstable": false,
+      "observed_reference_moves": [
+        2
+      ],
+      "seed_samples": [
+        {
+          "seed": 11,
+          "reference_move": 2,
+          "teacher_value": 0.6874
+        },
+        {
+          "seed": 23,
+          "reference_move": 2,
+          "teacher_value": 0.6851
+        },
+        {
+          "seed": 37,
+          "reference_move": 2,
+          "teacher_value": 0.6782
+        },
+        {
+          "seed": 42,
+          "reference_move": 2,
+          "teacher_value": 0.6631
+        },
+        {
+          "seed": 101,
+          "reference_move": 2,
+          "teacher_value": 0.6741
+        },
+        {
+          "seed": 202,
+          "reference_move": 2,
+          "teacher_value": 0.6752
+        },
+        {
+          "seed": 303,
+          "reference_move": 2,
+          "teacher_value": 0.679
+        }
+      ],
+      "child_stats": [
+        {
+          "move": 0,
+          "visits": 202,
+          "win_rate": 0.5594059405940595
+        },
+        {
+          "move": 1,
+          "visits": 1415,
+          "win_rate": 0.7540636042402827
+        },
+        {
+          "move": 2,
+          "visits": 27105,
+          "win_rate": 0.8570190001844679
+        },
+        {
+          "move": 3,
+          "visits": 1010,
+          "win_rate": 0.7326732673267327
+        },
+        {
+          "move": 4,
+          "visits": 268,
+          "win_rate": 0.6007462686567164
+        }
+      ]
+    },
+    {
+      "id": "capture_available-007",
+      "canonical_state": "{\"current_player\":1,\"opponent_pits\":[5,5,4,4,4,0],\"opponent_store\":1,\"player_pits\":[1,6,6,0,6,5],\"player_store\":1}",
+      "state": {
+        "player_pits": [
+          1,
+          6,
+          6,
+          0,
+          6,
+          5
+        ],
+        "opponent_pits": [
+          5,
+          5,
+          4,
+          4,
+          4,
+          0
+        ],
+        "player_store": 1,
+        "opponent_store": 1,
+        "current_player": 1
+      },
+      "reference_move": 2,
+      "teacher_value": 0.6451,
+      "reference_unstable": false,
+      "observed_reference_moves": [
+        2
+      ],
+      "seed_samples": [
+        {
+          "seed": 11,
+          "reference_move": 2,
+          "teacher_value": 0.6528
+        },
+        {
+          "seed": 23,
+          "reference_move": 2,
+          "teacher_value": 0.6423
+        },
+        {
+          "seed": 37,
+          "reference_move": 2,
+          "teacher_value": 0.6596
+        },
+        {
+          "seed": 42,
+          "reference_move": 2,
+          "teacher_value": 0.6357
+        },
+        {
+          "seed": 101,
+          "reference_move": 2,
+          "teacher_value": 0.6491
+        },
+        {
+          "seed": 202,
+          "reference_move": 2,
+          "teacher_value": 0.6334
+        },
+        {
+          "seed": 303,
+          "reference_move": 2,
+          "teacher_value": 0.6431
+        }
+      ],
+      "child_stats": [
+        {
+          "move": 0,
+          "visits": 247,
+          "win_rate": 0.5769230769230769
+        },
+        {
+          "move": 1,
+          "visits": 1520,
+          "win_rate": 0.7470394736842105
+        },
+        {
+          "move": 2,
+          "visits": 21720,
+          "win_rate": 0.847744014732965
+        },
+        {
+          "move": 3,
+          "visits": 3408,
+          "win_rate": 0.7849178403755869
+        },
+        {
+          "move": 4,
+          "visits": 3105,
+          "win_rate": 0.7813204508856683
+        }
+      ]
+    },
+    {
+      "id": "capture_available-008",
+      "canonical_state": "{\"current_player\":1,\"opponent_pits\":[5,5,5,4,4,0],\"opponent_store\":1,\"player_pits\":[1,6,6,5,0,5],\"player_store\":1}",
+      "state": {
+        "player_pits": [
+          1,
+          6,
+          6,
+          5,
+          0,
+          5
+        ],
+        "opponent_pits": [
+          5,
+          5,
+          5,
+          4,
+          4,
+          0
+        ],
+        "player_store": 1,
+        "opponent_store": 1,
+        "current_player": 1
+      },
+      "reference_move": 1,
+      "teacher_value": 0.6627,
+      "reference_unstable": false,
+      "observed_reference_moves": [
+        1
+      ],
+      "seed_samples": [
+        {
+          "seed": 11,
+          "reference_move": 1,
+          "teacher_value": 0.6301
+        },
+        {
+          "seed": 23,
+          "reference_move": 1,
+          "teacher_value": 0.6495
+        },
+        {
+          "seed": 37,
+          "reference_move": 1,
+          "teacher_value": 0.6483
+        },
+        {
+          "seed": 42,
+          "reference_move": 1,
+          "teacher_value": 0.6835
+        },
+        {
+          "seed": 101,
+          "reference_move": 1,
+          "teacher_value": 0.6907
+        },
+        {
+          "seed": 202,
+          "reference_move": 1,
+          "teacher_value": 0.6724
+        },
+        {
+          "seed": 303,
+          "reference_move": 1,
+          "teacher_value": 0.6648
+        }
+      ],
+      "child_stats": [
+        {
+          "move": 0,
+          "visits": 266,
+          "win_rate": 0.5526315789473685
+        },
+        {
+          "move": 1,
+          "visits": 22018,
+          "win_rate": 0.8438323190117177
+        },
+        {
+          "move": 2,
+          "visits": 4784,
+          "win_rate": 0.7586747491638796
+        },
+        {
+          "move": 3,
+          "visits": 2407,
+          "win_rate": 0.73265475695887
+        },
+        {
+          "move": 4,
+          "visits": 525,
+          "win_rate": 0.6314285714285715
+        }
+      ]
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import json
 import math
 import random
 import sys
+import argparse
 from collections import defaultdict
 from pathlib import Path
 
@@ -31,9 +32,6 @@ from ml.alphazero_lite.search_interaction_diagnostic import probe_artifact_posit
 from ml.alphazero_lite.self_play import build_eval_search_options, encode_state
 
 
-OUT_ROOT = Path("/tmp/azlite_policy_target_encoding_audit")
-SUMMARY_PATH = OUT_ROOT / "policy_target_consistency_summary.json"
-FULL_RESULTS_PATH = OUT_ROOT / "policy_target_encoding_audit_results.json"
 CURRENT_ARTIFACT = Path("/home/alex/Mancala/ai/storage/ai/alphazero_lite/current")
 GUARDED_W2_ARTIFACT = Path(
     "/tmp/azlite_rule_conditioned_opening_full_guarded/"
@@ -41,7 +39,7 @@ GUARDED_W2_ARTIFACT = Path(
     "aggressive-v3-targeted-hard-state-replay-rule-conditioned-opening-full-guarded-w2-iter1"
 )
 REFERENCE_ARTIFACT = Path(
-    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json"
 )
 FORENSIC_SUITE = Path(
     "/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
@@ -73,6 +71,17 @@ PROBE_SEED = 7
 PROBE_EPOCHS = 400
 PROBE_LR = 0.05
 PROBE_SPLIT_FRACTION = 0.3
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--out-root",
+        type=Path,
+        default=Path("/tmp/azlite_policy_target_encoding_audit"),
+    )
+    parser.add_argument("--reference-artifact", type=Path, default=REFERENCE_ARTIFACT)
+    return parser.parse_args(argv)
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -330,8 +339,8 @@ def top_move_for_reference_row(reference_row: dict) -> int:
     return int(reference_row["reference_move"])
 
 
-def load_reference_rows() -> dict[str, dict]:
-    payload = load_json(REFERENCE_ARTIFACT)
+def load_reference_rows(reference_artifact: Path) -> dict[str, dict]:
+    payload = load_json(reference_artifact)
     return row_map_from_reference(payload)
 
 
@@ -405,8 +414,6 @@ def known_row_audit(
             if wrong_extra_turn_prob is None or probability > wrong_extra_turn_prob:
                 wrong_extra_turn_move = move
                 wrong_extra_turn_prob = probability
-        if row_id == "capture_available-002":
-            wrong_extra_turn_move = 2
         reference_consequence = consequences[reference_move]
         wrong_consequence = (
             consequences[wrong_extra_turn_move]
@@ -436,7 +443,10 @@ def known_row_audit(
                 != wrong_consequence["immediate_score_delta"]
             ):
                 diagnosis_parts.append("immediate_score_differs")
-        if row_id == "capture_available-002":
+        if (
+            row_id == "capture_available-002"
+            and searched_selected_move != reference_move
+        ):
             diagnosis_parts.append("known_policy_mismatch")
         rows.append(
             {
@@ -526,7 +536,9 @@ def target_policy_for_row(row: dict) -> tuple[list[float] | None, int | None]:
     return policy, top_move
 
 
-def dataset_policy_target_consistency(reference_rows: dict[str, dict]) -> dict:
+def dataset_policy_target_consistency(
+    reference_rows: dict[str, dict], *, reference_artifact_path: Path
+) -> dict:
     per_source_rows: list[dict] = []
     canonical_targets: dict[str, set[int]] = defaultdict(set)
     canonical_sources: dict[str, set[str]] = defaultdict(set)
@@ -624,7 +636,7 @@ def dataset_policy_target_consistency(reference_rows: dict[str, dict]) -> dict:
         policy = teacher_policy_from_child_stats(list(row.get("child_stats") or []))
         reference_scanned += 1
         canonical_targets[canonical].add(top_move)
-        canonical_sources[canonical].add(str(REFERENCE_ARTIFACT))
+        canonical_sources[canonical].add(str(reference_artifact_path))
         if len(canonical_targets[canonical]) > 1:
             reference_conflicts += 1
         top_consequence = consequence_table[top_move]
@@ -652,7 +664,7 @@ def dataset_policy_target_consistency(reference_rows: dict[str, dict]) -> dict:
             reference_rows_with_conflict += 1
         all_row_summaries.append(
             {
-                "source": str(REFERENCE_ARTIFACT),
+                "source": str(reference_artifact_path),
                 "canonical_state": canonical,
                 "target_top_move": top_move,
                 "target_bucket": normalized_bucket_name(top_consequence),
@@ -661,7 +673,7 @@ def dataset_policy_target_consistency(reference_rows: dict[str, dict]) -> dict:
         )
     per_source_rows.append(
         {
-            "source": str(REFERENCE_ARTIFACT),
+            "source": str(reference_artifact_path),
             "rows": reference_scanned,
             "duplicate_canonical_states": 0,
             "conflicting_policy_targets": reference_conflicts,
@@ -988,9 +1000,13 @@ def classify_next_action(
     )
 
 
-def main() -> int:
-    OUT_ROOT.mkdir(parents=True, exist_ok=True)
-    reference_rows = load_reference_rows()
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    out_root = args.out_root
+    summary_path = out_root / "policy_target_consistency_summary.json"
+    full_results_path = out_root / "policy_target_encoding_audit_results.json"
+    out_root.mkdir(parents=True, exist_ok=True)
+    reference_rows = load_reference_rows(args.reference_artifact)
     fixture_rows = load_fixture_rows()
     current_evaluator = ArtifactEvaluator(CURRENT_ARTIFACT)
     guarded_evaluator = (
@@ -1002,8 +1018,11 @@ def main() -> int:
         current_evaluator=current_evaluator,
         guarded_evaluator=guarded_evaluator,
     )
-    dataset_summary = dataset_policy_target_consistency(reference_rows)
-    SUMMARY_PATH.write_text(
+    dataset_summary = dataset_policy_target_consistency(
+        reference_rows,
+        reference_artifact_path=args.reference_artifact,
+    )
+    summary_path.write_text(
         json.dumps(dataset_summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     state_examples, state_plus_move_examples, action_examples = build_probe_examples(
@@ -1044,14 +1063,14 @@ def main() -> int:
             "promoted_model": False,
         },
     }
-    FULL_RESULTS_PATH.write_text(
+    full_results_path.write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     print(
         json.dumps(
             {
-                "summary_path": str(SUMMARY_PATH),
-                "results_path": str(FULL_RESULTS_PATH),
+                "summary_path": str(summary_path),
+                "results_path": str(full_results_path),
                 "classification": classification,
                 "recommended_next_action": next_action,
             },

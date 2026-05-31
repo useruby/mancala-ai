@@ -44,7 +44,7 @@ DEFAULT_CANDIDATE_PATH = (
 )
 DEFAULT_TRANSFORM = "seed4_extra_turn_damp_010_when_4_legal_two_captures_noncapture5"
 DEFAULT_REFERENCE_ARTIFACT = (
-    "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json"
+    "ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json"
 )
 DEFAULT_VALIDATION_PATH = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
 DEFAULT_SEEDS = "11,23,37"
