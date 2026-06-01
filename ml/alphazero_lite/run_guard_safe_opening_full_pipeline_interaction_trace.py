@@ -84,9 +84,7 @@ DEFAULT_OUTPUT_ROOT = Path("/tmp/azlite_guard_safe_opening_full_pipeline_trace")
 DEFAULT_SUMMARY_PATH = (
     DEFAULT_OUTPUT_ROOT / "full_pipeline_interaction_trace_summary.json"
 )
-DEFAULT_REPORT_PATH = Path(
-    "docs/alphazero-lite-guard-safe-opening-full-pipeline-interaction-trace-results.md"
-)
+DEFAULT_REPORT_PATH = DEFAULT_OUTPUT_ROOT / "full_pipeline_interaction_trace_results.md"
 SCHEMA = "azlite_guard_safe_opening_full_pipeline_interaction_trace_v1"
 TARGET_EPOCHS = (1, 2, 4)
 DEFAULT_LR = 1e-3
@@ -1068,6 +1066,11 @@ def main(argv: list[str] | None = None) -> int:
             reference_rows=merged_reference_rows,
         )
     )
+    if selected_validation["status"] != "ok":
+        raise RuntimeError(
+            "selected artifact is invalid for this trace: "
+            f"{selected_validation['notes']}"
+        )
 
     current_metadata = load_json(current_path / "metadata.json")
     init_checkpoint = current_checkpoint_path(current_path, output_root)
