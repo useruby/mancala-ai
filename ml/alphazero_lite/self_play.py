@@ -58,6 +58,10 @@ DEFAULT_EVAL_SEARCH_OPTIONS = {
 }
 DEFAULT_POLICY_TARGET_MODE = "default"
 SUPPORTED_POLICY_TARGET_MODES = frozenset({DEFAULT_POLICY_TARGET_MODE, "sharpened"})
+DEFAULT_POLICY_TARGET_NOISE_MODE = "noisy"
+SUPPORTED_POLICY_TARGET_NOISE_MODES = frozenset(
+    {DEFAULT_POLICY_TARGET_NOISE_MODE, "denoised"}
+)
 DEFAULT_VALUE_TARGET_MODE = "default"
 PHASE_AWARE_VALUE_TARGET_MODE = "phase_aware_sharpened"
 HYBRID_VALUE_TARGET_MODE = "hybrid"
@@ -393,6 +397,15 @@ def normalize_policy_target_mode(policy_target_mode: str) -> str:
     normalized = str(policy_target_mode)
     if normalized not in SUPPORTED_POLICY_TARGET_MODES:
         raise ValueError(f"unsupported policy_target_mode: {policy_target_mode}")
+    return normalized
+
+
+def normalize_policy_target_noise_mode(policy_target_noise_mode: str) -> str:
+    normalized = str(policy_target_noise_mode)
+    if normalized not in SUPPORTED_POLICY_TARGET_NOISE_MODES:
+        raise ValueError(
+            f"unsupported policy_target_noise_mode: {policy_target_noise_mode}"
+        )
     return normalized
 
 
@@ -1540,6 +1553,14 @@ def value_from_classic_mcts_root(root: "Any") -> float:
     return 2.0 * (root.wins / float(root.visits)) - 1.0
 
 
+def top_policy_move_for_legal_moves(
+    policy: list[float], legal_moves: list[int]
+) -> int | None:
+    if not legal_moves:
+        return None
+    return min(legal_moves, key=lambda move: (-float(policy[move]), move))
+
+
 def teacher_targets_for_state(
     *,
     state: dict,
@@ -1549,7 +1570,17 @@ def teacher_targets_for_state(
     search_profile: dict,
     teacher_runner,
     policy_target_mode: str,
-) -> tuple[list[float], list[float], float, str, dict, str, str, dict | None]:
+) -> tuple[
+    list[float],
+    list[float],
+    float,
+    str,
+    dict,
+    str,
+    str,
+    dict | None,
+    dict[str, Any] | None,
+]:
     if opening_cache is not None:
         cached = opening_cache.lookup(state, ply=ply)
         if cached is not None:
@@ -1557,6 +1588,7 @@ def teacher_targets_for_state(
             cached_policy_target = build_policy_target_from_distribution(
                 cached_policy, mode=policy_target_mode
             )
+            cached_legal_moves = KalahGame.from_state(state).possible_moves()
             cached_search_profile = dict(
                 getattr(opening_cache, "search_profile", {}) or {}
             )
@@ -1574,9 +1606,36 @@ def teacher_targets_for_state(
                 cached_search_profile_hash,
                 str(policy_target_mode),
                 None,
+                {
+                    "policy_target_noise_mode": DEFAULT_POLICY_TARGET_NOISE_MODE,
+                    "action_sampling_noise_enabled": False,
+                    "dirichlet_alpha": 0.0,
+                    "dirichlet_epsilon_for_sampling": 0.0,
+                    "dirichlet_epsilon_for_target": 0.0,
+                    "target_dirichlet_epsilon": 0.0,
+                    "sampling_dirichlet_epsilon": 0.0,
+                    "simulations": int(
+                        cached_search_profile.get("simulations", 0)
+                        or cached_search_profile.get("classic_mcts_simulations", 0)
+                    ),
+                    "policy_target_mode": policy_target_mode,
+                    "legal_moves": [int(move) for move in cached_legal_moves],
+                    "top_target_move": top_policy_move_for_legal_moves(
+                        cached_policy_target, cached_legal_moves
+                    ),
+                    "stored_policy_target": [
+                        float(value) for value in cached_policy_target
+                    ],
+                },
             )
 
-    gameplay_policy, policy_target, value, teacher_root_summary = teacher_runner()
+    (
+        gameplay_policy,
+        policy_target,
+        value,
+        teacher_root_summary,
+        teacher_target_metadata,
+    ) = teacher_runner()
     return (
         list(gameplay_policy),
         list(policy_target),
@@ -1586,6 +1645,7 @@ def teacher_targets_for_state(
         str(search_profile["hash"]),
         str(policy_target_mode),
         teacher_root_summary,
+        teacher_target_metadata,
     )
 
 
@@ -1637,10 +1697,16 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_POLICY_TARGET_MODE,
     )
     parser.add_argument(
+        "--policy-target-noise-mode",
+        choices=sorted(SUPPORTED_POLICY_TARGET_NOISE_MODES),
+        default=DEFAULT_POLICY_TARGET_NOISE_MODE,
+    )
+    parser.add_argument(
         "--value-target-mode",
         choices=sorted(SUPPORTED_VALUE_TARGET_MODES),
         default=DEFAULT_VALUE_TARGET_MODE,
     )
+    parser.add_argument("--write-root-target-telemetry", action="store_true")
     parser.add_argument(
         "--player-mode",
         choices=sorted(SUPPORTED_PLAYER_MODES),
@@ -1752,7 +1818,9 @@ def run_self_play_worker(
     root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
+    policy_target_noise_mode: str = DEFAULT_POLICY_TARGET_NOISE_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
+    write_root_target_telemetry: bool = False,
     player_mode: str = DEFAULT_PLAYER_MODE,
     value_trust_schedule: dict | None = None,
     opponent_pool_config: str | None = None,
@@ -1761,6 +1829,9 @@ def run_self_play_worker(
 ) -> dict:
     shard = Path(shard_path)
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
+    policy_target_noise_mode = normalize_policy_target_noise_mode(
+        policy_target_noise_mode
+    )
     value_target_mode = normalize_value_target_mode(value_target_mode)
 
     if player_mode not in SUPPORTED_PLAYER_MODES:
@@ -1812,6 +1883,53 @@ def run_self_play_worker(
         )
         opening_cache = load_opening_cache(opening_cache_payload)
 
+    def root_target_metadata(
+        *,
+        legal_moves: list[int],
+        stored_policy_target: list[float],
+        simulations_used: int,
+        dirichlet_alpha_used: float,
+        sampling_dirichlet_epsilon: float,
+        target_dirichlet_epsilon: float,
+        action_sampling_noise_enabled: bool,
+        target_visits: np.ndarray | None = None,
+        target_root_summary: dict | None = None,
+        sampling_root_summary: dict | None = None,
+    ) -> dict[str, Any]:
+        metadata: dict[str, Any] = {
+            "policy_target_noise_mode": policy_target_noise_mode,
+            "action_sampling_noise_enabled": bool(action_sampling_noise_enabled),
+            "dirichlet_alpha": float(dirichlet_alpha_used),
+            "dirichlet_epsilon_for_sampling": float(sampling_dirichlet_epsilon),
+            "dirichlet_epsilon_for_target": float(target_dirichlet_epsilon),
+            "target_dirichlet_epsilon": float(target_dirichlet_epsilon),
+            "sampling_dirichlet_epsilon": float(sampling_dirichlet_epsilon),
+            "simulations": int(simulations_used),
+            "policy_target_mode": policy_target_mode,
+            "legal_moves": [int(move) for move in legal_moves],
+            "top_target_move": top_policy_move_for_legal_moves(
+                stored_policy_target, legal_moves
+            ),
+            "stored_policy_target": [float(value) for value in stored_policy_target],
+        }
+        if write_root_target_telemetry and target_visits is not None:
+            metadata["root_visit_counts"] = [
+                int(value) for value in target_visits.tolist()
+            ]
+            telemetry_before = None
+            if target_root_summary is not None:
+                telemetry_before = (
+                    target_root_summary.get("root_prior_telemetry", {}) or {}
+                ).get("before")
+            telemetry_after = None
+            if sampling_root_summary is not None:
+                telemetry_after = (
+                    sampling_root_summary.get("root_prior_telemetry", {}) or {}
+                ).get("after")
+            metadata["root_policy_before_noise"] = telemetry_before
+            metadata["root_policy_after_noise"] = telemetry_after
+        return metadata
+
     rows_written = 0
     with shard.open("w", encoding="utf-8") as handle:
         for local_index in range(games):
@@ -1841,6 +1959,7 @@ def run_self_play_worker(
                     str,
                     str,
                     dict | None,
+                    dict[str, Any] | None,
                 ]
             ] = []
             reusable_root: Node | None = None
@@ -1866,7 +1985,11 @@ def run_self_play_worker(
                 temp = temperature if ply < temperature_threshold else temperature_late
 
                 def run_teacher() -> tuple[
-                    list[float], list[float], float, dict | None
+                    list[float],
+                    list[float],
+                    float,
+                    dict | None,
+                    dict[str, Any] | None,
                 ]:
                     nonlocal puct_root
                     if player_mode == "classic_mcts":
@@ -1904,6 +2027,23 @@ def run_self_play_worker(
                             ),
                             value_from_classic_mcts_root(mcts_root),
                             mcts_summary,
+                            root_target_metadata(
+                                legal_moves=legal_moves,
+                                stored_policy_target=build_policy_target(
+                                    visits,
+                                    legal_moves=legal_moves,
+                                    temperature=temp,
+                                    mode=policy_target_mode,
+                                ),
+                                simulations_used=simulations,
+                                dirichlet_alpha_used=0.0,
+                                sampling_dirichlet_epsilon=0.0,
+                                target_dirichlet_epsilon=0.0,
+                                action_sampling_noise_enabled=False,
+                                target_visits=visits,
+                                target_root_summary=mcts_summary,
+                                sampling_root_summary=mcts_summary,
+                            ),
                         )
 
                     selected_evaluator = evaluator
@@ -1948,31 +2088,86 @@ def run_self_play_worker(
                         ),
                         **puct_kwargs,
                     )
+                    sampling_noise_enabled = ply < temperature_threshold
+                    sampling_dirichlet_epsilon = (
+                        float(dirichlet_epsilon) if sampling_noise_enabled else 0.0
+                    )
                     visits, puct_root = search.run(
                         game,
                         dirichlet_alpha=dirichlet_alpha
-                        if ply < temperature_threshold
+                        if sampling_noise_enabled
                         else None,
-                        dirichlet_epsilon=dirichlet_epsilon,
+                        dirichlet_epsilon=sampling_dirichlet_epsilon,
                     )
                     gameplay_policy = policy_from_visits(
                         visits, legal_moves=legal_moves, temperature=temp
                     )
                     root_summary = None
-                    if "value_trust_schedule" in normalized_search_options and hasattr(
-                        search, "root_summary"
+                    if hasattr(search, "root_summary") and (
+                        write_root_target_telemetry
+                        or "value_trust_schedule" in normalized_search_options
                     ):
                         root_summary = search.root_summary()
+                    target_visits = visits
+                    target_root_summary = root_summary
+                    target_dirichlet_epsilon = sampling_dirichlet_epsilon
+                    if policy_target_noise_mode == "denoised":
+                        target_search = PUCT(
+                            evaluator=selected_evaluator,
+                            simulations=simulations,
+                            c_puct=c_puct,
+                            rng=random.Random(rng.randint(0, 2**31 - 1)),
+                            fpu_mode=str(normalized_search_options["fpu_mode"]),
+                            reuse_subtree=False,
+                            normalize_values=bool(
+                                normalized_search_options["normalize_values"]
+                            ),
+                            root_policy_mode=str(
+                                normalized_search_options["root_policy_mode"]
+                            ),
+                            tactical_root_bias=float(
+                                normalized_search_options["tactical_root_bias"]
+                            ),
+                            **puct_kwargs,
+                        )
+                        target_visits, _ = target_search.run(
+                            game,
+                            dirichlet_alpha=None,
+                            dirichlet_epsilon=0.0,
+                        )
+                        target_dirichlet_epsilon = 0.0
+                        if hasattr(target_search, "root_summary") and (
+                            write_root_target_telemetry
+                            or "value_trust_schedule" in normalized_search_options
+                        ):
+                            target_root_summary = target_search.root_summary()
+                    stored_policy_target = build_policy_target(
+                        target_visits,
+                        legal_moves=legal_moves,
+                        temperature=temp,
+                        mode=policy_target_mode,
+                    )
                     return (
                         gameplay_policy,
-                        build_policy_target(
-                            visits,
-                            legal_moves=legal_moves,
-                            temperature=temp,
-                            mode=policy_target_mode,
-                        ),
+                        stored_policy_target,
                         puct_root.q_value,
                         root_summary,
+                        root_target_metadata(
+                            legal_moves=legal_moves,
+                            stored_policy_target=stored_policy_target,
+                            simulations_used=simulations,
+                            dirichlet_alpha_used=(
+                                float(dirichlet_alpha)
+                                if sampling_noise_enabled
+                                else 0.0
+                            ),
+                            sampling_dirichlet_epsilon=sampling_dirichlet_epsilon,
+                            target_dirichlet_epsilon=target_dirichlet_epsilon,
+                            action_sampling_noise_enabled=sampling_noise_enabled,
+                            target_visits=target_visits,
+                            target_root_summary=target_root_summary,
+                            sampling_root_summary=root_summary,
+                        ),
                     )
 
                 (
@@ -1984,6 +2179,7 @@ def run_self_play_worker(
                     teacher_search_profile_hash,
                     policy_target_actual_mode,
                     teacher_root_summary,
+                    teacher_target_metadata,
                 ) = teacher_targets_for_state(
                     state=state,
                     ply=ply,
@@ -2005,6 +2201,7 @@ def run_self_play_worker(
                         teacher_search_profile_hash,
                         policy_target_actual_mode,
                         teacher_root_summary,
+                        teacher_target_metadata,
                     )
                 )
 
@@ -2033,6 +2230,7 @@ def run_self_play_worker(
                 teacher_search_profile_hash,
                 policy_target_actual_mode,
                 teacher_root_summary,
+                teacher_target_metadata,
             ) in positions:
                 row = {
                     "state": state,
@@ -2055,6 +2253,50 @@ def run_self_play_worker(
                     "teacher_search_profile": teacher_search_profile,
                     "teacher_search_profile_hash": teacher_search_profile_hash,
                 }
+                if teacher_target_metadata is not None:
+                    row["policy_target_noise_mode"] = teacher_target_metadata.get(
+                        "policy_target_noise_mode", DEFAULT_POLICY_TARGET_NOISE_MODE
+                    )
+                    row["action_sampling_noise_enabled"] = bool(
+                        teacher_target_metadata.get(
+                            "action_sampling_noise_enabled", False
+                        )
+                    )
+                    row["target_dirichlet_epsilon"] = float(
+                        teacher_target_metadata.get("target_dirichlet_epsilon", 0.0)
+                    )
+                    row["sampling_dirichlet_epsilon"] = float(
+                        teacher_target_metadata.get("sampling_dirichlet_epsilon", 0.0)
+                    )
+                    row["simulations"] = int(
+                        teacher_target_metadata.get("simulations", simulations)
+                    )
+                    row["dirichlet_alpha"] = float(
+                        teacher_target_metadata.get("dirichlet_alpha", 0.0)
+                    )
+                    row["dirichlet_epsilon_for_sampling"] = float(
+                        teacher_target_metadata.get(
+                            "dirichlet_epsilon_for_sampling", 0.0
+                        )
+                    )
+                    row["dirichlet_epsilon_for_target"] = float(
+                        teacher_target_metadata.get("dirichlet_epsilon_for_target", 0.0)
+                    )
+                    row["top_target_move"] = teacher_target_metadata.get(
+                        "top_target_move"
+                    )
+                    row["legal_moves"] = teacher_target_metadata.get("legal_moves")
+                    if write_root_target_telemetry:
+                        for telemetry_key in (
+                            "root_visit_counts",
+                            "root_policy_before_noise",
+                            "root_policy_after_noise",
+                            "stored_policy_target",
+                        ):
+                            if telemetry_key in teacher_target_metadata:
+                                row[telemetry_key] = teacher_target_metadata[
+                                    telemetry_key
+                                ]
                 if teacher_root_summary is not None:
                     row["teacher_root_summary"] = teacher_root_summary
                 handle.write(json.dumps(row) + "\n")
@@ -2136,7 +2378,9 @@ def main() -> None:
                     "root_policy_mode": str(search_options["root_policy_mode"]),
                     "tactical_root_bias": float(search_options["tactical_root_bias"]),
                     "policy_target_mode": args.policy_target_mode,
+                    "policy_target_noise_mode": args.policy_target_noise_mode,
                     "value_target_mode": args.value_target_mode,
+                    "write_root_target_telemetry": args.write_root_target_telemetry,
                     "player_mode": args.player_mode,
                     "opening_cache_path": args.opening_cache,
                 }
