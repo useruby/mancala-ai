@@ -13,6 +13,12 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
+from ml.alphazero_lite.corrected_guard_kill_gate import (
+    DEFAULT_FALLBACK_REFERENCE_ARTIFACT,
+    parse_budgets,
+    run_corrected_guard_kill_gate,
+    write_json as write_guard_json,
+)
 from ml.alphazero_lite.superhuman_runtime_config import python_executable, repo_root
 from ml.alphazero_lite.worker_config import DEFAULT_WORKERS, normalize_command_workers
 
@@ -40,6 +46,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--rules-version", default=DEFAULT_RULES_VERSION)
     parser.add_argument("--games", type=int, default=DEFAULT_GAMES)
     parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS)
+    parser.add_argument("--guard-reference-artifact", default=None)
+    parser.add_argument("--guard-fallback-reference-artifact", default=None)
+    parser.add_argument("--guard-budgets", default="384,1200")
+    parser.add_argument("--guard-seed", type=int, default=17)
     parser.add_argument("--out", default=None)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
@@ -172,10 +182,15 @@ def evaluate_checkpoint(
     rules_version: str,
     games: int,
     workers: int,
+    guard_reference_artifact: Path | None,
+    guard_fallback_reference_artifact: Path | None,
+    guard_budgets: tuple[int, ...],
+    guard_seed: int,
     dry_run: bool,
 ) -> dict[str, object]:
     export_dir = artifact_dir_for_checkpoint(iter_dir, checkpoint_path)
     report_path = report_path_for_checkpoint(export_dir)
+    guard_gate_path = export_dir / "corrected_guard_kill_gate.json"
     export_command = build_export_command(
         python_bin=python_bin,
         checkpoint_path=checkpoint_path,
@@ -199,16 +214,46 @@ def evaluate_checkpoint(
         "checkpoint_name": checkpoint_path.name,
         "export_dir": str(export_dir),
         "report_path": str(report_path),
+        "guard_gate_path": str(guard_gate_path),
         "export_command": export_command,
         "arena_command": arena_command,
         "dry_run": dry_run,
     }
     if dry_run:
+        if guard_reference_artifact is not None:
+            summary["guard_reference_artifact"] = str(guard_reference_artifact)
+            summary["guard_budgets"] = list(guard_budgets)
         return summary
 
     run_command(export_command)
+    if guard_reference_artifact is not None:
+        guard_payload = run_corrected_guard_kill_gate(
+            candidate_path=export_dir,
+            reference_artifact=guard_reference_artifact,
+            fallback_reference_artifact=guard_fallback_reference_artifact,
+            budgets=guard_budgets,
+            seed=guard_seed,
+        )
+        write_guard_json(guard_gate_path, guard_payload)
+        summary.update(
+            {
+                "guard_reference_artifact": str(guard_reference_artifact),
+                "guard_budgets": list(guard_budgets),
+                "guard_gate_pass": bool(guard_payload["pass"]),
+                "guard_gate_decision": guard_payload["decision"],
+                "guard_gate_reason": guard_payload["reason"],
+                "guard_gate_rows": guard_payload["rows"],
+            }
+        )
+        if not guard_payload["pass"]:
+            summary["arena_skipped_due_to_guard"] = True
+            summary["decision"] = "reject_guard_regression"
+            return summary
+
     run_command(arena_command)
     summary.update(load_report_summary(report_path))
+    summary["arena_skipped_due_to_guard"] = False
+    summary["decision"] = "arena_evaluated"
     return summary
 
 
@@ -228,6 +273,17 @@ def main() -> None:
 
     out_path = Path(args.out) if args.out else default_out_path(iter_dir)
     python_bin = python_executable(repo_root())
+    guard_reference_artifact = (
+        None
+        if args.guard_reference_artifact is None
+        else Path(args.guard_reference_artifact)
+    )
+    guard_fallback_reference_artifact = (
+        Path(args.guard_fallback_reference_artifact)
+        if args.guard_fallback_reference_artifact is not None
+        else DEFAULT_FALLBACK_REFERENCE_ARTIFACT
+    )
+    guard_budgets = parse_budgets(args.guard_budgets)
     results = [
         evaluate_checkpoint(
             python_bin=python_bin,
@@ -239,6 +295,10 @@ def main() -> None:
             rules_version=args.rules_version,
             games=args.games,
             workers=args.workers,
+            guard_reference_artifact=guard_reference_artifact,
+            guard_fallback_reference_artifact=guard_fallback_reference_artifact,
+            guard_budgets=guard_budgets,
+            guard_seed=int(args.guard_seed),
             dry_run=bool(args.dry_run),
         )
         for checkpoint_path in checkpoints
@@ -253,6 +313,14 @@ def main() -> None:
         "rules_version": args.rules_version,
         "games": int(args.games),
         "workers": int(args.workers),
+        "guard_reference_artifact": None
+        if guard_reference_artifact is None
+        else str(guard_reference_artifact),
+        "guard_fallback_reference_artifact": None
+        if guard_fallback_reference_artifact is None
+        else str(guard_fallback_reference_artifact),
+        "guard_budgets": list(guard_budgets),
+        "guard_seed": int(args.guard_seed),
         "challenger_simulations": DEFAULT_CHALLENGER_SIMULATIONS,
         "current_simulations": DEFAULT_CURRENT_SIMULATIONS,
         "min_score": DEFAULT_MIN_SCORE,

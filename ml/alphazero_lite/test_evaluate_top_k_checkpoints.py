@@ -134,3 +134,49 @@ class EvaluateTopKCheckpointsTest(unittest.TestCase):
         self.assertFalse(
             (iter_dir / "top_k_exports" / "checkpoint" / "metadata.json").exists()
         )
+
+    def test_dry_run_records_optional_guard_gate_configuration(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory(prefix="azlite-topk-guard-dry-run-") as tmp:
+            tmp_path = Path(tmp)
+            iter_dir = tmp_path / "iter1"
+            current_dir = tmp_path / "current"
+            reference_path = tmp_path / "references.json"
+            out_path = tmp_path / "summary.json"
+            iter_dir.mkdir()
+            current_dir.mkdir()
+            (iter_dir / "checkpoint.npz").write_bytes(b"stub")
+            reference_path.write_text(json.dumps({"rows": []}), encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/evaluate_top_k_checkpoints.py",
+                    "--iter-dir",
+                    str(iter_dir),
+                    "--current-path",
+                    str(current_dir),
+                    "--guard-reference-artifact",
+                    str(reference_path),
+                    "--out",
+                    str(out_path),
+                    "--dry-run",
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            payload = json.loads(out_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(str(reference_path), payload["guard_reference_artifact"])
+        self.assertEqual(
+            "ml/alphazero_lite/fixtures/incumbent_train_only_forensic_references_v1.json",
+            payload["guard_fallback_reference_artifact"],
+        )
+        self.assertEqual([384, 1200], payload["guard_budgets"])
+        self.assertEqual(
+            str(reference_path), payload["candidates"][0]["guard_reference_artifact"]
+        )
