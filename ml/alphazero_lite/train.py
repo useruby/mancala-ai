@@ -33,6 +33,8 @@ SUPPORTED_POLICY_TARGET_MODES = [DEFAULT_POLICY_TARGET_MODE, "sharpened"]
 DEFAULT_VALUE_TARGET_MODE = "default"
 PHASE_AWARE_VALUE_TARGET_MODE = "phase_aware_sharpened"
 HYBRID_VALUE_TARGET_MODE = "hybrid"
+DEFAULT_LR_SCHEDULER = "cosine"
+SUPPORTED_LR_SCHEDULERS = ["none", DEFAULT_LR_SCHEDULER]
 SUPPORTED_VALUE_TARGET_MODES = [
     DEFAULT_VALUE_TARGET_MODE,
     "sharpened",
@@ -57,6 +59,13 @@ def normalize_value_target_mode(value_target_mode: str) -> str:
     normalized = str(value_target_mode)
     if normalized not in SUPPORTED_VALUE_TARGET_MODES:
         raise ValueError(f"unsupported value_target_mode: {value_target_mode}")
+    return normalized
+
+
+def normalize_lr_scheduler(lr_scheduler: str) -> str:
+    normalized = str(lr_scheduler)
+    if normalized not in SUPPORTED_LR_SCHEDULERS:
+        raise ValueError(f"unsupported lr_scheduler: {lr_scheduler}")
     return normalized
 
 
@@ -330,6 +339,84 @@ def parse_replay_weights(text: str | None) -> list[int] | None:
     return [int(item.strip()) for item in text.split(",") if item.strip()]
 
 
+def compute_policy_cross_entropy(
+    logits: torch.Tensor, targets: torch.Tensor
+) -> torch.Tensor:
+    log_probs = torch.log_softmax(logits, dim=1)
+    return -(targets * log_probs).sum(dim=1)
+
+
+def compute_value_loss_vector(
+    predictions: torch.Tensor,
+    targets: torch.Tensor,
+    *,
+    value_loss: str,
+    huber_delta: float,
+) -> torch.Tensor:
+    if value_loss == "huber":
+        return torch.nn.functional.smooth_l1_loss(
+            predictions,
+            targets,
+            beta=huber_delta,
+            reduction="none",
+        ).reshape(-1)
+    return torch.square(predictions - targets).reshape(-1)
+
+
+def train_one_epoch(
+    *,
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    compact_x: np.ndarray,
+    compact_p: np.ndarray,
+    compact_v: np.ndarray,
+    replay_indexes: np.ndarray,
+    batch_size: int,
+    device: torch.device,
+    value_loss_weight: float,
+    value_loss: str,
+    huber_delta: float,
+    grad_clip: float | None,
+) -> dict[str, float | None]:
+    model.train()
+    x_all = torch.from_numpy(compact_x).to(device)
+    p_all = torch.from_numpy(compact_p).to(device)
+    v_all = torch.from_numpy(compact_v).to(device)
+    replay_tensor = torch.from_numpy(replay_indexes).to(device)
+    permutation = torch.randperm(replay_tensor.size(0), device=device)
+    policy_losses: list[float] = []
+    value_losses: list[float] = []
+    total_losses: list[float] = []
+    for start in range(0, replay_tensor.size(0), batch_size):
+        indexes = permutation[start : start + batch_size]
+        batch_replay_indexes = replay_tensor[indexes]
+        batch_x = x_all[batch_replay_indexes]
+        batch_p = p_all[batch_replay_indexes]
+        batch_v = v_all[batch_replay_indexes]
+        logits, value_pred = model(batch_x)
+        policy_loss = compute_policy_cross_entropy(logits, batch_p).mean()
+        value_component = compute_value_loss_vector(
+            value_pred,
+            batch_v,
+            value_loss=value_loss,
+            huber_delta=huber_delta,
+        ).mean()
+        total_loss = policy_loss + (value_loss_weight * value_component)
+        optimizer.zero_grad(set_to_none=True)
+        total_loss.backward()
+        if grad_clip is not None and grad_clip > 0.0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+        optimizer.step()
+        policy_losses.append(float(policy_loss.detach().cpu().item()))
+        value_losses.append(float(value_component.detach().cpu().item()))
+        total_losses.append(float(total_loss.detach().cpu().item()))
+    return {
+        "policy_loss": float(np.mean(policy_losses)) if policy_losses else 0.0,
+        "value_loss": float(np.mean(value_losses)) if value_losses else 0.0,
+        "total_loss": float(np.mean(total_losses)) if total_losses else 0.0,
+    }
+
+
 class PolicyValueNet(nn.Module):
     def __init__(self, hidden_sizes: tuple[int, ...], model_type: str, input_size: int):
         super().__init__()
@@ -472,6 +559,7 @@ def train(
     val_split: float,
     grad_clip: float | None,
     save_top_k: int,
+    lr_scheduler: str,
 ) -> tuple[float, float, float]:
     model.to(device)
     model.train()
@@ -492,25 +580,22 @@ def train(
     x_all = torch.from_numpy(x).to(device)
     p_all = torch.from_numpy(p_target).to(device)
     v_all = torch.from_numpy(v_target).to(device)
-    replay_index_tensor = torch.from_numpy(replay_indexes_array).to(device)
-    train_replay_indexes = replay_index_tensor[train_positions]
-    val_replay_indexes = replay_index_tensor[val_positions] if val_count > 0 else None
+    train_replay_indexes = replay_indexes_array[train_positions]
+    val_replay_indexes = replay_indexes_array[val_positions] if val_count > 0 else None
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, T_max=max(1, epochs)
-    )
+    normalized_lr_scheduler = normalize_lr_scheduler(lr_scheduler)
+    scheduler = None
+    if normalized_lr_scheduler == DEFAULT_LR_SCHEDULER:
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=max(1, epochs)
+        )
 
     policy_loss_value = 0.0
     value_loss_value = 0.0
     best_val_loss = float("inf")
     best_state = None
     top_states: list[tuple[float, dict[str, torch.Tensor]]] = []
-
-    def compute_value_loss(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        if value_loss == "huber":
-            return torch.nn.functional.smooth_l1_loss(pred, target, beta=huber_delta)
-        return torch.mean((pred - target) ** 2)
 
     def maybe_record_top_state(loss_value: float):
         nonlocal top_states
@@ -522,31 +607,25 @@ def train(
         top_states = top_states[:save_top_k]
 
     for _epoch in range(epochs):
-        permutation = torch.randperm(train_replay_indexes.size(0), device=device)
+        epoch_metrics = train_one_epoch(
+            model=model,
+            optimizer=optimizer,
+            compact_x=x,
+            compact_p=p_target,
+            compact_v=v_target,
+            replay_indexes=train_replay_indexes,
+            batch_size=batch_size,
+            device=device,
+            value_loss_weight=value_loss_weight,
+            value_loss=value_loss,
+            huber_delta=huber_delta,
+            grad_clip=grad_clip,
+        )
+        policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
+        value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
 
-        for start in range(0, train_replay_indexes.size(0), batch_size):
-            indexes = permutation[start : start + batch_size]
-            batch_replay_indexes = train_replay_indexes[indexes]
-            batch_x = x_all[batch_replay_indexes]
-            batch_p = p_all[batch_replay_indexes]
-            batch_v = v_all[batch_replay_indexes]
-
-            logits, value_pred = model(batch_x)
-            log_probs = torch.log_softmax(logits, dim=1)
-            policy_loss = -(batch_p * log_probs).sum(dim=1).mean()
-            value_loss_component = compute_value_loss(value_pred, batch_v)
-            loss = policy_loss + (value_loss_weight * value_loss_component)
-
-            optimizer.zero_grad(set_to_none=True)
-            loss.backward()
-            if grad_clip is not None and grad_clip > 0:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
-            optimizer.step()
-
-            policy_loss_value = float(policy_loss.detach().cpu().item())
-            value_loss_value = float(value_loss_component.detach().cpu().item())
-
-        scheduler.step()
+        if scheduler is not None:
+            scheduler.step()
 
         if val_count > 0:
             model.eval()
@@ -555,9 +634,13 @@ def train(
                 p_val = p_all[val_replay_indexes]
                 v_val = v_all[val_replay_indexes]
                 val_logits, val_value_pred = model(x_val)
-                val_log_probs = torch.log_softmax(val_logits, dim=1)
-                val_policy_loss = -(p_val * val_log_probs).sum(dim=1).mean()
-                val_value_loss = compute_value_loss(val_value_pred, v_val)
+                val_policy_loss = compute_policy_cross_entropy(val_logits, p_val).mean()
+                val_value_loss = compute_value_loss_vector(
+                    val_value_pred,
+                    v_val,
+                    value_loss=value_loss,
+                    huber_delta=huber_delta,
+                ).mean()
                 val_total = float(
                     (val_policy_loss + (value_loss_weight * val_value_loss))
                     .cpu()
@@ -841,6 +924,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--save-top-k", type=int, default=0)
     parser.add_argument("--top-k-dir", default=None)
     parser.add_argument(
+        "--lr-scheduler",
+        choices=SUPPORTED_LR_SCHEDULERS,
+        default=DEFAULT_LR_SCHEDULER,
+    )
+    parser.add_argument(
         "--init-checkpoint",
         default=None,
         help="Optional checkpoint to load before training",
@@ -909,6 +997,7 @@ def main() -> None:
         val_split=args.val_split,
         grad_clip=args.grad_clip,
         save_top_k=args.save_top_k,
+        lr_scheduler=args.lr_scheduler,
     )
 
     checkpoint = checkpoint_from_model(model)

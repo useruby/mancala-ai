@@ -28,12 +28,15 @@ from ml.alphazero_lite.self_play import build_eval_search_options
 from ml.alphazero_lite.train import (
     PolicyValueNet,
     checkpoint_from_model,
+    compute_policy_cross_entropy,
+    compute_value_loss_vector,
     input_size_for_encoding,
     load_checkpoint_into_model,
     load_jsonl_replay,
     resolve_hidden_sizes,
     set_seed,
     split_replay_positions_by_source_row,
+    train_one_epoch as shared_train_one_epoch,
 )
 
 
@@ -285,30 +288,6 @@ def delta_norms(
     }
 
 
-def compute_policy_cross_entropy(
-    logits: torch.Tensor, targets: torch.Tensor
-) -> torch.Tensor:
-    log_probs = torch.log_softmax(logits, dim=1)
-    return -(targets * log_probs).sum(dim=1)
-
-
-def compute_value_loss_vector(
-    predictions: torch.Tensor,
-    targets: torch.Tensor,
-    *,
-    value_loss: str,
-    huber_delta: float,
-) -> torch.Tensor:
-    if value_loss == "huber":
-        return torch.nn.functional.smooth_l1_loss(
-            predictions,
-            targets,
-            beta=huber_delta,
-            reduction="none",
-        ).reshape(-1)
-    return torch.square(predictions - targets).reshape(-1)
-
-
 def choose_device(requested: str) -> torch.device:
     if requested == "auto":
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -399,49 +378,25 @@ def train_one_epoch(
     huber_delta: float,
     grad_clip: float | None,
 ) -> dict[str, Any]:
-    model.train()
-    x_all = torch.from_numpy(compact_x).to(device)
-    p_all = torch.from_numpy(compact_p).to(device)
-    v_all = torch.from_numpy(compact_v).to(device)
-    replay_tensor = torch.from_numpy(replay_indexes).to(device)
-    permutation = torch.randperm(replay_tensor.size(0), device=device)
-    policy_losses: list[float] = []
-    value_losses: list[float] = []
-    total_losses: list[float] = []
-    grad_norms: list[float] = []
-    for start in range(0, replay_tensor.size(0), batch_size):
-        indexes = permutation[start : start + batch_size]
-        batch_replay_indexes = replay_tensor[indexes]
-        batch_x = x_all[batch_replay_indexes]
-        batch_p = p_all[batch_replay_indexes]
-        batch_v = v_all[batch_replay_indexes]
-        logits, value_pred = model(batch_x)
-        policy_loss = compute_policy_cross_entropy(logits, batch_p).mean()
-        value_component = compute_value_loss_vector(
-            value_pred,
-            batch_v,
-            value_loss=value_loss,
-            huber_delta=huber_delta,
-        ).mean()
-        total_loss = policy_loss + (value_loss_weight * value_component)
-        optimizer.zero_grad(set_to_none=True)
-        total_loss.backward()
-        grad_squared = 0.0
-        for parameter in model.parameters():
-            if parameter.grad is not None:
-                grad_squared += float(torch.sum(parameter.grad.detach() ** 2).item())
-        grad_norms.append(math.sqrt(grad_squared))
-        if grad_clip is not None and grad_clip > 0.0:
-            torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
-        optimizer.step()
-        policy_losses.append(float(policy_loss.detach().cpu().item()))
-        value_losses.append(float(value_component.detach().cpu().item()))
-        total_losses.append(float(total_loss.detach().cpu().item()))
+    metrics = shared_train_one_epoch(
+        model=model,
+        optimizer=optimizer,
+        compact_x=compact_x,
+        compact_p=compact_p,
+        compact_v=compact_v,
+        replay_indexes=replay_indexes,
+        batch_size=batch_size,
+        device=device,
+        value_loss_weight=value_loss_weight,
+        value_loss=value_loss,
+        huber_delta=huber_delta,
+        grad_clip=grad_clip,
+    )
     return {
-        "policy_loss": round(float(np.mean(policy_losses)), 6),
-        "value_loss": round(float(np.mean(value_losses)), 6),
-        "total_loss": round(float(np.mean(total_losses)), 6),
-        "gradient_norm": round(float(np.mean(grad_norms)), 6) if grad_norms else None,
+        "policy_loss": round(float(metrics["policy_loss"] or 0.0), 6),
+        "value_loss": round(float(metrics["value_loss"] or 0.0), 6),
+        "total_loss": round(float(metrics["total_loss"] or 0.0), 6),
+        "gradient_norm": None,
     }
 
 
