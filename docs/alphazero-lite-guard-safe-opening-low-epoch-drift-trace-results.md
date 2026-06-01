@@ -7,8 +7,8 @@ Compatibility basis: post-init regression relative to the initializer.
 - PR #34 selected a statically guard-safe opening replay artifact for a low-epoch optimization drift trace.
 - This run stayed diagnostic-only: no production training, no arena, no promotion, no artifact overwrite.
 - Compatibility here means training did not worsen corrected guard behavior relative to the initializer, even if the initializer already had raw-policy mismatch.
-- Corrected references: `/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json`.
-- Current initialization artifact: `/home/alex/Mancala/ai/storage/ai/alphazero_lite/current`.
+- Corrected references: `ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json`.
+- Current initialization artifact: `storage/ai/alphazero_lite/current`.
 
 ## 2. Selected artifact validation
 
@@ -202,4 +202,4 @@ Compatibility basis: post-init regression relative to the initializer.
 
 ## 9. Exactly one recommended next action
 
-Recommendation: **use the selected artifact lane only with the existing corrected guard search gate; training did not worsen inherited guard policy mismatch.**.
+Recommendation: **use the selected artifact lane only with the existing corrected guard search gate; training did not worsen inherited guard policy mismatch.**

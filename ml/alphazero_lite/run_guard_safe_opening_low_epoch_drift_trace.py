@@ -144,6 +144,13 @@ def resolve_path(root: Path, path: Path) -> Path:
     return path if path.is_absolute() else root / path
 
 
+def display_path(root: Path, path: Path) -> str:
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path.resolve())
+
+
 def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -953,6 +960,7 @@ def run_trace(
         input_size=input_size_for_encoding(str(model_spec["input_encoding"])),
     )
     load_checkpoint_into_model(model, init_checkpoint)
+    model = model.to(device)
     initial_state = {
         name: tensor.detach().cpu().clone()
         for name, tensor in model.state_dict().items()
@@ -1272,7 +1280,7 @@ def render_report(summary: dict[str, Any]) -> str:
             "",
             "## 9. Exactly one recommended next action",
             "",
-            f"Recommendation: **{summary['recommended_next_action']}**.",
+            f"Recommendation: **{summary['recommended_next_action']}**",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -1303,6 +1311,12 @@ def main(argv: list[str] | None = None) -> int:
     summary_path = resolve_path(root, args.summary_path)
     report_path = resolve_path(root, args.report_path)
     output_root.mkdir(parents=True, exist_ok=True)
+    reference_artifact_display = display_path(root, reference_artifact)
+    fallback_reference_artifact_display = display_path(
+        root, fallback_reference_artifact
+    )
+    current_path_display = display_path(root, current_path)
+    selected_artifact_display = display_path(root, selected_artifact)
 
     reference_rows = row_map_from_reference(load_json(reference_artifact))
     fallback_reference_rows = row_map_from_reference(
@@ -1372,10 +1386,10 @@ def main(argv: list[str] | None = None) -> int:
     summary: dict[str, Any] = {
         "schema": SCHEMA,
         "compatibility_basis": COMPATIBILITY_BASIS,
-        "reference_artifact": str(reference_artifact),
-        "fallback_reference_artifact": str(fallback_reference_artifact),
-        "current_path": str(current_path),
-        "selected_artifact": str(selected_artifact),
+        "reference_artifact": reference_artifact_display,
+        "fallback_reference_artifact": fallback_reference_artifact_display,
+        "current_path": current_path_display,
+        "selected_artifact": selected_artifact_display,
         "artifact_validation": validation_row,
         "traces": traces,
         "guard_drift_rows": guard_drift_rows,
