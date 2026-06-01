@@ -56,12 +56,20 @@
 | capture_available-006 | denoised_diagnostic_self_play | 0 | 2 | - | `-` | no_exact_hits |
 | capture_available-007 | denoised_diagnostic_self_play | 4 | 2 | 0.3046 | `{1:4}` | ok |
 | capture_available-008 | denoised_diagnostic_self_play | 3 | 1 | 0.4574 | `{1:3}` | ok |
+| opening_plies_1_8-017 | denoised_opening_min_384_diagnostic_self_play | 16 | 2 | 0.2365 | `{2:16}` | ok |
+| capture_available-002 | denoised_opening_min_384_diagnostic_self_play | 4 | 2 | 0.5461 | `{2:4}` | ok |
+| capture_available-003 | denoised_opening_min_384_diagnostic_self_play | 0 | 2 | - | `-` | no_exact_hits |
+| capture_available-006 | denoised_opening_min_384_diagnostic_self_play | 0 | 2 | - | `-` | no_exact_hits |
+| capture_available-007 | denoised_opening_min_384_diagnostic_self_play | 3 | 2 | 0.4893 | `{2:3}` | ok |
+| capture_available-008 | denoised_opening_min_384_diagnostic_self_play | 3 | 1 | 0.8072 | `{1:3}` | ok |
 
 ## 6. Low-Cost Training Trace
 
 - `noisy_self_play_reproduction`: data `['/tmp/azlite_exp_v3_guard_safe_opening_selected_w1_versions/exp-v3-guard-safe-opening-selected-w1-iter1/self_play.jsonl']` epochs `[1, 2, 4]`.
 - `denoised_self_play_only`: data `['/tmp/azlite_exp_v3_guard_safe_opening_selected_w1_denoised_targets_versions/exp-v3-guard-safe-opening-selected-w1-denoised-targets-iter1/self_play.jsonl']` epochs `[1, 2, 4]`.
+- `denoised_opening_min_384_self_play_only`: data `['/tmp/azlite_exp_v3_guard_safe_opening_selected_w1_denoised_targets_opening_min_384_versions/exp-v3-guard-safe-opening-selected-w1-denoised-targets-opening-min-384-iter1/self_play.jsonl']` epochs `[1, 2, 4]`.
 - `denoised_self_play_plus_selected_artifact_w1`: data `['/tmp/azlite_exp_v3_guard_safe_opening_selected_w1_denoised_targets_versions/exp-v3-guard-safe-opening-selected-w1-denoised-targets-iter1/self_play.jsonl', '/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_extra_turn_overbias.jsonl']` epochs `[1, 2, 4]`.
+- `denoised_opening_min_384_plus_selected_artifact_w1`: data `['/tmp/azlite_exp_v3_guard_safe_opening_selected_w1_denoised_targets_opening_min_384_versions/exp-v3-guard-safe-opening-selected-w1-denoised-targets-opening-min-384-iter1/self_play.jsonl', '/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_extra_turn_overbias.jsonl']` epochs `[1, 2, 4]`.
 
 ## 7. Corrected Guard Kill-Gate Results
 
@@ -97,21 +105,51 @@
 | denoised_self_play_only | 4 | capture_available-006 | 2 | 2 | 2 | 0.3750 | 0.4925 | true | false | pass_reference_selected |
 | denoised_self_play_only | 4 | capture_available-007 | 2 | 1 | 2 | 0.3047 | 0.4133 | false | false | selected_move_not_reference |
 | denoised_self_play_only | 4 | capture_available-008 | 1 | 1 | 1 | 0.5833 | 0.6975 | true | false | pass_reference_selected |
-| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-002 | 2 | 1 | 2 | 0.2734 | 0.4242 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-003 | 2 | 1 | 1 | 0.3750 | 0.3750 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-006 | 2 | 2 | 2 | 0.3724 | 0.5267 | true | false | pass_reference_selected |
-| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-007 | 2 | 1 | 2 | 0.3646 | 0.4725 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-008 | 1 | 1 | 1 | 0.7161 | 0.7867 | true | false | pass_reference_selected |
-| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-002 | 2 | 0 | 2 | 0.2240 | 0.3817 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-003 | 2 | 1 | 2 | 0.3490 | 0.4942 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-006 | 2 | 2 | 2 | 0.3099 | 0.5217 | true | false | pass_reference_selected |
-| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-007 | 2 | 1 | 2 | 0.3568 | 0.5683 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-008 | 1 | 1 | 1 | 0.6771 | 0.7692 | true | false | pass_reference_selected |
-| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-002 | 2 | 1 | 2 | 0.2396 | 0.4225 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-003 | 2 | 1 | 2 | 0.2969 | 0.4525 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-006 | 2 | 2 | 2 | 0.2995 | 0.4658 | true | false | pass_reference_selected |
-| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-007 | 2 | 1 | 2 | 0.3359 | 0.4700 | false | false | selected_move_not_reference |
-| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-008 | 1 | 1 | 1 | 0.6016 | 0.7217 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 1 | capture_available-002 | 2 | 1 | 2 | 0.2526 | 0.4017 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_self_play_only | 1 | capture_available-003 | 2 | 1 | 1 | 0.3724 | 0.4025 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_self_play_only | 1 | capture_available-006 | 2 | 2 | 2 | 0.3646 | 0.5667 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 1 | capture_available-007 | 2 | 2 | 2 | 0.4375 | 0.5342 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 1 | capture_available-008 | 1 | 1 | 1 | 0.7995 | 0.8292 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 2 | capture_available-002 | 2 | 1 | 2 | 0.3255 | 0.4117 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_self_play_only | 2 | capture_available-003 | 2 | 1 | 1 | 0.3125 | 0.4367 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_self_play_only | 2 | capture_available-006 | 2 | 2 | 2 | 0.4505 | 0.6467 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 2 | capture_available-007 | 2 | 1 | 2 | 0.3698 | 0.5125 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_self_play_only | 2 | capture_available-008 | 1 | 1 | 1 | 0.7266 | 0.7925 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 4 | capture_available-002 | 2 | 2 | 2 | 0.3490 | 0.4708 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 4 | capture_available-003 | 2 | 1 | 2 | 0.3073 | 0.5167 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_self_play_only | 4 | capture_available-006 | 2 | 2 | 2 | 0.3984 | 0.4942 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 4 | capture_available-007 | 2 | 2 | 2 | 0.4115 | 0.5483 | true | false | pass_reference_selected |
+| denoised_opening_min_384_self_play_only | 4 | capture_available-008 | 1 | 1 | 1 | 0.7526 | 0.8192 | true | false | pass_reference_selected |
+| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-002 | 2 | 0 | 2 | 0.1406 | 0.3175 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-003 | 2 | 1 | 1 | 0.2969 | 0.3267 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-006 | 2 | 2 | 2 | 0.2708 | 0.4400 | true | false | pass_reference_selected |
+| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-007 | 2 | 1 | 2 | 0.3021 | 0.3767 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 1 | capture_available-008 | 1 | 1 | 1 | 0.5573 | 0.6750 | true | false | pass_reference_selected |
+| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-002 | 2 | 1 | 2 | 0.2552 | 0.4817 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-003 | 2 | 2 | 2 | 0.3802 | 0.4650 | true | false | pass_reference_selected |
+| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-006 | 2 | 2 | 2 | 0.3620 | 0.5658 | true | false | pass_reference_selected |
+| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-007 | 2 | 1 | 2 | 0.3620 | 0.5050 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 2 | capture_available-008 | 1 | 1 | 1 | 0.6667 | 0.7517 | true | false | pass_reference_selected |
+| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-002 | 2 | 0 | 2 | 0.2240 | 0.3525 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-003 | 2 | 1 | 1 | 0.2682 | 0.3283 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-006 | 2 | 2 | 2 | 0.3333 | 0.4875 | true | false | pass_reference_selected |
+| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-007 | 2 | 1 | 2 | 0.3047 | 0.4542 | false | false | selected_move_not_reference |
+| denoised_self_play_plus_selected_artifact_w1 | 4 | capture_available-008 | 1 | 1 | 1 | 0.5573 | 0.6742 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 1 | capture_available-002 | 2 | 0 | 2 | 0.2734 | 0.4117 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 1 | capture_available-003 | 2 | 1 | 1 | 0.3177 | 0.3483 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 1 | capture_available-006 | 2 | 2 | 2 | 0.4714 | 0.6058 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 1 | capture_available-007 | 2 | 1 | 2 | 0.3438 | 0.5383 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 1 | capture_available-008 | 1 | 1 | 1 | 0.7995 | 0.8300 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 2 | capture_available-002 | 2 | 1 | 2 | 0.2708 | 0.4275 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 2 | capture_available-003 | 2 | 1 | 2 | 0.3828 | 0.4617 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 2 | capture_available-006 | 2 | 2 | 2 | 0.4714 | 0.6292 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 2 | capture_available-007 | 2 | 1 | 2 | 0.3880 | 0.5567 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 2 | capture_available-008 | 1 | 1 | 1 | 0.7057 | 0.7792 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 4 | capture_available-002 | 2 | 0 | 2 | 0.2474 | 0.4417 | false | false | selected_move_not_reference |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 4 | capture_available-003 | 2 | 2 | 2 | 0.3906 | 0.5425 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 4 | capture_available-006 | 2 | 2 | 2 | 0.4349 | 0.5825 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 4 | capture_available-007 | 2 | 2 | 2 | 0.3802 | 0.5617 | true | false | pass_reference_selected |
+| denoised_opening_min_384_plus_selected_artifact_w1 | 4 | capture_available-008 | 1 | 1 | 1 | 0.6693 | 0.7517 | true | false | pass_reference_selected |
 
 ## 8. Interpretation
 

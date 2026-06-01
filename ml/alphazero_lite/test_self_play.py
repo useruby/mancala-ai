@@ -257,6 +257,24 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual("denoised", args.policy_target_noise_mode)
         self.assertTrue(args.write_root_target_telemetry)
 
+    def test_parse_args_accepts_opening_min_simulations(self):
+        with mock.patch(
+            "sys.argv",
+            [
+                "self_play.py",
+                "--out",
+                "tmp.jsonl",
+                "--opening-min-simulations",
+                "384",
+                "--opening-min-simulations-plies",
+                "8",
+            ],
+        ):
+            args = self_play.parse_args()
+
+        self.assertEqual(384, args.opening_min_simulations)
+        self.assertEqual(8, args.opening_min_simulations_plies)
+
     def test_parse_args_accepts_opponent_pool_config(self):
         with mock.patch(
             "sys.argv",
@@ -3998,6 +4016,57 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
 
         self.assertEqual(1, result["rows_written"])
         self.assertNotIn("teacher_root_summary", rows[0])
+
+    def test_puct_rows_record_opening_min_simulations_when_applied(self):
+        class TinyDeterministicEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opening-min-sims-"
+        ) as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(
+                self_play, "HeuristicEvaluator", TinyDeterministicEvaluator
+            ):
+                result = self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=1,
+                    seed=42,
+                    seed_pool=[42],
+                    checkpoint=None,
+                    input_encoding="kalah_v1",
+                    simulations=4,
+                    opening_min_simulations=9,
+                    opening_min_simulations_plies=1,
+                    c_puct=1.25,
+                    temperature_threshold=0,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=1,
+                    shard_path=str(shard_path),
+                    player_mode="puct",
+                )
+
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(9, rows[0]["simulations"])
+        self.assertEqual("9", rows[0]["search_profile"]["opening_min_simulations"])
+        self.assertEqual(
+            "1", rows[0]["search_profile"]["opening_min_simulations_plies"]
+        )
 
     def test_classic_mcts_player_mode_ignores_opponent_pool_config(self):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:

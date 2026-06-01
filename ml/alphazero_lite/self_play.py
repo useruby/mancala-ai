@@ -1673,6 +1673,8 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_INPUT_ENCODING,
     )
     parser.add_argument("--simulations", type=int, default=96)
+    parser.add_argument("--opening-min-simulations", type=int, default=0)
+    parser.add_argument("--opening-min-simulations-plies", type=int, default=0)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--temperature-threshold", type=int, default=10)
     parser.add_argument("--temperature", type=float, default=1.0)
@@ -1802,6 +1804,8 @@ def run_self_play_worker(
     checkpoint: str | None,
     input_encoding: str,
     simulations: int,
+    opening_min_simulations: int = 0,
+    opening_min_simulations_plies: int = 0,
     c_puct: float,
     temperature_threshold: int,
     temperature: float,
@@ -1833,6 +1837,8 @@ def run_self_play_worker(
         policy_target_noise_mode
     )
     value_target_mode = normalize_value_target_mode(value_target_mode)
+    opening_min_simulations = max(0, int(opening_min_simulations))
+    opening_min_simulations_plies = max(0, int(opening_min_simulations_plies))
 
     if player_mode not in SUPPORTED_PLAYER_MODES:
         raise ValueError(
@@ -1866,6 +1872,11 @@ def run_self_play_worker(
     if opponent_checkpoints:
         profile_extra_fields["opponent_pool_fingerprint"] = opponent_pool_fingerprint(
             opponent_checkpoints
+        )
+    if opening_min_simulations > 0 and opening_min_simulations_plies > 0:
+        profile_extra_fields["opening_min_simulations"] = str(opening_min_simulations)
+        profile_extra_fields["opening_min_simulations_plies"] = str(
+            opening_min_simulations_plies
         )
 
     search_profile = build_search_profile(
@@ -1983,6 +1994,11 @@ def run_self_play_worker(
                 state = game.to_state()
                 puct_root: Node | None = None
                 temp = temperature if ply < temperature_threshold else temperature_late
+                effective_simulations = int(simulations)
+                if ply < opening_min_simulations_plies:
+                    effective_simulations = max(
+                        effective_simulations, int(opening_min_simulations)
+                    )
 
                 def run_teacher() -> tuple[
                     list[float],
@@ -2003,7 +2019,7 @@ def run_self_play_worker(
                             )
                         mcts = ClassicMCTS(
                             game.clone(),
-                            simulations=simulations,
+                            simulations=effective_simulations,
                             seed=mcts_seed,
                             **classic_kwargs,
                         )
@@ -2035,7 +2051,7 @@ def run_self_play_worker(
                                     temperature=temp,
                                     mode=policy_target_mode,
                                 ),
-                                simulations_used=simulations,
+                                simulations_used=effective_simulations,
                                 dirichlet_alpha_used=0.0,
                                 sampling_dirichlet_epsilon=0.0,
                                 target_dirichlet_epsilon=0.0,
@@ -2071,7 +2087,7 @@ def run_self_play_worker(
                         ]
                     search = PUCT(
                         evaluator=selected_evaluator,
-                        simulations=simulations,
+                        simulations=effective_simulations,
                         c_puct=c_puct,
                         rng=rng,
                         root=reusable_root,
@@ -2114,7 +2130,7 @@ def run_self_play_worker(
                     if policy_target_noise_mode == "denoised":
                         target_search = PUCT(
                             evaluator=selected_evaluator,
-                            simulations=simulations,
+                            simulations=effective_simulations,
                             c_puct=c_puct,
                             rng=random.Random(rng.randint(0, 2**31 - 1)),
                             fpu_mode=str(normalized_search_options["fpu_mode"]),
@@ -2155,7 +2171,7 @@ def run_self_play_worker(
                         root_target_metadata(
                             legal_moves=legal_moves,
                             stored_policy_target=stored_policy_target,
-                            simulations_used=simulations,
+                            simulations_used=effective_simulations,
                             dirichlet_alpha_used=(
                                 float(dirichlet_alpha)
                                 if sampling_noise_enabled
@@ -2362,6 +2378,8 @@ def main() -> None:
                     "opponent_pool_config": args.opponent_pool_config,
                     "input_encoding": args.input_encoding,
                     "simulations": args.simulations,
+                    "opening_min_simulations": args.opening_min_simulations,
+                    "opening_min_simulations_plies": args.opening_min_simulations_plies,
                     "c_puct": args.c_puct,
                     "temperature_threshold": int(exploration["temperature_threshold"]),
                     "temperature": float(exploration["temperature"]),

@@ -59,6 +59,10 @@ from ml.alphazero_lite.train import (
 DEFAULT_CONFIG_PATH = Path(
     "ml/alphazero_lite/configs/exp_v3_guard_safe_opening_selected_w1_denoised_targets.json"
 )
+DEFAULT_OPENING_MIN_384_CONFIG_PATH = Path(
+    "ml/alphazero_lite/configs/"
+    "exp_v3_guard_safe_opening_selected_w1_denoised_targets_opening_min_384.json"
+)
 DEFAULT_CURRENT_ARTIFACT = Path("storage/ai/alphazero_lite/current")
 DEFAULT_SELECTED_ARTIFACT = Path(
     "/tmp/azlite_guard_safe_opening_replay/"
@@ -93,6 +97,11 @@ class TraceSpec:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH)
+    parser.add_argument(
+        "--opening-min-384-config",
+        type=Path,
+        default=DEFAULT_OPENING_MIN_384_CONFIG_PATH,
+    )
     parser.add_argument(
         "--current-artifact", type=Path, default=DEFAULT_CURRENT_ARTIFACT
     )
@@ -564,7 +573,9 @@ def render_report(summary: dict[str, Any]) -> str:
             "",
             f"- `noisy_self_play_reproduction`: data `{summary['trace_inputs']['noisy_self_play_reproduction']}` epochs `{summary['target_epochs']}`.",
             f"- `denoised_self_play_only`: data `{summary['trace_inputs']['denoised_self_play_only']}` epochs `{summary['target_epochs']}`.",
+            f"- `denoised_opening_min_384_self_play_only`: data `{summary['trace_inputs']['denoised_opening_min_384_self_play_only']}` epochs `{summary['target_epochs']}`.",
             f"- `denoised_self_play_plus_selected_artifact_w1`: data `{summary['trace_inputs']['denoised_self_play_plus_selected_artifact_w1']}` epochs `{summary['target_epochs']}`.",
+            f"- `denoised_opening_min_384_plus_selected_artifact_w1`: data `{summary['trace_inputs']['denoised_opening_min_384_plus_selected_artifact_w1']}` epochs `{summary['target_epochs']}`.",
             "",
             "## 7. Corrected Guard Kill-Gate Results",
             "",
@@ -598,6 +609,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     root = repo_root()
     config_path = resolve_path(root, args.config)
+    opening_min_384_config_path = resolve_path(root, args.opening_min_384_config)
     current_artifact = resolve_path(root, args.current_artifact)
     noisy_self_play_path = resolve_path(root, args.noisy_self_play)
     selected_artifact = resolve_path(root, args.selected_artifact)
@@ -624,15 +636,29 @@ def main(argv: list[str] | None = None) -> int:
     denoised_self_play_path = run_diagnostic_self_play(
         root=root, config_path=config_path
     )
+    denoised_opening_min_384_self_play_path = run_diagnostic_self_play(
+        root=root, config_path=opening_min_384_config_path
+    )
     denoised_self_play_rows = read_jsonl(denoised_self_play_path)
-    self_play_scan_rows = scan_self_play_dataset(
-        rows=noisy_self_play_rows,
-        reference_rows=reference_rows,
-        dataset_name="pr36_noisy_self_play",
-    ) + scan_self_play_dataset(
-        rows=denoised_self_play_rows,
-        reference_rows=reference_rows,
-        dataset_name="denoised_diagnostic_self_play",
+    denoised_opening_min_384_self_play_rows = read_jsonl(
+        denoised_opening_min_384_self_play_path
+    )
+    self_play_scan_rows = (
+        scan_self_play_dataset(
+            rows=noisy_self_play_rows,
+            reference_rows=reference_rows,
+            dataset_name="pr36_noisy_self_play",
+        )
+        + scan_self_play_dataset(
+            rows=denoised_self_play_rows,
+            reference_rows=reference_rows,
+            dataset_name="denoised_diagnostic_self_play",
+        )
+        + scan_self_play_dataset(
+            rows=denoised_opening_min_384_self_play_rows,
+            reference_rows=reference_rows,
+            dataset_name="denoised_opening_min_384_diagnostic_self_play",
+        )
     )
 
     train_spec = build_train_spec(config)
@@ -643,8 +669,15 @@ def main(argv: list[str] | None = None) -> int:
     trace_inputs = {
         "noisy_self_play_reproduction": [str(noisy_self_play_path)],
         "denoised_self_play_only": [str(denoised_self_play_path)],
+        "denoised_opening_min_384_self_play_only": [
+            str(denoised_opening_min_384_self_play_path)
+        ],
         "denoised_self_play_plus_selected_artifact_w1": [
             str(denoised_self_play_path),
+            str(selected_artifact),
+        ],
+        "denoised_opening_min_384_plus_selected_artifact_w1": [
+            str(denoised_opening_min_384_self_play_path),
             str(selected_artifact),
         ],
     }
@@ -661,8 +694,18 @@ def main(argv: list[str] | None = None) -> int:
                 replay_weights=(1,),
             ),
             TraceSpec(
+                name="denoised_opening_min_384_self_play_only",
+                data_files=(denoised_opening_min_384_self_play_path,),
+                replay_weights=(1,),
+            ),
+            TraceSpec(
                 name="denoised_self_play_plus_selected_artifact_w1",
                 data_files=(denoised_self_play_path, selected_artifact),
+                replay_weights=(1, 1),
+            ),
+            TraceSpec(
+                name="denoised_opening_min_384_plus_selected_artifact_w1",
+                data_files=(denoised_opening_min_384_self_play_path, selected_artifact),
                 replay_weights=(1, 1),
             ),
         ]
@@ -712,6 +755,9 @@ def main(argv: list[str] | None = None) -> int:
             "current_artifact": str(current_artifact),
             "noisy_self_play": str(noisy_self_play_path),
             "denoised_self_play": str(denoised_self_play_path),
+            "denoised_opening_min_384_self_play": str(
+                denoised_opening_min_384_self_play_path
+            ),
             "selected_artifact": str(selected_artifact),
         },
         "constraints": {
