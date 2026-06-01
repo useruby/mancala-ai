@@ -1933,12 +1933,12 @@ def run_self_play_worker(
                     target_root_summary.get("root_prior_telemetry", {}) or {}
                 ).get("before")
             telemetry_after = None
-            if sampling_root_summary is not None:
+            if target_root_summary is not None:
                 telemetry_after = (
-                    sampling_root_summary.get("root_prior_telemetry", {}) or {}
+                    target_root_summary.get("root_prior_telemetry", {}) or {}
                 ).get("after")
-            metadata["root_policy_before_noise"] = telemetry_before
-            metadata["root_policy_after_noise"] = telemetry_after
+            metadata["root_policy_before_root_prior_transform"] = telemetry_before
+            metadata["root_policy_after_root_prior_transform"] = telemetry_after
         return metadata
 
     rows_written = 0
@@ -2033,24 +2033,20 @@ def run_self_play_worker(
                         gameplay_policy = policy_from_visits(
                             visits, legal_moves=legal_moves, temperature=temp
                         )
+                        stored_policy_target = build_policy_target(
+                            visits,
+                            legal_moves=legal_moves,
+                            temperature=temp,
+                            mode=policy_target_mode,
+                        )
                         return (
                             gameplay_policy,
-                            build_policy_target(
-                                visits,
-                                legal_moves=legal_moves,
-                                temperature=temp,
-                                mode=policy_target_mode,
-                            ),
+                            stored_policy_target,
                             value_from_classic_mcts_root(mcts_root),
                             mcts_summary,
                             root_target_metadata(
                                 legal_moves=legal_moves,
-                                stored_policy_target=build_policy_target(
-                                    visits,
-                                    legal_moves=legal_moves,
-                                    temperature=temp,
-                                    mode=policy_target_mode,
-                                ),
+                                stored_policy_target=stored_policy_target,
                                 simulations_used=effective_simulations,
                                 dirichlet_alpha_used=0.0,
                                 sampling_dirichlet_epsilon=0.0,
@@ -2305,8 +2301,8 @@ def run_self_play_worker(
                     if write_root_target_telemetry:
                         for telemetry_key in (
                             "root_visit_counts",
-                            "root_policy_before_noise",
-                            "root_policy_after_noise",
+                            "root_policy_before_root_prior_transform",
+                            "root_policy_after_root_prior_transform",
                             "stored_policy_target",
                         ):
                             if telemetry_key in teacher_target_metadata:

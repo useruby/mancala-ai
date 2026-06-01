@@ -2374,8 +2374,8 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual(0.25, rows[0]["sampling_dirichlet_epsilon"])
         self.assertEqual(1, rows[0]["top_target_move"])
         self.assertEqual([10, 90, 0, 0, 0, 0], rows[0]["root_visit_counts"])
-        self.assertIn("root_policy_before_noise", rows[0])
-        self.assertIn("root_policy_after_noise", rows[0])
+        self.assertIn("root_policy_before_root_prior_transform", rows[0])
+        self.assertIn("root_policy_after_root_prior_transform", rows[0])
         self.assertEqual(rows[0]["stored_policy_target"], rows[0]["policy"])
 
     def test_run_self_play_worker_uses_opponent_pool_checkpoint_for_player_one(self):
