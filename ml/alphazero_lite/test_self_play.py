@@ -240,6 +240,41 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         self.assertEqual("sharpened", args.policy_target_mode)
 
+    def test_parse_args_accepts_denoised_policy_target_noise_mode(self):
+        with mock.patch(
+            "sys.argv",
+            [
+                "self_play.py",
+                "--out",
+                "tmp.jsonl",
+                "--policy-target-noise-mode",
+                "denoised",
+                "--write-root-target-telemetry",
+            ],
+        ):
+            args = self_play.parse_args()
+
+        self.assertEqual("denoised", args.policy_target_noise_mode)
+        self.assertTrue(args.write_root_target_telemetry)
+
+    def test_parse_args_accepts_opening_min_simulations(self):
+        with mock.patch(
+            "sys.argv",
+            [
+                "self_play.py",
+                "--out",
+                "tmp.jsonl",
+                "--opening-min-simulations",
+                "384",
+                "--opening-min-simulations-plies",
+                "8",
+            ],
+        ):
+            args = self_play.parse_args()
+
+        self.assertEqual(384, args.opening_min_simulations)
+        self.assertEqual(8, args.opening_min_simulations_plies)
+
     def test_parse_args_accepts_opponent_pool_config(self):
         with mock.patch(
             "sys.argv",
@@ -2223,6 +2258,126 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertGreater(rows[0]["policy"][0], 0.8)
         self.assertLess(rows[0]["policy"][1], 0.2)
 
+    def test_run_self_play_worker_denoised_targets_preserve_sampling_noise_metadata(
+        self,
+    ):
+        class FakeGame:
+            def __init__(self):
+                self.moves_played = 0
+                self.current_player = 0
+                self.winner = 0
+
+            def over(self):
+                return self.moves_played >= 1
+
+            def possible_moves(self):
+                return [0, 1] if not self.over() else []
+
+            def pit_index(self, move):
+                return move
+
+            def move(self, absolute_move):
+                self.moves_played += 1
+                return absolute_move in {0, 1}
+
+            def to_state(self):
+                return {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": self.current_player,
+                }
+
+        class FakeRoot:
+            q_value = 0.25
+
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            run_calls = []
+
+            def __init__(
+                self,
+                *,
+                evaluator,
+                simulations,
+                c_puct,
+                rng,
+                root=None,
+                **search_options,
+            ):
+                del evaluator, simulations, c_puct, rng, root, search_options
+
+            def run(self, game, *, dirichlet_alpha=None, dirichlet_epsilon=0.25):
+                del game
+                FakePUCT.run_calls.append((dirichlet_alpha, dirichlet_epsilon))
+                if dirichlet_alpha is None:
+                    visits = np.array(
+                        [10.0, 90.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32
+                    )
+                else:
+                    visits = np.array(
+                        [90.0, 10.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32
+                    )
+                return visits, FakeRoot()
+
+            def root_summary(self):
+                return {
+                    "root_prior_telemetry": {
+                        "before": [0.6, 0.4, 0.0, 0.0, 0.0, 0.0],
+                        "after": [0.2, 0.8, 0.0, 0.0, 0.0, 0.0],
+                    }
+                }
+
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-denoised-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(
+                self_play.KalahGame, "from_state", return_value=FakeGame()
+            ):
+                with mock.patch.object(self_play, "PUCT", FakePUCT):
+                    result = self_play.run_self_play_worker(
+                        worker_id=0,
+                        start_index=0,
+                        games=1,
+                        seed=42,
+                        seed_pool=[42],
+                        checkpoint=None,
+                        input_encoding="kalah_v1",
+                        simulations=8,
+                        c_puct=1.25,
+                        temperature_threshold=10,
+                        temperature=0.0,
+                        temperature_late=0.0,
+                        dirichlet_alpha=0.3,
+                        dirichlet_epsilon=0.25,
+                        max_moves=2,
+                        shard_path=str(shard_path),
+                        policy_target_noise_mode="denoised",
+                        write_root_target_telemetry=True,
+                    )
+
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual([(0.3, 0.25), (None, 0.0)], FakePUCT.run_calls)
+        self.assertEqual("denoised", rows[0]["policy_target_noise_mode"])
+        self.assertTrue(rows[0]["action_sampling_noise_enabled"])
+        self.assertEqual(0.0, rows[0]["target_dirichlet_epsilon"])
+        self.assertEqual(0.25, rows[0]["sampling_dirichlet_epsilon"])
+        self.assertEqual(1, rows[0]["top_target_move"])
+        self.assertEqual([10, 90, 0, 0, 0, 0], rows[0]["root_visit_counts"])
+        self.assertIn("root_policy_before_root_prior_transform", rows[0])
+        self.assertIn("root_policy_after_root_prior_transform", rows[0])
+        self.assertEqual(rows[0]["stored_policy_target"], rows[0]["policy"])
+
     def test_run_self_play_worker_uses_opponent_pool_checkpoint_for_player_one(self):
         evaluator_paths = []
 
@@ -3861,6 +4016,57 @@ class ClassicMCTSSelfPlayWorkerTest(unittest.TestCase):
 
         self.assertEqual(1, result["rows_written"])
         self.assertNotIn("teacher_root_summary", rows[0])
+
+    def test_puct_rows_record_opening_min_simulations_when_applied(self):
+        class TinyDeterministicEvaluator(self_play.Evaluator):
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.25
+
+        with tempfile.TemporaryDirectory(
+            prefix="azlite-self-play-opening-min-sims-"
+        ) as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            with mock.patch.object(
+                self_play, "HeuristicEvaluator", TinyDeterministicEvaluator
+            ):
+                result = self_play.run_self_play_worker(
+                    worker_id=0,
+                    start_index=0,
+                    games=1,
+                    seed=42,
+                    seed_pool=[42],
+                    checkpoint=None,
+                    input_encoding="kalah_v1",
+                    simulations=4,
+                    opening_min_simulations=9,
+                    opening_min_simulations_plies=1,
+                    c_puct=1.25,
+                    temperature_threshold=0,
+                    temperature=0.0,
+                    temperature_late=0.0,
+                    dirichlet_alpha=0.3,
+                    dirichlet_epsilon=0.25,
+                    max_moves=1,
+                    shard_path=str(shard_path),
+                    player_mode="puct",
+                )
+
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(1, result["rows_written"])
+        self.assertEqual(9, rows[0]["simulations"])
+        self.assertEqual("9", rows[0]["search_profile"]["opening_min_simulations"])
+        self.assertEqual(
+            "1", rows[0]["search_profile"]["opening_min_simulations_plies"]
+        )
 
     def test_classic_mcts_player_mode_ignores_opponent_pool_config(self):
         with tempfile.TemporaryDirectory(prefix="azlite-self-play-worker-") as tmp:
