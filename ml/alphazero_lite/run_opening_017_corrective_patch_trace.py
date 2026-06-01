@@ -704,6 +704,7 @@ def main(argv: list[str] | None = None) -> int:
         value_target_mode="sharpened",
     )
     write_json(args.artifact_path.with_suffix(".summary.json"), corrective_summary)
+    args.artifact_path.parent.mkdir(parents=True, exist_ok=True)
     with args.artifact_path.open("w", encoding="utf-8") as handle:
         for row in corrective_summary["corrective_rows"]:
             handle.write(json.dumps(row) + "\n")

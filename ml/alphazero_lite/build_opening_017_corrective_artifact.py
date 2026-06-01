@@ -445,9 +445,9 @@ def build_corrective_rows(
 
 
 def validate_corrective_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    missing_rows = [
+    missing_required_rows = [
         row_id
-        for row_id in TARGET_ROW_IDS
+        for row_id in REQUIRED_ROW_IDS
         if row_id not in {row["source_runs"][0]["id"] for row in rows}
     ]
     duplicate_conflicts = 0
@@ -477,14 +477,18 @@ def validate_corrective_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         if existing is not None and existing != target_key:
             duplicate_conflicts += 1
         canonical_targets[canonical_state] = target_key
-    if missing_rows:
-        notes.append("missing_rows_" + ",".join(missing_rows))
+    if missing_required_rows:
+        notes.append("missing_rows_" + ",".join(missing_required_rows))
     status = "ok"
-    if missing_rows or duplicate_conflicts > 0 or stale_reference_conflicts > 0:
+    if (
+        missing_required_rows
+        or duplicate_conflicts > 0
+        or stale_reference_conflicts > 0
+    ):
         status = "invalid"
     return {
         "status": status,
-        "all_required_rows_present": not missing_rows,
+        "all_required_rows_present": not missing_required_rows,
         "duplicate_conflicts": duplicate_conflicts,
         "stale_reference_conflicts": stale_reference_conflicts,
         "notes": notes or ["ok"],
