@@ -396,7 +396,9 @@ def train_one_epoch(
         "policy_loss": round(float(metrics["policy_loss"] or 0.0), 6),
         "value_loss": round(float(metrics["value_loss"] or 0.0), 6),
         "total_loss": round(float(metrics["total_loss"] or 0.0), 6),
-        "gradient_norm": None,
+        "gradient_norm": round(float(metrics["gradient_norm"] or 0.0), 6)
+        if metrics["gradient_norm"] is not None
+        else None,
     }
 
 

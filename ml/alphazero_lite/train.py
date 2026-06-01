@@ -387,6 +387,7 @@ def train_one_epoch(
     policy_losses: list[float] = []
     value_losses: list[float] = []
     total_losses: list[float] = []
+    grad_norms: list[float] = []
     for start in range(0, replay_tensor.size(0), batch_size):
         indexes = permutation[start : start + batch_size]
         batch_replay_indexes = replay_tensor[indexes]
@@ -404,6 +405,11 @@ def train_one_epoch(
         total_loss = policy_loss + (value_loss_weight * value_component)
         optimizer.zero_grad(set_to_none=True)
         total_loss.backward()
+        grad_squared = 0.0
+        for parameter in model.parameters():
+            if parameter.grad is not None:
+                grad_squared += float(torch.sum(parameter.grad.detach() ** 2).item())
+        grad_norms.append(float(np.sqrt(grad_squared)))
         if grad_clip is not None and grad_clip > 0.0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
         optimizer.step()
@@ -414,6 +420,7 @@ def train_one_epoch(
         "policy_loss": float(np.mean(policy_losses)) if policy_losses else 0.0,
         "value_loss": float(np.mean(value_losses)) if value_losses else 0.0,
         "total_loss": float(np.mean(total_losses)) if total_losses else 0.0,
+        "gradient_norm": float(np.mean(grad_norms)) if grad_norms else None,
     }
 
 
@@ -581,7 +588,11 @@ def train(
     p_all = torch.from_numpy(p_target).to(device)
     v_all = torch.from_numpy(v_target).to(device)
     train_replay_indexes = replay_indexes_array[train_positions]
-    val_replay_indexes = replay_indexes_array[val_positions] if val_count > 0 else None
+    val_replay_indexes = (
+        torch.from_numpy(replay_indexes_array[val_positions]).to(device)
+        if val_count > 0
+        else None
+    )
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     normalized_lr_scheduler = normalize_lr_scheduler(lr_scheduler)
