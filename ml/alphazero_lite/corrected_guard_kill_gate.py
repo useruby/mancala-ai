@@ -27,6 +27,7 @@ DEFAULT_BUDGETS = (384, 1200)
 DEFAULT_SEED = 17
 DEFAULT_C_PUCT = 1.25
 SCHEMA = "azlite_corrected_guard_kill_gate_v1"
+SUPPORTED_BUDGETS = (384, 1200)
 GUARD_ROW_IDS = (
     "capture_available-002",
     "capture_available-003",
@@ -53,6 +54,10 @@ def parse_budgets(raw_value: str) -> tuple[int, ...]:
     )
     if not budgets:
         raise ValueError("guard budgets must not be empty")
+    if budgets != SUPPORTED_BUDGETS:
+        raise ValueError(
+            "guard budgets must be exactly 384,1200 to match the kill-gate report schema"
+        )
     return budgets
 
 
