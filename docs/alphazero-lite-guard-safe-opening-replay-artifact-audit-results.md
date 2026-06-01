@@ -23,7 +23,7 @@
 
 | source_family | rows | conflict_rows | target_extra_turn_rate | no_extra_turn_capture_available_rate | high_similarity_to_002_count | high_similarity_to_003_count | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| corrected_capture_guard | 5 | 2 | 0.8000 | 0.4000 | 1 | 1 | guard_rows |
+| corrected_capture_guard | 5 | 0 | 1.0000 | 0.0000 | 2 | 2 | guard_rows |
 | opening_edge_move_5_preference | 10 | 0 | 0.0000 | 0.0000 | 0 | 0 | clean |
 | opening_extra_turn_overbias | 12 | 0 | 0.0000 | 0.0000 | 0 | 0 | clean |
 | opening_missed_extra_turn_continuation | 6 | 0 | 1.0000 | 0.0000 | 0 | 0 | clean |
@@ -33,12 +33,12 @@
 
 | artifact_name | path | row_count | excluded_count | included_families | excluded_families | guard_rows_present | conflict_flag_count | classification | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| guard_safe_strict | `/tmp/azlite_guard_safe_opening_replay/guard_safe_strict.jsonl` | 38 | 0 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `[]` | true | 5 | `guard_safe` | guard-safe static artifact |
-| guard_safe_no_extra_turn_overbias | `/tmp/azlite_guard_safe_opening_replay/guard_safe_no_extra_turn_overbias.jsonl` | 38 | 0 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `[]` | true | 5 | `guard_safe` | guard-safe static artifact |
-| guard_safe_controls_only | `/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl` | 5 | 33 | `["corrected_capture_guard"]` | `["opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | true | 5 | `guard_safe` | diagnostic-only guard artifact |
-| family_leave_one_out_without_opening_extra_turn_overbias | `/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_extra_turn_overbias.jsonl` | 26 | 12 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `["opening_extra_turn_overbias"]` | true | 5 | `guard_safe` | guard-safe static artifact |
-| family_leave_one_out_without_opening_edge_move_5_preference | `/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_edge_move_5_preference.jsonl` | 28 | 10 | `["corrected_capture_guard", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `["opening_edge_move_5_preference"]` | true | 5 | `guard_safe` | guard-safe static artifact |
-| family_leave_one_out_without_opening_missed_extra_turn_continuation | `/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl` | 32 | 6 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_other_mismatch"]` | `["opening_missed_extra_turn_continuation"]` | true | 5 | `guard_safe` | guard-safe static artifact |
+| guard_safe_strict | `/tmp/azlite_guard_safe_opening_replay/guard_safe_strict.jsonl` | 38 | 0 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `[]` | true | 0 | `guard_safe` | guard-safe static artifact |
+| guard_safe_no_extra_turn_overbias | `/tmp/azlite_guard_safe_opening_replay/guard_safe_no_extra_turn_overbias.jsonl` | 38 | 0 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `[]` | true | 0 | `guard_safe` | guard-safe static artifact |
+| guard_safe_controls_only | `/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl` | 5 | 33 | `["corrected_capture_guard"]` | `["opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | true | 0 | `guard_safe` | diagnostic-only guard artifact |
+| family_leave_one_out_without_opening_extra_turn_overbias | `/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_extra_turn_overbias.jsonl` | 26 | 12 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `["opening_extra_turn_overbias"]` | true | 0 | `guard_safe` | guard-safe static artifact |
+| family_leave_one_out_without_opening_edge_move_5_preference | `/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_edge_move_5_preference.jsonl` | 28 | 10 | `["corrected_capture_guard", "opening_extra_turn_overbias", "opening_missed_extra_turn_continuation", "opening_other_mismatch"]` | `["opening_edge_move_5_preference"]` | true | 0 | `guard_safe` | guard-safe static artifact |
+| family_leave_one_out_without_opening_missed_extra_turn_continuation | `/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl` | 32 | 6 | `["corrected_capture_guard", "opening_edge_move_5_preference", "opening_extra_turn_overbias", "opening_other_mismatch"]` | `["opening_missed_extra_turn_continuation"]` | true | 0 | `guard_safe` | guard-safe static artifact |
 
 ## 6. Offline guard-safety validation
 

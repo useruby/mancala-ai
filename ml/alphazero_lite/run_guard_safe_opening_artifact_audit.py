@@ -1071,14 +1071,12 @@ def main(argv: list[str] | None = None) -> int:
         and isinstance(row.get("subfamily"), str)
     }
 
-    present_guard_ids = {
-        str((row.get("source_runs") or [{}])[0].get("id"))
+    source_rows = [
+        row
         for row in source_rows
-        if (row.get("source_runs") or [{}])[0].get("id") in GUARD_ROW_IDS
-    }
+        if str((row.get("source_runs") or [{}])[0].get("id")) not in GUARD_ROW_IDS
+    ]
     for row_id in GUARD_ROW_IDS:
-        if row_id in present_guard_ids:
-            continue
         source_rows.append(
             build_supplemental_guard_row(
                 reference_row=reference_row_for_id(
