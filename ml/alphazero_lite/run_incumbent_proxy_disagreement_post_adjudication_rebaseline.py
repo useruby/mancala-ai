@@ -25,10 +25,12 @@ from ml.alphazero_lite.run_incumbent_proxy_disagreement_value_backup_audit impor
     FAMILY,
     OPTIONAL_CHILD_TEACHER_BUDGET,
     ROOT_BUDGETS,
+    child_state_from_move,
     child_neural_audit,
     child_puct_audit,
     classify_row,
     counterfactual_rows,
+    estimate_teacher_5000_budget,
     load_json,
     load_reference_maps,
     python_bin,
@@ -153,12 +155,6 @@ def root_failure_mode_from_baseline(baseline: dict[str, Any]) -> str:
     reference_prior = baseline.get("reference_prior")
     selected_prior = baseline.get("selected_prior")
     if reference_q is not None and selected_q is not None and selected_q > reference_q:
-        if (
-            reference_u is not None
-            and selected_u is not None
-            and selected_u > reference_u
-        ):
-            return "value_q"
         return "value_q"
     if reference_u is not None and selected_u is not None and selected_u > reference_u:
         return "search_selection"
@@ -341,6 +337,7 @@ def load_family_context(
 def make_audit_rows(
     *,
     inventory_rows: list[dict[str, Any]],
+    selected_by_id: dict[str, dict[str, Any]],
     suite_by_id: dict[str, Any],
     reference_by_id: dict[str, dict[str, Any]],
     role_by_id: dict[str, str],
@@ -350,12 +347,17 @@ def make_audit_rows(
         row_id = str(inventory_row["row_id"])
         suite_row = suite_by_id[row_id]
         reference_row = reference_by_id[row_id]
+        selected_row = selected_by_id.get(row_id, {})
         rows.append(
             AuditRow(
                 row_id=row_id,
                 role=role_by_id[row_id],
                 severity=str(inventory_row.get("severity") or "none"),
-                failure_mode=str(inventory_row.get("failure_mode") or "unknown"),
+                failure_mode=str(
+                    selected_row.get("failure_mode")
+                    or inventory_row.get("failure_mode")
+                    or "unknown"
+                ),
                 corrected_reference_move=int(reference_row["reference_move"]),
                 current_selected_move=int(
                     inventory_row.get("current_selected_move") or -1
@@ -545,7 +547,23 @@ def run_post_adjudication_audit(
     seed: int,
     cpuct: float,
 ) -> dict[str, Any]:
-    teacher_budgets = list(CHILD_TEACHER_BASE_BUDGETS) + [OPTIONAL_CHILD_TEACHER_BUDGET]
+    teacher_budgets: list[int] = list(CHILD_TEACHER_BASE_BUDGETS)
+    failing_rows = [
+        audit_rows_by_id[row_id]
+        for row_id in audited_ids
+        if audit_rows_by_id[row_id].role != "preservation_control"
+        and not bool(baselines[(row_id, 1200)]["pass"])
+    ]
+    if failing_rows:
+        can_run_5000, _skip_reason = estimate_teacher_5000_budget(
+            failing_rows,
+            child_state_from_move(
+                failing_rows[0].suite_state, failing_rows[0].corrected_reference_move
+            ),
+            CHILD_TEACHER_SEEDS,
+        )
+        if can_run_5000:
+            teacher_budgets.append(OPTIONAL_CHILD_TEACHER_BUDGET)
     mechanism_rows: list[dict[str, Any]] = []
     classification_rows: list[dict[str, Any]] = []
     child_neural_rows: list[dict[str, Any]] = []
@@ -1064,6 +1082,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     audit_rows = make_audit_rows(
         inventory_rows=inventory_rows,
+        selected_by_id=selected_by_id,
         suite_by_id=suite_by_id,
         reference_by_id=reference_by_id,
         role_by_id=role_by_id,
