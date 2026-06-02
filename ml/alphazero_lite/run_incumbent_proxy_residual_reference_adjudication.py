@@ -195,6 +195,21 @@ def mean_std(values: list[float]) -> tuple[float | None, float | None]:
     return round_float(mean), round_float(std)
 
 
+def terminal_state_raw_value(state: dict[str, Any]) -> float:
+    game = KalahGame.from_state(state)
+    settled_scores = game.captured_seeds.copy()
+    for player in (0, 1):
+        start = player * 6
+        settled_scores[player] += sum(game.pits[start : start + 6])
+    current_player = int(game.current_player)
+    opponent = 1 - current_player
+    if settled_scores[current_player] > settled_scores[opponent]:
+        return 1.0
+    if settled_scores[current_player] < settled_scores[opponent]:
+        return -1.0
+    return 0.0
+
+
 def counter_to_text(counter: Counter[int]) -> str:
     if not counter:
         return "-"
@@ -240,15 +255,16 @@ def classic_root_run(
 def classic_child_run(
     child_state: dict[str, Any], *, budget: int, seed: int, root_player: int
 ) -> dict[str, Any]:
-    summary = ClassicMCTS(
-        KalahGame.from_state(child_state), simulations=int(budget), seed=int(seed)
-    ).root_summary()
+    game = KalahGame.from_state(child_state)
+    summary = ClassicMCTS(game, simulations=int(budget), seed=int(seed)).root_summary()
     selected_move = summary.get("selected_move")
     raw_value = 0.0
     for child in list(summary.get("child_stats") or []):
         if selected_move is not None and int(child["move"]) == int(selected_move):
             raw_value = (2.0 * float(child.get("win_rate", 0.5))) - 1.0
             break
+    if selected_move is None and game.over():
+        raw_value = terminal_state_raw_value(child_state)
     root_value = state_to_root_perspective_value(
         raw_value=raw_value, state=child_state, root_player=root_player
     )
@@ -308,6 +324,22 @@ def estimate_optional_budget(
             ),
         )
     return True, None
+
+
+def representative_optional_budget_state(
+    valid_rows: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    if not valid_rows:
+        return None
+    chosen_row = max(
+        valid_rows,
+        key=lambda row: (
+            len(list(row.get("legal_moves") or [])),
+            sum(KalahGame.from_state(row["suite_state"]).pits),
+            str(row["row_id"]),
+        ),
+    )
+    return dict(chosen_row["suite_state"])
 
 
 def tablebase_preferred_move(
@@ -993,8 +1025,11 @@ def main(argv: list[str] | None = None) -> int:
     optional_30000_skip_reason = None
     root_budgets: list[int] = list(ROOT_BUDGETS)
     if valid_rows and not args.skip_optional_30000:
+        optional_budget_state = representative_optional_budget_state(valid_rows)
         can_run_30000, skip_reason = estimate_optional_budget(
-            valid_rows[0]["suite_state"],
+            optional_budget_state
+            if optional_budget_state is not None
+            else valid_rows[0]["suite_state"],
             row_count=len(valid_rows),
             max_seconds=float(args.max_projected_30000_seconds),
         )
