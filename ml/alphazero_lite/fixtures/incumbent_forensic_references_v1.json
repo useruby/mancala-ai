@@ -2466,47 +2466,40 @@
         "opponent_store": 2,
         "current_player": 0
       },
-      "reference_move": 3,
-      "teacher_value": 0.3578,
+      "reference_move": 2,
+      "teacher_value": 0.838,
       "reference_unstable": false,
       "observed_reference_moves": [
-        3
+        2
       ],
       "seed_samples": [
         {
-          "seed": 2040,
-          "reference_move": 3,
-          "teacher_value": 0.3578
+          "seed": 11,
+          "reference_move": 2,
+          "teacher_value": 0.8352
+        },
+        {
+          "seed": 23,
+          "reference_move": 2,
+          "teacher_value": 0.8442
+        },
+        {
+          "seed": 37,
+          "reference_move": 2,
+          "teacher_value": 0.836
+        },
+        {
+          "seed": 42,
+          "reference_move": 2,
+          "teacher_value": 0.8389
+        },
+        {
+          "seed": 101,
+          "reference_move": 2,
+          "teacher_value": 0.8355
         }
       ],
-      "child_stats": [
-        {
-          "move": 0,
-          "visits": 274,
-          "win_rate": 0.6970802919708029
-        },
-        {
-          "move": 1,
-          "visits": 178,
-          "win_rate": 0.6432584269662921
-        },
-        {
-          "move": 2,
-          "visits": 148,
-          "win_rate": 0.6148648648648649
-        },
-        {
-          "move": 3,
-          "visits": 392,
-          "win_rate": 0.7334183673469388
-        },
-        {
-          "move": 5,
-          "visits": 208,
-          "win_rate": 0.6634615384615384
-        }
-      ],
-      "reference_source": "generated"
+      "reference_source": "review_patch_proposal"
     },
     {
       "id": "incumbent_proxy_disagreement-022",

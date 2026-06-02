@@ -1,0 +1,88 @@
+{
+  "schema": "azlite_forensic_references_v1",
+  "suite_path": "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+  "reference": {
+    "policy_simulations": 20000,
+    "value_simulations": 20000,
+    "sample_seeds": [
+      11,
+      23,
+      37,
+      42,
+      101
+    ]
+  },
+  "meta": {
+    "generated_by": "azlite_incumbent_proxy_disagreement_reference_review_patch_v1",
+    "scope": "changed_rows_only",
+    "family": "incumbent_proxy_disagreement",
+    "source_adjudication_summary_path": "/tmp/azlite_incumbent_proxy_reference_adjudication/incumbent_proxy_reference_adjudication_summary.json",
+    "source_patch_proposal_path": "/tmp/azlite_incumbent_proxy_reference_adjudication/incumbent_proxy_reference_adjudication_patch.json",
+    "review_only": true,
+    "notes": [
+      "Non-mutating repo-side review artifact.",
+      "Do not replace incumbent_forensic_references_v1.json without explicit review."
+    ]
+  },
+  "rows": [
+    {
+      "id": "incumbent_proxy_disagreement-021",
+      "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,0,0,8,8,6],\"opponent_store\":2,\"player_pits\":[2,2,1,8,0,7],\"player_store\":3}",
+      "state": {
+        "player_pits": [
+          2,
+          2,
+          1,
+          8,
+          0,
+          7
+        ],
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          8,
+          8,
+          6
+        ],
+        "player_store": 3,
+        "opponent_store": 2,
+        "current_player": 0
+      },
+      "reference_move": 2,
+      "teacher_value": 0.838,
+      "reference_unstable": false,
+      "observed_reference_moves": [
+        2
+      ],
+      "seed_samples": [
+        {
+          "seed": 11,
+          "reference_move": 2,
+          "teacher_value": 0.8352
+        },
+        {
+          "seed": 23,
+          "reference_move": 2,
+          "teacher_value": 0.8442
+        },
+        {
+          "seed": 37,
+          "reference_move": 2,
+          "teacher_value": 0.836
+        },
+        {
+          "seed": 42,
+          "reference_move": 2,
+          "teacher_value": 0.8389
+        },
+        {
+          "seed": 101,
+          "reference_move": 2,
+          "teacher_value": 0.8355
+        }
+      ],
+      "reference_source": "review_patch_proposal"
+    }
+  ]
+}
