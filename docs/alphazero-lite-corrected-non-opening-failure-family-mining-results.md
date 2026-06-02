@@ -31,7 +31,7 @@
 
 | family | rows | failures | failure_rate | high_severity | medium_severity | stable_reference_rows | avg_reference_visit_share | avg_selected_minus_reference_q_margin | classification | notes |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| incumbent_proxy_disagreement | 32 | 23 | 0.719 | 0 | 23 | 32 | 0.3726 | 0.0624 | value_or_backup_issue | persistent failures remain Q/value-dominant |
+| incumbent_proxy_disagreement | 32 | 23 | 0.719 | 0 | 23 | 32 | 0.3708 | 0.0660 | value_or_backup_issue | persistent failures remain Q/value-dominant |
 | high_value_swing | 24 | 17 | 0.708 | 0 | 17 | 24 | 0.2698 | 0.1999 | value_or_backup_issue | persistent failures remain Q/value-dominant |
 | high_imbalance | 24 | 16 | 0.667 | 0 | 16 | 24 | 0.2050 | 0.1077 | value_or_backup_issue | persistent failures remain Q/value-dominant |
 | capture_available | 20 | 14 | 0.700 | 14 | 0 | 20 | 0.2473 | 0.0709 | too_sparse | not enough persistent repeated failures after sampling |
@@ -44,6 +44,7 @@
 | family | row_id | corrected_reference_move | selected_move_384 | selected_move_1200 | reference_visit_share_384 | reference_visit_share_1200 | selected_minus_reference_q_margin_384 | selected_minus_reference_q_margin_1200 | failure_mode | notes |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-009 | 0 | 3 | 3 | 0.0026 | 0.0008 | 0.2088 | 0.2139 | value_q | persists_at_1200 |
+| incumbent_proxy_disagreement | incumbent_proxy_disagreement-021 | 2 | 5 | 5 | 0.0078 | 0.0042 | 0.1542 | 0.2335 | value_q | persists_at_1200 |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-035 | 3 | 4 | 4 | 0.0104 | 0.0058 | 0.1514 | 0.1402 | value_q | persists_at_1200 |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-022 | 3 | 5 | 5 | 0.0052 | 0.0033 | 0.1457 | 0.0540 | value_q | persists_at_1200 |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-024 | 2 | 1 | 1 | 0.0104 | 0.0067 | 0.1257 | 0.1008 | value_q | persists_at_1200 |
@@ -52,7 +53,6 @@
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-007 | 0 | 5 | 3 | 0.0052 | 0.0025 | 0.1018 | 0.0733 | value_q | persists_at_1200 |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-025 | 2 | 4 | 4 | 0.0000 | 0.2650 | 0.1011 | -0.0592 | search_selection | persists_at_1200 |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-023 | 2 | 1 | 1 | 0.0130 | 0.0050 | 0.0918 | 0.0965 | value_q | persists_at_1200 |
-| incumbent_proxy_disagreement | incumbent_proxy_disagreement-021 | 3 | 5 | 5 | 0.0651 | 0.0208 | 0.0733 | 0.1272 | value_q | persists_at_1200 |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-026 | 5 | 5 | 5 | 0.9922 | 0.9650 | 0.0000 | 0.0000 | pass | passing_control |
 | incumbent_proxy_disagreement | incumbent_proxy_disagreement-028 | 5 | 5 | 5 | 0.9323 | 0.9250 | 0.0000 | 0.0000 | pass | passing_control |
 | high_value_swing | high_value_swing-022 | 4 | 1 | 1 | 0.0026 | 0.0108 | 0.3248 | 0.0472 | value_q | persists_at_1200 |
