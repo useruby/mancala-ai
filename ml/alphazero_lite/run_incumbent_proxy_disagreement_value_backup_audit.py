@@ -1043,13 +1043,22 @@ def classify_row(
     counterfactual: list[dict[str, Any]],
 ) -> dict[str, Any]:
     if row.role == "preservation_control":
+        baseline_pass = bool(root_baseline_1200["pass"])
         return {
             "row_id": row.row_id,
             "role": row.role,
             "row_classification": "inconclusive",
-            "supporting_evidence": "passing preservation control under baseline",
+            "supporting_evidence": (
+                "passing preservation control under baseline"
+                if baseline_pass
+                else "preservation control failed under baseline and needs investigation"
+            ),
             "next_use": "preserve_control",
-            "notes": "control row retained to guard against regressions",
+            "notes": (
+                "control row retained to guard against regressions"
+                if baseline_pass
+                else "control failure should block trusting the audit run"
+            ),
         }
     if row.role == "holdout_candidate" and bool(root_baseline_1200["pass"]):
         return {

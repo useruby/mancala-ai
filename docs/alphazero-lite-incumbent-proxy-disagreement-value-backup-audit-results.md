@@ -8,6 +8,7 @@
 - Corrected references: `ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json`.
 - Current artifact: `storage/ai/alphazero_lite/current`.
 - Selected family rows: `/tmp/azlite_corrected_non_opening_failure_mining/selected_non_opening_family_rows.jsonl`.
+- This checked-in audit report reflects the pre-adjudication reference state; later in this PR, `incumbent_proxy_disagreement-021` is updated from reference move `3` to `2` after the focused adjudication pass.
 
 ## 2. Why incumbent_proxy_disagreement was selected
 

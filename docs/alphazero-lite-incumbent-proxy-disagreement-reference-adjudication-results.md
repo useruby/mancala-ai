@@ -3,7 +3,8 @@
 ## Context
 
 - Focused suspicious rows came from `/tmp/azlite_incumbent_proxy_value_backup_audit/incumbent_proxy_value_backup_audit_summary.json`.
-- Corrected references stayed read-only at `ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json`.
+- During the adjudication run, corrected references were treated as read-only inputs from `ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json`.
+- This checked-in report predates the later approved fixture update for `incumbent_proxy_disagreement-021` that is also included in this PR.
 - No training, arena, promotion, or fixture mutation was performed.
 
 ## Focus rows

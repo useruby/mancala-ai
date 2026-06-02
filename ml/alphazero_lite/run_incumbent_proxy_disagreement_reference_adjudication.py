@@ -9,6 +9,11 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+import sys
+
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 from ml.alphazero_lite.arena import ArtifactEvaluator, evaluate_artifact_position
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
 from ml.alphazero_lite.forensic_suite import canonical_state_key, load_suite
@@ -146,7 +151,7 @@ def classic_run_for_state(
     started = time.perf_counter()
     summary = ClassicMCTS(
         KalahGame.from_state(state), simulations=int(budget), seed=int(seed)
-    ).root_summary()  # type: ignore[name-defined]
+    ).root_summary()
     duration_ms = (time.perf_counter() - started) * 1000.0
     q_by_move: dict[int, float] = {}
     visits_by_move: dict[int, int] = {}
@@ -193,7 +198,7 @@ def estimate_optional_budget(
         KalahGame.from_state(sample_state),
         simulations=CLASSIC_BUDGETS[0],
         seed=int(SEEDS[0]),
-    ).root_summary()  # type: ignore[name-defined]
+    ).root_summary()
     elapsed = max(time.perf_counter() - started, 1e-6)
     projected = (
         elapsed
