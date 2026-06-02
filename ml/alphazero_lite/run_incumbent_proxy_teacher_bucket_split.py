@@ -207,6 +207,8 @@ def expected_bucket_for_row(row_id: str) -> str:
 def excluded_reason(row_id: str, source_row: dict[str, Any], status: str) -> str:
     if status == "reference_integrity_error":
         return "reference_integrity_error"
+    if status == "puct_preference_not_reproduced":
+        return "puct_preference_not_reproduced"
     if row_id == "incumbent_proxy_disagreement-010":
         return "excluded_unstable"
     if source_row["row_decision"] == "unstable_or_inconclusive":
