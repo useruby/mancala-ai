@@ -964,7 +964,11 @@ def main(argv: list[str] | None = None) -> int:
             holdout_count = 2
         elif len(failing_rows) >= 5:
             holdout_count = 1
-        holdout_ids = {row["row_id"] for row in failing_rows[-holdout_count:]}
+        holdout_ids = (
+            {row["row_id"] for row in failing_rows[-holdout_count:]}
+            if holdout_count > 0
+            else set()
+        )
         control_rows = passing_rows[: max(2, min(4, len(passing_rows)))]
         for row in failing_rows:
             role = (
