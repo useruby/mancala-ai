@@ -22,7 +22,7 @@
 - High-sim artifact PUCT teacher: same deterministic settings with highest budget `10000`.
 - Exact/tablebase teacher: only used where the repo tablebase can solve the root or compared child states.
 - Paired continuations: `8` paired rollouts per unresolved row and per continuation policy.
-- The rollout count was runtime-bounded below the nominal 16-continuation default to keep this pre-training audit tractable.
+- This audit used the script default of 8 paired continuations per unresolved row.
 
 ## 4. Row set and validation
 
