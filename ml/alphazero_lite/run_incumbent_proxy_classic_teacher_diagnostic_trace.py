@@ -120,6 +120,15 @@ DEFAULT_VALUE_LOSS_WEIGHT = 0.3
 DEFAULT_HUBER_DELTA = 1.0
 DEFAULT_VAL_SPLIT = 0.1
 DEFAULT_GRAD_CLIP = 1.0
+EVAL_SEARCH_OPTIONS = dict(
+    build_eval_search_options(
+        root_policy_mode="deterministic",
+        tactical_root_bias=0.1,
+        fpu_mode="parent_q",
+        reuse_subtree=True,
+        normalize_values=True,
+    )
+)
 
 
 @dataclass(frozen=True)
@@ -248,8 +257,8 @@ def export_checkpoint_artifact(
     export_dir.mkdir(parents=True, exist_ok=True)
     model_path = export_dir / "model.npz"
     shutil.copy2(checkpoint_path, model_path)
-    checkpoint = np.load(model_path)
-    weights_payload = {key: checkpoint[key].tolist() for key in checkpoint.files}
+    with np.load(model_path) as checkpoint:
+        weights_payload = {key: checkpoint[key].tolist() for key in checkpoint.files}
     (export_dir / "weights.json").write_text(
         json.dumps(weights_payload), encoding="utf-8"
     )
@@ -468,18 +477,18 @@ def policy_distribution(
 
 
 def evaluate_position_summary(
-    *, artifact_path: Path, state: dict[str, Any], legal_moves: list[int], seed: int
+    *,
+    artifact_path: Path,
+    state: dict[str, Any],
+    legal_moves: list[int],
+    seed: int,
+    evaluator_cache: dict[Path, ArtifactEvaluator],
 ) -> dict[str, Any]:
-    evaluator = ArtifactEvaluator(artifact_path)
-    search_options = dict(
-        build_eval_search_options(
-            root_policy_mode="deterministic",
-            tactical_root_bias=0.1,
-            fpu_mode="parent_q",
-            reuse_subtree=True,
-            normalize_values=True,
-        )
-    )
+    cache_key = artifact_path.resolve()
+    evaluator = evaluator_cache.get(cache_key)
+    if evaluator is None:
+        evaluator = ArtifactEvaluator(artifact_path)
+        evaluator_cache[cache_key] = evaluator
 
     def run_budget(budget: int) -> dict[str, Any]:
         probe = evaluate_artifact_position(
@@ -489,7 +498,7 @@ def evaluate_position_summary(
             simulations=int(budget),
             seed=int(seed + budget),
             c_puct=DEFAULT_C_PUCT,
-            search_options=search_options,
+            search_options=EVAL_SEARCH_OPTIONS,
             ablation_mode="full",
         )
         child_stats = {
@@ -765,10 +774,11 @@ def row_specs_from_bucket_rows(
     rows: list[dict[str, Any]], ids: tuple[str, ...]
 ) -> list[dict[str, Any]]:
     by_id = {str(row["row_id"]): row for row in rows if row.get("row_id")}
+    missing = [row_id for row_id in ids if row_id not in by_id]
+    if missing:
+        raise ValueError("missing required bucket rows: " + ", ".join(sorted(missing)))
     normalized: list[dict[str, Any]] = []
     for row_id in ids:
-        if row_id not in by_id:
-            continue
         row = dict(by_id[row_id])
         if row.get("role") is None and row.get("recommended_role") is not None:
             row["role"] = row["recommended_role"]
@@ -780,12 +790,14 @@ def evaluate_row_set_baseline(
     *, artifact_path: Path, row_specs: list[dict[str, Any]], kind: str, seed: int
 ) -> list[dict[str, Any]]:
     baseline_rows: list[dict[str, Any]] = []
+    evaluator_cache: dict[Path, ArtifactEvaluator] = {}
     for index, row_spec in enumerate(row_specs):
         summary = evaluate_position_summary(
             artifact_path=artifact_path,
             state=dict(row_spec["suite_state"]),
             legal_moves=[int(move) for move in row_spec["legal_moves"]],
             seed=seed + (index * 101),
+            evaluator_cache=evaluator_cache,
         )
         if kind == "classic":
             reference_move = int(row_spec["active_reference_move"])
@@ -907,6 +919,7 @@ def run_trace(
     puct_rows: list[dict[str, Any]] = []
     excluded_rows: list[dict[str, Any]] = []
     training_metric_rows: list[dict[str, Any]] = []
+    evaluator_cache: dict[Path, ArtifactEvaluator] = {}
 
     def snapshot(epoch: int, gradient_norm: float | None, notes: str) -> None:
         checkpoint_path = checkpoints_root / f"epoch_{epoch}.npz"
@@ -958,6 +971,7 @@ def run_trace(
                 state=dict(row_spec["suite_state"]),
                 legal_moves=[int(move) for move in row_spec["legal_moves"]],
                 seed=seed + epoch + len(classic_rows),
+                evaluator_cache=evaluator_cache,
             )
             classic_rows.append(
                 build_classic_row_result(
@@ -976,6 +990,7 @@ def run_trace(
                 state=dict(row_spec["suite_state"]),
                 legal_moves=[int(move) for move in row_spec["legal_moves"]],
                 seed=seed + 500 + epoch + len(puct_rows),
+                evaluator_cache=evaluator_cache,
             )
             puct_rows.append(
                 build_puct_row_result(
@@ -994,6 +1009,7 @@ def run_trace(
                 state=dict(row_spec["suite_state"]),
                 legal_moves=[int(move) for move in row_spec["legal_moves"]],
                 seed=seed + 900 + epoch + len(excluded_rows),
+                evaluator_cache=evaluator_cache,
             )
             excluded_rows.append(
                 build_excluded_row_result(
