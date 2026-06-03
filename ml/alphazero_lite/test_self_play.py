@@ -4258,5 +4258,134 @@ class CanonicalValueTargetZeroSearchValueTest(unittest.TestCase):
         self.assertEqual(0.0, result)
 
 
+class StartStateModeTest(unittest.TestCase):
+    def test_random_symmetric_start_state_includes_metadata(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-start-state-random-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            result = self_play.run_self_play_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                seed=7,
+                seed_pool=[7],
+                checkpoint=None,
+                input_encoding="kalah_v3",
+                simulations=10,
+                c_puct=1.25,
+                temperature_threshold=5,
+                temperature=1.0,
+                temperature_late=0.1,
+                dirichlet_alpha=0.3,
+                dirichlet_epsilon=0.25,
+                max_moves=20,
+                shard_path=str(shard_path),
+                start_state_mode="random_symmetric_total24",
+            )
+
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertGreater(result["rows_written"], 0)
+        self.assertTrue(rows)
+        self.assertEqual("random_symmetric_total24", rows[0]["start_state_mode"])
+        self.assertIn("start_state_hash", rows[0])
+        self.assertEqual(sum(rows[0]["start_distribution"]), 24)
+        self.assertIn(rows[0]["start_player"], (0, 1))
+
+    def test_preset_pool_start_state_includes_metadata(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-start-state-preset-") as tmp:
+            tmp_path = Path(tmp)
+            shard_path = tmp_path / "worker.jsonl"
+            pool_path = tmp_path / "pool.jsonl"
+            pool_path.write_text(
+                json.dumps(
+                    {
+                        "player_pits": [0, 4, 4, 4, 4, 8],
+                        "opponent_pits": [0, 4, 4, 4, 4, 8],
+                        "player_store": 0,
+                        "opponent_store": 0,
+                        "current_player": 1,
+                        "metadata": {
+                            "preset_id": "balanced-001",
+                            "bucket": "near_zero",
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            result = self_play.run_self_play_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                seed=7,
+                seed_pool=[7],
+                checkpoint=None,
+                input_encoding="kalah_v3",
+                simulations=10,
+                c_puct=1.25,
+                temperature_threshold=5,
+                temperature=1.0,
+                temperature_late=0.1,
+                dirichlet_alpha=0.3,
+                dirichlet_epsilon=0.25,
+                max_moves=20,
+                shard_path=str(shard_path),
+                start_state_mode="preset_pool",
+                start_state_pool_path=str(pool_path),
+            )
+
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertGreater(result["rows_written"], 0)
+        self.assertTrue(rows)
+        self.assertEqual("preset_pool", rows[0]["start_state_mode"])
+        self.assertEqual(1, rows[0]["start_player"])
+        self.assertEqual("balanced-001", rows[0]["start_state_metadata"]["preset_id"])
+
+    def test_standard_start_state_omits_start_state_metadata(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-start-state-standard-") as tmp:
+            shard_path = Path(tmp) / "worker.jsonl"
+
+            result = self_play.run_self_play_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                seed=7,
+                seed_pool=[7],
+                checkpoint=None,
+                input_encoding="kalah_v3",
+                simulations=10,
+                c_puct=1.25,
+                temperature_threshold=5,
+                temperature=1.0,
+                temperature_late=0.1,
+                dirichlet_alpha=0.3,
+                dirichlet_epsilon=0.25,
+                max_moves=20,
+                shard_path=str(shard_path),
+            )
+
+            rows = [
+                json.loads(line)
+                for line in shard_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertGreater(result["rows_written"], 0)
+        self.assertTrue(rows)
+        self.assertNotIn("start_state_mode", rows[0])
+        self.assertNotIn("start_state_hash", rows[0])
+
+
 if __name__ == "__main__":
     unittest.main()
