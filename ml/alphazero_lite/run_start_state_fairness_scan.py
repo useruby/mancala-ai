@@ -170,18 +170,14 @@ def estimate_puct(
         value_trust_schedule=search_options.get("value_trust_schedule"),
     )
     legal_moves = game.possible_moves()
-    search.run(game, dirichlet_alpha=None, dirichlet_epsilon=0.0)
+    _visits, root = search.run(game, dirichlet_alpha=None, dirichlet_epsilon=0.0)
     summary = search.root_summary()
     selected_move = (
-        None
-        if not legal_moves
-        else search.select_root_move(search._last_root, legal_moves)
+        None if not legal_moves else search.select_root_move(root, legal_moves)
     )
     return {
         "selected_move": None if selected_move is None else int(selected_move),
-        "value_current_player": float(
-            search._last_root.q_value if search._last_root is not None else 0.0
-        ),
+        "value_current_player": float(root.q_value),
         "child_stats": list(summary.get("child_stats") or []),
     }
 

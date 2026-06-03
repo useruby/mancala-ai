@@ -2172,15 +2172,7 @@ def run_self_play_worker(
             )
             start_state_metadata: dict[str, Any] | None = None
             if start_state_mode == STANDARD_START_STATE_MODE:
-                game = KalahGame.from_state(
-                    {
-                        "player_pits": [4, 4, 4, 4, 4, 4],
-                        "opponent_pits": [4, 4, 4, 4, 4, 4],
-                        "player_store": 0,
-                        "opponent_store": 0,
-                        "current_player": 0,
-                    }
-                )
+                game = KalahGame.from_state(standard_start_state())
             else:
                 start_state, start_state_metadata = start_state_for_game(
                     start_state_mode=start_state_mode,

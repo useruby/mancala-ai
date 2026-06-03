@@ -53,7 +53,7 @@ Interpretation:
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- | --- |
 | `standard_4x6` | 24 | 920 | 38.33 | `p0=0.0417` | `0.0366` | `0.4522` | `0.7859` | `2.61%` | `denoised` | `0.0` |
 | `random_symmetric_total24` | 24 | 808 | 33.67 | `p0=0.0833`, `p1=0.0000` | `0.0204` | `0.4429` | `0.6239` | `0.00%` | `denoised` | `0.0` |
-| `balanced_preset_pool` | 24 | 872 | 36.33 | `p0=-0.0833`, `p1=-0.2500` | `0.0453` | `0.4700` | `0.6284` | `0.00%` | `denoised` | `0.0` |
+| `preset_pool` | 24 | 872 | 36.33 | `p0=-0.0833`, `p1=-0.2500` | `0.0453` | `0.4700` | `0.6284` | `0.00%` | `denoised` | `0.0` |
 
 - No broken or terminal-at-start games were observed.
 - Random and balanced starts reduced opening-state reuse as intended.
