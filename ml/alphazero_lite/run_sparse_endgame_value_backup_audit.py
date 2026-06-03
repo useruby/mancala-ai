@@ -75,6 +75,7 @@ DEFAULT_SUMMARY_OUT = Path(
 DEFAULT_REPORT_OUT = Path(
     "docs/alphazero-lite-sparse-endgame-value-backup-audit-results.md"
 )
+EPS = 1e-9
 FAMILY = "sparse_endgame"
 SCHEMA = "azlite_sparse_endgame_value_backup_audit_v1"
 OPTIONAL_ROOT_BUDGET = 2400
@@ -237,6 +238,60 @@ def tablebase_preferred_move(
             best_value = candidate
             best_move = int(move)
     return round_float(root_value), best_move
+
+
+def tablebase_legal_move_values(
+    tablebase: EndgameTablebase, state: dict[str, Any], *, root_player: int
+) -> dict[str, Any]:
+    game = KalahGame.from_state(state)
+    win_rate = tablebase.lookup_cached(game, root_player)
+    if win_rate is None:
+        win_rate = tablebase.lookup(game, root_player)
+    if win_rate is None:
+        return {
+            "root_value": None,
+            "legal_moves": [],
+            "child_value_by_move": {},
+            "best_value": None,
+            "optimal_moves": [],
+            "preferred_move": None,
+            "preferred_move_is_tiebreak": False,
+            "is_forcing": False,
+            "tablebase_available": False,
+        }
+    root_value = (2.0 * float(win_rate)) - 1.0
+    legal_moves = game.possible_moves()
+    child_value_by_move: dict[int, float] = {}
+    best_value = -float("inf")
+    for move in legal_moves:
+        child_game = KalahGame.from_state(child_state_from_move(state, move))
+        child_wr = tablebase.lookup_cached(child_game, root_player)
+        if child_wr is None:
+            child_wr = tablebase.lookup(child_game, root_player)
+        if child_wr is None:
+            child_value_by_move[move] = 0.0
+        else:
+            cv = (2.0 * float(child_wr)) - 1.0
+            child_value_by_move[move] = round_float(cv)
+            if cv > best_value:
+                best_value = cv
+    if best_value == -float("inf"):
+        best_value = root_value
+    optimal_moves = sorted(
+        m for m, v in child_value_by_move.items() if abs(v - best_value) < EPS
+    )
+    preferred_move = optimal_moves[0] if optimal_moves else None
+    return {
+        "root_value": round_float(root_value),
+        "legal_moves": legal_moves,
+        "child_value_by_move": child_value_by_move,
+        "best_value": round_float(best_value),
+        "optimal_moves": [int(m) for m in optimal_moves],
+        "preferred_move": int(preferred_move) if preferred_move is not None else None,
+        "preferred_move_is_tiebreak": len(optimal_moves) > 1,
+        "is_forcing": abs(root_value) >= 1.0 - EPS,
+        "tablebase_available": True,
+    }
 
 
 def tablebase_state_summary(
@@ -546,6 +601,30 @@ def tablebase_audit_for_row(
     child_selected_summary = tablebase_state_summary(
         tablebase, child_summary["child_selected_state"], root_player=root_player
     )
+
+    root_tb_info = tablebase_legal_move_values(
+        tablebase, row.suite_state, root_player=root_player
+    )
+
+    active_ref = int(row.corrected_reference_move)
+    active_is_optimal = active_ref in root_tb_info["optimal_moves"]
+    value_gap = None
+    if root_tb_info["best_value"] is not None:
+        child_val = root_tb_info["child_value_by_move"].get(active_ref)
+        if child_val is not None:
+            value_gap = round_float(root_tb_info["best_value"] - child_val)
+
+    if not root_tb_info["tablebase_available"]:
+        corrected_classification = "tablebase_unavailable"
+    elif not active_is_optimal and value_gap is not None and value_gap > EPS:
+        corrected_classification = "tablebase_real_conflict"
+    elif active_is_optimal and int(root_tb_info["preferred_move"]) != active_ref:
+        corrected_classification = "tablebase_tie_not_conflict"
+    elif active_is_optimal:
+        corrected_classification = "tablebase_confirmed"
+    else:
+        corrected_classification = "tablebase_ambiguous_or_error"
+
     return {
         "row_id": row.row_id,
         "root_player": int(root_player),
@@ -562,6 +641,10 @@ def tablebase_audit_for_row(
             and int(root_summary["tablebase_preferred_move"])
             != int(row.corrected_reference_move)
         ),
+        "root_legal_move_values": root_tb_info,
+        "active_reference_is_optimal": bool(active_is_optimal),
+        "value_gap": value_gap,
+        "corrected_tablebase_classification": corrected_classification,
     }
 
 
@@ -648,18 +731,27 @@ def classify_row(
         entry["intervention"] == "neural_child_value_swap" and entry["flipped"]
         for entry in counterfactual
     )
-    tablebase_disagrees_root = bool(
-        tablebase_row
-        and tablebase_row.get("root_tablebase_disagrees_with_active_reference")
+    corrected_tb_classification = (
+        str(tablebase_row.get("corrected_tablebase_classification", ""))
+        if tablebase_row
+        else ""
     )
     if not teacher_stable:
         classification = "inconclusive"
         evidence = "ClassicMCTS child teacher is unstable across seeds"
-    elif tablebase_disagrees_root:
+    elif corrected_tb_classification == "tablebase_real_conflict":
         classification = "tablebase_reference_conflict"
         evidence = (
-            "tablebase is available at the root and selects a different move than the "
-            "active corrected reference"
+            "tablebase is available at the root and the active corrected reference "
+            "is NOT among the optimal tablebase moves (value gap "
+            + str(tablebase_row.get("value_gap", "?"))
+            + ")"
+        )
+    elif corrected_tb_classification == "tablebase_tie_not_conflict":
+        classification = "tablebase_tie_not_conflict"
+        evidence = (
+            "tablebase preferred move differs from active reference only by "
+            "tie-breaking; active reference IS optimal in the tablebase solution"
         )
     elif not teacher_prefers_reference:
         classification = "corrected_reference_suspicious"
@@ -741,10 +833,31 @@ def classify_family(
         row for row in row_classifications if row["role"] == "target_candidate"
     ]
     counts = Counter(str(row["row_classification"]) for row in target_rows)
+    real_conflicts = counts.get("tablebase_reference_conflict", 0)
+    tie_not_conflicts = counts.get("tablebase_tie_not_conflict", 0)
+    combined_tablebase_issue = real_conflicts + tie_not_conflicts
+
+    tot_non_tie = sum(
+        counts.get(k, 0)
+        for k in (
+            "value_head_miscalibration",
+            "puct_child_search_value_mismatch",
+            "root_selection_pressure",
+            "corrected_reference_suspicious",
+            "backup_perspective_suspect",
+        )
+    )
+
+    if real_conflicts >= max(2, max(0, len(target_rows)) // 3):
+        return (
+            "tablebase_reference_patch_needed",
+            "produce a non-mutating tablebase-backed reference patch artifact for sparse_endgame and rerun the audit before training.",
+            dict(counts),
+        )
     if counts.get("value_head_miscalibration", 0) > max(
         counts.get("puct_child_search_value_mismatch", 0),
         counts.get("root_selection_pressure", 0),
-        counts.get("tablebase_reference_conflict", 0),
+        real_conflicts,
         counts.get("corrected_reference_suspicious", 0),
         counts.get("backup_perspective_suspect", 0),
         0,
@@ -757,7 +870,7 @@ def classify_family(
     if counts.get("puct_child_search_value_mismatch", 0) > max(
         counts.get("value_head_miscalibration", 0),
         counts.get("root_selection_pressure", 0),
-        counts.get("tablebase_reference_conflict", 0),
+        real_conflicts,
         counts.get("corrected_reference_suspicious", 0),
         counts.get("backup_perspective_suspect", 0),
         0,
@@ -770,7 +883,7 @@ def classify_family(
     if counts.get("root_selection_pressure", 0) > max(
         counts.get("value_head_miscalibration", 0),
         counts.get("puct_child_search_value_mismatch", 0),
-        counts.get("tablebase_reference_conflict", 0),
+        real_conflicts,
         counts.get("corrected_reference_suspicious", 0),
         counts.get("backup_perspective_suspect", 0),
         0,
@@ -780,25 +893,23 @@ def classify_family(
             "run cpuct/root-prior calibration diagnostics for sparse_endgame.",
             dict(counts),
         )
-    if counts.get("tablebase_reference_conflict", 0) >= max(
-        2, max(0, len(target_rows)) // 3
-    ):
-        return (
-            "tablebase_reference_patch_needed",
-            "produce a non-mutating tablebase-backed reference patch artifact for sparse_endgame and rerun the audit before training.",
-            dict(counts),
-        )
     if counts.get("corrected_reference_suspicious", 0) > max(
         counts.get("value_head_miscalibration", 0),
         counts.get("puct_child_search_value_mismatch", 0),
         counts.get("root_selection_pressure", 0),
-        counts.get("tablebase_reference_conflict", 0),
+        real_conflicts,
         counts.get("backup_perspective_suspect", 0),
         0,
     ):
         return (
             "reference_family_uncertain",
             "adjudicate sparse_endgame references before training.",
+            dict(counts),
+        )
+    if combined_tablebase_issue > 0 and tot_non_tie == 0:
+        return (
+            "tablebase_tie_logic_fixed_sparse_endgame_reauditable",
+            "tablebase tie-break artifacts have been reclassified; rerun sparse_endgame value/backup audit cleanly under the fixed logic.",
             dict(counts),
         )
     return (
@@ -1180,6 +1291,7 @@ def build_report(summary: dict[str, Any]) -> str:
                 "puct_child_search_mismatch_count",
                 "root_selection_pressure_count",
                 "tablebase_reference_conflict_count",
+                "tablebase_tie_not_conflict_count",
                 "corrected_reference_suspicious_count",
                 "backup_perspective_suspect_count",
                 "inconclusive_count",
@@ -1206,6 +1318,11 @@ def build_report(summary: dict[str, Any]) -> str:
                     str(
                         summary["family_decision_table"][
                             "tablebase_reference_conflict_count"
+                        ]
+                    ),
+                    str(
+                        summary["family_decision_table"][
+                            "tablebase_tie_not_conflict_count"
                         ]
                     ),
                     str(
@@ -1583,6 +1700,9 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "tablebase_reference_conflict_count": int(
             family_counts.get("tablebase_reference_conflict", 0)
+        ),
+        "tablebase_tie_not_conflict_count": int(
+            family_counts.get("tablebase_tie_not_conflict", 0)
         ),
         "corrected_reference_suspicious_count": int(
             family_counts.get("corrected_reference_suspicious", 0)
