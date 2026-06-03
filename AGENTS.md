@@ -7,19 +7,6 @@
 - Create a focused commit with a concise message that matches recent repo style.
 - Push the working branch and open the PR with `gh pr create` against `main` unless the user says otherwise.
 
-## PR Review Requests
-
-- To request Copilot review, use the REST API form instead of `gh pr edit --add-reviewer`, because the normal reviewer command may not resolve the bot correctly.
-- Use:
-
-```bash
-gh api repos/useruby/mancala-ai/pulls/PR_NUMBER/requested_reviewers \
-  -X POST \
-  -f reviewers[]=Copilot
-```
-
-- The reviewer login is `Copilot`.
-
 ## Waiting For Review
 
 - After requesting review, wait for review comments before making follow-up changes unless the user asks for more work immediately.
