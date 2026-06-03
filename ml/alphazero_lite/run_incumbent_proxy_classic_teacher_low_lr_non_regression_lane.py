@@ -121,9 +121,15 @@ def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
 
 
 def materialize_lane_artifact(
-    *, base_artifact_rows: list[dict[str, Any]], artifact_path: Path
+    *,
+    base_artifact_rows: list[dict[str, Any]],
+    artifact_path: Path,
+    base_artifact_source_path: Path,
 ) -> list[dict[str, Any]]:
-    rows = [clone_artifact_row(row) for row in base_artifact_rows]
+    rows = [
+        clone_artifact_row(row, base_artifact_source_path=base_artifact_source_path)
+        for row in base_artifact_rows
+    ]
     write_jsonl(artifact_path, rows)
     return rows
 
@@ -378,18 +384,25 @@ def main(argv: list[str] | None = None) -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     attribution_context = load_attribution_context(args.attribution_summary_path)
+    base_artifact_source_path = (
+        args.pr48_artifact_path
+        if args.pr48_artifact_path.exists()
+        else args.output_dir / "rebuilt_pr48_artifact.jsonl"
+    )
     spec = VariantSpec(
         artifact_name="classic_all_low_lr_lane",
         included_row_ids=CLASSIC_ROW_IDS,
         notes="single low-LR follow-up lane from the interference attribution recommendation",
         epochs=TRACE_PHASE2_EPOCHS,
         lr=LOW_LR,
+        artifact_path_override=args.artifact_path,
     )
     lane_artifact_path = spec.artifact_path
     base_artifact_rows = load_or_build_base_artifact(args)
     materialize_lane_artifact(
         base_artifact_rows=base_artifact_rows,
         artifact_path=lane_artifact_path,
+        base_artifact_source_path=base_artifact_source_path,
     )
 
     current_metadata = load_json(args.current_artifact / "metadata.json")

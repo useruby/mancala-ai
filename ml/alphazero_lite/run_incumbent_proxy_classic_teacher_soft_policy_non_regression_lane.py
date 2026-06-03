@@ -132,11 +132,14 @@ def materialize_soft_policy_artifact(
     *,
     base_artifact_rows: list[dict[str, Any]],
     artifact_path: Path,
+    base_artifact_source_path: Path,
     reference_mass: float,
 ) -> None:
     rows: list[dict[str, Any]] = []
     for row in base_artifact_rows:
-        cloned = clone_artifact_row(row)
+        cloned = clone_artifact_row(
+            row, base_artifact_source_path=base_artifact_source_path
+        )
         legal_moves = [int(move) for move in cloned["legal_moves"]]
         reference_move = int(cloned["active_reference_move"])
         cloned["policy"] = soft_policy(legal_moves, reference_move, reference_mass)
@@ -288,6 +291,11 @@ def main(argv: list[str] | None = None) -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     args.artifact_dir.mkdir(parents=True, exist_ok=True)
 
+    base_artifact_source_path = (
+        args.pr48_artifact_path
+        if args.pr48_artifact_path.exists()
+        else args.output_dir / "rebuilt_pr48_artifact.jsonl"
+    )
     base_artifact_rows = load_or_build_base_artifact(args)
     current_metadata = load_json(args.current_artifact / "metadata.json")
     base_model_spec = model_spec_from_metadata(current_metadata)
@@ -345,10 +353,12 @@ def main(argv: list[str] | None = None) -> int:
             notes=f"softened Classic policy targets with reference mass {reference_mass:.2f}",
             epochs=TRACE_PHASE2_EPOCHS,
             lr=LOW_LR,
+            artifact_path_override=args.artifact_dir / f"{artifact_name}.jsonl",
         )
         materialize_soft_policy_artifact(
             base_artifact_rows=base_artifact_rows,
             artifact_path=spec.artifact_path,
+            base_artifact_source_path=base_artifact_source_path,
             reference_mass=reference_mass,
         )
         prepared_variants.append(

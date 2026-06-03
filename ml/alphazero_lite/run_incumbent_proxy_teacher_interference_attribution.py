@@ -153,9 +153,12 @@ class VariantSpec:
     epochs: tuple[int, ...] = TRACE_PHASE1_EPOCHS
     lr: float | None = None
     value_loss_weight: float | None = None
+    artifact_path_override: Path | None = None
 
     @property
     def artifact_path(self) -> Path:
+        if self.artifact_path_override is not None:
+            return self.artifact_path_override
         return DEFAULT_ARTIFACT_DIR / f"{self.artifact_name}.jsonl"
 
 
@@ -254,7 +257,9 @@ def cosine_similarity(left: np.ndarray, right: np.ndarray) -> float | None:
     return round(float(np.dot(left, right) / (left_norm * right_norm)), 6)
 
 
-def clone_artifact_row(row: dict[str, Any]) -> dict[str, Any]:
+def clone_artifact_row(
+    row: dict[str, Any], *, base_artifact_source_path: Path = DEFAULT_PR48_ARTIFACT_PATH
+) -> dict[str, Any]:
     cloned = copy.deepcopy(row)
     cloned["source"] = TRAIN_SOURCE
     cloned["train_only"] = True
@@ -262,8 +267,8 @@ def clone_artifact_row(row: dict[str, Any]) -> dict[str, Any]:
     cloned["preferred_teacher"] = "classic_mcts"
     cloned["do_not_mix_with_puct_teacher"] = True
     cloned["source_artifacts"] = list(cloned.get("source_artifacts") or [])
-    if str(DEFAULT_PR48_ARTIFACT_PATH) not in cloned["source_artifacts"]:
-        cloned["source_artifacts"].append(str(DEFAULT_PR48_ARTIFACT_PATH))
+    if str(base_artifact_source_path) not in cloned["source_artifacts"]:
+        cloned["source_artifacts"].append(str(base_artifact_source_path))
     source_runs = list(cloned.get("source_runs") or [])
     if source_runs:
         source_runs[0]["kind"] = TRAIN_SOURCE
@@ -677,6 +682,7 @@ def load_or_build_base_artifact(args: argparse.Namespace) -> list[dict[str, Any]
 def materialize_variant_artifacts(
     *,
     base_artifact_rows: list[dict[str, Any]],
+    base_artifact_source_path: Path,
     artifact_dir: Path,
     variant_specs: list[VariantSpec],
     selected_best_leave_one_out: str | None,
@@ -702,8 +708,15 @@ def materialize_variant_artifacts(
             notes = (
                 f"same rows as {selected_best_leave_one_out} with lower learning rate"
             )
-        rows = [clone_artifact_row(base_by_id[row_id]) for row_id in included_ids]
-        path = artifact_dir / f"{spec.artifact_name}.jsonl"
+        path = (
+            spec.artifact_path_override or artifact_dir / f"{spec.artifact_name}.jsonl"
+        )
+        rows = [
+            clone_artifact_row(
+                base_by_id[row_id], base_artifact_source_path=base_artifact_source_path
+            )
+            for row_id in included_ids
+        ]
         write_jsonl(path, rows)
         materialized.append(
             {
@@ -1677,6 +1690,11 @@ def main(argv: list[str] | None = None) -> int:
     classic_rows = read_jsonl(args.classic_rows_path)
     puct_rows = read_jsonl(args.puct_rows_path)
     excluded_rows = read_jsonl(args.excluded_rows_path)
+    base_artifact_source_path = (
+        args.pr48_artifact_path
+        if args.pr48_artifact_path.exists()
+        else args.output_dir / "rebuilt_pr48_artifact.jsonl"
+    )
     base_artifact_rows = load_or_build_base_artifact(args)
 
     input_validation = validate_bucket_rows(
@@ -1710,6 +1728,7 @@ def main(argv: list[str] | None = None) -> int:
     ]
     materialize_variant_artifacts(
         base_artifact_rows=base_artifact_rows,
+        base_artifact_source_path=base_artifact_source_path,
         artifact_dir=args.artifact_dir,
         variant_specs=phase1_specs,
         selected_best_leave_one_out=None,
@@ -1778,6 +1797,7 @@ def main(argv: list[str] | None = None) -> int:
 
     materialized_all = materialize_variant_artifacts(
         base_artifact_rows=base_artifact_rows,
+        base_artifact_source_path=base_artifact_source_path,
         artifact_dir=args.artifact_dir,
         variant_specs=variant_catalog,
         selected_best_leave_one_out=best_leave_one_out_name,
@@ -1871,7 +1891,8 @@ def main(argv: list[str] | None = None) -> int:
                     {
                         **row,
                         "source_runs": [{**(row.get("source_runs") or [{}])[0]}],
-                    }
+                    },
+                    base_artifact_source_path=base_artifact_source_path,
                 )
                 for row in base_artifact_rows
                 if str(
