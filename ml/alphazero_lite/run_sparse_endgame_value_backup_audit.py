@@ -120,6 +120,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--report-out", type=Path, default=DEFAULT_REPORT_OUT)
     parser.add_argument("--seed", type=int, default=17)
     parser.add_argument("--cpuct", type=float, default=C_PUCT)
+    parser.add_argument(
+        "--reference-patch",
+        type=Path,
+        default=None,
+        help="Path to a tablebase reference patch artifact to overlay in-memory only",
+    )
     return parser.parse_args(argv)
 
 
@@ -261,6 +267,26 @@ def tablebase_state_summary(
     }
 
 
+def load_reference_patch_overlay(patch_path: Path | None) -> dict[str, int]:
+    """Load a reference patch artifact and return {row_id: proposed_reference_move}."""
+    if patch_path is None or not patch_path.exists():
+        return {}
+    payload = load_json(patch_path)
+    entries = payload.get("entries") or []
+    overlay: dict[str, int] = {}
+    for entry in entries:
+        row_id = str(entry.get("row_id", ""))
+        proposed = entry.get("proposed_reference_move")
+        if row_id and proposed is not None:
+            overlay[row_id] = int(proposed)
+    if overlay:
+        print(
+            f"Loaded {len(overlay)} reference patch overrides from {patch_path}",
+            file=sys.stderr,
+        )
+    return overlay
+
+
 def validate_and_enrich_rows(
     args: argparse.Namespace,
 ) -> tuple[list[AuditRow], list[dict[str, Any]], dict[str, Any]]:
@@ -269,6 +295,7 @@ def validate_and_enrich_rows(
     reference_by_id, reference_by_canonical = load_reference_maps(args.reference_path)
     inventory_by_id = mining_inventory_map(args.mining_summary_path)
     representative_by_id = representative_metric_map(args.mining_summary_path)
+    patch_overlay = load_reference_patch_overlay(args.reference_patch)
     selected_rows = load_jsonl(args.selected_rows_path)
     roles_seen: Counter[str] = Counter()
     audit_rows: list[AuditRow] = []
@@ -304,6 +331,19 @@ def validate_and_enrich_rows(
         reference_unstable = bool(reference_row.get("reference_unstable", False))
         if reference_unstable:
             raise ValueError(f"{row_id} is marked reference_unstable")
+        # Apply reference patch overlay in-memory only (no fixture mutation)
+        orig_reference_move = corrected_reference_move
+        if row_id in patch_overlay:
+            corrected_reference_move = int(patch_overlay[row_id])
+            if corrected_reference_move not in legal_moves:
+                raise ValueError(
+                    f"{row_id} patch overlay move {corrected_reference_move} is illegal"
+                )
+            print(
+                f"  [patch-overlay] {row_id}: reference move {orig_reference_move} -> "
+                f"{corrected_reference_move}",
+                file=sys.stderr,
+            )
         inventory_row = inventory_by_id.get(row_id, {})
         failure_status = str(inventory_row.get("failure_status") or "")
         if failure_status == "reference_integrity_error":
