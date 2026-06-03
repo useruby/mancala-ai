@@ -41,6 +41,16 @@ from ml.alphazero_lite.search_ablation import (
 
 
 PITS_PER_PLAYER = 6
+STANDARD_START_STATE_MODE = "standard_4x6"
+RANDOM_SYMMETRIC_TOTAL24_START_STATE_MODE = "random_symmetric_total24"
+PRESET_POOL_START_STATE_MODE = "preset_pool"
+SUPPORTED_START_STATE_MODES = frozenset(
+    {
+        STANDARD_START_STATE_MODE,
+        RANDOM_SYMMETRIC_TOTAL24_START_STATE_MODE,
+        PRESET_POOL_START_STATE_MODE,
+    }
+)
 SearchOptionValue = str | bool | float | dict[str, bool | float]
 SearchOptions = dict[str, SearchOptionValue]
 DEFAULT_SEARCH_OPTIONS = {
@@ -1532,6 +1542,200 @@ def outcome_for_player(winner: int | None, player: int) -> float:
     return 1.0 if winner == player else -1.0
 
 
+def state_hash(state: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        state, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def standard_start_state() -> dict[str, int | list[int]]:
+    return {
+        "player_pits": [4, 4, 4, 4, 4, 4],
+        "opponent_pits": [4, 4, 4, 4, 4, 4],
+        "player_store": 0,
+        "opponent_store": 0,
+        "current_player": 0,
+    }
+
+
+def sample_random_symmetric_distribution(
+    rng: random.Random, *, total: int = 24
+) -> list[int]:
+    if total < 0:
+        raise ValueError("total must be non-negative")
+    if PITS_PER_PLAYER <= 1:
+        return [total]
+
+    cut_points = sorted(
+        rng.sample(range(total + PITS_PER_PLAYER - 1), PITS_PER_PLAYER - 1)
+    )
+    distribution: list[int] = []
+    previous = -1
+    for cut_point in cut_points:
+        distribution.append(cut_point - previous - 1)
+        previous = cut_point
+    distribution.append((total + PITS_PER_PLAYER - 2) - previous)
+    return distribution
+
+
+def build_random_symmetric_start_state(
+    *,
+    rng: random.Random,
+    global_index: int,
+) -> tuple[dict[str, int | list[int]], dict[str, Any]]:
+    distribution = sample_random_symmetric_distribution(rng)
+    start_player = int(global_index % 2)
+    state: dict[str, int | list[int]] = {
+        "player_pits": list(distribution),
+        "opponent_pits": list(distribution),
+        "player_store": 0,
+        "opponent_store": 0,
+        "current_player": start_player,
+    }
+    metadata = {
+        "start_state_mode": RANDOM_SYMMETRIC_TOTAL24_START_STATE_MODE,
+        "start_player": start_player,
+        "start_distribution": list(distribution),
+        "start_state_hash": state_hash(state),
+    }
+    return state, metadata
+
+
+def validate_start_state_dict(
+    raw_state: dict[str, Any], *, source: str = "start_state"
+) -> dict[str, int | list[int]]:
+    required_keys = {
+        "player_pits",
+        "opponent_pits",
+        "player_store",
+        "opponent_store",
+        "current_player",
+    }
+    missing_keys = sorted(required_keys - set(raw_state))
+    if missing_keys:
+        raise ValueError(f"{source} missing keys: {', '.join(missing_keys)}")
+
+    def normalize_pits(key: str) -> list[int]:
+        pits = raw_state[key]
+        if not isinstance(pits, list) or len(pits) != PITS_PER_PLAYER:
+            raise ValueError(
+                f"{source}.{key} must be a list of {PITS_PER_PLAYER} integers"
+            )
+        normalized = [int(value) for value in pits]
+        if any(value < 0 for value in normalized):
+            raise ValueError(f"{source}.{key} must contain only non-negative integers")
+        return normalized
+
+    current_player = int(raw_state["current_player"])
+    if current_player not in (0, 1):
+        raise ValueError(f"{source}.current_player must be 0 or 1")
+
+    state: dict[str, int | list[int]] = {
+        "player_pits": normalize_pits("player_pits"),
+        "opponent_pits": normalize_pits("opponent_pits"),
+        "player_store": int(raw_state["player_store"]),
+        "opponent_store": int(raw_state["opponent_store"]),
+        "current_player": current_player,
+    }
+    if int(state["player_store"]) < 0 or int(state["opponent_store"]) < 0:
+        raise ValueError(f"{source} stores must be non-negative")
+
+    game = KalahGame.from_state(state)
+    legal_moves = game.possible_moves()
+    if not legal_moves:
+        raise ValueError(
+            f"{source} must provide at least one legal move for current_player"
+        )
+    for side, pit_key in ((0, "player_pits"), (1, "opponent_pits")):
+        if not any(int(seeds) > 0 for seeds in state[pit_key]):
+            raise ValueError(f"{source} side {side} must have at least one legal move")
+    return state
+
+
+def load_start_state_pool(path: str) -> list[dict[str, Any]]:
+    pool_path = Path(path)
+    if not pool_path.exists():
+        raise ValueError(f"start state pool does not exist: {path}")
+
+    entries: list[dict[str, Any]] = []
+    if pool_path.suffix.lower() == ".jsonl":
+        with pool_path.open("r", encoding="utf-8") as handle:
+            for line_number, line in enumerate(handle, start=1):
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                raw_entry = json.loads(stripped)
+                if not isinstance(raw_entry, dict):
+                    raise ValueError(
+                        f"start state pool line {line_number} must be a JSON object"
+                    )
+                entries.append(raw_entry)
+    else:
+        raw_entries = json.loads(pool_path.read_text(encoding="utf-8"))
+        if isinstance(raw_entries, dict):
+            raw_entries = raw_entries.get("start_states")
+        if not isinstance(raw_entries, list):
+            raise ValueError(
+                "start state pool JSON must be a list or a {start_states: [...]} object"
+            )
+        for index, raw_entry in enumerate(raw_entries, start=1):
+            if not isinstance(raw_entry, dict):
+                raise ValueError(f"start state pool entry {index} must be an object")
+            entries.append(raw_entry)
+
+    normalized_entries: list[dict[str, Any]] = []
+    for index, entry in enumerate(entries, start=1):
+        state = validate_start_state_dict(entry, source=f"start_state_pool[{index}]")
+        metadata = entry.get("metadata", {})
+        if metadata is None:
+            metadata = {}
+        if not isinstance(metadata, dict):
+            raise ValueError(f"start_state_pool[{index}].metadata must be an object")
+        normalized_entries.append(
+            {
+                "state": state,
+                "metadata": dict(metadata),
+                "start_state_hash": state_hash(state),
+            }
+        )
+    if not normalized_entries:
+        raise ValueError("start state pool must contain at least one entry")
+    return normalized_entries
+
+
+def start_state_for_game(
+    *,
+    start_state_mode: str,
+    global_index: int,
+    rng: random.Random,
+    start_state_pool: list[dict[str, Any]] | None = None,
+) -> tuple[dict[str, int | list[int]], dict[str, Any] | None]:
+    if start_state_mode == STANDARD_START_STATE_MODE:
+        return standard_start_state(), None
+    if start_state_mode == RANDOM_SYMMETRIC_TOTAL24_START_STATE_MODE:
+        return build_random_symmetric_start_state(rng=rng, global_index=global_index)
+    if start_state_mode == PRESET_POOL_START_STATE_MODE:
+        if not start_state_pool:
+            raise ValueError(
+                "preset_pool mode requires at least one loaded start state"
+            )
+        preset = start_state_pool[global_index % len(start_state_pool)]
+        state = validate_start_state_dict(
+            dict(preset["state"]),
+            source=f"start_state_pool[{global_index % len(start_state_pool)}]",
+        )
+        metadata = {
+            "start_state_mode": PRESET_POOL_START_STATE_MODE,
+            "start_player": int(state["current_player"]),
+            "start_distribution": [int(value) for value in state["player_pits"]],
+            "start_state_hash": str(preset["start_state_hash"]),
+            "start_state_metadata": dict(preset.get("metadata", {})),
+        }
+        return state, metadata
+    raise ValueError(f"unsupported start_state_mode: {start_state_mode}")
+
+
 def search_seed_for_classic_mcts(base_seed: int, game_index: int, ply: int) -> int:
     """Deterministic per-position seed for classic MCTS in self-play."""
     return (base_seed * 1_000_003) + (game_index * 10_007) + ply
@@ -1715,6 +1919,12 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_PLAYER_MODE,
         help="Search algorithm used for game generation: 'puct' (default) or 'classic_mcts'",
     )
+    parser.add_argument(
+        "--start-state-mode",
+        choices=sorted(SUPPORTED_START_STATE_MODES),
+        default=STANDARD_START_STATE_MODE,
+    )
+    parser.add_argument("--start-state-pool", default=None)
     add_search_option_args(parser)
     return parser.parse_args()
 
@@ -1830,6 +2040,8 @@ def run_self_play_worker(
     opponent_pool_config: str | None = None,
     opening_cache=None,
     opening_cache_path: str | None = None,
+    start_state_mode: str = STANDARD_START_STATE_MODE,
+    start_state_pool_path: str | None = None,
 ) -> dict:
     shard = Path(shard_path)
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
@@ -1844,10 +2056,17 @@ def run_self_play_worker(
         raise ValueError(
             f"Unsupported player_mode {player_mode!r}. Must be one of {sorted(SUPPORTED_PLAYER_MODES)}"
         )
+    if start_state_mode not in SUPPORTED_START_STATE_MODES:
+        raise ValueError(
+            f"Unsupported start_state_mode {start_state_mode!r}. Must be one of {sorted(SUPPORTED_START_STATE_MODES)}"
+        )
+    if start_state_mode == PRESET_POOL_START_STATE_MODE and not start_state_pool_path:
+        raise ValueError("preset_pool start_state_mode requires start_state_pool_path")
 
     evaluator: Evaluator | None = None
     opponent_evaluator_cache: dict[str, Evaluator] = {}
     opponent_checkpoints: list[str] = []
+    loaded_start_state_pool: list[dict[str, Any]] | None = None
     if player_mode == "puct":
         opponent_checkpoints = load_opponent_checkpoints(opponent_pool_config)
         if checkpoint:
@@ -1893,6 +2112,8 @@ def run_self_play_worker(
             Path(opening_cache_path).read_text(encoding="utf-8")
         )
         opening_cache = load_opening_cache(opening_cache_payload)
+    if start_state_mode == PRESET_POOL_START_STATE_MODE:
+        loaded_start_state_pool = load_start_state_pool(str(start_state_pool_path))
 
     def root_target_metadata(
         *,
@@ -1949,15 +2170,17 @@ def run_self_play_worker(
             rng = random.Random(
                 (game_seed * 1_000_003) + global_index + (worker_id * 9_973)
             )
-            game = KalahGame.from_state(
-                {
-                    "player_pits": [4, 4, 4, 4, 4, 4],
-                    "opponent_pits": [4, 4, 4, 4, 4, 4],
-                    "player_store": 0,
-                    "opponent_store": 0,
-                    "current_player": 0,
-                }
-            )
+            start_state_metadata: dict[str, Any] | None = None
+            if start_state_mode == STANDARD_START_STATE_MODE:
+                game = KalahGame.from_state(standard_start_state())
+            else:
+                start_state, start_state_metadata = start_state_for_game(
+                    start_state_mode=start_state_mode,
+                    global_index=global_index,
+                    rng=rng,
+                    start_state_pool=loaded_start_state_pool,
+                )
+                game = KalahGame.from_state(start_state)
             positions: list[
                 tuple[
                     list[float],
@@ -2265,6 +2488,8 @@ def run_self_play_worker(
                     "teacher_search_profile": teacher_search_profile,
                     "teacher_search_profile_hash": teacher_search_profile_hash,
                 }
+                if start_state_metadata is not None:
+                    row.update(start_state_metadata)
                 if teacher_target_metadata is not None:
                     row["policy_target_noise_mode"] = teacher_target_metadata.get(
                         "policy_target_noise_mode", DEFAULT_POLICY_TARGET_NOISE_MODE
@@ -2331,6 +2556,11 @@ def main() -> None:
     workers = max(1, args.workers)
     seed_pool = parse_seed_pool(args.seed, args.seed_sweep)
     search_options = search_options_from_args(args)
+    if (
+        args.start_state_mode == PRESET_POOL_START_STATE_MODE
+        and not args.start_state_pool
+    ):
+        raise SystemExit("preset_pool start-state mode requires --start-state-pool")
     exploration = schedule_exploration_params(
         mode=args.schedule_progress_mode,
         iteration=args.iteration,
@@ -2397,6 +2627,8 @@ def main() -> None:
                     "write_root_target_telemetry": args.write_root_target_telemetry,
                     "player_mode": args.player_mode,
                     "opening_cache_path": args.opening_cache,
+                    "start_state_mode": args.start_state_mode,
+                    "start_state_pool_path": args.start_state_pool,
                 }
                 if "value_trust_schedule" in search_options:
                     worker_kwargs["value_trust_schedule"] = search_options[
