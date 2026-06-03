@@ -96,6 +96,8 @@ def exclusion_reason(row: dict[str, Any], *, family_label: str) -> str | None:
     failure_status = str(row.get("failure_status") or "")
     reference_source = str(row.get("reference_source") or "")
 
+    if row.get("corrected_reference_move") is None:
+        return "missing_corrected_reference_move"
     if family_label in EXCLUDED_OPENING_FAMILIES:
         return "opening_branch_excluded"
     if row_id in EXCLUDED_GUARD_ROW_IDS:
@@ -349,6 +351,12 @@ def exclusion_summary_rows(excluded_rows: list[dict[str, Any]]) -> list[dict[str
             "must rebuild/adjudicate before training use",
         ),
         (
+            "missing_corrected_reference_move",
+            "missing references",
+            "row is missing corrected reference move",
+            "exclude rows without usable corrected targets",
+        ),
+        (
             "train_only_reference",
             "train-only rows",
             "train-only rows excluded",
@@ -431,6 +439,14 @@ def representative_row_record(
 def decision_for_selection(
     selected_family: dict[str, Any] | None, family_rankings: list[dict[str, Any]]
 ) -> tuple[str, str]:
+    if family_rankings and all(
+        row["classification"] in {"too_sparse", "guard_budget_noise"}
+        for row in family_rankings[:5]
+    ):
+        return (
+            "guard_budget_noise_dominant",
+            "audit local gate budget policy before more training.",
+        )
     if selected_family is None:
         return (
             "diffuse_failure_inventory_after_exclusions",
@@ -462,14 +478,6 @@ def decision_for_selection(
         return (
             "reference_adjudication_needed",
             f"adjudicate `{family_name}` before training.",
-        )
-    if not family_rankings or all(
-        row["classification"] in {"too_sparse", "guard_budget_noise"}
-        for row in family_rankings[:5]
-    ):
-        return (
-            "guard_budget_noise_dominant",
-            "audit local gate budget policy before more training.",
         )
     return (
         "diffuse_failure_inventory_after_exclusions",
@@ -968,6 +976,7 @@ def main(argv: list[str] | None = None) -> int:
 
     write_json(args.summary_path, summary)
     write_jsonl(args.selected_rows_path, selected_family_rows)
+    args.report_path.parent.mkdir(parents=True, exist_ok=True)
     args.report_path.write_text(render_report(summary), encoding="utf-8")
     print(
         json.dumps(
