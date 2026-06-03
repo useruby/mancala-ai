@@ -302,6 +302,9 @@ def compare_move_consequences(
     *, row: AuditRow, baseline_1200: dict[str, Any]
 ) -> tuple[list[dict[str, Any]], str]:
     selected_move = baseline_1200["selected_move"]
+    baseline_legal_moves = [
+        int(move) for move in baseline_1200.get("legal_moves") or []
+    ]
     indexed = {
         int(entry["move"]): entry
         for entry in baseline_1200.get("move_consequences") or []
@@ -329,8 +332,12 @@ def compare_move_consequences(
             reference_entry.get("remaining_seed_count", 0)
         ):
             notes.append("selected move leaves fewer seeds in pits")
-    for move in row.legal_moves:
-        entry = indexed[int(move)]
+    for move in baseline_legal_moves:
+        entry = indexed.get(int(move))
+        if entry is None:
+            raise ValueError(
+                f"{row.row_id} missing move consequence for legal move {move}"
+            )
         rows.append(
             {
                 "row_id": row.row_id,
@@ -638,6 +645,7 @@ def build_report(summary: dict[str, Any]) -> str:
             ],
         )
     )
+    lines.extend(["", f"- {summary['root_2400_note']}"])
     lines.extend(["", "## 5. Move consequence audit", ""])
     lines.extend(
         markdown_table(
@@ -732,6 +740,8 @@ def build_report(summary: dict[str, Any]) -> str:
             ],
         )
     )
+    if summary.get("teacher_5000_skip_reason"):
+        lines.extend(["", f"- {summary['teacher_5000_skip_reason']}"])
     lines.extend(["", "## 8. PUCT child-afterstate audit", ""])
     lines.extend(
         markdown_table(

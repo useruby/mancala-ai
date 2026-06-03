@@ -109,6 +109,8 @@
 | high_value_swing-027 | preservation_control | 1200 | 1 | 1 | true | 0.9717 | 0.9717 | 0.2508 | 0.2508 | 0.0000 | 0.3190 | 0.3190 | preservation_control, selected reference |
 | high_value_swing-027 | preservation_control | 2400 | 1 | 1 | true | 0.9817 | 0.9817 | 0.2612 | 0.2612 | 0.0000 | 0.3190 | 0.3190 | preservation_control, selected reference |
 
+- ran 2400 root budget: projected ~4.1s across 14 target rows
+
 ## 5. Move consequence audit
 
 | row_id | move | is_corrected_reference | is_selected | gives_extra_turn | produces_capture | capture_count | immediate_store_delta | side_to_move_after | game_over_after_move | notes |
