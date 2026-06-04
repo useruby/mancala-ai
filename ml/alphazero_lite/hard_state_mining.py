@@ -38,6 +38,14 @@ REASON_WEIGHTS = {
     "large_best_second_gap": 4.0,
 }
 
+TEACHER_CONFLICT_PENALTY = 8.0
+TEACHER_CONFLICT_BUCKET_PREFIXES = frozenset(
+    {
+        "incumbent_proxy_disagreement",
+        "incumbent_proxy_residual",
+    }
+)
+
 CONSEQUENCE_WEIGHTS = {
     "caused_loss": 4,
     "move_disagreement_in_loss": 3,
@@ -327,6 +335,46 @@ def deduplicate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, A
     return list(deduplicated.values())
 
 
+def detect_teacher_conflict(row: dict[str, Any]) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "has_conflict": False,
+        "conflict_sources": [],
+        "conflict_details": {},
+    }
+    bucket = row.get("metadata", {}).get("bucket", "")
+    if isinstance(bucket, str) and bucket in TEACHER_CONFLICT_BUCKET_PREFIXES:
+        result["has_conflict"] = True
+        result["conflict_sources"].append("bucket_label")
+        result["conflict_details"]["bucket"] = bucket
+
+    for source_run in row.get("source_runs", []):
+        teacher_conflict = source_run.get("teacher_conflict", False)
+        if teacher_conflict:
+            result["has_conflict"] = True
+            result["conflict_sources"].append("source_run_flag")
+            result["conflict_details"]["source_run_teacher_conflict"] = True
+
+    selection_reasons = row.get("selection_reasons", [])
+    for reason in selection_reasons:
+        if "disagreement" in str(reason).lower():
+            result["has_conflict"] = True
+            if "disagreement_reason" not in result["conflict_sources"]:
+                result["conflict_sources"].append("disagreement_reason")
+            result["conflict_details"]["disagreement_reason"] = str(reason)
+
+    row_id = row.get("id", "") or row.get("row_id", "")
+    if isinstance(row_id, str):
+        for prefix in TEACHER_CONFLICT_BUCKET_PREFIXES:
+            if row_id.startswith(prefix):
+                result["has_conflict"] = True
+                if "row_id_prefix" not in result["conflict_sources"]:
+                    result["conflict_sources"].append("row_id_prefix")
+                result["conflict_details"]["row_id"] = row_id
+                break
+
+    return result
+
+
 def score_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     scored_rows: list[dict[str, Any]] = []
 
@@ -347,28 +395,40 @@ def score_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             str(source_run.get("kind", "")) for source_run in row["source_runs"]
         }
         multi_source_boost = max(0, len(source_classes) - 1) * 2.0
+
+        teacher_conflict = detect_teacher_conflict(row)
+        teacher_conflict_penalty = (
+            -TEACHER_CONFLICT_PENALTY if teacher_conflict["has_conflict"] else 0.0
+        )
+
         priority_score = round(
             reason_score
             + regret_boost
             + value_error_boost
             + entropy_boost
             + gap_boost
-            + multi_source_boost,
+            + multi_source_boost
+            + teacher_conflict_penalty,
             4,
         )
+
+        breakdown = {
+            "reason_score": round(reason_score, 4),
+            "regret_boost": round(regret_boost, 4),
+            "value_error_boost": round(value_error_boost, 4),
+            "entropy_boost": round(entropy_boost, 4),
+            "gap_boost": round(gap_boost, 4),
+            "multi_source_boost": round(multi_source_boost, 4),
+        }
+        if teacher_conflict_penalty != 0.0:
+            breakdown["teacher_conflict_penalty"] = round(teacher_conflict_penalty, 4)
 
         scored_rows.append(
             {
                 **row,
                 "priority_score": priority_score,
-                "priority_breakdown": {
-                    "reason_score": round(reason_score, 4),
-                    "regret_boost": round(regret_boost, 4),
-                    "value_error_boost": round(value_error_boost, 4),
-                    "entropy_boost": round(entropy_boost, 4),
-                    "gap_boost": round(gap_boost, 4),
-                    "multi_source_boost": round(multi_source_boost, 4),
-                },
+                "priority_breakdown": breakdown,
+                "teacher_conflict": teacher_conflict,
             }
         )
 

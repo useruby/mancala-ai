@@ -320,7 +320,7 @@ class HardStateMiningTest(unittest.TestCase):
                     "canonical_state": "multi-source",
                     "selection_reasons": [
                         "large_value_error",
-                        "student_teacher_disagreement",
+                        "high_search_entropy",
                     ],
                     "source_artifacts": ["a.json", "b.json", "c.json"],
                     "source_runs": [
@@ -339,7 +339,7 @@ class HardStateMiningTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(14.0, scored[0]["priority_score"])
+        self.assertEqual(12.0, scored[0]["priority_score"])
         self.assertEqual(2.0, scored[0]["priority_breakdown"]["multi_source_boost"])
 
     def test_score_rows_breaks_ties_by_canonical_state(self):

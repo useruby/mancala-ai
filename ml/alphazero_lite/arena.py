@@ -559,6 +559,25 @@ def choose_best_move(visits: np.ndarray, legal_moves: list[int]) -> int:
     return min(best_moves)
 
 
+TEACHER_CLASSIC_MCTS = "classic_mcts"
+TEACHER_ARTIFACT_PUCT = "artifact_puct"
+SUPPORTED_TEACHERS = frozenset({TEACHER_CLASSIC_MCTS, TEACHER_ARTIFACT_PUCT})
+
+
+def teacher_bucket_for_row(row: dict) -> str | None:
+    bucket = row.get("bucket") or row.get("teacher_bucket")
+    if bucket in ("classic_teacher",):
+        return TEACHER_CLASSIC_MCTS
+    if bucket in ("puct_teacher", "artifact_puct"):
+        return TEACHER_ARTIFACT_PUCT
+    teacher_id = row.get("teacher_id")
+    if teacher_id == "classic_mcts":
+        return TEACHER_CLASSIC_MCTS
+    if teacher_id in ("artifact_puct",):
+        return TEACHER_ARTIFACT_PUCT
+    return None
+
+
 def evaluate_artifact_position(
     *,
     artifact_path: str | Path | None = None,
@@ -571,9 +590,21 @@ def evaluate_artifact_position(
     ablation_mode: str = "full",
     root_prior_override=None,
     root_prior_transform: str | None = None,
+    teacher: str | None = None,
 ) -> dict:
     game = KalahGame.from_state(state)
     normalized_mode = build_mode_config(ablation_mode)
+
+    if teacher is not None:
+        if teacher not in SUPPORTED_TEACHERS:
+            raise ValueError(
+                f"unsupported teacher: {teacher!r}; "
+                f"expected one of {sorted(SUPPORTED_TEACHERS)}"
+            )
+        if teacher == TEACHER_CLASSIC_MCTS:
+            normalized_mode["use_classic"] = True
+        elif teacher == TEACHER_ARTIFACT_PUCT:
+            normalized_mode["use_classic"] = False
 
     if normalized_mode["use_classic"]:
         classic_kwargs = {}
