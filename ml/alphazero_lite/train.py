@@ -42,6 +42,10 @@ SUPPORTED_VALUE_TARGET_MODES = [
     HYBRID_VALUE_TARGET_MODE,
 ]
 STATE_NORMALIZATION_DENOMINATOR = 48.0
+EXCLUDED_TRAINING_BUCKETS = {
+    "incumbent_proxy_disagreement",
+    "incumbent_proxy_residual",
+}
 
 
 def input_size_for_encoding(input_encoding: str) -> int:
@@ -237,11 +241,40 @@ def validate_value_target(value: float, *, path: Path, row_number: int) -> float
     return normalized_value
 
 
+EXCLUDED_TRAINING_BUCKETS_SET = frozenset(EXCLUDED_TRAINING_BUCKETS)
+
+
+def _normalize_bucket_for_exclusion(bucket: str | None) -> str | None:
+    if bucket is None:
+        return None
+    bucket = str(bucket).strip()
+    if not bucket:
+        return None
+    return bucket
+
+
+def _row_in_excluded_bucket(
+    row: dict, exclude_buckets: frozenset[str] | set[str]
+) -> bool:
+    bucket = row.get("bucket") or row.get("family")
+    normalized = _normalize_bucket_for_exclusion(bucket)
+    if normalized is not None and normalized in exclude_buckets:
+        return True
+    for prefix_key in ("id", "row_id"):
+        rid = row.get(prefix_key, "")
+        if isinstance(rid, str):
+            for excluded in exclude_buckets:
+                if rid.startswith(excluded):
+                    return True
+    return False
+
+
 def load_jsonl(
     path: Path,
     *,
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
+    exclude_buckets: frozenset[str] | set[str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
     value_target_mode = normalize_value_target_mode(value_target_mode)
@@ -252,6 +285,8 @@ def load_jsonl(
     with path.open("r", encoding="utf-8") as handle:
         for row_number, line in enumerate(handle, start=1):
             row = json.loads(line)
+            if exclude_buckets and _row_in_excluded_bucket(row, exclude_buckets):
+                continue
             policy = np.asarray(row["policy"], dtype=np.float32)
             validate_policy_target(
                 policy,
@@ -286,6 +321,7 @@ def load_jsonl_replay(
     *,
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
+    exclude_buckets: frozenset[str] | set[str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     if not paths:
         raise ValueError("at least one replay path is required")
@@ -311,6 +347,7 @@ def load_jsonl_replay(
             path,
             policy_target_mode=policy_target_mode,
             value_target_mode=value_target_mode,
+            exclude_buckets=exclude_buckets,
         )
         x_chunks.append(x)
         p_chunks.append(p)
@@ -944,6 +981,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional checkpoint to load before training",
     )
+    parser.add_argument(
+        "--exclude-buckets",
+        default=None,
+        help="Comma-separated bucket/family names to exclude from training (e.g. incumbent_proxy_disagreement)",
+    )
     return parser
 
 
@@ -967,12 +1009,25 @@ def main() -> None:
     replay_weights = parse_replay_weights(args.replay_weights)
     replay_indexes = None
 
+    exclude_buckets: frozenset[str] | set[str] | None = None
+    if args.exclude_buckets:
+        exclude_buckets = {
+            b.strip() for b in args.exclude_buckets.split(",") if b.strip()
+        }
+        print(
+            f"excluding buckets from training: {sorted(exclude_buckets)}",
+            file=sys.stderr,
+        )
+    elif EXCLUDED_TRAINING_BUCKETS:
+        exclude_buckets = EXCLUDED_TRAINING_BUCKETS_SET
+
     if replay_paths:
         x, p_target, v_target, replay_indexes = load_jsonl_replay(
             replay_paths,
             replay_weights,
             policy_target_mode=policy_target_mode,
             value_target_mode=value_target_mode,
+            exclude_buckets=exclude_buckets,
         )
     else:
         if data_path is None:
@@ -981,6 +1036,7 @@ def main() -> None:
             data_path,
             policy_target_mode=policy_target_mode,
             value_target_mode=value_target_mode,
+            exclude_buckets=exclude_buckets,
         )
     validate_input_features(x, input_encoding=args.input_encoding)
     model = PolicyValueNet(
