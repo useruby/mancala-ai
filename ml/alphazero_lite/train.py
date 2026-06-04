@@ -604,6 +604,7 @@ def train(
     grad_clip: float | None,
     save_top_k: int,
     lr_scheduler: str,
+    weight_decay: float = 0.0,
 ) -> tuple[float, float, float]:
     model.to(device)
     model.train()
@@ -631,7 +632,7 @@ def train(
         else None
     )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     normalized_lr_scheduler = normalize_lr_scheduler(lr_scheduler)
     scheduler = None
     if normalized_lr_scheduler == DEFAULT_LR_SCHEDULER:
@@ -950,6 +951,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--huber-delta", type=float, default=1.0)
     parser.add_argument("--val-split", type=float, default=0.1)
     parser.add_argument("--grad-clip", type=float, default=1.0)
+    parser.add_argument("--weight-decay", type=float, default=0.0)
     parser.add_argument(
         "--hidden-sizes", default="64,64", help="Two comma-separated hidden layer sizes"
     )
@@ -1065,6 +1067,7 @@ def main() -> None:
         grad_clip=args.grad_clip,
         save_top_k=args.save_top_k,
         lr_scheduler=args.lr_scheduler,
+        weight_decay=args.weight_decay,
     )
 
     checkpoint = checkpoint_from_model(model)
