@@ -689,29 +689,42 @@ def main() -> int:
         )
         arrays_128["b_residual_4_2"] = np.zeros(128, dtype=np.float32)
 
-        # Policy/value hidden layers
-        for key in [
-            "w_policy_hidden",
-            "b_policy_hidden",
-            "w_value_hidden",
-            "b_value_hidden",
-        ]:
-            if key in weights:
-                arr = np.asarray(weights[key], dtype=np.float32)
-                arrays_128[key] = arr
+        # Policy hidden layer: (96, 96) → (128, 128)
+        w_ph = np.zeros((128, 128), dtype=np.float32)
+        w_ph[:96, :96] = np.asarray(weights["w_policy_hidden"], dtype=np.float32)
+        w_ph[96:, 96:] = rng.normal(0, 0.01 / np.sqrt(128), (32, 32)).astype(np.float32)
+        arrays_128["w_policy_hidden"] = w_ph
+        arrays_128["b_policy_hidden"] = np.concatenate(
+            [
+                np.asarray(weights["b_policy_hidden"], dtype=np.float32),
+                np.zeros(32, dtype=np.float32),
+            ]
+        )
 
-        # Heads
+        # Value hidden layer: (96, 48) → (128, 64)
+        old_vh = np.asarray(weights["w_value_hidden"], dtype=np.float32)  # (96, 48)
+        w_vh = np.zeros((128, 64), dtype=np.float32)
+        w_vh[:96, :48] = old_vh
+        w_vh[96:, 48:] = rng.normal(0, 0.01 / np.sqrt(128), (32, 16)).astype(np.float32)
+        arrays_128["w_value_hidden"] = w_vh
+        arrays_128["b_value_hidden"] = np.concatenate(
+            [
+                np.asarray(weights["b_value_hidden"], dtype=np.float32),
+                np.zeros(16, dtype=np.float32),
+            ]
+        )
+
+        # Policy head: (96, 6) → (128, 6)
         w_policy = np.zeros((128, POLICY_SIZE), dtype=np.float32)
         w_policy[:96, :] = np.asarray(weights["w_policy"], dtype=np.float32)
         w_policy[96:, :] = rng.normal(0, 0.01, (32, POLICY_SIZE)).astype(np.float32)
         arrays_128["w_policy"] = w_policy
         arrays_128["b_policy"] = np.asarray(weights["b_policy"], dtype=np.float32)
 
-        if "w_value_hidden" in weights:
-            w_value = np.zeros((48, 1), dtype=np.float32)
-            w_value[:48, :] = np.asarray(weights["w_value"], dtype=np.float32)
-        else:
-            w_value = np.asarray(weights["w_value"], dtype=np.float32)
+        # Value head: (48, 1) → (64, 1)
+        w_value = np.zeros((64, 1), dtype=np.float32)
+        w_value[:48, :] = np.asarray(weights["w_value"], dtype=np.float32)
+        w_value[48:, :] = rng.normal(0, 0.01, (16, 1)).astype(np.float32)
         arrays_128["w_value"] = w_value
         arrays_128["b_value"] = np.asarray(weights["b_value"], dtype=np.float32)
 
