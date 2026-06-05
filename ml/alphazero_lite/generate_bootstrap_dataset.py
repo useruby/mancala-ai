@@ -19,6 +19,7 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
+from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
 from ml.alphazero_lite.kalah_rules import KalahGame, NUMBER_OF_PLAYERS, PITS_PER_PLAYER
 from ml.alphazero_lite.self_play import (
     DEFAULT_POLICY_TARGET_MODE,
@@ -41,6 +42,15 @@ DISAGREEMENT_DEEPER_SIMULATION_FACTOR = 2
 DISAGREEMENT_POLICY_THRESHOLD = 0.2
 DEFAULT_DIRICHLET_EPSILON = 0.25
 MAX_MOVES = 200
+
+TABLEBASE_VALUE_OVERLAY_OFF = "off"
+TABLEBASE_VALUE_OVERLAY_OVERWRITE = "overwrite"
+TABLEBASE_VALUE_OVERLAY_BLEND = "blend"
+SUPPORTED_TABLEBASE_VALUE_OVERLAYS = [
+    TABLEBASE_VALUE_OVERLAY_OFF,
+    TABLEBASE_VALUE_OVERLAY_OVERWRITE,
+    TABLEBASE_VALUE_OVERLAY_BLEND,
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -67,6 +77,18 @@ def parse_args() -> argparse.Namespace:
         "--teacher-mode", default="puct", choices=["puct", "classic_mcts"]
     )
     parser.add_argument("--teacher-search-reuse", action="store_true")
+    parser.add_argument(
+        "--tablebase-value-overlay",
+        default=TABLEBASE_VALUE_OVERLAY_OFF,
+        choices=SUPPORTED_TABLEBASE_VALUE_OVERLAYS,
+        help="Apply tablebase-verified value targets to solved endgame positions",
+    )
+    parser.add_argument(
+        "--tablebase-blend-alpha",
+        type=float,
+        default=1.0,
+        help="Blend weight for tablebase value in blend mode (0=original, 1=tablebase)",
+    )
     return parser.parse_args()
 
 
@@ -345,17 +367,62 @@ def selected_teacher_positions(
     return positions
 
 
+def _phase_label(move_index: int) -> str:
+    if move_index <= 8:
+        return "early"
+    if move_index <= 24:
+        return "mid"
+    return "late"
+
+
 def annotate_rows(
     positions: list[dict[str, Any]],
     *,
     winner: int | None,
     value_target_mode: str,
     position_selection_mode: str,
-) -> list[dict[str, Any]]:
+    tablebase: EndgameTablebase | None = None,
+    tablebase_value_overlay: str = TABLEBASE_VALUE_OVERLAY_OFF,
+    tablebase_blend_alpha: float = 1.0,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    tb_rows = 0
+    phase_tb: dict[str, int] = {"early": 0, "mid": 0, "late": 0}
+    abs_deltas: list[float] = []
+    applied_overlay = tablebase_value_overlay != TABLEBASE_VALUE_OVERLAY_OFF
+
     rows = []
     for position in positions:
         player = int(position["player"])
         outcome_value = 0.0 if winner is None else (1.0 if winner == player else -1.0)
+        original_value = derive_self_play_value_target(
+            outcome_value=outcome_value,
+            search_value=float(position.get("root_search_value", 0.0)),
+            move_index=int(position["move_index"]),
+            mode=value_target_mode,
+        )
+        value = original_value
+        tb_applied = False
+        tb_value = None
+
+        if applied_overlay and tablebase is not None:
+            game_state = position.get("game_state")
+            if game_state is not None:
+                game = KalahGame.from_state(game_state)
+                win_rate = tablebase.lookup(game, perspective_player=player)
+                if win_rate is not None:
+                    exact_value = 2.0 * win_rate - 1.0
+                    tb_value = exact_value
+                    if tablebase_value_overlay == TABLEBASE_VALUE_OVERLAY_OVERWRITE:
+                        value = exact_value
+                    elif tablebase_value_overlay == TABLEBASE_VALUE_OVERLAY_BLEND:
+                        alpha = max(0.0, min(1.0, float(tablebase_blend_alpha)))
+                        value = alpha * exact_value + (1.0 - alpha) * original_value
+                    tb_applied = True
+                    tb_rows += 1
+                    phase = _phase_label(int(position["move_index"]))
+                    phase_tb[phase] = phase_tb.get(phase, 0) + 1
+                    abs_deltas.append(abs(value - original_value))
+
         row = {
             "move_index": int(position["move_index"]),
             "player": player,
@@ -363,20 +430,26 @@ def annotate_rows(
             "policy": position["policy"],
             "policy_target_mode": position["policy_target_mode"],
             "value_target_mode": value_target_mode,
-            "value": derive_self_play_value_target(
-                outcome_value=outcome_value,
-                search_value=float(position.get("root_search_value", 0.0)),
-                move_index=int(position["move_index"]),
-                mode=value_target_mode,
-            ),
+            "value": value,
         }
+        if tb_applied:
+            row["tablebase_value_applied"] = True
+            row["tablebase_value"] = tb_value
+            row["original_value"] = original_value
+            row["tablebase_value_overlay"] = tablebase_value_overlay
         if position_selection_mode == "tactical":
             row["position_selection_mode"] = "tactical"
         elif position_selection_mode == "hybrid_teacher":
             row["position_selection_mode"] = "hybrid_teacher"
             row["teacher_bucket"] = position["teacher_bucket"]
         rows.append(row)
-    return rows
+
+    tb_stats = {
+        "tb_rows": tb_rows,
+        "phase_tb": phase_tb,
+        "abs_deltas": abs_deltas,
+    }
+    return rows, tb_stats
 
 
 def run_worker(
@@ -399,12 +472,22 @@ def run_worker(
     dirichlet_epsilon: float,
     dirichlet_opening_moves: int,
     shard_path: str,
+    tablebase_value_overlay: str = TABLEBASE_VALUE_OVERLAY_OFF,
+    tablebase_blend_alpha: float = 1.0,
 ) -> dict[str, Any]:
     rng = random.Random(seed + worker_id)
     evaluator = HeuristicEvaluator()
+    tablebase = (
+        EndgameTablebase()
+        if tablebase_value_overlay != TABLEBASE_VALUE_OVERLAY_OFF
+        else None
+    )
     rows_written = 0
     positions_visited = 0
     simulations_run = 0
+    tb_rows = 0
+    phase_tb: dict[str, int] = {"early": 0, "mid": 0, "late": 0}
+    all_abs_deltas: list[float] = []
     path = Path(shard_path)
 
     with path.open("w", encoding="utf-8") as handle:
@@ -538,15 +621,22 @@ def run_worker(
                 ),
                 mode=position_selection_mode,
             )
-            rows = annotate_rows(
+            rows, tb_stats = annotate_rows(
                 selected,
                 winner=game.winner,
                 value_target_mode=value_target_mode,
                 position_selection_mode=position_selection_mode,
+                tablebase=tablebase,
+                tablebase_value_overlay=tablebase_value_overlay,
+                tablebase_blend_alpha=tablebase_blend_alpha,
             )
             for row in rows:
                 handle.write(json.dumps(row) + "\n")
             rows_written += len(rows)
+            tb_rows += tb_stats["tb_rows"]
+            for phase, count in tb_stats["phase_tb"].items():
+                phase_tb[phase] = phase_tb.get(phase, 0) + count
+            all_abs_deltas.extend(tb_stats["abs_deltas"])
 
     return {
         "worker_id": worker_id,
@@ -556,6 +646,9 @@ def run_worker(
         "positions_searched": positions_visited,
         "simulations_run": simulations_run,
         "shard_path": str(path),
+        "tb_rows": tb_rows,
+        "phase_tb": phase_tb,
+        "abs_deltas": all_abs_deltas,
     }
 
 
@@ -574,11 +667,21 @@ def run_worker_classic_mcts(
     tau: float,
     top_k: int | None,
     shard_path: str,
+    tablebase_value_overlay: str = TABLEBASE_VALUE_OVERLAY_OFF,
+    tablebase_blend_alpha: float = 1.0,
 ) -> dict[str, Any]:
     rng = random.Random(seed + worker_id)
+    tablebase = (
+        EndgameTablebase()
+        if tablebase_value_overlay != TABLEBASE_VALUE_OVERLAY_OFF
+        else None
+    )
     rows_written = 0
     positions_visited = 0
     simulations_run = 0
+    tb_rows = 0
+    phase_tb: dict[str, int] = {"early": 0, "mid": 0, "late": 0}
+    all_abs_deltas: list[float] = []
     path = Path(shard_path)
 
     with path.open("w", encoding="utf-8") as handle:
@@ -653,15 +756,22 @@ def run_worker_classic_mcts(
                 ),
                 mode=position_selection_mode,
             )
-            rows = annotate_rows(
+            rows, tb_stats = annotate_rows(
                 selected,
                 winner=game.winner,
                 value_target_mode=value_target_mode,
                 position_selection_mode=position_selection_mode,
+                tablebase=tablebase,
+                tablebase_value_overlay=tablebase_value_overlay,
+                tablebase_blend_alpha=tablebase_blend_alpha,
             )
             for row in rows:
                 handle.write(json.dumps(row) + "\n")
             rows_written += len(rows)
+            tb_rows += tb_stats["tb_rows"]
+            for phase, count in tb_stats["phase_tb"].items():
+                phase_tb[phase] = phase_tb.get(phase, 0) + count
+            all_abs_deltas.extend(tb_stats["abs_deltas"])
 
     return {
         "worker_id": worker_id,
@@ -671,6 +781,9 @@ def run_worker_classic_mcts(
         "positions_searched": positions_visited,
         "simulations_run": simulations_run,
         "shard_path": str(path),
+        "tb_rows": tb_rows,
+        "phase_tb": phase_tb,
+        "abs_deltas": all_abs_deltas,
     }
 
 
@@ -683,6 +796,8 @@ def main() -> None:
     value_target_mode = normalize_value_target_mode(args.value_target_mode)
     position_selection_mode = str(args.position_selection_mode)
     teacher_mode = str(args.teacher_mode)
+    tablebase_value_overlay = str(args.tablebase_value_overlay)
+    tablebase_blend_alpha = float(args.tablebase_blend_alpha)
 
     game_counts = partition_counts(args.games, workers)
     starts: list[int] = []
@@ -723,6 +838,8 @@ def main() -> None:
                             tau=max(float(args.tau), 0.05),
                             top_k=args.top_k,
                             shard_path=shard_paths[worker_id],
+                            tablebase_value_overlay=tablebase_value_overlay,
+                            tablebase_blend_alpha=tablebase_blend_alpha,
                         )
                     )
                 else:
@@ -749,6 +866,8 @@ def main() -> None:
                                 int(args.dirichlet_opening_moves), 0
                             ),
                             shard_path=shard_paths[worker_id],
+                            tablebase_value_overlay=tablebase_value_overlay,
+                            tablebase_blend_alpha=tablebase_blend_alpha,
                         )
                     )
 
@@ -765,12 +884,40 @@ def main() -> None:
         0.0 if games_processed == 0 else rows_written / float(games_processed)
     )
 
+    total_tb = sum(int(result.get("tb_rows", 0)) for result in results)
+    all_phase_tb: dict[str, int] = {"early": 0, "mid": 0, "late": 0}
+    all_deltas: list[float] = []
+    for result in results:
+        for phase, count in (result.get("phase_tb") or {}).items():
+            all_phase_tb[phase] = all_phase_tb.get(phase, 0) + int(count)
+        for delta in result.get("abs_deltas") or []:
+            all_deltas.append(float(delta))
+
+    tablebase_coverage_rate = (
+        (float(total_tb) / float(rows_written) if rows_written > 0 else 0.0)
+        if total_tb > 0
+        else 0.0
+    )
+    mean_abs_delta = float(np.mean(all_deltas)) if all_deltas else 0.0
+    max_abs_delta = float(np.max(all_deltas)) if all_deltas else 0.0
+
     print(f"wrote {rows_written} rows to {out_path}")
     print(
         "dataset_stats "
         f"games_processed={games_processed} rows_written={rows_written} positions_visited={positions_visited} "
         f"positions_searched={positions_searched} simulations_run={simulations_run} average_rows_retained_per_game={average_rows}"
     )
+    if tablebase_value_overlay != TABLEBASE_VALUE_OVERLAY_OFF:
+        print(
+            "tablebase_value_overlay_summary "
+            f"overlay={tablebase_value_overlay} tablebase_rows={total_tb} "
+            f"coverage_rate={tablebase_coverage_rate:.6f} "
+            f"mean_abs_value_delta={mean_abs_delta:.6f} "
+            f"max_abs_value_delta={max_abs_delta:.6f} "
+            f"coverage_early={all_phase_tb.get('early', 0)} "
+            f"coverage_mid={all_phase_tb.get('mid', 0)} "
+            f"coverage_late={all_phase_tb.get('late', 0)}"
+        )
     effective_teacher_search_reuse = bool(
         args.teacher_search_reuse
         and teacher_mode == "puct"

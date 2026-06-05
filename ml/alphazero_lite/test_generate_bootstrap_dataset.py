@@ -756,3 +756,366 @@ class GenerateBootstrapDatasetTest(unittest.TestCase):
             self.assertAlmostEqual(1.0, sum(row["policy"]), places=5)
             self.assertGreaterEqual(row["value"], -1.0)
             self.assertLessEqual(row["value"], 1.0)
+
+    def _sample_position(self):
+        return {
+            "state": [0.1] * 15,
+            "game_state": {
+                "player_pits": [0, 0, 0, 0, 0, 1],
+                "opponent_pits": [0, 0, 0, 0, 0, 0],
+                "player_store": 22,
+                "opponent_store": 19,
+                "current_player": 0,
+            },
+            "player": 0,
+            "move_index": 4,
+            "policy": [0.2, 0.2, 0.2, 0.1, 0.1, 0.2],
+            "root_search_value": 0.5,
+            "policy_target_mode": "sharpened",
+        }
+
+    def test_tablebase_overlay_off_produces_no_metadata(self):
+        from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+
+        position = self._sample_position()
+        tablebase = EndgameTablebase()
+        rows, tb_stats = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="off",
+        )
+        self.assertEqual(1, len(rows))
+        self.assertEqual(0, tb_stats["tb_rows"])
+        self.assertNotIn("tablebase_value_applied", rows[0])
+        self.assertNotIn("tablebase_value", rows[0])
+        self.assertNotIn("original_value", rows[0])
+        self.assertNotIn("tablebase_value_overlay", rows[0])
+
+    def test_tablebase_overlay_overwrite_changes_value_when_solved(self):
+        from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+
+        position = self._sample_position()
+        tablebase = EndgameTablebase()
+        rows_off, _ = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="off",
+        )
+        original_value = rows_off[0]["value"]
+
+        rows_over, tb_stats = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="overwrite",
+        )
+        self.assertEqual(1, tb_stats["tb_rows"])
+        self.assertTrue(rows_over[0]["tablebase_value_applied"])
+        self.assertIsNotNone(rows_over[0]["tablebase_value"])
+        self.assertEqual(original_value, rows_over[0]["original_value"])
+        self.assertEqual("overwrite", rows_over[0]["tablebase_value_overlay"])
+        self.assertAlmostEqual(rows_over[0]["tablebase_value"], rows_over[0]["value"])
+        self.assertGreaterEqual(rows_over[0]["value"], -1.0)
+        self.assertLessEqual(rows_over[0]["value"], 1.0)
+
+    def test_tablebase_overlay_skips_unsolved_position(self):
+        from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+
+        position = {
+            "state": [0.1] * 15,
+            "game_state": {
+                "player_pits": [3, 3, 3, 3, 3, 3],
+                "opponent_pits": [3, 3, 3, 3, 3, 3],
+                "player_store": 10,
+                "opponent_store": 10,
+                "current_player": 0,
+            },
+            "player": 0,
+            "move_index": 4,
+            "policy": [0.2, 0.2, 0.2, 0.1, 0.1, 0.2],
+            "root_search_value": 0.0,
+            "policy_target_mode": "sharpened",
+        }
+        tablebase = EndgameTablebase()
+        rows, tb_stats = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=None,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="overwrite",
+        )
+        self.assertEqual(1, len(rows))
+        self.assertEqual(0, tb_stats["tb_rows"])
+        self.assertNotIn("tablebase_value_applied", rows[0])
+
+    def test_tablebase_overlay_blend_correct_convex_combination(self):
+        from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+
+        position = self._sample_position()
+        tablebase = EndgameTablebase()
+        rows_off, _ = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="off",
+        )
+        original_value = rows_off[0]["value"]
+
+        rows_blend, tb_stats = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="blend",
+            tablebase_blend_alpha=0.5,
+        )
+        self.assertEqual(1, tb_stats["tb_rows"])
+        self.assertTrue(rows_blend[0]["tablebase_value_applied"])
+        exact_value = rows_blend[0]["tablebase_value"]
+        expected = 0.5 * exact_value + 0.5 * original_value
+        self.assertAlmostEqual(expected, rows_blend[0]["value"], places=6)
+        self.assertEqual("blend", rows_blend[0]["tablebase_value_overlay"])
+
+    def test_tablebase_overlay_preserves_policy(self):
+        from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+
+        position = self._sample_position()
+        tablebase = EndgameTablebase()
+        rows_off, _ = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="off",
+        )
+        rows_over, _ = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="overwrite",
+        )
+        rows_blend, _ = generate_bootstrap_dataset.annotate_rows(
+            [position],
+            winner=0,
+            value_target_mode="default",
+            position_selection_mode="generic",
+            tablebase=tablebase,
+            tablebase_value_overlay="blend",
+            tablebase_blend_alpha=0.5,
+        )
+        self.assertAlmostEqual(
+            sum(rows_off[0]["policy"]), sum(rows_over[0]["policy"]), places=6
+        )
+        self.assertEqual(rows_off[0]["policy"], rows_over[0]["policy"])
+        self.assertEqual(rows_off[0]["policy"], rows_blend[0]["policy"])
+        self.assertEqual(rows_off[0]["move_index"], rows_over[0]["move_index"])
+        self.assertEqual(rows_off[0]["player"], rows_over[0]["player"])
+
+    def test_train_loads_rows_with_tablebase_metadata(self):
+        from ml.alphazero_lite.train import load_jsonl
+
+        row = {
+            "move_index": 4,
+            "player": 0,
+            "state": [0.1] * 15,
+            "policy": [0.2, 0.2, 0.2, 0.1, 0.1, 0.2],
+            "policy_target_mode": "default",
+            "value_target_mode": "default",
+            "value": 0.75,
+            "tablebase_value_applied": True,
+            "tablebase_value": 0.75,
+            "original_value": 0.5,
+            "tablebase_value_overlay": "overwrite",
+        }
+        with tempfile.TemporaryDirectory(prefix="azlite-tb-train-") as tmp:
+            path = Path(tmp) / "test.jsonl"
+            path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+            x, p, v = load_jsonl(
+                path, policy_target_mode="default", value_target_mode="default"
+            )
+            self.assertEqual(1, x.shape[0])
+            self.assertEqual(1, p.shape[0])
+            self.assertAlmostEqual(0.75, float(v[0][0]), places=6)
+
+    def test_cli_tablebase_overlay_off_no_summary_printed(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-tb-off-") as tmp:
+            out_path = Path(tmp) / "bootstrap.jsonl"
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "1",
+                    "--simulations",
+                    "8",
+                    "--seed",
+                    "42",
+                    "--max-positions-per-game",
+                    "4",
+                    "--workers",
+                    "1",
+                    "--teacher-mode",
+                    "classic_mcts",
+                    "--tablebase-value-overlay",
+                    "off",
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertNotIn("tablebase_value_overlay_summary", result.stdout)
+            self.assertTrue(out_path.exists())
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            for row in rows:
+                self.assertNotIn("tablebase_value_applied", row)
+                self.assertNotIn("tablebase_value", row)
+
+    def test_cli_tablebase_overlay_overwrite_prints_summary(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-tb-overwrite-") as tmp:
+            out_path = Path(tmp) / "bootstrap.jsonl"
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "2",
+                    "--simulations",
+                    "16",
+                    "--seed",
+                    "42",
+                    "--max-positions-per-game",
+                    "4",
+                    "--workers",
+                    "1",
+                    "--teacher-mode",
+                    "classic_mcts",
+                    "--tablebase-value-overlay",
+                    "overwrite",
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertIn("tablebase_value_overlay_summary", result.stdout)
+            self.assertIn("coverage_rate=", result.stdout)
+            self.assertIn("coverage_early=", result.stdout)
+            self.assertIn("coverage_mid=", result.stdout)
+            self.assertIn("coverage_late=", result.stdout)
+
+    def test_cli_tablebase_overlay_blend_prints_summary(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-tb-blend-") as tmp:
+            out_path = Path(tmp) / "bootstrap.jsonl"
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "2",
+                    "--simulations",
+                    "16",
+                    "--seed",
+                    "42",
+                    "--max-positions-per-game",
+                    "4",
+                    "--workers",
+                    "1",
+                    "--teacher-mode",
+                    "classic_mcts",
+                    "--tablebase-value-overlay",
+                    "blend",
+                    "--tablebase-blend-alpha",
+                    "0.5",
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertIn("tablebase_value_overlay_summary", result.stdout)
+            self.assertIn("overlay=blend", result.stdout)
+
+    def test_cli_tablebase_overlay_overwrite_produces_metadata_on_solved_rows(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory(prefix="azlite-tb-metadata-") as tmp:
+            out_path = Path(tmp) / "bootstrap.jsonl"
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/generate_bootstrap_dataset.py",
+                    "--out",
+                    str(out_path),
+                    "--games",
+                    "4",
+                    "--simulations",
+                    "32",
+                    "--seed",
+                    "42",
+                    "--max-positions-per-game",
+                    "8",
+                    "--workers",
+                    "1",
+                    "--teacher-mode",
+                    "classic_mcts",
+                    "--tablebase-value-overlay",
+                    "overwrite",
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            rows = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            self.assertTrue(rows)
+            tb_rows = [row for row in rows if row.get("tablebase_value_applied")]
+            for row in tb_rows:
+                self.assertIn("tablebase_value", row)
+                self.assertIn("original_value", row)
+                self.assertEqual("overwrite", row["tablebase_value_overlay"])
+                self.assertAlmostEqual(row["value"], row["tablebase_value"])
+            self.assertTrue(tb_rows, "expected at least some tb-covered rows")
