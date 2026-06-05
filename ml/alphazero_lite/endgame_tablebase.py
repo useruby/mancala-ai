@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import sys
 from typing import Protocol
 
 from ml.alphazero_lite.kalah_rules import KalahGame
+
+_MAX_RECURSION_DEPTH = 20000
 
 
 class EndgameTablebaseContract(Protocol):
@@ -24,6 +27,7 @@ class EndgameTablebase:
     MAX_SOLVED_SEEDS = 16
 
     def __init__(self) -> None:
+        sys.setrecursionlimit(_MAX_RECURSION_DEPTH)
         self._values: dict[
             tuple[int, tuple[int, ...], tuple[int, int], int], float
         ] = {}
@@ -52,6 +56,9 @@ class EndgameTablebase:
             self._values[key] = value
             return value
         return None
+
+    def clear_cache(self) -> None:
+        self._values.clear()
 
     def record(self, game: KalahGame, perspective_player: int, value: float) -> None:
         self._values[self._key(game, perspective_player)] = float(value)
