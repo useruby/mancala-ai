@@ -7,6 +7,7 @@ import copy
 import concurrent.futures
 import json
 import random
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -14,8 +15,6 @@ from typing import Any
 import numpy as np
 
 if __package__ in (None, ""):
-    import sys
-
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
@@ -475,6 +474,7 @@ def run_worker(
     tablebase_value_overlay: str = TABLEBASE_VALUE_OVERLAY_OFF,
     tablebase_blend_alpha: float = 1.0,
 ) -> dict[str, Any]:
+    sys.setrecursionlimit(50000)
     rng = random.Random(seed + worker_id)
     evaluator = HeuristicEvaluator()
     tablebase = (
@@ -670,6 +670,7 @@ def run_worker_classic_mcts(
     tablebase_value_overlay: str = TABLEBASE_VALUE_OVERLAY_OFF,
     tablebase_blend_alpha: float = 1.0,
 ) -> dict[str, Any]:
+    sys.setrecursionlimit(50000)
     rng = random.Random(seed + worker_id)
     tablebase = (
         EndgameTablebase()
@@ -798,6 +799,13 @@ def main() -> None:
     teacher_mode = str(args.teacher_mode)
     tablebase_value_overlay = str(args.tablebase_value_overlay)
     tablebase_blend_alpha = float(args.tablebase_blend_alpha)
+
+    if tablebase_value_overlay != TABLEBASE_VALUE_OVERLAY_OFF and workers > 1:
+        print(
+            "tablebase_value_overlay with workers>1 may cause process crashes due "
+            "to large per-worker solver caches. Consider using --workers 1.",
+            file=sys.stderr,
+        )
 
     game_counts = partition_counts(args.games, workers)
     starts: list[int] = []
