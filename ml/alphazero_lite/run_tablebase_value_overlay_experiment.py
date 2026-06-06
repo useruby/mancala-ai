@@ -484,6 +484,45 @@ def generate_production_report(
     lines.append(f"| Experiment summary | `{workdir / 'experiment_summary.json'}` |")
     lines.append("")
 
+    lanes_with_gate_reports = {
+        name: results[name]["gate_report"]
+        for name in lanes_ran
+        if results.get(name, {}).get("gate_report")
+    }
+    all_arena_below_threshold = bool(lanes_with_gate_reports) and all(
+        gr.get("arena_score", 0) is not None
+        and (
+            isinstance(gr.get("arena_score"), (int, float))
+            and gr.get("arena_score", 0) < 0.55
+        )
+        for gr in lanes_with_gate_reports.values()
+    )
+    any_passed = any(gr.get("passed") for gr in lanes_with_gate_reports.values())
+
+    lines.append("## 9. Classification")
+    lines.append("")
+    if any_passed:
+        lines.append("**Classification:** `tablebase_value_overlay_competitive`")
+        lines.append("")
+        lines.append(
+            "At least one lane passed the local promotion gate. MCTS1200 relative strength metrics are reported above in Section 5."
+        )
+    elif all_arena_below_threshold:
+        lines.append(
+            "**Classification:** `tablebase_value_overlay_not_competitive_as_single_phase_bootstrap`"
+        )
+        lines.append("")
+        lines.append(
+            "Both lanes failed to meet the arena prefilter threshold (0.55). Tablebase value overlay does not provide sufficient strength improvement at 1600 games / 1200 sims to justify as a standalone bootstrap improvement."
+        )
+    else:
+        lines.append("**Classification:** `tablebase_value_overlay_inconclusive`")
+        lines.append("")
+        lines.append(
+            "Unable to determine competitiveness. See acceptance criteria assessment above."
+        )
+    lines.append("")
+
     return "\n".join(lines)
 
 
@@ -532,6 +571,11 @@ def main() -> None:
     )
     parser.add_argument(
         "--mcts-games", type=int, default=40, help="MCTS1200 games for gate evaluation"
+    )
+    parser.add_argument(
+        "--report-name",
+        default=None,
+        help="Report filename relative to docs/ (default: alphazero-lite-tablebase-value-overlay-production-results.md)",
     )
     args = parser.parse_args()
 
@@ -785,14 +829,14 @@ def main() -> None:
     print(f"\nExperiment summary written to {summary_path}")
 
     report_md = generate_production_report(results, workdir, args, comparison)
-    report_path = (
-        REPO_ROOT
-        / "docs"
-        / "alphazero-lite-tablebase-value-overlay-production-results.md"
+    report_name = (
+        getattr(args, "report_name", None)
+        or "alphazero-lite-tablebase-value-overlay-production-results.md"
     )
+    report_path = REPO_ROOT / "docs" / report_name
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(report_md, encoding="utf-8")
-    print(f"Production report written to {report_path}")
+    print(f"Report written to {report_path}")
 
     for lane_label, lane_result in results.items():
         print(f"\n--- {lane_label} ---")
