@@ -28,6 +28,12 @@ POLICY_SIZE = 6
 MLP_MODEL_TYPES = {"mlp_v1", "mlp_deep"}
 RESIDUAL_MODEL_TYPES = {"residual_v2", "residual_v3"}
 SUPPORTED_MODEL_TYPES = ["mlp_v1", "mlp_deep", "residual_v2", "residual_v3"]
+DEFAULT_TRAINABLE_SCOPE = "all"
+SUPPORTED_TRAINABLE_SCOPES = [
+    DEFAULT_TRAINABLE_SCOPE,
+    "policy_head",
+    "last_block_policy",
+]
 DEFAULT_POLICY_TARGET_MODE = "default"
 SUPPORTED_POLICY_TARGET_MODES = [DEFAULT_POLICY_TARGET_MODE, "sharpened"]
 DEFAULT_VALUE_TARGET_MODE = "default"
@@ -448,7 +454,9 @@ def train_one_epoch(
                 grad_squared += float(torch.sum(parameter.grad.detach() ** 2).item())
         grad_norms.append(float(np.sqrt(grad_squared)))
         if grad_clip is not None and grad_clip > 0.0:
-            torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+            torch.nn.utils.clip_grad_norm_(
+                (p for p in model.parameters() if p.requires_grad), grad_clip
+            )
         optimizer.step()
         policy_losses.append(float(policy_loss.detach().cpu().item()))
         value_losses.append(float(value_component.detach().cpu().item()))
@@ -632,7 +640,11 @@ def train(
         else None
     )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(
+        (p for p in model.parameters() if p.requires_grad),
+        lr=lr,
+        weight_decay=weight_decay,
+    )
     normalized_lr_scheduler = normalize_lr_scheduler(lr_scheduler)
     scheduler = None
     if normalized_lr_scheduler == DEFAULT_LR_SCHEDULER:
@@ -899,6 +911,67 @@ def load_checkpoint_into_model(model: PolicyValueNet, checkpoint_path: Path) -> 
     model.load_state_dict(state_dict)
 
 
+def _is_residual_v3(model: PolicyValueNet) -> bool:
+    return getattr(model, "model_type", "") == "residual_v3"
+
+
+def _count_parameters(model: PolicyValueNet) -> tuple[int, int]:
+    total = 0
+    trainable = 0
+    for param in model.parameters():
+        num = int(param.numel())
+        total += num
+        if param.requires_grad:
+            trainable += num
+    return total, trainable
+
+
+def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
+    scope = str(scope).strip()
+    if scope not in SUPPORTED_TRAINABLE_SCOPES:
+        raise ValueError(
+            f"unsupported trainable_scope: {scope}, must be one of {SUPPORTED_TRAINABLE_SCOPES}"
+        )
+
+    if scope == DEFAULT_TRAINABLE_SCOPE:
+        for param in model.parameters():
+            param.requires_grad = True
+        return
+
+    for param in model.parameters():
+        param.requires_grad = False
+
+    if not _is_residual_v3(model):
+        raise ValueError(
+            f"trainable_scope={scope} is only supported for residual_v3 models"
+        )
+
+    if scope == "policy_head":
+        model.policy_hidden_layer.weight.requires_grad = True
+        model.policy_hidden_layer.bias.requires_grad = True
+        model.policy_head.weight.requires_grad = True
+        model.policy_head.bias.requires_grad = True
+        return
+
+    if scope == "last_block_policy":
+        block_count = len(model.residual_layers)
+        if block_count == 0:
+            raise ValueError(
+                "last_block_policy scope requires at least one residual block"
+            )
+        last_block = model.residual_layers[-1]
+        for layer in last_block:
+            for param in layer.parameters():
+                param.requires_grad = True
+        model.policy_hidden_layer.weight.requires_grad = True
+        model.policy_hidden_layer.bias.requires_grad = True
+        model.policy_head.weight.requires_grad = True
+        model.policy_head.bias.requires_grad = True
+        return
+
+    raise ValueError(f"unreachable scope: {scope}")
+
+
 def parse_hidden_sizes(text: str) -> tuple[int, ...]:
     parts = [part.strip() for part in text.split(",") if part.strip()]
     if len(parts) < 2:
@@ -979,6 +1052,12 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=DEFAULT_LR_SCHEDULER,
     )
     parser.add_argument(
+        "--trainable-scope",
+        choices=SUPPORTED_TRAINABLE_SCOPES,
+        default=DEFAULT_TRAINABLE_SCOPE,
+        help="Which parameters to train: all, policy_head, last_block_policy",
+    )
+    parser.add_argument(
         "--init-checkpoint",
         default=None,
         help="Optional checkpoint to load before training",
@@ -1048,6 +1127,16 @@ def main() -> None:
     )
     if args.init_checkpoint:
         load_checkpoint_into_model(model, Path(args.init_checkpoint))
+    apply_trainable_scope(model, args.trainable_scope)
+    total_params, trainable_params = _count_parameters(model)
+    frozen_params = total_params - trainable_params
+    print(
+        f"trainable_scope={args.trainable_scope} "
+        f"trainable_params={trainable_params} "
+        f"frozen_params={frozen_params} "
+        f"total_params={total_params}",
+        file=sys.stderr,
+    )
     epochs = args.steps if args.steps is not None else args.epochs
 
     policy_loss, value_loss, best_val_loss = train(
