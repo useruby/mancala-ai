@@ -14,8 +14,10 @@ Does not promote, does not touch storage/ai/alphazero_lite/current.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import time
@@ -213,15 +215,34 @@ def run_training(
 ) -> dict[str, Any]:
     export_dir = workdir / "exports"
     out_path = export_dir / f"{trace_name}_e{epochs}.npz"
+    metrics_path = export_dir / f"{trace_name}_e{epochs}_metrics.json"
 
     if out_path.exists() and not force_rerun:
-        return {
+        cached: dict[str, Any] = {
             "trace": trace_name,
             "epochs": epochs,
             "checkpoint": str(out_path),
             "cached": True,
             "returncode": 0,
         }
+        if metrics_path.exists():
+            try:
+                saved = json.loads(metrics_path.read_text(encoding="utf-8"))
+                for key in (
+                    "policy_loss",
+                    "value_loss",
+                    "trainable_params",
+                    "frozen_params",
+                    "total_params",
+                    "lr",
+                    "trainable_scope",
+                    "model_type",
+                ):
+                    if key in saved:
+                        cached[key] = saved[key]
+            except Exception:
+                pass
+        return cached
 
     export_dir.mkdir(parents=True, exist_ok=True)
     weights_str = ",".join(str(w) for w in replay_weights)
@@ -317,10 +338,173 @@ def run_training(
         f"    policy_loss={policy_loss}, value_loss={value_loss}, "
         f"elapsed={elapsed:.1f}s"
     )
+
+    _persist_metrics = {
+        k: metrics[k]
+        for k in (
+            "policy_loss",
+            "value_loss",
+            "trainable_params",
+            "frozen_params",
+            "total_params",
+            "lr",
+            "trainable_scope",
+            "model_type",
+        )
+        if k in metrics
+    }
+    if _persist_metrics:
+        metrics_path.write_text(json.dumps(_persist_metrics), encoding="utf-8")
+
     return metrics
 
 
+def _evaluate_positions_worker(
+    artifact_dir: str,
+    rows: list[dict],
+    role: str,
+    budgets: tuple[int, ...],
+    seed: int,
+    c_puct: float,
+    search_options: dict,
+) -> list[dict]:
+    """Process-level worker: evaluates a batch of rows with MCTS."""
+    from ml.alphazero_lite.arena import ArtifactEvaluator, evaluate_artifact_position
+    from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+    from ml.alphazero_lite.kalah_rules import KalahGame
+
+    evaluator = ArtifactEvaluator(Path(artifact_dir))
+    tb = EndgameTablebase()
+    results: list[dict] = []
+
+    for row in rows:
+        cid = row.get("candidate_id", "?")
+        raw_state = row.get("raw_state")
+        if not raw_state:
+            continue
+        state = raw_state
+        game = KalahGame.from_state(state)
+        rp = game.current_player
+        offset = rp * 6
+        child_vals = {}
+        for move in game.possible_moves():
+            child = game.clone()
+            child.move(offset + move)
+            c_wr = tb.lookup(child, rp)
+            if c_wr is not None:
+                child_vals[move] = (2.0 * float(c_wr)) - 1.0
+        exact_opt = max(child_vals, key=child_vals.get) if child_vals else None
+
+        result = {"candidate_id": cid, "exact_optimal_move": exact_opt}
+        regressed = False
+        for budget in budgets:
+            try:
+                r = evaluate_artifact_position(
+                    artifact_path=None,
+                    evaluator=evaluator,
+                    state=state,
+                    simulations=int(budget),
+                    seed=int(seed),
+                    c_puct=float(c_puct),
+                    search_options=dict(search_options),
+                    ablation_mode="full",
+                )
+            except Exception:
+                result[f"selected_is_optimal_{budget}"] = None
+                continue
+            sel = None if r.get("selected_move") is None else int(r["selected_move"])
+            is_opt = sel == exact_opt if exact_opt is not None else None
+            result[f"selected_is_optimal_{budget}"] = is_opt
+            if is_opt is False:
+                regressed = True
+        if role == "control":
+            result["control_regression"] = regressed
+        results.append(result)
+
+    return results
+
+
 def evaluate_artifact(
+    evaluator: ArtifactEvaluator,
+    production_rows: list[dict],
+    controls_rows: list[dict],
+    *,
+    artifact_dir: Path | None = None,
+    workers: int = 1,
+) -> dict[str, Any]:
+    if workers <= 1:
+        return _evaluate_artifact_sequential(evaluator, production_rows, controls_rows)
+
+    if artifact_dir is None:
+        raise ValueError("artifact_dir required for parallel evaluation")
+
+    worker_args = (
+        str(artifact_dir),
+        tuple(EVAL_BUDGETS),
+        SEED,
+        C_PUCT,
+        dict(SEARCH_OPTIONS),
+    )
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
+        prod_futures = []
+        chunk_size = max(1, len(production_rows) // workers)
+        for i in range(0, len(production_rows), chunk_size):
+            chunk = production_rows[i : i + chunk_size]
+            prod_futures.append(
+                pool.submit(
+                    _evaluate_positions_worker,
+                    str(artifact_dir),
+                    chunk,
+                    "production",
+                    *worker_args[1:],
+                )
+            )
+
+        ctrl_futures = []
+        for i in range(0, len(controls_rows), chunk_size):
+            chunk = controls_rows[i : i + chunk_size]
+            ctrl_futures.append(
+                pool.submit(
+                    _evaluate_positions_worker,
+                    str(artifact_dir),
+                    chunk,
+                    "control",
+                    *worker_args[1:],
+                )
+            )
+
+        prod_results: list[dict] = []
+        for future in prod_futures:
+            prod_results.extend(future.result())
+
+        ctrl_results: list[dict] = []
+        for future in ctrl_futures:
+            ctrl_results.extend(future.result())
+
+    prod_opt_1200 = sum(1 for r in prod_results if r.get("selected_is_optimal_1200"))
+    prod_opt_2400 = sum(1 for r in prod_results if r.get("selected_is_optimal_2400"))
+    ctrl_opt_1200 = sum(1 for r in ctrl_results if r.get("selected_is_optimal_1200"))
+    ctrl_opt_2400 = sum(1 for r in ctrl_results if r.get("selected_is_optimal_2400"))
+    ctrl_reg = sum(1 for r in ctrl_results if r.get("control_regression"))
+
+    return {
+        "production_count": len(prod_results),
+        "production_optimal_1200": prod_opt_1200,
+        "production_optimal_2400": prod_opt_2400,
+        "control_count": len(ctrl_results),
+        "control_optimal_1200": ctrl_opt_1200,
+        "control_optimal_2400": ctrl_opt_2400,
+        "control_regression_count": ctrl_reg,
+        "control_regression_rate": round_float(
+            ctrl_reg / len(ctrl_results) if ctrl_results else 0.0
+        ),
+        "production_results": prod_results,
+        "control_results": ctrl_results,
+    }
+
+
+def _evaluate_artifact_sequential(
     evaluator: ArtifactEvaluator,
     production_rows: list[dict],
     controls_rows: list[dict],
@@ -822,6 +1006,12 @@ def main() -> int:
         action="store_true",
         help="Rerun training even if cached",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=os.cpu_count() or 1,
+        help="Number of parallel MCTS evaluation workers",
+    )
     args = parser.parse_args()
 
     workdir = Path(args.workdir)
@@ -844,6 +1034,7 @@ def main() -> int:
     print(f"  epochs: {epoch_list}")
     print(f"  lrs: {lr_list}")
     print(f"  scopes: {scope_list}")
+    print(f"  eval workers: {args.workers}")
 
     print("\nLoading artifacts...")
     soft065_rows = load_jsonl(SOFT065_PATH)
@@ -937,7 +1128,11 @@ def main() -> int:
                         convert_npz_to_artifact(ckpt_path, artifact_dir)
                         eval_evaluator = ArtifactEvaluator(artifact_dir)
                         eval_result = evaluate_artifact(
-                            eval_evaluator, production_rows, controls_rows
+                            eval_evaluator,
+                            production_rows,
+                            controls_rows,
+                            artifact_dir=artifact_dir,
+                            workers=args.workers,
                         )
                         eval_result["epoch"] = epochs
                         eval_result["learning_rate"] = lr

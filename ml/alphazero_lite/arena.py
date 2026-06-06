@@ -415,15 +415,32 @@ class ArtifactEvaluator:
             if "b_input" in weights
             else None
         )
-        self.w_policy = np.asarray(weights["w_policy"], dtype=np.float32)
-        self.b_policy = np.asarray(weights["b_policy"], dtype=np.float32)
+        self.is_v4 = self.model_type == "residual_v4_move_factorized"
+        self.move_factorized = self.is_v4 or architecture.get("move_factorized", False)
+
+        if self.move_factorized:
+            self.w_policy_move = [
+                np.asarray(weights[f"w_policy_move_{i}"], dtype=np.float32)
+                for i in range(PITS_PER_PLAYER)
+            ]
+            self.b_policy_move = [
+                np.asarray(weights[f"b_policy_move_{i}"], dtype=np.float32)
+                for i in range(PITS_PER_PLAYER)
+            ]
+            self.w_policy = None
+            self.b_policy = None
+        else:
+            self.w_policy = np.asarray(weights["w_policy"], dtype=np.float32)
+            self.b_policy = np.asarray(weights["b_policy"], dtype=np.float32)
+            self.w_policy_move = None
+            self.b_policy_move = None
         self.w_value = np.asarray(weights["w_value"], dtype=np.float32)
         self.b_value = np.asarray(weights["b_value"], dtype=np.float32)
         self.w_policy_hidden = None
         self.b_policy_hidden = None
         self.w_value_hidden = None
         self.b_value_hidden = None
-        if self.model_type == "residual_v3":
+        if self.model_type in ("residual_v3", "residual_v4_move_factorized"):
             required_keys = [
                 "w_policy_hidden",
                 "b_policy_hidden",
@@ -434,7 +451,7 @@ class ArtifactEvaluator:
             if missing_keys:
                 missing = ", ".join(missing_keys)
                 raise ValueError(
-                    f"residual_v3 artifact is missing specialized head weights: {missing}"
+                    f"{self.model_type} artifact is missing specialized head weights: {missing}"
                 )
             self.w_policy_hidden = np.asarray(
                 weights["w_policy_hidden"], dtype=np.float32
@@ -519,7 +536,7 @@ class ArtifactEvaluator:
 
         policy_hidden = hidden
         value_hidden = hidden
-        if self.model_type == "residual_v3":
+        if self.model_type in ("residual_v3", "residual_v4_move_factorized"):
             assert self.w_policy_hidden is not None
             assert self.b_policy_hidden is not None
             assert self.w_value_hidden is not None
@@ -531,7 +548,19 @@ class ArtifactEvaluator:
                 0.0, (hidden @ self.w_value_hidden) + self.b_value_hidden
             )
 
-        logits = (policy_hidden @ self.w_policy) + self.b_policy
+        if self.move_factorized:
+            assert self.w_policy_move is not None
+            assert self.b_policy_move is not None
+            move_logits = []
+            for w_move, b_move in zip(self.w_policy_move, self.b_policy_move):
+                move_logits.append(
+                    float(
+                        (policy_hidden @ w_move).reshape(-1)[0] + b_move.reshape(-1)[0]
+                    )
+                )
+            logits = np.array(move_logits, dtype=np.float32)
+        else:
+            logits = (policy_hidden @ self.w_policy) + self.b_policy
         logits = logits - np.max(logits)
         exp_values = np.exp(logits)
         priors = exp_values / np.sum(exp_values)
