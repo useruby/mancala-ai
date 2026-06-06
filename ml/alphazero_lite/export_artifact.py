@@ -23,8 +23,14 @@ from ml.alphazero_lite.input_encodings import (
 )
 
 
-SUPPORTED_MODEL_TYPES = ["mlp_v1", "mlp_deep", "residual_v2", "residual_v3"]
-RESIDUAL_MODEL_TYPES = {"residual_v2", "residual_v3"}
+SUPPORTED_MODEL_TYPES = [
+    "mlp_v1",
+    "mlp_deep",
+    "residual_v2",
+    "residual_v3",
+    "residual_v4_move_factorized",
+]
+RESIDUAL_MODEL_TYPES = {"residual_v2", "residual_v3", "residual_v4_move_factorized"}
 
 
 def feature_order_for(input_encoding: str) -> list[str]:
@@ -146,11 +152,17 @@ def main() -> None:
     validate_checkpoint_feature_count(npz, input_encoding=args.input_encoding)
     weights_payload = {key: npz[key].tolist() for key in npz.files}
 
+    is_v4 = "w_policy_move_0" in npz
+    if is_v4:
+        policy_size = 6
+    else:
+        policy_size = int(npz["w_policy"].shape[1])
+
     architecture = {
         "type": "mlp_policy_value",
         "model_type": args.model_type,
         "activation": "relu",
-        "policy_size": int(npz["w_policy"].shape[1]),
+        "policy_size": policy_size,
         "value_size": 1,
     }
 
@@ -172,11 +184,20 @@ def main() -> None:
         if args.model_type == "residual_v3":
             validate_residual_v3_checkpoint(npz)
             architecture_payload["hidden_layer_count"] += 2
-        if args.model_type == "residual_v3" and "w_policy_hidden" in npz:
+        if args.model_type == "residual_v4_move_factorized":
+            architecture_payload["hidden_layer_count"] += 2
+            architecture_payload["move_factorized"] = True
+        if (
+            args.model_type in {"residual_v3", "residual_v4_move_factorized"}
+            and "w_policy_hidden" in npz
+        ):
             architecture_payload["policy_hidden_size"] = int(
                 npz["w_policy_hidden"].shape[1]
             )
-        if args.model_type == "residual_v3" and "w_value_hidden" in npz:
+        if (
+            args.model_type in {"residual_v3", "residual_v4_move_factorized"}
+            and "w_value_hidden" in npz
+        ):
             architecture_payload["value_hidden_size"] = int(
                 npz["w_value_hidden"].shape[1]
             )
@@ -198,7 +219,6 @@ def main() -> None:
             }
         )
 
-    policy_size = int(npz["w_policy"].shape[1])
     weights_json_path = out_dir / "weights.json"
     weights_json_path.write_text(json.dumps(weights_payload), encoding="utf-8")
     weights_json_hash = sha256_file(weights_json_path)
