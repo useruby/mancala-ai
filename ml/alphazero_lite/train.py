@@ -26,8 +26,14 @@ from ml.alphazero_lite.kalah_rules import KalahGame
 
 POLICY_SIZE = 6
 MLP_MODEL_TYPES = {"mlp_v1", "mlp_deep"}
-RESIDUAL_MODEL_TYPES = {"residual_v2", "residual_v3"}
-SUPPORTED_MODEL_TYPES = ["mlp_v1", "mlp_deep", "residual_v2", "residual_v3"]
+RESIDUAL_MODEL_TYPES = {"residual_v2", "residual_v3", "residual_v4_move_factorized"}
+SUPPORTED_MODEL_TYPES = [
+    "mlp_v1",
+    "mlp_deep",
+    "residual_v2",
+    "residual_v3",
+    "residual_v4_move_factorized",
+]
 DEFAULT_TRAINABLE_SCOPE = "all"
 SUPPORTED_TRAINABLE_SCOPES = [
     DEFAULT_TRAINABLE_SCOPE,
@@ -477,6 +483,7 @@ class PolicyValueNet(nn.Module):
         self.input_size = input_size
         self.hidden_layers = nn.ModuleList()
         self.residual_layers = nn.ModuleList()
+        self.move_projections: nn.ModuleList | None = None
         self.input_layer: nn.Linear | None = None
         self.policy_hidden_layer: nn.Linear | None = None
         self.value_hidden_layer: nn.Linear | None = None
@@ -511,6 +518,14 @@ class PolicyValueNet(nn.Module):
                 self.value_hidden_layer = nn.Linear(trunk_size, max(trunk_size // 2, 8))
                 policy_head_input_size = trunk_size
                 value_head_input_size = max(trunk_size // 2, 8)
+            elif model_type == "residual_v4_move_factorized":
+                self.policy_hidden_layer = nn.Linear(trunk_size, trunk_size)
+                self.value_hidden_layer = nn.Linear(trunk_size, max(trunk_size // 2, 8))
+                self.move_projections = nn.ModuleList(
+                    nn.Linear(trunk_size, 1) for _ in range(POLICY_SIZE)
+                )
+                policy_head_input_size = trunk_size
+                value_head_input_size = max(trunk_size // 2, 8)
             else:
                 policy_head_input_size = trunk_size
                 value_head_input_size = trunk_size
@@ -519,7 +534,8 @@ class PolicyValueNet(nn.Module):
 
         assert policy_head_input_size is not None
         assert value_head_input_size is not None
-        self.policy_head = nn.Linear(policy_head_input_size, POLICY_SIZE)
+        if model_type != "residual_v4_move_factorized":
+            self.policy_head = nn.Linear(policy_head_input_size, POLICY_SIZE)
         self.value_head = nn.Linear(value_head_input_size, 1)
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -540,6 +556,16 @@ class PolicyValueNet(nn.Module):
             policy_features = torch.relu(self.policy_hidden_layer(h))
             value_features = torch.relu(self.value_hidden_layer(h))
             policy_logits = self.policy_head(policy_features)
+            value = torch.tanh(self.value_head(value_features))
+        elif self.model_type == "residual_v4_move_factorized":
+            assert self.policy_hidden_layer is not None
+            assert self.value_hidden_layer is not None
+            assert self.move_projections is not None
+            policy_features = torch.relu(self.policy_hidden_layer(h))
+            value_features = torch.relu(self.value_hidden_layer(h))
+            policy_logits = torch.cat(
+                [proj(policy_features) for proj in self.move_projections], dim=1
+            )
             value = torch.tanh(self.value_head(value_features))
         else:
             policy_logits = self.policy_head(h)
@@ -738,20 +764,22 @@ def checkpoint_from_model(model: PolicyValueNet) -> dict[str, np.ndarray]:
 
 
 def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.ndarray]:
-    checkpoint: dict[str, np.ndarray] = {
-        "w_policy": state["policy_head.weight"]
-        .detach()
-        .cpu()
-        .numpy()
-        .T.astype(np.float32),
-        "b_policy": state["policy_head.bias"].detach().cpu().numpy().astype(np.float32),
-        "w_value": state["value_head.weight"]
-        .detach()
-        .cpu()
-        .numpy()
-        .T.astype(np.float32),
-        "b_value": state["value_head.bias"].detach().cpu().numpy().astype(np.float32),
-    }
+    is_v4 = "move_projections.0.weight" in state
+
+    checkpoint: dict[str, np.ndarray] = {}
+    if not is_v4:
+        checkpoint["w_policy"] = (
+            state["policy_head.weight"].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint["b_policy"] = (
+            state["policy_head.bias"].detach().cpu().numpy().astype(np.float32)
+        )
+    checkpoint["w_value"] = (
+        state["value_head.weight"].detach().cpu().numpy().T.astype(np.float32)
+    )
+    checkpoint["b_value"] = (
+        state["value_head.bias"].detach().cpu().numpy().astype(np.float32)
+    )
 
     if "policy_hidden_layer.weight" in state:
         checkpoint["w_policy_hidden"] = (
@@ -775,6 +803,18 @@ def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.n
         checkpoint["b_value_hidden"] = (
             state["value_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
         )
+
+    if is_v4:
+        for move_idx in range(POLICY_SIZE):
+            weight_key = f"move_projections.{move_idx}.weight"
+            bias_key = f"move_projections.{move_idx}.bias"
+            if weight_key in state:
+                checkpoint[f"w_policy_move_{move_idx}"] = (
+                    state[weight_key].detach().cpu().numpy().T.astype(np.float32)
+                )
+                checkpoint[f"b_policy_move_{move_idx}"] = (
+                    state[bias_key].detach().cpu().numpy().astype(np.float32)
+                )
 
     if "input_layer.weight" in state:
         checkpoint["w_input"] = (
@@ -827,9 +867,17 @@ def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.n
     return checkpoint
 
 
-def load_checkpoint_into_model(model: PolicyValueNet, checkpoint_path: Path) -> None:
+def load_checkpoint_into_model(
+    model: PolicyValueNet,
+    checkpoint_path: Path,
+    *,
+    report_skipped: bool = False,
+) -> list[str]:
     checkpoint = np.load(checkpoint_path)
     state_dict = model.state_dict()
+    skipped_keys: list[str] = []
+    is_v4_target = "move_projections.0.weight" in state_dict
+    is_v4_source = "w_policy_move_0" in checkpoint
 
     if "w_input" in checkpoint and "b_input" in checkpoint:
         state_dict["input_layer.weight"] = torch.from_numpy(
@@ -878,16 +926,60 @@ def load_checkpoint_into_model(model: PolicyValueNet, checkpoint_path: Path) -> 
                 checkpoint["b_value_hidden"].copy()
             )
 
-        state_dict["policy_head.weight"] = torch.from_numpy(
-            checkpoint["w_policy"].T.copy()
-        )
-        state_dict["policy_head.bias"] = torch.from_numpy(checkpoint["b_policy"].copy())
+        if is_v4_target and not is_v4_source:
+            if "w_policy" in checkpoint:
+                skipped_keys.append("w_policy")
+            if "b_policy" in checkpoint:
+                skipped_keys.append("b_policy")
+            if report_skipped and skipped_keys:
+                print(
+                    f"load_checkpoint_into_model: skipped v3 policy keys "
+                    f"(move_projections will retain random init): {skipped_keys}",
+                    file=sys.stderr,
+                )
+        elif is_v4_target and is_v4_source:
+            for move_idx in range(POLICY_SIZE):
+                wkey = f"w_policy_move_{move_idx}"
+                bkey = f"b_policy_move_{move_idx}"
+                target_w = f"move_projections.{move_idx}.weight"
+                target_b = f"move_projections.{move_idx}.bias"
+                if wkey in checkpoint and target_w in state_dict:
+                    state_dict[target_w] = torch.from_numpy(checkpoint[wkey].T.copy())
+                elif wkey in checkpoint:
+                    skipped_keys.append(wkey)
+                if bkey in checkpoint and target_b in state_dict:
+                    state_dict[target_b] = torch.from_numpy(checkpoint[bkey].copy())
+                elif bkey in checkpoint:
+                    skipped_keys.append(bkey)
+        else:
+            if "w_policy" in checkpoint and "policy_head.weight" in state_dict:
+                state_dict["policy_head.weight"] = torch.from_numpy(
+                    checkpoint["w_policy"].T.copy()
+                )
+                state_dict["policy_head.bias"] = torch.from_numpy(
+                    checkpoint["b_policy"].copy()
+                )
+            elif is_v4_source:
+                for move_idx in range(POLICY_SIZE):
+                    wkey = f"w_policy_move_{move_idx}"
+                    bkey = f"b_policy_move_{move_idx}"
+                    if wkey in checkpoint:
+                        skipped_keys.append(wkey)
+                    if bkey in checkpoint:
+                        skipped_keys.append(bkey)
+                if report_skipped and skipped_keys:
+                    print(
+                        f"load_checkpoint_into_model: skipped v4 move-factorized keys "
+                        f"(target model lacks move_projections): {skipped_keys}",
+                        file=sys.stderr,
+                    )
+
         state_dict["value_head.weight"] = torch.from_numpy(
             checkpoint["w_value"].T.copy()
         )
         state_dict["value_head.bias"] = torch.from_numpy(checkpoint["b_value"].copy())
-        model.load_state_dict(state_dict)
-        return
+        model.load_state_dict(state_dict, strict=False)
+        return skipped_keys
 
     hidden_index = 1
     while (
@@ -909,10 +1001,14 @@ def load_checkpoint_into_model(model: PolicyValueNet, checkpoint_path: Path) -> 
     state_dict["value_head.weight"] = torch.from_numpy(checkpoint["w_value"].T.copy())
     state_dict["value_head.bias"] = torch.from_numpy(checkpoint["b_value"].copy())
     model.load_state_dict(state_dict)
+    return []
 
 
-def _is_residual_v3(model: PolicyValueNet) -> bool:
-    return getattr(model, "model_type", "") == "residual_v3"
+def _is_residual_with_selective_heads(model: PolicyValueNet) -> bool:
+    return getattr(model, "model_type", "") in {
+        "residual_v3",
+        "residual_v4_move_factorized",
+    }
 
 
 def _count_parameters(model: PolicyValueNet) -> tuple[int, int]:
@@ -941,16 +1037,21 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
     for param in model.parameters():
         param.requires_grad = False
 
-    if not _is_residual_v3(model):
+    if not _is_residual_with_selective_heads(model):
         raise ValueError(
-            f"trainable_scope={scope} is only supported for residual_v3 models"
+            f"trainable_scope={scope} is only supported for residual_v3 or residual_v4_move_factorized models"
         )
 
     if scope == "policy_head":
         model.policy_hidden_layer.weight.requires_grad = True
         model.policy_hidden_layer.bias.requires_grad = True
-        model.policy_head.weight.requires_grad = True
-        model.policy_head.bias.requires_grad = True
+        if model.move_projections is not None:
+            for proj in model.move_projections:
+                proj.weight.requires_grad = True
+                proj.bias.requires_grad = True
+        else:
+            model.policy_head.weight.requires_grad = True
+            model.policy_head.bias.requires_grad = True
         return
 
     if scope == "last_block_policy":
@@ -965,8 +1066,13 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
                 param.requires_grad = True
         model.policy_hidden_layer.weight.requires_grad = True
         model.policy_hidden_layer.bias.requires_grad = True
-        model.policy_head.weight.requires_grad = True
-        model.policy_head.bias.requires_grad = True
+        if model.move_projections is not None:
+            for proj in model.move_projections:
+                proj.weight.requires_grad = True
+                proj.bias.requires_grad = True
+        else:
+            model.policy_head.weight.requires_grad = True
+            model.policy_head.bias.requires_grad = True
         return
 
     raise ValueError(f"unreachable scope: {scope}")
