@@ -57,6 +57,9 @@ class EndgameTablebase:
             return value
         return None
 
+    def clear_cache(self) -> None:
+        self._values.clear()
+
     def record(self, game: KalahGame, perspective_player: int, value: float) -> None:
         self._values[self._key(game, perspective_player)] = float(value)
 

@@ -638,6 +638,9 @@ def run_worker(
                 phase_tb[phase] = phase_tb.get(phase, 0) + count
             all_abs_deltas.extend(tb_stats["abs_deltas"])
 
+            if tablebase is not None:
+                tablebase.clear_cache()
+
     return {
         "worker_id": worker_id,
         "rows_written": rows_written,
@@ -773,6 +776,9 @@ def run_worker_classic_mcts(
             for phase, count in tb_stats["phase_tb"].items():
                 phase_tb[phase] = phase_tb.get(phase, 0) + count
             all_abs_deltas.extend(tb_stats["abs_deltas"])
+
+            if tablebase is not None:
+                tablebase.clear_cache()
 
     return {
         "worker_id": worker_id,
