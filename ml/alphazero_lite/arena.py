@@ -332,6 +332,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--opening-cache", default=None)
     parser.add_argument("--opening-cache-training-summary", default=None)
     parser.add_argument("--random-opening-plies", type=int, default=0)
+    parser.add_argument(
+        "--challenger-starts",
+        type=int,
+        default=None,
+        choices=(0, 1),
+        help="Force challenger to always start as player 0 or 1 (diagnostic seat-split). Default: alternate by game index.",
+    )
+    parser.add_argument(
+        "--game-jsonl",
+        default=None,
+        help="Optional path to write per-game diagnostic lines (JSONL). Does not affect normal arena output.",
+    )
     parser.add_argument("--out", required=True)
     parser.add_argument(
         "--root-prior-transform",
@@ -1182,6 +1194,8 @@ def run_arena_worker(
     challenger_root_prior_transform: str | None = None,
     current_root_prior_transform: str | None = None,
     random_opening_plies: int = 0,
+    challenger_starts: int | None = None,
+    game_jsonl_path: str | None = None,
     opening_cache=None,
     opening_cache_path: str | None = None,
 ) -> dict:
@@ -1264,8 +1278,9 @@ def run_arena_worker(
     value_trust_summary = None
     challenger_root_prior_telemetry_entries: list[dict] = []
     current_root_prior_telemetry_entries: list[dict] = []
+    game_entries: list[dict] = []
+    trajectory_hashes: list[str] = []
     opening_prefix_plies_applied: list[int] = []
-
     for local_index in range(games):
         game_index = start_index + local_index
         game = KalahGame.from_state(
@@ -1277,7 +1292,10 @@ def run_arena_worker(
                 "current_player": 0,
             }
         )
-        challenger_player = 0 if game_index % 2 == 0 else 1
+        if challenger_starts is not None:
+            challenger_player = challenger_starts
+        else:
+            challenger_player = 0 if game_index % 2 == 0 else 1
         opening_prefix_plies_applied.append(
             apply_random_opening_prefix(
                 game,
@@ -1291,6 +1309,9 @@ def run_arena_worker(
         }
         challenger_phase_buckets_seen: set[str] = set()
         ply = 0
+        first_move_challenger: int | None = None
+        first_move_current: int | None = None
+        game_moves: list[int] = []
 
         for _ in range(max_moves):
             if game.over():
@@ -1415,7 +1436,13 @@ def run_arena_worker(
             else:
                 root = None
                 move = cached_move
-            if not game.move(game.pit_index(move)):
+            relative_move = game.pit_index(move)
+            game_moves.append(relative_move)
+            if acting_player == challenger_player and first_move_challenger is None:
+                first_move_challenger = move
+            elif acting_player != challenger_player and first_move_current is None:
+                first_move_current = move
+            if not game.move(relative_move):
                 break
             if (
                 reuse_subtree
@@ -1431,13 +1458,36 @@ def run_arena_worker(
 
         challenger_store = game.captured_seeds[challenger_player]
         current_store = game.captured_seeds[1 - challenger_player]
+        margin = challenger_store - current_store
         if challenger_store > current_store:
             wins += 1
+            winner = "challenger"
         elif challenger_store < current_store:
             losses += 1
+            winner = "current"
         else:
             draws += 1
+            winner = "draw"
         record_completed_game_bucket(hard_suite_buckets, challenger_phase_buckets_seen)
+        trajectory_str = ",".join(str(m) for m in game_moves)
+        game_entries.append(
+            {
+                "game_index": game_index,
+                "challenger_player": challenger_player,
+                "first_move_challenger": first_move_challenger,
+                "first_move_current": first_move_current,
+                "margin": margin,
+                "game_length": ply,
+                "winner": winner,
+                "trajectory": trajectory_str,
+            }
+        )
+        trajectory_hashes.append(trajectory_str)
+
+    if game_jsonl_path:
+        with open(game_jsonl_path, "w", encoding="utf-8") as gjf:
+            for entry in game_entries:
+                gjf.write(json.dumps(entry) + "\n")
 
     return {
         "worker_id": worker_id,
@@ -1641,6 +1691,8 @@ def main() -> None:
                     challenger_root_prior_transform=args.challenger_root_prior_transform,
                     current_root_prior_transform=args.current_root_prior_transform,
                     random_opening_plies=args.random_opening_plies,
+                    challenger_starts=getattr(args, "challenger_starts", None),
+                    game_jsonl_path=getattr(args, "game_jsonl", None),
                 )
             )
         results = [future.result() for future in futures]
