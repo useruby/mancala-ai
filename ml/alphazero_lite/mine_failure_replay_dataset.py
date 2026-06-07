@@ -132,9 +132,34 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--sampling-mode",
         default="failure",
-        choices=["failure", "random"],
+        choices=["failure", "random", "agreement"],
         help="failure: apply disagreement/low-confidence/strong-preference filters; "
-        "random: sample positions uniformly without filters (same games, same relabeling, same phase stratification)",
+        "random: sample positions uniformly without filters (same games, same relabeling, same phase stratification); "
+        "agreement: keep states where current top move agrees with classic-MCTS top move and both confidence checks pass",
+    )
+    parser.add_argument(
+        "--min-teacher-top1-share",
+        type=float,
+        default=0.65,
+        help="Minimum classic-MCTS top-1 visit share for agreement mode",
+    )
+    parser.add_argument(
+        "--min-current-teacher-prob",
+        type=float,
+        default=0.40,
+        help="Minimum current model probability on teacher top move for agreement mode",
+    )
+    parser.add_argument(
+        "--target-train-rows",
+        type=int,
+        default=None,
+        help="Optional: downsample train rows to this count for row-count equality",
+    )
+    parser.add_argument(
+        "--downsample-seed",
+        type=int,
+        default=None,
+        help="Seed for deterministic downsampling (defaults to --seed)",
     )
     return parser.parse_args()
 
@@ -234,6 +259,10 @@ def run_failure_mining(
     top_visit_margin_threshold: float,
     tactical_mode: bool,
     sampling_mode: str = "failure",
+    min_teacher_top1_share: float = 0.65,
+    min_current_teacher_prob: float = 0.40,
+    target_train_rows: int | None = None,
+    downsample_seed: int | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     rng = random.Random(seed)
     evaluator = ArtifactEvaluator(Path(current_path))
@@ -387,6 +416,41 @@ def run_failure_mining(
                 keep = keep[:max_positions_per_game]
             else:
                 keep = eligible
+        elif sampling_mode == "agreement":
+            eligible = []
+            for pos in game_positions:
+                fp = _state_fingerprint(pos["encoded_state"])
+                fp_count = fingerprint_counts.get(fp, 0)
+                if fp_count >= max_fingerprint_copies:
+                    continue
+                if pos["current_top_move"] is None or pos["teacher_top_move"] is None:
+                    continue
+                if pos["current_top_move"] != pos["teacher_top_move"]:
+                    continue
+                if pos["teacher_top_visit_share"] < min_teacher_top1_share:
+                    continue
+                if pos["current_prob_on_teacher_top"] < min_current_teacher_prob:
+                    continue
+                fingerprint_counts[fp] = fp_count + 1
+                eligible.append(pos)
+
+            if len(eligible) > max_positions_per_game:
+                early = [
+                    p for p in eligible if _phase_label(p["move_index"]) == "early"
+                ]
+                mid = [p for p in eligible if _phase_label(p["move_index"]) == "mid"]
+                late = [p for p in eligible if _phase_label(p["move_index"]) == "late"]
+                early_target = max(round(max_positions_per_game * 0.34), 1)
+                mid_target = max(round(max_positions_per_game * 0.33), 1)
+                late_target = max(max_positions_per_game - early_target - mid_target, 1)
+
+                rng.shuffle(early)
+                rng.shuffle(mid)
+                rng.shuffle(late)
+                keep = early[:early_target] + mid[:mid_target] + late[:late_target]
+                keep = keep[:max_positions_per_game]
+            else:
+                keep = eligible
         else:
             for pos in game_positions:
                 keep_flag = False
@@ -481,6 +545,15 @@ def run_failure_mining(
     train_rows = all_mined_rows[:split_index]
     holdout_rows = all_mined_rows[split_index:]
 
+    downsample_applied = False
+    original_train_rows = len(train_rows)
+    if target_train_rows is not None and len(train_rows) > target_train_rows:
+        ds_seed = downsample_seed if downsample_seed is not None else seed
+        ds_rng = random.Random(ds_seed)
+        ds_rng.shuffle(train_rows)
+        train_rows = train_rows[:target_train_rows]
+        downsample_applied = True
+
     duplicate_count = sum(
         max(0, count - 1) for count in fingerprint_counts.values() if count > 1
     )
@@ -493,6 +566,13 @@ def run_failure_mining(
     total_kept = len(all_mined_rows)
     disagreement_rows = sum(
         1 for r in all_mined_rows if "top_move_disagreement" in r["filters_passed"]
+    )
+    agreement_rows = sum(
+        1
+        for r in all_mined_rows
+        if r["current_top_move"] is not None
+        and r["teacher_top_move"] is not None
+        and r["current_top_move"] == r["teacher_top_move"]
     )
     teacher_top_shares = [r["teacher_top_visit_share"] for r in all_mined_rows]
     current_probs = [r["current_prob_on_teacher_top"] for r in all_mined_rows]
@@ -510,6 +590,7 @@ def run_failure_mining(
         },
         "filter_counts": filter_counts,
         "disagreement_rate": round(disagreement_rows / max(total_kept, 1), 4),
+        "agreement_rate": round(agreement_rows / max(total_kept, 1), 4),
         "mean_classic_mcts_top1_visit_share": round(
             float(np.mean(teacher_top_shares)) if teacher_top_shares else 0.0, 4
         ),
@@ -525,6 +606,11 @@ def run_failure_mining(
         "max_positions_per_game": max_positions_per_game,
         "train_split": train_split,
         "seed": seed,
+        "downsample_applied": downsample_applied,
+        "original_train_rows": original_train_rows if downsample_applied else None,
+        "target_train_rows": target_train_rows,
+        "min_teacher_top1_share": min_teacher_top1_share,
+        "min_current_teacher_prob": min_current_teacher_prob,
     }
 
     return train_rows, holdout_rows, summary
@@ -558,6 +644,10 @@ def main() -> None:
         top_visit_margin_threshold=args.top_visit_margin_threshold,
         tactical_mode=args.tactical_mode,
         sampling_mode=args.sampling_mode,
+        min_teacher_top1_share=args.min_teacher_top1_share,
+        min_current_teacher_prob=args.min_current_teacher_prob,
+        target_train_rows=args.target_train_rows,
+        downsample_seed=args.downsample_seed,
     )
 
     out_train = Path(args.out_train)
@@ -593,8 +683,10 @@ def main() -> None:
     print(f"failure_mining_games={summary['mined_games']}")
     print(f"failure_mining_positions_visited={summary['total_positions_visited']}")
     print(f"failure_mining_disagreement_rate={summary['disagreement_rate']}")
+    print(f"failure_mining_agreement_rate={summary['agreement_rate']}")
     print(f"failure_mining_sampling_mode={args.sampling_mode}")
     print(f"failure_mining_elapsed_seconds={elapsed:.1f}")
+    print(f"failure_mining_downsample_applied={summary['downsample_applied']}")
     print(f"summary_written={summary_path}")
 
 
