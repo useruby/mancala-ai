@@ -7,6 +7,12 @@ MCTS, then filters to states where the current model likely needs the most help.
 
 Outputs train and holdout JSONL files suitable for use as additional replay data
 in multi-file AlphaZero-lite training.
+
+Supports two-phase source-state workflow:
+  1. Generate source states with --out-source-states (writes mined positions before
+     relabeling, for reuse at multiple teacher simulation budgets).
+  2. Relabel saved source states with --source-states --relabel-only, varying
+     --teacher-simulations to test label quality independently of state distribution.
 """
 
 from __future__ import annotations
@@ -161,6 +167,21 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Seed for deterministic downsampling (defaults to --seed)",
     )
+    parser.add_argument(
+        "--out-source-states",
+        default=None,
+        help="Write mined source states JSONL (before relabeling) for reuse at different teacher budgets",
+    )
+    parser.add_argument(
+        "--source-states",
+        default=None,
+        help="Read mined source states from JSONL instead of playing new games",
+    )
+    parser.add_argument(
+        "--relabel-only",
+        action="store_true",
+        help="Skip game playing and only relabel states from --source-states",
+    )
     return parser.parse_args()
 
 
@@ -263,6 +284,7 @@ def run_failure_mining(
     min_current_teacher_prob: float = 0.40,
     target_train_rows: int | None = None,
     downsample_seed: int | None = None,
+    out_source_states: list[dict[str, Any]] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     rng = random.Random(seed)
     evaluator = ArtifactEvaluator(Path(current_path))
@@ -540,6 +562,33 @@ def run_failure_mining(
                 phase_counts[_phase_label(move_index)] += 1
                 total_positions_kept += 1
 
+                if out_source_states is not None:
+                    source_state = {
+                        "encoded_state": pos["encoded_state"],
+                        "game_state": pos["game_state"],
+                        "player": player,
+                        "move_index": move_index,
+                        "legal_moves": pos["legal_moves"],
+                        "current_policy": pos["current_policy"],
+                        "current_top_move": pos["current_top_move"],
+                        "teacher_visits": pos["teacher_visits"],
+                        "teacher_policy": pos["teacher_policy"],
+                        "teacher_value": pos["teacher_value"],
+                        "teacher_top_move": pos["teacher_top_move"],
+                        "teacher_top_visit_share": pos["teacher_top_visit_share"],
+                        "current_prob_on_teacher_top": pos[
+                            "current_prob_on_teacher_top"
+                        ],
+                        "tactical": pos["tactical"],
+                        "filters_passed": pos["filters_passed"],
+                        "game_index": pos["game_index"],
+                        "current_seat": pos["current_seat"],
+                        "is_current_to_move": pos["is_current_to_move"],
+                        "outcome_value": outcome_value,
+                        "teacher_simulations": teacher_simulations,
+                    }
+                    out_source_states.append(source_state)
+
     rng.shuffle(all_mined_rows)
     split_index = max(1, round(len(all_mined_rows) * train_split))
     train_rows = all_mined_rows[:split_index]
@@ -616,6 +665,146 @@ def run_failure_mining(
     return train_rows, holdout_rows, summary
 
 
+def relabel_source_states(
+    *,
+    source_states_path: Path,
+    teacher_simulations: int,
+    seed: int,
+    policy_target_mode: str,
+    value_target_mode: str,
+    policy_temperature: float,
+    train_split: float,
+    target_train_rows: int | None = None,
+    downsample_seed: int | None = None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    rng = random.Random(seed)
+
+    source_states: list[dict[str, Any]] = []
+    with source_states_path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            source_states.append(json.loads(line))
+
+    all_rows: list[dict[str, Any]] = []
+    phase_counts: dict[str, int] = {"early": 0, "mid": 0, "late": 0}
+
+    for idx, src in enumerate(source_states):
+        game = KalahGame.from_state(src["game_state"])
+        legal_moves = game.possible_moves()
+
+        s_seed = search_seed(seed, src["game_index"], src["move_index"])
+        mcts = ClassicMCTS(
+            game.clone(),
+            simulations=teacher_simulations,
+            seed=s_seed,
+        )
+        root = mcts.search_root()
+        teacher_visits = visits_from_classic_mcts_root(root)
+        teacher_value = value_from_classic_mcts_root(root)
+
+        teacher_policy = build_policy_target(
+            visits=np.asarray(teacher_visits, dtype=np.float64),
+            legal_moves=legal_moves,
+            temperature=policy_temperature,
+            mode=policy_target_mode,
+        )
+        teacher_top = _top_move(teacher_visits, legal_moves)
+        teacher_top_share = _top_visit_share(teacher_visits, legal_moves)
+
+        move_index = src["move_index"]
+        value = canonical_value_target(
+            outcome_value=src["outcome_value"],
+            search_value=teacher_value,
+            move_index=move_index,
+            mode=value_target_mode,
+        )
+
+        row = {
+            "move_index": move_index,
+            "player": src["player"],
+            "state": src["encoded_state"],
+            "policy": teacher_policy,
+            "policy_target_mode": policy_target_mode,
+            "value_target_mode": value_target_mode,
+            "value": value,
+            "source_game_id": src["game_index"],
+            "source_ply": move_index,
+            "current_seat": src["current_seat"],
+            "current_top_move": src["current_top_move"],
+            "teacher_top_move": teacher_top,
+            "teacher_top_visit_share": teacher_top_share,
+            "current_prob_on_teacher_top": src.get("current_prob_on_teacher_top"),
+            "filters_passed": src.get("filters_passed", []),
+            "tactical_extra_turn": src.get("tactical", {}).get("extra_turn", False),
+            "tactical_capture": src.get("tactical", {}).get("capture", False),
+            "teacher_value_at_state": teacher_value,
+        }
+        all_rows.append(row)
+        phase_counts[_phase_label(move_index)] += 1
+
+    rng.shuffle(all_rows)
+    split_index = max(1, round(len(all_rows) * train_split))
+    train_rows = all_rows[:split_index]
+    holdout_rows = all_rows[split_index:]
+
+    downsample_applied = False
+    original_train_rows = len(train_rows)
+    if target_train_rows is not None and len(train_rows) > target_train_rows:
+        ds_seed = downsample_seed if downsample_seed is not None else seed
+        ds_rng = random.Random(ds_seed)
+        ds_rng.shuffle(train_rows)
+        train_rows = train_rows[:target_train_rows]
+        downsample_applied = True
+
+    teacher_top_shares = [r["teacher_top_visit_share"] for r in all_rows]
+    current_probs = [r.get("current_prob_on_teacher_top", 0.0) for r in all_rows]
+    disagreement_rows = sum(
+        1 for r in all_rows if "top_move_disagreement" in r.get("filters_passed", [])
+    )
+    agreement_rows = sum(
+        1
+        for r in all_rows
+        if r.get("current_top_move") is not None
+        and r.get("teacher_top_move") is not None
+        and r["current_top_move"] == r["teacher_top_move"]
+    )
+
+    total_kept = len(all_rows)
+    summary = {
+        "mined_games": len({r["source_game_id"] for r in all_rows}),
+        "total_positions_kept": total_kept,
+        "train_rows": len(train_rows),
+        "holdout_rows": len(holdout_rows),
+        "rows_per_phase": {
+            "early": phase_counts.get("early", 0),
+            "mid": phase_counts.get("mid", 0),
+            "late": phase_counts.get("late", 0),
+        },
+        "disagreement_rate": round(disagreement_rows / max(total_kept, 1), 4),
+        "agreement_rate": round(agreement_rows / max(total_kept, 1), 4),
+        "mean_classic_mcts_top1_visit_share": round(
+            float(np.mean(teacher_top_shares)) if teacher_top_shares else 0.0, 4
+        ),
+        "mean_current_prob_on_teacher_top": round(
+            float(np.mean(current_probs)) if current_probs else 0.0, 4
+        ),
+        "teacher_simulations": teacher_simulations,
+        "policy_target_mode": policy_target_mode,
+        "value_target_mode": value_target_mode,
+        "train_split": train_split,
+        "seed": seed,
+        "downsample_applied": downsample_applied,
+        "original_train_rows": original_train_rows if downsample_applied else None,
+        "target_train_rows": target_train_rows,
+        "source_states_path": str(source_states_path),
+        "source_state_rows": len(source_states),
+    }
+
+    return train_rows, holdout_rows, summary
+
+
 def write_jsonl(rows: list[dict[str, Any]], path: Path) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
@@ -629,26 +818,64 @@ def main() -> None:
     args = parse_args()
     started = time.perf_counter()
 
-    train_rows, holdout_rows, summary = run_failure_mining(
-        current_path=args.current,
-        games=args.games,
-        teacher_simulations=args.teacher_simulations,
-        seed=args.seed,
-        max_positions_per_game=args.max_positions_per_game,
-        input_encoding=args.input_encoding,
-        policy_target_mode=args.policy_target_mode,
-        value_target_mode=args.value_target_mode,
-        policy_temperature=args.policy_temperature,
-        train_split=args.train_split,
-        disagreement_prob_threshold=args.disagreement_prob_threshold,
-        top_visit_margin_threshold=args.top_visit_margin_threshold,
-        tactical_mode=args.tactical_mode,
-        sampling_mode=args.sampling_mode,
-        min_teacher_top1_share=args.min_teacher_top1_share,
-        min_current_teacher_prob=args.min_current_teacher_prob,
-        target_train_rows=args.target_train_rows,
-        downsample_seed=args.downsample_seed,
-    )
+    if args.relabel_only:
+        if not args.source_states:
+            raise SystemExit("--source-states is required with --relabel-only")
+        source_states_path = Path(args.source_states)
+        if not source_states_path.exists():
+            raise SystemExit(f"source states file not found: {source_states_path}")
+
+        train_rows, holdout_rows, summary = relabel_source_states(
+            source_states_path=source_states_path,
+            teacher_simulations=args.teacher_simulations,
+            seed=args.seed,
+            policy_target_mode=args.policy_target_mode,
+            value_target_mode=args.value_target_mode,
+            policy_temperature=args.policy_temperature,
+            train_split=args.train_split,
+            target_train_rows=args.target_train_rows,
+            downsample_seed=args.downsample_seed,
+        )
+    else:
+        out_source_states: list[dict[str, Any]] | None = (
+            [] if args.out_source_states else None
+        )
+
+        train_rows, holdout_rows, summary = run_failure_mining(
+            current_path=args.current,
+            games=args.games,
+            teacher_simulations=args.teacher_simulations,
+            seed=args.seed,
+            max_positions_per_game=args.max_positions_per_game,
+            input_encoding=args.input_encoding,
+            policy_target_mode=args.policy_target_mode,
+            value_target_mode=args.value_target_mode,
+            policy_temperature=args.policy_temperature,
+            train_split=args.train_split,
+            disagreement_prob_threshold=args.disagreement_prob_threshold,
+            top_visit_margin_threshold=args.top_visit_margin_threshold,
+            tactical_mode=args.tactical_mode,
+            sampling_mode=args.sampling_mode,
+            min_teacher_top1_share=args.min_teacher_top1_share,
+            min_current_teacher_prob=args.min_current_teacher_prob,
+            target_train_rows=args.target_train_rows,
+            downsample_seed=args.downsample_seed,
+            out_source_states=out_source_states,
+        )
+
+        if out_source_states is not None:
+            source_path = Path(args.out_source_states)
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            with source_path.open("w", encoding="utf-8") as handle:
+                for ss in out_source_states:
+                    handle.write(json.dumps(ss) + "\n")
+            source_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
+            summary["source_states_sha256"] = source_sha
+            summary["source_states_path"] = str(source_path)
+            summary["source_state_rows"] = len(out_source_states)
+            print(
+                f"source_states_written={source_path} rows={len(out_source_states)} sha256={source_sha}"
+            )
 
     out_train = Path(args.out_train)
     out_holdout = Path(args.out_holdout)
@@ -681,7 +908,9 @@ def main() -> None:
     print(f"failure_mining_train_sha256={train_sha}")
     print(f"failure_mining_holdout_sha256={holdout_sha}")
     print(f"failure_mining_games={summary['mined_games']}")
-    print(f"failure_mining_positions_visited={summary['total_positions_visited']}")
+    print(
+        f"failure_mining_positions_visited={summary.get('total_positions_visited', summary.get('total_positions_kept', 0))}"
+    )
     print(f"failure_mining_disagreement_rate={summary['disagreement_rate']}")
     print(f"failure_mining_agreement_rate={summary['agreement_rate']}")
     print(f"failure_mining_sampling_mode={args.sampling_mode}")
