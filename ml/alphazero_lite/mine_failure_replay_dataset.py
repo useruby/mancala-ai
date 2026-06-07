@@ -129,6 +129,13 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Prefer tactical positions (capture, extra-turn) in mining",
     )
+    parser.add_argument(
+        "--sampling-mode",
+        default="failure",
+        choices=["failure", "random"],
+        help="failure: apply disagreement/low-confidence/strong-preference filters; "
+        "random: sample positions uniformly without filters (same games, same relabeling, same phase stratification)",
+    )
     return parser.parse_args()
 
 
@@ -226,6 +233,7 @@ def run_failure_mining(
     disagreement_prob_threshold: float,
     top_visit_margin_threshold: float,
     tactical_mode: bool,
+    sampling_mode: str = "failure",
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     rng = random.Random(seed)
     evaluator = ArtifactEvaluator(Path(current_path))
@@ -352,51 +360,81 @@ def run_failure_mining(
             pass
 
         keep: list[dict[str, Any]] = []
-        for pos in game_positions:
-            keep_flag = False
-            for filter_name in pos["filters_passed"]:
-                keep_flag = True
-                filter_counts[filter_name] = filter_counts.get(filter_name, 0) + 1
+        if sampling_mode == "random":
+            eligible = []
+            for pos in game_positions:
+                fp = _state_fingerprint(pos["encoded_state"])
+                fp_count = fingerprint_counts.get(fp, 0)
+                if fp_count >= max_fingerprint_copies:
+                    continue
+                fingerprint_counts[fp] = fp_count + 1
+                eligible.append(pos)
 
-            if current_wins_game is False and pos["is_current_to_move"]:
-                keep_flag = True
-                filter_counts["game_lost_by_current"] = (
-                    filter_counts.get("game_lost_by_current", 0) + 1
-                )
+            if len(eligible) > max_positions_per_game:
+                early = [
+                    p for p in eligible if _phase_label(p["move_index"]) == "early"
+                ]
+                mid = [p for p in eligible if _phase_label(p["move_index"]) == "mid"]
+                late = [p for p in eligible if _phase_label(p["move_index"]) == "late"]
+                early_target = max(round(max_positions_per_game * 0.34), 1)
+                mid_target = max(round(max_positions_per_game * 0.33), 1)
+                late_target = max(max_positions_per_game - early_target - mid_target, 1)
 
-            if not keep_flag:
-                continue
+                rng.shuffle(early)
+                rng.shuffle(mid)
+                rng.shuffle(late)
+                keep = early[:early_target] + mid[:mid_target] + late[:late_target]
+                keep = keep[:max_positions_per_game]
+            else:
+                keep = eligible
+        else:
+            for pos in game_positions:
+                keep_flag = False
+                for filter_name in pos["filters_passed"]:
+                    keep_flag = True
+                    filter_counts[filter_name] = filter_counts.get(filter_name, 0) + 1
 
-            fp = _state_fingerprint(pos["encoded_state"])
-            fp_count = fingerprint_counts.get(fp, 0)
-            if fp_count >= max_fingerprint_copies:
-                continue
-            fingerprint_counts[fp] = fp_count + 1
-            keep.append(pos)
+                if current_wins_game is False and pos["is_current_to_move"]:
+                    keep_flag = True
+                    filter_counts["game_lost_by_current"] = (
+                        filter_counts.get("game_lost_by_current", 0) + 1
+                    )
 
-        if len(keep) > max_positions_per_game:
-            early = [p for p in keep if _phase_label(p["move_index"]) == "early"]
-            mid = [p for p in keep if _phase_label(p["move_index"]) == "mid"]
-            late = [p for p in keep if _phase_label(p["move_index"]) == "late"]
-            early_target = max(round(max_positions_per_game * 0.34), 1)
-            mid_target = max(round(max_positions_per_game * 0.33), 1)
-            late_target = max(max_positions_per_game - early_target - mid_target, 1)
+                if not keep_flag:
+                    continue
 
-            def _rank_key(pos: dict[str, Any]) -> tuple[int, float, int]:
-                return (
-                    0
-                    if tactical_mode
-                    and (pos["tactical"]["extra_turn"] or pos["tactical"]["capture"])
-                    else 1,
-                    -pos["teacher_top_visit_share"],
-                    pos["move_index"],
-                )
+                fp = _state_fingerprint(pos["encoded_state"])
+                fp_count = fingerprint_counts.get(fp, 0)
+                if fp_count >= max_fingerprint_copies:
+                    continue
+                fingerprint_counts[fp] = fp_count + 1
+                keep.append(pos)
 
-            early.sort(key=_rank_key)
-            mid.sort(key=_rank_key)
-            late.sort(key=_rank_key)
-            keep = early[:early_target] + mid[:mid_target] + late[:late_target]
-            keep = keep[:max_positions_per_game]
+            if len(keep) > max_positions_per_game:
+                early = [p for p in keep if _phase_label(p["move_index"]) == "early"]
+                mid = [p for p in keep if _phase_label(p["move_index"]) == "mid"]
+                late = [p for p in keep if _phase_label(p["move_index"]) == "late"]
+                early_target = max(round(max_positions_per_game * 0.34), 1)
+                mid_target = max(round(max_positions_per_game * 0.33), 1)
+                late_target = max(max_positions_per_game - early_target - mid_target, 1)
+
+                def _rank_key(pos: dict[str, Any]) -> tuple[int, float, int]:
+                    return (
+                        0
+                        if tactical_mode
+                        and (
+                            pos["tactical"]["extra_turn"] or pos["tactical"]["capture"]
+                        )
+                        else 1,
+                        -pos["teacher_top_visit_share"],
+                        pos["move_index"],
+                    )
+
+                early.sort(key=_rank_key)
+                mid.sort(key=_rank_key)
+                late.sort(key=_rank_key)
+                keep = early[:early_target] + mid[:mid_target] + late[:late_target]
+                keep = keep[:max_positions_per_game]
 
         if keep:
             mined_games_count += 1
@@ -519,6 +557,7 @@ def main() -> None:
         disagreement_prob_threshold=args.disagreement_prob_threshold,
         top_visit_margin_threshold=args.top_visit_margin_threshold,
         tactical_mode=args.tactical_mode,
+        sampling_mode=args.sampling_mode,
     )
 
     out_train = Path(args.out_train)
@@ -534,6 +573,7 @@ def main() -> None:
     summary["train_path"] = str(out_train)
     summary["holdout_path"] = str(out_holdout)
     summary["elapsed_seconds"] = round(elapsed, 1)
+    summary["sampling_mode"] = args.sampling_mode
 
     summary_path = (
         Path(args.out_summary)
@@ -553,6 +593,7 @@ def main() -> None:
     print(f"failure_mining_games={summary['mined_games']}")
     print(f"failure_mining_positions_visited={summary['total_positions_visited']}")
     print(f"failure_mining_disagreement_rate={summary['disagreement_rate']}")
+    print(f"failure_mining_sampling_mode={args.sampling_mode}")
     print(f"failure_mining_elapsed_seconds={elapsed:.1f}")
     print(f"summary_written={summary_path}")
 
