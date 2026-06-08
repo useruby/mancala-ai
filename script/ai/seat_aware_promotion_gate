@@ -1,0 +1,296 @@
+#!/usr/bin/env python3
+"""Seat-aware AlphaZero-lite promotion gate.
+
+Evaluates a candidate against current across multiple search budgets with
+forced seat-splits. Produces a seat-aware report with disadvantaged-seat
+scores, candidate classification, and ranking data.
+
+Does not train, promote, or overwrite any model.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+VENV_PYTHON = str(REPO_ROOT / ".venv/bin/python")
+sys.path.insert(0, str(REPO_ROOT))
+
+
+def _find_python() -> str:
+    candidates = [
+        REPO_ROOT / ".venv/bin/python",
+    ]
+    for c in candidates:
+        if c.is_file():
+            return str(c)
+    return sys.executable
+
+
+def existing_path(value: str) -> Path:
+    path = Path(value)
+    if not path.exists():
+        raise argparse.ArgumentTypeError(f"path does not exist: {value}")
+    return path
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Seat-aware AlphaZero-lite promotion gate evaluation."
+    )
+    parser.add_argument(
+        "--candidate-path",
+        required=True,
+        type=existing_path,
+        help="Candidate artifact directory",
+    )
+    parser.add_argument(
+        "--current-path",
+        default="model-artifact/current",
+        help="Current production artifact directory",
+    )
+    parser.add_argument(
+        "--out", required=True, type=Path, help="Output JSON report path"
+    )
+    parser.add_argument("--games", type=int, default=120, help="Games per arena run")
+    parser.add_argument("--seed", type=int, default=42, help="Base random seed")
+    parser.add_argument(
+        "--workers", type=int, default=1, help="Number of worker processes"
+    )
+    parser.add_argument(
+        "--budget-pairs",
+        default="384:256,1200:1200,1200:256,256:768",
+        help="Comma-separated challenger:current simulation budget pairs",
+    )
+    parser.add_argument(
+        "--skip-arenas",
+        action="store_true",
+        help="Skip arena runs; load existing JSON/JSONL from workdir",
+    )
+    parser.add_argument(
+        "--workdir",
+        default=None,
+        help="Working directory for arena outputs (default: parent of --out)",
+    )
+    return parser.parse_args()
+
+
+def run_arena(
+    challenger: str,
+    current: str,
+    challenger_sims: int,
+    current_sims: int,
+    games: int,
+    seed: int,
+    workers: int,
+    out_json: str,
+    out_jsonl: str,
+    challenger_starts: int | None = None,
+    timeout: int = 3600,
+) -> dict:
+    python = _find_python()
+    cmd = [
+        python,
+        str(REPO_ROOT / "ml/alphazero_lite/arena.py"),
+        "--challenger",
+        challenger,
+        "--current",
+        current,
+        "--challenger-simulations",
+        str(challenger_sims),
+        "--current-simulations",
+        str(current_sims),
+        "--games",
+        str(games),
+        "--seed",
+        str(seed),
+        "--workers",
+        str(workers),
+        "--min-score",
+        "0.0",
+        "--out",
+        out_json,
+        "--game-jsonl",
+        out_jsonl,
+    ]
+    if challenger_starts is not None:
+        cmd.extend(["--challenger-starts", str(challenger_starts)])
+
+    result = subprocess.run(
+        cmd,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+    if result.returncode != 0:
+        stderr = result.stderr.strip()
+        raise RuntimeError(
+            f"arena failed ({challenger_sims}:{current_sims}): {stderr or ' '.join(cmd)}"
+        )
+    return json.loads(Path(out_json).read_text(encoding="utf-8"))
+
+
+def run_seat_aware_evaluation(
+    args: argparse.Namespace,
+) -> dict:
+    workdir = Path(args.workdir) if args.workdir else args.out.parent
+    workdir.mkdir(parents=True, exist_ok=True)
+    candidate_name = Path(args.candidate_path).name
+    eval_dir = workdir / candidate_name
+    eval_dir.mkdir(parents=True, exist_ok=True)
+
+    budget_pairs = []
+    for bp in args.budget_pairs.split(","):
+        bp = bp.strip()
+        if ":" in bp:
+            c_str, cur_str = bp.split(":", 1)
+            budget_pairs.append((int(c_str), int(cur_str)))
+
+    from ml.alphazero_lite.seat_aware_arena import (
+        BUDGET_PAIR_LABELS,
+        build_seat_aware_report,
+        compute_seat_split_metrics,
+        parse_game_jsonl,
+    )
+
+    arena_results: list[dict] = []
+
+    for chall_sims, curr_sims in budget_pairs:
+        budget_label = BUDGET_PAIR_LABELS.get(
+            (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
+        )
+        pair_dir = eval_dir / budget_label
+        pair_dir.mkdir(parents=True, exist_ok=True)
+
+        alt_json = str(pair_dir / "alternating_arena.json")
+        alt_jsonl = str(pair_dir / "alternating_games.jsonl")
+
+        print(
+            f"[seat-aware] {candidate_name} {budget_label} alternating ...", flush=True
+        )
+        try:
+            alt_report = run_arena(
+                challenger=str(args.candidate_path),
+                current=args.current_path,
+                challenger_sims=chall_sims,
+                current_sims=curr_sims,
+                games=args.games,
+                seed=args.seed,
+                workers=args.workers,
+                out_json=alt_json,
+                out_jsonl=alt_jsonl,
+            )
+        except RuntimeError as e:
+            print(f"  FAILED alternating: {e}", flush=True)
+            arena_results.append(
+                {
+                    "budget_label": budget_label,
+                    "challenger_sims": chall_sims,
+                    "current_sims": curr_sims,
+                    "error": str(e),
+                }
+            )
+            continue
+
+        alt_entries = parse_game_jsonl(alt_jsonl)
+        seat_metrics = compute_seat_split_metrics(alt_entries)
+
+        arena_notes = (
+            alt_report.get("notes", {})
+            if isinstance(alt_report.get("notes"), dict)
+            else {}
+        )
+        arena_results.append(
+            {
+                "budget_label": budget_label,
+                "challenger_sims": chall_sims,
+                "current_sims": curr_sims,
+                "arena_score": alt_report["score"],
+                "arena_wins": alt_report["wins"],
+                "arena_losses": alt_report["losses"],
+                "arena_draws": alt_report["draws"],
+                "seat_metrics": seat_metrics,
+                "move_time_mean_ms": arena_notes.get("move_time_mean_ms"),
+                "move_time_p95_ms": arena_notes.get("move_time_p95_ms"),
+            }
+        )
+
+        for forced_starts in (0, 1):
+            ss_label = f"starts_{forced_starts}"
+            ss_dir = pair_dir / ss_label
+            ss_dir.mkdir(parents=True, exist_ok=True)
+            ss_json = str(ss_dir / "arena.json")
+            ss_jsonl = str(ss_dir / "games.jsonl")
+
+            print(
+                f"[seat-aware] {candidate_name} {budget_label} forced_starts={forced_starts} ...",
+                flush=True,
+            )
+            try:
+                fs_report = run_arena(
+                    challenger=str(args.candidate_path),
+                    current=args.current_path,
+                    challenger_sims=chall_sims,
+                    current_sims=curr_sims,
+                    games=args.games,
+                    seed=args.seed + 2000 + forced_starts,
+                    workers=args.workers,
+                    out_json=ss_json,
+                    out_jsonl=ss_jsonl,
+                    challenger_starts=forced_starts,
+                )
+            except RuntimeError as e:
+                print(f"  FAILED forced starts={forced_starts}: {e}", flush=True)
+                continue
+
+            fs_entries = parse_game_jsonl(ss_jsonl)
+            fs_seat_metrics = compute_seat_split_metrics(fs_entries)
+
+            arena_results.append(
+                {
+                    "budget_label": budget_label,
+                    "challenger_sims": chall_sims,
+                    "current_sims": curr_sims,
+                    "forced_starts": forced_starts,
+                    "arena_score": fs_report["score"],
+                    "arena_wins": fs_report["wins"],
+                    "arena_losses": fs_report["losses"],
+                    "arena_draws": fs_report["draws"],
+                    "seat_metrics": fs_seat_metrics,
+                    "move_time_mean_ms": arena_notes.get("move_time_mean_ms"),
+                    "move_time_p95_ms": arena_notes.get("move_time_p95_ms"),
+                }
+            )
+
+    report = build_seat_aware_report(
+        candidate_path=str(args.candidate_path),
+        current_path=args.current_path,
+        arena_results=arena_results,
+    )
+
+    print(f"\nClassification: {report['classification']}")
+    print(f"Standard alternating score: {report['standard_alternating_score']:.4f}")
+    for label, br in report.get("budget_results", {}).items():
+        ds = br.get("disadvantaged_seat_score")
+        if ds is not None:
+            print(f"  {label} disadvantaged-seat score: {ds:.4f}")
+
+    return report
+
+
+def main() -> int:
+    args = parse_args()
+    report = run_seat_aware_evaluation(args)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(f"\nReport written to {args.out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
