@@ -36,7 +36,10 @@ from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.self_play import (
     DEFAULT_POLICY_TARGET_MODE,
+    DEFAULT_SEARCH_OPTIONS,
+    PUCT,
     SUPPORTED_POLICY_TARGET_MODES,
+    SUPPORTED_ROOT_POLICY_MODES,
     SUPPORTED_VALUE_TARGET_MODES,
     build_policy_target,
     canonical_value_target,
@@ -182,6 +185,30 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip game playing and only relabel states from --source-states",
     )
+    parser.add_argument(
+        "--player-simulations",
+        type=int,
+        default=0,
+        help="If > 0, use PUCT for current-model moves during game generation",
+    )
+    parser.add_argument(
+        "--root-policy-mode",
+        default="visit_count",
+        choices=sorted(SUPPORTED_ROOT_POLICY_MODES),
+        help="Root policy mode for PUCT player moves",
+    )
+    parser.add_argument(
+        "--tactical-root-bias",
+        type=float,
+        default=DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+        help="Tactical root bias for PUCT player moves",
+    )
+    parser.add_argument(
+        "--c-puct",
+        type=float,
+        default=1.25,
+        help="PUCT exploration constant for player moves",
+    )
     return parser.parse_args()
 
 
@@ -285,9 +312,14 @@ def run_failure_mining(
     target_train_rows: int | None = None,
     downsample_seed: int | None = None,
     out_source_states: list[dict[str, Any]] | None = None,
+    player_simulations: int = 0,
+    tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+    root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
+    c_puct: float = 1.25,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     rng = random.Random(seed)
     evaluator = ArtifactEvaluator(Path(current_path))
+    use_puct_player = player_simulations > 0
 
     all_mined_rows: list[dict[str, Any]] = []
     mined_games_count = 0
@@ -397,7 +429,19 @@ def run_failure_mining(
             total_positions_visited += 1
 
             if game.current_player == current_seat:
-                chosen_move = current_top
+                if use_puct_player:
+                    puct = PUCT(
+                        evaluator=evaluator,
+                        simulations=player_simulations,
+                        c_puct=c_puct,
+                        rng=rng,
+                        tactical_root_bias=tactical_root_bias,
+                        root_policy_mode=root_policy_mode,
+                    )
+                    _puct_visits, puct_root = puct.run(game.clone())
+                    chosen_move = puct.select_root_move(puct_root, legal_moves)
+                else:
+                    chosen_move = current_top
             else:
                 chosen_move = teacher_top
             if chosen_move is None or chosen_move not in legal_moves:
@@ -660,6 +704,10 @@ def run_failure_mining(
         "target_train_rows": target_train_rows,
         "min_teacher_top1_share": min_teacher_top1_share,
         "min_current_teacher_prob": min_current_teacher_prob,
+        "player_simulations": player_simulations,
+        "tactical_root_bias": tactical_root_bias,
+        "root_policy_mode": root_policy_mode,
+        "c_puct": c_puct,
     }
 
     return train_rows, holdout_rows, summary
@@ -861,6 +909,10 @@ def main() -> None:
             target_train_rows=args.target_train_rows,
             downsample_seed=args.downsample_seed,
             out_source_states=out_source_states,
+            player_simulations=args.player_simulations,
+            tactical_root_bias=args.tactical_root_bias,
+            root_policy_mode=args.root_policy_mode,
+            c_puct=args.c_puct,
         )
 
         if out_source_states is not None:
