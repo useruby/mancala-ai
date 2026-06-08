@@ -70,6 +70,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stub-regression-report", type=Path)
     parser.add_argument("--stub-forensic-report", type=Path)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--seat-aware",
+        action="store_true",
+        help="Run seat-aware arena evaluation and embed results in report. "
+        "Requires --candidate-path and --current-path. Does not affect gate criteria.",
+    )
     return parser.parse_args()
 
 
@@ -1400,6 +1406,55 @@ def main() -> int:
         report = build_stub_decision_report(args, report)
     elif not args.dry_run:
         report = build_real_decision_report(args, report)
+
+    if args.seat_aware and not args.dry_run:
+        seat_aware_out = args.out.parent / "seat_aware_gate.json"
+        try:
+            result = subprocess.run(
+                [
+                    python_executable(),
+                    str(Path(__file__).resolve().parent / "seat_aware_promotion_gate"),
+                    "--candidate-path",
+                    str(args.candidate_path),
+                    "--current-path",
+                    args.current_path,
+                    "--games",
+                    str(args.arena_games),
+                    "--seed",
+                    "42",
+                    "--out",
+                    str(seat_aware_out),
+                ],
+                cwd=repo_root(),
+                capture_output=True,
+                text=True,
+                timeout=7200,
+                check=False,
+            )
+            if result.returncode == 0 and seat_aware_out.exists():
+                seat_report = load_json(seat_aware_out)
+                report["seat_aware"] = {
+                    "source": str(seat_aware_out),
+                    "classification": seat_report.get("classification"),
+                    "standard_alternating_score": seat_report.get(
+                        "standard_alternating_score"
+                    ),
+                    "budget_results": seat_report.get("budget_results"),
+                    "ranking_table": seat_report.get("ranking_table"),
+                    "caveat": (
+                        "Arena scores are dominated by Kalah seat advantage. "
+                        "The alternating-seat score is a misleading metric when seat "
+                        "determines the winner. See disadvantaged-seat scores for true "
+                        "relative strength."
+                    ),
+                }
+            else:
+                report["seat_aware"] = {
+                    "error": "seat_aware_promotion_gate failed",
+                    "stderr": result.stderr.strip()[:1000] if result.stderr else "",
+                }
+        except Exception as exc:
+            report["seat_aware"] = {"error": str(exc)}
 
     args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps({"report_path": str(args.out), "dry_run": args.dry_run}))

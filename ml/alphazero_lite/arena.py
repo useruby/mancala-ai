@@ -152,6 +152,16 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
         choices=sorted(ARENA_TRANSFORM_NAMES),
         default=None,
     )
+    parser.add_argument(
+        "--challenger-starts",
+        type=int,
+        default=None,
+        choices=(0, 1),
+    )
+    parser.add_argument(
+        "--game-jsonl",
+        default=None,
+    )
     add_early_search_option_args(parser)
     parser.set_defaults(
         root_policy_mode=EARLY_DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
@@ -305,6 +315,33 @@ def run_stub_main(argv: list[str] | None = None) -> int:
     print(
         f"score={report['score']:.4f} passed={report['promotion_decision']['passed']}"
     )
+    if args.game_jsonl:
+        game_jsonl_path = Path(args.game_jsonl)
+        game_jsonl_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(game_jsonl_path, "w", encoding="utf-8") as gjf:
+            for i in range(args.games):
+                cp = (
+                    int(args.challenger_starts)
+                    if args.challenger_starts is not None
+                    else (i % 2)
+                )
+                w = "challenger" if cp == 0 else "current"
+                margin = 5 if cp == 0 else -5
+                gjf.write(
+                    json.dumps(
+                        {
+                            "game_index": i,
+                            "challenger_player": cp,
+                            "first_move_challenger": 1 if i % 2 == 0 else 2,
+                            "first_move_current": 2 if i % 2 == 0 else 1,
+                            "margin": margin,
+                            "game_length": 35,
+                            "winner": w,
+                            "trajectory": "1,2,3,4,5",
+                        }
+                    )
+                    + "\n"
+                )
     return 0
 
 

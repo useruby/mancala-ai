@@ -1,0 +1,202 @@
+#!/usr/bin/env python3
+"""Re-rank AlphaZero-lite candidates using seat-aware arena metrics.
+
+Reads existing arena JSON/JSONL data from a prior diagnostic run and produces
+a seat-aware re-ranking report. Does not train, promote, or overwrite models.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+# Import after path setup to resolve ml.* modules
+from ml.alphazero_lite.seat_aware_arena import (  # noqa: E402
+    BUDGET_PAIR_LABELS,
+    build_candidate_ranking,
+    build_seat_aware_report,
+    compute_seat_split_metrics,
+    parse_game_jsonl,
+)
+
+BUDGET_PAIR_DIR_NAMES = {
+    "standard": "384_vs_256",
+    "equal_high": "1200_vs_1200",
+    "challenger_high": "1200_vs_256",
+    "current_high_asymmetry": "256_vs_768",
+}
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Re-rank AlphaZero-lite candidates from cached arena data."
+    )
+    parser.add_argument(
+        "--workdir",
+        required=True,
+        help="Directory containing cached arena JSON/JSONL from a diagnostic run",
+    )
+    parser.add_argument(
+        "--current",
+        default="model-artifact/current",
+        help="Path to current production artifact",
+    )
+    parser.add_argument(
+        "--candidates",
+        required=True,
+        help="Comma-separated paths to candidate artifacts",
+    )
+    parser.add_argument(
+        "--out", required=True, type=Path, help="Output JSON report path"
+    )
+    return parser.parse_args()
+
+
+def candidate_dir_name(candidate_path: str) -> str:
+    p = Path(candidate_path)
+    if "iter0_candidate" in str(p) or "iter0_candidate_artifact" in str(p):
+        return "iter0_reference"
+    if "iter1_continue_no_new_data" in str(p):
+        return "iter1_continue_no_new_data"
+    if "iter1_candidate_random_replay" in str(p):
+        return "iter1_candidate_random_replay"
+    return p.name
+
+
+def load_seat_metrics(workdir: Path, dir_name: str, budget_dir: str) -> dict | None:
+    budget_path = workdir / dir_name / budget_dir
+    jsonl_path = budget_path / "games.jsonl"
+    arena_path = budget_path / "arena.json"
+
+    if not jsonl_path.exists() or not arena_path.exists():
+        return None
+
+    entries = parse_game_jsonl(str(jsonl_path))
+    arena_report = json.loads(arena_path.read_text(encoding="utf-8"))
+    seat_metrics = compute_seat_split_metrics(entries)
+    arena_notes = (
+        arena_report.get("notes", {})
+        if isinstance(arena_report.get("notes"), dict)
+        else {}
+    )
+
+    return {
+        **seat_metrics,
+        "arena_score": arena_report.get("score", 0.0),
+        "arena_wins": arena_report.get("wins", 0),
+        "arena_losses": arena_report.get("losses", 0),
+        "arena_draws": arena_report.get("draws", 0),
+        "move_time_mean_ms": arena_notes.get("move_time_mean_ms"),
+        "move_time_p95_ms": arena_notes.get("move_time_p95_ms"),
+    }
+
+
+def run_rerank(args: argparse.Namespace) -> dict:
+    workdir = Path(args.workdir)
+    candidate_paths = [p.strip() for p in args.candidates.split(",") if p.strip()]
+
+    candidate_reports = []
+
+    for cand_path in candidate_paths:
+        dir_name = candidate_dir_name(cand_path)
+        cand_dir = workdir / dir_name
+
+        if not cand_dir.exists():
+            print(f"  missing cached data for {dir_name}", flush=True)
+            continue
+
+        arena_results: list[dict] = []
+
+        for budget_label, budget_dir in BUDGET_PAIR_DIR_NAMES.items():
+            metrics = load_seat_metrics(workdir, dir_name, budget_dir)
+            if metrics is None:
+                print(
+                    f"  missing {budget_label} data for {dir_name}",
+                    flush=True,
+                )
+                continue
+
+            chall_sims, curr_sims = 0, 0
+            for bp, label in BUDGET_PAIR_LABELS.items():
+                if label == budget_label:
+                    chall_sims, curr_sims = bp
+                    break
+
+            arena_results.append(
+                {
+                    "budget_label": budget_label,
+                    "challenger_sims": chall_sims,
+                    "current_sims": curr_sims,
+                    "arena_score": metrics["arena_score"],
+                    "arena_wins": metrics["arena_wins"],
+                    "arena_losses": metrics["arena_losses"],
+                    "arena_draws": metrics["arena_draws"],
+                    "seat_metrics": {
+                        k: v
+                        for k, v in metrics.items()
+                        if k
+                        not in (
+                            "arena_score",
+                            "arena_wins",
+                            "arena_losses",
+                            "arena_draws",
+                            "move_time_mean_ms",
+                            "move_time_p95_ms",
+                        )
+                    },
+                    "move_time_mean_ms": metrics.get("move_time_mean_ms"),
+                    "move_time_p95_ms": metrics.get("move_time_p95_ms"),
+                }
+            )
+
+        if not arena_results:
+            print(f"  no arena data for {dir_name}", flush=True)
+            continue
+
+        report = build_seat_aware_report(
+            candidate_path=cand_path,
+            current_path=args.current,
+            arena_results=arena_results,
+        )
+        candidate_reports.append(report)
+        print(
+            f"  {dir_name}: {report['classification']} "
+            f"(alt={report['standard_alternating_score']:.4f})",
+            flush=True,
+        )
+
+    ranking = build_candidate_ranking(candidate_reports)
+
+    return {
+        "schema": "azlite_seat_aware_rerank_v1",
+        "candidates_evaluated": len(candidate_reports),
+        "ranking": ranking,
+        "per_candidate_reports": candidate_reports,
+    }
+
+
+def main() -> int:
+    args = parse_args()
+    report = run_rerank(args)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(f"\nRe-ranking report written to {args.out}")
+    print("\nRanking:")
+    for i, row in enumerate(report["ranking"], 1):
+        print(
+            f"  {i}. {row['candidate']} "
+            f"({row['classification']}) "
+            f"std_ds={row.get('standard_disadvantaged_seat_score', 'N/A')} "
+            f"eq_ds={row.get('equal_high_disadvantaged_seat_score', 'N/A')} "
+            f"ch_ds={row.get('challenger_high_disadvantaged_seat_score', 'N/A')}"
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

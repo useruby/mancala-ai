@@ -1086,7 +1086,10 @@ class ArenaScriptTest(unittest.TestCase):
 
         self.assertEqual("deterministic", result["search_options"]["root_policy_mode"])
         self.assertEqual(0.1, result["search_options"]["tactical_root_bias"])
-        self.assertEqual([result["search_options"]], captured_search_options)
+        self.assertEqual(
+            {**result["search_options"], "root_prior_override": None},
+            captured_search_options[0],
+        )
         self.assertEqual("v1", result["search_profile"]["version"])
         self.assertEqual("arena_eval", result["search_profile"]["kind"])
         self.assertEqual(
@@ -1274,17 +1277,22 @@ class ArenaScriptTest(unittest.TestCase):
                 tactical_root_bias=0.2,
             )
 
+        # run_arena_worker produces result with game outcome fields
+        self.assertIn("wins", result)
+        self.assertIn("losses", result)
+        self.assertIn("draws", result)
+        expected_search_options_arg = {
+            "fpu_mode": "parent_q",
+            "reuse_subtree": True,
+            "normalize_values": True,
+            "root_policy_mode": "deterministic",
+            "tactical_root_bias": 0.2,
+            "root_prior_override": None,
+        }
         self.assertEqual(
-            {
-                "fpu_mode": "parent_q",
-                "reuse_subtree": True,
-                "normalize_values": True,
-                "root_policy_mode": "deterministic",
-                "tactical_root_bias": 0.2,
-            },
-            result["search_options"],
+            expected_search_options_arg,
+            captured_search_options[0],
         )
-        self.assertEqual([result["search_options"]], captured_search_options)
 
     def test_run_arena_worker_preserves_value_trust_schedule_in_search_options(self):
         captured_search_options = []
