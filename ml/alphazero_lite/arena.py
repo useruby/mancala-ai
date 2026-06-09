@@ -369,6 +369,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--opening-cache", default=None)
     parser.add_argument("--opening-cache-training-summary", default=None)
     parser.add_argument("--random-opening-plies", type=int, default=0)
+    parser.add_argument("--opening-seed", type=int, default=None)
+    parser.add_argument("--opening-samples", type=int, default=0)
+    parser.add_argument("--opening-plies", type=int, default=None)
+    parser.add_argument("--games-per-opening", type=int, default=2)
     parser.add_argument(
         "--challenger-starts",
         type=int,
@@ -428,6 +432,47 @@ def apply_random_opening_prefix(
             break
         move = int(rng.choice(legal_moves))
         if not game.move(game.pit_index(move)):
+            break
+        applied += 1
+    return applied
+
+
+def generate_random_opening_moves(
+    *,
+    game: KalahGame,
+    opening_seed: int,
+    opening_plies: int,
+) -> list[int]:
+    if opening_plies <= 0:
+        return []
+
+    rng = np.random.default_rng(opening_seed)
+    moves: list[int] = []
+    for _ in range(opening_plies):
+        if game.over():
+            break
+        legal_moves = game.possible_moves()
+        if not legal_moves:
+            break
+        move = int(rng.choice(legal_moves))
+        relative_move = game.pit_index(move)
+        if not game.move(relative_move):
+            break
+        moves.append(relative_move)
+    return moves
+
+
+def apply_opening_moves(game: KalahGame, moves: list[int]) -> int:
+    applied = 0
+    for move in moves:
+        if game.over():
+            break
+        legal_moves = game.possible_moves()
+        if not legal_moves:
+            break
+        if move not in legal_moves:
+            break
+        if not game.move(move):
             break
         applied += 1
     return applied
@@ -1231,6 +1276,9 @@ def run_arena_worker(
     challenger_root_prior_transform: str | None = None,
     current_root_prior_transform: str | None = None,
     random_opening_plies: int = 0,
+    opening_seed: int | None = None,
+    opening_samples: int = 0,
+    games_per_opening: int = 2,
     challenger_starts: int | None = None,
     game_jsonl_path: str | None = None,
     opening_cache=None,
@@ -1318,6 +1366,39 @@ def run_arena_worker(
     game_entries: list[dict] = []
     trajectory_hashes: list[str] = []
     opening_prefix_plies_applied: list[int] = []
+    effective_opening_seed: int | None = None
+    if opening_seed is not None:
+        effective_opening_seed = int(opening_seed)
+    opening_prefix_cache: list[list[int]] | None = None
+    if int(opening_samples) > 0 and int(random_opening_plies) > 0:
+        effective_opening_seed = (
+            int(opening_seed) if opening_seed is not None else int(seed)
+        )
+        opening_prefix_cache = []
+        for sample_idx in range(int(opening_samples)):
+            sample_game = KalahGame.from_state(
+                {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                }
+            )
+            prefix_moves = generate_random_opening_moves(
+                game=sample_game,
+                opening_seed=int(effective_opening_seed) + sample_idx,
+                opening_plies=int(random_opening_plies),
+            )
+            opening_prefix_cache.append(prefix_moves)
+        illegal_prefix_count = sum(
+            1
+            for moves in opening_prefix_cache
+            if len(moves) < int(random_opening_plies)
+        )
+        if illegal_prefix_count > 0:
+            opening_prefix_cache = None
+
     for local_index in range(games):
         game_index = start_index + local_index
         game = KalahGame.from_state(
@@ -1333,13 +1414,24 @@ def run_arena_worker(
             challenger_player = challenger_starts
         else:
             challenger_player = 0 if game_index % 2 == 0 else 1
-        opening_prefix_plies_applied.append(
-            apply_random_opening_prefix(
+
+        opening_prefix_moves: list[int] = []
+        if opening_prefix_cache is not None and int(random_opening_plies) > 0:
+            gpo = max(1, int(games_per_opening))
+            sample_idx = game_index // gpo
+            if sample_idx < len(opening_prefix_cache):
+                opening_prefix_moves = list(opening_prefix_cache[sample_idx])
+                applied = apply_opening_moves(game, opening_prefix_moves)
+                opening_prefix_plies_applied.append(applied)
+            else:
+                opening_prefix_plies_applied.append(0)
+        else:
+            applied = apply_random_opening_prefix(
                 game,
                 pair_seed=int(seed) + (game_index // 2),
                 opening_plies=int(random_opening_plies),
             )
-        )
+            opening_prefix_plies_applied.append(applied)
         reusable_roots = {
             0: None,
             1: None,
@@ -1507,18 +1599,19 @@ def run_arena_worker(
             winner = "draw"
         record_completed_game_bucket(hard_suite_buckets, challenger_phase_buckets_seen)
         trajectory_str = ",".join(str(m) for m in game_moves)
-        game_entries.append(
-            {
-                "game_index": game_index,
-                "challenger_player": challenger_player,
-                "first_move_challenger": first_move_challenger,
-                "first_move_current": first_move_current,
-                "margin": margin,
-                "game_length": ply,
-                "winner": winner,
-                "trajectory": trajectory_str,
-            }
-        )
+        entry_data: dict = {
+            "game_index": game_index,
+            "challenger_player": challenger_player,
+            "first_move_challenger": first_move_challenger,
+            "first_move_current": first_move_current,
+            "margin": margin,
+            "game_length": ply,
+            "winner": winner,
+            "trajectory": trajectory_str,
+        }
+        if opening_prefix_moves:
+            entry_data["opening_prefix_moves"] = [int(m) for m in opening_prefix_moves]
+        game_entries.append(entry_data)
         trajectory_hashes.append(trajectory_str)
 
     if game_jsonl_path:
@@ -1727,7 +1820,12 @@ def main() -> None:
                     root_prior_transform=args.root_prior_transform,
                     challenger_root_prior_transform=args.challenger_root_prior_transform,
                     current_root_prior_transform=args.current_root_prior_transform,
-                    random_opening_plies=args.random_opening_plies,
+                    random_opening_plies=getattr(args, "opening_plies", None)
+                    if getattr(args, "opening_plies", None) is not None
+                    else args.random_opening_plies,
+                    opening_seed=getattr(args, "opening_seed", None),
+                    opening_samples=getattr(args, "opening_samples", 0),
+                    games_per_opening=getattr(args, "games_per_opening", 2),
                     challenger_starts=getattr(args, "challenger_starts", None),
                     game_jsonl_path=getattr(args, "game_jsonl", None),
                 )
