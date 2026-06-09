@@ -372,6 +372,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--opening-seed", type=int, default=None)
     parser.add_argument("--opening-samples", type=int, default=0)
     parser.add_argument("--opening-plies", type=int, default=None)
+    parser.add_argument("--opening-prefixes-jsonl", default=None)
     parser.add_argument("--games-per-opening", type=int, default=2)
     parser.add_argument(
         "--challenger-starts",
@@ -1278,6 +1279,7 @@ def run_arena_worker(
     random_opening_plies: int = 0,
     opening_seed: int | None = None,
     opening_samples: int = 0,
+    opening_prefixes_jsonl: str | None = None,
     games_per_opening: int = 2,
     challenger_starts: int | None = None,
     game_jsonl_path: str | None = None,
@@ -1370,7 +1372,16 @@ def run_arena_worker(
     if opening_seed is not None:
         effective_opening_seed = int(opening_seed)
     opening_prefix_cache: list[list[int]] | None = None
-    if int(opening_samples) > 0 and int(random_opening_plies) > 0:
+    if opening_prefixes_jsonl is not None:
+        opening_prefix_cache = []
+        with open(opening_prefixes_jsonl, "r", encoding="utf-8") as pf:
+            for line in pf:
+                line = line.strip()
+                if not line:
+                    continue
+                entry = json.loads(line)
+                opening_prefix_cache.append([int(m) for m in entry["prefix_moves"]])
+    elif int(opening_samples) > 0 and int(random_opening_plies) > 0:
         effective_opening_seed = (
             int(opening_seed) if opening_seed is not None else int(seed)
         )
@@ -1416,7 +1427,7 @@ def run_arena_worker(
             challenger_player = 0 if game_index % 2 == 0 else 1
 
         opening_prefix_moves: list[int] = []
-        if opening_prefix_cache is not None and int(random_opening_plies) > 0:
+        if opening_prefix_cache is not None:
             gpo = max(1, int(games_per_opening))
             sample_idx = game_index // gpo
             if sample_idx < len(opening_prefix_cache):
@@ -1828,6 +1839,9 @@ def main() -> None:
                     games_per_opening=getattr(args, "games_per_opening", 2),
                     challenger_starts=getattr(args, "challenger_starts", None),
                     game_jsonl_path=getattr(args, "game_jsonl", None),
+                    opening_prefixes_jsonl=getattr(
+                        args, "opening_prefixes_jsonl", None
+                    ),
                 )
             )
         results = [future.result() for future in futures]

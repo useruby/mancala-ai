@@ -1,0 +1,563 @@
+#!/usr/bin/env python3
+"""Opening-suite seat-aware benchmark for AlphaZero-lite.
+
+Evaluates multiple candidate checkpoints against current across a
+deduplicated, diverse opening-prefix suite with forced-seat splits.
+Produces per-candidate metrics, per-opening rankings, and a final
+candidate ranking table.
+
+Does not train, promote, or overwrite any model.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import statistics
+import subprocess
+import sys
+import time
+from collections import Counter, defaultdict
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+
+def _find_python() -> str:
+    candidates = [
+        REPO_ROOT / ".venv/bin/python",
+    ]
+    for c in candidates:
+        if c.is_file():
+            return str(c)
+    return sys.executable
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8192), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def load_suite(path: str) -> list[dict]:
+    entries = []
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                entries.append(json.loads(line))
+    return entries
+
+
+def run_arena(
+    *,
+    challenger: str,
+    current: str,
+    challenger_sims: int,
+    current_sims: int,
+    games: int,
+    seed: int,
+    workers: int,
+    out_json: str,
+    out_jsonl: str,
+    opening_prefixes_jsonl: str,
+    challenger_starts: int,
+    games_per_opening: int = 1,
+    timeout: int = 7200,
+) -> dict:
+    python = _find_python()
+    cmd = [
+        python,
+        str(REPO_ROOT / "ml/alphazero_lite/arena.py"),
+        "--challenger",
+        challenger,
+        "--current",
+        current,
+        "--challenger-simulations",
+        str(challenger_sims),
+        "--current-simulations",
+        str(current_sims),
+        "--games",
+        str(games),
+        "--seed",
+        str(seed),
+        "--workers",
+        str(workers),
+        "--min-score",
+        "0.0",
+        "--out",
+        out_json,
+        "--game-jsonl",
+        out_jsonl,
+        "--challenger-starts",
+        str(challenger_starts),
+        "--games-per-opening",
+        str(games_per_opening),
+        "--opening-prefixes-jsonl",
+        opening_prefixes_jsonl,
+    ]
+
+    result = subprocess.run(
+        cmd,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+    if result.returncode != 0:
+        stderr = result.stderr.strip()
+        raise RuntimeError(
+            f"arena failed ({challenger_sims}:{current_sims}): {stderr or ' '.join(cmd)}"
+        )
+    return json.loads(Path(out_json).read_text(encoding="utf-8"))
+
+
+def parse_game_jsonl(path: str) -> list[dict]:
+    entries = []
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                entries.append(json.loads(line))
+    return entries
+
+
+def _wilson_interval(score: float, sample_size: int) -> dict[str, float]:
+    z = 1.96
+    if sample_size <= 0:
+        return {"lower": 0.0, "upper": 0.0}
+    denominator = 1.0 + ((z**2) / sample_size)
+    center = score + ((z**2) / (2.0 * sample_size))
+    margin = (
+        z
+        * (((score * (1.0 - score)) + ((z**2) / (4.0 * sample_size))) / sample_size)
+        ** 0.5
+    )
+    return {
+        "lower": max(0.0, (center - margin) / denominator),
+        "upper": min(1.0, (center + margin) / denominator),
+    }
+
+
+def compute_seat_metrics(entries: list[dict]) -> dict:
+    p0_wins = p0_losses = p0_draws = 0
+    p1_wins = p1_losses = p1_draws = 0
+    p0_margins: list[int] = []
+    p1_margins: list[int] = []
+    p0_lengths: list[int] = []
+    p1_lengths: list[int] = []
+    trajectory_hashes: list[str] = []
+
+    for ent in entries:
+        cp = ent["challenger_player"]
+        winner = ent["winner"]
+        margin = ent["margin"]
+        if cp == 0:
+            if winner == "challenger":
+                p0_wins += 1
+            elif winner == "current":
+                p0_losses += 1
+            else:
+                p0_draws += 1
+            p0_margins.append(margin)
+            p0_lengths.append(ent["game_length"])
+        else:
+            if winner == "challenger":
+                p1_wins += 1
+            elif winner == "current":
+                p1_losses += 1
+            else:
+                p1_draws += 1
+            p1_margins.append(margin)
+            p1_lengths.append(ent["game_length"])
+        trajectory_hashes.append(ent["trajectory"])
+
+    p0_total = p0_wins + p0_losses + p0_draws
+    p1_total = p1_wins + p1_losses + p1_draws
+
+    traj_counter = Counter(trajectory_hashes)
+    duplicate_count = sum(c for c in traj_counter.values() if c > 1)
+
+    p0_score = (p0_wins + 0.5 * p0_draws) / max(p0_total, 1)
+    p1_score = (p1_wins + 0.5 * p1_draws) / max(p1_total, 1)
+    ds = p0_score - p1_score
+
+    return {
+        "p0_score": p0_score,
+        "p1_score": p1_score,
+        "ds": ds,
+        "challenger_starts_0": {
+            "games": p0_total,
+            "wins": p0_wins,
+            "losses": p0_losses,
+            "draws": p0_draws,
+            "score": p0_score,
+            "ci95": _wilson_interval(p0_score, p0_total),
+            "margin_mean": statistics.fmean(p0_margins) if p0_margins else 0.0,
+            "margin_median": statistics.median(p0_margins) if p0_margins else 0.0,
+            "game_length_mean": statistics.fmean(p0_lengths) if p0_lengths else 0.0,
+            "game_length_median": statistics.median(p0_lengths) if p0_lengths else 0.0,
+        },
+        "challenger_starts_1": {
+            "games": p1_total,
+            "wins": p1_wins,
+            "losses": p1_losses,
+            "draws": p1_draws,
+            "score": p1_score,
+            "ci95": _wilson_interval(p1_score, p1_total),
+            "margin_mean": statistics.fmean(p1_margins) if p1_margins else 0.0,
+            "margin_median": statistics.median(p1_margins) if p1_margins else 0.0,
+            "game_length_mean": statistics.fmean(p1_lengths) if p1_lengths else 0.0,
+            "game_length_median": statistics.median(p1_lengths) if p1_lengths else 0.0,
+        },
+        "disadvantaged_seat_score": p1_score,
+        "margin_mean": statistics.fmean(p0_margins + p1_margins)
+        if p0_margins + p1_margins
+        else 0.0,
+        "margin_median": statistics.median(p0_margins + p1_margins)
+        if p0_margins + p1_margins
+        else 0.0,
+        "game_length_mean": statistics.fmean(p0_lengths + p1_lengths)
+        if p0_lengths + p1_lengths
+        else 0.0,
+        "game_length_median": statistics.median(p0_lengths + p1_lengths)
+        if p0_lengths + p1_lengths
+        else 0.0,
+        "unique_trajectories": len(traj_counter),
+        "duplicate_trajectory_count": duplicate_count,
+        "duplicate_trajectory_rate": duplicate_count / max(len(trajectory_hashes), 1),
+        "total_games": p0_total + p1_total,
+    }
+
+
+def compute_per_opening_metrics(entries: list[dict]) -> list[dict]:
+    entries_with_prefix = [
+        e for e in entries if e.get("opening_prefix_moves") is not None
+    ]
+    if not entries_with_prefix:
+        return []
+
+    by_prefix: dict[str, list[dict]] = defaultdict(list)
+    for e in entries_with_prefix:
+        key = ",".join(str(m) for m in e["opening_prefix_moves"])
+        by_prefix[key].append(e)
+
+    prefix_metrics: list[dict] = []
+    for prefix_key, prefix_entries in by_prefix.items():
+        metrics = compute_seat_metrics(prefix_entries)
+        prefix_metrics.append(
+            {
+                "opening_prefix": prefix_key,
+                "prefix_length": len(prefix_entries[0]["opening_prefix_moves"]),
+                **metrics,
+            }
+        )
+
+    prefix_metrics.sort(key=lambda m: m["ds"] or 0.0)
+    return prefix_metrics
+
+
+def compute_by_ply_metrics(entries: list[dict]) -> dict[int, dict]:
+    entries_with_prefix = [
+        e for e in entries if e.get("opening_prefix_moves") is not None
+    ]
+    by_ply: dict[int, list[dict]] = defaultdict(list)
+    for e in entries_with_prefix:
+        ply = len(e["opening_prefix_moves"])
+        by_ply[ply].append(e)
+
+    result: dict[int, dict] = {}
+    for ply, ply_entries in sorted(by_ply.items()):
+        result[ply] = compute_seat_metrics(ply_entries)
+    return result
+
+
+BUDGET_PAIR_LABELS = {
+    (384, 256): "standard",
+    (768, 256): "challenger_768_vs_256",
+    (768, 768): "equal_768",
+    (1200, 1200): "equal_high",
+    (256, 768): "current_high_asymmetry",
+}
+
+
+def candidate_label(candidate_path: str) -> str:
+    p = str(candidate_path)
+    if "iter0_candidate" in p:
+        return "iter0_reference"
+    if "control_ep1" in p:
+        return "control_ep1"
+    if "control_ep2" in p:
+        return "control_ep2"
+    if "curriculum_lr1e5_ep1" in p:
+        return "curriculum_lr1e5_ep1"
+    if "curriculum_lr1e5_ep2" in p:
+        return "curriculum_lr1e5_ep2"
+    if "curriculum_ep1" in p:
+        return "curriculum_ep1"
+    if "curriculum_ep2" in p:
+        return "curriculum_ep2"
+    return Path(candidate_path).name
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Opening-suite seat-aware benchmark.")
+    parser.add_argument("--workdir", required=True)
+    parser.add_argument("--suite", required=True, help="Path to opening suite JSONL.")
+    parser.add_argument(
+        "--current",
+        default="model-artifact/current",
+        help="Path to current model artifact.",
+    )
+    parser.add_argument(
+        "--candidates",
+        required=True,
+        help="Comma-separated candidate artifact paths.",
+    )
+    parser.add_argument(
+        "--budget-pairs",
+        default="384:256,768:256,768:768,1200:1200,256:768",
+        help="Comma-separated challenger:current simulation budget pairs.",
+    )
+    parser.add_argument(
+        "--games-per-opening",
+        type=int,
+        default=2,
+        help="Games per opening prefix (must be ≥2 for seat splits).",
+    )
+    parser.add_argument("--seed", type=int, default=42, help="Base random seed.")
+    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=7200,
+        help="Timeout per arena invocation (seconds).",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    workdir = Path(args.workdir)
+    workdir.mkdir(parents=True, exist_ok=True)
+
+    suite = load_suite(args.suite)
+    suite_size = len(suite)
+    print(f"Loaded opening suite: {suite_size} openings from {args.suite}")
+
+    current_sha = sha256_file(Path(args.current) / "weights.json")
+    print(f"Current SHA256: {current_sha}")
+
+    candidates = [c.strip() for c in args.candidates.split(",")]
+    candidates = [c for c in candidates if c]
+
+    budget_pairs = []
+    for bp in args.budget_pairs.split(","):
+        bp = bp.strip()
+        if ":" in bp:
+            c_str, cur_str = bp.split(":", 1)
+            budget_pairs.append((int(c_str), int(cur_str)))
+
+    all_candidate_reports: list[dict] = []
+
+    for candidate_path in candidates:
+        cand_label = candidate_label(candidate_path)
+        cand_dir = workdir / cand_label
+        cand_dir.mkdir(parents=True, exist_ok=True)
+
+        candidate_sha = sha256_file(Path(candidate_path) / "weights.json")
+        print(f"\n{'=' * 60}")
+        print(f"Candidate: {cand_label}")
+        print(f"  Path: {candidate_path}")
+        print(f"  SHA256: {candidate_sha}")
+
+        cand_budget_results: dict[str, dict] = {}
+
+        for chall_sims, curr_sims in budget_pairs:
+            budget_label = BUDGET_PAIR_LABELS.get(
+                (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
+            )
+            budget_dir = cand_dir / budget_label
+            budget_dir.mkdir(parents=True, exist_ok=True)
+
+            print(f"  Budget {chall_sims}:{curr_sims} ({budget_label}) ...", flush=True)
+
+            gpo = max(1, args.games_per_opening)
+            total_games = suite_size * gpo
+
+            all_game_entries: list[dict] = []
+
+            for seat in (0, 1):
+                seat_label = f"starts_{seat}"
+                seat_dir = budget_dir / seat_label
+                seat_dir.mkdir(parents=True, exist_ok=True)
+                seat_json = str(seat_dir / "arena.json")
+                seat_jsonl = str(seat_dir / "games.jsonl")
+
+                suite_jsonl_path = str(seat_dir / "opening_suite.jsonl")
+                with open(suite_jsonl_path, "w", encoding="utf-8") as f:
+                    for entry in suite:
+                        f.write(
+                            json.dumps({"prefix_moves": entry["prefix_moves"]}) + "\n"
+                        )
+
+                try:
+                    t0 = time.time()
+                    report = run_arena(
+                        challenger=candidate_path,
+                        current=args.current,
+                        challenger_sims=chall_sims,
+                        current_sims=curr_sims,
+                        games=total_games,
+                        seed=args.seed,
+                        workers=args.workers,
+                        out_json=seat_json,
+                        out_jsonl=seat_jsonl,
+                        opening_prefixes_jsonl=suite_jsonl_path,
+                        challenger_starts=seat,
+                        games_per_opening=gpo,
+                        timeout=args.timeout,
+                    )
+                    elapsed = time.time() - t0
+                    print(
+                        f"    {seat_label}: score={report.get('score', 0):.4f} ({elapsed:.0f}s)"
+                    )
+
+                    game_entries = parse_game_jsonl(seat_jsonl)
+                    all_game_entries.extend(game_entries)
+                except RuntimeError as exc:
+                    print(f"    {seat_label}: FAILED - {exc}")
+                    continue
+
+            if not all_game_entries:
+                print(f"    No game entries collected for {budget_label}")
+                continue
+
+            metrics = compute_seat_metrics(all_game_entries)
+            per_opening = compute_per_opening_metrics(all_game_entries)
+            by_ply = compute_by_ply_metrics(all_game_entries)
+
+            budget_result = {
+                **metrics,
+                "per_opening_metrics": per_opening,
+                "by_ply_metrics": {str(k): v for k, v in by_ply.items()},
+                "budget_label": budget_label,
+                "challenger_simulations": chall_sims,
+                "current_simulations": curr_sims,
+                "total_games": len(all_game_entries),
+            }
+
+            if per_opening:
+                worst_10 = per_opening[:10]
+                best_10 = per_opening[-10:]
+                budget_result["worst_10_openings"] = worst_10
+                budget_result["best_10_openings"] = best_10
+
+            cand_budget_results[budget_label] = budget_result
+
+            out_path = budget_dir / "metrics.json"
+            out_path.write_text(json.dumps(budget_result, indent=2), encoding="utf-8")
+
+            ds = metrics["ds"]
+            dup_rate = metrics["duplicate_trajectory_rate"]
+            print(
+                f"    DS={ds:+.4f}  P0={metrics['p0_score']:.4f}  P1={metrics['p1_score']:.4f}"
+                f"  dup_traj_rate={dup_rate:.3f}"
+                f"  games={metrics['total_games']}"
+            )
+
+        candidate_report = {
+            "candidate": cand_label,
+            "candidate_path": candidate_path,
+            "candidate_sha256": candidate_sha,
+            "current_sha256": current_sha,
+            "suite_size": suite_size,
+            "budget_results": cand_budget_results,
+        }
+        all_candidate_reports.append(candidate_report)
+
+    ranking_rows = _build_ranking_table(all_candidate_reports)
+    print(f"\n{'=' * 60}")
+    print("Candidate Ranking")
+    print(f"{'=' * 60}")
+
+    header = "  {:<30} {:>8} {:>8} {:>8} {:>8}".format(
+        "candidate", "std_p0", "std_p1", "std_ds", "eqhi_ds"
+    )
+    print(header)
+    print("  " + "-" * len(header))
+    for row in ranking_rows:
+        std_p0 = row.get("std_p0")
+        std_p1 = row.get("std_p1")
+        std_ds = row.get("std_ds")
+        eqhi_ds = row.get("equal_high_ds")
+        print(
+            "  {:<30} {:>8} {:>8} {:>8} {:>8}".format(
+                row["candidate"],
+                f"{std_p0:.4f}" if std_p0 is not None else "N/A",
+                f"{std_p1:.4f}" if std_p1 is not None else "N/A",
+                f"{std_ds:+.4f}" if std_ds is not None else "N/A",
+                f"{eqhi_ds:+.4f}" if eqhi_ds is not None else "N/A",
+            )
+        )
+
+    ranking_path = workdir / "candidate_ranking.json"
+    ranking_path.write_text(
+        json.dumps(
+            {
+                "suite_path": args.suite,
+                "suite_size": suite_size,
+                "current_sha256": current_sha,
+                "ranking": ranking_rows,
+                "candidate_reports": all_candidate_reports,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    print(f"\nFull ranking written to {ranking_path}")
+    return 0
+
+
+def _build_ranking_table(candidate_reports: list[dict]) -> list[dict]:
+    rows: list[dict] = []
+    for report in candidate_reports:
+        budget_results = report.get("budget_results", {})
+        std = budget_results.get("standard", {})
+        eq_hi = budget_results.get("equal_high", {})
+        eq_768 = budget_results.get("equal_768", {})
+        curr_hi = budget_results.get("current_high_asymmetry", {})
+        ch_768 = budget_results.get("challenger_768_vs_256", {})
+
+        row = {
+            "candidate": report.get("candidate", "unknown"),
+            "candidate_sha256": report.get("candidate_sha256", ""),
+            "std_p0": std.get("p0_score"),
+            "std_p1": std.get("p1_score"),
+            "std_ds": std.get("ds"),
+            "std_disadvantaged": std.get("disadvantaged_seat_score"),
+            "equal_high_p0": eq_hi.get("p0_score"),
+            "equal_high_p1": eq_hi.get("p1_score"),
+            "equal_high_ds": eq_hi.get("ds"),
+            "equal_high_disadvantaged": eq_hi.get("disadvantaged_seat_score"),
+            "equal_768_ds": eq_768.get("ds"),
+            "current_high_ds": curr_hi.get("ds"),
+            "challenger_768_ds": ch_768.get("ds"),
+            "std_dup_traj_rate": std.get("duplicate_trajectory_rate"),
+        }
+        rows.append(row)
+
+    def rank_key(row: dict) -> tuple:
+        std_ds = float(row.get("std_ds") or 0.0)
+        eq_ds = float(row.get("equal_high_ds") or 0.0)
+        return (-std_ds, -eq_ds)
+
+    return sorted(rows, key=rank_key, reverse=True)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
