@@ -1287,6 +1287,7 @@ class ArenaScriptTest(unittest.TestCase):
             "normalize_values": True,
             "root_policy_mode": "deterministic",
             "tactical_root_bias": 0.2,
+            "root_temperature": 0.0,
             "root_prior_override": None,
         }
         self.assertEqual(

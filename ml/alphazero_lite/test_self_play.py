@@ -1015,6 +1015,258 @@ class SelfPlayScriptTest(unittest.TestCase):
         self.assertEqual("visit_count", options["root_policy_mode"])
         self.assertEqual(0.0, options["tactical_root_bias"])
 
+    def test_root_temperature_zero_matches_deterministic_selection(self):
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+        root = self_play.Node(game)
+        root.expanded = True
+        child_visits = {0: 10, 1: 5, 2: 0}
+        root.children = {
+            move: self_play.Node(game, visit_count=vc, value_sum=float(vc))
+            for move, vc in child_visits.items()
+        }
+        for move, vc in child_visits.items():
+            root.children[move].prior = 0.1 + move * 0.1
+
+        det_search = self_play.PUCT(
+            evaluator=self_play.HeuristicEvaluator(),
+            simulations=10,
+            c_puct=1.25,
+            rng=random.Random(42),
+            root_policy_mode="deterministic",
+            root_temperature=0.0,
+        )
+        vc_search = self_play.PUCT(
+            evaluator=self_play.HeuristicEvaluator(),
+            simulations=10,
+            c_puct=1.25,
+            rng=random.Random(42),
+            root_policy_mode="visit_count",
+            root_temperature=0.0,
+        )
+
+        det_move = det_search.select_root_move(root, [0, 1, 2])
+        vc_move = vc_search.select_root_move(root, [0, 1, 2])
+
+        self.assertEqual(0, det_move)
+        self.assertEqual(0, vc_move)
+
+    def test_root_temperature_positive_samples_multiple_moves(self):
+        root = self_play.Node(
+            KalahGame.from_state(
+                {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                }
+            )
+        )
+        root.expanded = True
+        child_visits = {0: 10, 1: 5, 2: 2}
+        root.children = {
+            move: self_play.Node(
+                KalahGame.from_state(
+                    {
+                        "player_pits": [4, 4, 4, 4, 4, 4],
+                        "opponent_pits": [4, 4, 4, 4, 4, 4],
+                        "player_store": 0,
+                        "opponent_store": 0,
+                        "current_player": 0,
+                    }
+                ),
+                visit_count=vc,
+                value_sum=float(vc),
+            )
+            for move, vc in child_visits.items()
+        }
+        for move, vc in child_visits.items():
+            root.children[move].prior = 0.1 + move * 0.1
+
+        seen = set()
+        legal = [0, 1, 2]
+        rng = random.Random(99)
+        for _ in range(200):
+            search = self_play.PUCT(
+                evaluator=self_play.HeuristicEvaluator(),
+                simulations=10,
+                c_puct=1.25,
+                rng=random.Random(rng.randint(0, 2**31 - 1)),
+                root_policy_mode="visit_count",
+                root_temperature=1.0,
+            )
+            move = search.select_root_move(root, legal)
+            self.assertIn(move, legal)
+            seen.add(move)
+        self.assertGreater(len(seen), 1)
+
+    def test_root_temperature_never_samples_illegal_moves(self):
+        root = self_play.Node(
+            KalahGame.from_state(
+                {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                }
+            )
+        )
+        root.expanded = True
+        child_visits = {0: 5, 2: 3}
+        root.children = {
+            move: self_play.Node(
+                KalahGame.from_state(
+                    {
+                        "player_pits": [4, 4, 4, 4, 4, 4],
+                        "opponent_pits": [4, 4, 4, 4, 4, 4],
+                        "player_store": 0,
+                        "opponent_store": 0,
+                        "current_player": 0,
+                    }
+                ),
+                visit_count=vc,
+                value_sum=float(vc),
+            )
+            for move, vc in child_visits.items()
+        }
+        for move, vc in child_visits.items():
+            root.children[move].prior = 0.3
+
+        legal = [0, 2]
+        rng = random.Random(77)
+        for _ in range(100):
+            search = self_play.PUCT(
+                evaluator=self_play.HeuristicEvaluator(),
+                simulations=10,
+                c_puct=1.25,
+                rng=random.Random(rng.randint(0, 2**31 - 1)),
+                root_policy_mode="visit_count",
+                root_temperature=0.5,
+            )
+            move = search.select_root_move(root, legal)
+            self.assertIn(move, legal)
+            self.assertNotIn(move, [1, 3, 4, 5])
+
+    def test_root_temperature_reproducible_with_same_seed(self):
+        root = self_play.Node(
+            KalahGame.from_state(
+                {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                }
+            )
+        )
+        root.expanded = True
+        child_visits = {0: 10, 1: 5, 2: 2}
+        root.children = {
+            move: self_play.Node(
+                KalahGame.from_state(
+                    {
+                        "player_pits": [4, 4, 4, 4, 4, 4],
+                        "opponent_pits": [4, 4, 4, 4, 4, 4],
+                        "player_store": 0,
+                        "opponent_store": 0,
+                        "current_player": 0,
+                    }
+                ),
+                visit_count=vc,
+                value_sum=float(vc),
+            )
+            for move, vc in child_visits.items()
+        }
+        for move, vc in child_visits.items():
+            root.children[move].prior = 0.1 + move * 0.1
+
+        legal = [0, 1, 2]
+        moves_a = []
+        moves_b = []
+        for _ in range(50):
+            sa = self_play.PUCT(
+                evaluator=self_play.HeuristicEvaluator(),
+                simulations=10,
+                c_puct=1.25,
+                rng=random.Random(42),
+                root_policy_mode="visit_count",
+                root_temperature=0.5,
+            )
+            moves_a.append(sa.select_root_move(root, legal))
+            sb = self_play.PUCT(
+                evaluator=self_play.HeuristicEvaluator(),
+                simulations=10,
+                c_puct=1.25,
+                rng=random.Random(42),
+                root_policy_mode="visit_count",
+                root_temperature=0.5,
+            )
+            moves_b.append(sb.select_root_move(root, legal))
+        self.assertEqual(moves_a, moves_b)
+
+    def test_visit_count_policy_mode_returns_legal_move_with_temperature(self):
+        root = self_play.Node(
+            KalahGame.from_state(
+                {
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                }
+            )
+        )
+        root.expanded = True
+        child_visits = {0: 5, 1: 1}
+        root.children = {
+            move: self_play.Node(
+                KalahGame.from_state(
+                    {
+                        "player_pits": [4, 4, 4, 4, 4, 4],
+                        "opponent_pits": [4, 4, 4, 4, 4, 4],
+                        "player_store": 0,
+                        "opponent_store": 0,
+                        "current_player": 0,
+                    }
+                ),
+                visit_count=vc,
+                value_sum=float(vc),
+            )
+            for move, vc in child_visits.items()
+        }
+        for move, vc in child_visits.items():
+            root.children[move].prior = 0.3
+
+        legal = [0, 1]
+        search = self_play.PUCT(
+            evaluator=self_play.HeuristicEvaluator(),
+            simulations=10,
+            c_puct=1.25,
+            rng=random.Random(123),
+            root_policy_mode="visit_count",
+            root_temperature=0.25,
+        )
+        move = search.select_root_move(root, legal)
+        self.assertIn(move, legal)
+
+    def test_root_temperature_defaults_preserved_in_search_options(self):
+        options = self_play.build_search_options()
+        self.assertIn("root_temperature", options)
+        self.assertEqual(0.0, options["root_temperature"])
+
+        eval_options = self_play.build_eval_search_options()
+        self.assertIn("root_temperature", eval_options)
+        self.assertEqual(0.0, eval_options["root_temperature"])
+
     def test_build_policy_target_keeps_default_temperature_weighted_behavior(self):
         visits = np.array([70, 20, 10, 0, 0, 0], dtype=np.float32)
         legal_moves = [0, 1, 2]
