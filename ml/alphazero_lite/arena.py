@@ -87,6 +87,7 @@ EARLY_DEFAULT_SEARCH_OPTIONS = {
     "normalize_values": False,
     "root_policy_mode": "visit_count",
     "tactical_root_bias": 0.0,
+    "root_temperature": 0.0,
 }
 EARLY_DEFAULT_EVAL_SEARCH_OPTIONS = {
     **EARLY_DEFAULT_SEARCH_OPTIONS,
@@ -1272,6 +1273,7 @@ def run_arena_worker(
     normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
+    root_temperature: float = DEFAULT_EVAL_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
     root_prior_transform: str | None = None,
     challenger_root_prior_transform: str | None = None,
@@ -1298,6 +1300,7 @@ def run_arena_worker(
         normalize_values=normalize_values,
         root_policy_mode=root_policy_mode,
         tactical_root_bias=tactical_root_bias,
+        root_temperature=root_temperature,
         value_trust_schedule=value_trust_schedule,
     )
     effective_challenger_root_prior_transform = (
@@ -1525,6 +1528,9 @@ def run_arena_worker(
                     root_policy_mode=str(normalized_search_options["root_policy_mode"]),
                     tactical_root_bias=float(
                         normalized_search_options["tactical_root_bias"]
+                    ),
+                    root_temperature=float(
+                        normalized_search_options.get("root_temperature", 0.0)
                     ),
                     root_prior_override=(
                         challenger_root_prior_override
@@ -1827,6 +1833,7 @@ def main() -> None:
                     normalize_values=bool(search_options["normalize_values"]),
                     root_policy_mode=str(search_options["root_policy_mode"]),
                     tactical_root_bias=float(search_options["tactical_root_bias"]),
+                    root_temperature=float(search_options.get("root_temperature", 0.0)),
                     value_trust_schedule=search_options.get("value_trust_schedule"),
                     root_prior_transform=args.root_prior_transform,
                     challenger_root_prior_transform=args.challenger_root_prior_transform,

@@ -68,6 +68,7 @@ def run_arena(
     challenger_starts: int,
     games_per_opening: int = 1,
     root_policy_mode: str = "deterministic",
+    root_temperature: float = 0.0,
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -102,6 +103,8 @@ def run_arena(
         opening_prefixes_jsonl,
         "--root-policy-mode",
         root_policy_mode,
+        "--root-temperature",
+        str(root_temperature),
     ]
 
     result = subprocess.run(
@@ -339,6 +342,16 @@ def parse_args() -> argparse.Namespace:
         default="deterministic",
         help="Root move selection policy (deterministic or stochastic via visit_count).",
     )
+    parser.add_argument(
+        "--root-temperatures",
+        default="0.0",
+        help="Comma-separated root temperature values (0.0=deterministic, >0.0=stochastic).",
+    )
+    parser.add_argument(
+        "--seeds",
+        default="42",
+        help="Comma-separated random seeds for stochastic evaluations.",
+    )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument(
         "--timeout",
@@ -372,153 +385,199 @@ def main() -> int:
             c_str, cur_str = bp.split(":", 1)
             budget_pairs.append((int(c_str), int(cur_str)))
 
-    all_candidate_reports: list[dict] = []
+    root_temperatures = [float(t.strip()) for t in args.root_temperatures.split(",")]
+    seeds = [int(s.strip()) for s in args.seeds.split(",")]
 
-    for candidate_path in candidates:
-        cand_label = candidate_label(candidate_path)
-        cand_dir = workdir / cand_label
-        cand_dir.mkdir(parents=True, exist_ok=True)
+    all_temperature_reports: list[dict] = []
 
-        candidate_sha = sha256_file(Path(candidate_path) / "weights.json")
+    for rt in root_temperatures:
+        effective_seeds = [seeds[0]] if rt <= 0.0 else seeds
+        rt_label = f"temp_{rt}".replace(".", "_")
+        rt_dir = workdir / rt_label
+        rt_dir.mkdir(parents=True, exist_ok=True)
+
         print(f"\n{'=' * 60}")
-        print(f"Candidate: {cand_label}")
-        print(f"  Path: {candidate_path}")
-        print(f"  SHA256: {candidate_sha}")
+        print(f"Root Temperature: {rt}  Seeds: {effective_seeds}")
 
-        cand_budget_results: dict[str, dict] = {}
+        seed_reports: list[dict] = []
 
-        for chall_sims, curr_sims in budget_pairs:
-            budget_label = BUDGET_PAIR_LABELS.get(
-                (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
-            )
-            budget_dir = cand_dir / budget_label
-            budget_dir.mkdir(parents=True, exist_ok=True)
+        for seed in effective_seeds:
+            seed_label = f"seed_{seed}"
+            seed_dir = rt_dir / seed_label
+            seed_dir.mkdir(parents=True, exist_ok=True)
+            print(f"\n  Seed: {seed}")
 
-            print(f"  Budget {chall_sims}:{curr_sims} ({budget_label}) ...", flush=True)
+            all_candidate_reports: list[dict] = []
 
-            gpo = max(1, args.games_per_opening)
-            total_games = suite_size * gpo
+            for candidate_path in candidates:
+                cand_label = candidate_label(candidate_path)
+                cand_dir = seed_dir / cand_label
+                cand_dir.mkdir(parents=True, exist_ok=True)
 
-            all_game_entries: list[dict] = []
+                candidate_sha = sha256_file(Path(candidate_path) / "weights.json")
+                print(f"\n  Candidate: {cand_label}  SHA256: {candidate_sha[:12]}...")
 
-            for seat in (0, 1):
-                seat_label = f"starts_{seat}"
-                seat_dir = budget_dir / seat_label
-                seat_dir.mkdir(parents=True, exist_ok=True)
-                seat_json = str(seat_dir / "arena.json")
-                seat_jsonl = str(seat_dir / "games.jsonl")
+                cand_budget_results: dict[str, dict] = {}
 
-                suite_jsonl_path = str(seat_dir / "opening_suite.jsonl")
-                with open(suite_jsonl_path, "w", encoding="utf-8") as f:
-                    for entry in suite:
-                        f.write(
-                            json.dumps({"prefix_moves": entry["prefix_moves"]}) + "\n"
-                        )
-
-                try:
-                    t0 = time.time()
-                    report = run_arena(
-                        challenger=candidate_path,
-                        current=args.current,
-                        challenger_sims=chall_sims,
-                        current_sims=curr_sims,
-                        games=total_games,
-                        seed=args.seed,
-                        workers=args.workers,
-                        out_json=seat_json,
-                        out_jsonl=seat_jsonl,
-                        opening_prefixes_jsonl=suite_jsonl_path,
-                        challenger_starts=seat,
-                        games_per_opening=gpo,
-                        root_policy_mode=args.root_policy_mode,
-                        timeout=args.timeout,
+                for chall_sims, curr_sims in budget_pairs:
+                    budget_label = BUDGET_PAIR_LABELS.get(
+                        (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
                     )
-                    elapsed = time.time() - t0
+                    budget_dir = cand_dir / budget_label
+                    budget_dir.mkdir(parents=True, exist_ok=True)
+
                     print(
-                        f"    {seat_label}: score={report.get('score', 0):.4f} ({elapsed:.0f}s)"
+                        f"    Budget {chall_sims}:{curr_sims} ({budget_label}) ...",
+                        flush=True,
                     )
 
-                    game_entries = parse_game_jsonl(seat_jsonl)
-                    all_game_entries.extend(game_entries)
-                except RuntimeError as exc:
-                    print(f"    {seat_label}: FAILED - {exc}")
-                    continue
+                    gpo = max(1, args.games_per_opening)
+                    total_games = suite_size * gpo
+                    arena_seed = seed
 
-            if not all_game_entries:
-                print(f"    No game entries collected for {budget_label}")
-                continue
+                    all_game_entries: list[dict] = []
 
-            metrics = compute_seat_metrics(all_game_entries)
-            per_opening = compute_per_opening_metrics(all_game_entries)
-            by_ply = compute_by_ply_metrics(all_game_entries)
+                    for seat in (0, 1):
+                        seat_label = f"starts_{seat}"
+                        seat_dir = budget_dir / seat_label
+                        seat_dir.mkdir(parents=True, exist_ok=True)
+                        seat_json = str(seat_dir / "arena.json")
+                        seat_jsonl = str(seat_dir / "games.jsonl")
 
-            budget_result = {
-                **metrics,
-                "per_opening_metrics": per_opening,
-                "by_ply_metrics": {str(k): v for k, v in by_ply.items()},
-                "budget_label": budget_label,
-                "challenger_simulations": chall_sims,
-                "current_simulations": curr_sims,
-                "total_games": len(all_game_entries),
+                        suite_jsonl_path = str(seat_dir / "opening_suite.jsonl")
+                        with open(suite_jsonl_path, "w", encoding="utf-8") as f:
+                            for entry in suite:
+                                f.write(
+                                    json.dumps({"prefix_moves": entry["prefix_moves"]})
+                                    + "\n"
+                                )
+
+                        try:
+                            t0 = time.time()
+                            report = run_arena(
+                                challenger=candidate_path,
+                                current=args.current,
+                                challenger_sims=chall_sims,
+                                current_sims=curr_sims,
+                                games=total_games,
+                                seed=arena_seed,
+                                workers=args.workers,
+                                out_json=seat_json,
+                                out_jsonl=seat_jsonl,
+                                opening_prefixes_jsonl=suite_jsonl_path,
+                                challenger_starts=seat,
+                                games_per_opening=gpo,
+                                root_policy_mode=args.root_policy_mode,
+                                root_temperature=rt,
+                                timeout=args.timeout,
+                            )
+                            elapsed = time.time() - t0
+                            print(
+                                f"      {seat_label}: score={report.get('score', 0):.4f} ({elapsed:.0f}s)"
+                            )
+
+                            game_entries = parse_game_jsonl(seat_jsonl)
+                            all_game_entries.extend(game_entries)
+                        except RuntimeError as exc:
+                            print(f"      {seat_label}: FAILED - {exc}")
+                            continue
+
+                    if not all_game_entries:
+                        print(f"      No game entries collected for {budget_label}")
+                        continue
+
+                    metrics = compute_seat_metrics(all_game_entries)
+                    per_opening = compute_per_opening_metrics(all_game_entries)
+                    by_ply = compute_by_ply_metrics(all_game_entries)
+
+                    budget_result = {
+                        **metrics,
+                        "per_opening_metrics": per_opening,
+                        "by_ply_metrics": {str(k): v for k, v in by_ply.items()},
+                        "budget_label": budget_label,
+                        "challenger_simulations": chall_sims,
+                        "current_simulations": curr_sims,
+                        "total_games": len(all_game_entries),
+                    }
+
+                    if per_opening:
+                        worst_10 = per_opening[:10]
+                        best_10 = per_opening[-10:]
+                        budget_result["worst_10_openings"] = worst_10
+                        budget_result["best_10_openings"] = best_10
+
+                    cand_budget_results[budget_label] = budget_result
+
+                    out_path = budget_dir / "metrics.json"
+                    out_path.write_text(
+                        json.dumps(budget_result, indent=2), encoding="utf-8"
+                    )
+
+                    ds = metrics["ds"]
+                    dup_rate = metrics["duplicate_trajectory_rate"]
+                    print(
+                        f"      DS={ds:+.4f}  P0={metrics['p0_score']:.4f}  P1={metrics['p1_score']:.4f}"
+                        f"  dup_traj_rate={dup_rate:.3f}"
+                        f"  games={metrics['total_games']}"
+                    )
+
+                candidate_report = {
+                    "candidate": cand_label,
+                    "candidate_path": candidate_path,
+                    "candidate_sha256": candidate_sha,
+                    "current_sha256": current_sha,
+                    "suite_size": suite_size,
+                    "budget_results": cand_budget_results,
+                }
+                all_candidate_reports.append(candidate_report)
+
+            ranking_rows = _build_ranking_table(all_candidate_reports)
+            print(f"\n  Seed {seed} -- Candidate Ranking")
+            for row in ranking_rows:
+                std_p0 = row.get("std_p0")
+                std_p1 = row.get("std_p1")
+                std_ds = row.get("std_ds")
+                eqhi_ds = row.get("equal_high_ds")
+                print(
+                    f"    {row['candidate']:<30} P0={std_p0:.4f} "
+                    if std_p0 is not None
+                    else f"    {row['candidate']:<30} P0=N/A P1={std_p1:.4f} "
+                    if std_p1 is not None
+                    else f"P1=N/A DS={std_ds:+.4f} "
+                    if std_ds is not None
+                    else f"DS=N/A eqhi={eqhi_ds:+.4f}"
+                    if eqhi_ds is not None
+                    else "eqhi=N/A"
+                )
+
+            seed_report = {
+                "root_temperature": rt,
+                "seed": seed,
+                "candidate_reports": all_candidate_reports,
+                "ranking": ranking_rows,
             }
+            seed_reports.append(seed_report)
 
-            if per_opening:
-                worst_10 = per_opening[:10]
-                best_10 = per_opening[-10:]
-                budget_result["worst_10_openings"] = worst_10
-                budget_result["best_10_openings"] = best_10
-
-            cand_budget_results[budget_label] = budget_result
-
-            out_path = budget_dir / "metrics.json"
-            out_path.write_text(json.dumps(budget_result, indent=2), encoding="utf-8")
-
-            ds = metrics["ds"]
-            dup_rate = metrics["duplicate_trajectory_rate"]
-            print(
-                f"    DS={ds:+.4f}  P0={metrics['p0_score']:.4f}  P1={metrics['p1_score']:.4f}"
-                f"  dup_traj_rate={dup_rate:.3f}"
-                f"  games={metrics['total_games']}"
+        seed_summary = None
+        if len(effective_seeds) > 1:
+            seed_summary = _summarize_across_seeds(seed_reports)
+            summary_path = rt_dir / "seed_summary.json"
+            summary_path.write_text(
+                json.dumps(seed_summary, indent=2), encoding="utf-8"
             )
+            print(f"\n  Seed summary written to {summary_path}")
 
-        candidate_report = {
-            "candidate": cand_label,
-            "candidate_path": candidate_path,
-            "candidate_sha256": candidate_sha,
-            "current_sha256": current_sha,
-            "suite_size": suite_size,
-            "budget_results": cand_budget_results,
+        temperature_report = {
+            "root_temperature": rt,
+            "seed_reports": seed_reports,
         }
-        all_candidate_reports.append(candidate_report)
-
-    ranking_rows = _build_ranking_table(all_candidate_reports)
-    print(f"\n{'=' * 60}")
-    print("Candidate Ranking")
-    print(f"{'=' * 60}")
-
-    header = "  {:<30} {:>8} {:>8} {:>8} {:>8}".format(
-        "candidate", "std_p0", "std_p1", "std_ds", "eqhi_ds"
-    )
-    print(header)
-    print("  " + "-" * len(header))
-    for row in ranking_rows:
-        std_p0 = row.get("std_p0")
-        std_p1 = row.get("std_p1")
-        std_ds = row.get("std_ds")
-        eqhi_ds = row.get("equal_high_ds")
-        print(
-            "  {:<30} {:>8} {:>8} {:>8} {:>8}".format(
-                row["candidate"],
-                f"{std_p0:.4f}" if std_p0 is not None else "N/A",
-                f"{std_p1:.4f}" if std_p1 is not None else "N/A",
-                f"{std_ds:+.4f}" if std_ds is not None else "N/A",
-                f"{eqhi_ds:+.4f}" if eqhi_ds is not None else "N/A",
-            )
-        )
+        if seed_summary is not None:
+            temperature_report["seed_summary"] = seed_summary
+        all_temperature_reports.append(temperature_report)
 
     suite_sha = sha256_file(Path(args.suite))
-    ranking_path = workdir / "candidate_ranking.json"
-    ranking_path.write_text(
+    full_report_path = workdir / "temperature_benchmark_report.json"
+    full_report_path.write_text(
         json.dumps(
             {
                 "suite_path": args.suite,
@@ -526,15 +585,57 @@ def main() -> int:
                 "suite_size": suite_size,
                 "current_sha256": current_sha,
                 "root_policy_mode": args.root_policy_mode,
-                "ranking": ranking_rows,
-                "candidate_reports": all_candidate_reports,
+                "temperature_reports": all_temperature_reports,
             },
             indent=2,
         ),
         encoding="utf-8",
     )
-    print(f"\nFull ranking written to {ranking_path}")
+    print(f"\nFull temperature benchmark report written to {full_report_path}")
     return 0
+
+
+def _summarize_across_seeds(seed_reports: list[dict]) -> dict:
+    candidate_names = sorted(
+        {r["candidate"] for sr in seed_reports for r in sr.get("candidate_reports", [])}
+    )
+    budget_labels = sorted(
+        {
+            b
+            for sr in seed_reports
+            for cr in sr.get("candidate_reports", [])
+            for b in cr.get("budget_results", {})
+        }
+    )
+    summaries: list[dict] = []
+    for cand in candidate_names:
+        entry: dict = {"candidate": cand}
+        for bl in budget_labels:
+            ds_vals = []
+            p0_vals = []
+            p1_vals = []
+            dup_vals = []
+            for sr in seed_reports:
+                for cr in sr.get("candidate_reports", []):
+                    if cr.get("candidate") != cand:
+                        continue
+                    br = cr.get("budget_results", {}).get(bl)
+                    if br:
+                        ds_vals.append(br.get("ds", 0.0))
+                        p0_vals.append(br.get("p0_score", 0.5))
+                        p1_vals.append(br.get("p1_score", 0.5))
+                        dup_vals.append(br.get("duplicate_trajectory_rate", 0.0))
+            if ds_vals:
+                entry[f"{bl}_mean_ds"] = statistics.mean(ds_vals)
+                entry[f"{bl}_std_ds"] = (
+                    statistics.stdev(ds_vals) if len(ds_vals) > 1 else 0.0
+                )
+                entry[f"{bl}_mean_p0"] = statistics.mean(p0_vals)
+                entry[f"{bl}_mean_p1"] = statistics.mean(p1_vals)
+                if dup_vals:
+                    entry[f"{bl}_mean_dup_rate"] = statistics.mean(dup_vals)
+        summaries.append(entry)
+    return {"candidate_summaries": summaries, "num_seeds": len(seed_reports)}
 
 
 def _build_ranking_table(candidate_reports: list[dict]) -> list[dict]:

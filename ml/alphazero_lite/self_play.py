@@ -59,6 +59,7 @@ DEFAULT_SEARCH_OPTIONS = {
     "normalize_values": False,
     "root_policy_mode": "visit_count",
     "tactical_root_bias": 0.0,
+    "root_temperature": 0.0,
 }
 SUPPORTED_ROOT_POLICY_MODES = frozenset({"visit_count", "deterministic"})
 DEFAULT_EVAL_SEARCH_OPTIONS = {
@@ -219,15 +220,18 @@ def build_search_options(
     normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+    root_temperature: float = DEFAULT_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
 ) -> SearchOptions:
     root_policy_mode = normalize_root_policy_mode(root_policy_mode)
+    root_temperature = max(0.0, float(root_temperature))
     options: SearchOptions = {
         "fpu_mode": fpu_mode,
         "reuse_subtree": bool(reuse_subtree),
         "normalize_values": bool(normalize_values),
         "root_policy_mode": root_policy_mode,
         "tactical_root_bias": float(tactical_root_bias),
+        "root_temperature": root_temperature,
     }
     normalized_value_trust_schedule = normalize_value_trust_schedule(
         value_trust_schedule
@@ -287,6 +291,7 @@ def build_eval_search_options(
     normalize_values: bool = DEFAULT_EVAL_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
+    root_temperature: float = DEFAULT_EVAL_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
 ) -> SearchOptions:
     return build_search_options(
@@ -295,6 +300,7 @@ def build_eval_search_options(
         normalize_values=normalize_values,
         root_policy_mode=root_policy_mode,
         tactical_root_bias=tactical_root_bias,
+        root_temperature=root_temperature,
         value_trust_schedule=value_trust_schedule,
     )
 
@@ -582,6 +588,11 @@ def add_search_option_args(parser: argparse.ArgumentParser) -> None:
         type=float,
         default=DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
     )
+    parser.add_argument(
+        "--root-temperature",
+        type=float,
+        default=DEFAULT_SEARCH_OPTIONS["root_temperature"],
+    )
     parser.add_argument("--value-trust-enabled", action="store_true")
     parser.add_argument("--value-trust-opening", type=float, default=None)
     parser.add_argument("--value-trust-midgame", type=float, default=None)
@@ -613,6 +624,9 @@ def search_options_from_args(args: argparse.Namespace) -> SearchOptions:
         normalize_values=args.normalize_values,
         root_policy_mode=args.root_policy_mode,
         tactical_root_bias=args.tactical_root_bias,
+        root_temperature=getattr(
+            args, "root_temperature", DEFAULT_SEARCH_OPTIONS["root_temperature"]
+        ),
         value_trust_schedule=value_trust_schedule_from_args(args),
     )
 
@@ -870,6 +884,7 @@ class PUCT:
         normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
         root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
         tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
+        root_temperature: float = DEFAULT_SEARCH_OPTIONS["root_temperature"],
         value_trust_schedule: dict | None = None,
         ablation_mode: str | None = None,
         root_prior_override: Callable[..., np.ndarray] | None = None,
@@ -884,6 +899,7 @@ class PUCT:
         self.normalize_values = normalize_values
         self.root_policy_mode = normalize_root_policy_mode(root_policy_mode)
         self.tactical_root_bias = float(tactical_root_bias)
+        self.root_temperature = max(0.0, float(root_temperature))
         self.value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
         self.ablation_mode = build_mode_config(ablation_mode or "full")
         self.root_prior_override = root_prior_override
@@ -898,6 +914,7 @@ class PUCT:
             normalize_values=self.normalize_values,
             root_policy_mode=self.root_policy_mode,
             tactical_root_bias=self.tactical_root_bias,
+            root_temperature=self.root_temperature,
             value_trust_schedule=self.value_trust_schedule,
         )
 
@@ -1174,20 +1191,42 @@ class PUCT:
         if not legal_moves:
             raise ValueError("select_root_move requires at least one legal move")
 
-        if self.root_policy_mode == "deterministic":
+        if self.root_temperature <= 0.0:
+            if self.root_policy_mode == "deterministic":
+                return max(
+                    legal_moves,
+                    key=lambda move: (
+                        root.children[move].visit_count,
+                        root.children[move].q_value,
+                        root.children[move].prior,
+                        -move,
+                    ),
+                )
             return max(
-                legal_moves,
-                key=lambda move: (
-                    root.children[move].visit_count,
-                    root.children[move].q_value,
-                    root.children[move].prior,
-                    -move,
-                ),
+                legal_moves, key=lambda move: (root.children[move].visit_count, -move)
             )
 
-        return max(
-            legal_moves, key=lambda move: (root.children[move].visit_count, -move)
+        visits = np.array(
+            [max(0, root.children[move].visit_count) for move in legal_moves],
+            dtype=np.float64,
         )
+        total = visits.sum()
+        if total <= 0:
+            return int(self.rng.choice(legal_moves))
+
+        scaled = np.power(visits + 1e-8, 1.0 / self.root_temperature)
+        scaled_sum = np.sum(scaled)
+        if scaled_sum <= 0:
+            return int(self.rng.choice(legal_moves))
+        probs = scaled / scaled_sum
+
+        threshold = self.rng.random()
+        running = 0.0
+        for idx, move in enumerate(legal_moves):
+            running += float(probs[idx])
+            if threshold <= running:
+                return int(move)
+        return int(legal_moves[-1])
 
     def _root_for(self, root_game: KalahGame) -> Node:
         if (
