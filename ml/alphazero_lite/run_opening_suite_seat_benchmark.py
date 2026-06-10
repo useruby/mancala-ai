@@ -67,6 +67,7 @@ def run_arena(
     opening_prefixes_jsonl: str,
     challenger_starts: int,
     games_per_opening: int = 1,
+    root_policy_mode: str = "deterministic",
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -99,6 +100,8 @@ def run_arena(
         str(games_per_opening),
         "--opening-prefixes-jsonl",
         opening_prefixes_jsonl,
+        "--root-policy-mode",
+        root_policy_mode,
     ]
 
     result = subprocess.run(
@@ -330,6 +333,12 @@ def parse_args() -> argparse.Namespace:
         help="Games per opening prefix (must be ≥2 for seat splits).",
     )
     parser.add_argument("--seed", type=int, default=42, help="Base random seed.")
+    parser.add_argument(
+        "--root-policy-mode",
+        choices=("deterministic", "visit_count"),
+        default="deterministic",
+        help="Root move selection policy (deterministic or stochastic via visit_count).",
+    )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument(
         "--timeout",
@@ -348,6 +357,7 @@ def main() -> int:
     suite = load_suite(args.suite)
     suite_size = len(suite)
     print(f"Loaded opening suite: {suite_size} openings from {args.suite}")
+    print(f"Root policy mode: {args.root_policy_mode}")
 
     current_sha = sha256_file(Path(args.current) / "weights.json")
     print(f"Current SHA256: {current_sha}")
@@ -420,6 +430,7 @@ def main() -> int:
                         opening_prefixes_jsonl=suite_jsonl_path,
                         challenger_starts=seat,
                         games_per_opening=gpo,
+                        root_policy_mode=args.root_policy_mode,
                         timeout=args.timeout,
                     )
                     elapsed = time.time() - t0
@@ -505,13 +516,16 @@ def main() -> int:
             )
         )
 
+    suite_sha = sha256_file(Path(args.suite))
     ranking_path = workdir / "candidate_ranking.json"
     ranking_path.write_text(
         json.dumps(
             {
                 "suite_path": args.suite,
+                "suite_sha256": suite_sha,
                 "suite_size": suite_size,
                 "current_sha256": current_sha,
+                "root_policy_mode": args.root_policy_mode,
                 "ranking": ranking_rows,
                 "candidate_reports": all_candidate_reports,
             },
