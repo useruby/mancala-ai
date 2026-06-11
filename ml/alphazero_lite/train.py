@@ -639,6 +639,9 @@ def train(
     save_top_k: int,
     lr_scheduler: str,
     weight_decay: float = 0.0,
+    save_epochs: set[int] | None = None,
+    save_epochs_dir: Path | None = None,
+    save_epochs_base: str | None = None,
 ) -> tuple[float, float, float]:
     model.to(device)
     model.train()
@@ -693,7 +696,7 @@ def train(
         top_states.sort(key=lambda item: item[0])
         top_states = top_states[:save_top_k]
 
-    for _epoch in range(epochs):
+    for epoch_idx in range(1, epochs + 1):
         epoch_metrics = train_one_epoch(
             model=model,
             optimizer=optimizer,
@@ -746,6 +749,19 @@ def train(
             maybe_record_top_state(
                 policy_loss_value + (value_loss_weight * value_loss_value)
             )
+
+        if (
+            save_epochs is not None
+            and epoch_idx in save_epochs
+            and save_epochs_dir is not None
+        ):
+            epoch_checkpoint = checkpoint_from_model(model)
+            epoch_path = (
+                save_epochs_dir
+                / f"{save_epochs_base or 'checkpoint'}_epoch{epoch_idx}.npz"
+            )
+            np.savez(epoch_path, **epoch_checkpoint)
+            print(f"saved_epoch_checkpoint_epoch={epoch_idx} path={epoch_path}")
 
     if best_state is not None:
         model.load_state_dict(best_state)
@@ -1151,6 +1167,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=DEFAULT_VALUE_TARGET_MODE,
     )
     parser.add_argument("--save-top-k", type=int, default=0)
+    parser.add_argument(
+        "--save-epochs",
+        default=None,
+        help="Comma-separated epoch numbers (1-indexed) to save checkpoints at",
+    )
     parser.add_argument("--top-k-dir", default=None)
     parser.add_argument(
         "--lr-scheduler",
@@ -1245,6 +1266,17 @@ def main() -> None:
     )
     epochs = args.steps if args.steps is not None else args.epochs
 
+    save_epochs_set: set[int] | None = None
+    save_epochs_dir: Path | None = None
+    save_epochs_base: str | None = None
+    if args.save_epochs:
+        save_epochs_set = {
+            int(e.strip()) for e in args.save_epochs.split(",") if e.strip()
+        }
+        save_epochs_dir = Path(args.top_k_dir) if args.top_k_dir else out_path.parent
+        save_epochs_dir.mkdir(parents=True, exist_ok=True)
+        save_epochs_base = out_path.stem
+
     policy_loss, value_loss, best_val_loss = train(
         model,
         x,
@@ -1263,6 +1295,9 @@ def main() -> None:
         save_top_k=args.save_top_k,
         lr_scheduler=args.lr_scheduler,
         weight_decay=args.weight_decay,
+        save_epochs=save_epochs_set,
+        save_epochs_dir=save_epochs_dir,
+        save_epochs_base=save_epochs_base,
     )
 
     checkpoint = checkpoint_from_model(model)
