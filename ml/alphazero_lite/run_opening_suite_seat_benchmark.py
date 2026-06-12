@@ -292,22 +292,25 @@ BUDGET_PAIR_LABELS = {
 
 
 def candidate_label(candidate_path: str) -> str:
-    p = str(candidate_path)
-    if "iter0_candidate" in p:
+    cp = Path(candidate_path)
+    name = cp.name
+    for part in cp.parts:
+        if part.startswith("replicate_seed_"):
+            return part
+        if part in (
+            "curriculum_ep1",
+            "curriculum_ep2",
+            "curriculum_lr1e5_ep1",
+            "curriculum_lr1e5_ep2",
+        ):
+            return part
+    if "iter0_candidate" in name:
         return "iter0_reference"
-    if "control_ep1" in p:
+    if "control_ep1" in name:
         return "control_ep1"
-    if "control_ep2" in p:
+    if "control_ep2" in name:
         return "control_ep2"
-    if "curriculum_lr1e5_ep1" in p:
-        return "curriculum_lr1e5_ep1"
-    if "curriculum_lr1e5_ep2" in p:
-        return "curriculum_lr1e5_ep2"
-    if "curriculum_ep1" in p:
-        return "curriculum_ep1"
-    if "curriculum_ep2" in p:
-        return "curriculum_ep2"
-    return Path(candidate_path).name
+    return name
 
 
 def parse_args() -> argparse.Namespace:
