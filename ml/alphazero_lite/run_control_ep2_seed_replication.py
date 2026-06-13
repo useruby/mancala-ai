@@ -244,7 +244,6 @@ def run_opening_suite_benchmark(
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
-        timeout=timeout + 300,
     )
     if result.returncode != 0:
         print(f"[eval] FAILED: {result.stderr[-2000:]}", flush=True)
@@ -376,6 +375,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-eval-medium", action="store_true")
     parser.add_argument("--skip-eval-large", action="store_true")
     parser.add_argument("--skip-gate", action="store_true")
+    parser.add_argument("--large-eval-top-n", type=int, default=3)
     return parser.parse_args()
 
 
@@ -525,7 +525,13 @@ def main() -> int:
             key=lambda name: candidate_standard_ds(medium_report, name),
             reverse=True,
         )
-        large_candidate_names = ranked_names[:3]
+        seed_ranked = [
+            name for name in ranked_names if name.startswith("replicate_seed_")
+        ]
+        large_candidate_names = ["control_ep2"]
+        for name in seed_ranked[: args.large_eval_top_n]:
+            if name not in large_candidate_names:
+                large_candidate_names.append(name)
         large_candidates = ",".join(
             str(lane["artifact_dir"])
             for lane in lanes
@@ -550,6 +556,18 @@ def main() -> int:
         gate_dir.mkdir(parents=True, exist_ok=True)
 
         ranked_names = large_candidate_names
+        if not large_report:
+            large_report_path = (
+                workdir / "eval_large" / "temperature_benchmark_report.json"
+            )
+            if large_report_path.exists():
+                large_report = json.loads(large_report_path.read_text(encoding="utf-8"))
+        if large_report:
+            ranked_names = sorted(
+                [str(lane["name"]) for lane in lanes],
+                key=lambda name: candidate_standard_ds(large_report, name),
+                reverse=True,
+            )
         if not ranked_names:
             if not medium_report:
                 medium_report_path = (
