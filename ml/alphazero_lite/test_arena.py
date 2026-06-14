@@ -3017,5 +3017,41 @@ class ArenaScriptTest(unittest.TestCase):
             self.assertTrue(report["promotion_decision"]["passed"])
 
 
+class ArenaGameJsonlMergeTest(unittest.TestCase):
+    def test_merge_worker_game_jsonl_files_merges_and_sorts_rows(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-merge-") as tmp:
+            tmp_path = Path(tmp)
+            out_path = tmp_path / "games.jsonl"
+            worker_0 = Path(arena.worker_game_jsonl_path(str(out_path), 0))
+            worker_1 = Path(arena.worker_game_jsonl_path(str(out_path), 1))
+            worker_0.write_text(
+                "\n".join(
+                    [
+                        json.dumps({"game_index": 2, "winner": "challenger"}),
+                        json.dumps({"game_index": 3, "winner": "current"}),
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            worker_1.write_text(
+                json.dumps({"game_index": 0, "winner": "draw"}) + "\n",
+                encoding="utf-8",
+            )
+
+            arena.merge_worker_game_jsonl_files(
+                out_path=str(out_path), worker_ids=[0, 1]
+            )
+
+            merged = [
+                json.loads(line)
+                for line in out_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            self.assertEqual([0, 2, 3], [entry["game_index"] for entry in merged])
+            self.assertFalse(worker_0.exists())
+            self.assertFalse(worker_1.exists())
+
+
 if __name__ == "__main__":
     unittest.main()

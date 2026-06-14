@@ -394,7 +394,7 @@ def main() -> int:
     all_temperature_reports: list[dict] = []
 
     for rt in root_temperatures:
-        effective_seeds = [seeds[0]] if rt <= 0.0 else seeds
+        effective_seeds = [args.seed] if rt <= 0.0 else seeds
         rt_label = f"temp_{rt}".replace(".", "_")
         rt_dir = workdir / rt_label
         rt_dir.mkdir(parents=True, exist_ok=True)
