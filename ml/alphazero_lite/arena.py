@@ -1192,6 +1192,41 @@ def aggregate_worker_reports(
     return report
 
 
+def worker_game_jsonl_path(base_path: str, worker_id: int) -> str:
+    path = Path(base_path)
+    return str(path.with_name(f"{path.stem}.worker_{worker_id}{path.suffix}"))
+
+
+def merge_worker_game_jsonl_files(
+    *, out_path: str, worker_ids: list[int], cleanup: bool = True
+) -> None:
+    merged_entries: list[dict] = []
+    worker_paths = [
+        Path(worker_game_jsonl_path(out_path, worker_id)) for worker_id in worker_ids
+    ]
+    for worker_path in worker_paths:
+        if not worker_path.exists():
+            continue
+        with worker_path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                merged_entries.append(json.loads(line))
+
+    merged_entries.sort(key=lambda entry: int(entry.get("game_index", 0)))
+    output_path = Path(out_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as handle:
+        for entry in merged_entries:
+            handle.write(json.dumps(entry) + "\n")
+
+    if cleanup:
+        for worker_path in worker_paths:
+            if worker_path.exists():
+                worker_path.unlink()
+
+
 def opening_cache_summary_for(
     *, results: list[dict], training_summary: dict | None = None
 ) -> dict:
@@ -1808,12 +1843,17 @@ def main() -> None:
 
     futures = []
     results = []
+    worker_game_paths: dict[int, str] = {}
     with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
         for worker_id, (start_index, count) in enumerate(
             zip(starts, counts, strict=True)
         ):
             if count <= 0:
                 continue
+            worker_game_jsonl = None
+            if getattr(args, "game_jsonl", None):
+                worker_game_jsonl = worker_game_jsonl_path(args.game_jsonl, worker_id)
+                worker_game_paths[worker_id] = worker_game_jsonl
             futures.append(
                 pool.submit(
                     run_arena_worker,
@@ -1845,13 +1885,19 @@ def main() -> None:
                     opening_samples=getattr(args, "opening_samples", 0),
                     games_per_opening=getattr(args, "games_per_opening", 2),
                     challenger_starts=getattr(args, "challenger_starts", None),
-                    game_jsonl_path=getattr(args, "game_jsonl", None),
+                    game_jsonl_path=worker_game_jsonl,
                     opening_prefixes_jsonl=getattr(
                         args, "opening_prefixes_jsonl", None
                     ),
                 )
             )
         results = [future.result() for future in futures]
+
+    if getattr(args, "game_jsonl", None):
+        merge_worker_game_jsonl_files(
+            out_path=args.game_jsonl,
+            worker_ids=sorted(worker_game_paths),
+        )
 
     report = aggregate_worker_reports(
         games=args.games,
