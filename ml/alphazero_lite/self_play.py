@@ -1588,6 +1588,19 @@ def state_hash(state: dict[str, Any]) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
+def trajectory_hash_for_encoded_states(
+    states: list[list[float]], *, winner: int | None
+) -> str:
+    payload = {
+        "states": states,
+        "winner": winner,
+    }
+    encoded = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 def standard_start_state() -> dict[str, int | list[int]]:
     return {
         "player_pits": [4, 4, 4, 4, 4, 4],
@@ -1952,6 +1965,7 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_VALUE_TARGET_MODE,
     )
     parser.add_argument("--write-root-target-telemetry", action="store_true")
+    parser.add_argument("--write-game-metadata", action="store_true")
     parser.add_argument(
         "--player-mode",
         choices=sorted(SUPPORTED_PLAYER_MODES),
@@ -2074,6 +2088,7 @@ def run_self_play_worker(
     policy_target_noise_mode: str = DEFAULT_POLICY_TARGET_NOISE_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
     write_root_target_telemetry: bool = False,
+    write_game_metadata: bool = False,
     player_mode: str = DEFAULT_PLAYER_MODE,
     value_trust_schedule: dict | None = None,
     opponent_pool_config: str | None = None,
@@ -2493,6 +2508,12 @@ def run_self_play_worker(
                     break
 
             winner = game.winner
+            trajectory_hash = trajectory_hash_for_encoded_states(
+                [list(state) for state, *_ in positions],
+                winner=winner,
+            )
+            game_completed = bool(game.over())
+            game_length = len(positions)
             for (
                 state,
                 policy,
@@ -2575,6 +2596,11 @@ def run_self_play_worker(
                                 ]
                 if teacher_root_summary is not None:
                     row["teacher_root_summary"] = teacher_root_summary
+                if write_game_metadata:
+                    row["game_index"] = int(global_index)
+                    row["game_completed"] = game_completed
+                    row["game_length"] = int(game_length)
+                    row["trajectory_hash"] = trajectory_hash
                 handle.write(json.dumps(row) + "\n")
                 rows_written += 1
 
@@ -2664,6 +2690,7 @@ def main() -> None:
                     "policy_target_noise_mode": args.policy_target_noise_mode,
                     "value_target_mode": args.value_target_mode,
                     "write_root_target_telemetry": args.write_root_target_telemetry,
+                    "write_game_metadata": args.write_game_metadata,
                     "player_mode": args.player_mode,
                     "opening_cache_path": args.opening_cache,
                     "start_state_mode": args.start_state_mode,
