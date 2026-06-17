@@ -1,8 +1,8 @@
 {
   "schema_version": "azlite_model_v1",
-  "version": "live-synth-fix-balanced-stage2-iter1",
+  "version": "azlite-control-ep2-puct-policy-head-e1",
   "game": "kalah",
-  "rules_version": "kalah_v1",
+  "rules_version": "kalah_v3",
   "input_encoding": "kalah_v3",
   "feature_count": 27,
   "policy_size": 6,
@@ -59,14 +59,25 @@
     "self_play_games": 0
   },
   "metrics": {
-    "policy_loss": 0.0,
-    "value_loss": 0.0
+    "policy_loss": 1.033082,
+    "value_loss": 0.205252
   },
   "artifacts": {
     "weights_file": "weights.json",
-    "weights_sha256": "14a61c0c15b967dc0838444ffda58988028856e35027436fa0e0852e11903b48",
-    "weights_json_sha256": "6946aaffb2e32916c1b7ed57437f6c86b94778833954c546af0e78097d9d2781"
+    "weights_sha256": "a793f32565b0c706c4228e4de3bc00aea5c471089ec940c4fe85e726fe4f9357",
+    "weights_json_sha256": "6ac71425ef4c69574a8943f42c4b3e036ad272967ae264050a287dda206a3ece"
   },
   "framework": "numpy",
-  "created_at": "2026-04-06T21:48:07.287917+00:00"
+  "created_at": "2026-06-15T21:19:52.076445+00:00",
+  "promotion": {
+    "promoted_at": "2026-06-17T10:10:52.414723+00:00",
+    "candidate_name": "puct_policy_head_e1",
+    "source_checkpoint_sha256": "a793f32565b0c706c4228e4de3bc00aea5c471089ec940c4fe85e726fe4f9357",
+    "source_artifact_weights_sha256": "6ac71425ef4c69574a8943f42c4b3e036ad272967ae264050a287dda206a3ece",
+    "parent_control_ep2_checkpoint_sha256": "619376dba87b968cc85bfc401cc230aca64e444dc3570216b0630c2c29a388f9",
+    "promotion_evidence_doc": "docs/alphazero-lite-control-ep2-puct-head-preflight-results.md",
+    "training_scope": "policy_head",
+    "replay_source": "control_ep2_puct_selfplay",
+    "architecture_change": "none"
+  }
 }
