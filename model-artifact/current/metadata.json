@@ -1,6 +1,6 @@
 {
   "schema_version": "azlite_model_v1",
-  "version": "azlite-control-ep2-puct-policy-head-e1",
+  "version": "azlite-balanced-w8s4-policy-head-e1",
   "game": "kalah",
   "rules_version": "kalah_v3",
   "input_encoding": "kalah_v3",
@@ -59,25 +59,61 @@
     "self_play_games": 0
   },
   "metrics": {
-    "policy_loss": 1.033082,
-    "value_loss": 0.205252
+    "policy_loss": 1.076366,
+    "value_loss": 0.191435
   },
   "artifacts": {
     "weights_file": "weights.json",
-    "weights_sha256": "a793f32565b0c706c4228e4de3bc00aea5c471089ec940c4fe85e726fe4f9357",
-    "weights_json_sha256": "6ac71425ef4c69574a8943f42c4b3e036ad272967ae264050a287dda206a3ece"
+    "weights_sha256": "18dacb5ef38602a77abf3927dc8748ac167c2ca91237385ec010ab27a123adc9",
+    "weights_json_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
   },
   "framework": "numpy",
-  "created_at": "2026-06-15T21:19:52.076445+00:00",
+  "created_at": "2026-06-21T08:41:00.564174+00:00",
+  "parent_version": "azlite-control-ep2-puct-policy-head-e1",
+  "parent_weights_sha256": "6ac71425ef4c69574a8943f42c4b3e036ad272967ae264050a287dda206a3ece",
+  "source_experiment": "docs/alphazero-lite-balanced-opening-puct-replay-results.md",
+  "source_runner": "ml/alphazero_lite/run_balanced_opening_puct_replay.py",
+  "selected_lane": "balanced_w8s4_policy_head_e1",
+  "trainable_scope": "policy_head",
+  "replay_sources": [
+    "generic_bootstrap",
+    "random_teacher",
+    "opening_puct_disagreement_replay",
+    "equal_budget_stability_replay"
+  ],
+  "replay_weights": [
+    4,
+    1,
+    8,
+    4
+  ],
+  "architecture_note": "residual_v3 / kalah_v3 / hidden_sizes 96,3",
+  "architecture_change": "none",
   "promotion": {
-    "promoted_at": "2026-06-17T10:10:52.414723+00:00",
-    "candidate_name": "puct_policy_head_e1",
-    "source_checkpoint_sha256": "a793f32565b0c706c4228e4de3bc00aea5c471089ec940c4fe85e726fe4f9357",
-    "source_artifact_weights_sha256": "6ac71425ef4c69574a8943f42c4b3e036ad272967ae264050a287dda206a3ece",
-    "parent_control_ep2_checkpoint_sha256": "619376dba87b968cc85bfc401cc230aca64e444dc3570216b0630c2c29a388f9",
-    "promotion_evidence_doc": "docs/alphazero-lite-control-ep2-puct-head-preflight-results.md",
-    "training_scope": "policy_head",
-    "replay_source": "control_ep2_puct_selfplay",
+    "promoted_at": "2026-06-23T07:24:43.542996+00:00",
+    "candidate_name": "balanced_w8s4_policy_head_e1",
+    "parent_version": "azlite-control-ep2-puct-policy-head-e1",
+    "parent_weights_sha256": "6ac71425ef4c69574a8943f42c4b3e036ad272967ae264050a287dda206a3ece",
+    "source_checkpoint_path": "/tmp/azlite_balanced_opening_puct_replay/balanced_w8s4_policy_head/checkpoint_epoch1.npz",
+    "source_checkpoint_sha256": "18dacb5ef38602a77abf3927dc8748ac167c2ca91237385ec010ab27a123adc9",
+    "source_artifact_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "source_experiment": "docs/alphazero-lite-balanced-opening-puct-replay-results.md",
+    "source_runner": "ml/alphazero_lite/run_balanced_opening_puct_replay.py",
+    "selected_lane": "balanced_w8s4_policy_head_e1",
+    "trainable_scope": "policy_head",
+    "replay_sources": [
+      "generic_bootstrap",
+      "random_teacher",
+      "opening_puct_disagreement_replay",
+      "equal_budget_stability_replay"
+    ],
+    "replay_weights": [
+      4,
+      1,
+      8,
+      4
+    ],
+    "architecture": "residual_v3 / kalah_v3 / hidden_sizes 96,3",
     "architecture_change": "none"
   }
 }
