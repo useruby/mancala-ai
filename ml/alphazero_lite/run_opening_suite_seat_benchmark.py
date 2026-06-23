@@ -20,6 +20,7 @@ import sys
 import time
 from collections import Counter, defaultdict
 from pathlib import Path
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
@@ -41,6 +42,14 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(8192), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def load_suite(path: str) -> list[dict]:
@@ -130,6 +139,54 @@ def parse_game_jsonl(path: str) -> list[dict]:
             if line:
                 entries.append(json.loads(line))
     return entries
+
+
+def cache_matches(cached: dict[str, Any], expected: dict[str, Any]) -> bool:
+    return all(cached.get(key) == value for key, value in expected.items())
+
+
+def budget_cache_context(
+    *,
+    suite_path: str,
+    suite_sha: str,
+    suite_size: int,
+    current_path: str,
+    current_sha: str,
+    candidate_path: str,
+    candidate_sha: str,
+    challenger_sims: int,
+    current_sims: int,
+    games_per_opening: int,
+    total_games: int,
+    root_policy_mode: str,
+    root_temperature: float,
+    seed: int,
+) -> dict[str, Any]:
+    return {
+        "suite_path": suite_path,
+        "suite_sha256": suite_sha,
+        "suite_size": suite_size,
+        "current_path": current_path,
+        "current_sha256": current_sha,
+        "candidate_path": candidate_path,
+        "candidate_sha256": candidate_sha,
+        "challenger_simulations": challenger_sims,
+        "current_simulations": current_sims,
+        "games_per_opening": games_per_opening,
+        "total_games": total_games,
+        "root_policy_mode": root_policy_mode,
+        "root_temperature": root_temperature,
+        "seed": seed,
+    }
+
+
+def seat_cache_context(
+    budget_context: dict[str, Any], *, challenger_starts: int
+) -> dict[str, Any]:
+    return {
+        **budget_context,
+        "challenger_starts": challenger_starts,
+    }
 
 
 def _wilson_interval(score: float, sample_size: int) -> dict[str, float]:
@@ -372,6 +429,7 @@ def main() -> int:
 
     suite = load_suite(args.suite)
     suite_size = len(suite)
+    suite_sha = sha256_file(Path(args.suite))
     print(f"Loaded opening suite: {suite_size} openings from {args.suite}")
     print(f"Root policy mode: {args.root_policy_mode}")
 
@@ -437,6 +495,38 @@ def main() -> int:
                     gpo = max(1, args.games_per_opening)
                     total_games = suite_size * gpo
                     arena_seed = seed
+                    cache_context = budget_cache_context(
+                        suite_path=args.suite,
+                        suite_sha=suite_sha,
+                        suite_size=suite_size,
+                        current_path=args.current,
+                        current_sha=current_sha,
+                        candidate_path=candidate_path,
+                        candidate_sha=candidate_sha,
+                        challenger_sims=chall_sims,
+                        current_sims=curr_sims,
+                        games_per_opening=gpo,
+                        total_games=total_games,
+                        root_policy_mode=args.root_policy_mode,
+                        root_temperature=rt,
+                        seed=arena_seed,
+                    )
+                    metrics_path = budget_dir / "metrics.json"
+                    if metrics_path.is_file():
+                        cached_metrics = load_json(metrics_path)
+                        if cache_matches(
+                            cached_metrics.get("cache_context", {}), cache_context
+                        ):
+                            cand_budget_results[budget_label] = cached_metrics
+                            ds = cached_metrics["ds"]
+                            dup_rate = cached_metrics["duplicate_trajectory_rate"]
+                            print(
+                                f"      cache hit: DS={ds:+.4f}  P0={cached_metrics['p0_score']:.4f}"
+                                f"  P1={cached_metrics['p1_score']:.4f}"
+                                f"  dup_traj_rate={dup_rate:.3f}"
+                                f"  games={cached_metrics['total_games']}"
+                            )
+                            continue
 
                     all_game_entries: list[dict] = []
 
@@ -446,6 +536,10 @@ def main() -> int:
                         seat_dir.mkdir(parents=True, exist_ok=True)
                         seat_json = str(seat_dir / "arena.json")
                         seat_jsonl = str(seat_dir / "games.jsonl")
+                        seat_meta_path = seat_dir / "metadata.json"
+                        seat_context = seat_cache_context(
+                            cache_context, challenger_starts=seat
+                        )
 
                         suite_jsonl_path = str(seat_dir / "opening_suite.jsonl")
                         with open(suite_jsonl_path, "w", encoding="utf-8") as f:
@@ -454,6 +548,23 @@ def main() -> int:
                                     json.dumps({"prefix_moves": entry["prefix_moves"]})
                                     + "\n"
                                 )
+
+                        if seat_meta_path.is_file():
+                            cached_seat = load_json(seat_meta_path)
+                            if (
+                                cache_matches(
+                                    cached_seat.get("cache_context", {}), seat_context
+                                )
+                                and Path(seat_json).is_file()
+                                and Path(seat_jsonl).is_file()
+                            ):
+                                game_entries = parse_game_jsonl(seat_jsonl)
+                                if game_entries:
+                                    all_game_entries.extend(game_entries)
+                                    print(
+                                        f"      {seat_label}: cache hit ({len(game_entries)} games)"
+                                    )
+                                    continue
 
                         try:
                             t0 = time.time()
@@ -481,6 +592,15 @@ def main() -> int:
 
                             game_entries = parse_game_jsonl(seat_jsonl)
                             all_game_entries.extend(game_entries)
+                            write_json(
+                                seat_meta_path,
+                                {
+                                    "cache_context": seat_context,
+                                    "arena_score": report.get("score"),
+                                    "games": len(game_entries),
+                                    "elapsed_s": elapsed,
+                                },
+                            )
                         except RuntimeError as exc:
                             print(f"      {seat_label}: FAILED - {exc}")
                             continue
@@ -495,6 +615,7 @@ def main() -> int:
 
                     budget_result = {
                         **metrics,
+                        "cache_context": cache_context,
                         "per_opening_metrics": per_opening,
                         "by_ply_metrics": {str(k): v for k, v in by_ply.items()},
                         "budget_label": budget_label,
@@ -511,10 +632,7 @@ def main() -> int:
 
                     cand_budget_results[budget_label] = budget_result
 
-                    out_path = budget_dir / "metrics.json"
-                    out_path.write_text(
-                        json.dumps(budget_result, indent=2), encoding="utf-8"
-                    )
+                    write_json(metrics_path, budget_result)
 
                     ds = metrics["ds"]
                     dup_rate = metrics["duplicate_trajectory_rate"]
@@ -578,21 +696,17 @@ def main() -> int:
             temperature_report["seed_summary"] = seed_summary
         all_temperature_reports.append(temperature_report)
 
-    suite_sha = sha256_file(Path(args.suite))
     full_report_path = workdir / "temperature_benchmark_report.json"
-    full_report_path.write_text(
-        json.dumps(
-            {
-                "suite_path": args.suite,
-                "suite_sha256": suite_sha,
-                "suite_size": suite_size,
-                "current_sha256": current_sha,
-                "root_policy_mode": args.root_policy_mode,
-                "temperature_reports": all_temperature_reports,
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
+    write_json(
+        full_report_path,
+        {
+            "suite_path": args.suite,
+            "suite_sha256": suite_sha,
+            "suite_size": suite_size,
+            "current_sha256": current_sha,
+            "root_policy_mode": args.root_policy_mode,
+            "temperature_reports": all_temperature_reports,
+        },
     )
     print(f"\nFull temperature benchmark report written to {full_report_path}")
     return 0

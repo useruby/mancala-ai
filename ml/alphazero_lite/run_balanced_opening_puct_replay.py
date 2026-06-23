@@ -83,6 +83,21 @@ STABILITY_MIN_ROWS = 1000
 STABILITY_PREFIX_CAP = 12
 STABILITY_TOP_MOVE_CAP = 420
 STABILITY_PHASE_CAPS = {"opening": 1200, "mid": 600, "late": 200}
+PHASE_CHOICES = (
+    "stability",
+    "train",
+    "eval-fixed",
+    "eval-heldout",
+    "gate",
+    "report",
+    "all",
+)
+STABILITY_TRACE_FILENAME = "stability_candidates.jsonl"
+STABILITY_SELECTED_FILENAME = "equal_budget_stability_selected.jsonl"
+STABILITY_REPLAY_FILENAME = "equal_budget_stability_replay.jsonl"
+TRAINING_MANIFEST_FILENAME = "training_manifest.json"
+CANDIDATE_MANIFEST_FILENAME = "candidate_manifest.json"
+SUMMARY_FILENAME = "summary_metrics.json"
 PR123_SUMMARY_PATH = Path(
     "/tmp/azlite_promoted_current_opening_puct_disagreement_weight_ablation/summary_metrics.json"
 )
@@ -143,6 +158,13 @@ def parse_budget_pairs(text: str) -> list[str]:
     return [item.strip() for item in text.split(",") if item.strip()]
 
 
+def parse_candidate_filter(text: str | None) -> list[str] | None:
+    if text is None:
+        return None
+    names = [item.strip() for item in text.split(",") if item.strip()]
+    return names or None
+
+
 def parse_equal_budget_pairs(include_384: bool) -> list[tuple[str, int]]:
     pairs = [(EQ_768_BUDGET, 768), (EQ_1200_BUDGET, 1200)]
     if include_384:
@@ -152,6 +174,127 @@ def parse_equal_budget_pairs(include_384: bool) -> list[tuple[str, int]]:
 
 def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def count_jsonl_rows(path: Path) -> int:
+    with path.open("r", encoding="utf-8") as handle:
+        return sum(1 for line in handle if line.strip())
+
+
+def artifact_paths(workdir: Path) -> dict[str, Path]:
+    return {
+        "stability_trace": workdir / STABILITY_TRACE_FILENAME,
+        "stability_selected": workdir / STABILITY_SELECTED_FILENAME,
+        "stability_replay": workdir / STABILITY_REPLAY_FILENAME,
+        "training_manifest": workdir / TRAINING_MANIFEST_FILENAME,
+        "candidate_manifest": workdir / CANDIDATE_MANIFEST_FILENAME,
+        "reports_dir": workdir / "reports",
+        "gates_dir": workdir / "gates",
+        "summary": workdir / SUMMARY_FILENAME,
+    }
+
+
+def candidate_manifest_lookup(
+    candidates: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    return {str(candidate["name"]): candidate for candidate in candidates}
+
+
+def report_candidate_lookup(
+    candidates: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    return {
+        str(candidate["report_candidate_name"]): candidate for candidate in candidates
+    }
+
+
+def phase_requested(target_phase: str, current_phase: str) -> bool:
+    return target_phase == "all" or target_phase == current_phase
+
+
+def should_reuse_existing(path: Path, *, resume: bool, skip_existing: bool) -> bool:
+    return path.exists() and (resume or skip_existing)
+
+
+def default_candidate_filter_names(candidates: list[dict[str, Any]]) -> list[str]:
+    return [str(candidate["name"]) for candidate in candidates]
+
+
+def filter_candidates(
+    candidates: list[dict[str, Any]], candidate_filter: list[str] | None
+) -> list[dict[str, Any]]:
+    if candidate_filter is None:
+        return list(candidates)
+    wanted = set(candidate_filter)
+    filtered = [
+        candidate for candidate in candidates if str(candidate["name"]) in wanted
+    ]
+    missing = sorted(wanted - {str(candidate["name"]) for candidate in filtered})
+    if missing:
+        raise RuntimeError(f"unknown candidate-filter entries: {', '.join(missing)}")
+    return filtered
+
+
+def suite_report_path(workdir: Path, suite_name: str) -> Path:
+    return workdir / "reports" / f"{suite_name}.json"
+
+
+def gate_report_path(workdir: Path, candidate_name: str) -> Path:
+    return workdir / "gates" / f"{candidate_name}.json"
+
+
+def flatten_candidate_reports(report: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for temperature_report in report.get("temperature_reports", []):
+        for seed_report in temperature_report.get("seed_reports", []):
+            rows.extend(seed_report.get("candidate_reports", []))
+    return rows
+
+
+def merge_suite_reports(
+    *,
+    base_report: dict[str, Any] | None,
+    new_report: dict[str, Any],
+    candidate_order: list[str],
+) -> dict[str, Any]:
+    if base_report is None:
+        merged = json.loads(json.dumps(new_report))
+    else:
+        merged = json.loads(json.dumps(base_report))
+        candidate_map = {
+            str(candidate_report.get("candidate")): candidate_report
+            for candidate_report in flatten_candidate_reports(merged)
+        }
+        for candidate_report in flatten_candidate_reports(new_report):
+            candidate_map[str(candidate_report.get("candidate"))] = candidate_report
+        merged["suite_path"] = new_report.get("suite_path")
+        merged["suite_sha256"] = new_report.get("suite_sha256")
+        merged["suite_size"] = new_report.get("suite_size")
+        merged["current_sha256"] = new_report.get("current_sha256")
+        merged["root_policy_mode"] = new_report.get("root_policy_mode")
+        ordered_reports: list[dict[str, Any]] = []
+        remaining = dict(candidate_map)
+        for candidate_name in candidate_order:
+            if candidate_name in remaining:
+                ordered_reports.append(remaining.pop(candidate_name))
+        ordered_reports.extend(remaining[key] for key in sorted(remaining))
+        merged["temperature_reports"][0]["seed_reports"][0]["candidate_reports"] = (
+            ordered_reports
+        )
+    return merged
+
+
+def report_has_candidate(report: dict[str, Any], report_candidate_name: str) -> bool:
+    return find_candidate_report(report, report_candidate_name) is not None
+
+
+def report_has_all_candidates(
+    report: dict[str, Any], candidates: list[dict[str, Any]]
+) -> bool:
+    return all(
+        report_has_candidate(report, str(candidate["report_candidate_name"]))
+        for candidate in candidates
+    )
 
 
 def source_summary_candidates(summary: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -521,6 +664,8 @@ def stability_selection_key(row: dict[str, Any]) -> tuple[Any, ...]:
 def select_stability_rows(
     analyzed_rows: list[dict[str, Any]],
     disagreement_hashes: set[str],
+    *,
+    target_rows: int,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     deduped_best_by_hash: dict[str, dict[str, Any]] = {}
     raw_overlap = 0
@@ -563,9 +708,7 @@ def select_stability_rows(
         if prefix_counts[prefix_key] >= STABILITY_PREFIX_CAP:
             skipped_for_caps.append(row)
             continue
-        if phase_counts[phase_key] >= STABILITY_PHASE_CAPS.get(
-            phase_key, TARGET_STABILITY_ROWS
-        ):
+        if phase_counts[phase_key] >= STABILITY_PHASE_CAPS.get(phase_key, target_rows):
             skipped_for_caps.append(row)
             continue
         if top_move >= 0 and top_move_counts[top_move] >= STABILITY_TOP_MOVE_CAP:
@@ -576,20 +719,20 @@ def select_stability_rows(
         phase_counts[phase_key] += 1
         if top_move >= 0:
             top_move_counts[top_move] += 1
-        if len(selected) >= TARGET_STABILITY_ROWS:
+        if len(selected) >= target_rows:
             break
-    if len(selected) < TARGET_STABILITY_ROWS:
+    if len(selected) < target_rows:
         for row in skipped_for_caps:
             state_hash = str(row["state_hash"])
             if any(str(existing["state_hash"]) == state_hash for existing in selected):
                 continue
             selected.append(row)
-            if len(selected) >= TARGET_STABILITY_ROWS:
+            if len(selected) >= target_rows:
                 break
 
     entropy_values = [float(row["search_entropy"]) for row in selected]
     return selected, {
-        "target_rows": TARGET_STABILITY_ROWS,
+        "target_rows": target_rows,
         "selected_rows": len(selected),
         "unique_rows": len({str(row["state_hash"]) for row in selected}),
         "preferred_rows": sum(
@@ -626,7 +769,9 @@ def select_stability_rows(
     }
 
 
-def build_stability_replay_row(row: dict[str, Any]) -> dict[str, Any]:
+def build_stability_replay_row(
+    row: dict[str, Any], evaluator: ArtifactEvaluator
+) -> dict[str, Any]:
     game = KalahGame.from_state(row["state"])
     root_player = int(game.current_player)
     policy_target = build_policy_target_from_distribution(
@@ -635,7 +780,6 @@ def build_stability_replay_row(row: dict[str, Any]) -> dict[str, Any]:
     search_options = build_search_options(
         root_policy_mode="deterministic", tactical_root_bias=0.0
     )
-    evaluator = ArtifactEvaluator(Path(row["artifact_path"]))
     rng = np.random.default_rng(int(row["continuation_seed"]))
     while not game.over():
         legal_moves = game.possible_moves()
@@ -735,7 +879,10 @@ def build_stability_replay(
 def _build_stability_replay_batch(
     *, batch: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
-    return [build_stability_replay_row(row) for row in batch]
+    if not batch:
+        return []
+    evaluator = ArtifactEvaluator(Path(str(batch[0]["artifact_path"])))
+    return [build_stability_replay_row(row, evaluator) for row in batch]
 
 
 def effective_sampling_fractions(
@@ -949,10 +1096,357 @@ def classify_balanced_run(
     return "disagreement_overfit_confirmed"
 
 
+def load_candidate_manifest_or_fail(workdir: Path) -> dict[str, Any]:
+    path = artifact_paths(workdir)["candidate_manifest"]
+    if not path.is_file():
+        raise FileNotFoundError(f"missing candidate manifest: {path}")
+    return load_json(path)
+
+
+def load_training_manifest_or_fail(workdir: Path) -> dict[str, Any]:
+    path = artifact_paths(workdir)["training_manifest"]
+    if not path.is_file():
+        raise FileNotFoundError(f"missing training manifest: {path}")
+    return load_json(path)
+
+
+def load_stability_artifacts_or_fail(workdir: Path) -> dict[str, Any]:
+    paths = artifact_paths(workdir)
+    trace_path = paths["stability_trace"]
+    selected_path = paths["stability_selected"]
+    replay_path = paths["stability_replay"]
+    for path, label in (
+        (trace_path, "stability candidate trace"),
+        (selected_path, "selected stability rows"),
+        (replay_path, "stability replay"),
+    ):
+        require_existing_file(path, label)
+    return {
+        "trace_rows": read_jsonl(trace_path),
+        "selected_rows": read_jsonl(selected_path),
+        "replay_rows": read_jsonl(replay_path),
+    }
+
+
+def build_candidate_specs(
+    *,
+    workdir: Path,
+    current_artifact: Path,
+    init_checkpoint: Path,
+    current_weights_sha256: str,
+    pr123_summary: dict[str, Any],
+    row_counts: dict[str, int],
+) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = [
+        {
+            "name": "promoted_current_ref",
+            "report_candidate_name": "current",
+            "artifact_dir": str(current_artifact),
+            "artifact_weights_sha256": current_weights_sha256,
+            "checkpoint_path": str(init_checkpoint),
+            "checkpoint_sha256": sha256_file(init_checkpoint),
+            "epochs": 0,
+            "source": "promoted_current_ref",
+        }
+    ]
+    for name, reference_spec in PR123_REFERENCES.items():
+        candidates.append(
+            discover_reference_candidate(
+                name=name,
+                source_name=str(reference_spec["source_name"]),
+                workdir=PR123_WORKDIR,
+                summary=pr123_summary,
+                expected_checkpoint_sha256=str(
+                    reference_spec["expected_checkpoint_sha256"]
+                ),
+                expected_artifact_weights_sha256=str(
+                    reference_spec["expected_artifact_weights_sha256"]
+                ),
+            )
+            | {"epochs": 0}
+        )
+
+    training_manifest = load_training_manifest_or_fail(workdir)
+    for lane in training_manifest.get("lanes", []):
+        train_metrics = lane.get("train_metrics")
+        for epoch_key in ("e1", "e2"):
+            epoch_info = lane.get(epoch_key)
+            if not isinstance(epoch_info, dict):
+                continue
+            candidates.append(
+                {
+                    "name": str(epoch_info["name"]),
+                    "report_candidate_name": str(epoch_info["report_candidate_name"]),
+                    "artifact_dir": str(epoch_info["artifact_dir"]),
+                    "checkpoint_path": str(epoch_info["checkpoint_path"]),
+                    "checkpoint_sha256": str(epoch_info["checkpoint_sha256"]),
+                    "artifact_weights_sha256": str(
+                        epoch_info["artifact_weights_sha256"]
+                    ),
+                    "epochs": int(epoch_info["epochs"]),
+                    "source": str(lane["lane_base"]),
+                    "replay_weights": dict(lane["replay_weights"]),
+                    "effective_replay_sampling_fractions": effective_sampling_fractions(
+                        row_counts,
+                        {
+                            "generic_bootstrap": int(
+                                lane["replay_weights"]["generic_bootstrap"]
+                            ),
+                            "random_teacher": int(
+                                lane["replay_weights"]["random_teacher"]
+                            ),
+                            "mined_disagreement": int(
+                                lane["replay_weights"]["mined_disagreement"]
+                            ),
+                            "stability_anchor": int(
+                                lane["replay_weights"]["stability_anchor"]
+                            ),
+                        },
+                    ),
+                    "train_metrics": train_metrics,
+                }
+            )
+    return candidates
+
+
+def build_training_manifest(
+    *,
+    workdir: Path,
+    init_checkpoint: Path,
+    generic_bootstrap: Path,
+    random_teacher: Path,
+    mined_disagreement_replay: Path,
+    stability_replay_path: Path,
+    weight_pairs: list[tuple[int, int]],
+    seed: int,
+    candidate_filter: list[str] | None,
+    resume: bool,
+    skip_existing: bool,
+) -> dict[str, Any]:
+    manifest = {
+        "schema": SUMMARY_SCHEMA,
+        "status": "completed",
+        "workdir": str(workdir),
+        "seed": seed,
+        "data_files": [
+            str(generic_bootstrap),
+            str(random_teacher),
+            str(mined_disagreement_replay),
+            str(stability_replay_path),
+        ],
+        "lanes": [],
+    }
+    allowed_names = set(candidate_filter or [])
+    for disagreement_weight, stability_weight in weight_pairs:
+        lane_base = f"balanced_w{disagreement_weight}s{stability_weight}_policy_head"
+        lane_dir = workdir / lane_base
+        lane_dir.mkdir(parents=True, exist_ok=True)
+        checkpoint_epoch1 = lane_dir / "checkpoint_epoch1.npz"
+        checkpoint_epoch2 = lane_dir / "checkpoint_epoch2.npz"
+        artifact_epoch1 = lane_dir / f"artifact_{lane_base}_e1"
+        artifact_epoch2 = lane_dir / f"artifact_{lane_base}_e2"
+        metrics_path = lane_dir / "train_metrics.json"
+        replay_weights = {
+            "generic_bootstrap": 4,
+            "random_teacher": 1,
+            "mined_disagreement": disagreement_weight,
+            "stability_anchor": stability_weight,
+        }
+        lane_candidate_names = {f"{lane_base}_e1", f"{lane_base}_e2"}
+        lane_selected = not allowed_names or bool(allowed_names & lane_candidate_names)
+        outputs_ready = (
+            checkpoint_epoch1.is_file()
+            and checkpoint_epoch2.is_file()
+            and (artifact_epoch1 / "weights.json").is_file()
+            and (artifact_epoch2 / "weights.json").is_file()
+            and metrics_path.is_file()
+        )
+        if not lane_selected and not outputs_ready:
+            continue
+        train_metrics = load_json(metrics_path) if metrics_path.is_file() else None
+        if lane_selected and not (outputs_ready and (resume or skip_existing)):
+            train_metrics = run_train_save_both_epochs(
+                data_files=(
+                    f"{generic_bootstrap},{random_teacher},{mined_disagreement_replay},{stability_replay_path}"
+                ),
+                replay_weights=(f"4,1,{disagreement_weight},{stability_weight}"),
+                init_checkpoint=str(init_checkpoint),
+                out=str(lane_dir / "checkpoint.npz"),
+                top_k_dir=str(lane_dir),
+                epochs=2,
+                seed=seed,
+            )
+            export_checkpoint(
+                checkpoint_path=str(checkpoint_epoch1),
+                out_dir=str(artifact_epoch1),
+                version=f"{lane_base}_e1",
+                policy_loss=float((train_metrics or {}).get("policy_loss", 0.0)),
+                value_loss=float((train_metrics or {}).get("value_loss", 0.0)),
+            )
+            export_checkpoint(
+                checkpoint_path=str(checkpoint_epoch2),
+                out_dir=str(artifact_epoch2),
+                version=f"{lane_base}_e2",
+                policy_loss=float((train_metrics or {}).get("policy_loss", 0.0)),
+                value_loss=float((train_metrics or {}).get("value_loss", 0.0)),
+            )
+            write_json(metrics_path, train_metrics or {})
+        for path, label in (
+            (checkpoint_epoch1, f"{lane_base} epoch1 checkpoint"),
+            (checkpoint_epoch2, f"{lane_base} epoch2 checkpoint"),
+            (artifact_epoch1 / "weights.json", f"{lane_base} epoch1 artifact"),
+            (artifact_epoch2 / "weights.json", f"{lane_base} epoch2 artifact"),
+        ):
+            require_existing_file(path, label)
+        if train_metrics is None:
+            train_metrics = load_json(metrics_path)
+        lane_record = {
+            "lane_base": lane_base,
+            "replay_weights": replay_weights,
+            "train_metrics": train_metrics,
+            "e1": {
+                "name": f"{lane_base}_e1",
+                "report_candidate_name": artifact_epoch1.name,
+                "artifact_dir": str(artifact_epoch1),
+                "artifact_weights_sha256": sha256_file(
+                    artifact_epoch1 / "weights.json"
+                ),
+                "checkpoint_path": str(checkpoint_epoch1),
+                "checkpoint_sha256": sha256_file(checkpoint_epoch1),
+                "epochs": 1,
+            },
+            "e2": {
+                "name": f"{lane_base}_e2",
+                "report_candidate_name": artifact_epoch2.name,
+                "artifact_dir": str(artifact_epoch2),
+                "artifact_weights_sha256": sha256_file(
+                    artifact_epoch2 / "weights.json"
+                ),
+                "checkpoint_path": str(checkpoint_epoch2),
+                "checkpoint_sha256": sha256_file(checkpoint_epoch2),
+                "epochs": 2,
+            },
+        }
+        manifest["lanes"].append(lane_record)
+        write_json(artifact_paths(workdir)["training_manifest"], manifest)
+    return manifest
+
+
+def evaluate_suite_candidates(
+    *,
+    workdir: Path,
+    suite_name: str,
+    suite_path: Path,
+    current_artifact: Path,
+    candidates: list[dict[str, Any]],
+    budget_pairs: str,
+    games_per_opening: int,
+    seed: int,
+    workers: int,
+    timeout: int,
+    candidate_filter: list[str] | None,
+    resume: bool,
+    skip_existing: bool,
+) -> dict[str, Any]:
+    report_path = suite_report_path(workdir, suite_name)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    existing_report = load_json(report_path) if report_path.is_file() else None
+    filtered_candidates = filter_candidates(candidates, candidate_filter)
+    pending_candidates = filtered_candidates
+    if existing_report is not None and (resume or skip_existing):
+        pending_candidates = [
+            candidate
+            for candidate in filtered_candidates
+            if not report_has_candidate(
+                existing_report, str(candidate["report_candidate_name"])
+            )
+        ]
+    if not pending_candidates and existing_report is not None:
+        return existing_report
+    temp_workdir = workdir / "eval_cache" / suite_name
+    temp_workdir.mkdir(parents=True, exist_ok=True)
+    new_report = run_opening_suite_benchmark(
+        workdir=str(temp_workdir),
+        suite=str(suite_path),
+        current=str(current_artifact),
+        candidates=",".join(
+            str(candidate["artifact_dir"]) for candidate in pending_candidates
+        ),
+        budget_pairs=budget_pairs,
+        games_per_opening=games_per_opening,
+        seed=seed,
+        workers=workers,
+        timeout=timeout,
+    )
+    merged = merge_suite_reports(
+        base_report=existing_report,
+        new_report=new_report,
+        candidate_order=[
+            str(candidate["report_candidate_name"]) for candidate in candidates
+        ],
+    )
+    write_json(report_path, merged)
+    return merged
+
+
+def gate_targets_from_suite_rows(
+    suite_rows: dict[str, Any], candidates: list[dict[str, Any]]
+) -> list[str]:
+    promoted_mean_384 = aggregate_budget_summary(
+        suite_rows, "promoted_current_ref", PRIMARY_BUDGET, "promoted_current_ref"
+    )["mean_ds"]
+    gate_targets = ["promoted_current_ref", "pr123_w8_e1_ref", "pr123_w4_e2_ref"]
+    for candidate in candidates:
+        if not str(candidate["name"]).startswith("balanced_"):
+            continue
+        mean_384 = aggregate_budget_summary(
+            suite_rows, str(candidate["name"]), PRIMARY_BUDGET, "promoted_current_ref"
+        )["mean_ds"]
+        if float(mean_384) >= float(promoted_mean_384) + 0.10:
+            gate_targets.append(str(candidate["name"]))
+    return gate_targets
+
+
+def classify_from_cached_artifacts(
+    *,
+    stability_selected_rows: list[dict[str, Any]],
+    required_heldout_reports: dict[str, Path],
+    summary_candidates: list[dict[str, Any]],
+) -> str:
+    unique_stability_rows = len(
+        {str(row["state_hash"]) for row in stability_selected_rows}
+    )
+    if unique_stability_rows < STABILITY_MIN_ROWS:
+        return "runner_still_blocked"
+    if any(not path.is_file() for path in required_heldout_reports.values()):
+        return "runner_unblocked_partial_result"
+    return classify_balanced_run(
+        candidate_rows=summary_candidates,
+        current_name="promoted_current_ref",
+        pr123_w8_name="pr123_w8_e1_ref",
+    )
+
+
 def render_report(summary: dict[str, Any]) -> str:
     candidate_rows = summary["candidates"]
     large_budgets = summary["budget_pairs"]
     stability = summary["stability_replay"]
+    completion = summary.get("experiment_completion", {})
+    balanced_candidates = [
+        row
+        for row in candidate_rows
+        if str(row.get("candidate", "")).startswith("balanced_")
+    ]
+    best_balanced = None
+    if balanced_candidates:
+        best_balanced = max(
+            balanced_candidates,
+            key=lambda row: float(
+                row.get("large_suite_aggregate", {})
+                .get(PRIMARY_BUDGET, {})
+                .get("mean_delta_vs_promoted_current_ref", float("-inf"))
+            ),
+        )
     lines = [
         "# AlphaZero-Lite Balanced Opening PUCT Replay Results",
         "",
@@ -960,21 +1454,61 @@ def render_report(summary: dict[str, Any]) -> str:
         "",
         f"**Classification**: `{summary['classification']}`",
         "",
-        "## Stability Replay",
+        "## Completion",
         "",
-        f"- selected rows: `{stability['selection_summary']['selected_rows']}`",
-        f"- unique rows: `{stability['selection_summary']['unique_rows']}`",
-        f"- overlap with mined disagreement before exclusion: `{stability['selection_summary']['raw_overlap_with_mined_disagreement_rows']}`",
-        f"- stability entropy mean: `{stability['selection_summary']['target_entropy']['mean']:.4f}`",
+        f"- original PR #125 balanced experiment: `{completion.get('status', 'unknown')}`",
+        f"- fixed-suite evaluation complete: `{completion.get('fixed_eval_complete', False)}`",
+        f"- held-out evaluation complete: `{completion.get('heldout_eval_complete', False)}`",
+        f"- gate complete: `{completion.get('gate_complete', False)}`",
         "",
-        "## Candidate Aggregate Table",
+        "## Decision",
         "",
     ]
+    if best_balanced is not None:
+        best_agg = best_balanced.get("large_suite_aggregate", {})
+        best_384 = best_agg.get(PRIMARY_BUDGET, {})
+        best_768 = best_agg.get(EQ_768_BUDGET, {})
+        best_1200 = best_agg.get(EQ_1200_BUDGET, {})
+        lines.extend(
+            [
+                f"- best balanced lane: `{best_balanced['candidate']}`",
+                f"- mean delta vs promoted current at `{PRIMARY_BUDGET}`: `{fmt(float(best_384.get('mean_delta_vs_promoted_current_ref', 0.0)))}`",
+                f"- mean delta vs promoted current at `{EQ_768_BUDGET}`: `{fmt(float(best_768.get('mean_delta_vs_promoted_current_ref', 0.0)))}`",
+                f"- mean delta vs promoted current at `{EQ_1200_BUDGET}`: `{fmt(float(best_1200.get('mean_delta_vs_promoted_current_ref', 0.0)))}`",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "## Stability Replay",
+            "",
+            f"- selected rows: `{stability['selection_summary']['selected_rows']}`",
+            f"- unique rows: `{stability['selection_summary']['unique_rows']}`",
+            f"- overlap with mined disagreement before exclusion: `{stability['selection_summary']['raw_overlap_with_mined_disagreement_rows']}`",
+            f"- stability entropy mean: `{stability['selection_summary']['target_entropy']['mean']:.4f}`",
+            "",
+            "## Candidate Aggregate Table",
+            "",
+        ]
+    )
     rows: list[list[Any]] = []
     for row in candidate_rows:
-        agg_384 = row["large_suite_aggregate"][PRIMARY_BUDGET]
-        agg_768 = row["large_suite_aggregate"][EQ_768_BUDGET]
-        agg_1200 = row["large_suite_aggregate"][EQ_1200_BUDGET]
+        large_suite_aggregate = row.get("large_suite_aggregate", {})
+        agg_384 = large_suite_aggregate.get(
+            PRIMARY_BUDGET,
+            {
+                "mean_ds": 0.0,
+                "mean_delta_vs_promoted_current_ref": 0.0,
+            },
+        )
+        agg_768 = large_suite_aggregate.get(
+            EQ_768_BUDGET,
+            {"mean_delta_vs_promoted_current_ref": 0.0},
+        )
+        agg_1200 = large_suite_aggregate.get(
+            EQ_1200_BUDGET,
+            {"mean_delta_vs_promoted_current_ref": 0.0},
+        )
         rows.append(
             [
                 row["candidate"],
@@ -1038,7 +1572,16 @@ def render_report(summary: dict[str, Any]) -> str:
     for budget_pair in large_budgets:
         budget_rows: list[list[Any]] = []
         for row in candidate_rows:
-            aggregate = row["large_suite_aggregate"][budget_pair]
+            aggregate = row.get("large_suite_aggregate", {}).get(
+                budget_pair,
+                {
+                    "mean_ds": 0.0,
+                    "worst_suite_ds": 0.0,
+                    "mean_p0_score": 0.0,
+                    "mean_p1_score": 0.0,
+                    "mean_duplicate_trajectory_count": 0.0,
+                },
+            )
             budget_rows.append(
                 [
                     row["candidate"],
@@ -1070,6 +1613,9 @@ def render_report(summary: dict[str, Any]) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--phase", choices=PHASE_CHOICES, default="all")
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--skip-existing", action="store_true")
     parser.add_argument("--workdir", default="/tmp/azlite_balanced_opening_puct_replay")
     parser.add_argument("--current", default="model-artifact/current")
     parser.add_argument(
@@ -1108,18 +1654,18 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--heldout-suites", required=True)
     parser.add_argument("--disagreement-stability-weight-pairs", default="8:4,8:8,4:8")
+    parser.add_argument("--candidate-filter", default=None)
     parser.add_argument(
         "--budget-pairs", default="384:256,768:256,768:768,1200:1200,1200:256,256:768"
     )
     parser.add_argument("--include-384-equal-budget", action="store_true")
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--games-per-opening", type=int, default=2)
+    parser.add_argument("--max-stability-rows", type=int, default=TARGET_STABILITY_ROWS)
     parser.add_argument("--workers", type=int, default=24)
+    parser.add_argument("--stability-workers", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--timeout", type=int, default=7200)
-    parser.add_argument("--skip-training", action="store_true")
-    parser.add_argument("--skip-eval", action="store_true")
-    parser.add_argument("--skip-gate", action="store_true")
     return parser.parse_args()
 
 
@@ -1127,6 +1673,8 @@ def main() -> int:
     args = parse_args()
     workdir = Path(args.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
+    paths = artifact_paths(workdir)
+    stability_workers = args.stability_workers or args.workers
 
     current_artifact = Path(args.current)
     init_checkpoint = Path(args.init_checkpoint)
@@ -1140,6 +1688,7 @@ def main() -> int:
     budget_pairs = parse_budget_pairs(args.budget_pairs)
     weight_pairs = parse_weight_pairs(args.disagreement_stability_weight_pairs)
     equal_budgets = parse_equal_budget_pairs(args.include_384_equal_budget)
+    candidate_filter = parse_candidate_filter(args.candidate_filter)
 
     require_existing_file(current_artifact / "weights.json", "current artifact weights")
     require_existing_file(
@@ -1189,89 +1738,108 @@ def main() -> int:
         load_json(PR123_SUMMARY_PATH) if PR123_SUMMARY_PATH.is_file() else {}
     )
 
-    stability_replay_path = workdir / "equal_budget_stability_replay.jsonl"
-    stability_selection_path = workdir / "equal_budget_stability_selection.json"
-    if stability_replay_path.is_file() and stability_selection_path.is_file():
-        stability_replay_rows = read_jsonl(stability_replay_path)
-        stability_state_rows = load_json(stability_selection_path)
-        stability_selected_rows = list(stability_state_rows.get("selected_rows", []))
-        stability_summary = dict(stability_state_rows.get("summary", {}))
-        collection_metadata = dict(stability_state_rows.get("collection_metadata", {}))
-    else:
-        analyzed_rows, collection_metadata = collect_stability_candidates(
-            suite_specs=suite_specs,
-            artifact_path=current_artifact,
-            equal_budgets=equal_budgets,
-            c_puct=args.c_puct,
-            seed=args.seed,
-            workers=args.workers,
+    stability_selected_rows: list[dict[str, Any]] = []
+    stability_replay_rows: list[dict[str, Any]] = []
+    stability_trace_rows: list[dict[str, Any]] = []
+    stability_summary: dict[str, Any] = {}
+    collection_metadata: dict[str, Any] = {}
+    if phase_requested(args.phase, "stability"):
+        reuse_stability = all(
+            should_reuse_existing(
+                path, resume=args.resume, skip_existing=args.skip_existing
+            )
+            for path in (
+                paths["stability_trace"],
+                paths["stability_selected"],
+                paths["stability_replay"],
+            )
         )
-        stability_selected_rows, stability_summary = select_stability_rows(
-            analyzed_rows, disagreement_hashes
+        if reuse_stability:
+            stability_trace_rows = read_jsonl(paths["stability_trace"])
+            stability_selected_rows = read_jsonl(paths["stability_selected"])
+            stability_replay_rows = read_jsonl(paths["stability_replay"])
+            if stability_trace_rows:
+                collection_metadata = dict(
+                    stability_trace_rows[0].get("_collection_metadata", {})
+                )
+            if stability_selected_rows:
+                stability_summary = dict(
+                    stability_selected_rows[0].get("_selection_summary", {})
+                )
+        else:
+            analyzed_rows, collection_metadata = collect_stability_candidates(
+                suite_specs=suite_specs,
+                artifact_path=current_artifact,
+                equal_budgets=equal_budgets,
+                c_puct=args.c_puct,
+                seed=args.seed,
+                workers=stability_workers,
+            )
+            stability_selected_rows, stability_summary = select_stability_rows(
+                analyzed_rows,
+                disagreement_hashes,
+                target_rows=args.max_stability_rows,
+            )
+            analyzed_rows.sort(key=lambda row: str(row["state_hash"]))
+            stability_trace_rows = [{**row} for row in analyzed_rows]
+            if stability_trace_rows:
+                stability_trace_rows[0]["_collection_metadata"] = collection_metadata
+            write_jsonl(paths["stability_trace"], stability_trace_rows)
+            selected_rows_with_meta = [{**row} for row in stability_selected_rows]
+            if selected_rows_with_meta:
+                selected_rows_with_meta[0]["_selection_summary"] = stability_summary
+            write_jsonl(paths["stability_selected"], selected_rows_with_meta)
+            stability_replay_rows = build_stability_replay(
+                selected_rows=stability_selected_rows,
+                artifact_path=current_artifact,
+                c_puct=args.c_puct,
+                seed=args.seed,
+                workers=stability_workers,
+            )
+            write_jsonl(paths["stability_replay"], stability_replay_rows)
+        unique_selected = len(
+            {str(row["state_hash"]) for row in stability_selected_rows}
         )
-        if len(stability_selected_rows) < STABILITY_MIN_ROWS:
+        if (
+            unique_selected < STABILITY_MIN_ROWS
+            and args.max_stability_rows >= STABILITY_MIN_ROWS
+        ):
             summary = {
                 "schema": SUMMARY_SCHEMA,
                 "status": "aborted_before_training",
-                "classification": "insufficient_stability_rows",
+                "classification": "runner_still_blocked",
                 "workdir": str(workdir),
                 "inputs": input_summary,
                 "stability_replay": {
+                    "path": str(paths["stability_replay"]),
                     "collection_metadata": collection_metadata,
                     "selection_summary": stability_summary,
                 },
             }
-            write_json(workdir / "summary_metrics.json", summary)
+            write_json(paths["summary"], summary)
             return 1
-        stability_replay_rows = build_stability_replay(
-            selected_rows=stability_selected_rows,
-            artifact_path=current_artifact,
-            c_puct=args.c_puct,
-            seed=args.seed,
-            workers=args.workers,
-        )
-        write_jsonl(stability_replay_path, stability_replay_rows)
-        write_json(
-            stability_selection_path,
-            {
-                "collection_metadata": collection_metadata,
-                "summary": stability_summary,
-                "selected_rows": stability_selected_rows,
-            },
-        )
+    else:
+        stability = load_stability_artifacts_or_fail(workdir)
+        stability_trace_rows = stability["trace_rows"]
+        stability_selected_rows = stability["selected_rows"]
+        stability_replay_rows = stability["replay_rows"]
+        if stability_trace_rows:
+            collection_metadata = dict(
+                stability_trace_rows[0].get("_collection_metadata", {})
+            )
+        if stability_selected_rows:
+            stability_summary = dict(
+                stability_selected_rows[0].get("_selection_summary", {})
+            )
+
+    if args.phase == "stability":
+        return 0
+
+    stability_replay_path = paths["stability_replay"]
 
     stability_state_lookup = {
         str(row["state_hash"]): row for row in stability_selected_rows
     }
-
-    candidate_specs: list[dict[str, Any]] = [
-        {
-            "name": "promoted_current_ref",
-            "report_candidate_name": "current",
-            "artifact_dir": str(current_artifact),
-            "artifact_weights_sha256": args.expected_current_weights_sha256,
-            "checkpoint_path": str(init_checkpoint),
-            "checkpoint_sha256": sha256_file(init_checkpoint),
-            "epochs": 0,
-            "source": "promoted_current_ref",
-        }
-    ]
-    for name, reference_spec in PR123_REFERENCES.items():
-        candidate_specs.append(
-            discover_reference_candidate(
-                name=name,
-                source_name=str(reference_spec["source_name"]),
-                workdir=PR123_WORKDIR,
-                summary=pr123_summary,
-                expected_checkpoint_sha256=str(
-                    reference_spec["expected_checkpoint_sha256"]
-                ),
-                expected_artifact_weights_sha256=str(
-                    reference_spec["expected_artifact_weights_sha256"]
-                ),
-            )
-            | {"epochs": 0}
-        )
 
     row_counts = {
         "generic_bootstrap": int(input_summary["generic_bootstrap"]["rows"]),
@@ -1280,175 +1848,143 @@ def main() -> int:
         "stability_anchor": len(stability_replay_rows),
     }
 
-    for disagreement_weight, stability_weight in weight_pairs:
-        lane_base = f"balanced_w{disagreement_weight}s{stability_weight}_policy_head"
-        lane_dir = workdir / lane_base
-        lane_dir.mkdir(parents=True, exist_ok=True)
-        metrics_path = lane_dir / "train_metrics.json"
-        train_metrics: dict[str, Any] | None = (
-            load_json(metrics_path) if metrics_path.is_file() else None
+    if phase_requested(args.phase, "train"):
+        build_training_manifest(
+            workdir=workdir,
+            init_checkpoint=init_checkpoint,
+            generic_bootstrap=generic_bootstrap,
+            random_teacher=random_teacher,
+            mined_disagreement_replay=mined_disagreement_replay,
+            stability_replay_path=stability_replay_path,
+            weight_pairs=weight_pairs,
+            seed=args.seed,
+            candidate_filter=candidate_filter,
+            resume=args.resume,
+            skip_existing=args.skip_existing,
         )
-        checkpoint_epoch1 = lane_dir / "checkpoint_epoch1.npz"
-        checkpoint_epoch2 = lane_dir / "checkpoint_epoch2.npz"
-        artifact_epoch1 = lane_dir / f"artifact_{lane_base}_e1"
-        artifact_epoch2 = lane_dir / f"artifact_{lane_base}_e2"
-        if not (
-            checkpoint_epoch1.is_file()
-            and checkpoint_epoch2.is_file()
-            and (artifact_epoch1 / "weights.json").is_file()
-            and (artifact_epoch2 / "weights.json").is_file()
-        ):
-            if args.skip_training:
-                raise FileNotFoundError(f"missing trained lane outputs for {lane_base}")
-            train_metrics = run_train_save_both_epochs(
-                data_files=(
-                    f"{generic_bootstrap},{random_teacher},{mined_disagreement_replay},{stability_replay_path}"
-                ),
-                replay_weights=f"4,1,{disagreement_weight},{stability_weight}",
-                init_checkpoint=str(init_checkpoint),
-                out=str(lane_dir / "checkpoint.npz"),
-                top_k_dir=str(lane_dir),
-                epochs=2,
-                seed=args.seed,
-            )
-            export_checkpoint(
-                checkpoint_path=str(checkpoint_epoch1),
-                out_dir=str(artifact_epoch1),
-                version=f"{lane_base}_e1",
-                policy_loss=float((train_metrics or {}).get("policy_loss", 0.0)),
-                value_loss=float((train_metrics or {}).get("value_loss", 0.0)),
-            )
-            export_checkpoint(
-                checkpoint_path=str(checkpoint_epoch2),
-                out_dir=str(artifact_epoch2),
-                version=f"{lane_base}_e2",
-                policy_loss=float((train_metrics or {}).get("policy_loss", 0.0)),
-                value_loss=float((train_metrics or {}).get("value_loss", 0.0)),
-            )
-            write_json(metrics_path, train_metrics or {})
-        candidate_specs.extend(
-            [
-                {
-                    "name": f"{lane_base}_e1",
-                    "report_candidate_name": artifact_epoch1.name,
-                    "artifact_dir": str(artifact_epoch1),
-                    "checkpoint_path": str(checkpoint_epoch1),
-                    "epochs": 1,
-                    "source": lane_base,
-                    "replay_weights": {
-                        "generic_bootstrap": 4,
-                        "random_teacher": 1,
-                        "mined_disagreement": disagreement_weight,
-                        "stability_anchor": stability_weight,
-                    },
-                    "effective_replay_sampling_fractions": effective_sampling_fractions(
-                        row_counts,
-                        {
-                            "generic_bootstrap": 4,
-                            "random_teacher": 1,
-                            "mined_disagreement": disagreement_weight,
-                            "stability_anchor": stability_weight,
-                        },
-                    ),
-                    "train_metrics": train_metrics,
-                },
-                {
-                    "name": f"{lane_base}_e2",
-                    "report_candidate_name": artifact_epoch2.name,
-                    "artifact_dir": str(artifact_epoch2),
-                    "checkpoint_path": str(checkpoint_epoch2),
-                    "epochs": 2,
-                    "source": lane_base,
-                    "replay_weights": {
-                        "generic_bootstrap": 4,
-                        "random_teacher": 1,
-                        "mined_disagreement": disagreement_weight,
-                        "stability_anchor": stability_weight,
-                    },
-                    "effective_replay_sampling_fractions": effective_sampling_fractions(
-                        row_counts,
-                        {
-                            "generic_bootstrap": 4,
-                            "random_teacher": 1,
-                            "mined_disagreement": disagreement_weight,
-                            "stability_anchor": stability_weight,
-                        },
-                    ),
-                    "train_metrics": train_metrics,
-                },
-            ]
-        )
+    else:
+        load_training_manifest_or_fail(workdir)
 
-    candidate_paths = ",".join(
-        str(candidate["artifact_dir"]) for candidate in candidate_specs
+    candidate_specs = build_candidate_specs(
+        workdir=workdir,
+        current_artifact=current_artifact,
+        init_checkpoint=init_checkpoint,
+        current_weights_sha256=args.expected_current_weights_sha256,
+        pr123_summary=pr123_summary,
+        row_counts=row_counts,
     )
+    write_json(
+        paths["candidate_manifest"],
+        {
+            "schema": SUMMARY_SCHEMA,
+            "status": "completed",
+            "workdir": str(workdir),
+            "row_counts": row_counts,
+            "candidates": candidate_specs,
+        },
+    )
+    if args.phase == "train":
+        return 0
+
     medium_report: dict[str, Any] | None = None
     large_report: dict[str, Any] | None = None
     heldout_reports: dict[str, dict[str, Any]] = {}
-    if not args.skip_eval:
-        eval_specs = [
-            ("eval_medium", medium_suite, "medium"),
-            ("eval_large", fixed_large_suite, "fixed_large"),
-            *[(f"eval_{name}", path, name) for name, path in suite_specs[1:]],
-        ]
-        for eval_dir_name, suite_path, suite_name in eval_specs:
-            report_path = workdir / eval_dir_name / "temperature_benchmark_report.json"
+    if phase_requested(args.phase, "eval-fixed"):
+        medium_report = evaluate_suite_candidates(
+            workdir=workdir,
+            suite_name="medium",
+            suite_path=medium_suite,
+            current_artifact=current_artifact,
+            candidates=candidate_specs,
+            budget_pairs=args.budget_pairs,
+            games_per_opening=args.games_per_opening,
+            seed=args.seed,
+            workers=args.workers,
+            timeout=args.timeout,
+            candidate_filter=candidate_filter,
+            resume=args.resume,
+            skip_existing=args.skip_existing,
+        )
+        large_report = evaluate_suite_candidates(
+            workdir=workdir,
+            suite_name="fixed_large",
+            suite_path=fixed_large_suite,
+            current_artifact=current_artifact,
+            candidates=candidate_specs,
+            budget_pairs=args.budget_pairs,
+            games_per_opening=args.games_per_opening,
+            seed=args.seed,
+            workers=args.workers,
+            timeout=args.timeout,
+            candidate_filter=candidate_filter,
+            resume=args.resume,
+            skip_existing=args.skip_existing,
+        )
+    else:
+        if suite_report_path(workdir, "medium").is_file():
+            medium_report = load_json(suite_report_path(workdir, "medium"))
+        if suite_report_path(workdir, "fixed_large").is_file():
+            large_report = load_json(suite_report_path(workdir, "fixed_large"))
+    if args.phase == "eval-fixed":
+        return 0
+
+    if phase_requested(args.phase, "eval-heldout"):
+        for suite_name, suite_path in suite_specs[1:]:
+            heldout_reports[suite_name] = evaluate_suite_candidates(
+                workdir=workdir,
+                suite_name=suite_name,
+                suite_path=suite_path,
+                current_artifact=current_artifact,
+                candidates=candidate_specs,
+                budget_pairs=args.budget_pairs,
+                games_per_opening=args.games_per_opening,
+                seed=args.seed,
+                workers=args.workers,
+                timeout=args.timeout,
+                candidate_filter=candidate_filter,
+                resume=args.resume,
+                skip_existing=args.skip_existing,
+            )
+    else:
+        for suite_name, _suite_path in suite_specs[1:]:
+            report_path = suite_report_path(workdir, suite_name)
             if report_path.is_file():
-                report = load_json(report_path)
-            else:
-                report = run_opening_suite_benchmark(
-                    workdir=str(workdir / eval_dir_name),
-                    suite=str(suite_path),
-                    current=str(current_artifact),
-                    candidates=candidate_paths,
-                    budget_pairs=args.budget_pairs,
-                    games_per_opening=args.games_per_opening,
-                    seed=args.seed,
-                    workers=args.workers,
-                    timeout=args.timeout,
-                )
-            if suite_name == "medium":
-                medium_report = report
-            elif suite_name == "fixed_large":
-                large_report = report
-            else:
-                heldout_reports[suite_name] = report
+                heldout_reports[suite_name] = load_json(report_path)
+    if args.phase == "eval-heldout":
+        return 0
 
     large_reports_map = {"fixed_large": large_report, **heldout_reports}
-    suite_rows = large_suite_rows(
-        reports={
-            name: report
-            for name, report in large_reports_map.items()
-            if report is not None
-        },
-        candidates=candidate_specs,
+    available_reports = {
+        name: report
+        for name, report in large_reports_map.items()
+        if report is not None and report_has_all_candidates(report, candidate_specs)
+    }
+    suite_rows = (
+        large_suite_rows(reports=available_reports, candidates=candidate_specs)
+        if available_reports
+        else {}
     )
-
-    promoted_mean_384 = aggregate_budget_summary(
-        suite_rows, "promoted_current_ref", PRIMARY_BUDGET, "promoted_current_ref"
-    )["mean_ds"]
-    gate_targets = ["promoted_current_ref", "pr123_w8_e1_ref", "pr123_w4_e2_ref"]
-    for candidate in candidate_specs:
-        if not str(candidate["name"]).startswith("balanced_"):
-            continue
-        mean_384 = aggregate_budget_summary(
-            suite_rows, str(candidate["name"]), PRIMARY_BUDGET, "promoted_current_ref"
-        )["mean_ds"]
-        if float(mean_384) >= float(promoted_mean_384) + 0.10:
-            gate_targets.append(str(candidate["name"]))
-
+    gate_targets = (
+        gate_targets_from_suite_rows(suite_rows, candidate_specs)
+        if "fixed_large" in suite_rows
+        else []
+    )
     gate_reports: dict[str, dict[str, Any]] = {}
-    if not args.skip_gate:
-        gate_dir = workdir / "eval_gate"
-        gate_dir.mkdir(parents=True, exist_ok=True)
+    if phase_requested(args.phase, "gate"):
+        paths["gates_dir"].mkdir(parents=True, exist_ok=True)
         for candidate in candidate_specs:
             candidate_name = str(candidate["name"])
-            if candidate_name not in gate_targets:
+            if candidate_name not in gate_targets or (
+                candidate_filter is not None
+                and candidate_name not in set(candidate_filter)
+            ):
                 continue
-            out_path = gate_dir / f"{candidate_name}_default_gate.json"
+            out_path = gate_report_path(workdir, candidate_name)
             gate_reports[candidate_name] = (
                 load_json(out_path)
-                if out_path.is_file()
+                if should_reuse_existing(
+                    out_path, resume=args.resume, skip_existing=args.skip_existing
+                )
                 else run_default_gate(
                     candidate_path=str(candidate["artifact_dir"]),
                     current_path=str(current_artifact),
@@ -1457,6 +1993,12 @@ def main() -> int:
                     workers=args.workers,
                 )
             )
+    for candidate_name in gate_targets:
+        out_path = gate_report_path(workdir, candidate_name)
+        if out_path.is_file() and candidate_name not in gate_reports:
+            gate_reports[candidate_name] = load_json(out_path)
+    if args.phase == "gate":
+        return 0
 
     stability_policy_rows = load_candidate_policy_shift_rows(
         stability_replay_rows, stability_state_lookup
@@ -1471,6 +2013,10 @@ def main() -> int:
     )
 
     summary_candidates: list[dict[str, Any]] = []
+    required_heldout_reports = {
+        suite_name: suite_report_path(workdir, suite_name)
+        for suite_name, _path in suite_specs[1:]
+    }
     for candidate in candidate_specs:
         checkpoint_path = Path(str(candidate["checkpoint_path"]))
         artifact_dir = Path(str(candidate["artifact_dir"]))
@@ -1521,31 +2067,42 @@ def main() -> int:
             row["effective_replay_sampling_fractions"] = candidate[
                 "effective_replay_sampling_fractions"
             ]
-        if medium_report is not None:
+        if medium_report is not None and report_has_candidate(
+            medium_report, str(candidate["report_candidate_name"])
+        ):
             report = find_candidate_report(
                 medium_report, str(candidate["report_candidate_name"])
             )
-            if report is not None:
-                row["medium_budget_results"] = benchmark_budget_results(report)
-        if large_report is not None:
+            row["medium_budget_results"] = benchmark_budget_results(report)
+        if large_report is not None and report_has_candidate(
+            large_report, str(candidate["report_candidate_name"])
+        ):
             report = find_candidate_report(
                 large_report, str(candidate["report_candidate_name"])
             )
-            if report is not None:
-                row["large_budget_results"] = benchmark_budget_results(report)
+            row["large_budget_results"] = benchmark_budget_results(report)
         row["heldout_summary"] = (
             heldout_summary(heldout_reports, str(candidate["report_candidate_name"]))
             if heldout_reports
             else {"available": False}
         )
-        row["large_suite_aggregate"] = {
-            budget_pair: aggregate_budget_summary(
-                suite_rows, str(candidate["name"]), budget_pair, "promoted_current_ref"
-            )
-            for budget_pair in budget_pairs
-        }
+        row["large_suite_aggregate"] = (
+            {
+                budget_pair: aggregate_budget_summary(
+                    suite_rows,
+                    str(candidate["name"]),
+                    budget_pair,
+                    "promoted_current_ref",
+                )
+                for budget_pair in budget_pairs
+            }
+            if suite_rows
+            else {}
+        )
         row["bootstrap_cis"] = {}
         for budget_pair in (PRIMARY_BUDGET, EQ_768_BUDGET, EQ_1200_BUDGET):
+            if not suite_rows:
+                continue
             diffs = pooled_per_opening_differences(
                 suite_rows=suite_rows,
                 candidate_a=str(candidate["name"]),
@@ -1556,7 +2113,7 @@ def main() -> int:
             row["bootstrap_cis"][
                 f"{candidate['name']}_minus_promoted_current_ref_{budget_pair.replace(':', '_')}"
             ] = bootstrap_ci(diffs, seed=args.seed, samples=DEFAULT_BOOTSTRAP_SAMPLES)
-        if str(candidate["name"]) != "pr123_w8_e1_ref":
+        if suite_rows and str(candidate["name"]) != "pr123_w8_e1_ref":
             for budget_pair in (PRIMARY_BUDGET, EQ_768_BUDGET):
                 diffs = pooled_per_opening_differences(
                     suite_rows=suite_rows,
@@ -1584,14 +2141,16 @@ def main() -> int:
     summary = {
         "schema": SUMMARY_SCHEMA,
         "status": "completed",
-        "classification": classify_balanced_run(
-            candidate_rows=summary_candidates,
-            current_name="promoted_current_ref",
-            pr123_w8_name="pr123_w8_e1_ref",
+        "classification": classify_from_cached_artifacts(
+            stability_selected_rows=stability_selected_rows,
+            required_heldout_reports=required_heldout_reports,
+            summary_candidates=summary_candidates,
         ),
         "workdir": str(workdir),
         "seed": args.seed,
         "workers": args.workers,
+        "stability_workers": stability_workers,
+        "phase": args.phase,
         "budget_pairs": budget_pairs,
         "games_per_opening": args.games_per_opening,
         "inputs": input_summary,
@@ -1628,9 +2187,24 @@ def main() -> int:
         },
         "row_counts": row_counts,
         "gate_targets": gate_targets,
+        "experiment_completion": {
+            "status": "completed"
+            if all(path.is_file() for path in required_heldout_reports.values())
+            else "partially_completed",
+            "fixed_eval_complete": large_report is not None,
+            "heldout_eval_complete": all(
+                path.is_file() for path in required_heldout_reports.values()
+            ),
+            "gate_complete": all(
+                gate_report_path(workdir, candidate_name).is_file()
+                for candidate_name in gate_targets
+            )
+            if gate_targets
+            else False,
+        },
         "candidates": summary_candidates,
     }
-    write_json(workdir / "summary_metrics.json", summary)
+    write_json(paths["summary"], summary)
     REPORT_PATH.write_text(render_report(summary), encoding="utf-8")
     return 0
 
