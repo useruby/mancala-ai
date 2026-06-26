@@ -426,15 +426,41 @@ def train_one_epoch(
     value_loss: str,
     huber_delta: float,
     grad_clip: float | None,
+    behavior_anchor_x: np.ndarray | None = None,
+    behavior_anchor_p: np.ndarray | None = None,
+    behavior_anchor_replay_indexes: np.ndarray | None = None,
+    behavior_loss_weight: float = 0.0,
 ) -> dict[str, float | None]:
     model.train()
     x_all = torch.from_numpy(compact_x).to(device)
     p_all = torch.from_numpy(compact_p).to(device)
     v_all = torch.from_numpy(compact_v).to(device)
     replay_tensor = torch.from_numpy(replay_indexes).to(device)
+    behavior_anchor_x_all = None
+    behavior_anchor_p_all = None
+    behavior_anchor_replay_tensor = None
+    behavior_anchor_permutation = None
+    behavior_anchor_position = 0
+    use_behavior_anchors = (
+        behavior_loss_weight > 0.0
+        and behavior_anchor_x is not None
+        and behavior_anchor_p is not None
+        and behavior_anchor_replay_indexes is not None
+        and behavior_anchor_replay_indexes.size > 0
+    )
+    if use_behavior_anchors:
+        behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
+        behavior_anchor_p_all = torch.from_numpy(behavior_anchor_p).to(device)
+        behavior_anchor_replay_tensor = torch.from_numpy(
+            behavior_anchor_replay_indexes
+        ).to(device)
+        behavior_anchor_permutation = torch.randperm(
+            behavior_anchor_replay_tensor.size(0), device=device
+        )
     permutation = torch.randperm(replay_tensor.size(0), device=device)
     policy_losses: list[float] = []
     value_losses: list[float] = []
+    behavior_anchor_losses: list[float] = []
     total_losses: list[float] = []
     grad_norms: list[float] = []
     for start in range(0, replay_tensor.size(0), batch_size):
@@ -451,7 +477,37 @@ def train_one_epoch(
             value_loss=value_loss,
             huber_delta=huber_delta,
         ).mean()
-        total_loss = policy_loss + (value_loss_weight * value_component)
+        behavior_anchor_loss = torch.zeros((), device=device)
+        if use_behavior_anchors:
+            assert behavior_anchor_x_all is not None
+            assert behavior_anchor_p_all is not None
+            assert behavior_anchor_replay_tensor is not None
+            assert behavior_anchor_permutation is not None
+            anchor_count = batch_replay_indexes.size(0)
+            if (
+                behavior_anchor_position + anchor_count
+                > behavior_anchor_permutation.size(0)
+            ):
+                behavior_anchor_permutation = torch.randperm(
+                    behavior_anchor_replay_tensor.size(0), device=device
+                )
+                behavior_anchor_position = 0
+            anchor_indexes = behavior_anchor_permutation[
+                behavior_anchor_position : behavior_anchor_position + anchor_count
+            ]
+            behavior_anchor_position += anchor_count
+            batch_anchor_replay_indexes = behavior_anchor_replay_tensor[anchor_indexes]
+            anchor_x = behavior_anchor_x_all[batch_anchor_replay_indexes]
+            anchor_p = behavior_anchor_p_all[batch_anchor_replay_indexes]
+            anchor_logits, _anchor_value_pred = model(anchor_x)
+            behavior_anchor_loss = compute_policy_cross_entropy(
+                anchor_logits, anchor_p
+            ).mean()
+        total_loss = (
+            policy_loss
+            + (value_loss_weight * value_component)
+            + (behavior_loss_weight * behavior_anchor_loss)
+        )
         optimizer.zero_grad(set_to_none=True)
         total_loss.backward()
         grad_squared = 0.0
@@ -466,10 +522,14 @@ def train_one_epoch(
         optimizer.step()
         policy_losses.append(float(policy_loss.detach().cpu().item()))
         value_losses.append(float(value_component.detach().cpu().item()))
+        behavior_anchor_losses.append(float(behavior_anchor_loss.detach().cpu().item()))
         total_losses.append(float(total_loss.detach().cpu().item()))
     return {
         "policy_loss": float(np.mean(policy_losses)) if policy_losses else 0.0,
         "value_loss": float(np.mean(value_losses)) if value_losses else 0.0,
+        "behavior_anchor_loss": float(np.mean(behavior_anchor_losses))
+        if behavior_anchor_losses
+        else 0.0,
         "total_loss": float(np.mean(total_losses)) if total_losses else 0.0,
         "gradient_norm": float(np.mean(grad_norms)) if grad_norms else None,
     }
@@ -637,11 +697,16 @@ def train(
     val_split: float,
     grad_clip: float | None,
     save_top_k: int,
-    lr_scheduler: str,
+    lr_scheduler: str = DEFAULT_LR_SCHEDULER,
     weight_decay: float = 0.0,
     save_epochs: set[int] | None = None,
     save_epochs_dir: Path | None = None,
     save_epochs_base: str | None = None,
+    behavior_anchor_x: np.ndarray | None = None,
+    behavior_anchor_p: np.ndarray | None = None,
+    behavior_anchor_v: np.ndarray | None = None,
+    behavior_anchor_replay_indexes: np.ndarray | None = None,
+    behavior_loss_weight: float = 0.0,
 ) -> tuple[float, float, float]:
     model.to(device)
     model.train()
@@ -658,6 +723,46 @@ def train(
         replay_indexes_array, val_split=val_split
     )
     val_count = int(val_positions.shape[0])
+
+    behavior_anchor_val_count = 0
+    behavior_anchor_x_all = None
+    behavior_anchor_p_all = None
+    behavior_anchor_train_replay_indexes = None
+    behavior_anchor_val_replay_indexes = None
+    use_behavior_anchors = (
+        behavior_loss_weight > 0.0
+        and behavior_anchor_x is not None
+        and behavior_anchor_p is not None
+        and behavior_anchor_replay_indexes is not None
+        and behavior_anchor_replay_indexes.size > 0
+    )
+    if use_behavior_anchors:
+        assert behavior_anchor_x is not None
+        assert behavior_anchor_p is not None
+        assert behavior_anchor_replay_indexes is not None
+        compact_behavior_anchor_size = behavior_anchor_x.shape[0]
+        if np.any(
+            (behavior_anchor_replay_indexes < 0)
+            | (behavior_anchor_replay_indexes >= compact_behavior_anchor_size)
+        ):
+            raise ValueError(
+                "behavior anchor replay indexes must point to valid samples"
+            )
+        behavior_anchor_train_positions, behavior_anchor_val_positions = (
+            split_replay_positions_by_source_row(
+                behavior_anchor_replay_indexes, val_split=val_split
+            )
+        )
+        behavior_anchor_val_count = int(behavior_anchor_val_positions.shape[0])
+        behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
+        behavior_anchor_p_all = torch.from_numpy(behavior_anchor_p).to(device)
+        behavior_anchor_train_replay_indexes = behavior_anchor_replay_indexes[
+            behavior_anchor_train_positions
+        ]
+        if behavior_anchor_val_count > 0:
+            behavior_anchor_val_replay_indexes = torch.from_numpy(
+                behavior_anchor_replay_indexes[behavior_anchor_val_positions]
+            ).to(device)
 
     x_all = torch.from_numpy(x).to(device)
     p_all = torch.from_numpy(p_target).to(device)
@@ -683,6 +788,8 @@ def train(
 
     policy_loss_value = 0.0
     value_loss_value = 0.0
+    behavior_anchor_loss_value = 0.0
+    total_loss_value = 0.0
     best_val_loss = float("inf")
     best_state = None
     top_states: list[tuple[float, dict[str, torch.Tensor]]] = []
@@ -710,9 +817,15 @@ def train(
             value_loss=value_loss,
             huber_delta=huber_delta,
             grad_clip=grad_clip,
+            behavior_anchor_x=behavior_anchor_x,
+            behavior_anchor_p=behavior_anchor_p,
+            behavior_anchor_replay_indexes=behavior_anchor_train_replay_indexes,
+            behavior_loss_weight=behavior_loss_weight,
         )
         policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
         value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
+        behavior_anchor_loss_value = float(epoch_metrics["behavior_anchor_loss"] or 0.0)
+        total_loss_value = float(epoch_metrics["total_loss"] or 0.0)
 
         if scheduler is not None:
             scheduler.step()
@@ -731,8 +844,30 @@ def train(
                     value_loss=value_loss,
                     huber_delta=huber_delta,
                 ).mean()
+                val_behavior_anchor_loss = torch.zeros((), device=device)
+                if (
+                    use_behavior_anchors
+                    and behavior_anchor_val_count > 0
+                    and behavior_anchor_x_all is not None
+                    and behavior_anchor_p_all is not None
+                    and behavior_anchor_val_replay_indexes is not None
+                ):
+                    anchor_val_x = behavior_anchor_x_all[
+                        behavior_anchor_val_replay_indexes
+                    ]
+                    anchor_val_p = behavior_anchor_p_all[
+                        behavior_anchor_val_replay_indexes
+                    ]
+                    anchor_val_logits, _anchor_val_value_pred = model(anchor_val_x)
+                    val_behavior_anchor_loss = compute_policy_cross_entropy(
+                        anchor_val_logits, anchor_val_p
+                    ).mean()
                 val_total = float(
-                    (val_policy_loss + (value_loss_weight * val_value_loss))
+                    (
+                        val_policy_loss
+                        + (value_loss_weight * val_value_loss)
+                        + (behavior_loss_weight * val_behavior_anchor_loss)
+                    )
                     .cpu()
                     .item()
                 )
@@ -746,9 +881,7 @@ def train(
             model.train()
 
         if val_count == 0:
-            maybe_record_top_state(
-                policy_loss_value + (value_loss_weight * value_loss_value)
-            )
+            maybe_record_top_state(total_loss_value)
 
         if (
             save_epochs is not None
@@ -770,6 +903,13 @@ def train(
         best_val_loss = policy_loss_value + (value_loss_weight * value_loss_value)
 
     model.top_states = top_states
+    model.last_train_metrics = {
+        "policy_loss": policy_loss_value,
+        "value_loss": value_loss_value,
+        "behavior_anchor_loss": behavior_anchor_loss_value,
+        "total_loss": total_loss_value,
+        "behavior_loss_weight": float(behavior_loss_weight),
+    }
 
     return policy_loss_value, value_loss_value, best_val_loss
 
@@ -1059,6 +1199,7 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
         )
 
     if scope == "policy_head":
+        assert model.policy_hidden_layer is not None
         model.policy_hidden_layer.weight.requires_grad = True
         model.policy_hidden_layer.bias.requires_grad = True
         if model.move_projections is not None:
@@ -1080,6 +1221,7 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
         for layer in last_block:
             for param in layer.parameters():
                 param.requires_grad = True
+        assert model.policy_hidden_layer is not None
         model.policy_hidden_layer.weight.requires_grad = True
         model.policy_hidden_layer.bias.requires_grad = True
         if model.move_projections is not None:
@@ -1194,6 +1336,17 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=None,
         help="Comma-separated bucket/family names to exclude from training (e.g. incumbent_proxy_disagreement)",
     )
+    parser.add_argument(
+        "--behavior-anchor-files",
+        default=None,
+        help="Comma-separated JSONL behavior-anchor files with policy targets to preserve",
+    )
+    parser.add_argument(
+        "--behavior-loss-weight",
+        type=float,
+        default=0.0,
+        help="Weight for behavior-anchor policy cross-entropy",
+    )
     return parser
 
 
@@ -1216,6 +1369,11 @@ def main() -> None:
     replay_paths = parse_replay_paths(args.data_files)
     replay_weights = parse_replay_weights(args.replay_weights)
     replay_indexes = None
+    behavior_anchor_paths = parse_replay_paths(args.behavior_anchor_files)
+    behavior_anchor_replay_indexes = None
+    behavior_anchor_x = None
+    behavior_anchor_p = None
+    behavior_anchor_v = None
 
     exclude_buckets: frozenset[str] | set[str] | None = None
     if args.exclude_buckets:
@@ -1246,6 +1404,19 @@ def main() -> None:
             value_target_mode=value_target_mode,
             exclude_buckets=exclude_buckets,
         )
+    if behavior_anchor_paths:
+        (
+            behavior_anchor_x,
+            behavior_anchor_p,
+            behavior_anchor_v,
+            behavior_anchor_replay_indexes,
+        ) = load_jsonl_replay(
+            behavior_anchor_paths,
+            policy_target_mode=policy_target_mode,
+            value_target_mode=value_target_mode,
+            exclude_buckets=exclude_buckets,
+        )
+        validate_input_features(behavior_anchor_x, input_encoding=args.input_encoding)
     validate_input_features(x, input_encoding=args.input_encoding)
     model = PolicyValueNet(
         hidden_sizes=hidden_sizes,
@@ -1298,6 +1469,11 @@ def main() -> None:
         save_epochs=save_epochs_set,
         save_epochs_dir=save_epochs_dir,
         save_epochs_base=save_epochs_base,
+        behavior_anchor_x=behavior_anchor_x,
+        behavior_anchor_p=behavior_anchor_p,
+        behavior_anchor_v=behavior_anchor_v,
+        behavior_anchor_replay_indexes=behavior_anchor_replay_indexes,
+        behavior_loss_weight=args.behavior_loss_weight,
     )
 
     checkpoint = checkpoint_from_model(model)
@@ -1310,6 +1486,12 @@ def main() -> None:
     print(f"model_type={args.model_type}")
     print(f"policy_loss={policy_loss:.6f}")
     print(f"value_loss={value_loss:.6f}")
+    last_train_metrics = getattr(model, "last_train_metrics", {})
+    print(
+        "behavior_anchor_loss="
+        f"{float(last_train_metrics.get('behavior_anchor_loss', 0.0)):.6f}"
+    )
+    print(f"total_loss={float(last_train_metrics.get('total_loss', 0.0)):.6f}")
     print(f"best_val_loss={best_val_loss:.6f}")
 
     if args.save_top_k > 0:

@@ -1539,6 +1539,61 @@ class TrainScriptTest(unittest.TestCase):
         self.assertGreater(train_positions.shape[0], 0)
         self.assertEqual(0, val_positions.shape[0])
 
+    def test_argument_parser_accepts_behavior_anchor_training_args(self):
+        parser = train_module.build_argument_parser()
+
+        args = parser.parse_args(
+            [
+                "--out",
+                "checkpoint.npz",
+                "--behavior-anchor-files",
+                "anchors.jsonl",
+                "--behavior-loss-weight",
+                "4",
+            ]
+        )
+
+        self.assertEqual("anchors.jsonl", args.behavior_anchor_files)
+        self.assertEqual(4.0, args.behavior_loss_weight)
+
+    def test_train_one_epoch_reports_behavior_anchor_loss(self):
+        model = train_module.PolicyValueNet(
+            hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15
+        )
+        for parameter in model.parameters():
+            parameter.data.zero_()
+
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.0)
+        x = np.zeros((1, 15), dtype=np.float32)
+        p = np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+        v = np.zeros((1, 1), dtype=np.float32)
+        anchor_p = np.array([[0.0, 1.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+        replay_indexes = np.array([0], dtype=np.int64)
+
+        metrics = train_module.train_one_epoch(
+            model=model,
+            optimizer=optimizer,
+            compact_x=x,
+            compact_p=p,
+            compact_v=v,
+            replay_indexes=replay_indexes,
+            batch_size=1,
+            device=torch.device("cpu"),
+            value_loss_weight=0.0,
+            value_loss="mse",
+            huber_delta=1.0,
+            grad_clip=None,
+            behavior_anchor_x=x,
+            behavior_anchor_p=anchor_p,
+            behavior_anchor_replay_indexes=replay_indexes,
+            behavior_loss_weight=2.0,
+        )
+
+        expected_ce = float(np.log(6.0))
+        self.assertAlmostEqual(expected_ce, metrics["policy_loss"], places=5)
+        self.assertAlmostEqual(expected_ce, metrics["behavior_anchor_loss"], places=5)
+        self.assertAlmostEqual(expected_ce * 3.0, metrics["total_loss"], places=5)
+
 
 if __name__ == "__main__":
     unittest.main()
