@@ -65,7 +65,7 @@ SUPPORTED_ROOT_POLICY_MODES = frozenset({"visit_count", "deterministic"})
 DEFAULT_EVAL_SEARCH_OPTIONS = {
     **DEFAULT_SEARCH_OPTIONS,
     "root_policy_mode": "deterministic",
-    "tactical_root_bias": 0.1,
+    "tactical_root_bias": 0.0,
 }
 DEFAULT_POLICY_TARGET_MODE = "default"
 SUPPORTED_POLICY_TARGET_MODES = frozenset({DEFAULT_POLICY_TARGET_MODE, "sharpened"})

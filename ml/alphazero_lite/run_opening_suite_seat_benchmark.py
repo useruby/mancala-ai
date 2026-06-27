@@ -26,6 +26,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 
+def default_eval_tactical_root_bias() -> float:
+    from ml.alphazero_lite.self_play import DEFAULT_EVAL_SEARCH_OPTIONS
+
+    return float(DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"])
+
+
 def _find_python() -> str:
     candidates = [
         REPO_ROOT / ".venv/bin/python",
@@ -78,6 +84,7 @@ def run_arena(
     games_per_opening: int = 1,
     root_policy_mode: str = "deterministic",
     root_temperature: float = 0.0,
+    tactical_root_bias: float | None = None,
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -115,6 +122,8 @@ def run_arena(
         "--root-temperature",
         str(root_temperature),
     ]
+    if tactical_root_bias is not None:
+        cmd.extend(["--tactical-root-bias", str(tactical_root_bias)])
 
     result = subprocess.run(
         cmd,
@@ -160,6 +169,7 @@ def budget_cache_context(
     total_games: int,
     root_policy_mode: str,
     root_temperature: float,
+    tactical_root_bias: float,
     seed: int,
 ) -> dict[str, Any]:
     return {
@@ -176,6 +186,7 @@ def budget_cache_context(
         "total_games": total_games,
         "root_policy_mode": root_policy_mode,
         "root_temperature": root_temperature,
+        "tactical_root_bias": tactical_root_bias,
         "seed": seed,
     }
 
@@ -408,6 +419,15 @@ def parse_args() -> argparse.Namespace:
         help="Comma-separated root temperature values (0.0=deterministic, >0.0=stochastic).",
     )
     parser.add_argument(
+        "--tactical-root-bias",
+        type=float,
+        default=None,
+        help=(
+            "Optional tactical root bias override. Default: unset, which uses the checked-in "
+            "arena evaluation default."
+        ),
+    )
+    parser.add_argument(
         "--seeds",
         default="42",
         help="Comma-separated random seeds for stochastic evaluations.",
@@ -448,6 +468,11 @@ def main() -> int:
 
     root_temperatures = [float(t.strip()) for t in args.root_temperatures.split(",")]
     seeds = [int(s.strip()) for s in args.seeds.split(",")]
+    effective_tactical_root_bias = (
+        default_eval_tactical_root_bias()
+        if args.tactical_root_bias is None
+        else float(args.tactical_root_bias)
+    )
 
     all_temperature_reports: list[dict] = []
 
@@ -509,6 +534,7 @@ def main() -> int:
                         total_games=total_games,
                         root_policy_mode=args.root_policy_mode,
                         root_temperature=rt,
+                        tactical_root_bias=effective_tactical_root_bias,
                         seed=arena_seed,
                     )
                     metrics_path = budget_dir / "metrics.json"
@@ -583,6 +609,7 @@ def main() -> int:
                                 games_per_opening=gpo,
                                 root_policy_mode=args.root_policy_mode,
                                 root_temperature=rt,
+                                tactical_root_bias=args.tactical_root_bias,
                                 timeout=args.timeout,
                             )
                             elapsed = time.time() - t0

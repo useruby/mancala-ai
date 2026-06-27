@@ -18,6 +18,7 @@ from ml.alphazero_lite.report_validation import (
     validate_arena_report,
 )
 from ml.alphazero_lite.self_play import (
+    DEFAULT_EVAL_SEARCH_OPTIONS,
     add_search_option_args,
     build_eval_search_options,
     search_options_from_args,
@@ -175,7 +176,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--min-mcts-score", type=float, default=0.45)
     parser.add_argument("--dry-run", action="store_true")
     add_search_option_args(parser)
-    parser.set_defaults(root_policy_mode="deterministic", tactical_root_bias=0.1)
+    parser.set_defaults(
+        root_policy_mode=DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
+        tactical_root_bias=DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
+    )
     return parser.parse_args(argv)
 
 
