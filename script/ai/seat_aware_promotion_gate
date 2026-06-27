@@ -76,6 +76,21 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Working directory for arena outputs (default: parent of --out)",
     )
+    parser.add_argument("--c-puct", type=float, default=1.25)
+    parser.add_argument(
+        "--root-policy-mode",
+        choices=("deterministic", "visit_count"),
+        default="deterministic",
+    )
+    parser.add_argument("--root-temperature", type=float, default=0.0)
+    parser.add_argument("--tactical-root-bias", type=float, default=0.1)
+    parser.add_argument("--value-trust-enabled", action="store_true")
+    parser.add_argument("--value-trust-opening", type=float, default=None)
+    parser.add_argument("--value-trust-midgame", type=float, default=None)
+    parser.add_argument("--value-trust-late", type=float, default=None)
+    parser.add_argument("--root-prior-transform", default=None)
+    parser.add_argument("--challenger-root-prior-transform", default=None)
+    parser.add_argument("--current-root-prior-transform", default=None)
     return parser.parse_args()
 
 
@@ -90,6 +105,17 @@ def run_arena(
     out_json: str,
     out_jsonl: str,
     challenger_starts: int | None = None,
+    c_puct: float = 1.25,
+    root_policy_mode: str = "deterministic",
+    root_temperature: float = 0.0,
+    tactical_root_bias: float = 0.1,
+    value_trust_enabled: bool = False,
+    value_trust_opening: float | None = None,
+    value_trust_midgame: float | None = None,
+    value_trust_late: float | None = None,
+    root_prior_transform: str | None = None,
+    challenger_root_prior_transform: str | None = None,
+    current_root_prior_transform: str | None = None,
     timeout: int = 3600,
 ) -> dict:
     python = _find_python()
@@ -110,13 +136,42 @@ def run_arena(
         str(seed),
         "--workers",
         str(workers),
+        "--c-puct",
+        str(c_puct),
         "--min-score",
         "0.0",
         "--out",
         out_json,
         "--game-jsonl",
         out_jsonl,
+        "--root-policy-mode",
+        root_policy_mode,
+        "--root-temperature",
+        str(root_temperature),
+        "--tactical-root-bias",
+        str(tactical_root_bias),
     ]
+    if value_trust_enabled:
+        cmd.append("--value-trust-enabled")
+    if value_trust_opening is not None:
+        cmd.extend(["--value-trust-opening", str(value_trust_opening)])
+    if value_trust_midgame is not None:
+        cmd.extend(["--value-trust-midgame", str(value_trust_midgame)])
+    if value_trust_late is not None:
+        cmd.extend(["--value-trust-late", str(value_trust_late)])
+    if root_prior_transform is not None:
+        cmd.extend(["--root-prior-transform", str(root_prior_transform)])
+    if challenger_root_prior_transform is not None:
+        cmd.extend(
+            [
+                "--challenger-root-prior-transform",
+                str(challenger_root_prior_transform),
+            ]
+        )
+    if current_root_prior_transform is not None:
+        cmd.extend(
+            ["--current-root-prior-transform", str(current_root_prior_transform)]
+        )
     if challenger_starts is not None:
         cmd.extend(["--challenger-starts", str(challenger_starts)])
 
@@ -184,6 +239,17 @@ def run_seat_aware_evaluation(
                 workers=args.workers,
                 out_json=alt_json,
                 out_jsonl=alt_jsonl,
+                c_puct=args.c_puct,
+                root_policy_mode=args.root_policy_mode,
+                root_temperature=args.root_temperature,
+                tactical_root_bias=args.tactical_root_bias,
+                value_trust_enabled=bool(args.value_trust_enabled),
+                value_trust_opening=args.value_trust_opening,
+                value_trust_midgame=args.value_trust_midgame,
+                value_trust_late=args.value_trust_late,
+                root_prior_transform=args.root_prior_transform,
+                challenger_root_prior_transform=args.challenger_root_prior_transform,
+                current_root_prior_transform=args.current_root_prior_transform,
             )
         except RuntimeError as e:
             print(f"  FAILED alternating: {e}", flush=True)
@@ -243,6 +309,17 @@ def run_seat_aware_evaluation(
                     out_json=ss_json,
                     out_jsonl=ss_jsonl,
                     challenger_starts=forced_starts,
+                    c_puct=args.c_puct,
+                    root_policy_mode=args.root_policy_mode,
+                    root_temperature=args.root_temperature,
+                    tactical_root_bias=args.tactical_root_bias,
+                    value_trust_enabled=bool(args.value_trust_enabled),
+                    value_trust_opening=args.value_trust_opening,
+                    value_trust_midgame=args.value_trust_midgame,
+                    value_trust_late=args.value_trust_late,
+                    root_prior_transform=args.root_prior_transform,
+                    challenger_root_prior_transform=args.challenger_root_prior_transform,
+                    current_root_prior_transform=args.current_root_prior_transform,
                 )
             except RuntimeError as e:
                 print(f"  FAILED forced starts={forced_starts}: {e}", flush=True)
