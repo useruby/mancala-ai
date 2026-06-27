@@ -384,7 +384,7 @@ class BenchmarkScriptTest(unittest.TestCase):
             self.assertEqual(
                 "deterministic", report["search_options"]["root_policy_mode"]
             )
-            self.assertEqual(0.1, report["search_options"]["tactical_root_bias"])
+            self.assertEqual(0.0, report["search_options"]["tactical_root_bias"])
 
     def test_cli_records_value_trust_schedule_in_report(self):
         with tempfile.TemporaryDirectory(prefix="azlite-benchmark-") as tmp:

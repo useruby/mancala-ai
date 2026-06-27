@@ -83,7 +83,15 @@ def parse_args() -> argparse.Namespace:
         default="deterministic",
     )
     parser.add_argument("--root-temperature", type=float, default=0.0)
-    parser.add_argument("--tactical-root-bias", type=float, default=0.1)
+    parser.add_argument(
+        "--tactical-root-bias",
+        type=float,
+        default=None,
+        help=(
+            "Optional tactical root bias override. Default: unset, which uses the checked-in "
+            "arena evaluation default."
+        ),
+    )
     parser.add_argument("--value-trust-enabled", action="store_true")
     parser.add_argument("--value-trust-opening", type=float, default=None)
     parser.add_argument("--value-trust-midgame", type=float, default=None)
@@ -108,7 +116,7 @@ def run_arena(
     c_puct: float = 1.25,
     root_policy_mode: str = "deterministic",
     root_temperature: float = 0.0,
-    tactical_root_bias: float = 0.1,
+    tactical_root_bias: float | None = None,
     value_trust_enabled: bool = False,
     value_trust_opening: float | None = None,
     value_trust_midgame: float | None = None,
@@ -148,9 +156,9 @@ def run_arena(
         root_policy_mode,
         "--root-temperature",
         str(root_temperature),
-        "--tactical-root-bias",
-        str(tactical_root_bias),
     ]
+    if tactical_root_bias is not None:
+        cmd.extend(["--tactical-root-bias", str(tactical_root_bias)])
     if value_trust_enabled:
         cmd.append("--value-trust-enabled")
     if value_trust_opening is not None:

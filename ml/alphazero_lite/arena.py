@@ -92,7 +92,7 @@ EARLY_DEFAULT_SEARCH_OPTIONS = {
 EARLY_DEFAULT_EVAL_SEARCH_OPTIONS = {
     **EARLY_DEFAULT_SEARCH_OPTIONS,
     "root_policy_mode": "deterministic",
-    "tactical_root_bias": 0.1,
+    "tactical_root_bias": 0.0,
 }
 EARLY_SUPPORTED_ROOT_POLICY_MODES = ("deterministic", "visit_count")
 
