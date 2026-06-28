@@ -20,6 +20,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VENV_PYTHON = str(REPO_ROOT / ".venv/bin/python")
 sys.path.insert(0, str(REPO_ROOT))
 
+from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
+    parse_cpuct_schedule_json,
+    resolve_budget_cpuct,
+    schedule_definition,
+)
+
 
 def _find_python() -> str:
     candidates = [
@@ -77,6 +83,11 @@ def parse_args() -> argparse.Namespace:
         help="Working directory for arena outputs (default: parent of --out)",
     )
     parser.add_argument("--c-puct", type=float, default=1.25)
+    parser.add_argument(
+        "--c-puct-schedule-json",
+        default=None,
+        help="Optional JSON object mapping budget labels like 1200:1200 to per-budget c_puct overrides.",
+    )
     parser.add_argument(
         "--root-policy-mode",
         choices=("deterministic", "visit_count"),
@@ -213,6 +224,10 @@ def run_seat_aware_evaluation(
         if ":" in bp:
             c_str, cur_str = bp.split(":", 1)
             budget_pairs.append((int(c_str), int(cur_str)))
+    cpuct_schedule = parse_cpuct_schedule_json(args.c_puct_schedule_json)
+    schedule_manifest = schedule_definition(
+        default_c_puct=float(args.c_puct), schedule=cpuct_schedule
+    )
 
     from ml.alphazero_lite.seat_aware_arena import (
         BUDGET_PAIR_LABELS,
@@ -224,6 +239,12 @@ def run_seat_aware_evaluation(
     arena_results: list[dict] = []
 
     for chall_sims, curr_sims in budget_pairs:
+        effective_c_puct = resolve_budget_cpuct(
+            schedule=cpuct_schedule,
+            challenger_simulations=chall_sims,
+            current_simulations=curr_sims,
+            default_c_puct=float(args.c_puct),
+        )
         budget_label = BUDGET_PAIR_LABELS.get(
             (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
         )
@@ -247,7 +268,7 @@ def run_seat_aware_evaluation(
                 workers=args.workers,
                 out_json=alt_json,
                 out_jsonl=alt_jsonl,
-                c_puct=args.c_puct,
+                c_puct=effective_c_puct,
                 root_policy_mode=args.root_policy_mode,
                 root_temperature=args.root_temperature,
                 tactical_root_bias=args.tactical_root_bias,
@@ -284,11 +305,15 @@ def run_seat_aware_evaluation(
                 "budget_label": budget_label,
                 "challenger_sims": chall_sims,
                 "current_sims": curr_sims,
+                "effective_c_puct": effective_c_puct,
+                "tactical_root_bias": args.tactical_root_bias,
                 "arena_score": alt_report["score"],
                 "arena_wins": alt_report["wins"],
                 "arena_losses": alt_report["losses"],
                 "arena_draws": alt_report["draws"],
                 "seat_metrics": seat_metrics,
+                "search_profile": arena_notes.get("search_profile"),
+                "search_profile_hash": arena_notes.get("search_profile_hash"),
                 "move_time_mean_ms": arena_notes.get("move_time_mean_ms"),
                 "move_time_p95_ms": arena_notes.get("move_time_p95_ms"),
             }
@@ -317,7 +342,7 @@ def run_seat_aware_evaluation(
                     out_json=ss_json,
                     out_jsonl=ss_jsonl,
                     challenger_starts=forced_starts,
-                    c_puct=args.c_puct,
+                    c_puct=effective_c_puct,
                     root_policy_mode=args.root_policy_mode,
                     root_temperature=args.root_temperature,
                     tactical_root_bias=args.tactical_root_bias,
@@ -357,6 +382,8 @@ def run_seat_aware_evaluation(
         current_path=args.current_path,
         arena_results=arena_results,
     )
+    report["c_puct"] = float(args.c_puct)
+    report["c_puct_schedule"] = schedule_manifest
 
     print(f"\nClassification: {report['classification']}")
     print(f"Standard alternating score: {report['standard_alternating_score']:.4f}")
