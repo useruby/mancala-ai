@@ -235,6 +235,12 @@ def build_seat_aware_report(
         result_data["arena_draws"] = result.get("arena_draws", 0)
         result_data["move_time_mean_ms"] = result.get("move_time_mean_ms")
         result_data["move_time_p95_ms"] = result.get("move_time_p95_ms")
+        result_data["effective_c_puct"] = result.get("effective_c_puct")
+        result_data["tactical_root_bias"] = result.get("tactical_root_bias")
+        result_data["challenger_simulations"] = result.get("challenger_sims")
+        result_data["current_simulations"] = result.get("current_sims")
+        result_data["search_profile"] = result.get("search_profile")
+        result_data["search_profile_hash"] = result.get("search_profile_hash")
         budget_results[budget_label] = result_data
 
         if budget_label == "standard":

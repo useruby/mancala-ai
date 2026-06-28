@@ -25,6 +25,12 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
+from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
+    parse_cpuct_schedule_json,
+    resolve_budget_cpuct,
+    schedule_definition,
+)
+
 
 def default_eval_tactical_root_bias() -> float:
     from ml.alphazero_lite.self_play import DEFAULT_EVAL_SEARCH_OPTIONS
@@ -84,6 +90,7 @@ def run_arena(
     games_per_opening: int = 1,
     root_policy_mode: str = "deterministic",
     root_temperature: float = 0.0,
+    c_puct: float = 1.25,
     tactical_root_bias: float | None = None,
     timeout: int = 7200,
 ) -> dict:
@@ -121,6 +128,8 @@ def run_arena(
         root_policy_mode,
         "--root-temperature",
         str(root_temperature),
+        "--c-puct",
+        str(c_puct),
     ]
     if tactical_root_bias is not None:
         cmd.extend(["--tactical-root-bias", str(tactical_root_bias)])
@@ -169,6 +178,8 @@ def budget_cache_context(
     total_games: int,
     root_policy_mode: str,
     root_temperature: float,
+    c_puct: float,
+    c_puct_schedule: dict[str, float],
     tactical_root_bias: float,
     seed: int,
 ) -> dict[str, Any]:
@@ -186,6 +197,8 @@ def budget_cache_context(
         "total_games": total_games,
         "root_policy_mode": root_policy_mode,
         "root_temperature": root_temperature,
+        "c_puct": c_puct,
+        "c_puct_schedule": c_puct_schedule,
         "tactical_root_bias": tactical_root_bias,
         "seed": seed,
     }
@@ -401,6 +414,17 @@ def parse_args() -> argparse.Namespace:
         help="Comma-separated challenger:current simulation budget pairs.",
     )
     parser.add_argument(
+        "--c-puct",
+        type=float,
+        default=1.25,
+        help="Global c_puct used when no per-budget override is present.",
+    )
+    parser.add_argument(
+        "--c-puct-schedule-json",
+        default=None,
+        help="Optional JSON object mapping budget labels like 768:768 to per-budget c_puct overrides.",
+    )
+    parser.add_argument(
         "--games-per-opening",
         type=int,
         default=2,
@@ -473,6 +497,10 @@ def main() -> int:
         if args.tactical_root_bias is None
         else float(args.tactical_root_bias)
     )
+    cpuct_schedule = parse_cpuct_schedule_json(args.c_puct_schedule_json)
+    schedule_manifest = schedule_definition(
+        default_c_puct=float(args.c_puct), schedule=cpuct_schedule
+    )
 
     all_temperature_reports: list[dict] = []
 
@@ -506,6 +534,12 @@ def main() -> int:
                 cand_budget_results: dict[str, dict] = {}
 
                 for chall_sims, curr_sims in budget_pairs:
+                    effective_c_puct = resolve_budget_cpuct(
+                        schedule=cpuct_schedule,
+                        challenger_simulations=chall_sims,
+                        current_simulations=curr_sims,
+                        default_c_puct=float(args.c_puct),
+                    )
                     budget_label = BUDGET_PAIR_LABELS.get(
                         (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
                     )
@@ -513,7 +547,7 @@ def main() -> int:
                     budget_dir.mkdir(parents=True, exist_ok=True)
 
                     print(
-                        f"    Budget {chall_sims}:{curr_sims} ({budget_label}) ...",
+                        f"    Budget {chall_sims}:{curr_sims} ({budget_label}) c_puct={effective_c_puct:.2f} ...",
                         flush=True,
                     )
 
@@ -534,6 +568,8 @@ def main() -> int:
                         total_games=total_games,
                         root_policy_mode=args.root_policy_mode,
                         root_temperature=rt,
+                        c_puct=effective_c_puct,
+                        c_puct_schedule=schedule_manifest["overrides"],
                         tactical_root_bias=effective_tactical_root_bias,
                         seed=arena_seed,
                     )
@@ -555,6 +591,7 @@ def main() -> int:
                             continue
 
                     all_game_entries: list[dict] = []
+                    seat_reports: list[dict[str, Any]] = []
 
                     for seat in (0, 1):
                         seat_label = f"starts_{seat}"
@@ -587,6 +624,7 @@ def main() -> int:
                                 game_entries = parse_game_jsonl(seat_jsonl)
                                 if game_entries:
                                     all_game_entries.extend(game_entries)
+                                    seat_reports.append(load_json(Path(seat_json)))
                                     print(
                                         f"      {seat_label}: cache hit ({len(game_entries)} games)"
                                     )
@@ -609,7 +647,8 @@ def main() -> int:
                                 games_per_opening=gpo,
                                 root_policy_mode=args.root_policy_mode,
                                 root_temperature=rt,
-                                tactical_root_bias=args.tactical_root_bias,
+                                c_puct=effective_c_puct,
+                                tactical_root_bias=effective_tactical_root_bias,
                                 timeout=args.timeout,
                             )
                             elapsed = time.time() - t0
@@ -619,6 +658,7 @@ def main() -> int:
 
                             game_entries = parse_game_jsonl(seat_jsonl)
                             all_game_entries.extend(game_entries)
+                            seat_reports.append(report)
                             write_json(
                                 seat_meta_path,
                                 {
@@ -639,6 +679,19 @@ def main() -> int:
                     metrics = compute_seat_metrics(all_game_entries)
                     per_opening = compute_per_opening_metrics(all_game_entries)
                     by_ply = compute_by_ply_metrics(all_game_entries)
+                    report_notes = {}
+                    if seat_reports:
+                        report_notes = seat_reports[0].get("notes", {}) or {}
+                    budget_result_move_means = [
+                        float(report.get("notes", {}).get("move_time_mean_ms"))
+                        for report in seat_reports
+                        if report.get("notes", {}).get("move_time_mean_ms") is not None
+                    ]
+                    budget_result_move_p95s = [
+                        float(report.get("notes", {}).get("move_time_p95_ms"))
+                        for report in seat_reports
+                        if report.get("notes", {}).get("move_time_p95_ms") is not None
+                    ]
 
                     budget_result = {
                         **metrics,
@@ -648,6 +701,16 @@ def main() -> int:
                         "budget_label": budget_label,
                         "challenger_simulations": chall_sims,
                         "current_simulations": curr_sims,
+                        "effective_c_puct": effective_c_puct,
+                        "tactical_root_bias": effective_tactical_root_bias,
+                        "search_profile": report_notes.get("search_profile"),
+                        "search_profile_hash": report_notes.get("search_profile_hash"),
+                        "move_time_mean_ms": statistics.fmean(budget_result_move_means)
+                        if budget_result_move_means
+                        else None,
+                        "move_time_p95_ms": statistics.fmean(budget_result_move_p95s)
+                        if budget_result_move_p95s
+                        else None,
                         "total_games": len(all_game_entries),
                     }
 
@@ -731,6 +794,8 @@ def main() -> int:
             "suite_sha256": suite_sha,
             "suite_size": suite_size,
             "current_sha256": current_sha,
+            "c_puct": float(args.c_puct),
+            "c_puct_schedule": schedule_manifest,
             "root_policy_mode": args.root_policy_mode,
             "temperature_reports": all_temperature_reports,
         },
