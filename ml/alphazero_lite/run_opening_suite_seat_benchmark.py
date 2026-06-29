@@ -26,6 +26,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
+    DEFAULT_RUNTIME_C_PUCT,
+    default_runtime_schedule_json,
     parse_cpuct_schedule_json,
     resolve_budget_cpuct,
     schedule_definition,
@@ -416,13 +418,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--c-puct",
         type=float,
-        default=1.25,
+        default=DEFAULT_RUNTIME_C_PUCT,
         help="Global c_puct used when no per-budget override is present.",
     )
     parser.add_argument(
         "--c-puct-schedule-json",
-        default=None,
-        help="Optional JSON object mapping budget labels like 768:768 to per-budget c_puct overrides.",
+        default=default_runtime_schedule_json(),
+        help=(
+            "Optional JSON object mapping budget labels like 768:768 to per-budget c_puct overrides. "
+            "Default: checked-in runtime schedule. Pass '{}' for no schedule."
+        ),
     )
     parser.add_argument(
         "--games-per-opening",

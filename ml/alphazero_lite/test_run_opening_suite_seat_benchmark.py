@@ -3,10 +3,32 @@ import unittest
 from argparse import Namespace
 from unittest import mock
 
+from ml.alphazero_lite.cpuct_schedule import default_runtime_schedule_definition
 from ml.alphazero_lite import run_opening_suite_seat_benchmark as benchmark
 
 
 class OpeningSuiteSeatBenchmarkTest(unittest.TestCase):
+    def test_default_cli_schedule_matches_checked_in_runtime_schedule(self):
+        with mock.patch(
+            "sys.argv",
+            [
+                "prog",
+                "--workdir",
+                "/tmp/x",
+                "--suite",
+                "suite.jsonl",
+                "--candidates",
+                "candidate_a",
+            ],
+        ):
+            args = benchmark.parse_args()
+
+        self.assertEqual(1.25, args.c_puct)
+        self.assertEqual(
+            default_runtime_schedule_definition()["overrides"],
+            benchmark.parse_cpuct_schedule_json(args.c_puct_schedule_json),
+        )
+
     def test_deterministic_mode_uses_cli_seed(self):
         captured_seeds = []
 
@@ -36,8 +58,11 @@ class OpeningSuiteSeatBenchmarkTest(unittest.TestCase):
                 budget_pairs="384:256",
                 games_per_opening=1,
                 seed=123,
+                c_puct=1.25,
+                c_puct_schedule_json='{"768:768": 0.9}',
                 root_policy_mode="deterministic",
                 root_temperatures="0.0",
+                tactical_root_bias=None,
                 seeds="42,43",
                 workers=1,
                 timeout=10,
