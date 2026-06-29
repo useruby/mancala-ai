@@ -1556,6 +1556,84 @@ class TrainScriptTest(unittest.TestCase):
         self.assertEqual("anchors.jsonl", args.behavior_anchor_files)
         self.assertEqual(4.0, args.behavior_loss_weight)
 
+    def test_argument_parser_accepts_pairwise_training_args(self):
+        parser = train_module.build_argument_parser()
+
+        args = parser.parse_args(
+            [
+                "--out",
+                "checkpoint.npz",
+                "--pairwise-target-files",
+                "pairwise.jsonl",
+                "--pairwise-loss-weight",
+                "1.5",
+                "--pairwise-margin",
+                "0.1",
+            ]
+        )
+
+        self.assertEqual("pairwise.jsonl", args.pairwise_target_files)
+        self.assertEqual(1.5, args.pairwise_loss_weight)
+        self.assertEqual(0.1, args.pairwise_margin)
+
+    def test_compute_pairwise_ranking_loss_matches_softplus_margin_form(self):
+        logits = torch.tensor([[0.0, 0.0, -1.0, -1.0, -1.0, -1.0]], dtype=torch.float32)
+        preferred = torch.tensor([1], dtype=torch.int64)
+        baseline = torch.tensor([0], dtype=torch.int64)
+
+        loss = train_module.compute_pairwise_ranking_loss(
+            logits,
+            preferred,
+            baseline,
+            margin=0.1,
+        )
+
+        self.assertAlmostEqual(
+            float(np.log1p(np.exp(0.1))), float(loss.item()), places=6
+        )
+
+    def test_train_one_epoch_reports_pairwise_loss_without_supervised_rows(self):
+        model = train_module.PolicyValueNet(
+            hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15
+        )
+        for parameter in model.parameters():
+            parameter.data.zero_()
+
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.0)
+        empty_x = np.zeros((0, 15), dtype=np.float32)
+        empty_p = np.zeros((0, 6), dtype=np.float32)
+        empty_v = np.zeros((0, 1), dtype=np.float32)
+        pairwise_x = np.zeros((1, 15), dtype=np.float32)
+        pairwise_preferred = np.array([1], dtype=np.int64)
+        pairwise_baseline = np.array([0], dtype=np.int64)
+        pairwise_replay_indexes = np.array([0], dtype=np.int64)
+
+        metrics = train_module.train_one_epoch(
+            model=model,
+            optimizer=optimizer,
+            compact_x=empty_x,
+            compact_p=empty_p,
+            compact_v=empty_v,
+            replay_indexes=np.zeros((0,), dtype=np.int64),
+            batch_size=1,
+            device=torch.device("cpu"),
+            value_loss_weight=0.0,
+            value_loss="mse",
+            huber_delta=1.0,
+            grad_clip=None,
+            pairwise_x=pairwise_x,
+            pairwise_preferred_moves=pairwise_preferred,
+            pairwise_baseline_moves=pairwise_baseline,
+            pairwise_replay_indexes=pairwise_replay_indexes,
+            pairwise_loss_weight=1.0,
+            pairwise_margin=0.1,
+        )
+
+        expected_pairwise = float(np.log1p(np.exp(0.1)))
+        self.assertEqual(0.0, metrics["policy_loss"])
+        self.assertAlmostEqual(expected_pairwise, metrics["pairwise_loss"], places=6)
+        self.assertAlmostEqual(expected_pairwise, metrics["total_loss"], places=6)
+
     def test_train_one_epoch_reports_behavior_anchor_loss(self):
         model = train_module.PolicyValueNet(
             hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15
