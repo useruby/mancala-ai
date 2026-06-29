@@ -8,6 +8,7 @@ import json
 import random
 import sys
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -376,6 +377,97 @@ def load_jsonl_replay(
     )
 
 
+def _pairwise_moves_for_row(
+    row: dict[str, Any], *, path: Path, row_number: int
+) -> tuple[int, int]:
+    preferred_move = row.get("puct_move", row.get("preferred_move"))
+    baseline_move = row.get("raw_move", row.get("baseline_move"))
+    if preferred_move is None or baseline_move is None:
+        raise ValueError(
+            f"{path}:{row_number} pairwise row must include puct_move/raw_move"
+        )
+    preferred_move = int(preferred_move)
+    baseline_move = int(baseline_move)
+    if preferred_move == baseline_move:
+        raise ValueError(
+            f"{path}:{row_number} pairwise preferred and baseline moves must differ"
+        )
+    if not (0 <= preferred_move < POLICY_SIZE) or not (
+        0 <= baseline_move < POLICY_SIZE
+    ):
+        raise ValueError(
+            f"{path}:{row_number} pairwise moves must stay within [0, {POLICY_SIZE - 1}]"
+        )
+    return preferred_move, baseline_move
+
+
+def load_pairwise_jsonl(
+    path: Path,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    states = []
+    preferred_moves = []
+    baseline_moves = []
+
+    with path.open("r", encoding="utf-8") as handle:
+        for row_number, line in enumerate(handle, start=1):
+            row = json.loads(line)
+            preferred_move, baseline_move = _pairwise_moves_for_row(
+                row, path=path, row_number=row_number
+            )
+            legal_moves = derive_legal_moves_from_encoded_state(row["state"])
+            if legal_moves is not None:
+                if (
+                    preferred_move not in legal_moves
+                    or baseline_move not in legal_moves
+                ):
+                    raise ValueError(
+                        f"{path}:{row_number} pairwise moves must be legal for the encoded state"
+                    )
+            states.append(row["state"])
+            preferred_moves.append(preferred_move)
+            baseline_moves.append(baseline_move)
+
+    x = np.asarray(states, dtype=np.float32)
+    preferred = np.asarray(preferred_moves, dtype=np.int64)
+    baseline = np.asarray(baseline_moves, dtype=np.int64)
+    return x, preferred, baseline
+
+
+def load_pairwise_jsonl_replay(
+    paths: list[Path], weights: list[int] | None = None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    if not paths:
+        raise ValueError("at least one pairwise replay path is required")
+    if weights is None:
+        weights = [1] * len(paths)
+    if len(weights) != len(paths):
+        raise ValueError("pairwise replay weights must match replay path count")
+    if any(weight <= 0 for weight in weights):
+        raise ValueError("pairwise replay weights must be positive integers")
+
+    x_chunks: list[np.ndarray] = []
+    preferred_chunks: list[np.ndarray] = []
+    baseline_chunks: list[np.ndarray] = []
+    replay_index_chunks: list[np.ndarray] = []
+    row_offset = 0
+
+    for path, weight in zip(paths, weights):
+        x, preferred, baseline = load_pairwise_jsonl(path)
+        x_chunks.append(x)
+        preferred_chunks.append(preferred)
+        baseline_chunks.append(baseline)
+        compact_indexes = np.arange(row_offset, row_offset + x.shape[0], dtype=np.int64)
+        replay_index_chunks.append(np.tile(compact_indexes, weight))
+        row_offset += x.shape[0]
+
+    return (
+        np.concatenate(x_chunks, axis=0),
+        np.concatenate(preferred_chunks, axis=0),
+        np.concatenate(baseline_chunks, axis=0),
+        np.concatenate(replay_index_chunks, axis=0),
+    )
+
+
 def parse_replay_paths(text: str | None) -> list[Path]:
     if not text:
         return []
@@ -393,6 +485,20 @@ def compute_policy_cross_entropy(
 ) -> torch.Tensor:
     log_probs = torch.log_softmax(logits, dim=1)
     return -(targets * log_probs).sum(dim=1)
+
+
+def compute_pairwise_ranking_loss(
+    logits: torch.Tensor,
+    preferred_moves: torch.Tensor,
+    baseline_moves: torch.Tensor,
+    *,
+    margin: float,
+) -> torch.Tensor:
+    preferred_logits = logits.gather(1, preferred_moves.reshape(-1, 1)).reshape(-1)
+    baseline_logits = logits.gather(1, baseline_moves.reshape(-1, 1)).reshape(-1)
+    return torch.nn.functional.softplus(
+        float(margin) - (preferred_logits - baseline_logits)
+    )
 
 
 def compute_value_loss_vector(
@@ -426,16 +532,58 @@ def train_one_epoch(
     value_loss: str,
     huber_delta: float,
     grad_clip: float | None,
+    pairwise_x: np.ndarray | None = None,
+    pairwise_preferred_moves: np.ndarray | None = None,
+    pairwise_baseline_moves: np.ndarray | None = None,
+    pairwise_replay_indexes: np.ndarray | None = None,
+    pairwise_loss_weight: float = 0.0,
+    pairwise_margin: float = 0.0,
     behavior_anchor_x: np.ndarray | None = None,
     behavior_anchor_p: np.ndarray | None = None,
     behavior_anchor_replay_indexes: np.ndarray | None = None,
     behavior_loss_weight: float = 0.0,
 ) -> dict[str, float | None]:
     model.train()
-    x_all = torch.from_numpy(compact_x).to(device)
-    p_all = torch.from_numpy(compact_p).to(device)
-    v_all = torch.from_numpy(compact_v).to(device)
-    replay_tensor = torch.from_numpy(replay_indexes).to(device)
+    use_supervised = compact_x.shape[0] > 0 and replay_indexes.size > 0
+    use_pairwise = (
+        pairwise_loss_weight > 0.0
+        and pairwise_x is not None
+        and pairwise_preferred_moves is not None
+        and pairwise_baseline_moves is not None
+        and pairwise_replay_indexes is not None
+        and pairwise_replay_indexes.size > 0
+    )
+    if not use_supervised and not use_pairwise:
+        raise ValueError(
+            "train_one_epoch requires supervised or pairwise training rows"
+        )
+
+    x_all = torch.from_numpy(compact_x).to(device) if compact_x.shape[0] > 0 else None
+    p_all = torch.from_numpy(compact_p).to(device) if compact_p.shape[0] > 0 else None
+    v_all = torch.from_numpy(compact_v).to(device) if compact_v.shape[0] > 0 else None
+    replay_tensor = (
+        torch.from_numpy(replay_indexes).to(device) if use_supervised else None
+    )
+    pairwise_x_all = (
+        torch.from_numpy(pairwise_x).to(device) if pairwise_x is not None else None
+    )
+    pairwise_preferred_tensor = (
+        torch.from_numpy(pairwise_preferred_moves).to(device)
+        if pairwise_preferred_moves is not None
+        else None
+    )
+    pairwise_baseline_tensor = (
+        torch.from_numpy(pairwise_baseline_moves).to(device)
+        if pairwise_baseline_moves is not None
+        else None
+    )
+    pairwise_replay_tensor = (
+        torch.from_numpy(pairwise_replay_indexes).to(device)
+        if pairwise_replay_indexes is not None
+        else None
+    )
+    pairwise_permutation = None
+    pairwise_position = 0
     behavior_anchor_x_all = None
     behavior_anchor_p_all = None
     behavior_anchor_replay_tensor = None
@@ -448,6 +596,11 @@ def train_one_epoch(
         and behavior_anchor_replay_indexes is not None
         and behavior_anchor_replay_indexes.size > 0
     )
+    if use_pairwise:
+        assert pairwise_replay_tensor is not None
+        pairwise_permutation = torch.randperm(
+            pairwise_replay_tensor.size(0), device=device
+        )
     if use_behavior_anchors:
         behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
         behavior_anchor_p_all = torch.from_numpy(behavior_anchor_p).to(device)
@@ -457,33 +610,81 @@ def train_one_epoch(
         behavior_anchor_permutation = torch.randperm(
             behavior_anchor_replay_tensor.size(0), device=device
         )
-    permutation = torch.randperm(replay_tensor.size(0), device=device)
+    if use_supervised:
+        assert replay_tensor is not None
+        permutation = torch.randperm(replay_tensor.size(0), device=device)
+    else:
+        assert pairwise_replay_tensor is not None
+        permutation = torch.randperm(pairwise_replay_tensor.size(0), device=device)
     policy_losses: list[float] = []
     value_losses: list[float] = []
+    pairwise_losses: list[float] = []
     behavior_anchor_losses: list[float] = []
     total_losses: list[float] = []
     grad_norms: list[float] = []
-    for start in range(0, replay_tensor.size(0), batch_size):
+    total_primary_rows = int(permutation.size(0))
+    for start in range(0, total_primary_rows, batch_size):
         indexes = permutation[start : start + batch_size]
-        batch_replay_indexes = replay_tensor[indexes]
-        batch_x = x_all[batch_replay_indexes]
-        batch_p = p_all[batch_replay_indexes]
-        batch_v = v_all[batch_replay_indexes]
-        logits, value_pred = model(batch_x)
-        policy_loss = compute_policy_cross_entropy(logits, batch_p).mean()
-        value_component = compute_value_loss_vector(
-            value_pred,
-            batch_v,
-            value_loss=value_loss,
-            huber_delta=huber_delta,
-        ).mean()
+        primary_replay_tensor = (
+            replay_tensor if use_supervised else pairwise_replay_tensor
+        )
+        assert primary_replay_tensor is not None
+        batch_primary_replay_indexes = primary_replay_tensor[indexes]
+        batch_size_actual = int(batch_primary_replay_indexes.size(0))
+
+        policy_loss = torch.zeros((), device=device)
+        value_component = torch.zeros((), device=device)
+        if use_supervised:
+            assert x_all is not None
+            assert p_all is not None
+            assert v_all is not None
+            batch_x = x_all[batch_primary_replay_indexes]
+            batch_p = p_all[batch_primary_replay_indexes]
+            batch_v = v_all[batch_primary_replay_indexes]
+            logits, value_pred = model(batch_x)
+            policy_loss = compute_policy_cross_entropy(logits, batch_p).mean()
+            value_component = compute_value_loss_vector(
+                value_pred,
+                batch_v,
+                value_loss=value_loss,
+                huber_delta=huber_delta,
+            ).mean()
+
+        pairwise_loss = torch.zeros((), device=device)
+        if use_pairwise:
+            assert pairwise_x_all is not None
+            assert pairwise_preferred_tensor is not None
+            assert pairwise_baseline_tensor is not None
+            assert pairwise_replay_tensor is not None
+            assert pairwise_permutation is not None
+            if use_supervised:
+                if pairwise_position + batch_size_actual > pairwise_permutation.size(0):
+                    pairwise_permutation = torch.randperm(
+                        pairwise_replay_tensor.size(0), device=device
+                    )
+                    pairwise_position = 0
+                pairwise_indexes = pairwise_permutation[
+                    pairwise_position : pairwise_position + batch_size_actual
+                ]
+                pairwise_position += batch_size_actual
+                batch_pairwise_replay_indexes = pairwise_replay_tensor[pairwise_indexes]
+            else:
+                batch_pairwise_replay_indexes = batch_primary_replay_indexes
+            pairwise_batch_x = pairwise_x_all[batch_pairwise_replay_indexes]
+            pairwise_logits, _pairwise_value_pred = model(pairwise_batch_x)
+            pairwise_loss = compute_pairwise_ranking_loss(
+                pairwise_logits,
+                pairwise_preferred_tensor[batch_pairwise_replay_indexes],
+                pairwise_baseline_tensor[batch_pairwise_replay_indexes],
+                margin=pairwise_margin,
+            ).mean()
         behavior_anchor_loss = torch.zeros((), device=device)
         if use_behavior_anchors:
             assert behavior_anchor_x_all is not None
             assert behavior_anchor_p_all is not None
             assert behavior_anchor_replay_tensor is not None
             assert behavior_anchor_permutation is not None
-            anchor_count = batch_replay_indexes.size(0)
+            anchor_count = batch_size_actual
             if (
                 behavior_anchor_position + anchor_count
                 > behavior_anchor_permutation.size(0)
@@ -506,6 +707,7 @@ def train_one_epoch(
         total_loss = (
             policy_loss
             + (value_loss_weight * value_component)
+            + (pairwise_loss_weight * pairwise_loss)
             + (behavior_loss_weight * behavior_anchor_loss)
         )
         optimizer.zero_grad(set_to_none=True)
@@ -522,11 +724,13 @@ def train_one_epoch(
         optimizer.step()
         policy_losses.append(float(policy_loss.detach().cpu().item()))
         value_losses.append(float(value_component.detach().cpu().item()))
+        pairwise_losses.append(float(pairwise_loss.detach().cpu().item()))
         behavior_anchor_losses.append(float(behavior_anchor_loss.detach().cpu().item()))
         total_losses.append(float(total_loss.detach().cpu().item()))
     return {
         "policy_loss": float(np.mean(policy_losses)) if policy_losses else 0.0,
         "value_loss": float(np.mean(value_losses)) if value_losses else 0.0,
+        "pairwise_loss": float(np.mean(pairwise_losses)) if pairwise_losses else 0.0,
         "behavior_anchor_loss": float(np.mean(behavior_anchor_losses))
         if behavior_anchor_losses
         else 0.0,
@@ -702,6 +906,12 @@ def train(
     save_epochs: set[int] | None = None,
     save_epochs_dir: Path | None = None,
     save_epochs_base: str | None = None,
+    pairwise_x: np.ndarray | None = None,
+    pairwise_preferred_moves: np.ndarray | None = None,
+    pairwise_baseline_moves: np.ndarray | None = None,
+    pairwise_replay_indexes: np.ndarray | None = None,
+    pairwise_loss_weight: float = 0.0,
+    pairwise_margin: float = 0.0,
     behavior_anchor_x: np.ndarray | None = None,
     behavior_anchor_p: np.ndarray | None = None,
     behavior_anchor_v: np.ndarray | None = None,
@@ -711,18 +921,75 @@ def train(
     model.to(device)
     model.train()
 
-    compact_size = x.shape[0]
-    if replay_indexes is None:
-        replay_indexes_array = np.arange(compact_size, dtype=np.int64)
-    elif np.any((replay_indexes < 0) | (replay_indexes >= compact_size)):
-        raise ValueError("replay indexes must point to valid samples")
+    use_supervised = x.shape[0] > 0
+    if use_supervised:
+        compact_size = x.shape[0]
+        if replay_indexes is None:
+            replay_indexes_array = np.arange(compact_size, dtype=np.int64)
+        elif np.any((replay_indexes < 0) | (replay_indexes >= compact_size)):
+            raise ValueError("replay indexes must point to valid samples")
+        else:
+            replay_indexes_array = replay_indexes.astype(np.int64, copy=False)
+        train_positions, val_positions = split_replay_positions_by_source_row(
+            replay_indexes_array, val_split=val_split
+        )
+        train_replay_indexes = replay_indexes_array[train_positions]
+        val_replay_indexes = (
+            torch.from_numpy(replay_indexes_array[val_positions]).to(device)
+            if val_positions.shape[0] > 0
+            else None
+        )
+        val_count = int(val_positions.shape[0])
     else:
-        replay_indexes_array = replay_indexes.astype(np.int64, copy=False)
+        replay_indexes_array = np.zeros((0,), dtype=np.int64)
+        train_replay_indexes = replay_indexes_array
+        val_replay_indexes = None
+        val_count = 0
 
-    train_positions, val_positions = split_replay_positions_by_source_row(
-        replay_indexes_array, val_split=val_split
+    pairwise_val_count = 0
+    pairwise_x_all = None
+    pairwise_preferred_all = None
+    pairwise_baseline_all = None
+    pairwise_train_replay_indexes = None
+    pairwise_val_replay_indexes = None
+    use_pairwise = (
+        pairwise_loss_weight > 0.0
+        and pairwise_x is not None
+        and pairwise_preferred_moves is not None
+        and pairwise_baseline_moves is not None
+        and pairwise_replay_indexes is not None
+        and pairwise_replay_indexes.size > 0
     )
-    val_count = int(val_positions.shape[0])
+    if use_pairwise:
+        assert pairwise_x is not None
+        assert pairwise_preferred_moves is not None
+        assert pairwise_baseline_moves is not None
+        assert pairwise_replay_indexes is not None
+        compact_pairwise_size = pairwise_x.shape[0]
+        if np.any(
+            (pairwise_replay_indexes < 0)
+            | (pairwise_replay_indexes >= compact_pairwise_size)
+        ):
+            raise ValueError("pairwise replay indexes must point to valid samples")
+        pairwise_train_positions, pairwise_val_positions = (
+            split_replay_positions_by_source_row(
+                pairwise_replay_indexes, val_split=val_split
+            )
+        )
+        pairwise_val_count = int(pairwise_val_positions.shape[0])
+        pairwise_x_all = torch.from_numpy(pairwise_x).to(device)
+        pairwise_preferred_all = torch.from_numpy(pairwise_preferred_moves).to(device)
+        pairwise_baseline_all = torch.from_numpy(pairwise_baseline_moves).to(device)
+        pairwise_train_replay_indexes = pairwise_replay_indexes[
+            pairwise_train_positions
+        ]
+        if pairwise_val_count > 0:
+            pairwise_val_replay_indexes = torch.from_numpy(
+                pairwise_replay_indexes[pairwise_val_positions]
+            ).to(device)
+
+    if not use_supervised and not use_pairwise:
+        raise ValueError("train requires supervised or pairwise training rows")
 
     behavior_anchor_val_count = 0
     behavior_anchor_x_all = None
@@ -764,15 +1031,9 @@ def train(
                 behavior_anchor_replay_indexes[behavior_anchor_val_positions]
             ).to(device)
 
-    x_all = torch.from_numpy(x).to(device)
-    p_all = torch.from_numpy(p_target).to(device)
-    v_all = torch.from_numpy(v_target).to(device)
-    train_replay_indexes = replay_indexes_array[train_positions]
-    val_replay_indexes = (
-        torch.from_numpy(replay_indexes_array[val_positions]).to(device)
-        if val_count > 0
-        else None
-    )
+    x_all = torch.from_numpy(x).to(device) if use_supervised else None
+    p_all = torch.from_numpy(p_target).to(device) if use_supervised else None
+    v_all = torch.from_numpy(v_target).to(device) if use_supervised else None
 
     optimizer = torch.optim.Adam(
         (p for p in model.parameters() if p.requires_grad),
@@ -788,6 +1049,7 @@ def train(
 
     policy_loss_value = 0.0
     value_loss_value = 0.0
+    pairwise_loss_value = 0.0
     behavior_anchor_loss_value = 0.0
     total_loss_value = 0.0
     best_val_loss = float("inf")
@@ -817,6 +1079,12 @@ def train(
             value_loss=value_loss,
             huber_delta=huber_delta,
             grad_clip=grad_clip,
+            pairwise_x=pairwise_x,
+            pairwise_preferred_moves=pairwise_preferred_moves,
+            pairwise_baseline_moves=pairwise_baseline_moves,
+            pairwise_replay_indexes=pairwise_train_replay_indexes,
+            pairwise_loss_weight=pairwise_loss_weight,
+            pairwise_margin=pairwise_margin,
             behavior_anchor_x=behavior_anchor_x,
             behavior_anchor_p=behavior_anchor_p,
             behavior_anchor_replay_indexes=behavior_anchor_train_replay_indexes,
@@ -824,26 +1092,58 @@ def train(
         )
         policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
         value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
+        pairwise_loss_value = float(epoch_metrics["pairwise_loss"] or 0.0)
         behavior_anchor_loss_value = float(epoch_metrics["behavior_anchor_loss"] or 0.0)
         total_loss_value = float(epoch_metrics["total_loss"] or 0.0)
 
         if scheduler is not None:
             scheduler.step()
 
-        if val_count > 0:
+        if val_count > 0 or pairwise_val_count > 0:
             model.eval()
             with torch.no_grad():
-                x_val = x_all[val_replay_indexes]
-                p_val = p_all[val_replay_indexes]
-                v_val = v_all[val_replay_indexes]
-                val_logits, val_value_pred = model(x_val)
-                val_policy_loss = compute_policy_cross_entropy(val_logits, p_val).mean()
-                val_value_loss = compute_value_loss_vector(
-                    val_value_pred,
-                    v_val,
-                    value_loss=value_loss,
-                    huber_delta=huber_delta,
-                ).mean()
+                val_policy_loss = torch.zeros((), device=device)
+                val_value_loss = torch.zeros((), device=device)
+                if (
+                    use_supervised
+                    and val_count > 0
+                    and x_all is not None
+                    and p_all is not None
+                    and v_all is not None
+                    and val_replay_indexes is not None
+                ):
+                    x_val = x_all[val_replay_indexes]
+                    p_val = p_all[val_replay_indexes]
+                    v_val = v_all[val_replay_indexes]
+                    val_logits, val_value_pred = model(x_val)
+                    val_policy_loss = compute_policy_cross_entropy(
+                        val_logits, p_val
+                    ).mean()
+                    val_value_loss = compute_value_loss_vector(
+                        val_value_pred,
+                        v_val,
+                        value_loss=value_loss,
+                        huber_delta=huber_delta,
+                    ).mean()
+                val_pairwise_loss = torch.zeros((), device=device)
+                if (
+                    use_pairwise
+                    and pairwise_val_count > 0
+                    and pairwise_x_all is not None
+                    and pairwise_preferred_all is not None
+                    and pairwise_baseline_all is not None
+                    and pairwise_val_replay_indexes is not None
+                ):
+                    pairwise_val_x = pairwise_x_all[pairwise_val_replay_indexes]
+                    pairwise_val_logits, _pairwise_val_value_pred = model(
+                        pairwise_val_x
+                    )
+                    val_pairwise_loss = compute_pairwise_ranking_loss(
+                        pairwise_val_logits,
+                        pairwise_preferred_all[pairwise_val_replay_indexes],
+                        pairwise_baseline_all[pairwise_val_replay_indexes],
+                        margin=pairwise_margin,
+                    ).mean()
                 val_behavior_anchor_loss = torch.zeros((), device=device)
                 if (
                     use_behavior_anchors
@@ -866,6 +1166,7 @@ def train(
                     (
                         val_policy_loss
                         + (value_loss_weight * val_value_loss)
+                        + (pairwise_loss_weight * val_pairwise_loss)
                         + (behavior_loss_weight * val_behavior_anchor_loss)
                     )
                     .cpu()
@@ -906,8 +1207,11 @@ def train(
     model.last_train_metrics = {
         "policy_loss": policy_loss_value,
         "value_loss": value_loss_value,
+        "pairwise_loss": pairwise_loss_value,
         "behavior_anchor_loss": behavior_anchor_loss_value,
         "total_loss": total_loss_value,
+        "pairwise_loss_weight": float(pairwise_loss_weight),
+        "pairwise_margin": float(pairwise_margin),
         "behavior_loss_weight": float(behavior_loss_weight),
     }
 
@@ -1342,6 +1646,23 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="Comma-separated JSONL behavior-anchor files with policy targets to preserve",
     )
     parser.add_argument(
+        "--pairwise-target-files",
+        default=None,
+        help="Comma-separated JSONL pairwise target files with puct_move/raw_move rows",
+    )
+    parser.add_argument(
+        "--pairwise-loss-weight",
+        type=float,
+        default=0.0,
+        help="Weight for pairwise policy-head ranking loss",
+    )
+    parser.add_argument(
+        "--pairwise-margin",
+        type=float,
+        default=0.0,
+        help="Required preferred-minus-baseline logit margin for pairwise loss",
+    )
+    parser.add_argument(
         "--behavior-loss-weight",
         type=float,
         default=0.0,
@@ -1369,6 +1690,11 @@ def main() -> None:
     replay_paths = parse_replay_paths(args.data_files)
     replay_weights = parse_replay_weights(args.replay_weights)
     replay_indexes = None
+    pairwise_target_paths = parse_replay_paths(args.pairwise_target_files)
+    pairwise_target_replay_indexes = None
+    pairwise_x = None
+    pairwise_preferred_moves = None
+    pairwise_baseline_moves = None
     behavior_anchor_paths = parse_replay_paths(args.behavior_anchor_files)
     behavior_anchor_replay_indexes = None
     behavior_anchor_x = None
@@ -1387,6 +1713,11 @@ def main() -> None:
     elif EXCLUDED_TRAINING_BUCKETS:
         exclude_buckets = EXCLUDED_TRAINING_BUCKETS_SET
 
+    input_size = input_size_for_encoding(args.input_encoding)
+    empty_x = np.zeros((0, input_size), dtype=np.float32)
+    empty_p = np.zeros((0, POLICY_SIZE), dtype=np.float32)
+    empty_v = np.zeros((0, 1), dtype=np.float32)
+
     if replay_paths:
         x, p_target, v_target, replay_indexes = load_jsonl_replay(
             replay_paths,
@@ -1396,14 +1727,23 @@ def main() -> None:
             exclude_buckets=exclude_buckets,
         )
     else:
-        if data_path is None:
-            raise SystemExit("--data is required when --data-files is not provided")
-        x, p_target, v_target = load_jsonl(
-            data_path,
-            policy_target_mode=policy_target_mode,
-            value_target_mode=value_target_mode,
-            exclude_buckets=exclude_buckets,
-        )
+        if data_path is not None:
+            x, p_target, v_target = load_jsonl(
+                data_path,
+                policy_target_mode=policy_target_mode,
+                value_target_mode=value_target_mode,
+                exclude_buckets=exclude_buckets,
+            )
+        else:
+            x, p_target, v_target = empty_x, empty_p, empty_v
+    if pairwise_target_paths:
+        (
+            pairwise_x,
+            pairwise_preferred_moves,
+            pairwise_baseline_moves,
+            pairwise_target_replay_indexes,
+        ) = load_pairwise_jsonl_replay(pairwise_target_paths, replay_weights)
+        validate_input_features(pairwise_x, input_encoding=args.input_encoding)
     if behavior_anchor_paths:
         (
             behavior_anchor_x,
@@ -1417,11 +1757,16 @@ def main() -> None:
             exclude_buckets=exclude_buckets,
         )
         validate_input_features(behavior_anchor_x, input_encoding=args.input_encoding)
-    validate_input_features(x, input_encoding=args.input_encoding)
+    if x.shape[0] > 0:
+        validate_input_features(x, input_encoding=args.input_encoding)
+    if x.shape[0] == 0 and pairwise_x is None:
+        raise SystemExit(
+            "training requires --data/--data-files or --pairwise-target-files"
+        )
     model = PolicyValueNet(
         hidden_sizes=hidden_sizes,
         model_type=args.model_type,
-        input_size=input_size_for_encoding(args.input_encoding),
+        input_size=input_size,
     )
     if args.init_checkpoint:
         load_checkpoint_into_model(model, Path(args.init_checkpoint))
@@ -1469,6 +1814,12 @@ def main() -> None:
         save_epochs=save_epochs_set,
         save_epochs_dir=save_epochs_dir,
         save_epochs_base=save_epochs_base,
+        pairwise_x=pairwise_x,
+        pairwise_preferred_moves=pairwise_preferred_moves,
+        pairwise_baseline_moves=pairwise_baseline_moves,
+        pairwise_replay_indexes=pairwise_target_replay_indexes,
+        pairwise_loss_weight=args.pairwise_loss_weight,
+        pairwise_margin=args.pairwise_margin,
         behavior_anchor_x=behavior_anchor_x,
         behavior_anchor_p=behavior_anchor_p,
         behavior_anchor_v=behavior_anchor_v,
@@ -1487,6 +1838,7 @@ def main() -> None:
     print(f"policy_loss={policy_loss:.6f}")
     print(f"value_loss={value_loss:.6f}")
     last_train_metrics = getattr(model, "last_train_metrics", {})
+    print(f"pairwise_loss={float(last_train_metrics.get('pairwise_loss', 0.0)):.6f}")
     print(
         "behavior_anchor_loss="
         f"{float(last_train_metrics.get('behavior_anchor_loss', 0.0)):.6f}"
