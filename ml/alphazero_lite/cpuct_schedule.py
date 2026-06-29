@@ -5,6 +5,10 @@ import math
 from typing import Any
 
 
+DEFAULT_RUNTIME_C_PUCT = 1.25
+DEFAULT_RUNTIME_C_PUCT_SCHEDULE = {"768:768": 0.90}
+
+
 def budget_pair_label(challenger_simulations: int, current_simulations: int) -> str:
     return f"{int(challenger_simulations)}:{int(current_simulations)}"
 
@@ -67,3 +71,18 @@ def schedule_definition(
         "default_c_puct": float(default_c_puct),
         "overrides": normalize_cpuct_schedule(schedule or {}),
     }
+
+
+def default_runtime_schedule() -> dict[str, float]:
+    return normalize_cpuct_schedule(DEFAULT_RUNTIME_C_PUCT_SCHEDULE)
+
+
+def default_runtime_schedule_json() -> str:
+    return json.dumps(default_runtime_schedule(), sort_keys=True)
+
+
+def default_runtime_schedule_definition() -> dict[str, Any]:
+    return schedule_definition(
+        default_c_puct=DEFAULT_RUNTIME_C_PUCT,
+        schedule=default_runtime_schedule(),
+    )
