@@ -112,6 +112,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--value-trust-opening", type=float, default=None)
     parser.add_argument("--value-trust-midgame", type=float, default=None)
     parser.add_argument("--value-trust-late", type=float, default=None)
+    parser.add_argument("--value-transform-json", default=None)
     parser.add_argument("--root-prior-transform", default=None)
     parser.add_argument("--challenger-root-prior-transform", default=None)
     parser.add_argument("--current-root-prior-transform", default=None)
@@ -137,6 +138,7 @@ def run_arena(
     value_trust_opening: float | None = None,
     value_trust_midgame: float | None = None,
     value_trust_late: float | None = None,
+    value_transform_json: str | None = None,
     root_prior_transform: str | None = None,
     challenger_root_prior_transform: str | None = None,
     current_root_prior_transform: str | None = None,
@@ -183,6 +185,8 @@ def run_arena(
         cmd.extend(["--value-trust-midgame", str(value_trust_midgame)])
     if value_trust_late is not None:
         cmd.extend(["--value-trust-late", str(value_trust_late)])
+    if value_transform_json is not None:
+        cmd.extend(["--value-transform-json", str(value_transform_json)])
     if root_prior_transform is not None:
         cmd.extend(["--root-prior-transform", str(root_prior_transform)])
     if challenger_root_prior_transform is not None:
@@ -281,6 +285,7 @@ def run_seat_aware_evaluation(
                 value_trust_opening=args.value_trust_opening,
                 value_trust_midgame=args.value_trust_midgame,
                 value_trust_late=args.value_trust_late,
+                value_transform_json=args.value_transform_json,
                 root_prior_transform=args.root_prior_transform,
                 challenger_root_prior_transform=args.challenger_root_prior_transform,
                 current_root_prior_transform=args.current_root_prior_transform,
@@ -355,6 +360,7 @@ def run_seat_aware_evaluation(
                     value_trust_opening=args.value_trust_opening,
                     value_trust_midgame=args.value_trust_midgame,
                     value_trust_late=args.value_trust_late,
+                    value_transform_json=args.value_transform_json,
                     root_prior_transform=args.root_prior_transform,
                     challenger_root_prior_transform=args.challenger_root_prior_transform,
                     current_root_prior_transform=args.current_root_prior_transform,

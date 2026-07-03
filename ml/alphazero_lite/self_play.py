@@ -38,6 +38,13 @@ from ml.alphazero_lite.search_ablation import (
     flat_legal_priors,
     neutral_value,
 )
+from ml.alphazero_lite.value_transforms import (
+    apply_value_transform,
+    normalize_value_transform_config,
+    parse_value_transform_json,
+    phase_bucket_for_game,
+    value_transform_summary_for_phase,
+)
 
 
 PITS_PER_PLAYER = 6
@@ -222,6 +229,7 @@ def build_search_options(
     tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
     root_temperature: float = DEFAULT_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
+    value_transform: dict | None = None,
 ) -> SearchOptions:
     root_policy_mode = normalize_root_policy_mode(root_policy_mode)
     root_temperature = max(0.0, float(root_temperature))
@@ -238,6 +246,9 @@ def build_search_options(
     )
     if normalized_value_trust_schedule is not None:
         options["value_trust_schedule"] = normalized_value_trust_schedule
+    normalized_value_transform = normalize_value_transform_config(value_transform)
+    if normalized_value_transform is not None:
+        options["value_transform"] = normalized_value_transform
     return options
 
 
@@ -293,6 +304,7 @@ def build_eval_search_options(
     tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
     root_temperature: float = DEFAULT_EVAL_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
+    value_transform: dict | None = None,
 ) -> SearchOptions:
     return build_search_options(
         fpu_mode=fpu_mode,
@@ -302,6 +314,7 @@ def build_eval_search_options(
         tactical_root_bias=tactical_root_bias,
         root_temperature=root_temperature,
         value_trust_schedule=value_trust_schedule,
+        value_transform=value_transform,
     )
 
 
@@ -321,6 +334,7 @@ def build_search_profile(
         root_policy_mode=str(search_options["root_policy_mode"]),
         tactical_root_bias=float(search_options["tactical_root_bias"]),
         value_trust_schedule=search_options.get("value_trust_schedule"),
+        value_transform=search_options.get("value_transform"),
     )
     profile = {
         "version": "v1",
@@ -597,6 +611,7 @@ def add_search_option_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--value-trust-opening", type=float, default=None)
     parser.add_argument("--value-trust-midgame", type=float, default=None)
     parser.add_argument("--value-trust-late", type=float, default=None)
+    parser.add_argument("--value-transform-json", default=None)
 
 
 def value_trust_schedule_from_args(
@@ -628,6 +643,9 @@ def search_options_from_args(args: argparse.Namespace) -> SearchOptions:
             args, "root_temperature", DEFAULT_SEARCH_OPTIONS["root_temperature"]
         ),
         value_trust_schedule=value_trust_schedule_from_args(args),
+        value_transform=parse_value_transform_json(
+            getattr(args, "value_transform_json", None)
+        ),
     )
 
 
@@ -886,6 +904,7 @@ class PUCT:
         tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
         root_temperature: float = DEFAULT_SEARCH_OPTIONS["root_temperature"],
         value_trust_schedule: dict | None = None,
+        value_transform: dict | None = None,
         ablation_mode: str | None = None,
         root_prior_override: Callable[..., np.ndarray] | None = None,
     ):
@@ -901,6 +920,7 @@ class PUCT:
         self.tactical_root_bias = float(tactical_root_bias)
         self.root_temperature = max(0.0, float(root_temperature))
         self.value_trust_schedule = normalize_value_trust_schedule(value_trust_schedule)
+        self.value_transform = normalize_value_transform_config(value_transform)
         self.ablation_mode = build_mode_config(ablation_mode or "full")
         self.root_prior_override = root_prior_override
         self._last_root: Node | None = None
@@ -908,6 +928,7 @@ class PUCT:
         self._last_root_prior_before: list[float] | None = None
         self._last_root_prior_after: list[float] | None = None
         self._last_root_prior_telemetry: dict | None = None
+        self._last_root_evaluation_value: float | None = None
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -916,6 +937,7 @@ class PUCT:
             tactical_root_bias=self.tactical_root_bias,
             root_temperature=self.root_temperature,
             value_trust_schedule=self.value_trust_schedule,
+            value_transform=self.value_transform,
         )
 
     def _visit_snapshot_checkpoints(self) -> set[int]:
@@ -940,6 +962,7 @@ class PUCT:
         self._last_root_prior_before = None
         self._last_root_prior_after = None
         self._last_root_prior_telemetry = None
+        self._last_root_evaluation_value = None
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -984,6 +1007,7 @@ class PUCT:
             "selected_move": selection_breakdown["selected_move"],
             "child_stats": child_stats,
             "value_trust": self._value_trust_summary_for(self._last_root.game),
+            "value_transform": self._value_transform_summary_for(self._last_root.game),
             "selection_breakdown": selection_breakdown,
             "visit_snapshots": list(self._last_visit_snapshots),
             "root_prior_telemetry": {
@@ -1172,12 +1196,7 @@ class PUCT:
         }
 
     def _value_trust_phase_key_for(self, game: KalahGame) -> str:
-        seeds_remaining = sum(game.pits)
-        if seeds_remaining <= 12:
-            return "late"
-        if seeds_remaining <= 24:
-            return "midgame"
-        return "opening"
+        return phase_bucket_for_game(game)
 
     def _effective_value_trust_multiplier_for(self, game: KalahGame) -> float:
         if (
@@ -1186,6 +1205,25 @@ class PUCT:
         ):
             return 1.0
         return float(self.value_trust_schedule[self._value_trust_phase_key_for(game)])
+
+    def _value_transform_summary_for(self, game: KalahGame) -> dict | None:
+        if self.value_transform is None:
+            return None
+        return value_transform_summary_for_phase(
+            self.value_transform,
+            phase_bucket=phase_bucket_for_game(game),
+            identity_name=str(self.value_transform.get("name") or "identity_ref"),
+        )
+
+    def _apply_value_transform(self, value: float, game: KalahGame) -> float:
+        return apply_value_transform(
+            value,
+            phase_bucket=phase_bucket_for_game(game),
+            value_transform=self.value_transform,
+        )
+
+    def last_root_evaluation_value(self) -> float | None:
+        return self._last_root_evaluation_value
 
     def select_root_move(self, root: Node, legal_moves: list[int]) -> int:
         if not legal_moves:
@@ -1394,6 +1432,8 @@ class PUCT:
             priors = flat_legal_priors(legal_moves)
         if not self.ablation_mode["use_value"]:
             value = neutral_value()
+        elif self.value_transform is not None:
+            value = self._apply_value_transform(float(value), node.game)
 
         masked = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         if legal_moves:
@@ -1422,6 +1462,7 @@ class PUCT:
                 ] + dirichlet_epsilon * float(noise[index])
 
         if is_root:
+            self._last_root_evaluation_value = float(value)
             masked = self.apply_tactical_root_bias(node.game, masked)
             self._last_root_prior_before = [float(prior) for prior in masked.tolist()]
             masked = self._apply_root_prior_override(

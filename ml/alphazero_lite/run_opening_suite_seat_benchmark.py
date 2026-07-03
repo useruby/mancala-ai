@@ -94,6 +94,7 @@ def run_arena(
     root_temperature: float = 0.0,
     c_puct: float = 1.25,
     tactical_root_bias: float | None = None,
+    value_transform_json: str | None = None,
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -135,6 +136,8 @@ def run_arena(
     ]
     if tactical_root_bias is not None:
         cmd.extend(["--tactical-root-bias", str(tactical_root_bias)])
+    if value_transform_json is not None:
+        cmd.extend(["--value-transform-json", str(value_transform_json)])
 
     result = subprocess.run(
         cmd,
