@@ -23,6 +23,17 @@ try:
 except ModuleNotFoundError:
     from report_validation import wilson_interval_95
 
+try:
+    from ml.alphazero_lite.value_transforms import (
+        parse_value_transform_json,
+        value_transform_summary_for_phase,
+    )
+except ModuleNotFoundError:
+    from value_transforms import (
+        parse_value_transform_json,
+        value_transform_summary_for_phase,
+    )
+
 if not ARENA_STUB_MODE:
     import numpy as np
 
@@ -120,6 +131,7 @@ def add_early_search_option_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--value-trust-opening", type=float, default=1.0)
     parser.add_argument("--value-trust-midgame", type=float, default=1.0)
     parser.add_argument("--value-trust-late", type=float, default=1.0)
+    parser.add_argument("--value-transform-json", default=None)
 
 
 def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -188,6 +200,11 @@ def search_options_from_stub_args(
             "midgame": float(args.value_trust_midgame),
             "late": float(args.value_trust_late),
         }
+    value_transform = parse_value_transform_json(
+        getattr(args, "value_transform_json", None)
+    )
+    if value_transform is not None:
+        search_options["value_transform"] = value_transform
     return search_options
 
 
@@ -1049,6 +1066,21 @@ def configured_value_trust_summary(search_options: dict) -> dict | None:
     }
 
 
+def configured_value_transform_summary(search_options: dict) -> dict | None:
+    value_transform = (
+        search_options.get("value_transform")
+        if isinstance(search_options, dict)
+        else None
+    )
+    if not isinstance(value_transform, dict):
+        return None
+    return value_transform_summary_for_phase(
+        value_transform,
+        phase_bucket=None,
+        identity_name=str(value_transform.get("name") or "identity_ref"),
+    )
+
+
 def aggregate_worker_reports(
     *,
     games: int,
@@ -1100,6 +1132,18 @@ def aggregate_worker_reports(
     )
     if emitted_value_trust_summary is None:
         emitted_value_trust_summary = configured_value_trust_summary(search_options)
+    emitted_value_transform_summary = next(
+        (
+            result.get("value_transform_summary")
+            for result in results
+            if isinstance(result.get("value_transform_summary"), dict)
+        ),
+        None,
+    )
+    if emitted_value_transform_summary is None:
+        emitted_value_transform_summary = configured_value_transform_summary(
+            search_options
+        )
     emitted_root_prior_telemetry = {
         "challenger": merge_root_prior_telemetry_summaries(
             [
@@ -1139,6 +1183,10 @@ def aggregate_worker_reports(
             "search_options": search_options,
             "search_profile": emitted_search_profile,
             "search_profile_hash": emitted_search_profile_hash,
+            "value_transform_summary": emitted_value_transform_summary,
+            "value_transform_hash": None
+            if emitted_value_transform_summary is None
+            else emitted_value_transform_summary.get("hash"),
             "root_prior_transform": next(
                 (
                     result.get("root_prior_transform")
@@ -1186,6 +1234,8 @@ def aggregate_worker_reports(
     )
     if emitted_value_trust_summary is not None:
         report["value_trust_summary"] = emitted_value_trust_summary
+    if emitted_value_transform_summary is not None:
+        report["value_transform_summary"] = emitted_value_transform_summary
     attach_budget_summary(report)
     report["score"] = score
     attach_score_confidence_interval(report, threshold=float(min_score))
@@ -1307,7 +1357,7 @@ def run_arena_worker(
     reuse_subtree: bool = DEFAULT_SEARCH_OPTIONS["reuse_subtree"],
     normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
     root_policy_mode: str = DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
-    tactical_root_bias: float = DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
+    tactical_root_bias: float = 0.1,
     root_temperature: float = DEFAULT_EVAL_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
     root_prior_transform: str | None = None,
@@ -1401,6 +1451,7 @@ def run_arena_worker(
     opening_cache_hit_latency_ms: list[float] = []
     opening_cache_miss_latency_ms: list[float] = []
     value_trust_summary = None
+    value_transform_summary = None
     challenger_root_prior_telemetry_entries: list[dict] = []
     current_root_prior_telemetry_entries: list[dict] = []
     game_entries: list[dict] = []
@@ -1549,6 +1600,10 @@ def run_arena_worker(
                     puct_kwargs["value_trust_schedule"] = normalized_search_options[
                         "value_trust_schedule"
                     ]
+                if "value_transform" in normalized_search_options:
+                    puct_kwargs["value_transform"] = normalized_search_options[
+                        "value_transform"
+                    ]
                 search = PUCT(
                     evaluator=evaluator,
                     simulations=sims,
@@ -1600,6 +1655,12 @@ def run_arena_worker(
                         candidate_value_trust = root_summary.get("value_trust")
                         if isinstance(candidate_value_trust, dict):
                             value_trust_summary = candidate_value_trust
+                    if value_transform_summary is None and isinstance(
+                        root_summary, dict
+                    ):
+                        candidate_value_transform = root_summary.get("value_transform")
+                        if isinstance(candidate_value_transform, dict):
+                            value_transform_summary = candidate_value_transform
                     if isinstance(root_summary, dict):
                         root_prior_telemetry = root_summary.get("root_prior_telemetry")
                         if isinstance(root_prior_telemetry, dict):
@@ -1688,6 +1749,7 @@ def run_arena_worker(
         "search_profile": search_profile,
         "search_profile_hash": search_profile["hash"],
         "value_trust_summary": value_trust_summary,
+        "value_transform_summary": value_transform_summary,
         "root_prior_transform": root_prior_transform,
         "challenger_root_prior_transform": effective_challenger_root_prior_transform,
         "current_root_prior_transform": effective_current_root_prior_transform,
@@ -1816,6 +1878,14 @@ def main() -> None:
                     "late": float(search_options["value_trust_schedule"]["late"]),
                 },
             }
+        if "value_transform" in search_options:
+            report["value_transform_summary"] = value_transform_summary_for_phase(
+                search_options["value_transform"],
+                phase_bucket="opening",
+                identity_name=str(
+                    search_options["value_transform"].get("name") or "identity_ref"
+                ),
+            )
         report["opening_cache_summary"] = opening_cache_summary_for(
             results=[], training_summary=training_summary
         )

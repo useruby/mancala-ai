@@ -78,6 +78,51 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
 
         self.assertEqual(0.0, summary["value"])
 
+    def test_evaluate_artifact_position_identity_value_transform_matches_default(self):
+        class FakeEvaluator:
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 0.7
+                priors[1] = 0.3
+                return priors, 0.25
+
+        state = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        baseline = arena.evaluate_artifact_position(
+            evaluator=FakeEvaluator(),
+            state=state,
+            simulations=8,
+            seed=42,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(
+                root_policy_mode="deterministic"
+            ),
+        )
+        transformed = arena.evaluate_artifact_position(
+            evaluator=FakeEvaluator(),
+            state=state,
+            simulations=8,
+            seed=42,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(
+                root_policy_mode="deterministic",
+                value_transform={
+                    "name": "identity_ref",
+                    "kind": "identity",
+                    "phase_params": {},
+                },
+            ),
+        )
+
+        self.assertEqual(baseline["selected_move"], transformed["selected_move"])
+        self.assertAlmostEqual(baseline["value"], transformed["value"])
+
     def test_evaluate_artifact_position_puct_preserves_value_trust_root_summary_metadata(
         self,
     ):

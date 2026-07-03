@@ -475,6 +475,34 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         self.assertNotEqual(baseline["hash"], changed["hash"])
 
+    def test_build_search_profile_hash_changes_when_value_transform_changes(self):
+        baseline = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=96,
+            c_puct=1.25,
+            search_options=self_play.build_search_options(),
+        )
+        transformed = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=96,
+            c_puct=1.25,
+            search_options=self_play.build_search_options(
+                value_transform={
+                    "name": "opening_only_affine_tanh",
+                    "kind": "affine_tanh",
+                    "phase_params": {
+                        "opening": {"a": 0.8, "b": 0.1},
+                        "midgame": {"a": 1.0, "b": 0.0},
+                        "late": {"a": 1.0, "b": 0.0},
+                    },
+                }
+            ),
+        )
+
+        self.assertNotEqual(baseline["hash"], transformed["hash"])
+
     def test_build_search_profile_uses_classic_fields_for_classic_mode(self):
         profile = self_play.build_search_profile(
             kind="self_play",
