@@ -95,6 +95,8 @@ def run_arena(
     c_puct: float = 1.25,
     tactical_root_bias: float | None = None,
     value_transform_json: str | None = None,
+    challenger_value_transform_json: str | None = None,
+    current_value_transform_json: str | None = None,
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -138,6 +140,17 @@ def run_arena(
         cmd.extend(["--tactical-root-bias", str(tactical_root_bias)])
     if value_transform_json is not None:
         cmd.extend(["--value-transform-json", str(value_transform_json)])
+    if challenger_value_transform_json is not None:
+        cmd.extend(
+            [
+                "--challenger-value-transform-json",
+                str(challenger_value_transform_json),
+            ]
+        )
+    if current_value_transform_json is not None:
+        cmd.extend(
+            ["--current-value-transform-json", str(current_value_transform_json)]
+        )
 
     result = subprocess.run(
         cmd,

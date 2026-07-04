@@ -25,11 +25,13 @@ except ModuleNotFoundError:
 
 try:
     from ml.alphazero_lite.value_transforms import (
+        normalize_value_transform_config,
         parse_value_transform_json,
         value_transform_summary_for_phase,
     )
 except ModuleNotFoundError:
     from value_transforms import (
+        normalize_value_transform_config,
         parse_value_transform_json,
         value_transform_summary_for_phase,
     )
@@ -420,6 +422,8 @@ def parse_args() -> argparse.Namespace:
         choices=sorted(ARENA_TRANSFORM_NAMES),
         default=None,
     )
+    parser.add_argument("--challenger-value-transform-json", default=None)
+    parser.add_argument("--current-value-transform-json", default=None)
     add_search_option_args(parser)
     parser.set_defaults(
         root_policy_mode=DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
@@ -836,6 +840,8 @@ def evaluate_artifact_position(
     puct_kwargs = {}
     if "value_trust_schedule" in search_options:
         puct_kwargs["value_trust_schedule"] = search_options["value_trust_schedule"]
+    if "value_transform" in search_options:
+        puct_kwargs["value_transform"] = search_options["value_transform"]
     search = PUCT(
         evaluator=RootValueEvaluator(),
         simulations=simulations,
@@ -864,6 +870,12 @@ def evaluate_artifact_position(
     root_value_trust = None
     root_selection_breakdown = None
     root_visit_snapshots = None
+    search_root_value = None
+    root_evaluation_raw_value = None
+    root_evaluation_transformed_value = None
+    terminal_leaf_count = None
+    nonterminal_leaf_count = None
+    backed_up_value_range = None
     if isinstance(root_summary, dict):
         candidate_value_trust = root_summary.get("value_trust")
         if (
@@ -877,6 +889,30 @@ def evaluate_artifact_position(
         candidate_visit_snapshots = root_summary.get("visit_snapshots")
         if isinstance(candidate_visit_snapshots, list):
             root_visit_snapshots = candidate_visit_snapshots
+        candidate_search_root_value = root_summary.get("root_q_value")
+        if isinstance(candidate_search_root_value, (int, float)):
+            search_root_value = float(candidate_search_root_value)
+        candidate_root_evaluation_raw_value = root_summary.get(
+            "root_evaluation_raw_value"
+        )
+        if isinstance(candidate_root_evaluation_raw_value, (int, float)):
+            root_evaluation_raw_value = float(candidate_root_evaluation_raw_value)
+        candidate_root_evaluation_transformed_value = root_summary.get(
+            "root_evaluation_transformed_value"
+        )
+        if isinstance(candidate_root_evaluation_transformed_value, (int, float)):
+            root_evaluation_transformed_value = float(
+                candidate_root_evaluation_transformed_value
+            )
+        candidate_terminal_leaf_count = root_summary.get("terminal_leaf_count")
+        if isinstance(candidate_terminal_leaf_count, int):
+            terminal_leaf_count = candidate_terminal_leaf_count
+        candidate_nonterminal_leaf_count = root_summary.get("nonterminal_leaf_count")
+        if isinstance(candidate_nonterminal_leaf_count, int):
+            nonterminal_leaf_count = candidate_nonterminal_leaf_count
+        candidate_backed_up_value_range = root_summary.get("backed_up_value_range")
+        if isinstance(candidate_backed_up_value_range, dict):
+            backed_up_value_range = candidate_backed_up_value_range
         root_prior_telemetry = root_summary.get("root_prior_telemetry")
     else:
         root_prior_telemetry = None
@@ -912,6 +948,18 @@ def evaluate_artifact_position(
         result["selection_breakdown"] = root_selection_breakdown
     if root_visit_snapshots is not None:
         result["visit_snapshots"] = root_visit_snapshots
+    if search_root_value is not None:
+        result["search_root_value"] = search_root_value
+    if root_evaluation_raw_value is not None:
+        result["root_evaluation_raw_value"] = root_evaluation_raw_value
+    if root_evaluation_transformed_value is not None:
+        result["root_evaluation_transformed_value"] = root_evaluation_transformed_value
+    if terminal_leaf_count is not None:
+        result["terminal_leaf_count"] = terminal_leaf_count
+    if nonterminal_leaf_count is not None:
+        result["nonterminal_leaf_count"] = nonterminal_leaf_count
+    if backed_up_value_range is not None:
+        result["backed_up_value_range"] = backed_up_value_range
     if isinstance(root_prior_telemetry, dict):
         result["root_prior_telemetry"] = root_prior_telemetry
     return result
@@ -1360,6 +1408,9 @@ def run_arena_worker(
     tactical_root_bias: float = 0.1,
     root_temperature: float = DEFAULT_EVAL_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
+    value_transform: dict | None = None,
+    challenger_value_transform: dict | None = None,
+    current_value_transform: dict | None = None,
     root_prior_transform: str | None = None,
     challenger_root_prior_transform: str | None = None,
     current_root_prior_transform: str | None = None,
@@ -1387,6 +1438,17 @@ def run_arena_worker(
         tactical_root_bias=tactical_root_bias,
         root_temperature=root_temperature,
         value_trust_schedule=value_trust_schedule,
+        value_transform=value_transform,
+    )
+    effective_challenger_value_transform = (
+        normalize_value_transform_config(challenger_value_transform)
+        if challenger_value_transform is not None
+        else normalize_value_transform_config(value_transform)
+    )
+    effective_current_value_transform = (
+        normalize_value_transform_config(current_value_transform)
+        if current_value_transform is not None
+        else normalize_value_transform_config(value_transform)
     )
     effective_challenger_root_prior_transform = (
         challenger_root_prior_transform
@@ -1403,6 +1465,16 @@ def run_arena_worker(
         extra_fields={
             "challenger_simulations": int(challenger_simulations),
             "current_simulations": int(current_simulations),
+            **(
+                {"challenger_value_transform": effective_challenger_value_transform}
+                if effective_challenger_value_transform is not None
+                else {}
+            ),
+            **(
+                {"current_value_transform": effective_current_value_transform}
+                if effective_current_value_transform is not None
+                else {}
+            ),
             **(
                 {"root_prior_transform": str(effective_challenger_root_prior_transform)}
                 if effective_challenger_root_prior_transform
@@ -1600,10 +1672,13 @@ def run_arena_worker(
                     puct_kwargs["value_trust_schedule"] = normalized_search_options[
                         "value_trust_schedule"
                     ]
-                if "value_transform" in normalized_search_options:
-                    puct_kwargs["value_transform"] = normalized_search_options[
-                        "value_transform"
-                    ]
+                acting_value_transform = (
+                    effective_challenger_value_transform
+                    if acting_player == challenger_player
+                    else effective_current_value_transform
+                )
+                if acting_value_transform is not None:
+                    puct_kwargs["value_transform"] = acting_value_transform
                 search = PUCT(
                     evaluator=evaluator,
                     simulations=sims,
@@ -1750,6 +1825,8 @@ def run_arena_worker(
         "search_profile_hash": search_profile["hash"],
         "value_trust_summary": value_trust_summary,
         "value_transform_summary": value_transform_summary,
+        "challenger_value_transform": effective_challenger_value_transform,
+        "current_value_transform": effective_current_value_transform,
         "root_prior_transform": root_prior_transform,
         "challenger_root_prior_transform": effective_challenger_root_prior_transform,
         "current_root_prior_transform": effective_current_root_prior_transform,
@@ -1776,11 +1853,22 @@ def main() -> None:
                 "--root-prior-transform cannot be combined with --challenger-root-prior-transform"
             )
         args.challenger_root_prior_transform = args.root_prior_transform
+    if args.value_transform_json is not None:
+        if args.challenger_value_transform_json is None:
+            args.challenger_value_transform_json = args.value_transform_json
+        if args.current_value_transform_json is None:
+            args.current_value_transform_json = args.value_transform_json
 
     if os.environ.get("AZLITE_ARENA_STUB") == "1":
         out_path = Path(args.out)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         search_options = build_eval_search_options(**search_options_from_args(args))
+        challenger_value_transform = parse_value_transform_json(
+            args.challenger_value_transform_json
+        )
+        current_value_transform = parse_value_transform_json(
+            args.current_value_transform_json
+        )
         search_profile = build_search_profile(
             kind="arena_eval",
             player_mode="puct",
@@ -1792,6 +1880,16 @@ def main() -> None:
             extra_fields={
                 "challenger_simulations": int(args.challenger_simulations),
                 "current_simulations": int(args.current_simulations),
+                **(
+                    {"challenger_value_transform": challenger_value_transform}
+                    if challenger_value_transform is not None
+                    else {}
+                ),
+                **(
+                    {"current_value_transform": current_value_transform}
+                    if current_value_transform is not None
+                    else {}
+                ),
                 **(
                     {"root_prior_transform": str(args.challenger_root_prior_transform)}
                     if args.challenger_root_prior_transform
@@ -1849,6 +1947,8 @@ def main() -> None:
                 "search_options": search_options,
                 "search_profile": search_profile,
                 "search_profile_hash": search_profile["hash"],
+                "challenger_value_transform": challenger_value_transform,
+                "current_value_transform": current_value_transform,
                 "root_prior_transform": args.root_prior_transform,
                 "challenger_root_prior_transform": args.challenger_root_prior_transform,
                 "current_root_prior_transform": args.current_root_prior_transform,
@@ -1904,6 +2004,12 @@ def main() -> None:
 
     workers = max(1, args.workers)
     search_options = build_eval_search_options(**search_options_from_args(args))
+    challenger_value_transform = parse_value_transform_json(
+        args.challenger_value_transform_json
+    )
+    current_value_transform = parse_value_transform_json(
+        args.current_value_transform_json
+    )
     counts = partition_counts(args.games, workers)
     starts: list[int] = []
     cursor = 0
@@ -1945,6 +2051,9 @@ def main() -> None:
                     tactical_root_bias=float(search_options["tactical_root_bias"]),
                     root_temperature=float(search_options.get("root_temperature", 0.0)),
                     value_trust_schedule=search_options.get("value_trust_schedule"),
+                    value_transform=search_options.get("value_transform"),
+                    challenger_value_transform=challenger_value_transform,
+                    current_value_transform=current_value_transform,
                     root_prior_transform=args.root_prior_transform,
                     challenger_root_prior_transform=args.challenger_root_prior_transform,
                     current_root_prior_transform=args.current_root_prior_transform,

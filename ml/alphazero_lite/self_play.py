@@ -929,6 +929,12 @@ class PUCT:
         self._last_root_prior_after: list[float] | None = None
         self._last_root_prior_telemetry: dict | None = None
         self._last_root_evaluation_value: float | None = None
+        self._last_root_raw_evaluation_value: float | None = None
+        self._last_root_transformed_evaluation_value: float | None = None
+        self._last_terminal_leaf_count = 0
+        self._last_nonterminal_leaf_count = 0
+        self._last_backed_up_value_min: float | None = None
+        self._last_backed_up_value_max: float | None = None
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -963,6 +969,12 @@ class PUCT:
         self._last_root_prior_after = None
         self._last_root_prior_telemetry = None
         self._last_root_evaluation_value = None
+        self._last_root_raw_evaluation_value = None
+        self._last_root_transformed_evaluation_value = None
+        self._last_terminal_leaf_count = 0
+        self._last_nonterminal_leaf_count = 0
+        self._last_backed_up_value_min = None
+        self._last_backed_up_value_max = None
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -974,6 +986,16 @@ class PUCT:
 
         for simulation_index in range(1, self.simulations + 1):
             value = self._search(root)
+            if (
+                self._last_backed_up_value_min is None
+                or value < self._last_backed_up_value_min
+            ):
+                self._last_backed_up_value_min = float(value)
+            if (
+                self._last_backed_up_value_max is None
+                or value > self._last_backed_up_value_max
+            ):
+                self._last_backed_up_value_max = float(value)
             root.visit_count += 1
             root.value_sum += value
             if simulation_index in visit_snapshot_checkpoints:
@@ -1010,6 +1032,15 @@ class PUCT:
             "value_transform": self._value_transform_summary_for(self._last_root.game),
             "selection_breakdown": selection_breakdown,
             "visit_snapshots": list(self._last_visit_snapshots),
+            "root_q_value": float(self._last_root.q_value),
+            "root_evaluation_raw_value": self._last_root_raw_evaluation_value,
+            "root_evaluation_transformed_value": self._last_root_transformed_evaluation_value,
+            "terminal_leaf_count": int(self._last_terminal_leaf_count),
+            "nonterminal_leaf_count": int(self._last_nonterminal_leaf_count),
+            "backed_up_value_range": {
+                "min": self._last_backed_up_value_min,
+                "max": self._last_backed_up_value_max,
+            },
             "root_prior_telemetry": {
                 "before": None
                 if self._last_root_prior_before is None
@@ -1281,9 +1312,11 @@ class PUCT:
     def _search(self, node: Node) -> float:
         terminal = terminal_value(node.game)
         if terminal is not None:
+            self._last_terminal_leaf_count += 1
             return terminal
 
         if not node.expanded:
+            self._last_nonterminal_leaf_count += 1
             _, value = self._expand(
                 node,
                 apply_dirichlet=False,
@@ -1426,6 +1459,7 @@ class PUCT:
         is_root: bool,
     ) -> tuple[np.ndarray, float]:
         priors, value = self.evaluator.evaluate(node.game)
+        raw_value = float(value)
         legal_moves = node.game.possible_moves()
 
         if not self.ablation_mode["use_policy"]:
@@ -1434,6 +1468,8 @@ class PUCT:
             value = neutral_value()
         elif self.value_transform is not None:
             value = self._apply_value_transform(float(value), node.game)
+        else:
+            value = float(value)
 
         masked = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         if legal_moves:
@@ -1463,6 +1499,8 @@ class PUCT:
 
         if is_root:
             self._last_root_evaluation_value = float(value)
+            self._last_root_raw_evaluation_value = raw_value
+            self._last_root_transformed_evaluation_value = float(value)
             masked = self.apply_tactical_root_bias(node.game, masked)
             self._last_root_prior_before = [float(prior) for prior in masked.tolist()]
             masked = self._apply_root_prior_override(

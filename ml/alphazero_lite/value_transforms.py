@@ -7,6 +7,9 @@ from typing import Any
 
 PHASE_KEYS = ("opening", "midgame", "late")
 VALUE_TRANSFORM_SCHEMA_VERSION = "v1"
+DIAGNOSTIC_PHASE_MODES = frozenset(
+    {"identity", "zero", "negate", "sign_only", "scale_clamp"}
+)
 
 
 def identity_transform_config(*, name: str = "identity_ref") -> dict[str, Any]:
@@ -65,6 +68,19 @@ def _normalize_isotonic_phase_params(params: dict[str, Any]) -> dict[str, list[f
     return {"x": x_values, "y": y_values}
 
 
+def _normalize_diagnostic_phase_params(params: dict[str, Any]) -> dict[str, Any]:
+    mode = str(params.get("mode") or "identity").strip()
+    if mode not in DIAGNOSTIC_PHASE_MODES:
+        raise ValueError(f"unsupported diagnostic value-transform mode: {mode}")
+    normalized: dict[str, Any] = {"mode": mode}
+    if mode == "scale_clamp":
+        scale = float(params.get("scale", 1.0))
+        if not math.isfinite(scale):
+            raise ValueError("diagnostic scale_clamp scale must be finite")
+        normalized["scale"] = scale
+    return normalized
+
+
 def normalize_value_transform_config(
     value_transform: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
@@ -77,7 +93,7 @@ def normalize_value_transform_config(
         return identity_transform_config(
             name=str(value_transform.get("name") or "identity_ref")
         )
-    if kind not in {"affine_tanh", "phase_isotonic"}:
+    if kind not in {"affine_tanh", "phase_isotonic", "diagnostic_phase_transform"}:
         raise ValueError(f"unsupported value_transform kind: {kind}")
     raw_phase_params = value_transform.get("phase_params")
     if not isinstance(raw_phase_params, dict):
@@ -94,7 +110,11 @@ def normalize_value_transform_config(
         phase_params[_normalize_phase_name(phase_name)] = (
             _normalize_affine_phase_params(raw_params)
             if kind == "affine_tanh"
-            else _normalize_isotonic_phase_params(raw_params)
+            else (
+                _normalize_isotonic_phase_params(raw_params)
+                if kind == "phase_isotonic"
+                else _normalize_diagnostic_phase_params(raw_params)
+            )
         )
     return {
         "version": VALUE_TRANSFORM_SCHEMA_VERSION,
@@ -170,6 +190,24 @@ def _interpolate_isotonic(
     return float(y_values[-1])
 
 
+def _apply_diagnostic_phase_transform(value: float, *, params: dict[str, Any]) -> float:
+    mode = str(params["mode"])
+    if mode == "identity":
+        return float(value)
+    if mode == "zero":
+        return 0.0
+    if mode == "negate":
+        return float(-value)
+    if mode == "sign_only":
+        if value > 0:
+            return 1.0
+        if value < 0:
+            return -1.0
+        return 0.0
+    scale = float(params.get("scale", 1.0))
+    return clamp_unit_value(float(value) * scale)
+
+
 def apply_value_transform(
     value: float,
     *,
@@ -189,6 +227,8 @@ def apply_value_transform(
             a=float(phase_params["a"]),
             b=float(phase_params["b"]),
         )
+    if normalized["kind"] == "diagnostic_phase_transform":
+        return _apply_diagnostic_phase_transform(float(value), params=phase_params)
     return _interpolate_isotonic(
         clamp_unit_value(value),
         x_values=[float(item) for item in phase_params["x"]],

@@ -123,6 +123,194 @@ class ArenaAblationEvaluationTest(unittest.TestCase):
         self.assertEqual(baseline["selected_move"], transformed["selected_move"])
         self.assertAlmostEqual(baseline["value"], transformed["value"])
 
+    def test_evaluate_artifact_position_forwards_value_transform_to_puct(self):
+        captured = []
+
+        class FakePUCT:
+            def __init__(self, **kwargs):
+                captured.append(kwargs.get("value_transform"))
+
+            def run(self, game):
+                del game
+                return np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32), None
+
+            def select_root_move(self, root, legal_moves):
+                del root
+                return legal_moves[0]
+
+        with mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT):
+            arena.evaluate_artifact_position(
+                evaluator=mock.Mock(),
+                state={
+                    "player_pits": [4, 4, 4, 4, 4, 4],
+                    "opponent_pits": [4, 4, 4, 4, 4, 4],
+                    "player_store": 0,
+                    "opponent_store": 0,
+                    "current_player": 0,
+                },
+                simulations=8,
+                seed=42,
+                c_puct=1.25,
+                search_options=arena.build_eval_search_options(
+                    value_transform={
+                        "name": "zero_value",
+                        "kind": "diagnostic_phase_transform",
+                        "phase_params": {
+                            "opening": {"mode": "zero"},
+                            "midgame": {"mode": "zero"},
+                            "late": {"mode": "zero"},
+                        },
+                    }
+                ),
+            )
+
+        self.assertEqual("zero_value", captured[0]["name"])
+
+    def test_zero_and_negate_value_transforms_change_search_telemetry(self):
+        class FixedEvaluator:
+            def evaluate(self, game):
+                del game
+                priors = np.zeros(6, dtype=np.float32)
+                priors[0] = 1.0
+                return priors, 0.6
+
+        state = {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+        baseline = arena.evaluate_artifact_position(
+            evaluator=FixedEvaluator(),
+            state=state,
+            simulations=1,
+            seed=42,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(
+                root_policy_mode="deterministic"
+            ),
+        )
+        zero_value = arena.evaluate_artifact_position(
+            evaluator=FixedEvaluator(),
+            state=state,
+            simulations=1,
+            seed=42,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(
+                root_policy_mode="deterministic",
+                value_transform={
+                    "name": "zero_value",
+                    "kind": "diagnostic_phase_transform",
+                    "phase_params": {
+                        "opening": {"mode": "zero"},
+                        "midgame": {"mode": "zero"},
+                        "late": {"mode": "zero"},
+                    },
+                },
+            ),
+        )
+        negate_value = arena.evaluate_artifact_position(
+            evaluator=FixedEvaluator(),
+            state=state,
+            simulations=1,
+            seed=42,
+            c_puct=1.25,
+            search_options=arena.build_eval_search_options(
+                root_policy_mode="deterministic",
+                value_transform={
+                    "name": "negate_value",
+                    "kind": "diagnostic_phase_transform",
+                    "phase_params": {
+                        "opening": {"mode": "negate"},
+                        "midgame": {"mode": "negate"},
+                        "late": {"mode": "negate"},
+                    },
+                },
+            ),
+        )
+
+        self.assertAlmostEqual(0.6, baseline["root_evaluation_transformed_value"])
+        self.assertAlmostEqual(0.0, zero_value["root_evaluation_transformed_value"])
+        self.assertAlmostEqual(-0.6, negate_value["root_evaluation_transformed_value"])
+        self.assertNotEqual(
+            baseline["search_root_value"],
+            zero_value["search_root_value"],
+        )
+        self.assertNotEqual(
+            baseline["search_root_value"],
+            negate_value["search_root_value"],
+        )
+
+    def test_run_arena_worker_uses_side_specific_value_transforms(self):
+        captured = []
+
+        class FakeEvaluator:
+            def __init__(self, path):
+                self.path = path
+
+        class FakeRoot:
+            def child_for_action(self, action):
+                del action
+                return None
+
+        class FakePUCT:
+            def __init__(self, **kwargs):
+                captured.append(kwargs.get("value_transform"))
+
+            def run(self, game):
+                del game
+                visits = np.zeros(6, dtype=np.float32)
+                visits[0] = 1.0
+                return visits, FakeRoot()
+
+            def root_summary(self):
+                transform = captured[-1]
+                return {"value_transform": transform}
+
+            def select_root_move(self, root, legal_moves):
+                del root
+                return legal_moves[0]
+
+        with (
+            mock.patch("ml.alphazero_lite.arena.ArtifactEvaluator", FakeEvaluator),
+            mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+        ):
+            arena.run_arena_worker(
+                worker_id=0,
+                start_index=0,
+                games=1,
+                challenger_path="candidate",
+                current_path="current",
+                challenger_simulations=1,
+                current_simulations=1,
+                seed=42,
+                c_puct=1.25,
+                max_moves=2,
+                challenger_starts=0,
+                challenger_value_transform={
+                    "name": "zero_value",
+                    "kind": "diagnostic_phase_transform",
+                    "phase_params": {
+                        "opening": {"mode": "zero"},
+                        "midgame": {"mode": "zero"},
+                        "late": {"mode": "zero"},
+                    },
+                },
+                current_value_transform={
+                    "name": "negate_value",
+                    "kind": "diagnostic_phase_transform",
+                    "phase_params": {
+                        "opening": {"mode": "negate"},
+                        "midgame": {"mode": "negate"},
+                        "late": {"mode": "negate"},
+                    },
+                },
+            )
+
+        self.assertEqual("zero_value", captured[0]["name"])
+        self.assertEqual("negate_value", captured[1]["name"])
+
     def test_evaluate_artifact_position_puct_preserves_value_trust_root_summary_metadata(
         self,
     ):
