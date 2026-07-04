@@ -18,6 +18,13 @@ from ml.alphazero_lite.run_promoted_current_opening_puct_disagreement import (
 from ml.alphazero_lite.self_play import build_eval_search_options
 
 
+def _diagnostic_root_value(summary: dict[str, Any]) -> float:
+    search_root_value = summary.get("search_root_value")
+    if isinstance(search_root_value, (int, float)):
+        return float(search_root_value)
+    return float(summary.get("value") or 0.0)
+
+
 def runtime_sensitivity_diagnostic_for_opening_suite(
     *,
     current_path: Path,
@@ -125,8 +132,8 @@ def runtime_sensitivity_diagnostic_for_opening_suite(
                     move_change_count += 1
                 value_deltas.append(
                     abs(
-                        float(summary.get("value") or 0.0)
-                        - float(baseline_rows[index].get("value") or 0.0)
+                        _diagnostic_root_value(summary)
+                        - _diagnostic_root_value(baseline_rows[index])
                     )
                 )
             budget_rows[lane_name] = {
