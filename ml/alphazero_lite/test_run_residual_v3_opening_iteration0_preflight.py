@@ -8,6 +8,88 @@ from ml.alphazero_lite import run_residual_v3_opening_iteration0_preflight as pr
 
 
 class ResidualV3OpeningIteration0PreflightTest(unittest.TestCase):
+    def test_select_candidates_sequential_path(self):
+        entries = [
+            {
+                "state": {"current_player": 0},
+                "prefix_moves": [0],
+                "source_suite_path": "suite.jsonl",
+                "source_suite_sha256": "suite-sha",
+                "source_row_index": 0,
+            }
+        ]
+
+        with (
+            mock.patch.object(
+                preflight.arena, "ArtifactEvaluator", return_value=object()
+            ),
+            mock.patch.object(
+                preflight,
+                "_evaluate_entry_with_evaluator",
+                return_value={"state_hash": "picked"},
+            ) as evaluate_mock,
+        ):
+            selected = preflight.select_candidates(
+                entries=entries,
+                current_path=Path("model-artifact/current"),
+                search_profile=preflight.build_promoted_search_profile(),
+                seed=42,
+                workers=1,
+            )
+
+        self.assertEqual([{"state_hash": "picked"}], selected)
+        evaluate_mock.assert_called_once()
+
+    def test_select_candidates_parallel_path(self):
+        entries = [
+            {
+                "state": {"current_player": 0},
+                "prefix_moves": [0],
+                "source_suite_path": "suite-a.jsonl",
+                "source_suite_sha256": "suite-sha-a",
+                "source_row_index": 0,
+            },
+            {
+                "state": {"current_player": 1},
+                "prefix_moves": [1],
+                "source_suite_path": "suite-b.jsonl",
+                "source_suite_sha256": "suite-sha-b",
+                "source_row_index": 1,
+            },
+        ]
+
+        class FakeExecutor:
+            def __init__(self, **_kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def map(self, func, records):
+                return map(func, records)
+
+        with (
+            mock.patch.object(preflight, "ProcessPoolExecutor", FakeExecutor),
+            mock.patch.object(
+                preflight,
+                "_evaluate_entry_worker",
+                side_effect=[{"state_hash": "a"}, None],
+            ) as worker_mock,
+        ):
+            selected = preflight.select_candidates(
+                entries=entries,
+                current_path=Path("model-artifact/current"),
+                search_profile=preflight.build_promoted_search_profile(),
+                seed=42,
+                workers=24,
+            )
+
+        self.assertEqual([{"state_hash": "a"}], selected)
+        self.assertEqual(2, worker_mock.call_count)
+
     def test_selection_metrics_detects_instability_and_weakness(self):
         rows = [
             {

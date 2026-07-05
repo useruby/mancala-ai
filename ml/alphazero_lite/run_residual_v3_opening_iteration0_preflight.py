@@ -8,6 +8,7 @@ or overwrite ``model-artifact/current``.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor
 import hashlib
 import json
 import sys
@@ -72,6 +73,10 @@ SEARCH_SETTINGS = (
         "role_context": ["1200:1200/shared", "1200:256/challenger"],
     },
 )
+
+_WORKER_EVALUATOR: arena.ArtifactEvaluator | None = None
+_WORKER_SEARCH_PROFILE: dict[str, Any] | None = None
+_WORKER_SEED: int | None = None
 
 
 def canonical_json(payload: Any) -> str:
@@ -357,6 +362,118 @@ def evaluate_search_setting(
     }
 
 
+def build_selected_candidate_record(
+    entry: dict[str, Any], search_rows: list[dict[str, Any]]
+) -> dict[str, Any] | None:
+    metrics = selection_metrics(search_rows)
+    tags = selection_tags(metrics)
+    if not metrics["unstable"] and not metrics["weak"]:
+        return None
+    return {
+        "state": entry["state"],
+        "state_hash": canonical_state_hash(entry["state"]),
+        "prefix_moves": [int(move) for move in entry.get("prefix_moves", [])],
+        "prefix_hash": prefix_hash(entry.get("prefix_moves", [])),
+        "ply": int(entry.get("ply", len(entry.get("prefix_moves", [])))),
+        "ply_label": str(int(entry.get("ply", len(entry.get("prefix_moves", []))))),
+        "phase_bucket": phase_bucket(entry),
+        "side_to_move": int(
+            entry.get("side_to_move", entry["state"]["current_player"])
+        ),
+        "side_to_move_label": str(
+            int(entry.get("side_to_move", entry["state"]["current_player"]))
+        ),
+        "first_move_family": str(entry.get("first_move_family", "none")),
+        "source_suite_path": str(entry["source_suite_path"]),
+        "source_suite_sha256": str(entry["source_suite_sha256"]),
+        "source_row_index": int(entry["source_row_index"]),
+        "selection_metrics": metrics,
+        "selection_tags": tags,
+        "primary_tag": tags[0],
+        "search_results": search_rows,
+    }
+
+
+def _evaluate_entry_with_evaluator(
+    entry: dict[str, Any],
+    *,
+    evaluator: arena.ArtifactEvaluator,
+    search_profile: dict[str, Any],
+    seed: int,
+) -> dict[str, Any] | None:
+    search_rows = [
+        evaluate_search_setting(
+            evaluator=evaluator,
+            state=entry["state"],
+            setting=setting,
+            search_profile=search_profile,
+            seed=seed,
+        )
+        for setting in SEARCH_SETTINGS
+    ]
+    return build_selected_candidate_record(entry, search_rows)
+
+
+def _init_worker(
+    current_artifact_path: str, search_profile: dict[str, Any], seed: int
+) -> None:
+    global _WORKER_EVALUATOR, _WORKER_SEARCH_PROFILE, _WORKER_SEED
+    _WORKER_EVALUATOR = arena.ArtifactEvaluator(Path(current_artifact_path))
+    _WORKER_SEARCH_PROFILE = dict(search_profile)
+    _WORKER_SEED = int(seed)
+
+
+def _evaluate_entry_worker(entry: dict[str, Any]) -> dict[str, Any] | None:
+    if (
+        _WORKER_EVALUATOR is None
+        or _WORKER_SEARCH_PROFILE is None
+        or _WORKER_SEED is None
+    ):
+        raise RuntimeError("preflight worker not initialized")
+    return _evaluate_entry_with_evaluator(
+        entry,
+        evaluator=_WORKER_EVALUATOR,
+        search_profile=_WORKER_SEARCH_PROFILE,
+        seed=_WORKER_SEED,
+    )
+
+
+def select_candidates(
+    *,
+    entries: list[dict[str, Any]],
+    current_path: Path,
+    search_profile: dict[str, Any],
+    seed: int,
+    workers: int,
+) -> list[dict[str, Any]]:
+    if workers <= 1:
+        evaluator = arena.ArtifactEvaluator(current_path)
+        return [
+            record
+            for record in (
+                _evaluate_entry_with_evaluator(
+                    entry,
+                    evaluator=evaluator,
+                    search_profile=search_profile,
+                    seed=seed,
+                )
+                for entry in entries
+            )
+            if record is not None
+        ]
+
+    with ProcessPoolExecutor(
+        max_workers=workers,
+        initializer=_init_worker,
+        initargs=(str(current_path), search_profile, int(seed)),
+    ) as executor:
+        return [
+            record
+            for record in executor.map(_evaluate_entry_worker, entries)
+            if record is not None
+        ]
+
+
 def selection_metrics(search_rows: list[dict[str, Any]]) -> dict[str, Any]:
     by_label = {row["label"]: row for row in search_rows}
     selected_moves = [
@@ -539,6 +656,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--selection-limit", type=int, default=DEFAULT_SELECTION_LIMIT)
     parser.add_argument("--max-input-rows", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--workers", type=int, default=1)
     return parser.parse_args()
 
 
@@ -567,47 +685,13 @@ def main() -> int:
     )
     deduped_entries, dedup_stats = deduplicate_by_state(entries)
 
-    evaluator = arena.ArtifactEvaluator(current_path)
-    selected_candidates: list[dict[str, Any]] = []
-    for entry in deduped_entries:
-        search_rows = [
-            evaluate_search_setting(
-                evaluator=evaluator,
-                state=entry["state"],
-                setting=setting,
-                search_profile=search_profile,
-                seed=int(args.seed),
-            )
-            for setting in SEARCH_SETTINGS
-        ]
-        metrics = selection_metrics(search_rows)
-        tags = selection_tags(metrics)
-        if not metrics["unstable"] and not metrics["weak"]:
-            continue
-        record = {
-            "state": entry["state"],
-            "state_hash": canonical_state_hash(entry["state"]),
-            "prefix_moves": [int(move) for move in entry.get("prefix_moves", [])],
-            "prefix_hash": prefix_hash(entry.get("prefix_moves", [])),
-            "ply": int(entry.get("ply", len(entry.get("prefix_moves", [])))),
-            "ply_label": str(int(entry.get("ply", len(entry.get("prefix_moves", []))))),
-            "phase_bucket": phase_bucket(entry),
-            "side_to_move": int(
-                entry.get("side_to_move", entry["state"]["current_player"])
-            ),
-            "side_to_move_label": str(
-                int(entry.get("side_to_move", entry["state"]["current_player"]))
-            ),
-            "first_move_family": str(entry.get("first_move_family", "none")),
-            "source_suite_path": str(entry["source_suite_path"]),
-            "source_suite_sha256": str(entry["source_suite_sha256"]),
-            "source_row_index": int(entry["source_row_index"]),
-            "selection_metrics": metrics,
-            "selection_tags": tags,
-            "primary_tag": tags[0],
-            "search_results": search_rows,
-        }
-        selected_candidates.append(record)
+    selected_candidates = select_candidates(
+        entries=deduped_entries,
+        current_path=current_path,
+        search_profile=search_profile,
+        seed=int(args.seed),
+        workers=max(1, int(args.workers)),
+    )
 
     selected_rows = sorted(selected_candidates, key=selected_sort_key)[
         : args.selection_limit
