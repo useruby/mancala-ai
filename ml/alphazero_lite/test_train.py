@@ -1627,6 +1627,7 @@ class TrainScriptTest(unittest.TestCase):
             pairwise_replay_indexes=pairwise_replay_indexes,
             pairwise_loss_weight=1.0,
             pairwise_margin=0.1,
+            compact_legal_masks=np.zeros((0, 6), dtype=np.float32),
         )
 
         expected_pairwise = float(np.log1p(np.exp(0.1)))
@@ -1665,12 +1666,49 @@ class TrainScriptTest(unittest.TestCase):
             behavior_anchor_p=anchor_p,
             behavior_anchor_replay_indexes=replay_indexes,
             behavior_loss_weight=2.0,
+            compact_legal_masks=np.ones((1, 6), dtype=np.float32),
+            behavior_anchor_legal_masks=np.ones((1, 6), dtype=np.float32),
         )
 
         expected_ce = float(np.log(6.0))
         self.assertAlmostEqual(expected_ce, metrics["policy_loss"], places=5)
         self.assertAlmostEqual(expected_ce, metrics["behavior_anchor_loss"], places=5)
         self.assertAlmostEqual(expected_ce * 3.0, metrics["total_loss"], places=5)
+
+    def test_train_one_epoch_masks_illegal_logits_for_supervised_policy_loss(self):
+        model = train_module.PolicyValueNet(
+            hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15
+        )
+        for parameter in model.parameters():
+            parameter.data.zero_()
+        model.policy_head.bias.data.copy_(
+            torch.tensor([0.0, 0.0, 10.0, 10.0, 10.0, 10.0])
+        )
+
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.0)
+        x = np.zeros((1, 15), dtype=np.float32)
+        p = np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+        v = np.zeros((1, 1), dtype=np.float32)
+        replay_indexes = np.array([0], dtype=np.int64)
+        legal_masks = np.array([[1.0, 1.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+
+        metrics = train_module.train_one_epoch(
+            model=model,
+            optimizer=optimizer,
+            compact_x=x,
+            compact_p=p,
+            compact_v=v,
+            replay_indexes=replay_indexes,
+            batch_size=1,
+            device=torch.device("cpu"),
+            value_loss_weight=0.0,
+            value_loss="mse",
+            huber_delta=1.0,
+            grad_clip=None,
+            compact_legal_masks=legal_masks,
+        )
+
+        self.assertAlmostEqual(float(np.log(2.0)), metrics["policy_loss"], places=5)
 
 
 if __name__ == "__main__":

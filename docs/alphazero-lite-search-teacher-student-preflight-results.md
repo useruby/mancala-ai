@@ -1,6 +1,6 @@
 # AlphaZero-Lite Search-Teacher Student Preflight Results
 
-**Classification**: `distillation_pipeline_broken,architecture_change_not_justified`
+**Classification**: `teacher_distillation_not_enough`
 
 ## Current Artifact Hash
 
@@ -26,8 +26,7 @@
 | Candidate | Kind | Model | Trunk | Blocks | Weights SHA256 |
 |---|---|---|---|---|---|
 | current_ref | reference | residual_v3 | 96 | 3 | 8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a |
-| residual_v3_96x3 | student | residual_v3 | 96 | 3 | 14dadd747382afc8f9a6609ad035b8db9e90b8fa42ece093191575a5919ee878 |
-| residual_v3_128x4 | student | residual_v3 | 128 | 4 | 1459f32bb29037fb00a7a906d4c829cafe245081c8e0c2623909862d7f47f0cf |
+| residual_v3_96x3 | student | residual_v3 | 96 | 3 | 0e3a1200cbf46a50fe11038379ddd8ee3f8858fa7937ee1e371084f383d06f8d |
 
 ## Training Loss Table
 
@@ -39,54 +38,50 @@
 | Candidate | Top-1 | KL | Baseline KL | Legal failures | Value MAE | Sign acc | Entropy | Aborted |
 |---|---|---|---|---|---|---|---|---|
 | current_ref | +0.5156 | +0.3571 | +1.1988 | 0 | +0.1507 | +0.6503 | +1.6702 | True |
-| residual_v3_96x3 | +0.3895 | +0.4764 | +1.1988 | 0 | +0.0221 | +0.5041 | +2.0929 | True |
-| residual_v3_128x4 | +0.4143 | +0.4470 | +1.1988 | 0 | +0.0234 | +0.7461 | +2.0644 | True |
+| residual_v3_96x3 | +0.6726 | +0.2205 | +1.1988 | 0 | +0.0195 | +0.5235 | +1.5308 | False |
 
 ## Aborted-Candidate Table
 
 | Candidate | Reasons |
 |---|---|
-| current_ref | teacher top-1 agreement < 55% |
-| residual_v3_96x3 | teacher top-1 agreement < 55%; value sign accuracy < 55% |
-| residual_v3_128x4 | teacher top-1 agreement < 55% |
+| current_ref | teacher top-1 agreement < 60% |
 
 ## Fixed Large DS Table
 
 | Candidate | 384:256 | 768:256 | 768:768 | 1200:1200 | 1200:256 | 256:768 |
 |---|---|---|---|---|---|---|
-| current_ref | n/a | n/a | n/a | n/a | n/a | n/a |
-| residual_v3_96x3 | n/a | n/a | n/a | n/a | n/a | n/a |
-| residual_v3_128x4 | n/a | n/a | n/a | n/a | n/a | n/a |
+| current_ref | -0.3099 | -0.4049 | +0.6849 | +0.2812 | -0.1159 | -0.4049 |
+| residual_v3_96x3 | +0.0234 | +0.0651 | +0.4089 | +0.2943 | +0.2370 | +0.1068 |
 
 ## Held-Out Mean/Worst-Suite DS Table
 
 | Candidate | Held-out mean 384:256 | Delta vs current | Held-out worst-suite 384:256 |
 |---|---|---|---|
-| current_ref | n/a | n/a | n/a |
-| residual_v3_96x3 | n/a | n/a | n/a |
-| residual_v3_128x4 | n/a | n/a | n/a |
+| current_ref | -0.3051 | +0.0000 | -0.3112 |
+| residual_v3_96x3 | -0.0026 | +0.3025 | -0.0195 |
 
 ## Bootstrap CI For Candidate Minus Current
 
 | Comparison | Mean | Lower 95% | Upper 95% |
 |---|---|---|---|
-| none | n/a | n/a | n/a |
+| residual_v3_96x3_minus_current_ref_1200_1200 | -0.1706 | -0.1988 | -0.1415 |
+| residual_v3_96x3_minus_current_ref_1200_256 | -0.6697 | -0.6957 | -0.6424 |
+| residual_v3_96x3_minus_current_ref_384_256 | -0.6124 | -0.6411 | -0.5829 |
+| residual_v3_96x3_minus_current_ref_768_768 | +0.0087 | -0.0156 | +0.0334 |
 
 ## P0/P1 Split For 384:256
 
 | Candidate | Mean P0 | Mean P1 | Gap |
 |---|---|---|---|
-| current_ref | n/a | n/a | n/a |
-| residual_v3_96x3 | n/a | n/a | n/a |
-| residual_v3_128x4 | n/a | n/a | n/a |
+| current_ref | +0.6137 | +0.9188 | +0.3051 |
+| residual_v3_96x3 | +0.3038 | +0.3064 | +0.0026 |
 
 ## Duplicate Trajectory Count
 
 | Candidate | Mean duplicates |
 |---|---|
-| current_ref | n/a |
-| residual_v3_96x3 | n/a |
-| residual_v3_128x4 | n/a |
+| current_ref | +1536.0000 |
+| residual_v3_96x3 | +1536.0000 |
 
 ## Runtime Cost Comparison
 
@@ -94,11 +89,9 @@
 |---|---|---|---|
 | current_ref | n/a | n/a | n/a |
 | residual_v3_96x3 | n/a | n/a | n/a |
-| residual_v3_128x4 | n/a | n/a | n/a |
 
 ## Gate Classification If Run
 
-- current_ref: `not_run` reason=`skipped because no student survived the probe gate`
-- residual_v3_96x3: `not_run` reason=`aborted after probe`
-- residual_v3_128x4: `not_run` reason=`aborted after probe`
+- current_ref: `not_run` reason=`n/a`
+- residual_v3_96x3: `not_run` reason=`did not clear post-probe held-out robustness gate for explicit gate run`
 

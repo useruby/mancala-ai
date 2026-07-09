@@ -328,6 +328,25 @@ def load_jsonl(
     return x, p, v
 
 
+def legal_mask_for_encoded_state(state: np.ndarray | list[float]) -> np.ndarray:
+    legal_moves = derive_legal_moves_from_encoded_state(state)
+    if legal_moves is None:
+        return np.ones((POLICY_SIZE,), dtype=np.float32)
+    legal_mask = np.zeros((POLICY_SIZE,), dtype=np.float32)
+    if not legal_moves:
+        raise ValueError("encoded state does not expose any legal moves")
+    legal_mask[legal_moves] = 1.0
+    return legal_mask
+
+
+def legal_mask_matrix_for_encoded_states(states: np.ndarray) -> np.ndarray:
+    if states.ndim != 2:
+        raise ValueError("encoded states must be a 2D matrix")
+    return np.asarray(
+        [legal_mask_for_encoded_state(state) for state in states], dtype=np.float32
+    )
+
+
 def load_jsonl_replay(
     paths: list[Path],
     weights: list[int] | None = None,
@@ -542,6 +561,8 @@ def train_one_epoch(
     behavior_anchor_p: np.ndarray | None = None,
     behavior_anchor_replay_indexes: np.ndarray | None = None,
     behavior_loss_weight: float = 0.0,
+    compact_legal_masks: np.ndarray | None = None,
+    behavior_anchor_legal_masks: np.ndarray | None = None,
 ) -> dict[str, float | None]:
     model.train()
     use_supervised = compact_x.shape[0] > 0 and replay_indexes.size > 0
@@ -561,6 +582,13 @@ def train_one_epoch(
     x_all = torch.from_numpy(compact_x).to(device) if compact_x.shape[0] > 0 else None
     p_all = torch.from_numpy(compact_p).to(device) if compact_p.shape[0] > 0 else None
     v_all = torch.from_numpy(compact_v).to(device) if compact_v.shape[0] > 0 else None
+    legal_mask_all = None
+    if compact_legal_masks is not None:
+        legal_mask_all = torch.from_numpy(compact_legal_masks).to(device)
+    elif compact_x.shape[0] > 0:
+        legal_mask_all = torch.from_numpy(
+            legal_mask_matrix_for_encoded_states(compact_x)
+        ).to(device)
     replay_tensor = (
         torch.from_numpy(replay_indexes).to(device) if use_supervised else None
     )
@@ -586,6 +614,7 @@ def train_one_epoch(
     pairwise_position = 0
     behavior_anchor_x_all = None
     behavior_anchor_p_all = None
+    behavior_anchor_legal_mask_all = None
     behavior_anchor_replay_tensor = None
     behavior_anchor_permutation = None
     behavior_anchor_position = 0
@@ -604,6 +633,14 @@ def train_one_epoch(
     if use_behavior_anchors:
         behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
         behavior_anchor_p_all = torch.from_numpy(behavior_anchor_p).to(device)
+        if behavior_anchor_legal_masks is not None:
+            behavior_anchor_legal_mask_all = torch.from_numpy(
+                behavior_anchor_legal_masks
+            ).to(device)
+        else:
+            behavior_anchor_legal_mask_all = torch.from_numpy(
+                legal_mask_matrix_for_encoded_states(behavior_anchor_x)
+            ).to(device)
         behavior_anchor_replay_tensor = torch.from_numpy(
             behavior_anchor_replay_indexes
         ).to(device)
@@ -638,11 +675,15 @@ def train_one_epoch(
             assert x_all is not None
             assert p_all is not None
             assert v_all is not None
+            assert legal_mask_all is not None
             batch_x = x_all[batch_primary_replay_indexes]
             batch_p = p_all[batch_primary_replay_indexes]
             batch_v = v_all[batch_primary_replay_indexes]
+            batch_legal_mask = legal_mask_all[batch_primary_replay_indexes]
             logits, value_pred = model(batch_x)
-            policy_loss = compute_policy_cross_entropy(logits, batch_p).mean()
+            policy_loss = compute_policy_cross_entropy(
+                logits.masked_fill(batch_legal_mask <= 0.0, -1e9), batch_p
+            ).mean()
             value_component = compute_value_loss_vector(
                 value_pred,
                 batch_v,
@@ -682,6 +723,7 @@ def train_one_epoch(
         if use_behavior_anchors:
             assert behavior_anchor_x_all is not None
             assert behavior_anchor_p_all is not None
+            assert behavior_anchor_legal_mask_all is not None
             assert behavior_anchor_replay_tensor is not None
             assert behavior_anchor_permutation is not None
             anchor_count = batch_size_actual
@@ -700,9 +742,12 @@ def train_one_epoch(
             batch_anchor_replay_indexes = behavior_anchor_replay_tensor[anchor_indexes]
             anchor_x = behavior_anchor_x_all[batch_anchor_replay_indexes]
             anchor_p = behavior_anchor_p_all[batch_anchor_replay_indexes]
+            anchor_legal_mask = behavior_anchor_legal_mask_all[
+                batch_anchor_replay_indexes
+            ]
             anchor_logits, _anchor_value_pred = model(anchor_x)
             behavior_anchor_loss = compute_policy_cross_entropy(
-                anchor_logits, anchor_p
+                anchor_logits.masked_fill(anchor_legal_mask <= 0.0, -1e9), anchor_p
             ).mean()
         total_loss = (
             policy_loss
@@ -994,6 +1039,8 @@ def train(
     behavior_anchor_val_count = 0
     behavior_anchor_x_all = None
     behavior_anchor_p_all = None
+    behavior_anchor_legal_mask_all = None
+    behavior_anchor_legal_masks = None
     behavior_anchor_train_replay_indexes = None
     behavior_anchor_val_replay_indexes = None
     use_behavior_anchors = (
@@ -1023,6 +1070,12 @@ def train(
         behavior_anchor_val_count = int(behavior_anchor_val_positions.shape[0])
         behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
         behavior_anchor_p_all = torch.from_numpy(behavior_anchor_p).to(device)
+        behavior_anchor_legal_masks = legal_mask_matrix_for_encoded_states(
+            behavior_anchor_x
+        )
+        behavior_anchor_legal_mask_all = torch.from_numpy(
+            behavior_anchor_legal_masks
+        ).to(device)
         behavior_anchor_train_replay_indexes = behavior_anchor_replay_indexes[
             behavior_anchor_train_positions
         ]
@@ -1034,6 +1087,11 @@ def train(
     x_all = torch.from_numpy(x).to(device) if use_supervised else None
     p_all = torch.from_numpy(p_target).to(device) if use_supervised else None
     v_all = torch.from_numpy(v_target).to(device) if use_supervised else None
+    compact_legal_masks = None
+    legal_mask_all = None
+    if use_supervised:
+        compact_legal_masks = legal_mask_matrix_for_encoded_states(x)
+        legal_mask_all = torch.from_numpy(compact_legal_masks).to(device)
 
     optimizer = torch.optim.Adam(
         (p for p in model.parameters() if p.requires_grad),
@@ -1089,6 +1147,8 @@ def train(
             behavior_anchor_p=behavior_anchor_p,
             behavior_anchor_replay_indexes=behavior_anchor_train_replay_indexes,
             behavior_loss_weight=behavior_loss_weight,
+            compact_legal_masks=compact_legal_masks,
+            behavior_anchor_legal_masks=behavior_anchor_legal_masks,
         )
         policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
         value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
@@ -1110,14 +1170,16 @@ def train(
                     and x_all is not None
                     and p_all is not None
                     and v_all is not None
+                    and legal_mask_all is not None
                     and val_replay_indexes is not None
                 ):
                     x_val = x_all[val_replay_indexes]
                     p_val = p_all[val_replay_indexes]
                     v_val = v_all[val_replay_indexes]
+                    legal_mask_val = legal_mask_all[val_replay_indexes]
                     val_logits, val_value_pred = model(x_val)
                     val_policy_loss = compute_policy_cross_entropy(
-                        val_logits, p_val
+                        val_logits.masked_fill(legal_mask_val <= 0.0, -1e9), p_val
                     ).mean()
                     val_value_loss = compute_value_loss_vector(
                         val_value_pred,
@@ -1150,6 +1212,7 @@ def train(
                     and behavior_anchor_val_count > 0
                     and behavior_anchor_x_all is not None
                     and behavior_anchor_p_all is not None
+                    and behavior_anchor_legal_mask_all is not None
                     and behavior_anchor_val_replay_indexes is not None
                 ):
                     anchor_val_x = behavior_anchor_x_all[
@@ -1158,9 +1221,15 @@ def train(
                     anchor_val_p = behavior_anchor_p_all[
                         behavior_anchor_val_replay_indexes
                     ]
+                    anchor_val_legal_mask = behavior_anchor_legal_mask_all[
+                        behavior_anchor_val_replay_indexes
+                    ]
                     anchor_val_logits, _anchor_val_value_pred = model(anchor_val_x)
                     val_behavior_anchor_loss = compute_policy_cross_entropy(
-                        anchor_val_logits, anchor_val_p
+                        anchor_val_logits.masked_fill(
+                            anchor_val_legal_mask <= 0.0, -1e9
+                        ),
+                        anchor_val_p,
                     ).mean()
                 val_total = float(
                     (
