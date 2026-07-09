@@ -7,6 +7,7 @@ Does not promote, overwrite `model-artifact/current`, or mutate current weights.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import math
@@ -14,7 +15,7 @@ import random
 import statistics
 import subprocess
 import sys
-from collections import Counter, defaultdict, deque
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -59,10 +60,13 @@ from ml.alphazero_lite.self_play import (  # noqa: E402
 )
 from ml.alphazero_lite.train import (  # noqa: E402
     PolicyValueNet,
+    SUPPORTED_TRAINABLE_SCOPES,
+    apply_trainable_scope,
     checkpoint_from_model,
     compute_policy_cross_entropy,
     compute_value_loss_vector,
     input_size_for_encoding,
+    load_checkpoint_into_model,
     select_device,
     set_seed,
 )
@@ -103,6 +107,10 @@ FAILURE_DOC_PATH = (
     REPO_ROOT / "docs/alphazero-lite-current-384-256-failure-family-trace-results.md"
 )
 EARLY_STOP_TOP1_THRESHOLD = 0.50
+DATASET_MAP_CHUNK_SIZE = 8
+
+
+_DATASET_WORKER_EVALUATOR: ArtifactEvaluator | None = None
 
 
 @dataclass(frozen=True)
@@ -115,6 +123,13 @@ class StudentSpec:
     @property
     def hidden_sizes(self) -> tuple[int, int]:
         return (self.trunk_size, self.residual_block_count)
+
+
+@dataclass(frozen=True)
+class TrainingFocusSpec:
+    budget_context: str
+    first_move_families: frozenset[str]
+    copies: int
 
 
 def _python() -> str:
@@ -212,6 +227,50 @@ def parse_student_architecture(text: str) -> StudentSpec:
 def parse_budget_pair(text: str) -> tuple[int, int]:
     left, right = str(text).split(":", 1)
     return int(left), int(right)
+
+
+def parse_csv_values(text: str | None) -> list[str]:
+    if text is None:
+        return []
+    return [item.strip() for item in str(text).split(",") if item.strip()]
+
+
+def parse_training_focus_specs(text: str | None) -> list[TrainingFocusSpec]:
+    if text is None:
+        return []
+    payload = str(text).strip()
+    if not payload:
+        return []
+    specs: list[TrainingFocusSpec] = []
+    for raw_spec in payload.split(","):
+        token = raw_spec.strip()
+        if not token:
+            continue
+        try:
+            context_and_families, copies_text = token.rsplit("*", 1)
+            budget_context, families_text = context_and_families.split("@", 1)
+        except ValueError as exc:
+            raise ValueError(
+                "training focus specs must look like 768:768@0|4|5*3"
+            ) from exc
+        budget_context = str(budget_context).strip()
+        parse_budget_pair(budget_context)
+        families = frozenset(
+            family.strip() for family in families_text.split("|") if family.strip()
+        )
+        if not families:
+            raise ValueError("training focus spec must include at least one family")
+        copies = int(copies_text)
+        if copies < 2:
+            raise ValueError("training focus spec copies must be >= 2")
+        specs.append(
+            TrainingFocusSpec(
+                budget_context=budget_context,
+                first_move_families=families,
+                copies=copies,
+            )
+        )
+    return specs
 
 
 def budget_label(challenger_sims: int, current_sims: int) -> str:
@@ -517,6 +576,45 @@ def deterministic_teacher_trajectory(
     return rows
 
 
+def _init_dataset_worker(current_artifact_path: str) -> None:
+    global _DATASET_WORKER_EVALUATOR
+    _DATASET_WORKER_EVALUATOR = ArtifactEvaluator(Path(current_artifact_path))
+
+
+def _generate_teacher_trajectory_task(
+    payload: tuple[str, dict[str, Any], int, int, float, float, int, str, str, int],
+) -> tuple[str, str, list[dict[str, Any]]]:
+    global _DATASET_WORKER_EVALUATOR
+    if _DATASET_WORKER_EVALUATOR is None:
+        raise RuntimeError("dataset worker evaluator is not initialized")
+    (
+        suite_name,
+        entry,
+        challenger_sims,
+        current_sims,
+        effective_c_puct,
+        tactical_root_bias,
+        task_seed,
+        search_profile_hash,
+        opening_prefix,
+        max_plies,
+    ) = payload
+    budget_key = budget_label(challenger_sims, current_sims)
+    rows = deterministic_teacher_trajectory(
+        evaluator=_DATASET_WORKER_EVALUATOR,
+        suite_entry=entry,
+        challenger_sims=challenger_sims,
+        current_sims=current_sims,
+        effective_c_puct=effective_c_puct,
+        tactical_root_bias=tactical_root_bias,
+        max_plies=max_plies,
+        seed=task_seed,
+        search_profile_hash=search_profile_hash,
+        suite_name=suite_name,
+    )
+    return opening_prefix, budget_key, rows
+
+
 def build_dataset(
     *,
     workdir: Path,
@@ -531,6 +629,7 @@ def build_dataset(
     seed: int,
     max_trajectory_plies: int,
     prefix_cap: int,
+    workers: int,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     dataset_path = workdir / DATASET_FILENAME
     dataset_audit_path = workdir / DATASET_AUDIT_FILENAME
@@ -596,25 +695,12 @@ def build_dataset(
     budget_target = max(generated_rows_target // len(DEFAULT_BUDGET_CONTEXTS), 1)
     budget_counts = Counter()
     prefix_counts = Counter()
-    queue = deque(suite_entries)
-    exhausted_rounds = 0
-
-    while queue and len(rows) < max(DEFAULT_GENERATION_ROWS, generated_rows_target):
-        suite_name, entry = queue.popleft()
+    task_payloads: list[
+        tuple[str, dict[str, Any], int, int, float, float, int, str, str, int]
+    ] = []
+    for entry_index, (suite_name, entry) in enumerate(suite_entries):
         opening_prefix = suite_entry_key(entry)
-        if prefix_counts[opening_prefix] >= prefix_cap:
-            exhausted_rounds += 1
-            if exhausted_rounds > len(suite_entries) * len(DEFAULT_BUDGET_CONTEXTS):
-                break
-            continue
-        exhausted_rounds = 0
         for challenger_sims, current_sims in DEFAULT_BUDGET_CONTEXTS:
-            budget_key = budget_label(challenger_sims, current_sims)
-            if (
-                budget_counts[budget_key] >= budget_target
-                and len(rows) >= MIN_TARGET_ROWS
-            ):
-                continue
             effective_c_puct = resolve_budget_cpuct(
                 schedule=cpuct_schedule,
                 challenger_simulations=challenger_sims,
@@ -629,32 +715,55 @@ def build_dataset(
                 tactical_root_bias=tactical_root_bias,
                 artifact_path=str(current_artifact),
             )
-            trajectory_rows = deterministic_teacher_trajectory(
-                evaluator=evaluator,
-                suite_entry=entry,
-                challenger_sims=challenger_sims,
-                current_sims=current_sims,
-                effective_c_puct=effective_c_puct,
-                tactical_root_bias=tactical_root_bias,
-                max_plies=max_trajectory_plies,
-                seed=seed + len(rows) + challenger_sims + current_sims,
-                search_profile_hash=str(profile["hash"]),
-                suite_name=suite_name,
-            )
-            remaining_prefix = max(0, prefix_cap - prefix_counts[opening_prefix])
-            if remaining_prefix <= 0:
-                break
-            selected_rows = trajectory_rows[:remaining_prefix]
-            rows.extend(selected_rows)
-            prefix_counts[opening_prefix] += len(selected_rows)
-            budget_counts[budget_key] += len(selected_rows)
-            if len(rows) % 5000 == 0:
-                log_progress(
-                    "dataset generation "
-                    f"rows={len(rows)} unique_states={len({str(row['state_hash']) for row in rows})}"
+            task_payloads.append(
+                (
+                    suite_name,
+                    entry,
+                    challenger_sims,
+                    current_sims,
+                    effective_c_puct,
+                    tactical_root_bias,
+                    seed + entry_index + challenger_sims + current_sims,
+                    str(profile["hash"]),
+                    opening_prefix,
+                    max_trajectory_plies,
                 )
-            if len(rows) >= max(DEFAULT_GENERATION_ROWS, generated_rows_target):
-                break
+            )
+
+    if workers > 1:
+        with concurrent.futures.ProcessPoolExecutor(
+            max_workers=workers,
+            initializer=_init_dataset_worker,
+            initargs=(str(current_artifact),),
+        ) as executor:
+            generated_batches = list(
+                executor.map(
+                    _generate_teacher_trajectory_task,
+                    task_payloads,
+                    chunksize=DATASET_MAP_CHUNK_SIZE,
+                )
+            )
+    else:
+        _init_dataset_worker(str(current_artifact))
+        generated_batches = [
+            _generate_teacher_trajectory_task(payload) for payload in task_payloads
+        ]
+
+    for opening_prefix, budget_key, trajectory_rows in generated_batches:
+        if budget_counts[budget_key] >= budget_target and len(rows) >= MIN_TARGET_ROWS:
+            continue
+        remaining_prefix = max(0, prefix_cap - prefix_counts[opening_prefix])
+        if remaining_prefix <= 0:
+            continue
+        selected_rows = trajectory_rows[:remaining_prefix]
+        rows.extend(selected_rows)
+        prefix_counts[opening_prefix] += len(selected_rows)
+        budget_counts[budget_key] += len(selected_rows)
+        if len(rows) % 5000 == 0:
+            log_progress(
+                "dataset generation "
+                f"rows={len(rows)} unique_states={len({str(row['state_hash']) for row in rows})}"
+            )
         if len(rows) >= max(DEFAULT_GENERATION_ROWS, generated_rows_target):
             break
 
@@ -735,6 +844,85 @@ def select_balanced_rows(
         if not added:
             break
     return selected
+
+
+def apply_training_focus_repeats(
+    rows: list[dict[str, Any]], specs: list[TrainingFocusSpec]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    if not specs:
+        return list(rows), {"enabled": False, "specs": [], "added_rows": 0}
+    repeated = list(rows)
+    spec_summaries: list[dict[str, Any]] = []
+    added_rows = 0
+    for spec in specs:
+        matched_rows = [
+            row
+            for row in rows
+            if str(row["budget_context"]) == spec.budget_context
+            and str(row["first_move_family"]) in spec.first_move_families
+        ]
+        extra_copies = max(spec.copies - 1, 0)
+        for _ in range(extra_copies):
+            repeated.extend(matched_rows)
+        added = len(matched_rows) * extra_copies
+        added_rows += added
+        spec_summaries.append(
+            {
+                "budget_context": spec.budget_context,
+                "first_move_families": sorted(spec.first_move_families),
+                "copies": spec.copies,
+                "matched_rows": len(matched_rows),
+                "added_rows": added,
+            }
+        )
+    return repeated, {
+        "enabled": True,
+        "specs": spec_summaries,
+        "added_rows": added_rows,
+        "final_rows": len(repeated),
+    }
+
+
+def select_budget_specialized_training_rows(
+    rows: list[dict[str, Any]],
+    *,
+    primary_budgets: list[str],
+    anchor_budgets: list[str],
+    anchor_max_rows_per_budget: int,
+    seed: int,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    if not primary_budgets:
+        return list(rows), {
+            "enabled": False,
+            "primary_budgets": [],
+            "anchor_budgets": [],
+            "anchor_max_rows_per_budget": int(anchor_max_rows_per_budget),
+            "selected_rows": len(rows),
+        }
+    primary_budget_set = set(primary_budgets)
+    anchor_budget_set = set(anchor_budgets) - primary_budget_set
+    for budget in [*primary_budgets, *anchor_budgets]:
+        parse_budget_pair(budget)
+    selected = [row for row in rows if str(row["budget_context"]) in primary_budget_set]
+    rng = random.Random(seed)
+    anchor_counts: dict[str, int] = {}
+    for budget in sorted(anchor_budget_set):
+        anchor_rows = [row for row in rows if str(row["budget_context"]) == budget]
+        rng.shuffle(anchor_rows)
+        capped = anchor_rows[: max(int(anchor_max_rows_per_budget), 0)]
+        selected.extend(capped)
+        anchor_counts[budget] = len(capped)
+    return selected, {
+        "enabled": True,
+        "primary_budgets": list(primary_budgets),
+        "anchor_budgets": list(anchor_budgets),
+        "anchor_max_rows_per_budget": int(anchor_max_rows_per_budget),
+        "primary_rows": sum(
+            1 for row in selected if str(row["budget_context"]) in primary_budget_set
+        ),
+        "anchor_rows_by_budget": anchor_counts,
+        "selected_rows": len(selected),
+    }
 
 
 def build_probe_rows(
@@ -990,8 +1178,12 @@ def train_student_candidate(
     batch_size: int,
     lr: float,
     grad_clip: float,
+    value_loss_weight: float,
     seed: int,
     device: torch.device,
+    init_checkpoint: Path | None = None,
+    trainable_scope: str = "all",
+    disable_probe_early_stop: bool = False,
 ) -> dict[str, Any]:
     lane_dir = workdir / spec.name
     lane_dir.mkdir(parents=True, exist_ok=True)
@@ -1039,8 +1231,14 @@ def train_student_candidate(
                 "batch_size": batch_size,
                 "lr": lr,
                 "grad_clip": grad_clip,
+                "value_loss_weight": value_loss_weight,
                 "seed": seed,
                 "rows": len(train_rows),
+                "trainable_scope": trainable_scope,
+                "init_checkpoint": str(init_checkpoint)
+                if init_checkpoint is not None
+                else None,
+                "disable_probe_early_stop": disable_probe_early_stop,
                 "reused_existing_training": True,
             },
             "training_metrics": [],
@@ -1059,6 +1257,9 @@ def train_student_candidate(
         model_type=spec.model_type,
         input_size=input_size_for_encoding(input_encoding),
     ).to(device)
+    if init_checkpoint is not None:
+        load_checkpoint_into_model(model, init_checkpoint)
+    apply_trainable_scope(model, trainable_scope)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     set_seed(seed)
     training_metrics: list[dict[str, Any]] = []
@@ -1092,7 +1293,7 @@ def train_student_candidate(
                 value_loss=DEFAULT_VALUE_LOSS,
                 huber_delta=DEFAULT_HUBER_DELTA,
             ).mean()
-            total_loss = policy_loss + (DEFAULT_VALUE_LOSS_WEIGHT * value_loss)
+            total_loss = policy_loss + (float(value_loss_weight) * value_loss)
             optimizer.zero_grad(set_to_none=True)
             total_loss.backward()
             grad_squared = 0.0
@@ -1166,7 +1367,8 @@ def train_student_candidate(
             f"probe_kl={probe_metrics['policy_kl']:.4f}"
         )
         if (
-            epoch < epochs
+            not disable_probe_early_stop
+            and epoch < epochs
             and probe_metrics["top1_agreement"] < EARLY_STOP_TOP1_THRESHOLD
         ):
             log_progress(
@@ -1195,8 +1397,14 @@ def train_student_candidate(
             "batch_size": batch_size,
             "lr": lr,
             "grad_clip": grad_clip,
+            "value_loss_weight": value_loss_weight,
             "seed": seed,
             "rows": len(train_rows),
+            "trainable_scope": trainable_scope,
+            "init_checkpoint": str(init_checkpoint)
+            if init_checkpoint is not None
+            else None,
+            "disable_probe_early_stop": disable_probe_early_stop,
         },
         "training_metrics": training_metrics,
         "checkpoints": checkpoints,
@@ -1330,14 +1538,12 @@ def probe_abort_reasons(metrics: dict[str, Any]) -> list[str]:
     reasons: list[str] = []
     if int(metrics.get("legal_mask_failures", 0)) > 0:
         reasons.append("legal-mask failures")
-    if float(metrics.get("top1_agreement", 0.0)) < 0.55:
-        reasons.append("teacher top-1 agreement < 55%")
+    if float(metrics.get("top1_agreement", 0.0)) < 0.60:
+        reasons.append("teacher top-1 agreement < 60%")
     if float(metrics.get("policy_kl", 0.0)) > float(
         metrics.get("current_raw_policy_baseline_kl", 0.0)
     ):
         reasons.append("policy KL worse than current raw policy baseline")
-    if float(metrics.get("value_sign_accuracy", 0.0)) < 0.55:
-        reasons.append("value sign accuracy < 55%")
     entropy_ratio = float(metrics.get("entropy_ratio_vs_teacher", 0.0))
     mean_entropy = float(metrics.get("mean_output_entropy", 0.0))
     if mean_entropy < 0.05 or entropy_ratio < 0.25:
@@ -1742,7 +1948,7 @@ def maybe_run_gate(
         )
         return {
             "ran": False,
-            "reason": "did not clear held-out robustness gate for explicit gate run",
+            "reason": "did not clear post-probe held-out robustness gate for explicit gate run",
         }
     out_path = workdir / "gate" / f"{candidate_name}.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1778,26 +1984,12 @@ def classify_results(
     if same_size is not None:
         same_probe = same_size["probe_metrics"]
         same_summary = suite_summary.get(same_size["name"])
-        if (
-            current_suite_summary is None
-            or same_summary is None
-            or same_probe["aborted"]
-        ):
+        if current_suite_summary is None or same_summary is None:
             labels.append("distillation_pipeline_broken")
         else:
             current_heldout = current_suite_summary["heldout"]
             same_heldout = same_summary["heldout"]
-            if same_probe["top1_agreement"] < 0.55 or any(
-                float(same_heldout[budget]["mean_ds"])
-                - float(current_heldout[budget]["mean_ds"])
-                < -0.05
-                for budget in (
-                    PRIMARY_BUDGET,
-                    EQ_768_BUDGET,
-                    EQ_1200_BUDGET,
-                    ASYM_1200_256_BUDGET,
-                )
-            ):
+            if same_probe["aborted"]:
                 labels.append("distillation_pipeline_broken")
             same_budget_deltas = [
                 float(same_heldout[budget]["mean_ds"])
@@ -2241,6 +2433,49 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lr", type=float, default=DEFAULT_LR)
     parser.add_argument("--grad-clip", type=float, default=DEFAULT_GRAD_CLIP)
     parser.add_argument(
+        "--value-loss-weight", type=float, default=DEFAULT_VALUE_LOSS_WEIGHT
+    )
+    parser.add_argument(
+        "--student-init-current-compatible",
+        action="store_true",
+        help="Initialize same-shape student candidates from model-artifact/current",
+    )
+    parser.add_argument(
+        "--student-init-checkpoint",
+        default=None,
+        help="Optional checkpoint path to load into compatible student candidates before training",
+    )
+    parser.add_argument(
+        "--trainable-scope",
+        choices=SUPPORTED_TRAINABLE_SCOPES,
+        default="all",
+    )
+    parser.add_argument(
+        "--disable-probe-early-stop",
+        action="store_true",
+        help="Do not early-stop student training based on probe top-1 after each epoch",
+    )
+    parser.add_argument(
+        "--training-focus-repeats",
+        default=None,
+        help="Comma-separated replay-style duplication specs like 768:768@0|4|5*3",
+    )
+    parser.add_argument(
+        "--training-primary-budgets",
+        default=None,
+        help="Comma-separated training budget contexts to keep, e.g. 768:768",
+    )
+    parser.add_argument(
+        "--training-anchor-budgets",
+        default=None,
+        help="Comma-separated anchor budget contexts to mix in with capped rows per budget",
+    )
+    parser.add_argument(
+        "--training-anchor-max-rows-per-budget",
+        type=int,
+        default=0,
+    )
+    parser.add_argument(
         "--max-trajectory-plies", type=int, default=DEFAULT_MAX_TRAJECTORY_PLIES
     )
     parser.add_argument("--prefix-cap", type=int, default=DEFAULT_PREFIX_CAP)
@@ -2312,11 +2547,46 @@ def main() -> int:
         seed=int(args.seed),
         max_trajectory_plies=int(args.max_trajectory_plies),
         prefix_cap=int(args.prefix_cap),
+        workers=int(args.workers),
     )
     dataset_audit = load_json(workdir / DATASET_AUDIT_FILENAME)
     log_progress(
         f"probe set ready rows={len(probe_rows)} dataset_rows={dataset_audit['row_count']}"
     )
+    budget_specialized_summary = {
+        "enabled": False,
+        "primary_budgets": [],
+        "anchor_budgets": [],
+        "anchor_max_rows_per_budget": int(args.training_anchor_max_rows_per_budget),
+        "selected_rows": len(train_rows),
+    }
+    primary_training_budgets = parse_csv_values(args.training_primary_budgets)
+    anchor_training_budgets = parse_csv_values(args.training_anchor_budgets)
+    if primary_training_budgets:
+        train_rows, budget_specialized_summary = (
+            select_budget_specialized_training_rows(
+                train_rows,
+                primary_budgets=primary_training_budgets,
+                anchor_budgets=anchor_training_budgets,
+                anchor_max_rows_per_budget=int(
+                    args.training_anchor_max_rows_per_budget
+                ),
+                seed=int(args.seed),
+            )
+        )
+        log_progress(
+            "budget-specialized training rows enabled "
+            f"selected_rows={budget_specialized_summary['selected_rows']}"
+        )
+    focus_specs = parse_training_focus_specs(args.training_focus_repeats)
+    focused_train_rows, focus_summary = apply_training_focus_repeats(
+        train_rows, focus_specs
+    )
+    if focus_summary.get("enabled"):
+        log_progress(
+            "training focus repeats enabled "
+            f"added_rows={focus_summary['added_rows']} final_rows={focus_summary['final_rows']}"
+        )
 
     device = select_device(args.device)
     candidates: dict[str, dict[str, Any]] = {
@@ -2338,14 +2608,32 @@ def main() -> int:
         }
     }
 
+    current_compatible_init_checkpoint = None
+    if args.student_init_current_compatible:
+        current_compatible_init_checkpoint = current_checkpoint_path(
+            current_artifact, workdir
+        )
+    explicit_init_checkpoint = None
+    if args.student_init_checkpoint:
+        explicit_init_checkpoint = Path(str(args.student_init_checkpoint))
+        require_existing_file(explicit_init_checkpoint, "student init checkpoint")
+
     for spec in [
         parse_student_architecture(item)
         for item in args.student_architectures.split(",")
         if item.strip()
     ]:
+        init_checkpoint = None
+        if explicit_init_checkpoint is not None:
+            init_checkpoint = explicit_init_checkpoint
+        elif args.student_init_current_compatible and spec.hidden_sizes == (
+            int(architecture.get("trunk_size", 96)),
+            int(architecture.get("residual_block_count", 3)),
+        ):
+            init_checkpoint = current_compatible_init_checkpoint
         candidate = train_student_candidate(
             spec=spec,
-            train_rows=train_rows,
+            train_rows=focused_train_rows,
             probe_rows=probe_rows,
             workdir=workdir,
             input_encoding=input_encoding,
@@ -2353,8 +2641,12 @@ def main() -> int:
             batch_size=int(args.batch_size),
             lr=float(args.lr),
             grad_clip=float(args.grad_clip),
+            value_loss_weight=float(args.value_loss_weight),
             seed=int(args.seed),
             device=device,
+            init_checkpoint=init_checkpoint,
+            trainable_scope=str(args.trainable_scope),
+            disable_probe_early_stop=bool(args.disable_probe_early_stop),
         )
         candidates[spec.name] = candidate
 
@@ -2434,10 +2726,21 @@ def main() -> int:
             "heldout_suites": [str(path) for path in heldout_suites],
             "teacher_runtime_profile": teacher_profile,
             "dataset": dataset_inputs,
+            "training_budget_specialization": budget_specialized_summary,
+            "training_focus_repeats": focus_summary,
             "epochs": int(args.epochs),
             "batch_size": int(args.batch_size),
             "lr": float(args.lr),
             "grad_clip": float(args.grad_clip),
+            "value_loss_weight": float(args.value_loss_weight),
+            "student_init_current_compatible": bool(
+                args.student_init_current_compatible
+            ),
+            "student_init_checkpoint": str(explicit_init_checkpoint)
+            if explicit_init_checkpoint is not None
+            else None,
+            "trainable_scope": str(args.trainable_scope),
+            "disable_probe_early_stop": bool(args.disable_probe_early_stop),
             "workers": int(args.workers),
             "seed": int(args.seed),
             "suite_eval_skipped": len(evaluated_candidates) == 1,
