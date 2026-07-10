@@ -1859,22 +1859,52 @@ def compute_bootstrap_comparisons(
     for candidate_name in candidate_names:
         if candidate_name == "current_ref":
             continue
+        candidate_metrics: dict[str, Any] = {}
         for budget in (
             PRIMARY_BUDGET,
             EQ_768_BUDGET,
             EQ_1200_BUDGET,
             ASYM_1200_256_BUDGET,
         ):
-            diffs = pooled_per_opening_differences(
+            ds_diffs = pooled_per_opening_differences(
+                suite_rows=heldout_only,
+                candidate_a=candidate_name,
+                candidate_b="current_ref",
+                budget_pair=budget,
+                metric_key="ds",
+            )
+            disadvantaged_diffs = pooled_per_opening_differences(
                 suite_rows=heldout_only,
                 candidate_a=candidate_name,
                 candidate_b="current_ref",
                 budget_pair=budget,
                 metric_key="disadvantaged_seat_score",
             )
-            comparisons[
-                f"{candidate_name}_minus_current_ref_{budget.replace(':', '_')}"
-            ] = bootstrap_ci(diffs, seed=seed, samples=DEFAULT_BOOTSTRAP_SAMPLES)
+            candidate_metrics[budget] = {
+                "ds": {
+                    "candidate_minus_current": bootstrap_ci(
+                        ds_diffs, seed=seed, samples=DEFAULT_BOOTSTRAP_SAMPLES
+                    ),
+                    "current_minus_candidate": bootstrap_ci(
+                        [-diff for diff in ds_diffs],
+                        seed=seed,
+                        samples=DEFAULT_BOOTSTRAP_SAMPLES,
+                    ),
+                },
+                "disadvantaged_seat_score": {
+                    "candidate_minus_current": bootstrap_ci(
+                        disadvantaged_diffs,
+                        seed=seed,
+                        samples=DEFAULT_BOOTSTRAP_SAMPLES,
+                    ),
+                    "current_minus_candidate": bootstrap_ci(
+                        [-diff for diff in disadvantaged_diffs],
+                        seed=seed,
+                        samples=DEFAULT_BOOTSTRAP_SAMPLES,
+                    ),
+                },
+            }
+        comparisons[candidate_name] = candidate_metrics
     return comparisons
 
 
@@ -2102,6 +2132,36 @@ def build_report(
     def suite_entry(name: str) -> dict[str, Any]:
         return suite_summary.get(name, {})
 
+    def bootstrap_rows(metric_key: str) -> list[list[Any]]:
+        rows: list[list[Any]] = []
+        for candidate_name in sorted(bootstrap):
+            for budget in (
+                PRIMARY_BUDGET,
+                EQ_768_BUDGET,
+                EQ_1200_BUDGET,
+                ASYM_1200_256_BUDGET,
+            ):
+                budget_metrics = bootstrap.get(candidate_name, {}).get(budget, {})
+                metric_entry = budget_metrics.get(metric_key, {})
+                for orientation in (
+                    "candidate_minus_current",
+                    "current_minus_candidate",
+                ):
+                    ci = metric_entry.get(orientation)
+                    if not ci:
+                        continue
+                    rows.append(
+                        [
+                            candidate_name,
+                            budget,
+                            orientation,
+                            fmt(ci.get("mean")),
+                            fmt(ci.get("lower")),
+                            fmt(ci.get("upper")),
+                        ]
+                    )
+        return rows or [["none", "n/a", "n/a", "n/a", "n/a", "n/a"]]
+
     lines = [
         "# AlphaZero-Lite Search-Teacher Student Preflight Results",
         "",
@@ -2272,7 +2332,7 @@ def build_report(
             [
                 "Candidate",
                 "Held-out mean 384:256",
-                "Delta vs current",
+                "DS delta vs current",
                 "Held-out worst-suite 384:256",
             ],
             [
@@ -2308,15 +2368,32 @@ def build_report(
             ],
         ),
         "",
-        "## Bootstrap CI For Candidate Minus Current",
+        "## Bootstrap CI For DS",
         "",
         markdown_table(
-            ["Comparison", "Mean", "Lower 95%", "Upper 95%"],
             [
-                [key, fmt(value["mean"]), fmt(value["lower"]), fmt(value["upper"])]
-                for key, value in sorted(bootstrap.items())
-            ]
-            or [["none", "n/a", "n/a", "n/a"]],
+                "Candidate",
+                "Budget",
+                "Orientation",
+                "Mean",
+                "Lower 95%",
+                "Upper 95%",
+            ],
+            bootstrap_rows("ds"),
+        ),
+        "",
+        "## Bootstrap CI For Disadvantaged-Seat Score",
+        "",
+        markdown_table(
+            [
+                "Candidate",
+                "Budget",
+                "Orientation",
+                "Mean",
+                "Lower 95%",
+                "Upper 95%",
+            ],
+            bootstrap_rows("disadvantaged_seat_score"),
         ),
         "",
         "## P0/P1 Split For 384:256",
@@ -2490,6 +2567,13 @@ def main() -> int:
     workdir = Path(args.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     log_progress(f"starting workdir={workdir}")
+    previous_summary = None
+    previous_summary_path = workdir / SUMMARY_FILENAME
+    if previous_summary_path.is_file():
+        try:
+            previous_summary = load_json(previous_summary_path)
+        except Exception:
+            previous_summary = None
 
     current_artifact = Path(args.current)
     current_weights = current_artifact / "weights.json"
@@ -2715,6 +2799,30 @@ def main() -> int:
                 "reason": "aborted after probe",
             }
 
+    if (
+        len(evaluated_candidates) == 1
+        and previous_summary is not None
+        and previous_summary.get("suite_rows")
+        and previous_summary.get("suite_summary")
+    ):
+        previous_candidates = set(previous_summary.get("candidates", {}).keys())
+        if set(candidates.keys()).issubset(previous_candidates):
+            log_progress(
+                "preserving previously computed suite/bootstrap data from existing summary"
+            )
+            suite_rows = previous_summary.get("suite_rows", suite_rows)
+            suite_summary = previous_summary.get("suite_summary", suite_summary)
+            bootstrap_cis = previous_summary.get("bootstrap_cis", bootstrap_cis)
+            previous_gate = previous_summary.get("gate_results", {})
+            merged_gate_results: dict[str, dict[str, Any] | None] = dict(previous_gate)
+            merged_gate_results.update(gate_results)
+            gate_results = merged_gate_results
+            preserved_classifications = previous_summary.get("classifications")
+        else:
+            preserved_classifications = None
+    else:
+        preserved_classifications = None
+
     summary = {
         "schema": SUMMARY_SCHEMA,
         "inputs": {
@@ -2752,9 +2860,9 @@ def main() -> int:
         "suite_summary": suite_summary,
         "bootstrap_cis": bootstrap_cis,
         "gate_results": gate_results,
-        "classifications": classify_results(
-            candidates=candidates, suite_summary=suite_summary
-        ),
+        "classifications": preserved_classifications
+        if preserved_classifications is not None
+        else classify_results(candidates=candidates, suite_summary=suite_summary),
     }
     write_json(workdir / SUMMARY_FILENAME, summary)
     report_text = build_report(
