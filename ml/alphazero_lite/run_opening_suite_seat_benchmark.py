@@ -98,6 +98,8 @@ def run_arena(
     value_transform_json: str | None = None,
     challenger_value_transform_json: str | None = None,
     current_value_transform_json: str | None = None,
+    challenger_blend_current: bool = False,
+    challenger_value_alpha: float = 1.0,
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -153,6 +155,14 @@ def run_arena(
     if current_value_transform_json is not None:
         cmd.extend(
             ["--current-value-transform-json", str(current_value_transform_json)]
+        )
+    if challenger_blend_current:
+        cmd.extend(
+            [
+                "--challenger-blend-current",
+                "--challenger-value-alpha",
+                str(challenger_value_alpha),
+            ]
         )
 
     result = subprocess.run(
