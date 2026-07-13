@@ -424,12 +424,49 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--challenger-value-transform-json", default=None)
     parser.add_argument("--current-value-transform-json", default=None)
+    parser.add_argument(
+        "--challenger-search-options-json",
+        default=None,
+        help="Optional JSON object overriding search options for the challenger only.",
+    )
+    parser.add_argument(
+        "--current-search-options-json",
+        default=None,
+        help="Optional JSON object overriding search options for current only.",
+    )
+    parser.add_argument("--challenger-c-puct", type=float, default=None)
+    parser.add_argument("--current-c-puct", type=float, default=None)
     add_search_option_args(parser)
     parser.set_defaults(
         root_policy_mode=DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
         tactical_root_bias=DEFAULT_EVAL_SEARCH_OPTIONS["tactical_root_bias"],
     )
     return parser.parse_args()
+
+
+def parse_search_options_override(text: str | None, *, base: dict) -> dict:
+    """Apply a validated per-side search-options JSON override to ``base``."""
+    if text is None:
+        return base
+    override = json.loads(text)
+    if not isinstance(override, dict):
+        raise ValueError("search-options override must be a JSON object")
+    allowed = {
+        "fpu_mode",
+        "reuse_subtree",
+        "normalize_values",
+        "root_policy_mode",
+        "tactical_root_bias",
+        "root_temperature",
+        "value_trust_schedule",
+        "value_transform",
+    }
+    unknown = set(override) - allowed
+    if unknown:
+        raise ValueError(
+            f"unsupported search-options override fields: {sorted(unknown)}"
+        )
+    return build_eval_search_options(**{**base, **override})
 
 
 def partition_counts(total: int, workers: int) -> list[int]:
@@ -1408,6 +1445,10 @@ def run_arena_worker(
     tactical_root_bias: float = 0.1,
     root_temperature: float = DEFAULT_EVAL_SEARCH_OPTIONS["root_temperature"],
     value_trust_schedule: dict | None = None,
+    challenger_search_options: dict | None = None,
+    current_search_options: dict | None = None,
+    challenger_c_puct: float | None = None,
+    current_c_puct: float | None = None,
     value_transform: dict | None = None,
     challenger_value_transform: dict | None = None,
     current_value_transform: dict | None = None,
@@ -1439,6 +1480,12 @@ def run_arena_worker(
         root_temperature=root_temperature,
         value_trust_schedule=value_trust_schedule,
         value_transform=value_transform,
+    )
+    effective_challenger_search_options = (
+        challenger_search_options or normalized_search_options
+    )
+    effective_current_search_options = (
+        current_search_options or normalized_search_options
     )
     effective_challenger_value_transform = (
         normalize_value_transform_config(challenger_value_transform)
@@ -1667,9 +1714,14 @@ def run_arena_worker(
                         opening_cache_misses += 1
 
             if cached_move is None:
+                acting_search_options = (
+                    effective_challenger_search_options
+                    if acting_player == challenger_player
+                    else effective_current_search_options
+                )
                 puct_kwargs = {}
-                if "value_trust_schedule" in normalized_search_options:
-                    puct_kwargs["value_trust_schedule"] = normalized_search_options[
+                if "value_trust_schedule" in acting_search_options:
+                    puct_kwargs["value_trust_schedule"] = acting_search_options[
                         "value_trust_schedule"
                     ]
                 acting_value_transform = (
@@ -1682,20 +1734,26 @@ def run_arena_worker(
                 search = PUCT(
                     evaluator=evaluator,
                     simulations=sims,
-                    c_puct=c_puct,
+                    c_puct=(
+                        float(challenger_c_puct)
+                        if acting_player == challenger_player
+                        and challenger_c_puct is not None
+                        else float(current_c_puct)
+                        if acting_player != challenger_player
+                        and current_c_puct is not None
+                        else c_puct
+                    ),
                     rng=random.Random(int(rng.integers(0, 2**31 - 1))),
                     root=reusable_roots[acting_player],
-                    fpu_mode=str(normalized_search_options["fpu_mode"]),
-                    reuse_subtree=bool(normalized_search_options["reuse_subtree"]),
-                    normalize_values=bool(
-                        normalized_search_options["normalize_values"]
-                    ),
-                    root_policy_mode=str(normalized_search_options["root_policy_mode"]),
+                    fpu_mode=str(acting_search_options["fpu_mode"]),
+                    reuse_subtree=bool(acting_search_options["reuse_subtree"]),
+                    normalize_values=bool(acting_search_options["normalize_values"]),
+                    root_policy_mode=str(acting_search_options["root_policy_mode"]),
                     tactical_root_bias=float(
-                        normalized_search_options["tactical_root_bias"]
+                        acting_search_options["tactical_root_bias"]
                     ),
                     root_temperature=float(
-                        normalized_search_options.get("root_temperature", 0.0)
+                        acting_search_options.get("root_temperature", 0.0)
                     ),
                     root_prior_override=(
                         challenger_root_prior_override
@@ -2004,6 +2062,12 @@ def main() -> None:
 
     workers = max(1, args.workers)
     search_options = build_eval_search_options(**search_options_from_args(args))
+    challenger_search_options = parse_search_options_override(
+        args.challenger_search_options_json, base=search_options
+    )
+    current_search_options = parse_search_options_override(
+        args.current_search_options_json, base=search_options
+    )
     challenger_value_transform = parse_value_transform_json(
         args.challenger_value_transform_json
     )
@@ -2051,6 +2115,10 @@ def main() -> None:
                     tactical_root_bias=float(search_options["tactical_root_bias"]),
                     root_temperature=float(search_options.get("root_temperature", 0.0)),
                     value_trust_schedule=search_options.get("value_trust_schedule"),
+                    challenger_search_options=challenger_search_options,
+                    current_search_options=current_search_options,
+                    challenger_c_puct=args.challenger_c_puct,
+                    current_c_puct=args.current_c_puct,
                     value_transform=search_options.get("value_transform"),
                     challenger_value_transform=challenger_value_transform,
                     current_value_transform=current_value_transform,
