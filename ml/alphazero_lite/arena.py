@@ -436,6 +436,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--challenger-c-puct", type=float, default=None)
     parser.add_argument("--current-c-puct", type=float, default=None)
+    parser.add_argument(
+        "--challenger-blend-current",
+        action="store_true",
+        help="Interpolate challenger values from --current while retaining current policy.",
+    )
+    parser.add_argument("--challenger-value-alpha", type=float, default=1.0)
     add_search_option_args(parser)
     parser.set_defaults(
         root_policy_mode=DEFAULT_EVAL_SEARCH_OPTIONS["root_policy_mode"],
@@ -733,6 +739,32 @@ class ArtifactEvaluator:
             np.tanh((value_hidden @ self.w_value + self.b_value).reshape(-1)[0])
         )
         return masked, value
+
+
+class BlendedArtifactEvaluator:
+    """Use current policy/legal masking with an interpolated nonterminal value."""
+
+    def __init__(
+        self,
+        current_evaluator: ArtifactEvaluator,
+        candidate_evaluator: ArtifactEvaluator,
+        value_alpha: float,
+    ):
+        if not 0.0 <= float(value_alpha) <= 1.0:
+            raise ValueError("value_alpha must be in [0, 1]")
+        self.current_evaluator = current_evaluator
+        self.candidate_evaluator = candidate_evaluator
+        self.value_alpha = float(value_alpha)
+
+    def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
+        if game.over():
+            # PUCT backs up the exact terminal outcome; neither model is read.
+            return np.zeros(PITS_PER_PLAYER, dtype=np.float32), 0.0
+        current_policy, current_value = self.current_evaluator.evaluate(game)
+        _candidate_policy, candidate_value = self.candidate_evaluator.evaluate(game)
+        value = current_value + self.value_alpha * (candidate_value - current_value)
+        # PUCT checks terminal leaves before evaluator invocation.
+        return current_policy, float(value)
 
 
 def choose_best_move(visits: np.ndarray, legal_moves: list[int]) -> int:
@@ -1433,6 +1465,8 @@ def run_arena_worker(
     games: int,
     challenger_path: str,
     current_path: str,
+    challenger_blend_current: bool = False,
+    challenger_value_alpha: float = 1.0,
     challenger_simulations: int,
     current_simulations: int,
     seed: int,
@@ -1466,8 +1500,16 @@ def run_arena_worker(
     opening_cache_path: str | None = None,
 ) -> dict:
     rng = np.random.default_rng(seed + worker_id)
-    challenger = ArtifactEvaluator(Path(challenger_path))
     current = ArtifactEvaluator(Path(current_path))
+    challenger = (
+        BlendedArtifactEvaluator(
+            current,
+            ArtifactEvaluator(Path(challenger_path)),
+            challenger_value_alpha,
+        )
+        if challenger_blend_current
+        else ArtifactEvaluator(Path(challenger_path))
+    )
     if opening_cache is None and opening_cache_path:
         opening_cache = load_opening_cache_artifact(opening_cache_path)
 
@@ -2102,6 +2144,8 @@ def main() -> None:
                     games=count,
                     challenger_path=str(challenger_path),
                     current_path=str(current_path),
+                    challenger_blend_current=bool(args.challenger_blend_current),
+                    challenger_value_alpha=float(args.challenger_value_alpha),
                     challenger_simulations=args.challenger_simulations,
                     current_simulations=args.current_simulations,
                     seed=args.seed,
