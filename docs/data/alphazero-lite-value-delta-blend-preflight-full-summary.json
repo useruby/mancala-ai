@@ -1,0 +1,3789 @@
+{
+  "audit": {
+    "changed_parameters": [
+      "b_value",
+      "b_value_hidden",
+      "w_value",
+      "w_value_hidden"
+    ],
+    "delta_breakdown": {
+      "budget_context:384": {
+        "mean": 0.04269942691673279,
+        "mean_abs": 0.10208323525931498,
+        "rows": 1535
+      },
+      "budget_context:768": {
+        "mean": 0.03855364862942912,
+        "mean_abs": 0.11799577015137107,
+        "rows": 513
+      },
+      "current_value_bucket:[-0.25,0.00)": {
+        "mean": 0.021595401426123435,
+        "mean_abs": 0.11693951235390315,
+        "rows": 495
+      },
+      "current_value_bucket:[-0.50,-0.25)": {
+        "mean": -0.06319301991374945,
+        "mean_abs": 0.10838338348763121,
+        "rows": 163
+      },
+      "current_value_bucket:[-0.75,-0.50)": {
+        "mean": -0.029341256440575444,
+        "mean_abs": 0.07333867318594633,
+        "rows": 134
+      },
+      "current_value_bucket:[-1.00,-0.75)": {
+        "mean": -0.0032855770255945907,
+        "mean_abs": 0.02606601352933087,
+        "rows": 79
+      },
+      "current_value_bucket:[0.00,0.25)": {
+        "mean": 0.07499742835215946,
+        "mean_abs": 0.1167657062956078,
+        "rows": 777
+      },
+      "current_value_bucket:[0.25,0.50)": {
+        "mean": 0.08110439093083355,
+        "mean_abs": 0.10746964904750493,
+        "rows": 282
+      },
+      "current_value_bucket:[0.50,0.75)": {
+        "mean": 0.06928767994889673,
+        "mean_abs": 0.07659625023041132,
+        "rows": 106
+      },
+      "current_value_bucket:[0.75,1.00)": {
+        "mean": 0.052894617120424904,
+        "mean_abs": 0.05323762198289236,
+        "rows": 12
+      },
+      "phase:late": {
+        "mean": 0.018121836269969778,
+        "mean_abs": 0.0797753160189439,
+        "rows": 683
+      },
+      "phase:mid": {
+        "mean": 0.025081280243666883,
+        "mean_abs": 0.11272463787561501,
+        "rows": 683
+      },
+      "phase:opening": {
+        "mean": 0.0818385828229738,
+        "mean_abs": 0.12573625762568638,
+        "rows": 682
+      },
+      "seat:player_0": {
+        "mean": 0.09909577831399474,
+        "mean_abs": 0.1343337867513128,
+        "rows": 1024
+      },
+      "seat:player_1": {
+        "mean": -0.015773862235789693,
+        "mean_abs": 0.07780449079820073,
+        "rows": 1024
+      },
+      "terminal_outcome_sign:negative": {
+        "mean": -0.0058039665983285966,
+        "mean_abs": 0.0929163425005752,
+        "rows": 909
+      },
+      "terminal_outcome_sign:positive": {
+        "mean": 0.08761169938983106,
+        "mean_abs": 0.11717153661030737,
+        "rows": 956
+      },
+      "terminal_outcome_sign:zero": {
+        "mean": 0.037380672597181294,
+        "mean_abs": 0.11340246927991886,
+        "rows": 183
+      }
+    },
+    "legal_mask_failures": 0,
+    "non_value_parameter_changes": [],
+    "policy_failures": 0,
+    "rows": 2048,
+    "value_delta": {
+      "absolute_percentiles": {
+        "50": 0.09388475865125656,
+        "75": 0.14859619550406933,
+        "90": 0.21159997023642063,
+        "95": 0.26326173506677136,
+        "99": 0.33567388355731964
+      },
+      "max": 0.39966773241758347,
+      "mean": 0.041660958039102525,
+      "min": -0.28673088550567627,
+      "sign_change_rate": 0.13916015625,
+      "stddev": 0.1243467339848985
+    }
+  },
+  "candidate_artifact_hash": "69f56d96e86970a4aca16c23f4215bde04db199baf85f7e58271dc191de1ef8f",
+  "classification": "blended_value_safe_but_strength_neutral",
+  "current_artifact_hash": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "monotonicity": {
+    "1200:1200": {
+      "child_q_delta_monotonic": true,
+      "root_value_delta_monotonic": true,
+      "visit_kl_generally_increasing": true
+    },
+    "1200:256": {
+      "child_q_delta_monotonic": true,
+      "root_value_delta_monotonic": true,
+      "visit_kl_generally_increasing": true
+    },
+    "256:768": {
+      "child_q_delta_monotonic": true,
+      "root_value_delta_monotonic": true,
+      "visit_kl_generally_increasing": true
+    },
+    "384:256": {
+      "child_q_delta_monotonic": true,
+      "root_value_delta_monotonic": true,
+      "visit_kl_generally_increasing": true
+    },
+    "768:256": {
+      "child_q_delta_monotonic": true,
+      "root_value_delta_monotonic": true,
+      "visit_kl_generally_increasing": true
+    },
+    "768:768": {
+      "child_q_delta_monotonic": true,
+      "root_value_delta_monotonic": true,
+      "visit_kl_generally_increasing": true
+    }
+  },
+  "probe_only": false,
+  "probes": {
+    "asym050_equal010": {
+      "abort_reasons": [],
+      "alpha": "budget_conditioned",
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": true,
+      "carry_to_medium": true,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.14285714285714285,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.06666666666666667,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.026845637583892617,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.007944727068310559,
+            "current_selected_teacher_rate": 0.7142857142857143,
+            "mean_absolute_child_q_delta": 0.0067402061985898255,
+            "mean_absolute_root_value_delta": 0.005192337302815299,
+            "root_visit_kl_vs_alpha_000": 0.005434576836003233,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.010852864583333333,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.18181818181818182,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.13333333333333333,
+              "opening": 0.06382978723404255
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.06542056074766354
+            },
+            "changed_row_mean_absolute_value_delta": 0.044070140559436394,
+            "current_selected_teacher_rate": 0.7727272727272727,
+            "mean_absolute_child_q_delta": 0.028650697929604396,
+            "mean_absolute_root_value_delta": 0.023551863522686033,
+            "root_visit_kl_vs_alpha_000": 0.05902165708022973,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.057435154270276796,
+              "upper": 0.12668317012427743
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0859375,
+            "selected_visit_share_delta": 0.03390950520833333,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.2857142857142857,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.01904761904761905,
+              "opening": 0.0425531914893617
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.03355704697986577,
+              "player_1": 0.018691588785046728
+            },
+            "changed_row_mean_absolute_value_delta": 0.035774954878255424,
+            "current_selected_teacher_rate": 0.5714285714285714,
+            "mean_absolute_child_q_delta": 0.030616974597521617,
+            "mean_absolute_root_value_delta": 0.026269972989228174,
+            "root_visit_kl_vs_alpha_000": 0.026956507896199702,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.0338287353515625,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.05714285714285714,
+              "opening": 0.0851063829787234
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.04697986577181208,
+              "player_1": 0.07476635514018691
+            },
+            "changed_row_mean_absolute_value_delta": 0.041750285078036437,
+            "current_selected_teacher_rate": 0.9333333333333333,
+            "mean_absolute_child_q_delta": 0.029608974283416845,
+            "mean_absolute_root_value_delta": 0.02499336691532254,
+            "root_visit_kl_vs_alpha_000": 0.03529343265643209,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.03582628728223662,
+              "upper": 0.0944130585345995
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.05859375,
+            "selected_visit_share_delta": 0.031880696614583336,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.25,
+            "changed_rate_by_phase": {
+              "late": 0.038461538461538464,
+              "mid": 0.14285714285714285,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.056074766355140186
+            },
+            "changed_row_mean_absolute_value_delta": 0.047938338556057315,
+            "current_selected_teacher_rate": 0.625,
+            "mean_absolute_child_q_delta": 0.029656683243178415,
+            "mean_absolute_root_value_delta": 0.02511542175389181,
+            "root_visit_kl_vs_alpha_000": 0.03686868027833691,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.06380939671495478,
+              "upper": 0.1357029215589475
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.09375,
+            "selected_visit_share_delta": 0.036809285481770836,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.3333333333333333,
+            "changed_rate_by_phase": {
+              "late": 0.019230769230769232,
+              "mid": 0.047619047619047616,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.040268456375838924,
+              "player_1": 0.056074766355140186
+            },
+            "changed_row_mean_absolute_value_delta": 0.01420638656291197,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.007655944781972247,
+            "mean_absolute_root_value_delta": 0.00587118571445531,
+            "root_visit_kl_vs_alpha_000": 0.010827611818170603,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.013142903645833336,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.04697986577181208,
+          "player_1": 0.07476635514018691
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 342,
+            "terminal_outcome_correlation": 0.14631985015237334,
+            "terminal_outcome_mae": 0.8434348736317966,
+            "terminal_outcome_sign_accuracy": 0.6052631578947368
+          },
+          "[-0.50,-0.25)": {
+            "rows": 181,
+            "terminal_outcome_correlation": 0.024049479470670848,
+            "terminal_outcome_mae": 0.6839853880402132,
+            "terminal_outcome_sign_accuracy": 0.7734806629834254
+          },
+          "[-0.75,-0.50)": {
+            "rows": 140,
+            "terminal_outcome_correlation": -0.039183649657628,
+            "terminal_outcome_mae": 0.45402119436434335,
+            "terminal_outcome_sign_accuracy": 0.9071428571428571
+          },
+          "[-1.00,-0.75)": {
+            "rows": 81,
+            "terminal_outcome_correlation": 0.03976685252496198,
+            "terminal_outcome_mae": 0.1602950154999156,
+            "terminal_outcome_sign_accuracy": 0.9876543209876543
+          },
+          "[0.00,0.25)": {
+            "rows": 800,
+            "terminal_outcome_correlation": 0.20911895595482302,
+            "terminal_outcome_mae": 0.8853267790636892,
+            "terminal_outcome_sign_accuracy": 0.545
+          },
+          "[0.25,0.50)": {
+            "rows": 349,
+            "terminal_outcome_correlation": 0.2711660952107786,
+            "terminal_outcome_mae": 0.7225150041025996,
+            "terminal_outcome_sign_accuracy": 0.7163323782234957
+          },
+          "[0.50,0.75)": {
+            "rows": 137,
+            "terminal_outcome_correlation": 0.11505015317831832,
+            "terminal_outcome_mae": 0.41961706304637186,
+            "terminal_outcome_sign_accuracy": 0.9781021897810219
+          },
+          "[0.75,1.00)": {
+            "rows": 18,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.1843024260467953,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7842659596360295,
+            "terminal_outcome_mae": 0.5548311197560275,
+            "terminal_outcome_sign_accuracy": 0.8125915080527086
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.48940287687190426,
+            "terminal_outcome_mae": 0.7834776888051705,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.30243345367085395,
+            "terminal_outcome_mae": 0.8738448243775805,
+            "terminal_outcome_sign_accuracy": 0.5645161290322581
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5596810864207465,
+        "terminal_outcome_mae": 0.7373179133168009,
+        "terminal_outcome_sign_accuracy": 0.6796875
+      }
+    },
+    "asym075_equal010": {
+      "abort_reasons": [
+        "asymmetric_search_change_too_high"
+      ],
+      "alpha": "budget_conditioned",
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": false,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.14285714285714285,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.06666666666666667,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.026845637583892617,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.007944727068310559,
+            "current_selected_teacher_rate": 0.7142857142857143,
+            "mean_absolute_child_q_delta": 0.0067402061985898255,
+            "mean_absolute_root_value_delta": 0.005192337302815299,
+            "root_visit_kl_vs_alpha_000": 0.005434576836003233,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.010852864583333333,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.27586206896551724,
+            "changed_rate_by_phase": {
+              "late": 0.0673076923076923,
+              "mid": 0.17142857142857143,
+              "opening": 0.0851063829787234
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.08411214953271028
+            },
+            "changed_row_mean_absolute_value_delta": 0.06079672523255231,
+            "current_selected_teacher_rate": 0.6896551724137931,
+            "mean_absolute_child_q_delta": 0.041513843369252214,
+            "mean_absolute_root_value_delta": 0.03406698187148751,
+            "root_visit_kl_vs_alpha_000": 0.07279074887943356,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.08004020882965396,
+              "upper": 0.1579570941426184
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.11328125,
+            "selected_visit_share_delta": 0.03953125,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.3076923076923077,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.047619047619047616,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.037383177570093455
+            },
+            "changed_row_mean_absolute_value_delta": 0.04533729876484271,
+            "current_selected_teacher_rate": 0.5384615384615384,
+            "mean_absolute_child_q_delta": 0.04536997776592799,
+            "mean_absolute_root_value_delta": 0.03939394989837608,
+            "root_visit_kl_vs_alpha_000": 0.038764191076196594,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.029913524810755973,
+              "upper": 0.08493182712673211
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.05078125,
+            "selected_visit_share_delta": 0.0429229736328125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.09523809523809523,
+              "opening": 0.1276595744680851
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0738255033557047,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.054948078351112845,
+            "current_selected_teacher_rate": 0.9545454545454546,
+            "mean_absolute_child_q_delta": 0.04197180443611998,
+            "mean_absolute_root_value_delta": 0.03632031220931298,
+            "root_visit_kl_vs_alpha_000": 0.047164582724008704,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.057435154270276796,
+              "upper": 0.12668317012427743
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0859375,
+            "selected_visit_share_delta": 0.044158935546875,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.24,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.14285714285714285,
+              "opening": 0.0851063829787234
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.06542056074766354
+            },
+            "changed_row_mean_absolute_value_delta": 0.06227037526261672,
+            "current_selected_teacher_rate": 0.68,
+            "mean_absolute_child_q_delta": 0.04227353978872205,
+            "mean_absolute_root_value_delta": 0.035835195285105446,
+            "root_visit_kl_vs_alpha_000": 0.059917647047243186,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.06702355783594618,
+              "upper": 0.14018575737763012
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.09765625,
+            "selected_visit_share_delta": 0.04703267415364583,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.3333333333333333,
+            "changed_rate_by_phase": {
+              "late": 0.019230769230769232,
+              "mid": 0.047619047619047616,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.040268456375838924,
+              "player_1": 0.056074766355140186
+            },
+            "changed_row_mean_absolute_value_delta": 0.01420638656291197,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.007655944781972247,
+            "mean_absolute_root_value_delta": 0.00587118571445531,
+            "root_visit_kl_vs_alpha_000": 0.010827611818170603,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.013142903645833336,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.0738255033557047,
+          "player_1": 0.102803738317757
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 323,
+            "terminal_outcome_correlation": 0.18234897477762782,
+            "terminal_outcome_mae": 0.8310026380538651,
+            "terminal_outcome_sign_accuracy": 0.6191950464396285
+          },
+          "[-0.50,-0.25)": {
+            "rows": 182,
+            "terminal_outcome_correlation": 0.033140119203305986,
+            "terminal_outcome_mae": 0.6919322097674012,
+            "terminal_outcome_sign_accuracy": 0.7692307692307693
+          },
+          "[-0.75,-0.50)": {
+            "rows": 143,
+            "terminal_outcome_correlation": -0.08600991169775359,
+            "terminal_outcome_mae": 0.44997917876376975,
+            "terminal_outcome_sign_accuracy": 0.9020979020979021
+          },
+          "[-1.00,-0.75)": {
+            "rows": 83,
+            "terminal_outcome_correlation": 0.017282678908512532,
+            "terminal_outcome_mae": 0.15950308165636407,
+            "terminal_outcome_sign_accuracy": 0.9879518072289156
+          },
+          "[0.00,0.25)": {
+            "rows": 740,
+            "terminal_outcome_correlation": 0.14686666651004174,
+            "terminal_outcome_mae": 0.8956866799110021,
+            "terminal_outcome_sign_accuracy": 0.5216216216216216
+          },
+          "[0.25,0.50)": {
+            "rows": 399,
+            "terminal_outcome_correlation": 0.1625919745070394,
+            "terminal_outcome_mae": 0.7207038347900525,
+            "terminal_outcome_sign_accuracy": 0.7167919799498746
+          },
+          "[0.50,0.75)": {
+            "rows": 151,
+            "terminal_outcome_correlation": 0.1000101165772518,
+            "terminal_outcome_mae": 0.4190939775365867,
+            "terminal_outcome_sign_accuracy": 0.9735099337748344
+          },
+          "[0.75,1.00)": {
+            "rows": 27,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.19195489475020655,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7872395148507504,
+            "terminal_outcome_mae": 0.5466316055445448,
+            "terminal_outcome_sign_accuracy": 0.8125915080527086
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.49726579132595855,
+            "terminal_outcome_mae": 0.7721652898007121,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3191487336550394,
+            "terminal_outcome_mae": 0.8651436350008871,
+            "terminal_outcome_sign_accuracy": 0.5718475073313783
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.566938835657222,
+        "terminal_outcome_mae": 0.7279132024372146,
+        "terminal_outcome_sign_accuracy": 0.68212890625
+      }
+    },
+    "asym100_equal000": {
+      "abort_reasons": [
+        "asymmetric_search_change_too_high"
+      ],
+      "alpha": "budget_conditioned",
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": false,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.24242424242424243,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.19047619047619047,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.12149532710280374
+            },
+            "changed_row_mean_absolute_value_delta": 0.07185402934112503,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05289985164948578,
+            "mean_absolute_root_value_delta": 0.04473140361657433,
+            "root_visit_kl_vs_alpha_000": 0.08908194696164037,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.049889322916666666,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.2692307692307692,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.08571428571428572,
+              "opening": 0.2553191489361702
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.0866351694827778,
+            "current_selected_teacher_rate": 0.5769230769230769,
+            "mean_absolute_child_q_delta": 0.06070679213221661,
+            "mean_absolute_root_value_delta": 0.051485437988837646,
+            "root_visit_kl_vs_alpha_000": 0.05180524512618286,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0702545071910243,
+              "upper": 0.14465180496222602
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.1015625,
+            "selected_visit_share_delta": 0.0537872314453125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.06896551724137931,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.13333333333333333,
+              "opening": 0.14893617021276595
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.08056775496768896,
+            "current_selected_teacher_rate": 0.8620689655172413,
+            "mean_absolute_child_q_delta": 0.05617176795093673,
+            "mean_absolute_root_value_delta": 0.04978511681677252,
+            "root_visit_kl_vs_alpha_000": 0.06334613386896729,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.08004020882965396,
+              "upper": 0.1579570941426184
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.11328125,
+            "selected_visit_share_delta": 0.053629557291666664,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.2727272727272727,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.2,
+              "opening": 0.1276595744680851
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.15436241610738255,
+              "player_1": 0.09345794392523364
+            },
+            "changed_row_mean_absolute_value_delta": 0.0767362041503562,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05517920983487698,
+            "mean_absolute_root_value_delta": 0.047392912144221366,
+            "root_visit_kl_vs_alpha_000": 0.0917943799813044,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.054804484049479164,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.12080536912751678,
+          "player_1": 0.102803738317757
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 310,
+            "terminal_outcome_correlation": 0.2536028390139596,
+            "terminal_outcome_mae": 0.8248426255146643,
+            "terminal_outcome_sign_accuracy": 0.6161290322580645
+          },
+          "[-0.50,-0.25)": {
+            "rows": 185,
+            "terminal_outcome_correlation": 0.10548609372327106,
+            "terminal_outcome_mae": 0.6861321025603526,
+            "terminal_outcome_sign_accuracy": 0.7675675675675676
+          },
+          "[-0.75,-0.50)": {
+            "rows": 151,
+            "terminal_outcome_correlation": -0.03516928732268073,
+            "terminal_outcome_mae": 0.46257398499558305,
+            "terminal_outcome_sign_accuracy": 0.8741721854304636
+          },
+          "[-1.00,-0.75)": {
+            "rows": 86,
+            "terminal_outcome_correlation": -0.005559096412975967,
+            "terminal_outcome_mae": 0.15862506558728773,
+            "terminal_outcome_sign_accuracy": 0.9883720930232558
+          },
+          "[0.00,0.25)": {
+            "rows": 685,
+            "terminal_outcome_correlation": 0.16025758556517378,
+            "terminal_outcome_mae": 0.8933043767141525,
+            "terminal_outcome_sign_accuracy": 0.5153284671532846
+          },
+          "[0.25,0.50)": {
+            "rows": 422,
+            "terminal_outcome_correlation": 0.24511825667999002,
+            "terminal_outcome_mae": 0.7358127082411147,
+            "terminal_outcome_sign_accuracy": 0.6990521327014217
+          },
+          "[0.50,0.75)": {
+            "rows": 173,
+            "terminal_outcome_correlation": 0.22806803750799767,
+            "terminal_outcome_mae": 0.4416787810408311,
+            "terminal_outcome_sign_accuracy": 0.930635838150289
+          },
+          "[0.75,1.00)": {
+            "rows": 36,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.18936419983704886,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7887306703594469,
+            "terminal_outcome_mae": 0.5385298656894911,
+            "terminal_outcome_sign_accuracy": 0.808199121522694
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.5018792112783833,
+            "terminal_outcome_mae": 0.7609197653750452,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3263814390482048,
+            "terminal_outcome_mae": 0.8566803276863856,
+            "terminal_outcome_sign_accuracy": 0.5733137829912024
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5708572736987617,
+        "terminal_outcome_mae": 0.718642617919528,
+        "terminal_outcome_sign_accuracy": 0.68115234375
+      }
+    },
+    "asym100_equal010": {
+      "abort_reasons": [
+        "asymmetric_search_change_too_high"
+      ],
+      "alpha": "budget_conditioned",
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": false,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.14285714285714285,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.06666666666666667,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.026845637583892617,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.007944727068310559,
+            "current_selected_teacher_rate": 0.7142857142857143,
+            "mean_absolute_child_q_delta": 0.0067402061985898255,
+            "mean_absolute_root_value_delta": 0.005192337302815299,
+            "root_visit_kl_vs_alpha_000": 0.005434576836003233,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.010852864583333333,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.24242424242424243,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.19047619047619047,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.12149532710280374
+            },
+            "changed_row_mean_absolute_value_delta": 0.07185402934112503,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05289985164948578,
+            "mean_absolute_root_value_delta": 0.04473140361657433,
+            "root_visit_kl_vs_alpha_000": 0.08908194696164037,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.049889322916666666,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.2692307692307692,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.08571428571428572,
+              "opening": 0.2553191489361702
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.0866351694827778,
+            "current_selected_teacher_rate": 0.5769230769230769,
+            "mean_absolute_child_q_delta": 0.06070679213221661,
+            "mean_absolute_root_value_delta": 0.051485437988837646,
+            "root_visit_kl_vs_alpha_000": 0.05180524512618286,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0702545071910243,
+              "upper": 0.14465180496222602
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.1015625,
+            "selected_visit_share_delta": 0.0537872314453125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.06896551724137931,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.13333333333333333,
+              "opening": 0.14893617021276595
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.08056775496768896,
+            "current_selected_teacher_rate": 0.8620689655172413,
+            "mean_absolute_child_q_delta": 0.05617176795093673,
+            "mean_absolute_root_value_delta": 0.04978511681677252,
+            "root_visit_kl_vs_alpha_000": 0.06334613386896729,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.08004020882965396,
+              "upper": 0.1579570941426184
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.11328125,
+            "selected_visit_share_delta": 0.053629557291666664,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.2727272727272727,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.2,
+              "opening": 0.1276595744680851
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.15436241610738255,
+              "player_1": 0.09345794392523364
+            },
+            "changed_row_mean_absolute_value_delta": 0.0767362041503562,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05517920983487698,
+            "mean_absolute_root_value_delta": 0.047392912144221366,
+            "root_visit_kl_vs_alpha_000": 0.0917943799813044,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.054804484049479164,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.3333333333333333,
+            "changed_rate_by_phase": {
+              "late": 0.019230769230769232,
+              "mid": 0.047619047619047616,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.040268456375838924,
+              "player_1": 0.056074766355140186
+            },
+            "changed_row_mean_absolute_value_delta": 0.01420638656291197,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.007655944781972247,
+            "mean_absolute_root_value_delta": 0.00587118571445531,
+            "root_visit_kl_vs_alpha_000": 0.010827611818170603,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.013142903645833336,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.12080536912751678,
+          "player_1": 0.102803738317757
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 310,
+            "terminal_outcome_correlation": 0.2536028390139596,
+            "terminal_outcome_mae": 0.8248426255146643,
+            "terminal_outcome_sign_accuracy": 0.6161290322580645
+          },
+          "[-0.50,-0.25)": {
+            "rows": 185,
+            "terminal_outcome_correlation": 0.10548609372327106,
+            "terminal_outcome_mae": 0.6861321025603526,
+            "terminal_outcome_sign_accuracy": 0.7675675675675676
+          },
+          "[-0.75,-0.50)": {
+            "rows": 151,
+            "terminal_outcome_correlation": -0.03516928732268073,
+            "terminal_outcome_mae": 0.46257398499558305,
+            "terminal_outcome_sign_accuracy": 0.8741721854304636
+          },
+          "[-1.00,-0.75)": {
+            "rows": 86,
+            "terminal_outcome_correlation": -0.005559096412975967,
+            "terminal_outcome_mae": 0.15862506558728773,
+            "terminal_outcome_sign_accuracy": 0.9883720930232558
+          },
+          "[0.00,0.25)": {
+            "rows": 685,
+            "terminal_outcome_correlation": 0.16025758556517378,
+            "terminal_outcome_mae": 0.8933043767141525,
+            "terminal_outcome_sign_accuracy": 0.5153284671532846
+          },
+          "[0.25,0.50)": {
+            "rows": 422,
+            "terminal_outcome_correlation": 0.24511825667999002,
+            "terminal_outcome_mae": 0.7358127082411147,
+            "terminal_outcome_sign_accuracy": 0.6990521327014217
+          },
+          "[0.50,0.75)": {
+            "rows": 173,
+            "terminal_outcome_correlation": 0.22806803750799767,
+            "terminal_outcome_mae": 0.4416787810408311,
+            "terminal_outcome_sign_accuracy": 0.930635838150289
+          },
+          "[0.75,1.00)": {
+            "rows": 36,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.18936419983704886,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7887306703594469,
+            "terminal_outcome_mae": 0.5385298656894911,
+            "terminal_outcome_sign_accuracy": 0.808199121522694
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.5018792112783833,
+            "terminal_outcome_mae": 0.7609197653750452,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3263814390482048,
+            "terminal_outcome_mae": 0.8566803276863856,
+            "terminal_outcome_sign_accuracy": 0.5733137829912024
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5708572736987617,
+        "terminal_outcome_mae": 0.718642617919528,
+        "terminal_outcome_sign_accuracy": 0.68115234375
+      }
+    },
+    "asym100_equal025": {
+      "abort_reasons": [
+        "asymmetric_search_change_too_high"
+      ],
+      "alpha": "budget_conditioned",
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": false,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.4166666666666667,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.10476190476190476,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.025254497799297098,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.01499411567728803,
+            "mean_absolute_root_value_delta": 0.012095628321705288,
+            "root_visit_kl_vs_alpha_000": 0.018825875295117655,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.019931640624999997,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.24242424242424243,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.19047619047619047,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.12149532710280374
+            },
+            "changed_row_mean_absolute_value_delta": 0.07185402934112503,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05289985164948578,
+            "mean_absolute_root_value_delta": 0.04473140361657433,
+            "root_visit_kl_vs_alpha_000": 0.08908194696164037,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.049889322916666666,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.2692307692307692,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.08571428571428572,
+              "opening": 0.2553191489361702
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.0866351694827778,
+            "current_selected_teacher_rate": 0.5769230769230769,
+            "mean_absolute_child_q_delta": 0.06070679213221661,
+            "mean_absolute_root_value_delta": 0.051485437988837646,
+            "root_visit_kl_vs_alpha_000": 0.05180524512618286,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0702545071910243,
+              "upper": 0.14465180496222602
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.1015625,
+            "selected_visit_share_delta": 0.0537872314453125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.06896551724137931,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.13333333333333333,
+              "opening": 0.14893617021276595
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.08056775496768896,
+            "current_selected_teacher_rate": 0.8620689655172413,
+            "mean_absolute_child_q_delta": 0.05617176795093673,
+            "mean_absolute_root_value_delta": 0.04978511681677252,
+            "root_visit_kl_vs_alpha_000": 0.06334613386896729,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.08004020882965396,
+              "upper": 0.1579570941426184
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.11328125,
+            "selected_visit_share_delta": 0.053629557291666664,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.2727272727272727,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.2,
+              "opening": 0.1276595744680851
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.15436241610738255,
+              "player_1": 0.09345794392523364
+            },
+            "changed_row_mean_absolute_value_delta": 0.0767362041503562,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05517920983487698,
+            "mean_absolute_root_value_delta": 0.047392912144221366,
+            "root_visit_kl_vs_alpha_000": 0.0917943799813044,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.054804484049479164,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.35294117647058826,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.06666666666666667,
+              "opening": 0.14893617021276595
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.053691275167785234,
+              "player_1": 0.08411214953271028
+            },
+            "changed_row_mean_absolute_value_delta": 0.0212357647552881,
+            "current_selected_teacher_rate": 0.4117647058823529,
+            "mean_absolute_child_q_delta": 0.0164427335246463,
+            "mean_absolute_root_value_delta": 0.01271239688666548,
+            "root_visit_kl_vs_alpha_000": 0.027865831984140155,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.04187037068241468,
+              "upper": 0.10376296901376947
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.06640625,
+            "selected_visit_share_delta": 0.021764119466145832,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.12080536912751678,
+          "player_1": 0.102803738317757
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 310,
+            "terminal_outcome_correlation": 0.2536028390139596,
+            "terminal_outcome_mae": 0.8248426255146643,
+            "terminal_outcome_sign_accuracy": 0.6161290322580645
+          },
+          "[-0.50,-0.25)": {
+            "rows": 185,
+            "terminal_outcome_correlation": 0.10548609372327106,
+            "terminal_outcome_mae": 0.6861321025603526,
+            "terminal_outcome_sign_accuracy": 0.7675675675675676
+          },
+          "[-0.75,-0.50)": {
+            "rows": 151,
+            "terminal_outcome_correlation": -0.03516928732268073,
+            "terminal_outcome_mae": 0.46257398499558305,
+            "terminal_outcome_sign_accuracy": 0.8741721854304636
+          },
+          "[-1.00,-0.75)": {
+            "rows": 86,
+            "terminal_outcome_correlation": -0.005559096412975967,
+            "terminal_outcome_mae": 0.15862506558728773,
+            "terminal_outcome_sign_accuracy": 0.9883720930232558
+          },
+          "[0.00,0.25)": {
+            "rows": 685,
+            "terminal_outcome_correlation": 0.16025758556517378,
+            "terminal_outcome_mae": 0.8933043767141525,
+            "terminal_outcome_sign_accuracy": 0.5153284671532846
+          },
+          "[0.25,0.50)": {
+            "rows": 422,
+            "terminal_outcome_correlation": 0.24511825667999002,
+            "terminal_outcome_mae": 0.7358127082411147,
+            "terminal_outcome_sign_accuracy": 0.6990521327014217
+          },
+          "[0.50,0.75)": {
+            "rows": 173,
+            "terminal_outcome_correlation": 0.22806803750799767,
+            "terminal_outcome_mae": 0.4416787810408311,
+            "terminal_outcome_sign_accuracy": 0.930635838150289
+          },
+          "[0.75,1.00)": {
+            "rows": 36,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.18936419983704886,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7887306703594469,
+            "terminal_outcome_mae": 0.5385298656894911,
+            "terminal_outcome_sign_accuracy": 0.808199121522694
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.5018792112783833,
+            "terminal_outcome_mae": 0.7609197653750452,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3263814390482048,
+            "terminal_outcome_mae": 0.8566803276863856,
+            "terminal_outcome_sign_accuracy": 0.5733137829912024
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5708572736987617,
+        "terminal_outcome_mae": 0.718642617919528,
+        "terminal_outcome_sign_accuracy": 0.68115234375
+      }
+    },
+    "blend_alpha_000": {
+      "abort_reasons": [],
+      "alpha": 0.0,
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": true,
+      "legal_failures": 0,
+      "role": "required_reference",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.0,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0,
+              "player_1": 0.0
+            },
+            "changed_row_mean_absolute_value_delta": 0.0,
+            "current_selected_teacher_rate": 0.0,
+            "mean_absolute_child_q_delta": 0.0,
+            "mean_absolute_root_value_delta": 0.0,
+            "root_visit_kl_vs_alpha_000": 0.0,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0,
+              "upper": 0.014784391721725852
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0,
+            "selected_visit_share_delta": 0.0,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.0,
+          "player_1": 0.0
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 495,
+            "terminal_outcome_correlation": 0.12360329367002289,
+            "terminal_outcome_mae": 0.8727668235840446,
+            "terminal_outcome_sign_accuracy": 0.5515151515151515
+          },
+          "[-0.50,-0.25)": {
+            "rows": 163,
+            "terminal_outcome_correlation": 0.07465047302724188,
+            "terminal_outcome_mae": 0.6733236980218829,
+            "terminal_outcome_sign_accuracy": 0.7914110429447853
+          },
+          "[-0.75,-0.50)": {
+            "rows": 134,
+            "terminal_outcome_correlation": 0.06742167208753591,
+            "terminal_outcome_mae": 0.46466591420458325,
+            "terminal_outcome_sign_accuracy": 0.8955223880597015
+          },
+          "[-1.00,-0.75)": {
+            "rows": 79,
+            "terminal_outcome_correlation": 0.08591180927944755,
+            "terminal_outcome_mae": 0.16024880545048775,
+            "terminal_outcome_sign_accuracy": 0.9873417721518988
+          },
+          "[0.00,0.25)": {
+            "rows": 777,
+            "terminal_outcome_correlation": 0.12093780040184404,
+            "terminal_outcome_mae": 0.884335021568376,
+            "terminal_outcome_sign_accuracy": 0.5624195624195624
+          },
+          "[0.25,0.50)": {
+            "rows": 282,
+            "terminal_outcome_correlation": 0.22256707653280833,
+            "terminal_outcome_mae": 0.7102286170983145,
+            "terminal_outcome_sign_accuracy": 0.7588652482269503
+          },
+          "[0.50,0.75)": {
+            "rows": 106,
+            "terminal_outcome_correlation": -0.06928165101939408,
+            "terminal_outcome_mae": 0.40950329854803263,
+            "terminal_outcome_sign_accuracy": 0.9905660377358491
+          },
+          "[0.75,1.00)": {
+            "rows": 12,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.1905410091082255,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7732526201291356,
+            "terminal_outcome_mae": 0.5715036567400781,
+            "terminal_outcome_sign_accuracy": 0.8067349926793558
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.459380679446179,
+            "terminal_outcome_mae": 0.8068332557401471,
+            "terminal_outcome_sign_accuracy": 0.6486090775988287
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.19697241958236242,
+            "terminal_outcome_mae": 0.892080265245485,
+            "terminal_outcome_sign_accuracy": 0.5483870967741935
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5323811480208585,
+        "terminal_outcome_mae": 0.7567396738874095,
+        "terminal_outcome_sign_accuracy": 0.66796875
+      }
+    },
+    "blend_alpha_010": {
+      "abort_reasons": [
+        "asymmetric_search_change_too_low"
+      ],
+      "alpha": 0.1,
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": false,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.14285714285714285,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.06666666666666667,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.026845637583892617,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.007944727068310559,
+            "current_selected_teacher_rate": 0.7142857142857143,
+            "mean_absolute_child_q_delta": 0.0067402061985898255,
+            "mean_absolute_root_value_delta": 0.005192337302815299,
+            "root_visit_kl_vs_alpha_000": 0.005434576836003233,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.010852864583333333,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.14285714285714285,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.06666666666666667,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.026845637583892617,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.007944727068310559,
+            "current_selected_teacher_rate": 0.7142857142857143,
+            "mean_absolute_child_q_delta": 0.0067402061985898255,
+            "mean_absolute_root_value_delta": 0.005192337302815299,
+            "root_visit_kl_vs_alpha_000": 0.005434576836003233,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.010852864583333333,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.75,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.009523809523809525,
+              "opening": 0.0425531914893617
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.020134228187919462,
+              "player_1": 0.009345794392523364
+            },
+            "changed_row_mean_absolute_value_delta": 0.010749112894256915,
+            "current_selected_teacher_rate": 0.25,
+            "mean_absolute_child_q_delta": 0.007973453573501077,
+            "mean_absolute_root_value_delta": 0.0058193879198362285,
+            "root_visit_kl_vs_alpha_000": 0.0021062994401777123,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.006092499659462421,
+              "upper": 0.039479879820959504
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.015625,
+            "selected_visit_share_delta": 0.0110626220703125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.2,
+            "changed_rate_by_phase": {
+              "late": 0.019230769230769232,
+              "mid": 0.01904761904761905,
+              "opening": 0.02127659574468085
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.013422818791946308,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.00755567166927152,
+            "current_selected_teacher_rate": 0.8,
+            "mean_absolute_child_q_delta": 0.007787213894130858,
+            "mean_absolute_root_value_delta": 0.005430588754533044,
+            "root_visit_kl_vs_alpha_000": 0.0024837628664751616,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.008370606318218642,
+              "upper": 0.044898770101877296
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.01953125,
+            "selected_visit_share_delta": 0.010538736979166668,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.2,
+            "changed_rate_by_phase": {
+              "late": 0.0,
+              "mid": 0.047619047619047616,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.020134228187919462,
+              "player_1": 0.018691588785046728
+            },
+            "changed_row_mean_absolute_value_delta": 0.00943140826409791,
+            "current_selected_teacher_rate": 0.8,
+            "mean_absolute_child_q_delta": 0.007052512401419389,
+            "mean_absolute_root_value_delta": 0.005699845131526338,
+            "root_visit_kl_vs_alpha_000": 0.0023558506340045607,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.008370606318218642,
+              "upper": 0.044898770101877296
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.01953125,
+            "selected_visit_share_delta": 0.01241556803385417,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.3333333333333333,
+            "changed_rate_by_phase": {
+              "late": 0.019230769230769232,
+              "mid": 0.047619047619047616,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.040268456375838924,
+              "player_1": 0.056074766355140186
+            },
+            "changed_row_mean_absolute_value_delta": 0.01420638656291197,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.007655944781972247,
+            "mean_absolute_root_value_delta": 0.00587118571445531,
+            "root_visit_kl_vs_alpha_000": 0.010827611818170603,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.013142903645833336,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.013422818791946308,
+          "player_1": 0.028037383177570093
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 425,
+            "terminal_outcome_correlation": 0.08850029290953237,
+            "terminal_outcome_mae": 0.8668008271937451,
+            "terminal_outcome_sign_accuracy": 0.5835294117647059
+          },
+          "[-0.50,-0.25)": {
+            "rows": 162,
+            "terminal_outcome_correlation": 0.03686272439396394,
+            "terminal_outcome_mae": 0.6748457119420723,
+            "terminal_outcome_sign_accuracy": 0.7901234567901234
+          },
+          "[-0.75,-0.50)": {
+            "rows": 138,
+            "terminal_outcome_correlation": 0.047758493415360426,
+            "terminal_outcome_mae": 0.4630371587647908,
+            "terminal_outcome_sign_accuracy": 0.8985507246376812
+          },
+          "[-1.00,-0.75)": {
+            "rows": 79,
+            "terminal_outcome_correlation": 0.07760212158472041,
+            "terminal_outcome_mae": 0.1600654852541187,
+            "terminal_outcome_sign_accuracy": 0.9873417721518988
+          },
+          "[0.00,0.25)": {
+            "rows": 836,
+            "terminal_outcome_correlation": 0.12654987077770172,
+            "terminal_outcome_mae": 0.8831473640133498,
+            "terminal_outcome_sign_accuracy": 0.5586124401913876
+          },
+          "[0.25,0.50)": {
+            "rows": 282,
+            "terminal_outcome_correlation": 0.21813515460475966,
+            "terminal_outcome_mae": 0.710419984439269,
+            "terminal_outcome_sign_accuracy": 0.7588652482269503
+          },
+          "[0.50,0.75)": {
+            "rows": 114,
+            "terminal_outcome_correlation": -0.06315107431285416,
+            "terminal_outcome_mae": 0.4086217911881313,
+            "terminal_outcome_sign_accuracy": 0.9912280701754386
+          },
+          "[0.75,1.00)": {
+            "rows": 12,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.18525154739618302,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7760354935234424,
+            "terminal_outcome_mae": 0.5681597966730791,
+            "terminal_outcome_sign_accuracy": 0.808199121522694
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.4672595751249154,
+            "terminal_outcome_mae": 0.8020500759123113,
+            "terminal_outcome_sign_accuracy": 0.6471449487554904
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.22936164416382748,
+            "terminal_outcome_mae": 0.888360483653941,
+            "terminal_outcome_sign_accuracy": 0.5718475073313783
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5393769501874237,
+        "terminal_outcome_mae": 0.7527906214979538,
+        "terminal_outcome_sign_accuracy": 0.67578125
+      }
+    },
+    "blend_alpha_025": {
+      "abort_reasons": [],
+      "alpha": 0.25,
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": true,
+      "carry_to_medium": true,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.4166666666666667,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.10476190476190476,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.025254497799297098,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.01499411567728803,
+            "mean_absolute_root_value_delta": 0.012095628321705288,
+            "root_visit_kl_vs_alpha_000": 0.018825875295117655,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.019931640624999997,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.4166666666666667,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.10476190476190476,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.025254497799297098,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.01499411567728803,
+            "mean_absolute_root_value_delta": 0.012095628321705288,
+            "root_visit_kl_vs_alpha_000": 0.018825875295117655,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.019931640624999997,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.4,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.01904761904761905,
+              "opening": 0.0425531914893617
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.020134228187919462,
+              "player_1": 0.018691588785046728
+            },
+            "changed_row_mean_absolute_value_delta": 0.02038439291202394,
+            "current_selected_teacher_rate": 0.6,
+            "mean_absolute_child_q_delta": 0.016811159444072042,
+            "mean_absolute_root_value_delta": 0.013586976559689545,
+            "root_visit_kl_vs_alpha_000": 0.007686313476626294,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.008370606318218642,
+              "upper": 0.044898770101877296
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.01953125,
+            "selected_visit_share_delta": 0.019805908203125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.14285714285714285,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.047619047619047616,
+              "opening": 0.02127659574468085
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.013422818791946308,
+              "player_1": 0.04672897196261682
+            },
+            "changed_row_mean_absolute_value_delta": 0.010883601018926062,
+            "current_selected_teacher_rate": 0.7142857142857143,
+            "mean_absolute_child_q_delta": 0.015326802406711772,
+            "mean_absolute_root_value_delta": 0.012505006609772126,
+            "root_visit_kl_vs_alpha_000": 0.006137177685925846,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.019816080729166668,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.5,
+            "changed_rate_by_phase": {
+              "late": 0.019230769230769232,
+              "mid": 0.08571428571428572,
+              "opening": 0.02127659574468085
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.031079744113850918,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.0154078577959151,
+            "mean_absolute_root_value_delta": 0.013401437840838545,
+            "root_visit_kl_vs_alpha_000": 0.012195418224116846,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.023208618164062503,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.35294117647058826,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.06666666666666667,
+              "opening": 0.14893617021276595
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.053691275167785234,
+              "player_1": 0.08411214953271028
+            },
+            "changed_row_mean_absolute_value_delta": 0.0212357647552881,
+            "current_selected_teacher_rate": 0.4117647058823529,
+            "mean_absolute_child_q_delta": 0.0164427335246463,
+            "mean_absolute_root_value_delta": 0.01271239688666548,
+            "root_visit_kl_vs_alpha_000": 0.027865831984140155,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.04187037068241468,
+              "upper": 0.10376296901376947
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.06640625,
+            "selected_visit_share_delta": 0.021764119466145832,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.013422818791946308,
+          "player_1": 0.04672897196261682
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 377,
+            "terminal_outcome_correlation": 0.14114837298536148,
+            "terminal_outcome_mae": 0.8506614803109983,
+            "terminal_outcome_sign_accuracy": 0.6021220159151194
+          },
+          "[-0.50,-0.25)": {
+            "rows": 162,
+            "terminal_outcome_correlation": 0.11688954892955222,
+            "terminal_outcome_mae": 0.6705470529879317,
+            "terminal_outcome_sign_accuracy": 0.7777777777777778
+          },
+          "[-0.75,-0.50)": {
+            "rows": 141,
+            "terminal_outcome_correlation": 0.07329381962224882,
+            "terminal_outcome_mae": 0.4661425295556691,
+            "terminal_outcome_sign_accuracy": 0.8936170212765957
+          },
+          "[-1.00,-0.75)": {
+            "rows": 79,
+            "terminal_outcome_correlation": 0.06455292718939432,
+            "terminal_outcome_mae": 0.15979050495956518,
+            "terminal_outcome_sign_accuracy": 0.9873417721518988
+          },
+          "[0.00,0.25)": {
+            "rows": 856,
+            "terminal_outcome_correlation": 0.1472082228757644,
+            "terminal_outcome_mae": 0.8858443999500273,
+            "terminal_outcome_sign_accuracy": 0.5455607476635514
+          },
+          "[0.25,0.50)": {
+            "rows": 300,
+            "terminal_outcome_correlation": 0.2189837301746754,
+            "terminal_outcome_mae": 0.7065895495936274,
+            "terminal_outcome_sign_accuracy": 0.7666666666666667
+          },
+          "[0.50,0.75)": {
+            "rows": 117,
+            "terminal_outcome_correlation": 0.08645556853914967,
+            "terminal_outcome_mae": 0.41607730351706856,
+            "terminal_outcome_sign_accuracy": 0.9829059829059829
+          },
+          "[0.75,1.00)": {
+            "rows": 16,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.19330194685608149,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7796523614390599,
+            "terminal_outcome_mae": 0.5631440065725806,
+            "terminal_outcome_sign_accuracy": 0.8111273792093704
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.47719169517403415,
+            "terminal_outcome_mae": 0.7949503023321797,
+            "terminal_outcome_sign_accuracy": 0.6471449487554904
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.2662895990356391,
+            "terminal_outcome_mae": 0.8828924943328459,
+            "terminal_outcome_sign_accuracy": 0.5703812316715543
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5483760492212851,
+        "terminal_outcome_mae": 0.746929245174293,
+        "terminal_outcome_sign_accuracy": 0.67626953125
+      }
+    },
+    "blend_alpha_050": {
+      "abort_reasons": [
+        "equal_budget_changed_rate_too_high",
+        "equal_budget_changed_rate_too_high"
+      ],
+      "alpha": 0.5,
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": false,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.18181818181818182,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.13333333333333333,
+              "opening": 0.06382978723404255
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.06542056074766354
+            },
+            "changed_row_mean_absolute_value_delta": 0.044070140559436394,
+            "current_selected_teacher_rate": 0.7727272727272727,
+            "mean_absolute_child_q_delta": 0.028650697929604396,
+            "mean_absolute_root_value_delta": 0.023551863522686033,
+            "root_visit_kl_vs_alpha_000": 0.05902165708022973,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.057435154270276796,
+              "upper": 0.12668317012427743
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0859375,
+            "selected_visit_share_delta": 0.03390950520833333,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.18181818181818182,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.13333333333333333,
+              "opening": 0.06382978723404255
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.06542056074766354
+            },
+            "changed_row_mean_absolute_value_delta": 0.044070140559436394,
+            "current_selected_teacher_rate": 0.7727272727272727,
+            "mean_absolute_child_q_delta": 0.028650697929604396,
+            "mean_absolute_root_value_delta": 0.023551863522686033,
+            "root_visit_kl_vs_alpha_000": 0.05902165708022973,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.057435154270276796,
+              "upper": 0.12668317012427743
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0859375,
+            "selected_visit_share_delta": 0.03390950520833333,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.2857142857142857,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.01904761904761905,
+              "opening": 0.0425531914893617
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.03355704697986577,
+              "player_1": 0.018691588785046728
+            },
+            "changed_row_mean_absolute_value_delta": 0.035774954878255424,
+            "current_selected_teacher_rate": 0.5714285714285714,
+            "mean_absolute_child_q_delta": 0.030616974597521617,
+            "mean_absolute_root_value_delta": 0.026269972989228174,
+            "root_visit_kl_vs_alpha_000": 0.026956507896199702,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.0338287353515625,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.05714285714285714,
+              "opening": 0.0851063829787234
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.04697986577181208,
+              "player_1": 0.07476635514018691
+            },
+            "changed_row_mean_absolute_value_delta": 0.041750285078036437,
+            "current_selected_teacher_rate": 0.9333333333333333,
+            "mean_absolute_child_q_delta": 0.029608974283416845,
+            "mean_absolute_root_value_delta": 0.02499336691532254,
+            "root_visit_kl_vs_alpha_000": 0.03529343265643209,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.03582628728223662,
+              "upper": 0.0944130585345995
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.05859375,
+            "selected_visit_share_delta": 0.031880696614583336,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.25,
+            "changed_rate_by_phase": {
+              "late": 0.038461538461538464,
+              "mid": 0.14285714285714285,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.056074766355140186
+            },
+            "changed_row_mean_absolute_value_delta": 0.047938338556057315,
+            "current_selected_teacher_rate": 0.625,
+            "mean_absolute_child_q_delta": 0.029656683243178415,
+            "mean_absolute_root_value_delta": 0.02511542175389181,
+            "root_visit_kl_vs_alpha_000": 0.03686868027833691,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.06380939671495478,
+              "upper": 0.1357029215589475
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.09375,
+            "selected_visit_share_delta": 0.036809285481770836,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.375,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.10476190476190476,
+              "opening": 0.2127659574468085
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06711409395973154,
+              "player_1": 0.1308411214953271
+            },
+            "changed_row_mean_absolute_value_delta": 0.033859294882972006,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.028194051957217574,
+            "mean_absolute_root_value_delta": 0.022991175485551633,
+            "root_visit_kl_vs_alpha_000": 0.04080926212707922,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.06380939671495478,
+              "upper": 0.1357029215589475
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.09375,
+            "selected_visit_share_delta": 0.034245808919270836,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.04697986577181208,
+          "player_1": 0.07476635514018691
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 342,
+            "terminal_outcome_correlation": 0.14631985015237334,
+            "terminal_outcome_mae": 0.8434348736317966,
+            "terminal_outcome_sign_accuracy": 0.6052631578947368
+          },
+          "[-0.50,-0.25)": {
+            "rows": 181,
+            "terminal_outcome_correlation": 0.024049479470670848,
+            "terminal_outcome_mae": 0.6839853880402132,
+            "terminal_outcome_sign_accuracy": 0.7734806629834254
+          },
+          "[-0.75,-0.50)": {
+            "rows": 140,
+            "terminal_outcome_correlation": -0.039183649657628,
+            "terminal_outcome_mae": 0.45402119436434335,
+            "terminal_outcome_sign_accuracy": 0.9071428571428571
+          },
+          "[-1.00,-0.75)": {
+            "rows": 81,
+            "terminal_outcome_correlation": 0.03976685252496198,
+            "terminal_outcome_mae": 0.1602950154999156,
+            "terminal_outcome_sign_accuracy": 0.9876543209876543
+          },
+          "[0.00,0.25)": {
+            "rows": 800,
+            "terminal_outcome_correlation": 0.20911895595482302,
+            "terminal_outcome_mae": 0.8853267790636892,
+            "terminal_outcome_sign_accuracy": 0.545
+          },
+          "[0.25,0.50)": {
+            "rows": 349,
+            "terminal_outcome_correlation": 0.2711660952107786,
+            "terminal_outcome_mae": 0.7225150041025996,
+            "terminal_outcome_sign_accuracy": 0.7163323782234957
+          },
+          "[0.50,0.75)": {
+            "rows": 137,
+            "terminal_outcome_correlation": 0.11505015317831832,
+            "terminal_outcome_mae": 0.41961706304637186,
+            "terminal_outcome_sign_accuracy": 0.9781021897810219
+          },
+          "[0.75,1.00)": {
+            "rows": 18,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.1843024260467953,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7842659596360295,
+            "terminal_outcome_mae": 0.5548311197560275,
+            "terminal_outcome_sign_accuracy": 0.8125915080527086
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.48940287687190426,
+            "terminal_outcome_mae": 0.7834776888051705,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.30243345367085395,
+            "terminal_outcome_mae": 0.8738448243775805,
+            "terminal_outcome_sign_accuracy": 0.5645161290322581
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5596810864207465,
+        "terminal_outcome_mae": 0.7373179133168009,
+        "terminal_outcome_sign_accuracy": 0.6796875
+      }
+    },
+    "blend_alpha_075": {
+      "abort_reasons": [
+        "equal_budget_changed_rate_too_high",
+        "equal_budget_changed_rate_too_high",
+        "asymmetric_search_change_too_high"
+      ],
+      "alpha": 0.75,
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": false,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.27586206896551724,
+            "changed_rate_by_phase": {
+              "late": 0.0673076923076923,
+              "mid": 0.17142857142857143,
+              "opening": 0.0851063829787234
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.08411214953271028
+            },
+            "changed_row_mean_absolute_value_delta": 0.06079672523255231,
+            "current_selected_teacher_rate": 0.6896551724137931,
+            "mean_absolute_child_q_delta": 0.041513843369252214,
+            "mean_absolute_root_value_delta": 0.03406698187148751,
+            "root_visit_kl_vs_alpha_000": 0.07279074887943356,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.08004020882965396,
+              "upper": 0.1579570941426184
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.11328125,
+            "selected_visit_share_delta": 0.03953125,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.27586206896551724,
+            "changed_rate_by_phase": {
+              "late": 0.0673076923076923,
+              "mid": 0.17142857142857143,
+              "opening": 0.0851063829787234
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.08411214953271028
+            },
+            "changed_row_mean_absolute_value_delta": 0.06079672523255231,
+            "current_selected_teacher_rate": 0.6896551724137931,
+            "mean_absolute_child_q_delta": 0.041513843369252214,
+            "mean_absolute_root_value_delta": 0.03406698187148751,
+            "root_visit_kl_vs_alpha_000": 0.07279074887943356,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.08004020882965396,
+              "upper": 0.1579570941426184
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.11328125,
+            "selected_visit_share_delta": 0.03953125,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.3076923076923077,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.047619047619047616,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.037383177570093455
+            },
+            "changed_row_mean_absolute_value_delta": 0.04533729876484271,
+            "current_selected_teacher_rate": 0.5384615384615384,
+            "mean_absolute_child_q_delta": 0.04536997776592799,
+            "mean_absolute_root_value_delta": 0.03939394989837608,
+            "root_visit_kl_vs_alpha_000": 0.038764191076196594,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.029913524810755973,
+              "upper": 0.08493182712673211
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.05078125,
+            "selected_visit_share_delta": 0.0429229736328125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.0,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.09523809523809523,
+              "opening": 0.1276595744680851
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.0738255033557047,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.054948078351112845,
+            "current_selected_teacher_rate": 0.9545454545454546,
+            "mean_absolute_child_q_delta": 0.04197180443611998,
+            "mean_absolute_root_value_delta": 0.03632031220931298,
+            "root_visit_kl_vs_alpha_000": 0.047164582724008704,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.057435154270276796,
+              "upper": 0.12668317012427743
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.0859375,
+            "selected_visit_share_delta": 0.044158935546875,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.24,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.14285714285714285,
+              "opening": 0.0851063829787234
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.06542056074766354
+            },
+            "changed_row_mean_absolute_value_delta": 0.06227037526261672,
+            "current_selected_teacher_rate": 0.68,
+            "mean_absolute_child_q_delta": 0.04227353978872205,
+            "mean_absolute_root_value_delta": 0.035835195285105446,
+            "root_visit_kl_vs_alpha_000": 0.059917647047243186,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.06702355783594618,
+              "upper": 0.14018575737763012
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.09765625,
+            "selected_visit_share_delta": 0.04703267415364583,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.26666666666666666,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.13333333333333333,
+              "opening": 0.23404255319148937
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.09395973154362416,
+              "player_1": 0.14953271028037382
+            },
+            "changed_row_mean_absolute_value_delta": 0.0586760758731297,
+            "current_selected_teacher_rate": 0.5666666666666667,
+            "mean_absolute_child_q_delta": 0.04297525603660749,
+            "mean_absolute_root_value_delta": 0.03515292083207263,
+            "root_visit_kl_vs_alpha_000": 0.06602723496811379,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0833307632374911,
+              "upper": 0.16236353667445527
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.1171875,
+            "selected_visit_share_delta": 0.04288736979166667,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.0738255033557047,
+          "player_1": 0.102803738317757
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 323,
+            "terminal_outcome_correlation": 0.18234897477762782,
+            "terminal_outcome_mae": 0.8310026380538651,
+            "terminal_outcome_sign_accuracy": 0.6191950464396285
+          },
+          "[-0.50,-0.25)": {
+            "rows": 182,
+            "terminal_outcome_correlation": 0.033140119203305986,
+            "terminal_outcome_mae": 0.6919322097674012,
+            "terminal_outcome_sign_accuracy": 0.7692307692307693
+          },
+          "[-0.75,-0.50)": {
+            "rows": 143,
+            "terminal_outcome_correlation": -0.08600991169775359,
+            "terminal_outcome_mae": 0.44997917876376975,
+            "terminal_outcome_sign_accuracy": 0.9020979020979021
+          },
+          "[-1.00,-0.75)": {
+            "rows": 83,
+            "terminal_outcome_correlation": 0.017282678908512532,
+            "terminal_outcome_mae": 0.15950308165636407,
+            "terminal_outcome_sign_accuracy": 0.9879518072289156
+          },
+          "[0.00,0.25)": {
+            "rows": 740,
+            "terminal_outcome_correlation": 0.14686666651004174,
+            "terminal_outcome_mae": 0.8956866799110021,
+            "terminal_outcome_sign_accuracy": 0.5216216216216216
+          },
+          "[0.25,0.50)": {
+            "rows": 399,
+            "terminal_outcome_correlation": 0.1625919745070394,
+            "terminal_outcome_mae": 0.7207038347900525,
+            "terminal_outcome_sign_accuracy": 0.7167919799498746
+          },
+          "[0.50,0.75)": {
+            "rows": 151,
+            "terminal_outcome_correlation": 0.1000101165772518,
+            "terminal_outcome_mae": 0.4190939775365867,
+            "terminal_outcome_sign_accuracy": 0.9735099337748344
+          },
+          "[0.75,1.00)": {
+            "rows": 27,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.19195489475020655,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7872395148507504,
+            "terminal_outcome_mae": 0.5466316055445448,
+            "terminal_outcome_sign_accuracy": 0.8125915080527086
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.49726579132595855,
+            "terminal_outcome_mae": 0.7721652898007121,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3191487336550394,
+            "terminal_outcome_mae": 0.8651436350008871,
+            "terminal_outcome_sign_accuracy": 0.5718475073313783
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.566938835657222,
+        "terminal_outcome_mae": 0.7279132024372146,
+        "terminal_outcome_sign_accuracy": 0.68212890625
+      }
+    },
+    "blend_alpha_100": {
+      "abort_reasons": [],
+      "alpha": 1.0,
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": false,
+      "carry_to_medium": true,
+      "legal_failures": 0,
+      "role": "diagnostic_reference",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.24242424242424243,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.19047619047619047,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.12149532710280374
+            },
+            "changed_row_mean_absolute_value_delta": 0.07185402934112503,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05289985164948578,
+            "mean_absolute_root_value_delta": 0.04473140361657433,
+            "root_visit_kl_vs_alpha_000": 0.08908194696164037,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.049889322916666666,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.24242424242424243,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.19047619047619047,
+              "opening": 0.10638297872340426
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.1342281879194631,
+              "player_1": 0.12149532710280374
+            },
+            "changed_row_mean_absolute_value_delta": 0.07185402934112503,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05289985164948578,
+            "mean_absolute_root_value_delta": 0.04473140361657433,
+            "root_visit_kl_vs_alpha_000": 0.08908194696164037,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.049889322916666666,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.2692307692307692,
+            "changed_rate_by_phase": {
+              "late": 0.04807692307692308,
+              "mid": 0.08571428571428572,
+              "opening": 0.2553191489361702
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.0866351694827778,
+            "current_selected_teacher_rate": 0.5769230769230769,
+            "mean_absolute_child_q_delta": 0.06070679213221661,
+            "mean_absolute_root_value_delta": 0.051485437988837646,
+            "root_visit_kl_vs_alpha_000": 0.05180524512618286,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0702545071910243,
+              "upper": 0.14465180496222602
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.1015625,
+            "selected_visit_share_delta": 0.0537872314453125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.06896551724137931,
+            "changed_rate_by_phase": {
+              "late": 0.07692307692307693,
+              "mid": 0.13333333333333333,
+              "opening": 0.14893617021276595
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.12080536912751678,
+              "player_1": 0.102803738317757
+            },
+            "changed_row_mean_absolute_value_delta": 0.08056775496768896,
+            "current_selected_teacher_rate": 0.8620689655172413,
+            "mean_absolute_child_q_delta": 0.05617176795093673,
+            "mean_absolute_root_value_delta": 0.04978511681677252,
+            "root_visit_kl_vs_alpha_000": 0.06334613386896729,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.08004020882965396,
+              "upper": 0.1579570941426184
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.11328125,
+            "selected_visit_share_delta": 0.053629557291666664,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.2727272727272727,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.2,
+              "opening": 0.1276595744680851
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.15436241610738255,
+              "player_1": 0.09345794392523364
+            },
+            "changed_row_mean_absolute_value_delta": 0.0767362041503562,
+            "current_selected_teacher_rate": 0.6666666666666666,
+            "mean_absolute_child_q_delta": 0.05517920983487698,
+            "mean_absolute_root_value_delta": 0.047392912144221366,
+            "root_visit_kl_vs_alpha_000": 0.0917943799813044,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.09328022103441713,
+              "upper": 0.1755050696965513
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.12890625,
+            "selected_visit_share_delta": 0.054804484049479164,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.23333333333333334,
+            "changed_rate_by_phase": {
+              "late": 0.057692307692307696,
+              "mid": 0.12380952380952381,
+              "opening": 0.23404255319148937
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.10067114093959731,
+              "player_1": 0.14018691588785046
+            },
+            "changed_row_mean_absolute_value_delta": 0.08033225896381788,
+            "current_selected_teacher_rate": 0.6,
+            "mean_absolute_child_q_delta": 0.05587175275423029,
+            "mean_absolute_root_value_delta": 0.046748336739350194,
+            "root_visit_kl_vs_alpha_000": 0.0960613570233976,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.0833307632374911,
+              "upper": 0.16236353667445527
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.1171875,
+            "selected_visit_share_delta": 0.054906209309895836,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.12080536912751678,
+          "player_1": 0.102803738317757
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 310,
+            "terminal_outcome_correlation": 0.2536028390139596,
+            "terminal_outcome_mae": 0.8248426255146643,
+            "terminal_outcome_sign_accuracy": 0.6161290322580645
+          },
+          "[-0.50,-0.25)": {
+            "rows": 185,
+            "terminal_outcome_correlation": 0.10548609372327106,
+            "terminal_outcome_mae": 0.6861321025603526,
+            "terminal_outcome_sign_accuracy": 0.7675675675675676
+          },
+          "[-0.75,-0.50)": {
+            "rows": 151,
+            "terminal_outcome_correlation": -0.03516928732268073,
+            "terminal_outcome_mae": 0.46257398499558305,
+            "terminal_outcome_sign_accuracy": 0.8741721854304636
+          },
+          "[-1.00,-0.75)": {
+            "rows": 86,
+            "terminal_outcome_correlation": -0.005559096412975967,
+            "terminal_outcome_mae": 0.15862506558728773,
+            "terminal_outcome_sign_accuracy": 0.9883720930232558
+          },
+          "[0.00,0.25)": {
+            "rows": 685,
+            "terminal_outcome_correlation": 0.16025758556517378,
+            "terminal_outcome_mae": 0.8933043767141525,
+            "terminal_outcome_sign_accuracy": 0.5153284671532846
+          },
+          "[0.25,0.50)": {
+            "rows": 422,
+            "terminal_outcome_correlation": 0.24511825667999002,
+            "terminal_outcome_mae": 0.7358127082411147,
+            "terminal_outcome_sign_accuracy": 0.6990521327014217
+          },
+          "[0.50,0.75)": {
+            "rows": 173,
+            "terminal_outcome_correlation": 0.22806803750799767,
+            "terminal_outcome_mae": 0.4416787810408311,
+            "terminal_outcome_sign_accuracy": 0.930635838150289
+          },
+          "[0.75,1.00)": {
+            "rows": 36,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.18936419983704886,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7887306703594469,
+            "terminal_outcome_mae": 0.5385298656894911,
+            "terminal_outcome_sign_accuracy": 0.808199121522694
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.5018792112783833,
+            "terminal_outcome_mae": 0.7609197653750452,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3263814390482048,
+            "terminal_outcome_mae": 0.8566803276863856,
+            "terminal_outcome_sign_accuracy": 0.5733137829912024
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5708572736987617,
+        "terminal_outcome_mae": 0.718642617919528,
+        "terminal_outcome_sign_accuracy": 0.68115234375
+      }
+    },
+    "global025": {
+      "abort_reasons": [],
+      "alpha": "budget_conditioned",
+      "backup_semantics": {
+        "deterministic_reproducible": true,
+        "terminal_values_blended": false
+      },
+      "candidate_probe_pass": true,
+      "carry_to_medium": true,
+      "legal_failures": 0,
+      "role": "candidate_lane",
+      "search": {
+        "by_budget": {
+          "1200:1200": {
+            "candidate_selected_teacher_rate": 0.4166666666666667,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.10476190476190476,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.025254497799297098,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.01499411567728803,
+            "mean_absolute_root_value_delta": 0.012095628321705288,
+            "root_visit_kl_vs_alpha_000": 0.018825875295117655,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.019931640624999997,
+            "unique_states": 238
+          },
+          "1200:256": {
+            "candidate_selected_teacher_rate": 0.4166666666666667,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.10476190476190476,
+              "opening": 0.0
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.025254497799297098,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.01499411567728803,
+            "mean_absolute_root_value_delta": 0.012095628321705288,
+            "root_visit_kl_vs_alpha_000": 0.018825875295117655,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.019931640624999997,
+            "unique_states": 238
+          },
+          "256:768": {
+            "candidate_selected_teacher_rate": 0.4,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.01904761904761905,
+              "opening": 0.0425531914893617
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.020134228187919462,
+              "player_1": 0.018691588785046728
+            },
+            "changed_row_mean_absolute_value_delta": 0.02038439291202394,
+            "current_selected_teacher_rate": 0.6,
+            "mean_absolute_child_q_delta": 0.016811159444072042,
+            "mean_absolute_root_value_delta": 0.013586976559689545,
+            "root_visit_kl_vs_alpha_000": 0.007686313476626294,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.008370606318218642,
+              "upper": 0.044898770101877296
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.01953125,
+            "selected_visit_share_delta": 0.019805908203125,
+            "unique_states": 238
+          },
+          "384:256": {
+            "candidate_selected_teacher_rate": 0.14285714285714285,
+            "changed_rate_by_phase": {
+              "late": 0.009615384615384616,
+              "mid": 0.047619047619047616,
+              "opening": 0.02127659574468085
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.013422818791946308,
+              "player_1": 0.04672897196261682
+            },
+            "changed_row_mean_absolute_value_delta": 0.010883601018926062,
+            "current_selected_teacher_rate": 0.7142857142857143,
+            "mean_absolute_child_q_delta": 0.015326802406711772,
+            "mean_absolute_root_value_delta": 0.012505006609772126,
+            "root_visit_kl_vs_alpha_000": 0.006137177685925846,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.013306986698200709,
+              "upper": 0.055356383601243266
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.02734375,
+            "selected_visit_share_delta": 0.019816080729166668,
+            "unique_states": 238
+          },
+          "768:256": {
+            "candidate_selected_teacher_rate": 0.5,
+            "changed_rate_by_phase": {
+              "late": 0.019230769230769232,
+              "mid": 0.08571428571428572,
+              "opening": 0.02127659574468085
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.06040268456375839,
+              "player_1": 0.028037383177570093
+            },
+            "changed_row_mean_absolute_value_delta": 0.031079744113850918,
+            "current_selected_teacher_rate": 0.5,
+            "mean_absolute_child_q_delta": 0.0154078577959151,
+            "mean_absolute_root_value_delta": 0.013401437840838545,
+            "root_visit_kl_vs_alpha_000": 0.012195418224116846,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.027014582144288413,
+              "upper": 0.08013377285352564
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.046875,
+            "selected_visit_share_delta": 0.023208618164062503,
+            "unique_states": 238
+          },
+          "768:768": {
+            "candidate_selected_teacher_rate": 0.35294117647058826,
+            "changed_rate_by_phase": {
+              "late": 0.028846153846153848,
+              "mid": 0.06666666666666667,
+              "opening": 0.14893617021276595
+            },
+            "changed_rate_by_seat": {
+              "player_0": 0.053691275167785234,
+              "player_1": 0.08411214953271028
+            },
+            "changed_row_mean_absolute_value_delta": 0.0212357647552881,
+            "current_selected_teacher_rate": 0.4117647058823529,
+            "mean_absolute_child_q_delta": 0.0164427335246463,
+            "mean_absolute_root_value_delta": 0.01271239688666548,
+            "root_visit_kl_vs_alpha_000": 0.027865831984140155,
+            "rows": 256,
+            "selected_move_changed_rate_ci95": {
+              "lower": 0.04187037068241468,
+              "upper": 0.10376296901376947
+            },
+            "selected_move_changed_rate_vs_alpha_000": 0.06640625,
+            "selected_visit_share_delta": 0.021764119466145832,
+            "unique_states": 238
+          }
+        },
+        "p0_p1_split_384_256": {
+          "player_0": 0.013422818791946308,
+          "player_1": 0.04672897196261682
+        }
+      },
+      "semantic_pass": true,
+      "value": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 377,
+            "terminal_outcome_correlation": 0.14114837298536148,
+            "terminal_outcome_mae": 0.8506614803109983,
+            "terminal_outcome_sign_accuracy": 0.6021220159151194
+          },
+          "[-0.50,-0.25)": {
+            "rows": 162,
+            "terminal_outcome_correlation": 0.11688954892955222,
+            "terminal_outcome_mae": 0.6705470529879317,
+            "terminal_outcome_sign_accuracy": 0.7777777777777778
+          },
+          "[-0.75,-0.50)": {
+            "rows": 141,
+            "terminal_outcome_correlation": 0.07329381962224882,
+            "terminal_outcome_mae": 0.4661425295556691,
+            "terminal_outcome_sign_accuracy": 0.8936170212765957
+          },
+          "[-1.00,-0.75)": {
+            "rows": 79,
+            "terminal_outcome_correlation": 0.06455292718939432,
+            "terminal_outcome_mae": 0.15979050495956518,
+            "terminal_outcome_sign_accuracy": 0.9873417721518988
+          },
+          "[0.00,0.25)": {
+            "rows": 856,
+            "terminal_outcome_correlation": 0.1472082228757644,
+            "terminal_outcome_mae": 0.8858443999500273,
+            "terminal_outcome_sign_accuracy": 0.5455607476635514
+          },
+          "[0.25,0.50)": {
+            "rows": 300,
+            "terminal_outcome_correlation": 0.2189837301746754,
+            "terminal_outcome_mae": 0.7065895495936274,
+            "terminal_outcome_sign_accuracy": 0.7666666666666667
+          },
+          "[0.50,0.75)": {
+            "rows": 117,
+            "terminal_outcome_correlation": 0.08645556853914967,
+            "terminal_outcome_mae": 0.41607730351706856,
+            "terminal_outcome_sign_accuracy": 0.9829059829059829
+          },
+          "[0.75,1.00)": {
+            "rows": 16,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.19330194685608149,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7796523614390599,
+            "terminal_outcome_mae": 0.5631440065725806,
+            "terminal_outcome_sign_accuracy": 0.8111273792093704
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.47719169517403415,
+            "terminal_outcome_mae": 0.7949503023321797,
+            "terminal_outcome_sign_accuracy": 0.6471449487554904
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.2662895990356391,
+            "terminal_outcome_mae": 0.8828924943328459,
+            "terminal_outcome_sign_accuracy": 0.5703812316715543
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5483760492212851,
+        "terminal_outcome_mae": 0.746929245174293,
+        "terminal_outcome_sign_accuracy": 0.67626953125
+      }
+    }
+  },
+  "run_arguments": {
+    "budget_alpha_lanes": [
+      "asym100_equal000",
+      "asym100_equal010",
+      "asym100_equal025",
+      "asym075_equal010",
+      "asym050_equal010",
+      "global025"
+    ],
+    "global_alphas": [
+      0.0,
+      0.1,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "probe_cap": 256,
+    "probe_only": false
+  },
+  "runtime_seconds": 199.59435105323792,
+  "schema": "azlite_value_delta_blend_preflight_v2",
+  "semantic_endpoints": {
+    "alpha_000_identity": true,
+    "alpha_100_candidate_reproduction": true,
+    "terminal_values_not_blended": true
+  },
+  "suites": {
+    "fixed_large": {
+      "status": "not_reached"
+    },
+    "heldout": {
+      "status": "not_reached"
+    },
+    "medium": {
+      "status": "stopped_by_probe_gates"
+    }
+  },
+  "value_metrics": {
+    "by_alpha": {
+      "0.0": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 495,
+            "terminal_outcome_correlation": 0.12360329367002289,
+            "terminal_outcome_mae": 0.8727668235840446,
+            "terminal_outcome_sign_accuracy": 0.5515151515151515
+          },
+          "[-0.50,-0.25)": {
+            "rows": 163,
+            "terminal_outcome_correlation": 0.07465047302724188,
+            "terminal_outcome_mae": 0.6733236980218829,
+            "terminal_outcome_sign_accuracy": 0.7914110429447853
+          },
+          "[-0.75,-0.50)": {
+            "rows": 134,
+            "terminal_outcome_correlation": 0.06742167208753591,
+            "terminal_outcome_mae": 0.46466591420458325,
+            "terminal_outcome_sign_accuracy": 0.8955223880597015
+          },
+          "[-1.00,-0.75)": {
+            "rows": 79,
+            "terminal_outcome_correlation": 0.08591180927944755,
+            "terminal_outcome_mae": 0.16024880545048775,
+            "terminal_outcome_sign_accuracy": 0.9873417721518988
+          },
+          "[0.00,0.25)": {
+            "rows": 777,
+            "terminal_outcome_correlation": 0.12093780040184404,
+            "terminal_outcome_mae": 0.884335021568376,
+            "terminal_outcome_sign_accuracy": 0.5624195624195624
+          },
+          "[0.25,0.50)": {
+            "rows": 282,
+            "terminal_outcome_correlation": 0.22256707653280833,
+            "terminal_outcome_mae": 0.7102286170983145,
+            "terminal_outcome_sign_accuracy": 0.7588652482269503
+          },
+          "[0.50,0.75)": {
+            "rows": 106,
+            "terminal_outcome_correlation": -0.06928165101939408,
+            "terminal_outcome_mae": 0.40950329854803263,
+            "terminal_outcome_sign_accuracy": 0.9905660377358491
+          },
+          "[0.75,1.00)": {
+            "rows": 12,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.1905410091082255,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7732526201291356,
+            "terminal_outcome_mae": 0.5715036567400781,
+            "terminal_outcome_sign_accuracy": 0.8067349926793558
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.459380679446179,
+            "terminal_outcome_mae": 0.8068332557401471,
+            "terminal_outcome_sign_accuracy": 0.6486090775988287
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.19697241958236242,
+            "terminal_outcome_mae": 0.892080265245485,
+            "terminal_outcome_sign_accuracy": 0.5483870967741935
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5323811480208585,
+        "terminal_outcome_mae": 0.7567396738874095,
+        "terminal_outcome_sign_accuracy": 0.66796875
+      },
+      "0.1": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 425,
+            "terminal_outcome_correlation": 0.08850029290953237,
+            "terminal_outcome_mae": 0.8668008271937451,
+            "terminal_outcome_sign_accuracy": 0.5835294117647059
+          },
+          "[-0.50,-0.25)": {
+            "rows": 162,
+            "terminal_outcome_correlation": 0.03686272439396394,
+            "terminal_outcome_mae": 0.6748457119420723,
+            "terminal_outcome_sign_accuracy": 0.7901234567901234
+          },
+          "[-0.75,-0.50)": {
+            "rows": 138,
+            "terminal_outcome_correlation": 0.047758493415360426,
+            "terminal_outcome_mae": 0.4630371587647908,
+            "terminal_outcome_sign_accuracy": 0.8985507246376812
+          },
+          "[-1.00,-0.75)": {
+            "rows": 79,
+            "terminal_outcome_correlation": 0.07760212158472041,
+            "terminal_outcome_mae": 0.1600654852541187,
+            "terminal_outcome_sign_accuracy": 0.9873417721518988
+          },
+          "[0.00,0.25)": {
+            "rows": 836,
+            "terminal_outcome_correlation": 0.12654987077770172,
+            "terminal_outcome_mae": 0.8831473640133498,
+            "terminal_outcome_sign_accuracy": 0.5586124401913876
+          },
+          "[0.25,0.50)": {
+            "rows": 282,
+            "terminal_outcome_correlation": 0.21813515460475966,
+            "terminal_outcome_mae": 0.710419984439269,
+            "terminal_outcome_sign_accuracy": 0.7588652482269503
+          },
+          "[0.50,0.75)": {
+            "rows": 114,
+            "terminal_outcome_correlation": -0.06315107431285416,
+            "terminal_outcome_mae": 0.4086217911881313,
+            "terminal_outcome_sign_accuracy": 0.9912280701754386
+          },
+          "[0.75,1.00)": {
+            "rows": 12,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.18525154739618302,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7760354935234424,
+            "terminal_outcome_mae": 0.5681597966730791,
+            "terminal_outcome_sign_accuracy": 0.808199121522694
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.4672595751249154,
+            "terminal_outcome_mae": 0.8020500759123113,
+            "terminal_outcome_sign_accuracy": 0.6471449487554904
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.22936164416382748,
+            "terminal_outcome_mae": 0.888360483653941,
+            "terminal_outcome_sign_accuracy": 0.5718475073313783
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5393769501874237,
+        "terminal_outcome_mae": 0.7527906214979538,
+        "terminal_outcome_sign_accuracy": 0.67578125
+      },
+      "0.25": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 377,
+            "terminal_outcome_correlation": 0.14114837298536148,
+            "terminal_outcome_mae": 0.8506614803109983,
+            "terminal_outcome_sign_accuracy": 0.6021220159151194
+          },
+          "[-0.50,-0.25)": {
+            "rows": 162,
+            "terminal_outcome_correlation": 0.11688954892955222,
+            "terminal_outcome_mae": 0.6705470529879317,
+            "terminal_outcome_sign_accuracy": 0.7777777777777778
+          },
+          "[-0.75,-0.50)": {
+            "rows": 141,
+            "terminal_outcome_correlation": 0.07329381962224882,
+            "terminal_outcome_mae": 0.4661425295556691,
+            "terminal_outcome_sign_accuracy": 0.8936170212765957
+          },
+          "[-1.00,-0.75)": {
+            "rows": 79,
+            "terminal_outcome_correlation": 0.06455292718939432,
+            "terminal_outcome_mae": 0.15979050495956518,
+            "terminal_outcome_sign_accuracy": 0.9873417721518988
+          },
+          "[0.00,0.25)": {
+            "rows": 856,
+            "terminal_outcome_correlation": 0.1472082228757644,
+            "terminal_outcome_mae": 0.8858443999500273,
+            "terminal_outcome_sign_accuracy": 0.5455607476635514
+          },
+          "[0.25,0.50)": {
+            "rows": 300,
+            "terminal_outcome_correlation": 0.2189837301746754,
+            "terminal_outcome_mae": 0.7065895495936274,
+            "terminal_outcome_sign_accuracy": 0.7666666666666667
+          },
+          "[0.50,0.75)": {
+            "rows": 117,
+            "terminal_outcome_correlation": 0.08645556853914967,
+            "terminal_outcome_mae": 0.41607730351706856,
+            "terminal_outcome_sign_accuracy": 0.9829059829059829
+          },
+          "[0.75,1.00)": {
+            "rows": 16,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.19330194685608149,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7796523614390599,
+            "terminal_outcome_mae": 0.5631440065725806,
+            "terminal_outcome_sign_accuracy": 0.8111273792093704
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.47719169517403415,
+            "terminal_outcome_mae": 0.7949503023321797,
+            "terminal_outcome_sign_accuracy": 0.6471449487554904
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.2662895990356391,
+            "terminal_outcome_mae": 0.8828924943328459,
+            "terminal_outcome_sign_accuracy": 0.5703812316715543
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5483760492212851,
+        "terminal_outcome_mae": 0.746929245174293,
+        "terminal_outcome_sign_accuracy": 0.67626953125
+      },
+      "0.5": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 342,
+            "terminal_outcome_correlation": 0.14631985015237334,
+            "terminal_outcome_mae": 0.8434348736317966,
+            "terminal_outcome_sign_accuracy": 0.6052631578947368
+          },
+          "[-0.50,-0.25)": {
+            "rows": 181,
+            "terminal_outcome_correlation": 0.024049479470670848,
+            "terminal_outcome_mae": 0.6839853880402132,
+            "terminal_outcome_sign_accuracy": 0.7734806629834254
+          },
+          "[-0.75,-0.50)": {
+            "rows": 140,
+            "terminal_outcome_correlation": -0.039183649657628,
+            "terminal_outcome_mae": 0.45402119436434335,
+            "terminal_outcome_sign_accuracy": 0.9071428571428571
+          },
+          "[-1.00,-0.75)": {
+            "rows": 81,
+            "terminal_outcome_correlation": 0.03976685252496198,
+            "terminal_outcome_mae": 0.1602950154999156,
+            "terminal_outcome_sign_accuracy": 0.9876543209876543
+          },
+          "[0.00,0.25)": {
+            "rows": 800,
+            "terminal_outcome_correlation": 0.20911895595482302,
+            "terminal_outcome_mae": 0.8853267790636892,
+            "terminal_outcome_sign_accuracy": 0.545
+          },
+          "[0.25,0.50)": {
+            "rows": 349,
+            "terminal_outcome_correlation": 0.2711660952107786,
+            "terminal_outcome_mae": 0.7225150041025996,
+            "terminal_outcome_sign_accuracy": 0.7163323782234957
+          },
+          "[0.50,0.75)": {
+            "rows": 137,
+            "terminal_outcome_correlation": 0.11505015317831832,
+            "terminal_outcome_mae": 0.41961706304637186,
+            "terminal_outcome_sign_accuracy": 0.9781021897810219
+          },
+          "[0.75,1.00)": {
+            "rows": 18,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.1843024260467953,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7842659596360295,
+            "terminal_outcome_mae": 0.5548311197560275,
+            "terminal_outcome_sign_accuracy": 0.8125915080527086
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.48940287687190426,
+            "terminal_outcome_mae": 0.7834776888051705,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.30243345367085395,
+            "terminal_outcome_mae": 0.8738448243775805,
+            "terminal_outcome_sign_accuracy": 0.5645161290322581
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5596810864207465,
+        "terminal_outcome_mae": 0.7373179133168009,
+        "terminal_outcome_sign_accuracy": 0.6796875
+      },
+      "0.75": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 323,
+            "terminal_outcome_correlation": 0.18234897477762782,
+            "terminal_outcome_mae": 0.8310026380538651,
+            "terminal_outcome_sign_accuracy": 0.6191950464396285
+          },
+          "[-0.50,-0.25)": {
+            "rows": 182,
+            "terminal_outcome_correlation": 0.033140119203305986,
+            "terminal_outcome_mae": 0.6919322097674012,
+            "terminal_outcome_sign_accuracy": 0.7692307692307693
+          },
+          "[-0.75,-0.50)": {
+            "rows": 143,
+            "terminal_outcome_correlation": -0.08600991169775359,
+            "terminal_outcome_mae": 0.44997917876376975,
+            "terminal_outcome_sign_accuracy": 0.9020979020979021
+          },
+          "[-1.00,-0.75)": {
+            "rows": 83,
+            "terminal_outcome_correlation": 0.017282678908512532,
+            "terminal_outcome_mae": 0.15950308165636407,
+            "terminal_outcome_sign_accuracy": 0.9879518072289156
+          },
+          "[0.00,0.25)": {
+            "rows": 740,
+            "terminal_outcome_correlation": 0.14686666651004174,
+            "terminal_outcome_mae": 0.8956866799110021,
+            "terminal_outcome_sign_accuracy": 0.5216216216216216
+          },
+          "[0.25,0.50)": {
+            "rows": 399,
+            "terminal_outcome_correlation": 0.1625919745070394,
+            "terminal_outcome_mae": 0.7207038347900525,
+            "terminal_outcome_sign_accuracy": 0.7167919799498746
+          },
+          "[0.50,0.75)": {
+            "rows": 151,
+            "terminal_outcome_correlation": 0.1000101165772518,
+            "terminal_outcome_mae": 0.4190939775365867,
+            "terminal_outcome_sign_accuracy": 0.9735099337748344
+          },
+          "[0.75,1.00)": {
+            "rows": 27,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.19195489475020655,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7872395148507504,
+            "terminal_outcome_mae": 0.5466316055445448,
+            "terminal_outcome_sign_accuracy": 0.8125915080527086
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.49726579132595855,
+            "terminal_outcome_mae": 0.7721652898007121,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3191487336550394,
+            "terminal_outcome_mae": 0.8651436350008871,
+            "terminal_outcome_sign_accuracy": 0.5718475073313783
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.566938835657222,
+        "terminal_outcome_mae": 0.7279132024372146,
+        "terminal_outcome_sign_accuracy": 0.68212890625
+      },
+      "1.0": {
+        "calibration_by_current_value_bucket": {
+          "[-0.25,0.00)": {
+            "rows": 310,
+            "terminal_outcome_correlation": 0.2536028390139596,
+            "terminal_outcome_mae": 0.8248426255146643,
+            "terminal_outcome_sign_accuracy": 0.6161290322580645
+          },
+          "[-0.50,-0.25)": {
+            "rows": 185,
+            "terminal_outcome_correlation": 0.10548609372327106,
+            "terminal_outcome_mae": 0.6861321025603526,
+            "terminal_outcome_sign_accuracy": 0.7675675675675676
+          },
+          "[-0.75,-0.50)": {
+            "rows": 151,
+            "terminal_outcome_correlation": -0.03516928732268073,
+            "terminal_outcome_mae": 0.46257398499558305,
+            "terminal_outcome_sign_accuracy": 0.8741721854304636
+          },
+          "[-1.00,-0.75)": {
+            "rows": 86,
+            "terminal_outcome_correlation": -0.005559096412975967,
+            "terminal_outcome_mae": 0.15862506558728773,
+            "terminal_outcome_sign_accuracy": 0.9883720930232558
+          },
+          "[0.00,0.25)": {
+            "rows": 685,
+            "terminal_outcome_correlation": 0.16025758556517378,
+            "terminal_outcome_mae": 0.8933043767141525,
+            "terminal_outcome_sign_accuracy": 0.5153284671532846
+          },
+          "[0.25,0.50)": {
+            "rows": 422,
+            "terminal_outcome_correlation": 0.24511825667999002,
+            "terminal_outcome_mae": 0.7358127082411147,
+            "terminal_outcome_sign_accuracy": 0.6990521327014217
+          },
+          "[0.50,0.75)": {
+            "rows": 173,
+            "terminal_outcome_correlation": 0.22806803750799767,
+            "terminal_outcome_mae": 0.4416787810408311,
+            "terminal_outcome_sign_accuracy": 0.930635838150289
+          },
+          "[0.75,1.00)": {
+            "rows": 36,
+            "terminal_outcome_correlation": 0.0,
+            "terminal_outcome_mae": 0.18936419983704886,
+            "terminal_outcome_sign_accuracy": 1.0
+          }
+        },
+        "calibration_by_phase": {
+          "late": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.7887306703594469,
+            "terminal_outcome_mae": 0.5385298656894911,
+            "terminal_outcome_sign_accuracy": 0.808199121522694
+          },
+          "mid": {
+            "rows": 683,
+            "terminal_outcome_correlation": 0.5018792112783833,
+            "terminal_outcome_mae": 0.7609197653750452,
+            "terminal_outcome_sign_accuracy": 0.6617862371888726
+          },
+          "opening": {
+            "rows": 682,
+            "terminal_outcome_correlation": 0.3263814390482048,
+            "terminal_outcome_mae": 0.8566803276863856,
+            "terminal_outcome_sign_accuracy": 0.5733137829912024
+          }
+        },
+        "rows": 2048,
+        "terminal_outcome_correlation": 0.5708572736987617,
+        "terminal_outcome_mae": 0.718642617919528,
+        "terminal_outcome_sign_accuracy": 0.68115234375
+      }
+    },
+    "candidate": {
+      "calibration_by_current_value_bucket": {
+        "[-0.25,0.00)": {
+          "rows": 310,
+          "terminal_outcome_correlation": 0.2536028390139596,
+          "terminal_outcome_mae": 0.8248426255146643,
+          "terminal_outcome_sign_accuracy": 0.6161290322580645
+        },
+        "[-0.50,-0.25)": {
+          "rows": 185,
+          "terminal_outcome_correlation": 0.10548609372327106,
+          "terminal_outcome_mae": 0.6861321025603526,
+          "terminal_outcome_sign_accuracy": 0.7675675675675676
+        },
+        "[-0.75,-0.50)": {
+          "rows": 151,
+          "terminal_outcome_correlation": -0.03516928732268073,
+          "terminal_outcome_mae": 0.46257398499558305,
+          "terminal_outcome_sign_accuracy": 0.8741721854304636
+        },
+        "[-1.00,-0.75)": {
+          "rows": 86,
+          "terminal_outcome_correlation": -0.005559096412975967,
+          "terminal_outcome_mae": 0.15862506558728773,
+          "terminal_outcome_sign_accuracy": 0.9883720930232558
+        },
+        "[0.00,0.25)": {
+          "rows": 685,
+          "terminal_outcome_correlation": 0.16025758556517378,
+          "terminal_outcome_mae": 0.8933043767141525,
+          "terminal_outcome_sign_accuracy": 0.5153284671532846
+        },
+        "[0.25,0.50)": {
+          "rows": 422,
+          "terminal_outcome_correlation": 0.24511825667999002,
+          "terminal_outcome_mae": 0.7358127082411147,
+          "terminal_outcome_sign_accuracy": 0.6990521327014217
+        },
+        "[0.50,0.75)": {
+          "rows": 173,
+          "terminal_outcome_correlation": 0.22806803750799767,
+          "terminal_outcome_mae": 0.4416787810408311,
+          "terminal_outcome_sign_accuracy": 0.930635838150289
+        },
+        "[0.75,1.00)": {
+          "rows": 36,
+          "terminal_outcome_correlation": 0.0,
+          "terminal_outcome_mae": 0.18936419983704886,
+          "terminal_outcome_sign_accuracy": 1.0
+        }
+      },
+      "calibration_by_phase": {
+        "late": {
+          "rows": 683,
+          "terminal_outcome_correlation": 0.7887306703594469,
+          "terminal_outcome_mae": 0.5385298656894911,
+          "terminal_outcome_sign_accuracy": 0.808199121522694
+        },
+        "mid": {
+          "rows": 683,
+          "terminal_outcome_correlation": 0.5018792112783833,
+          "terminal_outcome_mae": 0.7609197653750452,
+          "terminal_outcome_sign_accuracy": 0.6617862371888726
+        },
+        "opening": {
+          "rows": 682,
+          "terminal_outcome_correlation": 0.3263814390482048,
+          "terminal_outcome_mae": 0.8566803276863856,
+          "terminal_outcome_sign_accuracy": 0.5733137829912024
+        }
+      },
+      "rows": 2048,
+      "terminal_outcome_correlation": 0.5708572736987617,
+      "terminal_outcome_mae": 0.718642617919528,
+      "terminal_outcome_sign_accuracy": 0.68115234375
+    },
+    "current": {
+      "calibration_by_current_value_bucket": {
+        "[-0.25,0.00)": {
+          "rows": 495,
+          "terminal_outcome_correlation": 0.12360329367002289,
+          "terminal_outcome_mae": 0.8727668235840446,
+          "terminal_outcome_sign_accuracy": 0.5515151515151515
+        },
+        "[-0.50,-0.25)": {
+          "rows": 163,
+          "terminal_outcome_correlation": 0.07465047302724188,
+          "terminal_outcome_mae": 0.6733236980218829,
+          "terminal_outcome_sign_accuracy": 0.7914110429447853
+        },
+        "[-0.75,-0.50)": {
+          "rows": 134,
+          "terminal_outcome_correlation": 0.06742167208753591,
+          "terminal_outcome_mae": 0.46466591420458325,
+          "terminal_outcome_sign_accuracy": 0.8955223880597015
+        },
+        "[-1.00,-0.75)": {
+          "rows": 79,
+          "terminal_outcome_correlation": 0.08591180927944755,
+          "terminal_outcome_mae": 0.16024880545048775,
+          "terminal_outcome_sign_accuracy": 0.9873417721518988
+        },
+        "[0.00,0.25)": {
+          "rows": 777,
+          "terminal_outcome_correlation": 0.12093780040184404,
+          "terminal_outcome_mae": 0.884335021568376,
+          "terminal_outcome_sign_accuracy": 0.5624195624195624
+        },
+        "[0.25,0.50)": {
+          "rows": 282,
+          "terminal_outcome_correlation": 0.22256707653280833,
+          "terminal_outcome_mae": 0.7102286170983145,
+          "terminal_outcome_sign_accuracy": 0.7588652482269503
+        },
+        "[0.50,0.75)": {
+          "rows": 106,
+          "terminal_outcome_correlation": -0.06928165101939408,
+          "terminal_outcome_mae": 0.40950329854803263,
+          "terminal_outcome_sign_accuracy": 0.9905660377358491
+        },
+        "[0.75,1.00)": {
+          "rows": 12,
+          "terminal_outcome_correlation": 0.0,
+          "terminal_outcome_mae": 0.1905410091082255,
+          "terminal_outcome_sign_accuracy": 1.0
+        }
+      },
+      "calibration_by_phase": {
+        "late": {
+          "rows": 683,
+          "terminal_outcome_correlation": 0.7732526201291356,
+          "terminal_outcome_mae": 0.5715036567400781,
+          "terminal_outcome_sign_accuracy": 0.8067349926793558
+        },
+        "mid": {
+          "rows": 683,
+          "terminal_outcome_correlation": 0.459380679446179,
+          "terminal_outcome_mae": 0.8068332557401471,
+          "terminal_outcome_sign_accuracy": 0.6486090775988287
+        },
+        "opening": {
+          "rows": 682,
+          "terminal_outcome_correlation": 0.19697241958236242,
+          "terminal_outcome_mae": 0.892080265245485,
+          "terminal_outcome_sign_accuracy": 0.5483870967741935
+        }
+      },
+      "rows": 2048,
+      "terminal_outcome_correlation": 0.5323811480208585,
+      "terminal_outcome_mae": 0.7567396738874095,
+      "terminal_outcome_sign_accuracy": 0.66796875
+    }
+  }
+}
