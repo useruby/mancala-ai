@@ -92,6 +92,7 @@ def run_arena(
     games_per_opening: int = 1,
     root_policy_mode: str = "deterministic",
     root_temperature: float = 0.0,
+    normalize_values: bool = False,
     c_puct: float = 1.25,
     tactical_root_bias: float | None = None,
     value_transform_json: str | None = None,
@@ -136,6 +137,8 @@ def run_arena(
         "--c-puct",
         str(c_puct),
     ]
+    if normalize_values:
+        cmd.append("--normalize-values")
     if tactical_root_bias is not None:
         cmd.extend(["--tactical-root-bias", str(tactical_root_bias)])
     if value_transform_json is not None:
@@ -196,6 +199,7 @@ def budget_cache_context(
     total_games: int,
     root_policy_mode: str,
     root_temperature: float,
+    normalize_values: bool,
     c_puct: float,
     c_puct_schedule: dict[str, float],
     tactical_root_bias: float,
@@ -215,6 +219,7 @@ def budget_cache_context(
         "total_games": total_games,
         "root_policy_mode": root_policy_mode,
         "root_temperature": root_temperature,
+        "normalize_values": normalize_values,
         "c_puct": c_puct,
         "c_puct_schedule": c_puct_schedule,
         "tactical_root_bias": tactical_root_bias,
@@ -463,6 +468,7 @@ def parse_args() -> argparse.Namespace:
         default="0.0",
         help="Comma-separated root temperature values (0.0=deterministic, >0.0=stochastic).",
     )
+    parser.add_argument("--normalize-values", action="store_true")
     parser.add_argument(
         "--tactical-root-bias",
         type=float,
@@ -589,6 +595,7 @@ def main() -> int:
                         total_games=total_games,
                         root_policy_mode=args.root_policy_mode,
                         root_temperature=rt,
+                        normalize_values=bool(args.normalize_values),
                         c_puct=effective_c_puct,
                         c_puct_schedule=schedule_manifest["overrides"],
                         tactical_root_bias=effective_tactical_root_bias,
@@ -668,6 +675,7 @@ def main() -> int:
                                 games_per_opening=gpo,
                                 root_policy_mode=args.root_policy_mode,
                                 root_temperature=rt,
+                                normalize_values=bool(args.normalize_values),
                                 c_puct=effective_c_puct,
                                 tactical_root_bias=effective_tactical_root_bias,
                                 timeout=args.timeout,
@@ -818,6 +826,7 @@ def main() -> int:
             "c_puct": float(args.c_puct),
             "c_puct_schedule": schedule_manifest,
             "root_policy_mode": args.root_policy_mode,
+            "normalize_values": bool(args.normalize_values),
             "temperature_reports": all_temperature_reports,
         },
     )
