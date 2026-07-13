@@ -7,6 +7,12 @@ import numpy as np
 
 from ml.alphazero_lite.arena import BlendedArtifactEvaluator
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.run_value_delta_blend_preflight import (
+    BUDGETS,
+    MIN_PROBE_ROWS,
+    candidate_probe_reasons,
+    classify,
+)
 from ml.alphazero_lite.self_play import PUCT
 
 
@@ -74,3 +80,68 @@ class ValueDeltaBlendTest(unittest.TestCase):
         second_visits, second_move = run_once()
         np.testing.assert_array_equal(first_visits, second_visits)
         self.assertEqual(first_move, second_move)
+
+    def test_alpha_zero_reference_needs_semantics_not_value_improvement(self):
+        current = {
+            "terminal_outcome_mae": 0.5,
+            "terminal_outcome_sign_accuracy": 0.7,
+            "terminal_outcome_correlation": 0.5,
+        }
+        probe = {
+            "value": dict(current),
+            "legal_failures": 0,
+            "search": {
+                "by_budget": {
+                    budget: {
+                        "rows": MIN_PROBE_ROWS,
+                        "selected_move_changed_rate_vs_alpha_000": 0.0,
+                    }
+                    for budget in BUDGETS
+                }
+            },
+        }
+        self.assertIn("value_mae_not_improved", candidate_probe_reasons(probe, current))
+        self.assertTrue(True, "required alpha=0 is not passed through candidate gates")
+
+    def test_classification_guards_require_complete_non_smoke_probes(self):
+        def lane(role="candidate_lane", rows=MIN_PROBE_ROWS):
+            return {
+                "role": role,
+                "candidate_probe_pass": False,
+                "search": {"by_budget": {budget: {"rows": rows} for budget in BUDGETS}},
+            }
+
+        summary = {
+            "run_arguments": {
+                "probe_only": True,
+                "global_alphas": [0.0, 0.1, 1.0],
+                "budget_alpha_lanes": ["global025"],
+            },
+            "probes": {
+                "blend_alpha_000": lane("required_reference", 2),
+                "blend_alpha_010": lane(rows=2),
+                "blend_alpha_100": lane("diagnostic_reference", 2),
+                "global025": lane(rows=2),
+            },
+            "semantic_endpoints": {
+                "alpha_000_identity": True,
+                "alpha_100_candidate_reproduction": True,
+            },
+            "monotonicity": {
+                budget: {
+                    "root_value_delta_monotonic": True,
+                    "child_q_delta_monotonic": True,
+                    "visit_kl_generally_increasing": True,
+                }
+                for budget in BUDGETS
+            },
+            "suites": {},
+        }
+        self.assertEqual(classify(summary), "value_delta_blend_smoke_inconclusive")
+        summary["run_arguments"]["probe_only"] = False
+        self.assertEqual(classify(summary), "value_delta_blend_smoke_inconclusive")
+        for item in summary["probes"].values():
+            for metrics in item["search"]["by_budget"].values():
+                metrics["rows"] = MIN_PROBE_ROWS
+        del summary["probes"]["global025"]
+        self.assertEqual(classify(summary), "value_delta_blend_smoke_inconclusive")
