@@ -17,7 +17,7 @@ import random
 import subprocess
 import sys
 import zipfile
-from collections import defaultdict
+from collections import Counter, defaultdict, deque
 from pathlib import Path
 from typing import Any
 
@@ -98,6 +98,33 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
+
+
+def canonical_manifest_hash(manifest: dict[str, Any]) -> str:
+    """Hash the complete manifest other than its self-referential digest."""
+    payload = {
+        key: value
+        for key, value in manifest.items()
+        if key != "manifest_sha256_excluding_this_field"
+    }
+    return sha256_bytes(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    )
+
+
+def verify_manifest(manifest_path: Path) -> dict[str, Any]:
+    """Reload and verify every immutable input and generated manifest file."""
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_manifest_hash = manifest.get("manifest_sha256_excluding_this_field")
+    if expected_manifest_hash != canonical_manifest_hash(manifest):
+        raise RuntimeError("training manifest hash mismatch")
+    for path_text, expected_hash in manifest.get("files", {}).items():
+        path = Path(path_text)
+        if not path.is_file():
+            raise RuntimeError(f"manifest referenced file is missing: {path}")
+        if sha256_file(path) != expected_hash:
+            raise RuntimeError(f"manifest referenced file hash mismatch: {path}")
+    return manifest
 
 
 def fixed_npz_bytes(arrays: dict[str, np.ndarray]) -> bytes:
@@ -243,27 +270,28 @@ def build_manifest(
         weights_path=current / "weights.json", out_path=workdir / "initialization.npz"
     )
     paths = {
-        "initialization.npz": init,
-        "train_game_ids.json": workdir / "train_game_ids.json",
-        "validation_game_ids.json": workdir / "validation_game_ids.json",
-        "train_source_indexes.npy": workdir / "train_source_indexes.npy",
-        "validation_source_indexes.npy": workdir / "validation_source_indexes.npy",
-        "batch_indexes.npy": workdir / "batch_indexes.npy",
+        "initialization_checkpoint": init,
+        "train_game_ids": workdir / "train_game_ids.json",
+        "validation_game_ids": workdir / "validation_game_ids.json",
+        "train_source_indexes": workdir / "train_source_indexes.npy",
+        "validation_source_indexes": workdir / "validation_source_indexes.npy",
+        "batch_indexes": workdir / "batch_indexes.npy",
+        "replay": replay,
+        "replay_audit": replay_audit,
+        "current_weights": current / "weights.json",
     }
-    paths["train_game_ids.json"].write_text(
-        json.dumps(train_games) + "\n", encoding="utf-8"
-    )
-    paths["validation_game_ids.json"].write_text(
+    paths["train_game_ids"].write_text(json.dumps(train_games) + "\n", encoding="utf-8")
+    paths["validation_game_ids"].write_text(
         json.dumps(validation_games) + "\n", encoding="utf-8"
     )
-    np.save(paths["train_source_indexes.npy"], train_indexes, allow_pickle=False)
-    np.save(
-        paths["validation_source_indexes.npy"], validation_indexes, allow_pickle=False
-    )
-    np.save(paths["batch_indexes.npy"], plan, allow_pickle=False)
+    np.save(paths["train_source_indexes"], train_indexes, allow_pickle=False)
+    np.save(paths["validation_source_indexes"], validation_indexes, allow_pickle=False)
+    np.save(paths["batch_indexes"], plan, allow_pickle=False)
     manifest = {
         "schema": "azlite_deterministic_joint_heads_manifest_v1",
         "candidate": "deterministic_joint_heads_e1",
+        "replay_path": str(replay),
+        "replay_audit_path": str(replay_audit),
         "current_weights_sha256": sha256_file(current / "weights.json"),
         "initialization_checkpoint_sha256": sha256_file(init),
         "replay_sha256": sha256_file(replay),
@@ -301,14 +329,14 @@ def build_manifest(
         "git_commit": subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, text=True
         ).strip(),
-        "files": {name: sha256_file(path) for name, path in paths.items()},
+        "artifact_paths": {name: str(path) for name, path in paths.items()},
+        "files": {str(path): sha256_file(path) for path in paths.values()},
     }
-    manifest["batch_plan_sha256"] = manifest["files"]["batch_indexes.npy"]
-    manifest["manifest_sha256_excluding_this_field"] = sha256_bytes(
-        json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
-    )
-    write_json(workdir / "training_manifest.json", manifest)
-    return manifest
+    manifest["batch_plan_sha256"] = sha256_file(paths["batch_indexes"])
+    manifest["manifest_sha256_excluding_this_field"] = canonical_manifest_hash(manifest)
+    manifest_path = workdir / "training_manifest.json"
+    write_json(manifest_path, manifest)
+    return verify_manifest(manifest_path)
 
 
 def _hash_state(model: PolicyValueNet) -> dict[str, str]:
@@ -344,9 +372,12 @@ def _capture(model: PolicyValueNet, optimizer: torch.optim.Optimizer) -> dict[st
 
 
 def train_fixed_manifest(
-    workdir: Path, manifest: dict[str, Any], device: torch.device, label: str
+    manifest_path: Path, device: torch.device, label: str
 ) -> dict[str, Any]:
     """Run precisely one saved batch plan, never deriving data membership/order."""
+    manifest = verify_manifest(manifest_path)
+    paths = {name: Path(path) for name, path in manifest["artifact_paths"].items()}
+    workdir = manifest_path.parent
     controls = configure_determinism(device, int(manifest["seed"]))
     rows = (
         read_jsonl(Path(manifest.get("replay_path", "")))
@@ -355,8 +386,8 @@ def train_fixed_manifest(
     )
     if rows is None:
         raise ValueError("manifest must identify replay_path")
-    source = np.load(workdir / "train_source_indexes.npy", allow_pickle=False)
-    plan = np.load(workdir / "batch_indexes.npy", allow_pickle=False)
+    source = np.load(paths["train_source_indexes"], allow_pickle=False)
+    plan = np.load(paths["batch_indexes"], allow_pickle=False)
     selected = [rows[int(index)] for index in source]
     x = np.asarray([row["state"] for row in selected], dtype=np.float32)
     p = np.asarray([row["policy"] for row in selected], dtype=np.float32)
@@ -364,7 +395,7 @@ def train_fixed_manifest(
     model = PolicyValueNet(
         HIDDEN_SIZES, MODEL_TYPE, input_size_for_encoding(INPUT_ENCODING)
     )
-    load_checkpoint_into_model(model, workdir / "initialization.npz")
+    load_checkpoint_into_model(model, paths["initialization_checkpoint"])
     trainable = freeze_joint_heads(model)
     model.to(device).train()
     optimizer = torch.optim.Adam(
@@ -413,9 +444,7 @@ def train_fixed_manifest(
         policy_loss=float(policy_loss.item()),
         value_loss=float(value_loss.item()),
     )
-    validation = np.load(workdir / "validation_source_indexes.npy", allow_pickle=False)[
-        :2048
-    ]
+    validation = np.load(paths["validation_source_indexes"], allow_pickle=False)[:2048]
     validation_x = torch.from_numpy(
         np.asarray([rows[int(i)]["state"] for i in validation], dtype=np.float32)
     ).to(device)
@@ -477,8 +506,110 @@ def compare_runs(first: dict[str, Any], second: dict[str, Any]) -> dict[str, Any
     }
 
 
+def _phase(row: dict[str, Any]) -> str:
+    """Return the persisted phase or a deterministic game-progress fallback."""
+    if row.get("phase") is not None:
+        return str(row["phase"])
+    ply = int(row.get("ply", row.get("move_index", 0)))
+    length = max(1, int(row.get("game_length", 1)))
+    return ("opening", "midgame", "late")[min(2, 3 * ply // length)]
+
+
+def _state_hash(row: dict[str, Any]) -> str:
+    return sha256_bytes(json.dumps(row["state"], separators=(",", ":")).encode())
+
+
+def select_search_probe_indexes(
+    rows: list[dict[str, Any]],
+    source_indexes: np.ndarray,
+    seed: int,
+    minimum: int = 256,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    """Select a deterministic, capped round-robin sample across replay strata."""
+    lengths = np.asarray([int(row.get("game_length", 0)) for row in rows])
+    edges = np.quantile(lengths, np.linspace(0, 1, 11))
+    buckets: dict[tuple[str, ...], list[int]] = defaultdict(list)
+    for index in source_indexes.tolist():
+        row = rows[int(index)]
+        decile = str(
+            min(
+                9,
+                int(
+                    np.searchsorted(edges, int(row.get("game_length", 0)), side="right")
+                    - 1
+                ),
+            )
+        )
+        key = (
+            str(row.get("seat_context", f"player_{row.get('player', 0)}")),
+            _phase(row),
+            str(int(np.sign(float(row["value"])))),
+            decile,
+            str(int(np.clip(np.floor((float(row["value"]) + 1) * 2), 0, 3))),
+        )
+        buckets[key].append(int(index))
+    rng = random.Random(seed)
+    queues = deque()
+    for key in sorted(buckets):
+        values = buckets[key]
+        rng.shuffle(values)
+        queues.append((key, deque(values)))
+    selected: list[int] = []
+    state_counts: Counter[str] = Counter()
+    game_counts: Counter[int] = Counter()
+    selected_strata: Counter[str] = Counter()
+    # One copy of a state and four positions per game avoid replay concentration.
+    while queues and len(selected) < minimum:
+        key, values = queues.popleft()
+        while values:
+            index = values.popleft()
+            row = rows[index]
+            state_hash = _state_hash(row)
+            game = int(row["game_index"])
+            if state_counts[state_hash] < 1 and game_counts[game] < 4:
+                selected.append(index)
+                state_counts[state_hash] += 1
+                game_counts[game] += 1
+                selected_strata["|".join(key)] += 1
+                break
+        if values:
+            queues.append((key, values))
+    if len(selected) < minimum:
+        raise RuntimeError(
+            f"only {len(selected)} capped unique search probe states are available"
+        )
+    metadata = {
+        "selection_seed": seed,
+        "minimum_states": minimum,
+        "state_repeat_cap": 1,
+        "game_repeat_cap": 4,
+        "selected_states": len(selected),
+        "stratum_counts": dict(sorted(selected_strata.items())),
+        "state_hashes": [_state_hash(rows[index]) for index in selected],
+        "game_ids": [int(rows[index]["game_index"]) for index in selected],
+    }
+    return np.asarray(selected, dtype=np.int64), metadata
+
+
+def persist_search_probe(
+    workdir: Path, rows: list[dict[str, Any]], validation_indexes: np.ndarray, seed: int
+) -> dict[str, Any]:
+    """Persist the single probe identity shared by every search budget."""
+    indexes, metadata = select_search_probe_indexes(rows, validation_indexes, seed)
+    indexes_path = workdir / "search_probe_source_indexes.npy"
+    manifest_path = workdir / "search_probe_manifest.json"
+    np.save(indexes_path, indexes, allow_pickle=False)
+    metadata["source_indexes_sha256"] = sha256_file(indexes_path)
+    metadata["source_indexes_path"] = str(indexes_path)
+    write_json(manifest_path, metadata)
+    metadata["manifest_sha256"] = sha256_file(manifest_path)
+    return metadata
+
+
 def value_metrics(
-    rows: list[dict[str, Any]], outputs: list[dict[str, Any]]
+    rows: list[dict[str, Any]],
+    outputs: list[dict[str, Any]],
+    include_groups: bool = True,
 ) -> dict[str, Any]:
     """Measure terminal-outcome value quality, including auditable covariates."""
     targets = np.asarray([float(row["value"]) for row in rows], dtype=np.float64)
@@ -523,27 +654,110 @@ def value_metrics(
                 "outcome_mean": float(targets[mask].mean()) if mask.any() else None,
             }
         )
-    groups: dict[str, dict[str, float]] = {}
-    for field in ("seat_context", "phase"):
-        for key in sorted({str(row.get(field, "unknown")) for row in rows}):
-            indexes = [
-                i for i, row in enumerate(rows) if str(row.get(field, "unknown")) == key
-            ]
-            groups[f"{field}:{key}"] = {
-                "rows": len(indexes),
-                "mae": float(np.abs(predictions[indexes] - targets[indexes]).mean()),
-                "sign_accuracy": float(
-                    np.mean((predictions[indexes] > 0) == (targets[indexes] > 0))
-                ),
-            }
+    if not include_groups:
+        return {
+            "mae": float(np.abs(predictions - targets).mean()),
+            "sign_accuracy": float(np.mean((predictions > 0) == (targets > 0))),
+            "pearson": pearson,
+            "spearman": spearman,
+            "calibration_buckets": calibration,
+        }
+    groups: dict[str, dict[str, Any]] = {}
+    game_lengths = np.asarray([int(row.get("game_length", 0)) for row in rows])
+    edges = np.quantile(game_lengths, np.linspace(0, 1, 11))
+    dimensions = {
+        "player": [
+            str(row.get("seat_context", f"player_{row.get('player', 0)}"))
+            for row in rows
+        ],
+        "phase": [_phase(row) for row in rows],
+        "outcome": [str(int(np.sign(float(row["value"])))) for row in rows],
+        "game_length_decile": [
+            str(min(9, int(np.searchsorted(edges, length, side="right") - 1)))
+            for length in game_lengths
+        ],
+    }
+    dimensions["player_x_outcome"] = [
+        f"{player}|{outcome}"
+        for player, outcome in zip(dimensions["player"], dimensions["outcome"])
+    ]
+    dimensions["phase_x_outcome"] = [
+        f"{phase}|{outcome}"
+        for phase, outcome in zip(dimensions["phase"], dimensions["outcome"])
+    ]
+    for field, values in dimensions.items():
+        for key in sorted(set(values)):
+            indexes = [index for index, value in enumerate(values) if value == key]
+            groups[f"{field}:{key}"] = (
+                value_metrics(
+                    [rows[index] for index in indexes],
+                    [outputs[index] for index in indexes],
+                    include_groups=False,
+                )
+                if len(indexes) < len(rows)
+                else {}
+            )
     return {
         "mae": float(np.abs(predictions - targets).mean()),
         "sign_accuracy": float(np.mean((predictions > 0) == (targets > 0))),
         "pearson": pearson,
         "spearman": spearman,
         "calibration_buckets": calibration,
-        "by_player_phase_outcome_game_length": groups,
+        "by_stratum": groups,
     }
+
+
+def value_change_metrics(
+    rows: list[dict[str, Any]],
+    candidate: list[dict[str, Any]],
+    current: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Report candidate-minus-current value movement on every required stratum."""
+    candidate_values = np.asarray([float(output["value"]) for output in candidate])
+    current_values = np.asarray([float(output["value"]) for output in current])
+    game_lengths = np.asarray([int(row.get("game_length", 0)) for row in rows])
+    edges = np.quantile(game_lengths, np.linspace(0, 1, 11))
+    dimensions = {
+        "player": [
+            str(row.get("seat_context", f"player_{row.get('player', 0)}"))
+            for row in rows
+        ],
+        "phase": [_phase(row) for row in rows],
+        "outcome": [str(int(np.sign(float(row["value"])))) for row in rows],
+        "game_length_decile": [
+            str(min(9, int(np.searchsorted(edges, length, side="right") - 1)))
+            for length in game_lengths
+        ],
+    }
+    dimensions["player_x_outcome"] = [
+        f"{player}|{outcome}"
+        for player, outcome in zip(dimensions["player"], dimensions["outcome"])
+    ]
+    dimensions["phase_x_outcome"] = [
+        f"{phase}|{outcome}"
+        for phase, outcome in zip(dimensions["phase"], dimensions["outcome"])
+    ]
+
+    def metrics(indexes: list[int]) -> dict[str, float | int]:
+        return {
+            "rows": len(indexes),
+            "candidate_minus_current_value_delta": float(
+                (candidate_values[indexes] - current_values[indexes]).mean()
+            ),
+            "value_sign_change_rate": float(
+                np.mean(
+                    (candidate_values[indexes] > 0) != (current_values[indexes] > 0)
+                )
+            ),
+        }
+
+    by_stratum = {}
+    for field, values in dimensions.items():
+        for key in sorted(set(values)):
+            by_stratum[f"{field}:{key}"] = metrics(
+                [i for i, value in enumerate(values) if value == key]
+            )
+    return {"global": metrics(list(range(len(rows)))), "by_stratum": by_stratum}
 
 
 def suite_evaluation(
@@ -586,6 +800,68 @@ def suite_evaluation(
         }
         for budget in challenger
     }
+
+
+def probe_gate(
+    policy: dict[str, Any],
+    current_policy: dict[str, Any],
+    values: dict[str, Any],
+    current_values: dict[str, Any],
+    search: dict[str, Any],
+    freeze_audit: dict[str, Any],
+) -> bool:
+    """Apply the prespecified replay and shared-search probe limits."""
+    per_budget = search["changed_move_rate_by_budget_context"]
+    return bool(
+        policy["legal_failures"] == 0
+        and freeze_audit["passes"]
+        and policy["policy_kl"] < current_policy["policy_kl"]
+        and policy["teacher_puct_top1_agreement"]
+        > current_policy["teacher_puct_top1_agreement"]
+        and values["mae"] < current_values["mae"]
+        and values["sign_accuracy"] >= current_values["sign_accuracy"]
+        and policy["changed_raw_top1_rate_vs_current"] <= 0.05
+        and per_budget["768:768"]["changed_rate_vs_current"] <= 0.08
+        and per_budget["1200:1200"]["changed_rate_vs_current"] <= 0.08
+        and per_budget["1200:256"]["changed_rate_vs_current"] <= 0.10
+    )
+
+
+def medium_gate(results: dict[str, dict[str, Any]]) -> bool:
+    return bool(
+        results["384:256"]["candidate_minus_current_ds"] >= 0.03
+        and all(
+            results[key]["candidate_minus_current_ds"] >= -0.03
+            for key in ("768:768", "1200:1200", "1200:256")
+        )
+    )
+
+
+def fixed_large_gate(results: dict[str, dict[str, Any]]) -> bool:
+    return bool(
+        results["384:256"]["candidate_minus_current_ds"] >= 0.05
+        and results["768:768"]["candidate_minus_current_ds"] >= -0.05
+        and all(
+            results[key]["candidate_minus_current_ds"] >= -0.03
+            for key in ("1200:1200", "1200:256")
+        )
+    )
+
+
+def classify_completed_evidence(stages: dict[str, bool | None]) -> str:
+    """Prevent a candidate label when required evidence was skipped or missing."""
+    if stages.get("reproducibility") is False:
+        return "full_scale_training_nondeterministic"
+    if stages.get("reproducibility") is not True or stages.get("probes") is None:
+        return "deterministic_joint_heads_experiment_incomplete"
+    if stages["probes"] is False:
+        return "deterministic_joint_outcome_update_rejected"
+    for stage in ("medium", "fixed_large", "heldout", "deterministic_gate"):
+        if stages.get(stage) is None:
+            return "deterministic_joint_heads_experiment_incomplete"
+    if stages["heldout"] and stages["deterministic_gate"]:
+        return "deterministic_joint_heads_candidate"
+    return "joint_heads_safe_but_strength_neutral"
 
 
 def parse_args() -> argparse.Namespace:
@@ -654,14 +930,23 @@ def main() -> int:
         epochs=args.epochs,
         batch_size=args.batch_size,
     )
-    manifest["replay_path"] = str(replay)
-    write_json(workdir / "training_manifest.json", manifest)
+    manifest_path = workdir / "training_manifest.json"
+    manifest = verify_manifest(manifest_path)
+    search_probe_manifest = persist_search_probe(
+        workdir,
+        rows,
+        np.load(
+            Path(manifest["artifact_paths"]["validation_source_indexes"]),
+            allow_pickle=False,
+        ),
+        args.seed,
+    )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     run_a = train_fixed_manifest(
-        workdir, manifest, device, "deterministic_joint_heads_e1_run_a"
+        manifest_path, device, "deterministic_joint_heads_e1_run_a"
     )
     run_b = train_fixed_manifest(
-        workdir, manifest, device, "deterministic_joint_heads_e1_run_b"
+        manifest_path, device, "deterministic_joint_heads_e1_run_b"
     )
     reproducibility = compare_runs(run_a, run_b)
     stop_reasons = []
@@ -677,6 +962,7 @@ def main() -> int:
     summary = {
         "schema": "azlite_deterministic_joint_heads_iteration_v1",
         "manifest": manifest,
+        "search_probe_manifest": search_probe_manifest,
         "device": str(device),
         "run_a": {k: v for k, v in run_a.items() if not isinstance(v, np.ndarray)},
         "run_b": {k: v for k, v in run_b.items() if not isinstance(v, np.ndarray)},
@@ -692,12 +978,11 @@ def main() -> int:
         )
     else:
         # Scientific probes intentionally run only after the reproducibility gate.
-        validation = [
-            rows[int(i)]
-            for i in np.load(
-                workdir / "validation_source_indexes.npy", allow_pickle=False
-            )
-        ]
+        validation_indexes = np.load(
+            Path(manifest["artifact_paths"]["validation_source_indexes"]),
+            allow_pickle=False,
+        )
+        validation = [rows[int(i)] for i in validation_indexes]
         policy_rows = build_policy_probe_rows(validation)
         candidate = evaluate_raw_outputs(
             artifact_path=Path(run_a["artifact"]), rows=policy_rows
@@ -713,8 +998,12 @@ def main() -> int:
         )
         values = value_metrics(validation, candidate)
         current_values = value_metrics(validation, incumbent)
+        value_changes = value_change_metrics(validation, candidate, incumbent)
+        search_indexes = np.load(
+            workdir / "search_probe_source_indexes.npy", allow_pickle=False
+        )
         search_rows = build_search_probe_rows(
-            validation[:256],
+            [rows[int(index)] for index in search_indexes],
             ("384:256", "768:256", "768:768", "1200:1200", "1200:256", "256:768"),
         )
         schedule = parse_cpuct_schedule_json(args.cpuct_schedule)
@@ -742,21 +1031,14 @@ def main() -> int:
             current_outputs=incumbent_search,
         )
         summary["policy_probe"] = {"candidate": policy, "current": current_policy}
-        summary["value_probe"] = {"candidate": values, "current": current_values}
+        summary["value_probe"] = {
+            "candidate": values,
+            "current": current_values,
+            "candidate_minus_current": value_changes,
+        }
         summary["search_probe"] = search
-        per_budget = search["changed_move_rate_by_budget_context"]
-        probe_pass = (
-            policy["legal_failures"] == 0
-            and freeze_audit["passes"]
-            and policy["policy_kl"] < current_policy["policy_kl"]
-            and policy["teacher_puct_top1_agreement"]
-            > current_policy["teacher_puct_top1_agreement"]
-            and values["mae"] < current_values["mae"]
-            and values["sign_accuracy"] >= current_values["sign_accuracy"]
-            and policy["changed_raw_top1_rate_vs_current"] <= 0.05
-            and per_budget["768:768"]["changed_rate_vs_current"] <= 0.08
-            and per_budget["1200:1200"]["changed_rate_vs_current"] <= 0.08
-            and per_budget["1200:256"]["changed_rate_vs_current"] <= 0.10
+        probe_pass = probe_gate(
+            policy, current_policy, values, current_values, search, freeze_audit
         )
         if not probe_pass:
             stop_reasons.append("heldout_replay_probe_gate_failed")
@@ -771,17 +1053,14 @@ def main() -> int:
                 workers=args.workers,
             )
             summary["medium"] = medium
-            medium_pass = medium["384:256"][
-                "candidate_minus_current_ds"
-            ] >= 0.03 and all(
-                medium[key]["candidate_minus_current_ds"] >= -0.03
-                for key in ("768:768", "1200:1200", "1200:256")
-            )
+            medium_pass = medium_gate(medium)
             if not medium_pass:
                 stop_reasons.append("medium_strength_gate_failed")
                 summary["classification"] = (
                     "joint_heads_probe_good_but_game_strength_bad"
                     if medium["384:256"]["candidate_minus_current_ds"] < 0
+                    else "joint_heads_tradeoff"
+                    if medium["384:256"]["candidate_minus_current_ds"] >= 0.03
                     else "joint_heads_safe_but_strength_neutral"
                 )
             else:
@@ -794,14 +1073,7 @@ def main() -> int:
                     workers=args.workers,
                 )
                 summary["fixed_large"] = fixed
-                fixed_pass = (
-                    fixed["384:256"]["candidate_minus_current_ds"] >= 0.05
-                    and fixed["768:768"]["candidate_minus_current_ds"] >= -0.05
-                    and all(
-                        fixed[key]["candidate_minus_current_ds"] >= -0.03
-                        for key in ("1200:1200", "1200:256")
-                    )
-                )
+                fixed_pass = fixed_large_gate(fixed)
                 if not fixed_pass:
                     stop_reasons.append("fixed_large_strength_gate_failed")
                     summary["classification"] = "joint_heads_safe_but_strength_neutral"
@@ -837,10 +1109,57 @@ def main() -> int:
                         and bootstrap["1200:256"]["mean"] >= -0.03
                     )
                     if final_pass:
-                        summary["classification"] = (
-                            "deterministic_joint_heads_candidate"
+                        gate_path = workdir / "deterministic_gate.json"
+                        command = [
+                            str(REPO_ROOT / "script/ai/seat_aware_promotion_gate"),
+                            "--candidate-path",
+                            str(run_a["artifact"]),
+                            "--current-path",
+                            str(current),
+                            "--out",
+                            str(gate_path),
+                            "--workdir",
+                            str(workdir / "deterministic_gate"),
+                            "--budget-pairs",
+                            "384:256,768:768,1200:1200,1200:256",
+                            "--seed",
+                            str(args.seed),
+                            "--workers",
+                            str(args.workers),
+                            "--c-puct",
+                            str(args.default_c_puct),
+                            "--c-puct-schedule-json",
+                            args.cpuct_schedule,
+                            "--root-policy-mode",
+                            "deterministic",
+                            "--root-temperature",
+                            "0",
+                            "--tactical-root-bias",
+                            str(args.tactical_root_bias),
+                        ]
+                        completed = subprocess.run(
+                            command, cwd=REPO_ROOT, text=True, capture_output=True
                         )
-                        stop_reasons.append("promotion_not_run_by_protocol")
+                        if completed.returncode:
+                            raise RuntimeError(
+                                f"deterministic gate failed: {completed.stderr[-2000:]}"
+                            )
+                        gate = json.loads(gate_path.read_text(encoding="utf-8"))
+                        summary["deterministic_gate"] = gate
+                        gate_pass = gate.get("classification") in {
+                            "standard_budget_breakthrough",
+                            "high_search_breakthrough",
+                        }
+                        if gate_pass:
+                            summary["classification"] = (
+                                "deterministic_joint_heads_candidate"
+                            )
+                            stop_reasons.append("promotion_not_run_by_protocol")
+                        else:
+                            stop_reasons.append("deterministic_gate_failed")
+                            summary["classification"] = (
+                                "joint_heads_safe_but_strength_neutral"
+                            )
                     else:
                         stop_reasons.append("heldout_strength_gate_failed")
                         summary["classification"] = (
