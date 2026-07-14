@@ -767,6 +767,42 @@ class BlendedArtifactEvaluator:
         return current_policy, float(value)
 
 
+class ComposedArtifactEvaluator:
+    """Diagnostic-only evaluator selecting whole policy and value heads by source.
+
+    This deliberately composes outputs rather than exporting weights: the trunk
+    remains owned by each source evaluator and terminal positions are never
+    evaluated by either network.
+    """
+
+    def __init__(
+        self,
+        current_evaluator: ArtifactEvaluator,
+        candidate_evaluator: ArtifactEvaluator,
+        *,
+        policy_source: str,
+        value_source: str,
+    ):
+        if policy_source not in {"current", "candidate"}:
+            raise ValueError("policy_source must be current or candidate")
+        if value_source not in {"current", "candidate"}:
+            raise ValueError("value_source must be current or candidate")
+        self.current_evaluator = current_evaluator
+        self.candidate_evaluator = candidate_evaluator
+        self.policy_source = policy_source
+        self.value_source = value_source
+
+    def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
+        if game.over():
+            # PUCT owns exact terminal outcomes; never compose model outputs here.
+            return np.zeros(PITS_PER_PLAYER, dtype=np.float32), 0.0
+        policy_evaluator = getattr(self, f"{self.policy_source}_evaluator")
+        value_evaluator = getattr(self, f"{self.value_source}_evaluator")
+        policy, _unused_value = policy_evaluator.evaluate(game)
+        _unused_policy, value = value_evaluator.evaluate(game)
+        return policy, float(value)
+
+
 def choose_best_move(visits: np.ndarray, legal_moves: list[int]) -> int:
     legal_visits = {move: visits[move] for move in legal_moves}
     best_visit = max(legal_visits.values())
