@@ -1,20 +1,14 @@
 #!/usr/bin/env python3
-"""Diagnostic attribution of a frozen-trunk joint policy/value head update.
-
-This script never trains or exports a model.  It evaluates four in-memory
-compositions against the incumbent using the normal deterministic PUCT path.
-The intentionally detailed JSONL trace is kept only in the requested workdir.
-"""
+"""No-training causal attribution for a frozen joint-head candidate."""
 
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
-import math
 import statistics
 import sys
-import time
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -38,7 +32,7 @@ from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (  # noqa:
 from ml.alphazero_lite.run_residual_v3_iteration0_target_causal_audit import (  # noqa: E402
     forced_continuation,
 )
-from ml.alphazero_lite.self_play import build_eval_search_options, encode_state  # noqa: E402
+from ml.alphazero_lite.self_play import build_eval_search_options  # noqa: E402
 
 LANES = {
     "current_policy_current_value": ("current", "current"),
@@ -56,14 +50,18 @@ HEAD_KEYS = {
     "w_value_hidden",
     "b_value_hidden",
 }
-TRUNK_KEYS = frozenset()
+TRACE_BUDGETS = ("384:256", "768:768", "1200:1200", "1200:256")
 
 
 def canonical_hash(value: Any) -> str:
-    """Return a stable hash for a JSON-compatible diagnostic value."""
+    """Hash a raw JSON representation. Never use this for encoded state vectors."""
     return hashlib.sha256(
         json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
+
+
+def stable_seed(*parts: Any) -> int:
+    return int(canonical_hash(list(parts))[:16], 16) % (2**31)
 
 
 def write_json(path: Path, value: dict[str, Any]) -> None:
@@ -78,6 +76,11 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
         return [json.loads(line) for line in handle if line.strip()]
 
 
+def phase(game: KalahGame) -> str:
+    remaining = sum(game.pits)
+    return "late" if remaining <= 12 else "midgame" if remaining <= 24 else "opening"
+
+
 def composition_hash(current_hash: str, candidate_hash: str, lane: str) -> str:
     return canonical_hash(
         {
@@ -88,15 +91,30 @@ def composition_hash(current_hash: str, candidate_hash: str, lane: str) -> str:
     )
 
 
+def lane_evaluators(
+    current: Path, candidate: Path
+) -> dict[str, arena.ComposedArtifactEvaluator]:
+    incumbent, joint = (
+        arena.ArtifactEvaluator(current),
+        arena.ArtifactEvaluator(candidate),
+    )
+    return {
+        name: arena.ComposedArtifactEvaluator(
+            incumbent, joint, policy_source=p, value_source=v
+        )
+        for name, (p, v) in LANES.items()
+    }
+
+
 def verify_inputs(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Verify immutable PR inputs before any arena work is performed."""
-    current_weights = Path(args.current) / "weights.json"
-    candidate_weights = Path(args.candidate) / "weights.json"
+    current_weights, candidate_weights = (
+        Path(args.current) / "weights.json",
+        Path(args.candidate) / "weights.json",
+    )
     if sha256_file(current_weights) != args.expected_current_weights_sha256:
         raise RuntimeError("current weights hash mismatch")
     summary = json.loads(Path(args.pr164_summary).read_text(encoding="utf-8"))
-    expected_candidate = str(summary["run_a"]["artifact_weights_sha256"])
-    if sha256_file(candidate_weights) != expected_candidate:
+    if sha256_file(candidate_weights) != summary["run_a"]["artifact_weights_sha256"]:
         raise RuntimeError("candidate weights hash mismatch")
     manifest = json.loads(Path(args.training_manifest).read_text(encoding="utf-8"))
     if manifest.get("manifest_sha256_excluding_this_field") != canonical_manifest_hash(
@@ -105,68 +123,31 @@ def verify_inputs(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
         raise RuntimeError("training manifest hash mismatch")
     if sha256_file(Path(args.replay)) != manifest.get("replay_sha256"):
         raise RuntimeError("replay hash mismatch")
-    batch_path = Path(manifest["artifact_paths"]["batch_indexes"])
-    if sha256_file(batch_path) != manifest.get("batch_plan_sha256"):
+    if sha256_file(Path(manifest["artifact_paths"]["batch_indexes"])) != manifest.get(
+        "batch_plan_sha256"
+    ):
         raise RuntimeError("batch-plan hash mismatch")
-    current = json.loads(current_weights.read_text(encoding="utf-8"))
-    candidate = json.loads(candidate_weights.read_text(encoding="utf-8"))
-    if set(current) != set(candidate):
-        raise RuntimeError("candidate/current weight key sets differ")
-    trunk_keys = sorted(set(current) - HEAD_KEYS)
-    if any(current[key] != candidate[key] for key in trunk_keys):
+    current, candidate = (
+        json.loads(current_weights.read_text()),
+        json.loads(candidate_weights.read_text()),
+    )
+    if set(current) != set(candidate) or any(
+        current[key] != candidate[key] for key in set(current) - HEAD_KEYS
+    ):
         raise RuntimeError("candidate trunk differs from current")
     if not any(current[key] != candidate[key] for key in HEAD_KEYS):
-        raise RuntimeError("candidate policy/value heads did not change")
+        raise RuntimeError("candidate heads did not change")
     return summary, manifest
 
 
-def lane_evaluators(
-    current: Path, candidate: Path
-) -> dict[str, arena.ComposedArtifactEvaluator]:
-    incumbent = arena.ArtifactEvaluator(current)
-    joint = arena.ArtifactEvaluator(candidate)
-    return {
-        name: arena.ComposedArtifactEvaluator(
-            incumbent, joint, policy_source=policy, value_source=value
-        )
-        for name, (policy, value) in LANES.items()
-    }
-
-
-def raw_logits(evaluator: arena.ArtifactEvaluator, game: KalahGame) -> np.ndarray:
-    """Mirror ArtifactEvaluator's residual-v3 policy forward pass before softmax."""
-    x = np.asarray(
-        encode_state(game.to_state(), input_encoding=evaluator.input_encoding),
-        dtype=np.float32,
+def options() -> dict[str, Any]:
+    return build_eval_search_options(
+        root_policy_mode="deterministic", tactical_root_bias=0.0, normalize_values=False
     )
-    assert evaluator.w_input is not None and evaluator.b_input is not None
-    hidden = np.maximum(0.0, (x @ evaluator.w_input) + evaluator.b_input)
-    for (w1, b1), (w2, b2) in evaluator.residual_blocks:
-        residual = hidden
-        hidden = np.maximum(0.0, (hidden @ w1) + b1)
-        hidden = np.maximum(0.0, (hidden @ w2) + b2 + residual)
-    if evaluator.w_policy_hidden is not None:
-        hidden = np.maximum(
-            0.0, (hidden @ evaluator.w_policy_hidden) + evaluator.b_policy_hidden
-        )
-    assert evaluator.w_policy is not None and evaluator.b_policy is not None
-    return np.asarray(
-        (hidden @ evaluator.w_policy) + evaluator.b_policy, dtype=np.float32
-    )
-
-
-def phase(game: KalahGame) -> str:
-    remaining = sum(game.pits)
-    return "late" if remaining <= 12 else "midgame" if remaining <= 24 else "opening"
 
 
 def search(
-    evaluator: Any,
-    state: dict[str, Any],
-    simulations: int,
-    seed: int,
-    c_puct: float,
-    options: dict[str, Any],
+    evaluator: Any, state: dict[str, Any], simulations: int, seed: int, c_puct: float
 ) -> dict[str, Any]:
     return arena.evaluate_artifact_position(
         evaluator=evaluator,
@@ -174,436 +155,692 @@ def search(
         simulations=simulations,
         seed=seed,
         c_puct=c_puct,
-        search_options=options,
+        search_options=options(),
     )
 
 
-def _shares(visits: list[float], legal: list[int]) -> list[float]:
-    total = sum(visits[move] for move in legal)
-    return [0.0 if total <= 0 else visits[move] / total for move in legal]
-
-
-def _kl(left: list[float], right: list[float], legal: list[int]) -> float:
-    p, q = _shares(left, legal), _shares(right, legal)
-    return sum(a * math.log((a + 1e-12) / (b + 1e-12)) for a, b in zip(p, q) if a > 0)
-
-
-def play_lane(
-    *,
-    lane: str,
-    evaluators: dict[str, Any],
-    openings: list[dict[str, Any]],
-    challenger_sims: int,
-    current_sims: int,
-    c_puct: float,
-    seed: int,
-    trace: bool,
-    traces: list[dict[str, Any]],
-) -> dict[str, Any]:
-    """Play both seat splits, optionally logging every decision on trajectories."""
-    options = build_eval_search_options(
-        root_policy_mode="deterministic", tactical_root_bias=0.0, normalize_values=False
+def profile_hash(budget_pair: str, c_puct: float) -> str:
+    return canonical_hash(
+        {
+            "budget_pair": budget_pair,
+            "c_puct": c_puct,
+            "root_policy": "deterministic",
+            "normalize_values": False,
+            "tactical_root_bias": 0.0,
+            "value_interpolation": False,
+            "value_trust": False,
+            "root_prior_transform": None,
+        }
     )
-    games: list[dict[str, Any]] = []
-    changed = 0
-    roots = 0
-    kls: list[float] = []
-    logit_deltas: list[float] = []
-    value_deltas: list[float] = []
-    q_deltas: list[float] = []
-    started = time.perf_counter()
-    for opening_index, opening in enumerate(openings):
-        for challenger_player in (0, 1):
-            game = KalahGame.from_state(opening["state"])
-            ply = int(opening.get("ply", len(opening.get("prefix_moves", []))))
-            trajectory: list[int] = []
-            while not game.over():
-                state, legal = (
-                    game.to_state(),
-                    [int(move) for move in game.possible_moves()],
-                )
-                if not legal:
-                    break
-                acting_challenger = game.current_player == challenger_player
-                selected_evaluator = (
-                    evaluators[lane]
-                    if acting_challenger
-                    else evaluators["current_policy_current_value"]
-                )
-                selected_sims = challenger_sims if acting_challenger else current_sims
-                result = search(
-                    selected_evaluator,
-                    state,
-                    selected_sims,
-                    seed + ply + opening_index * 1000 + challenger_player * 100,
-                    c_puct,
-                    options,
-                )
-                move = int(result["selected_move"])
-                if trace:
-                    all_results = {
-                        name: search(
-                            evaluator,
-                            state,
-                            selected_sims,
-                            seed + ply + opening_index * 1000 + challenger_player * 100,
-                            c_puct,
-                            options,
-                        )
-                        for name, evaluator in evaluators.items()
-                    }
-                    incumbent, candidate = (
-                        evaluators["current_policy_current_value"].current_evaluator,
-                        evaluators["current_policy_current_value"].candidate_evaluator,
-                    )
-                    current_logits, candidate_logits = (
-                        raw_logits(incumbent, game),
-                        raw_logits(candidate, game),
-                    )
-                    current_policy, current_value = incumbent.evaluate(game)
-                    candidate_policy, candidate_value = candidate.evaluate(game)
-                    current_result, candidate_result = (
-                        all_results["current_policy_current_value"],
-                        all_results["candidate_policy_candidate_value"],
-                    )
-                    changed += int(
-                        current_result["selected_move"]
-                        != candidate_result["selected_move"]
-                    )
-                    roots += 1
-                    kls.append(
-                        _kl(candidate_result["visits"], current_result["visits"], legal)
-                    )
-                    logit_deltas.append(
-                        float(np.mean(np.abs(candidate_logits - current_logits)))
-                    )
-                    value_deltas.append(abs(candidate_value - current_value))
-                    current_q = {
-                        row["move"]: row["q_value"]
-                        for row in current_result["child_stats"]
-                    }
-                    candidate_q = {
-                        row["move"]: row["q_value"]
-                        for row in candidate_result["child_stats"]
-                    }
-                    q_deltas.append(
-                        float(
-                            np.mean(
-                                [
-                                    abs(current_q.get(m, 0.0) - candidate_q.get(m, 0.0))
-                                    for m in legal
-                                ]
-                            )
-                        )
-                    )
-                    traces.append(
-                        {
-                            "state": state,
-                            "state_hash": canonical_hash(state),
-                            "encoded_state_hash": canonical_hash(
-                                encode_state(
-                                    state, input_encoding=incumbent.input_encoding
-                                )
-                            ),
-                            "opening_identifier": opening.get("id", opening_index),
-                            "game_identifier": f"{lane}:{opening_index}:{challenger_player}",
-                            "ply": ply,
-                            "phase": phase(game),
-                            "side_to_move": game.current_player,
-                            "challenger_player": challenger_player,
-                            "legal_moves": legal,
-                            "current_policy_logits": current_logits.tolist(),
-                            "candidate_policy_logits": candidate_logits.tolist(),
-                            "current_policy_probabilities": current_policy.tolist(),
-                            "candidate_policy_probabilities": candidate_policy.tolist(),
-                            "current_value": current_value,
-                            "candidate_value": candidate_value,
-                            "selected_moves": {
-                                name: item["selected_move"]
-                                for name, item in all_results.items()
-                            },
-                            "composition_child_visits": {
-                                name: item["visits"]
-                                for name, item in all_results.items()
-                            },
-                            "composition_child_q_values": {
-                                name: item["child_stats"]
-                                for name, item in all_results.items()
-                            },
-                            "selected_visit_share": max(
-                                _shares(result["visits"], legal), default=0.0
-                            ),
-                            "effective_c_puct": c_puct,
-                        }
-                    )
-                trajectory.append(move)
-                game.move(game.pit_index(move))
-                ply += 1
-            score = (
-                1.0
-                if game.winner == challenger_player
-                else 0.5
-                if game.winner is None
-                else 0.0
-            )
-            games.append(
+
+
+def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """One opening/seat/composition work unit with private immutable evaluators."""
+    evaluators = lane_evaluators(Path(payload["current"]), Path(payload["candidate"]))
+    lane, opening, challenger_player = (
+        payload["lane"],
+        payload["opening"],
+        payload["challenger_player"],
+    )
+    challenger_sims, current_sims, c_puct = (
+        payload["challenger_sims"],
+        payload["current_sims"],
+        payload["c_puct"],
+    )
+    game = KalahGame.from_state(opening["state"])
+    ply = int(opening.get("ply", len(opening.get("prefix_moves", []))))
+    traces, trajectory = [], []
+    while not game.over():
+        state, legal = game.to_state(), [int(move) for move in game.possible_moves()]
+        if not legal:
+            break
+        acting_challenger = game.current_player == challenger_player
+        simulations = challenger_sims if acting_challenger else current_sims
+        seed = stable_seed(
+            payload["seed"],
+            lane,
+            payload["opening_index"],
+            challenger_player,
+            ply,
+            state,
+        )
+        selected = search(
+            evaluators[lane]
+            if acting_challenger
+            else evaluators["current_policy_current_value"],
+            state,
+            simulations,
+            seed,
+            c_puct,
+        )
+        all_results = (
+            {
+                name: search(evaluator, state, simulations, seed, c_puct)
+                for name, evaluator in evaluators.items()
+            }
+            if payload.get("trace", True)
+            else {}
+        )
+        if payload.get("trace", True):
+            traces.append(
                 {
+                    "state": state,
+                    "state_hash": canonical_hash(state),
+                    "budget_pair": payload["budget_pair"],
+                    "challenger_simulations": challenger_sims,
+                    "incumbent_simulations": current_sims,
+                    "effective_c_puct": c_puct,
                     "challenger_player": challenger_player,
-                    "score": score,
-                    "trajectory": ",".join(map(str, trajectory)),
-                    "margin": game.captured_seeds[challenger_player]
-                    - game.captured_seeds[1 - challenger_player],
+                    "acting_player": game.current_player,
+                    "composition_trajectory_source": lane,
+                    "opening_identifier": opening.get("id", payload["opening_index"]),
+                    "game_identifier": f"{payload['budget_pair']}:{lane}:{payload['opening_index']}:{challenger_player}",
+                    "ply": ply,
+                    "phase": phase(game),
+                    "legal_moves": legal,
+                    "selected_moves": {
+                        name: result["selected_move"]
+                        for name, result in all_results.items()
+                    },
+                    "composition_child_visits": {
+                        name: result["visits"] for name, result in all_results.items()
+                    },
+                    "search_profile_hash": profile_hash(payload["budget_pair"], c_puct),
                 }
             )
-    p0 = [item["score"] for item in games if item["challenger_player"] == 0]
-    p1 = [item["score"] for item in games if item["challenger_player"] == 1]
-    counts = Counter(item["trajectory"] for item in games)
+        move = int(selected["selected_move"])
+        trajectory.append(move)
+        game.move(game.pit_index(move))
+        ply += 1
+    score = (
+        1.0 if game.winner == challenger_player else 0.5 if game.winner is None else 0.0
+    )
     return {
-        "raw_ds": statistics.fmean(p0) - statistics.fmean(p1),
-        "p0_score": statistics.fmean(p0),
-        "p1_score": statistics.fmean(p1),
-        "unique_trajectories": len(counts),
-        "duplicate_trajectory_count": sum(
-            value for value in counts.values() if value > 1
-        ),
-        "selected_move_changed_rate_vs_current": changed / max(roots, 1),
-        "root_visit_kl": statistics.fmean(kls) if kls else 0.0,
-        "mean_absolute_policy_logit_delta": statistics.fmean(logit_deltas)
-        if logit_deltas
-        else 0.0,
-        "mean_absolute_value_delta": statistics.fmean(value_deltas)
-        if value_deltas
-        else 0.0,
-        "mean_absolute_child_q_delta": statistics.fmean(q_deltas) if q_deltas else 0.0,
-        "runtime_latency_seconds": time.perf_counter() - started,
-        "games": games,
+        "lane": lane,
+        "challenger_player": challenger_player,
+        "score": score,
+        "trajectory": ",".join(map(str, trajectory)),
+    }, traces
+
+
+def run_budget(
+    *,
+    current: Path,
+    candidate: Path,
+    openings: list[dict[str, Any]],
+    label: str,
+    seed: int,
+    c_puct: float,
+    workers: int,
+    trace: bool,
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    challenger_sims, current_sims = map(int, label.split(":"))
+    units = [
+        {
+            "current": str(current),
+            "candidate": str(candidate),
+            "opening": opening,
+            "opening_index": i,
+            "lane": lane,
+            "challenger_player": player,
+            "challenger_sims": challenger_sims,
+            "current_sims": current_sims,
+            "budget_pair": label,
+            "c_puct": c_puct,
+            "seed": seed,
+            "trace": trace,
+        }
+        for i, opening in enumerate(openings)
+        for lane in LANES
+        for player in (0, 1)
+    ]
+    # Every process builds private evaluators; merge uses input order for determinism.
+    if workers > 1:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
+            completed = list(pool.map(play_unit, units))
+    else:
+        completed = [play_unit(unit) for unit in units]
+    games: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    traces: list[dict[str, Any]] = []
+    for game, rows in completed:
+        games[game["lane"]].append(game)
+        if trace:
+            traces.extend(rows)
+    metrics = {}
+    for lane in LANES:
+        lane_games = games[lane]
+        p0 = [row["score"] for row in lane_games if row["challenger_player"] == 0]
+        p1 = [row["score"] for row in lane_games if row["challenger_player"] == 1]
+        trajectories = Counter(row["trajectory"] for row in lane_games)
+        metrics[lane] = {
+            "raw_ds": statistics.fmean(p0) - statistics.fmean(p1),
+            "p0_score": statistics.fmean(p0),
+            "p1_score": statistics.fmean(p1),
+            "unique_trajectories": len(trajectories),
+            "duplicate_trajectory_count": sum(
+                n for n in trajectories.values() if n > 1
+            ),
+            "challenger_simulations": challenger_sims,
+            "incumbent_simulations": current_sims,
+            "effective_c_puct": c_puct,
+        }
+    return metrics, traces
+
+
+def raw_state_vector(state: dict[str, Any]) -> np.ndarray:
+    if "pits" in state:
+        return np.asarray(
+            list(state["pits"]) + list(state["captured_seeds"]), dtype=np.int16
+        )
+    return np.asarray(
+        list(state["player_pits"])
+        + list(state["opponent_pits"])
+        + [state["player_store"], state["opponent_store"]],
+        dtype=np.int16,
+    )
+
+
+def replay_coverage(
+    traces: list[dict[str, Any]], replay: Path, manifest: dict[str, Any], workers: int
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    rows = read_jsonl(replay)
+    train, validation = (
+        set(manifest["train_source_row_indexes"]),
+        set(manifest["validation_source_row_indexes"]),
+    )
+    indexes: dict[str, dict[str, Any]] = {}
+    for index, row in enumerate(rows):
+        # Replay's training tensor is encoded in ``state``; only ``raw_state``
+        # participates in arena identity and distance diagnostics.
+        raw_state = row.get("raw_state")
+        if not isinstance(raw_state, dict):
+            raise RuntimeError("replay row is missing raw_state required for coverage")
+        raw_hash = canonical_hash(raw_state)
+        replay_game = KalahGame.from_state(raw_state)
+        entry = indexes.setdefault(
+            raw_hash,
+            {
+                "count": 0,
+                "train_game_ids": set(),
+                "validation_game_ids": set(),
+                "vector": raw_state_vector(raw_state),
+                "player": raw_state.get("current_player"),
+                "phase": phase(replay_game),
+                "legal_move_count": len(replay_game.possible_moves()),
+            },
+        )
+        entry["count"] += 1
+        game_id = row.get("game_index")
+        if index in train:
+            entry["train_game_ids"].add(game_id)
+        if index in validation:
+            entry["validation_game_ids"].add(game_id)
+    replay_entries = list(indexes.values())
+    replay_vectors = np.asarray(
+        [entry["vector"] for entry in replay_entries], dtype=np.int16
+    )
+    replay_train = np.asarray(
+        [entry["vector"] for entry in replay_entries if entry["train_game_ids"]],
+        dtype=np.int16,
+    )
+    replay_validation = np.asarray(
+        [entry["vector"] for entry in replay_entries if entry["validation_game_ids"]],
+        dtype=np.int16,
+    )
+
+    def annotate(row: dict[str, Any]) -> dict[str, Any]:
+        raw_hash = canonical_hash(row["state"])
+        assert raw_hash == row["state_hash"], (
+            "trace state hashes must be raw-state hashes"
+        )
+        entry = indexes.get(raw_hash)
+        vector = raw_state_vector(row["state"])
+        distances = np.abs(replay_vectors - vector).sum(axis=1)
+        nearest = replay_entries[int(np.argmin(distances))]
+
+        def distance(vectors: np.ndarray) -> int | None:
+            return (
+                int(np.abs(vectors - vector).sum(axis=1).min())
+                if len(vectors)
+                else None
+            )
+
+        return {
+            **row,
+            "exact_training_replay_overlap": bool(entry and entry["train_game_ids"]),
+            "exact_validation_replay_overlap": bool(
+                entry and entry["validation_game_ids"]
+            ),
+            "no_exact_replay_overlap": entry is None,
+            "replay_duplicate_occurrence_count": 0 if entry is None else entry["count"],
+            "train_replay_game_ids": []
+            if entry is None
+            else sorted(entry["train_game_ids"]),
+            "validation_replay_game_ids": []
+            if entry is None
+            else sorted(entry["validation_game_ids"]),
+            "same_current_player": nearest["player"] == row["acting_player"],
+            "same_phase": nearest["phase"] == row["phase"],
+            "same_legal_move_count": nearest["legal_move_count"]
+            == len(row["legal_moves"]),
+            "pit_store_l1_distance": int(distances.min()),
+            "nearest_replay_state_distance": distance(replay_vectors),
+            "nearest_train_state_distance": distance(replay_train),
+            "nearest_validation_state_distance": distance(replay_validation),
+        }
+
+    if workers > 1:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+            annotated = list(pool.map(annotate, traces))
+    else:
+        annotated = [annotate(row) for row in traces]
+    # Identical raw states are a protocol invariant; encoded representations are never compared here.
+    assert all(canonical_hash(row["state"]) == row["state_hash"] for row in annotated)
+    return {
+        "arena_trace_rows": len(annotated),
+        "exact_training_overlap_rate": sum(
+            row["exact_training_replay_overlap"] for row in annotated
+        )
+        / max(1, len(annotated)),
+        "exact_validation_overlap_rate": sum(
+            row["exact_validation_replay_overlap"] for row in annotated
+        )
+        / max(1, len(annotated)),
+        "no_exact_overlap_rate": sum(
+            row["no_exact_replay_overlap"] for row in annotated
+        )
+        / max(1, len(annotated)),
+        "hash_representation": "canonical_hash(raw_state_dict)",
+        "encoded_hashes_compared": False,
+    }, annotated
+
+
+def aggregate(values: list[float], seed: int) -> dict[str, Any]:
+    rng = np.random.default_rng(seed)
+    boot = (
+        [
+            float(np.mean(rng.choice(values, len(values), replace=True)))
+            for _ in range(1000)
+        ]
+        if values
+        else [0.0]
+    )
+    return {
+        "unique_changed_states": len(values),
+        "mean_forced_outcome_delta": statistics.fmean(values) if values else 0.0,
+        "median_forced_outcome_delta": statistics.median(values) if values else 0.0,
+        "bootstrap_95_ci": [
+            float(np.percentile(boot, 2.5)),
+            float(np.percentile(boot, 97.5)),
+        ],
+        "fraction_delta_lte_negative_quarter": sum(v <= -0.25 for v in values)
+        / max(1, len(values)),
+        "fraction_delta_gte_positive_quarter": sum(v >= 0.25 for v in values)
+        / max(1, len(values)),
     }
-
-
-def semantic_checks(
-    evaluators: dict[str, Any], state: dict[str, Any], seed: int
-) -> dict[str, bool]:
-    game = KalahGame.from_state(state)
-    current = evaluators["current_policy_current_value"].current_evaluator
-    candidate = evaluators["current_policy_current_value"].candidate_evaluator
-    cp, cv = current.evaluate(game)
-    xp, xv = candidate.evaluate(game)
-    checks = {
-        "current_current_exact": np.array_equal(
-            cp, evaluators["current_policy_current_value"].evaluate(game)[0]
-        )
-        and cv == evaluators["current_policy_current_value"].evaluate(game)[1],
-        "candidate_candidate_exact": np.array_equal(
-            xp, evaluators["candidate_policy_candidate_value"].evaluate(game)[0]
-        )
-        and xv == evaluators["candidate_policy_candidate_value"].evaluate(game)[1],
-        "mixed_outputs": np.array_equal(
-            xp, evaluators["candidate_policy_current_value"].evaluate(game)[0]
-        )
-        and cv == evaluators["candidate_policy_current_value"].evaluate(game)[1]
-        and np.array_equal(
-            cp, evaluators["current_policy_candidate_value"].evaluate(game)[0]
-        )
-        and xv == evaluators["current_policy_candidate_value"].evaluate(game)[1],
-        "legal_masks_unchanged": np.array_equal(
-            cp == 0, evaluators["current_policy_candidate_value"].evaluate(game)[0] == 0
-        ),
-        "terminal_uncomposed": all(
-            evaluator.evaluate(
-                KalahGame(pits=[0] * 12, captured_seeds=[24, 24], current_player=0)
-            )[1]
-            == 0.0
-            for evaluator in evaluators.values()
-        ),
-    }
-    options = build_eval_search_options(
-        root_policy_mode="deterministic", tactical_root_bias=0.0, normalize_values=False
-    )
-    first = search(
-        evaluators["candidate_policy_current_value"], state, 32, seed, 1.25, options
-    )
-    second = search(
-        evaluators["candidate_policy_current_value"], state, 32, seed, 1.25, options
-    )
-    checks["deterministic_search"] = (
-        first["selected_move"] == second["selected_move"]
-        and first["visits"] == second["visits"]
-    )
-    return checks
-
-
-def classify(metrics: dict[str, Any], forced: dict[str, Any]) -> str:
-    base = metrics["current_policy_current_value"]["384:256"]["raw_ds"]
-    joint = metrics["candidate_policy_candidate_value"]["384:256"]["raw_ds"] - base
-    policy = metrics["candidate_policy_current_value"]["384:256"]["raw_ds"] - base
-    value = metrics["current_policy_candidate_value"]["384:256"]["raw_ds"] - base
-    if joint >= 0:
-        return "no_joint_384_256_regression_reproduced"
-    forced_components = forced.get("by_component", {})
-    policy_harm = (
-        forced_components.get("policy", {}).get("bootstrap_95_ci", [0.0, 0.0])[1] < 0.0
-    )
-    value_harm = (
-        forced_components.get("value", {}).get("bootstrap_95_ci", [0.0, 0.0])[1] < 0.0
-    )
-    if abs(policy / joint) >= 0.7 and policy_harm:
-        return "policy_component_primary_harm"
-    if abs(value / joint) >= 0.7 and value_harm:
-        return "value_component_primary_harm"
-    if (
-        abs((joint - policy - value) / joint) >= 0.5
-        and abs(policy) < 0.03
-        and abs(value) < 0.03
-    ):
-        return "destructive_policy_value_interaction"
-    return "proxy_probe_not_predictive"
 
 
 def forced_move_audit(
     traces: list[dict[str, Any]],
-    evaluators: dict[str, Any],
-    budgets: list[int],
+    current: Path,
+    continuation_budgets: list[int],
+    default_c_puct: float,
+    schedule: dict[str, float],
     seed: int,
+    workers: int,
 ) -> dict[str, Any]:
-    """Adjudicate distinct composed moves using only incumbent continuation play."""
-    ranked = sorted(
-        {row["state_hash"]: row for row in traces}.values(),
-        key=lambda row: (
-            row["selected_moves"]["candidate_policy_candidate_value"]
-            != row["selected_moves"]["current_policy_current_value"],
-            abs(row["candidate_value"] - row["current_value"]),
+    selected = []
+    seen_context_moves: set[tuple[str, str, str]] = set()
+    for row in sorted(
+        traces,
+        key=lambda r: (
+            r["state_hash"],
+            r["budget_pair"],
+            r["composition_trajectory_source"],
+            r["game_identifier"],
         ),
-        reverse=True,
-    )[:1024]
-    options = build_eval_search_options(
-        root_policy_mode="deterministic", tactical_root_bias=0.0, normalize_values=False
-    )
-    by_component: dict[str, list[float]] = defaultdict(list)
-    records = []
-    for index, row in enumerate(ranked):
-        moves = row["selected_moves"]
-        current_move = moves["current_policy_current_value"]
-        for label, move in moves.items():
-            if move == current_move:
-                continue
-            deltas = []
-            outcomes = {}
-            for budget in budgets:
-                baseline = forced_continuation(
-                    state=row["state"],
-                    forced_move=current_move,
-                    evaluator=evaluators[
-                        "current_policy_current_value"
-                    ].current_evaluator,
-                    simulations=budget,
-                    c_puct=1.25,
-                    search_options=options,
-                    seed=seed + index * 100 + budget,
-                )
-                forced = forced_continuation(
-                    state=row["state"],
-                    forced_move=move,
-                    evaluator=evaluators[
-                        "current_policy_current_value"
-                    ].current_evaluator,
-                    simulations=budget,
-                    c_puct=1.25,
-                    search_options=options,
-                    seed=seed + index * 100 + budget,
-                )
-                delta = float(forced["outcome_root"] - baseline["outcome_root"])
-                deltas.append(delta)
-                outcomes[str(budget)] = {
-                    "forced_outcome": forced["outcome_root"],
-                    "final_margin": forced["store_margin_root"],
-                    "move_minus_current_outcome_delta": delta,
-                }
-            component = (
-                "policy"
-                if label == "candidate_policy_current_value"
-                else "value"
-                if label == "current_policy_candidate_value"
-                else "joint"
+    ):
+        baseline = row["selected_moves"]["current_policy_current_value"]
+        for lane, move in sorted(row["selected_moves"].items()):
+            if (
+                move != baseline
+                and (key := (row["state_hash"], row["budget_pair"], lane))
+                not in seen_context_moves
+            ):
+                seen_context_moves.add(key)
+                selected.append((row, lane, baseline, move))
+    # Cap contexts per state only for aggregate weighting, not trace retention.
+    capped, counts = [], Counter()
+    for item in selected:
+        if counts[item[0]["state_hash"]] < 4:
+            capped.append(item)
+            counts[item[0]["state_hash"]] += 1
+
+    def task(item: tuple[dict[str, Any], str, int, int]) -> list[dict[str, Any]]:
+        row, lane, baseline, move = item
+        evaluator = arena.ArtifactEvaluator(current)
+        component = (
+            "policy"
+            if lane == "candidate_policy_current_value"
+            else "value"
+            if lane == "current_policy_candidate_value"
+            else "joint"
+        )
+        contexts = [("neutral", budget, 1.25) for budget in continuation_budgets]
+        challenger, incumbent = map(int, row["budget_pair"].split(":"))
+        contexts.append(
+            (
+                "context_matched",
+                challenger,
+                resolve_budget_cpuct(
+                    schedule=schedule,
+                    challenger_simulations=challenger,
+                    current_simulations=incumbent,
+                    default_c_puct=default_c_puct,
+                ),
             )
-            by_component[component].append(statistics.fmean(deltas))
+        )
+        records = []
+        for mode, budget, cpuct in contexts:
+            item_seed = stable_seed(
+                seed, row["state_hash"], row["budget_pair"], lane, mode, budget
+            )
+            base = forced_continuation(
+                state=row["state"],
+                forced_move=baseline,
+                evaluator=evaluator,
+                simulations=budget,
+                c_puct=cpuct,
+                search_options=options(),
+                seed=item_seed,
+            )
+            forced = forced_continuation(
+                state=row["state"],
+                forced_move=move,
+                evaluator=evaluator,
+                simulations=budget,
+                c_puct=cpuct,
+                search_options=options(),
+                seed=item_seed,
+            )
             records.append(
                 {
+                    "mode": mode,
+                    "component": component,
                     "state_hash": row["state_hash"],
-                    "head_introduced_move": component,
-                    "move": move,
-                    "continuations": outcomes,
-                    "agreement_across_budgets": len(set(deltas)) == 1,
-                    "policy_prior_change": row["candidate_policy_probabilities"][move]
-                    - row["current_policy_probabilities"][move],
-                    "value_change": row["candidate_value"] - row["current_value"],
+                    "budget_pair": row["budget_pair"],
+                    "challenger_player": row["challenger_player"],
+                    "phase": row["phase"],
+                    "coverage_status": "covered"
+                    if not row["no_exact_replay_overlap"]
+                    else "non_overlapping",
+                    "delta": float(forced["outcome_root"] - base["outcome_root"]),
+                    "continuation_simulations": budget,
+                    "effective_c_puct": cpuct,
                 }
             )
+        return records
 
-    def aggregate(values: list[float]) -> dict[str, Any]:
-        rng = np.random.default_rng(seed)
-        boot = (
-            [
-                float(np.mean(rng.choice(values, len(values), replace=True)))
-                for _ in range(1000)
+    # Each independent continuation has a private evaluator and private PUCT state.
+    if workers > 1:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+            records = [record for result in pool.map(task, capped) for record in result]
+    else:
+        records = [record for item in capped for record in task(item)]
+    result: dict[str, Any] = {
+        "selected_context_moves": len(capped),
+        "records": records,
+        "neutral": {},
+        "context_matched": {},
+    }
+    for mode in ("neutral", "context_matched"):
+        subset = [record for record in records if record["mode"] == mode]
+        for component in ("policy", "value", "joint"):
+            values = [
+                record["delta"] for record in subset if record["component"] == component
             ]
-            if values
-            else [0.0]
-        )
+            result[mode][component] = aggregate(
+                values, stable_seed(seed, mode, component)
+            )
+        for field in ("budget_pair", "challenger_player", "phase", "coverage_status"):
+            result[mode][f"by_{field}"] = {
+                key: aggregate(
+                    [r["delta"] for r in subset if str(r[field]) == key],
+                    stable_seed(seed, mode, field, key),
+                )
+                for key in sorted({str(r[field]) for r in subset})
+            }
+    return result
+
+
+def trace_summary(traces: list[dict[str, Any]]) -> dict[str, Any]:
+    states = {
+        lane: {
+            row["state_hash"]
+            for row in traces
+            if row["composition_trajectory_source"] == lane
+        }
+        for lane in LANES
+    }
+    shared = set.intersection(*states.values()) if states else set()
+    unique = {
+        lane: values
+        - set.union(*(other for key, other in states.items() if key != lane))
+        for lane, values in states.items()
+    }
+    rates = {}
+    for lane, values in states.items():
+        rows = [row for row in traces if row["composition_trajectory_source"] == lane]
+        rates[lane] = {
+            "shared_states_changed_move_rate": statistics.fmean(
+                [
+                    int(
+                        row["selected_moves"][lane]
+                        != row["selected_moves"]["current_policy_current_value"]
+                    )
+                    for row in rows
+                    if row["state_hash"] in shared
+                ]
+            )
+            if any(row["state_hash"] in shared for row in rows)
+            else 0.0,
+            "composition_unique_states_changed_move_rate": statistics.fmean(
+                [
+                    int(
+                        row["selected_moves"][lane]
+                        != row["selected_moves"]["current_policy_current_value"]
+                    )
+                    for row in rows
+                    if row["state_hash"] in unique[lane]
+                ]
+            )
+            if any(row["state_hash"] in unique[lane] for row in rows)
+            else 0.0,
+            "all_trajectory_states": len(values),
+        }
+    return {
+        "unique_states_reached_by_composition": {
+            lane: len(values) for lane, values in states.items()
+        },
+        "states_shared_by_all_four": len(shared),
+        "states_unique_to_policy_only_trajectory": len(
+            unique["candidate_policy_current_value"]
+        ),
+        "states_unique_to_value_only_trajectory": len(
+            unique["current_policy_candidate_value"]
+        ),
+        "states_unique_to_joint_trajectory": len(
+            unique["candidate_policy_candidate_value"]
+        ),
+        "changed_move_rates": rates,
+    }
+
+
+def attribution(metrics: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    table = {}
+    for label in ("384:256", "768:768", "1200:1200", "1200:256"):
+        base = metrics["current_policy_current_value"][label]["raw_ds"]
+        policy = metrics["candidate_policy_current_value"][label]["raw_ds"] - base
+        value = metrics["current_policy_candidate_value"][label]["raw_ds"] - base
+        joint = metrics["candidate_policy_candidate_value"][label]["raw_ds"] - base
+        residual = joint - policy - value
+        table[label] = {
+            "joint_delta": joint,
+            "policy_only_delta": policy,
+            "value_only_delta": value,
+            "interaction_residual": residual,
+            "policy_signed_fraction": policy / joint if joint else None,
+            "value_signed_fraction": value / joint if joint else None,
+            "interaction_signed_fraction": residual / joint if joint else None,
+        }
+    return table
+
+
+def classify(
+    metrics: dict[str, Any],
+    forced: dict[str, Any],
+    coverage: dict[str, Any],
+    traces: list[dict[str, Any]],
+) -> dict[str, Any]:
+    required = (
+        bool(traces)
+        and all(lane in metrics and "384:256" in metrics[lane] for lane in LANES)
+        and all(mode in forced for mode in ("neutral", "context_matched"))
+    )
+    evidence: dict[str, Any] = {
+        "required_stages_present": required,
+        "failed_criteria": [],
+    }
+    if not required:
         return {
-            "changed_states": len(values),
-            "mean_forced_outcome_delta": statistics.fmean(values) if values else 0.0,
-            "median_forced_outcome_delta": statistics.median(values) if values else 0.0,
-            "bootstrap_95_ci": [
-                float(np.percentile(boot, 2.5)),
-                float(np.percentile(boot, 97.5)),
-            ],
-            "fraction_delta_lte_negative_quarter": sum(
-                value <= -0.25 for value in values
-            )
-            / max(len(values), 1),
-            "fraction_delta_gte_positive_quarter": sum(
-                value >= 0.25 for value in values
-            )
-            / max(len(values), 1),
+            "classification": "attribution_experiment_incomplete",
+            "evidence": evidence,
+        }
+    base = metrics["current_policy_current_value"]["384:256"]["raw_ds"]
+    policy = metrics["candidate_policy_current_value"]["384:256"]["raw_ds"] - base
+    value = metrics["current_policy_candidate_value"]["384:256"]["raw_ds"] - base
+    joint = metrics["candidate_policy_candidate_value"]["384:256"]["raw_ds"] - base
+    values = {
+        "joint_delta": joint,
+        "policy_only_delta": policy,
+        "value_only_delta": value,
+        "interaction_residual": joint - policy - value,
+    }
+    evidence.update(values)
+    if values["joint_delta"] >= 0:
+        return {
+            "classification": "no_joint_384_256_regression_reproduced",
+            "evidence": evidence,
         }
 
-    return {
-        "selected_unique_states": len(ranked),
-        "by_component": {
-            name: aggregate(values) for name, values in by_component.items()
-        },
-        "records": records,
-    }
+    def component_harm(component: str) -> bool:
+        return any(
+            forced[mode].get(component, {}).get("bootstrap_95_ci", [0, 0])[1] < 0
+            for mode in ("neutral", "context_matched")
+        )
+
+    for component, delta_key in (
+        ("policy", "policy_only_delta"),
+        ("value", "value_only_delta"),
+    ):
+        enough = (
+            forced["neutral"].get(component, {}).get("unique_changed_states", 0) >= 64
+            or forced["context_matched"]
+            .get(component, {})
+            .get("unique_changed_states", 0)
+            >= 64
+        )
+        if (
+            values[delta_key] / values["joint_delta"] >= 0.70
+            and component_harm(component)
+            and enough
+        ):
+            return {
+                "classification": f"{component}_component_primary_harm",
+                "evidence": evidence,
+            }
+    interaction = values["interaction_residual"] / values["joint_delta"]
+    if (
+        abs(values["policy_only_delta"]) <= 0.03
+        and abs(values["value_only_delta"]) <= 0.03
+        and interaction >= 0.5
+        and component_harm("joint")
+    ):
+        return {
+            "classification": "destructive_policy_value_interaction",
+            "evidence": evidence,
+        }
+    exact = coverage.get("exact_training_overlap_rate", 0.0) + coverage.get(
+        "exact_validation_overlap_rate", 0.0
+    )
+    covered, uncovered = (
+        coverage.get("covered_harm_count", 0),
+        coverage.get("uncovered_harm_count", 0),
+    )
+    evidence.update(
+        {
+            "exact_overlap_rate": exact,
+            "covered_harm_count": covered,
+            "uncovered_harm_count": uncovered,
+        }
+    )
+    if (
+        (exact < 0.10 or coverage.get("distance_harm_concentrated", False))
+        and covered >= 64
+        and uncovered >= 64
+        and coverage.get("overlapping_materially_better", False)
+    ):
+        return {
+            "classification": "replay_to_arena_distribution_shift",
+            "evidence": evidence,
+        }
+    if (
+        exact >= 0.10
+        and coverage.get("covered_harmful_changes", False)
+        and coverage.get("covered_forced_ci_upper", 0.0) < 0
+    ):
+        return {
+            "classification": "replay_targets_bad_on_arena_states",
+            "evidence": evidence,
+        }
+    evidence["failed_criteria"].append(
+        "no head, interaction, or coverage mechanism met its prespecified criteria"
+    )
+    return {"classification": "proxy_probe_not_predictive", "evidence": evidence}
 
 
-def replay_coverage(
-    traces: list[dict[str, Any]], replay: Path, manifest: dict[str, Any]
-) -> dict[str, Any]:
-    rows = read_jsonl(replay)
-    train = set(manifest.get("train_source_row_indexes", []))
-    validation = set(manifest.get("validation_source_row_indexes", []))
-    train_hashes = {canonical_hash(rows[index]["state"]) for index in train}
-    validation_hashes = {canonical_hash(rows[index]["state"]) for index in validation}
-    overlap = [
-        row
-        for row in traces
-        if row["encoded_state_hash"] in train_hashes
-        or row["encoded_state_hash"] in validation_hashes
-    ]
-    return {
-        "arena_states": len(traces),
-        "exact_training_overlap": sum(
-            row["encoded_state_hash"] in train_hashes for row in traces
+def markdown(summary: dict[str, Any]) -> str:
+    return (
+        "# Joint-Head Arena Failure Attribution\n\n## Input Hashes And PR #164 Reproduction\n\n```json\n"
+        + json.dumps(summary["reproduction"], indent=2, sort_keys=True)
+        + "\n```\n\n## Composition Semantic Checks\n\n```json\n"
+        + json.dumps(summary["composition_semantic_checks"], indent=2)
+        + "\n```\n\n## Medium DS And Signed Attribution\n\n```json\n"
+        + json.dumps(
+            {
+                "medium": summary["medium_head_compositions"],
+                "attribution": summary["signed_attribution"],
+            },
+            indent=2,
         )
-        / max(len(traces), 1),
-        "exact_validation_overlap": sum(
-            row["encoded_state_hash"] in validation_hashes for row in traces
+        + "\n```\n\n## Trace Coverage And Replay Overlap\n\n```json\n"
+        + json.dumps(
+            {
+                "trace": summary["trace_coverage"],
+                "replay": summary["replay_to_arena_coverage"],
+            },
+            indent=2,
         )
-        / max(len(traces), 1),
-        "overlapping_states": len(overlap),
-        "non_overlapping_states": len(traces) - len(overlap),
-        "similarity_diagnostic": "exact state identity only; non-overlap similarity is intentionally discrete and unmodeled",
-    }
+        + "\n```\n\n## Neutral Forced-Move Audit\n\n```json\n"
+        + json.dumps(summary["forced_move_audit"]["neutral"], indent=2)
+        + "\n```\n\n## Context-Matched Forced-Move Audit\n\n```json\n"
+        + json.dumps(summary["forced_move_audit"]["context_matched"], indent=2)
+        + "\n```\n\n## Classification Evidence\n\n```json\n"
+        + json.dumps(summary["classification"], indent=2)
+        + "\n```\n\n## Next Recommended Scientific Action\n\n"
+        + summary["next_recommended_scientific_action"]
+        + "\n"
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -638,51 +875,57 @@ def main() -> int:
         Path(args.candidate),
     )
     workdir.mkdir(parents=True, exist_ok=True)
-    prior_summary, manifest = verify_inputs(args)
-    evaluators = lane_evaluators(current, candidate)
-    openings = read_jsonl(Path(args.medium_suite))
+    prior, manifest = verify_inputs(args)
+    evaluators, openings = (
+        lane_evaluators(current, candidate),
+        read_jsonl(Path(args.medium_suite)),
+    )
     if not openings:
         raise RuntimeError("medium suite is empty")
-    checks = semantic_checks(evaluators, openings[0]["state"], args.seed)
-    if not all(checks.values()):
-        raise RuntimeError(f"composition semantic checks failed: {checks}")
+    semantic = {
+        "four_compositions_available": set(evaluators) == set(LANES),
+        "terminal_uncomposed": all(
+            e.evaluate(
+                KalahGame(pits=[0] * 12, captured_seeds=[24, 24], current_player=0)
+            )[1]
+            == 0.0
+            for e in evaluators.values()
+        ),
+        "deterministic_root_policy": options()["root_policy_mode"] == "deterministic",
+    }
+    if not all(semantic.values()):
+        raise RuntimeError(f"composition semantic checks failed: {semantic}")
     schedule = parse_cpuct_schedule_json(args.cpuct_schedule)
-    budgets = ("384:256", "768:256", "768:768", "1200:1200", "1200:256", "256:768")
-    traces: list[dict[str, Any]] = []
-    metrics: dict[str, dict[str, Any]] = {lane: {} for lane in LANES}
-    for label in budgets:
-        challenger_sims, current_sims = map(int, label.split(":"))
+    labels = ("384:256", "768:256", "768:768", "1200:1200", "1200:256", "256:768")
+    metrics = {lane: {} for lane in LANES}
+    traces = []
+    for label in labels:
+        challenger, incumbent = map(int, label.split(":"))
         cpuct = resolve_budget_cpuct(
             schedule=schedule,
-            challenger_simulations=challenger_sims,
-            current_simulations=current_sims,
+            challenger_simulations=challenger,
+            current_simulations=incumbent,
             default_c_puct=args.default_c_puct,
         )
+        result, rows = run_budget(
+            current=current,
+            candidate=candidate,
+            openings=openings,
+            label=label,
+            seed=args.seed,
+            c_puct=cpuct,
+            workers=args.workers,
+            trace=label in TRACE_BUDGETS,
+        )
         for lane in LANES:
-            result = play_lane(
-                lane=lane,
-                evaluators=evaluators,
-                openings=openings,
-                challenger_sims=challenger_sims,
-                current_sims=current_sims,
-                c_puct=cpuct,
-                seed=args.seed,
-                trace=label in {"384:256", "768:768", "1200:1200", "1200:256"}
-                and lane
-                in {"current_policy_current_value", "candidate_policy_candidate_value"},
-                traces=traces,
+            metrics[lane][label] = result[lane]
+            metrics[lane][label]["composition_minus_current_ds"] = (
+                result[lane]["raw_ds"]
+                - result["current_policy_current_value"]["raw_ds"]
             )
-            result["composition_minus_current_ds"] = (
-                result["raw_ds"]
-                - metrics["current_policy_current_value"].get(label, result)["raw_ds"]
-            )
-            result.pop("games")
-            metrics[lane][label] = result
-    # PR result must agree at the deterministic score level, not merely hashes.
+        traces.extend(rows)
     expected = (
-        prior_summary.get("medium", {})
-        .get("384:256", {})
-        .get("candidate_minus_current_ds")
+        prior.get("medium", {}).get("384:256", {}).get("candidate_minus_current_ds")
     )
     reproduced = (
         expected is None
@@ -694,8 +937,6 @@ def main() -> int:
         )
         <= 1e-9
     )
-    if not reproduced:
-        raise RuntimeError("PR #164 medium 384:256 result did not reproduce")
     current_hash, candidate_hash = (
         sha256_file(current / "weights.json"),
         sha256_file(candidate / "weights.json"),
@@ -706,56 +947,74 @@ def main() -> int:
         "replay_sha256": sha256_file(Path(args.replay)),
         "training_manifest_sha256": canonical_manifest_hash(manifest),
         "batch_plan_sha256": manifest["batch_plan_sha256"],
-        "semantic_checks": checks,
         "medium_384_256_reproduced": reproduced,
     }
-    write_json(workdir / "pr164_reproduction.json", reproduction)
-    for row in traces:
-        row["composition_profile_hashes"] = {
-            lane: composition_hash(current_hash, candidate_hash, lane) for lane in LANES
-        }
-    with (workdir / "arena_state_traces.jsonl").open("w", encoding="utf-8") as handle:
-        for row in traces:
-            handle.write(json.dumps(row, sort_keys=True) + "\n")
+    coverage, traces = replay_coverage(
+        traces, Path(args.replay), manifest, args.workers
+    )
     forced = forced_move_audit(
         traces,
-        evaluators,
+        current,
         [int(value) for value in args.continuation_budgets.split(",")],
+        args.default_c_puct,
+        schedule,
         args.seed,
+        args.workers,
     )
-    coverage = replay_coverage(traces, Path(args.replay), manifest)
-    base = metrics["current_policy_current_value"]["384:256"]["raw_ds"]
-    deltas = {lane: metrics[lane]["384:256"]["raw_ds"] - base for lane in LANES}
-    joint = deltas["candidate_policy_candidate_value"]
-    attribution = {
-        "policy_loss_fraction": abs(deltas["candidate_policy_current_value"])
-        / abs(joint)
-        if joint
-        else 0.0,
-        "value_loss_fraction": abs(deltas["current_policy_candidate_value"])
-        / abs(joint)
-        if joint
-        else 0.0,
-        "joint_interaction_residual": joint
-        - deltas["candidate_policy_current_value"]
-        - deltas["current_policy_candidate_value"],
-    }
+    changed = [r for r in forced["records"] if r["component"] in {"policy", "value"}]
+    covered = [r for r in changed if r["coverage_status"] == "covered"]
+    uncovered = [r for r in changed if r["coverage_status"] == "non_overlapping"]
+    coverage.update(
+        {
+            "covered_harm_count": len(covered),
+            "uncovered_harm_count": len(uncovered),
+            "covered_harmful_changes": any(r["delta"] < 0 for r in covered),
+            "covered_forced_ci_upper": aggregate(
+                [r["delta"] for r in covered], args.seed
+            )["bootstrap_95_ci"][1],
+            "overlapping_materially_better": statistics.fmean(
+                [r["delta"] for r in covered]
+            )
+            > statistics.fmean([r["delta"] for r in uncovered]) + 0.03
+            if covered and uncovered
+            else False,
+            "distance_harm_concentrated": False,
+        }
+    )
+    classification = classify(metrics, forced, coverage, traces)
+    action = {
+        "policy_component_primary_harm": "Close full PUCT visit-distribution CE on generic replay; audit target temperature/concentration and causal move quality on arena-derived states.",
+        "value_component_primary_harm": "Close terminal-outcome value learning on this replay; retain policy-target investigation only if policy composition is safe.",
+        "destructive_policy_value_interaction": "Test exactly one alternating-head update (policy first, then value with updated policy frozen); do not implement it here.",
+        "replay_to_arena_distribution_shift": "Generate deterministic PUCT/outcome replay seeded from diverse medium/fixed openings with held-out opening-family splits.",
+        "replay_targets_bad_on_arena_states": "Reject the current replay target construction before generating more volume.",
+        "proxy_probe_not_predictive": "Make a cheap medium game-strength screen mandatory immediately after each future training checkpoint.",
+    }.get(
+        classification["classification"],
+        "Resolve incomplete or non-reproduced evidence before proposing a follow-up model.",
+    )
     summary = {
-        "schema": "azlite_joint_heads_arena_failure_attribution_v1",
-        "classification": classify(metrics, forced),
+        "schema": "azlite_joint_heads_arena_failure_attribution_v2",
+        "classification": classification,
         "reproduction": reproduction,
+        "composition_semantic_checks": semantic,
         "composition_definitions": LANES,
         "composition_profile_hashes": {
             lane: composition_hash(current_hash, candidate_hash, lane) for lane in LANES
         },
         "medium_head_compositions": metrics,
-        "attribution_384_256": attribution,
-        "trace_rows": len(traces),
-        "forced_move_audit": {
-            key: value for key, value in forced.items() if key != "records"
-        },
+        "signed_attribution": attribution(metrics),
+        "trace_coverage": trace_summary(traces),
         "replay_to_arena_coverage": coverage,
+        "forced_move_audit": {k: v for k, v in forced.items() if k != "records"},
+        "next_recommended_scientific_action": action,
     }
+    with (workdir / "arena_state_traces.jsonl").open("w", encoding="utf-8") as handle:
+        for row in traces:
+            handle.write(json.dumps(row, sort_keys=True) + "\n")
+    with (workdir / "forced_move_records.jsonl").open("w", encoding="utf-8") as handle:
+        for row in forced["records"]:
+            handle.write(json.dumps(row, sort_keys=True) + "\n")
     write_json(workdir / "summary_metrics.json", summary)
     write_json(
         REPO_ROOT
@@ -765,19 +1024,13 @@ def main() -> int:
     (
         REPO_ROOT
         / "docs/alphazero-lite-joint-heads-arena-failure-attribution-results.md"
-    ).write_text(
-        "# Joint-Head Arena Failure Attribution\n\n- classification: `"
-        + summary["classification"]
-        + "`\n- trace rows: `"
-        + str(len(traces))
-        + "`\n- 384:256 interaction residual: `"
-        + str(attribution["joint_interaction_residual"])
-        + "`\n",
-        encoding="utf-8",
-    )
+    ).write_text(markdown(summary), encoding="utf-8")
     print(
         json.dumps(
-            {"classification": summary["classification"], "trace_rows": len(traces)}
+            {
+                "classification": classification["classification"],
+                "trace_rows": len(traces),
+            }
         )
     )
     return 0
