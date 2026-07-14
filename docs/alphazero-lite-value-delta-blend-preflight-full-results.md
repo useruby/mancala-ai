@@ -1,6 +1,6 @@
 # AlphaZero-Lite Value-Delta Blend Preflight Results
 
-- classification: `blended_value_safe_but_strength_neutral`
+- classification: `value_delta_blend_suite_incomplete`
 - audit: `/tmp/azlite_value_delta_blend_preflight_full/value_delta_audit.json`
 
 ## Lanes
@@ -182,7 +182,7 @@
     "status": "not_reached"
   },
   "medium": {
-    "status": "stopped_by_probe_gates"
+    "status": "pending_suite_completion"
   }
 }
 ```

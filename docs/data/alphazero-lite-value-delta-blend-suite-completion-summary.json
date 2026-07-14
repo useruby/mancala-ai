@@ -1,0 +1,1784 @@
+{
+  "candidate_artifact_hash": "69f56d96e86970a4aca16c23f4215bde04db199baf85f7e58271dc191de1ef8f",
+  "classification": "outcome_value_update_not_strengthening",
+  "current_artifact_hash": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "deduplicated_lanes": {
+    "global025": "blend_alpha_025"
+  },
+  "evaluated_lane_schedules": {
+    "asym050_equal010": {
+      "1200:1200": 0.1,
+      "1200:256": 0.5,
+      "256:768": 0.5,
+      "384:256": 0.5,
+      "768:256": 0.5,
+      "768:768": 0.1
+    },
+    "blend_alpha_000": {
+      "1200:1200": 0.0,
+      "1200:256": 0.0,
+      "256:768": 0.0,
+      "384:256": 0.0,
+      "768:256": 0.0,
+      "768:768": 0.0
+    },
+    "blend_alpha_010": {
+      "1200:1200": 0.1,
+      "1200:256": 0.1,
+      "256:768": 0.1,
+      "384:256": 0.1,
+      "768:256": 0.1,
+      "768:768": 0.1
+    },
+    "blend_alpha_025": {
+      "1200:1200": 0.25,
+      "1200:256": 0.25,
+      "256:768": 0.25,
+      "384:256": 0.25,
+      "768:256": 0.25,
+      "768:768": 0.25
+    },
+    "blend_alpha_100": {
+      "1200:1200": 1.0,
+      "1200:256": 1.0,
+      "256:768": 1.0,
+      "384:256": 1.0,
+      "768:256": 1.0,
+      "768:768": 1.0
+    }
+  },
+  "gate": {
+    "passed": false,
+    "status": "not_run"
+  },
+  "pr158_input_hash": "466be63e4742bbaa45dabe89c4a9dc4ce601da011f390e4e64cc670a3927424f",
+  "probe_passing_candidates": [
+    "asym050_equal010",
+    "blend_alpha_025",
+    "global025"
+  ],
+  "runtime_profile": {
+    "c_puct_schedule": {
+      "default_c_puct": 1.25,
+      "overrides": {
+        "768:768": 0.9
+      }
+    },
+    "default_c_puct": 1.25,
+    "normalize_values": false,
+    "root_policy_mode": "deterministic",
+    "tactical_root_bias": 0.0
+  },
+  "schema": "azlite_value_delta_blend_suite_completion_v1",
+  "stages": {
+    "fixed_large": {
+      "lanes": {},
+      "status": "stopped",
+      "stop_reason": "no_intermediate_medium_pass"
+    },
+    "heldout": {
+      "lanes": {},
+      "status": "not_reached"
+    },
+    "medium": {
+      "lanes": {
+        "asym050_equal010": {
+          "by_budget": {
+            "1200:1200": {
+              "candidate_minus_current_ds": 0.1015625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.616208505855576,
+                  "upper": 0.7301563564297548
+                },
+                "draws": 62,
+                "game_length_mean": 41.5625,
+                "game_length_median": 44.0,
+                "games": 256,
+                "losses": 52,
+                "margin_mean": 7.671875,
+                "margin_median": 4.0,
+                "score": 0.67578125,
+                "wins": 142
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.1409654733629808,
+                  "upper": 0.23557777452342388
+                },
+                "draws": 10,
+                "game_length_mean": 34.4453125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 204,
+                "margin_mean": -9.84375,
+                "margin_median": -6.0,
+                "score": 0.18359375,
+                "wins": 42
+              },
+              "current_minus_candidate_ds": -0.1015625,
+              "disadvantaged_seat_score": 0.18359375,
+              "ds": 0.4921875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 38.00390625,
+              "game_length_median": 33.0,
+              "margin_mean": -1.0859375,
+              "margin_median": -1.0,
+              "move_time_mean_ms": 241.985,
+              "move_time_p95_ms": 653.0899999999999,
+              "p0_score": 0.67578125,
+              "p1_score": 0.18359375,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/asym050_equal010/1200_1200/per_opening_metrics.json",
+              "raw_candidate_ds": 0.4921875,
+              "raw_current_ds": 0.390625,
+              "search_profile_hash": "37167bcd344771a1dea0ef06d57398a625354201a0be656202734109e6c5020d",
+              "total_games": 512,
+              "unique_trajectories": 15
+            },
+            "1200:256": {
+              "candidate_minus_current_ds": -0.08984375,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.5326305715645442,
+                  "upper": 0.6520973549876322
+                },
+                "draws": 56,
+                "game_length_mean": 30.828125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 76,
+                "margin_mean": 3.859375,
+                "margin_median": 0.0,
+                "score": 0.59375,
+                "wins": 124
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.7686551946268473,
+                  "upper": 0.8624985544264222
+                },
+                "draws": 76,
+                "game_length_mean": 32.1171875,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 8,
+                "margin_mean": 10.015625,
+                "margin_median": 14.0,
+                "score": 0.8203125,
+                "wins": 172
+              },
+              "current_minus_candidate_ds": 0.08984375,
+              "disadvantaged_seat_score": 0.8203125,
+              "ds": -0.2265625,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.5,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 31.47265625,
+              "game_length_median": 33.0,
+              "margin_mean": 6.9375,
+              "margin_median": 2.0,
+              "move_time_mean_ms": 171.68,
+              "move_time_p95_ms": 645.335,
+              "p0_score": 0.59375,
+              "p1_score": 0.8203125,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/asym050_equal010/1200_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.2265625,
+              "raw_current_ds": -0.13671875,
+              "search_profile_hash": "f14a2006941c7c7fe2a58916a41cf4d30cc36a826443a837953c36be631807c8",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "256:768": {
+              "candidate_minus_current_ds": 0.15625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.0767635515022126,
+                  "upper": 0.15353675453038573
+                },
+                "draws": 40,
+                "game_length_mean": 35.453125,
+                "game_length_median": 36.0,
+                "games": 256,
+                "losses": 208,
+                "margin_mean": -10.859375,
+                "margin_median": -12.0,
+                "score": 0.109375,
+                "wins": 8
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.2735188101162166,
+                  "upper": 0.3878133245381268
+                },
+                "draws": 0,
+                "game_length_mean": 34.5546875,
+                "game_length_median": 37.0,
+                "games": 256,
+                "losses": 172,
+                "margin_mean": -1.765625,
+                "margin_median": -4.0,
+                "score": 0.328125,
+                "wins": 84
+              },
+              "current_minus_candidate_ds": -0.15625,
+              "disadvantaged_seat_score": 0.328125,
+              "ds": -0.21875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.5,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 35.00390625,
+              "game_length_median": 37.0,
+              "margin_mean": -6.3125,
+              "margin_median": -6.0,
+              "move_time_mean_ms": 92.105,
+              "move_time_p95_ms": 244.14,
+              "p0_score": 0.109375,
+              "p1_score": 0.328125,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/asym050_equal010/256_768/per_opening_metrics.json",
+              "raw_candidate_ds": -0.21875,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "6fcc482cd706bb901b43eab74010fa2266a4653cace683300e02fc3f5bcd496e",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "384:256": {
+              "candidate_minus_current_ds": -0.3359375,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.3105066216540545,
+                  "upper": 0.427795482397029
+                },
+                "draws": 24,
+                "game_length_mean": 36.484375,
+                "game_length_median": 38.0,
+                "games": 256,
+                "losses": 150,
+                "margin_mean": -4.265625,
+                "margin_median": -2.0,
+                "score": 0.3671875,
+                "wins": 82
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.9008969618819807,
+                  "upper": 0.9611666953615093
+                },
+                "draws": 32,
+                "game_length_mean": 35.5078125,
+                "game_length_median": 36.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 10.71875,
+                "margin_median": 12.0,
+                "score": 0.9375,
+                "wins": 224
+              },
+              "current_minus_candidate_ds": 0.3359375,
+              "disadvantaged_seat_score": 0.9375,
+              "ds": -0.5703125,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.5,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 35.99609375,
+              "game_length_median": 36.0,
+              "margin_mean": 3.2265625,
+              "margin_median": 4.0,
+              "move_time_mean_ms": 70.095,
+              "move_time_p95_ms": 203.86,
+              "p0_score": 0.3671875,
+              "p1_score": 0.9375,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/asym050_equal010/384_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.5703125,
+              "raw_current_ds": -0.234375,
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:256": {
+              "candidate_minus_current_ds": 0.2578125,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.6852989013222897,
+                  "upper": 0.7919149089374995
+                },
+                "draws": 56,
+                "game_length_mean": 31.2734375,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 38,
+                "margin_mean": 5.796875,
+                "margin_median": 8.0,
+                "score": 0.7421875,
+                "wins": 162
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.8114600115031927,
+                  "upper": 0.896663706946817
+                },
+                "draws": 72,
+                "game_length_mean": 33.3203125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 8.71875,
+                "margin_median": 10.0,
+                "score": 0.859375,
+                "wins": 184
+              },
+              "current_minus_candidate_ds": -0.2578125,
+              "disadvantaged_seat_score": 0.859375,
+              "ds": -0.1171875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.5,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 32.296875,
+              "game_length_median": 33.0,
+              "margin_mean": 7.2578125,
+              "margin_median": 10.0,
+              "move_time_mean_ms": 113.54499999999999,
+              "move_time_p95_ms": 412.395,
+              "p0_score": 0.7421875,
+              "p1_score": 0.859375,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/asym050_equal010/768_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.1171875,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "38484cf12cc8360fb400ec1a37d9d98a84de195890fd8b0cf4a35e3e3bb74790",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:768": {
+              "candidate_minus_current_ds": -0.6328125,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.34790264501236773,
+                  "upper": 0.4673694284354559
+                },
+                "draws": 0,
+                "game_length_mean": 38.0390625,
+                "game_length_median": 42.0,
+                "games": 256,
+                "losses": 152,
+                "margin_mean": -0.90625,
+                "margin_median": -4.0,
+                "score": 0.40625,
+                "wins": 104
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.3328968771032125,
+                  "upper": 0.45158720858591517
+                },
+                "draws": 0,
+                "game_length_mean": 41.0390625,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 156,
+                "margin_mean": -1.8125,
+                "margin_median": -4.0,
+                "score": 0.390625,
+                "wins": 100
+              },
+              "current_minus_candidate_ds": 0.6328125,
+              "disadvantaged_seat_score": 0.390625,
+              "ds": 0.015625,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 0.9,
+              "game_length_mean": 39.5390625,
+              "game_length_median": 42.0,
+              "margin_mean": -1.359375,
+              "margin_median": -4.0,
+              "move_time_mean_ms": 159.115,
+              "move_time_p95_ms": 412.275,
+              "p0_score": 0.40625,
+              "p1_score": 0.390625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/asym050_equal010/768_768/per_opening_metrics.json",
+              "raw_candidate_ds": 0.015625,
+              "raw_current_ds": 0.6484375,
+              "search_profile_hash": "ce678807806fda0f938a18715fc02c9f40690b0d1a5a7834ddc7c69a3a8ac5cf",
+              "total_games": 512,
+              "unique_trajectories": 15
+            }
+          },
+          "completed": true,
+          "effective_alpha_by_budget": {
+            "1200:1200": 0.1,
+            "1200:256": 0.5,
+            "256:768": 0.5,
+            "384:256": 0.5,
+            "768:256": 0.5,
+            "768:768": 0.1
+          },
+          "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/asym050_equal010",
+          "role": "candidate_lane"
+        },
+        "blend_alpha_000": {
+          "by_budget": {
+            "1200:1200": {
+              "candidate_minus_current_ds": 0.0,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.6363851497434321,
+                  "upper": 0.7484646972402688
+                },
+                "draws": 72,
+                "game_length_mean": 41.328125,
+                "game_length_median": 44.0,
+                "games": 256,
+                "losses": 42,
+                "margin_mean": 7.515625,
+                "margin_median": 4.0,
+                "score": 0.6953125,
+                "wins": 142
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.2515353027597313,
+                  "upper": 0.3636148502565679
+                },
+                "draws": 72,
+                "game_length_mean": 41.328125,
+                "game_length_median": 44.0,
+                "games": 256,
+                "losses": 142,
+                "margin_mean": -7.515625,
+                "margin_median": -4.0,
+                "score": 0.3046875,
+                "wins": 42
+              },
+              "current_minus_candidate_ds": 0.0,
+              "disadvantaged_seat_score": 0.3046875,
+              "ds": 0.390625,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 41.328125,
+              "game_length_median": 44.0,
+              "margin_mean": 0.0,
+              "margin_median": 0.0,
+              "move_time_mean_ms": 235.66500000000002,
+              "move_time_p95_ms": 642.45,
+              "p0_score": 0.6953125,
+              "p1_score": 0.3046875,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_000/1200_1200/per_opening_metrics.json",
+              "raw_candidate_ds": 0.390625,
+              "raw_current_ds": 0.390625,
+              "search_profile_hash": "37167bcd344771a1dea0ef06d57398a625354201a0be656202734109e6c5020d",
+              "total_games": 512,
+              "unique_trajectories": 10
+            },
+            "1200:256": {
+              "candidate_minus_current_ds": 0.0,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.7856686878987822,
+                  "upper": 0.8762730489131833
+                },
+                "draws": 56,
+                "game_length_mean": 32.109375,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 14,
+                "margin_mean": 6.828125,
+                "margin_median": 8.0,
+                "score": 0.8359375,
+                "wins": 186
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.9446436163987568,
+                  "upper": 0.9866930133017994
+                },
+                "draws": 14,
+                "game_length_mean": 32.9765625,
+                "game_length_median": 32.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 13.15625,
+                "margin_median": 12.0,
+                "score": 0.97265625,
+                "wins": 242
+              },
+              "current_minus_candidate_ds": 0.0,
+              "disadvantaged_seat_score": 0.97265625,
+              "ds": -0.13671875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 32.54296875,
+              "game_length_median": 33.0,
+              "margin_mean": 9.9921875,
+              "margin_median": 10.0,
+              "move_time_mean_ms": 175.535,
+              "move_time_p95_ms": 651.97,
+              "p0_score": 0.8359375,
+              "p1_score": 0.97265625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_000/1200_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.13671875,
+              "raw_current_ds": -0.13671875,
+              "search_profile_hash": "f14a2006941c7c7fe2a58916a41cf4d30cc36a826443a837953c36be631807c8",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "256:768": {
+              "candidate_minus_current_ds": 0.0,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.008370606318218642,
+                  "upper": 0.044898770101877296
+                },
+                "draws": 10,
+                "game_length_mean": 33.8515625,
+                "game_length_median": 32.0,
+                "games": 256,
+                "losses": 246,
+                "margin_mean": -11.15625,
+                "margin_median": -14.0,
+                "score": 0.01953125,
+                "wins": 0
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.33664247310340745,
+                  "upper": 0.4555386095253942
+                },
+                "draws": 90,
+                "game_length_mean": 33.171875,
+                "game_length_median": 31.0,
+                "games": 256,
+                "losses": 110,
+                "margin_mean": -2.1875,
+                "margin_median": 0.0,
+                "score": 0.39453125,
+                "wins": 56
+              },
+              "current_minus_candidate_ds": 0.0,
+              "disadvantaged_seat_score": 0.39453125,
+              "ds": -0.375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 33.51171875,
+              "game_length_median": 32.0,
+              "margin_mean": -6.671875,
+              "margin_median": -6.0,
+              "move_time_mean_ms": 91.45,
+              "move_time_p95_ms": 243.45499999999998,
+              "p0_score": 0.01953125,
+              "p1_score": 0.39453125,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_000/256_768/per_opening_metrics.json",
+              "raw_candidate_ds": -0.375,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "6fcc482cd706bb901b43eab74010fa2266a4653cace683300e02fc3f5bcd496e",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "384:256": {
+              "candidate_minus_current_ds": 0.0,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.6404342930505722,
+                  "upper": 0.7521125508728027
+                },
+                "draws": 22,
+                "game_length_mean": 36.0625,
+                "game_length_median": 35.0,
+                "games": 256,
+                "losses": 66,
+                "margin_mean": 1.640625,
+                "margin_median": 2.0,
+                "score": 0.69921875,
+                "wins": 168
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.8962370309862305,
+                  "upper": 0.9581296293175854
+                },
+                "draws": 10,
+                "game_length_mean": 35.78125,
+                "game_length_median": 35.0,
+                "games": 256,
+                "losses": 12,
+                "margin_mean": 9.484375,
+                "margin_median": 12.0,
+                "score": 0.93359375,
+                "wins": 234
+              },
+              "current_minus_candidate_ds": 0.0,
+              "disadvantaged_seat_score": 0.93359375,
+              "ds": -0.234375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 35.921875,
+              "game_length_median": 35.0,
+              "margin_mean": 5.5625,
+              "margin_median": 4.0,
+              "move_time_mean_ms": 66.31,
+              "move_time_p95_ms": 198.235,
+              "p0_score": 0.69921875,
+              "p1_score": 0.93359375,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_000/384_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.234375,
+              "raw_current_ds": -0.234375,
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:256": {
+              "candidate_minus_current_ds": 0.0,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.5444613904746058,
+                  "upper": 0.6633575268965927
+                },
+                "draws": 90,
+                "game_length_mean": 33.171875,
+                "game_length_median": 31.0,
+                "games": 256,
+                "losses": 56,
+                "margin_mean": 2.1875,
+                "margin_median": 0.0,
+                "score": 0.60546875,
+                "wins": 110
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.9551012298981227,
+                  "upper": 0.9916293936817815
+                },
+                "draws": 10,
+                "game_length_mean": 33.8515625,
+                "game_length_median": 32.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 11.15625,
+                "margin_median": 14.0,
+                "score": 0.98046875,
+                "wins": 246
+              },
+              "current_minus_candidate_ds": 0.0,
+              "disadvantaged_seat_score": 0.98046875,
+              "ds": -0.375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 33.51171875,
+              "game_length_median": 32.0,
+              "margin_mean": 6.671875,
+              "margin_median": 6.0,
+              "move_time_mean_ms": 115.45500000000001,
+              "move_time_p95_ms": 410.245,
+              "p0_score": 0.60546875,
+              "p1_score": 0.98046875,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_000/768_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.375,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "38484cf12cc8360fb400ec1a37d9d98a84de195890fd8b0cf4a35e3e3bb74790",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:768": {
+              "candidate_minus_current_ds": 0.0,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.772896116682119,
+                  "upper": 0.8659546293108245
+                },
+                "draws": 62,
+                "game_length_mean": 40.9921875,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 14,
+                "margin_mean": 7.5625,
+                "margin_median": 4.0,
+                "score": 0.82421875,
+                "wins": 180
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.13404537068917569,
+                  "upper": 0.22710388331788098
+                },
+                "draws": 62,
+                "game_length_mean": 40.9921875,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 180,
+                "margin_mean": -7.5625,
+                "margin_median": -4.0,
+                "score": 0.17578125,
+                "wins": 14
+              },
+              "current_minus_candidate_ds": 0.0,
+              "disadvantaged_seat_score": 0.17578125,
+              "ds": 0.6484375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.0,
+              "effective_c_puct": 0.9,
+              "game_length_mean": 40.9921875,
+              "game_length_median": 43.0,
+              "margin_mean": 0.0,
+              "margin_median": 0.0,
+              "move_time_mean_ms": 163.86,
+              "move_time_p95_ms": 419.145,
+              "p0_score": 0.82421875,
+              "p1_score": 0.17578125,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_000/768_768/per_opening_metrics.json",
+              "raw_candidate_ds": 0.6484375,
+              "raw_current_ds": 0.6484375,
+              "search_profile_hash": "ce678807806fda0f938a18715fc02c9f40690b0d1a5a7834ddc7c69a3a8ac5cf",
+              "total_games": 512,
+              "unique_trajectories": 10
+            }
+          },
+          "completed": true,
+          "effective_alpha_by_budget": {
+            "1200:1200": 0.0,
+            "1200:256": 0.0,
+            "256:768": 0.0,
+            "384:256": 0.0,
+            "768:256": 0.0,
+            "768:768": 0.0
+          },
+          "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_000",
+          "role": "required_reference"
+        },
+        "blend_alpha_010": {
+          "by_budget": {
+            "1200:1200": {
+              "candidate_minus_current_ds": 0.1015625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.616208505855576,
+                  "upper": 0.7301563564297548
+                },
+                "draws": 62,
+                "game_length_mean": 41.5625,
+                "game_length_median": 44.0,
+                "games": 256,
+                "losses": 52,
+                "margin_mean": 7.671875,
+                "margin_median": 4.0,
+                "score": 0.67578125,
+                "wins": 142
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.1409654733629808,
+                  "upper": 0.23557777452342388
+                },
+                "draws": 10,
+                "game_length_mean": 34.4453125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 204,
+                "margin_mean": -9.84375,
+                "margin_median": -6.0,
+                "score": 0.18359375,
+                "wins": 42
+              },
+              "current_minus_candidate_ds": -0.1015625,
+              "disadvantaged_seat_score": 0.18359375,
+              "ds": 0.4921875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 38.00390625,
+              "game_length_median": 33.0,
+              "margin_mean": -1.0859375,
+              "margin_median": -1.0,
+              "move_time_mean_ms": 245.82999999999998,
+              "move_time_p95_ms": 653.635,
+              "p0_score": 0.67578125,
+              "p1_score": 0.18359375,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_010/1200_1200/per_opening_metrics.json",
+              "raw_candidate_ds": 0.4921875,
+              "raw_current_ds": 0.390625,
+              "search_profile_hash": "37167bcd344771a1dea0ef06d57398a625354201a0be656202734109e6c5020d",
+              "total_games": 512,
+              "unique_trajectories": 15
+            },
+            "1200:256": {
+              "candidate_minus_current_ds": -0.02734375,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.7856686878987822,
+                  "upper": 0.8762730489131833
+                },
+                "draws": 56,
+                "game_length_mean": 32.59375,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 14,
+                "margin_mean": 6.71875,
+                "margin_median": 8.0,
+                "score": 0.8359375,
+                "wins": 186
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.9852156082782743,
+                  "upper": 1.0
+                },
+                "draws": 0,
+                "game_length_mean": 33.03125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 12.71875,
+                "margin_median": 12.0,
+                "score": 1.0,
+                "wins": 256
+              },
+              "current_minus_candidate_ds": 0.02734375,
+              "disadvantaged_seat_score": 1.0,
+              "ds": -0.1640625,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 32.8125,
+              "game_length_median": 33.0,
+              "margin_mean": 9.71875,
+              "margin_median": 10.0,
+              "move_time_mean_ms": 172.14999999999998,
+              "move_time_p95_ms": 652.435,
+              "p0_score": 0.8359375,
+              "p1_score": 1.0,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_010/1200_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.1640625,
+              "raw_current_ds": -0.13671875,
+              "search_profile_hash": "f14a2006941c7c7fe2a58916a41cf4d30cc36a826443a837953c36be631807c8",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "256:768": {
+              "candidate_minus_current_ds": -0.03515625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.027014582144288413,
+                  "upper": 0.08013377285352564
+                },
+                "draws": 8,
+                "game_length_mean": 34.90625,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 240,
+                "margin_mean": -12.21875,
+                "margin_median": -14.0,
+                "score": 0.046875,
+                "wins": 8
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.39709255482912686,
+                  "upper": 0.5182404788344591
+                },
+                "draws": 66,
+                "game_length_mean": 32.234375,
+                "game_length_median": 31.0,
+                "games": 256,
+                "losses": 106,
+                "margin_mean": -1.625,
+                "margin_median": 0.0,
+                "score": 0.45703125,
+                "wins": 84
+              },
+              "current_minus_candidate_ds": 0.03515625,
+              "disadvantaged_seat_score": 0.45703125,
+              "ds": -0.41015625,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 33.5703125,
+              "game_length_median": 32.0,
+              "margin_mean": -6.921875,
+              "margin_median": -8.0,
+              "move_time_mean_ms": 91.23500000000001,
+              "move_time_p95_ms": 240.89999999999998,
+              "p0_score": 0.046875,
+              "p1_score": 0.45703125,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_010/256_768/per_opening_metrics.json",
+              "raw_candidate_ds": -0.41015625,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "6fcc482cd706bb901b43eab74010fa2266a4653cace683300e02fc3f5bcd496e",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "384:256": {
+              "candidate_minus_current_ds": -0.234375,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.37809824043040574,
+                  "upper": 0.4987498085348101
+                },
+                "draws": 32,
+                "game_length_mean": 38.2890625,
+                "game_length_median": 39.0,
+                "games": 256,
+                "losses": 128,
+                "margin_mean": -3.390625,
+                "margin_median": -3.0,
+                "score": 0.4375,
+                "wins": 96
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.8642970784410526,
+                  "upper": 0.9361906032850452
+                },
+                "draws": 32,
+                "game_length_mean": 35.7890625,
+                "game_length_median": 35.0,
+                "games": 256,
+                "losses": 8,
+                "margin_mean": 9.203125,
+                "margin_median": 12.0,
+                "score": 0.90625,
+                "wins": 216
+              },
+              "current_minus_candidate_ds": 0.234375,
+              "disadvantaged_seat_score": 0.90625,
+              "ds": -0.46875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 37.0390625,
+              "game_length_median": 39.0,
+              "margin_mean": 2.90625,
+              "margin_median": 2.0,
+              "move_time_mean_ms": 70.36,
+              "move_time_p95_ms": 203.9,
+              "p0_score": 0.4375,
+              "p1_score": 0.90625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_010/384_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.46875,
+              "raw_current_ds": -0.234375,
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "total_games": 512,
+              "unique_trajectories": 18
+            },
+            "768:256": {
+              "candidate_minus_current_ds": -0.01953125,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.5247626618207338,
+                  "upper": 0.6445712708520945
+                },
+                "draws": 80,
+                "game_length_mean": 32.390625,
+                "game_length_median": 34.0,
+                "games": 256,
+                "losses": 66,
+                "margin_mean": 1.5,
+                "margin_median": 0.0,
+                "score": 0.5859375,
+                "wins": 110
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.9551012298981227,
+                  "upper": 0.9916293936817815
+                },
+                "draws": 10,
+                "game_length_mean": 34.3125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 9.75,
+                "margin_median": 10.0,
+                "score": 0.98046875,
+                "wins": 246
+              },
+              "current_minus_candidate_ds": 0.01953125,
+              "disadvantaged_seat_score": 0.98046875,
+              "ds": -0.39453125,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 33.3515625,
+              "game_length_median": 33.0,
+              "margin_mean": 5.625,
+              "margin_median": 6.0,
+              "move_time_mean_ms": 115.245,
+              "move_time_p95_ms": 413.455,
+              "p0_score": 0.5859375,
+              "p1_score": 0.98046875,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_010/768_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.39453125,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "38484cf12cc8360fb400ec1a37d9d98a84de195890fd8b0cf4a35e3e3bb74790",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:768": {
+              "candidate_minus_current_ds": -0.6328125,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.34790264501236773,
+                  "upper": 0.4673694284354559
+                },
+                "draws": 0,
+                "game_length_mean": 38.0390625,
+                "game_length_median": 42.0,
+                "games": 256,
+                "losses": 152,
+                "margin_mean": -0.90625,
+                "margin_median": -4.0,
+                "score": 0.40625,
+                "wins": 104
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.3328968771032125,
+                  "upper": 0.45158720858591517
+                },
+                "draws": 0,
+                "game_length_mean": 41.0390625,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 156,
+                "margin_mean": -1.8125,
+                "margin_median": -4.0,
+                "score": 0.390625,
+                "wins": 100
+              },
+              "current_minus_candidate_ds": 0.6328125,
+              "disadvantaged_seat_score": 0.390625,
+              "ds": 0.015625,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.1,
+              "effective_c_puct": 0.9,
+              "game_length_mean": 39.5390625,
+              "game_length_median": 42.0,
+              "margin_mean": -1.359375,
+              "margin_median": -4.0,
+              "move_time_mean_ms": 158.99,
+              "move_time_p95_ms": 411.16999999999996,
+              "p0_score": 0.40625,
+              "p1_score": 0.390625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_010/768_768/per_opening_metrics.json",
+              "raw_candidate_ds": 0.015625,
+              "raw_current_ds": 0.6484375,
+              "search_profile_hash": "ce678807806fda0f938a18715fc02c9f40690b0d1a5a7834ddc7c69a3a8ac5cf",
+              "total_games": 512,
+              "unique_trajectories": 15
+            }
+          },
+          "completed": true,
+          "effective_alpha_by_budget": {
+            "1200:1200": 0.1,
+            "1200:256": 0.1,
+            "256:768": 0.1,
+            "384:256": 0.1,
+            "768:256": 0.1,
+            "768:768": 0.1
+          },
+          "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_010",
+          "role": "candidate_lane"
+        },
+        "blend_alpha_025": {
+          "by_budget": {
+            "1200:1200": {
+              "candidate_minus_current_ds": -0.08203125,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.6363851497434321,
+                  "upper": 0.7484646972402688
+                },
+                "draws": 72,
+                "game_length_mean": 35.0390625,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 42,
+                "margin_mean": 7.828125,
+                "margin_median": 4.0,
+                "score": 0.6953125,
+                "wins": 142
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.3291552116300667,
+                  "upper": 0.44763187711938685
+                },
+                "draws": 114,
+                "game_length_mean": 39.2734375,
+                "game_length_median": 44.0,
+                "games": 256,
+                "losses": 100,
+                "margin_mean": -3.875,
+                "margin_median": 0.0,
+                "score": 0.38671875,
+                "wins": 42
+              },
+              "current_minus_candidate_ds": 0.08203125,
+              "disadvantaged_seat_score": 0.38671875,
+              "ds": 0.30859375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.25,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 37.15625,
+              "game_length_median": 33.0,
+              "margin_mean": 1.9765625,
+              "margin_median": 0.0,
+              "move_time_mean_ms": 236.59,
+              "move_time_p95_ms": 649.465,
+              "p0_score": 0.6953125,
+              "p1_score": 0.38671875,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_025/1200_1200/per_opening_metrics.json",
+              "raw_candidate_ds": 0.30859375,
+              "raw_current_ds": 0.390625,
+              "search_profile_hash": "37167bcd344771a1dea0ef06d57398a625354201a0be656202734109e6c5020d",
+              "total_games": 512,
+              "unique_trajectories": 18
+            },
+            "1200:256": {
+              "candidate_minus_current_ds": 0.00390625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.7856686878987822,
+                  "upper": 0.8762730489131833
+                },
+                "draws": 56,
+                "game_length_mean": 27.5703125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 14,
+                "margin_mean": 9.65625,
+                "margin_median": 10.0,
+                "score": 0.8359375,
+                "wins": 186
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.9395577004934911,
+                  "upper": 0.984081932267391
+                },
+                "draws": 0,
+                "game_length_mean": 32.6953125,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 8,
+                "margin_mean": 11.921875,
+                "margin_median": 12.0,
+                "score": 0.96875,
+                "wins": 248
+              },
+              "current_minus_candidate_ds": -0.00390625,
+              "disadvantaged_seat_score": 0.96875,
+              "ds": -0.1328125,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.25,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 30.1328125,
+              "game_length_median": 33.0,
+              "margin_mean": 10.7890625,
+              "margin_median": 12.0,
+              "move_time_mean_ms": 172.14,
+              "move_time_p95_ms": 654.525,
+              "p0_score": 0.8359375,
+              "p1_score": 0.96875,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_025/1200_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.1328125,
+              "raw_current_ds": -0.13671875,
+              "search_profile_hash": "f14a2006941c7c7fe2a58916a41cf4d30cc36a826443a837953c36be631807c8",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "256:768": {
+              "candidate_minus_current_ds": 0.12890625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.0702545071910243,
+                  "upper": 0.14465180496222602
+                },
+                "draws": 36,
+                "game_length_mean": 34.8671875,
+                "game_length_median": 32.0,
+                "games": 256,
+                "losses": 212,
+                "margin_mean": -11.140625,
+                "margin_median": -14.0,
+                "score": 0.1015625,
+                "wins": 8
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.29195991407482247,
+                  "upper": 0.40785720527789093
+                },
+                "draws": 66,
+                "game_length_mean": 33.65625,
+                "game_length_median": 31.0,
+                "games": 256,
+                "losses": 134,
+                "margin_mean": -3.8125,
+                "margin_median": -6.0,
+                "score": 0.34765625,
+                "wins": 56
+              },
+              "current_minus_candidate_ds": -0.12890625,
+              "disadvantaged_seat_score": 0.34765625,
+              "ds": -0.24609375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.25,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 34.26171875,
+              "game_length_median": 32.0,
+              "margin_mean": -7.4765625,
+              "margin_median": -6.0,
+              "move_time_mean_ms": 91.28,
+              "move_time_p95_ms": 240.825,
+              "p0_score": 0.1015625,
+              "p1_score": 0.34765625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_025/256_768/per_opening_metrics.json",
+              "raw_candidate_ds": -0.24609375,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "6fcc482cd706bb901b43eab74010fa2266a4653cace683300e02fc3f5bcd496e",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "384:256": {
+              "candidate_minus_current_ds": -0.484375,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.18664570983806794,
+                  "upper": 0.289958498264099
+                },
+                "draws": 24,
+                "game_length_mean": 39.6796875,
+                "game_length_median": 40.0,
+                "games": 256,
+                "losses": 184,
+                "margin_mean": -3.65625,
+                "margin_median": -3.0,
+                "score": 0.234375,
+                "wins": 48
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.9198662271464744,
+                  "upper": 0.9729854178557117
+                },
+                "draws": 24,
+                "game_length_mean": 36.9453125,
+                "game_length_median": 40.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 10.96875,
+                "margin_median": 12.0,
+                "score": 0.953125,
+                "wins": 232
+              },
+              "current_minus_candidate_ds": 0.484375,
+              "disadvantaged_seat_score": 0.953125,
+              "ds": -0.71875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.25,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 38.3125,
+              "game_length_median": 40.0,
+              "margin_mean": 3.65625,
+              "margin_median": 2.0,
+              "move_time_mean_ms": 68.595,
+              "move_time_p95_ms": 203.805,
+              "p0_score": 0.234375,
+              "p1_score": 0.953125,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_025/384_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.71875,
+              "raw_current_ds": -0.234375,
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "total_games": 512,
+              "unique_trajectories": 19
+            },
+            "768:256": {
+              "candidate_minus_current_ds": 0.3046875,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.7349991250131765,
+                  "upper": 0.8345786485227007
+                },
+                "draws": 80,
+                "game_length_mean": 30.0703125,
+                "game_length_median": 29.0,
+                "games": 256,
+                "losses": 14,
+                "margin_mean": 7.15625,
+                "margin_median": 4.0,
+                "score": 0.7890625,
+                "wins": 162
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.8114600115031927,
+                  "upper": 0.896663706946817
+                },
+                "draws": 72,
+                "game_length_mean": 32.7109375,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 8.671875,
+                "margin_median": 10.0,
+                "score": 0.859375,
+                "wins": 184
+              },
+              "current_minus_candidate_ds": -0.3046875,
+              "disadvantaged_seat_score": 0.859375,
+              "ds": -0.0703125,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.25,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 31.390625,
+              "game_length_median": 32.0,
+              "margin_mean": 7.9140625,
+              "margin_median": 10.0,
+              "move_time_mean_ms": 113.595,
+              "move_time_p95_ms": 412.81,
+              "p0_score": 0.7890625,
+              "p1_score": 0.859375,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_025/768_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.0703125,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "38484cf12cc8360fb400ec1a37d9d98a84de195890fd8b0cf4a35e3e3bb74790",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:768": {
+              "candidate_minus_current_ds": -0.5,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.5642579182746028,
+                  "upper": 0.6820459837949657
+                },
+                "draws": 0,
+                "game_length_mean": 39.8046875,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 96,
+                "margin_mean": 3.203125,
+                "margin_median": 6.0,
+                "score": 0.625,
+                "wins": 160
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.4161793073036034,
+                  "upper": 0.5376387110583526
+                },
+                "draws": 8,
+                "game_length_mean": 40.828125,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 130,
+                "margin_mean": -4.8125,
+                "margin_median": -4.0,
+                "score": 0.4765625,
+                "wins": 118
+              },
+              "current_minus_candidate_ds": 0.5,
+              "disadvantaged_seat_score": 0.4765625,
+              "ds": 0.1484375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 0.25,
+              "effective_c_puct": 0.9,
+              "game_length_mean": 40.31640625,
+              "game_length_median": 43.0,
+              "margin_mean": -0.8046875,
+              "margin_median": 4.0,
+              "move_time_mean_ms": 156.265,
+              "move_time_p95_ms": 412.45000000000005,
+              "p0_score": 0.625,
+              "p1_score": 0.4765625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_025/768_768/per_opening_metrics.json",
+              "raw_candidate_ds": 0.1484375,
+              "raw_current_ds": 0.6484375,
+              "search_profile_hash": "ce678807806fda0f938a18715fc02c9f40690b0d1a5a7834ddc7c69a3a8ac5cf",
+              "total_games": 512,
+              "unique_trajectories": 17
+            }
+          },
+          "completed": true,
+          "effective_alpha_by_budget": {
+            "1200:1200": 0.25,
+            "1200:256": 0.25,
+            "256:768": 0.25,
+            "384:256": 0.25,
+            "768:256": 0.25,
+            "768:768": 0.25
+          },
+          "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_025",
+          "role": "candidate_lane"
+        },
+        "blend_alpha_100": {
+          "by_budget": {
+            "1200:1200": {
+              "candidate_minus_current_ds": -0.14453125,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.6648301483971852,
+                  "upper": 0.7738986771642338
+                },
+                "draws": 10,
+                "game_length_mean": 37.75,
+                "game_length_median": 38.0,
+                "games": 256,
+                "losses": 66,
+                "margin_mean": 6.390625,
+                "margin_median": 11.0,
+                "score": 0.72265625,
+                "wins": 180
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.4161793073036034,
+                  "upper": 0.5376387110583526
+                },
+                "draws": 0,
+                "game_length_mean": 38.734375,
+                "game_length_median": 37.0,
+                "games": 256,
+                "losses": 134,
+                "margin_mean": 1.03125,
+                "margin_median": -4.0,
+                "score": 0.4765625,
+                "wins": 122
+              },
+              "current_minus_candidate_ds": 0.14453125,
+              "disadvantaged_seat_score": 0.4765625,
+              "ds": 0.24609375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 1.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 38.2421875,
+              "game_length_median": 37.0,
+              "margin_mean": 3.7109375,
+              "margin_median": 10.0,
+              "move_time_mean_ms": 241.32999999999998,
+              "move_time_p95_ms": 645.2750000000001,
+              "p0_score": 0.72265625,
+              "p1_score": 0.4765625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_100/1200_1200/per_opening_metrics.json",
+              "raw_candidate_ds": 0.24609375,
+              "raw_current_ds": 0.390625,
+              "search_profile_hash": "37167bcd344771a1dea0ef06d57398a625354201a0be656202734109e6c5020d",
+              "total_games": 512,
+              "unique_trajectories": 18
+            },
+            "1200:256": {
+              "candidate_minus_current_ds": -0.1875,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.49344276739567333,
+                  "upper": 0.6143151897597628
+                },
+                "draws": 56,
+                "game_length_mean": 31.796875,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 86,
+                "margin_mean": 4.703125,
+                "margin_median": 0.0,
+                "score": 0.5546875,
+                "wins": 114
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.833243337221082,
+                  "upper": 0.9133653659272978
+                },
+                "draws": 62,
+                "game_length_mean": 32.375,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 10.15625,
+                "margin_median": 12.0,
+                "score": 0.87890625,
+                "wins": 194
+              },
+              "current_minus_candidate_ds": 0.1875,
+              "disadvantaged_seat_score": 0.87890625,
+              "ds": -0.32421875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 1.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 32.0859375,
+              "game_length_median": 33.0,
+              "margin_mean": 7.4296875,
+              "margin_median": 6.0,
+              "move_time_mean_ms": 170.305,
+              "move_time_p95_ms": 643.395,
+              "p0_score": 0.5546875,
+              "p1_score": 0.87890625,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_100/1200_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.32421875,
+              "raw_current_ds": -0.13671875,
+              "search_profile_hash": "f14a2006941c7c7fe2a58916a41cf4d30cc36a826443a837953c36be631807c8",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "256:768": {
+              "candidate_minus_current_ds": 0.0390625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.03582628728223662,
+                  "upper": 0.0944130585345995
+                },
+                "draws": 14,
+                "game_length_mean": 35.3671875,
+                "game_length_median": 37.0,
+                "games": 256,
+                "losses": 234,
+                "margin_mean": -5.1875,
+                "margin_median": -3.0,
+                "score": 0.05859375,
+                "wins": 8
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.33664247310340745,
+                  "upper": 0.4555386095253942
+                },
+                "draws": 90,
+                "game_length_mean": 34.8515625,
+                "game_length_median": 33.0,
+                "games": 256,
+                "losses": 110,
+                "margin_mean": -5.0,
+                "margin_median": 0.0,
+                "score": 0.39453125,
+                "wins": 56
+              },
+              "current_minus_candidate_ds": -0.0390625,
+              "disadvantaged_seat_score": 0.39453125,
+              "ds": -0.3359375,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 1.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 35.109375,
+              "game_length_median": 34.5,
+              "margin_mean": -5.09375,
+              "margin_median": -2.0,
+              "move_time_mean_ms": 93.345,
+              "move_time_p95_ms": 245.8,
+              "p0_score": 0.05859375,
+              "p1_score": 0.39453125,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_100/256_768/per_opening_metrics.json",
+              "raw_candidate_ds": -0.3359375,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "6fcc482cd706bb901b43eab74010fa2266a4653cace683300e02fc3f5bcd496e",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "384:256": {
+              "candidate_minus_current_ds": -0.171875,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.3932862666182241,
+                  "upper": 0.5143497701056878
+                },
+                "draws": 24,
+                "game_length_mean": 37.3203125,
+                "game_length_median": 37.0,
+                "games": 256,
+                "losses": 128,
+                "margin_mean": -2.09375,
+                "margin_median": -2.0,
+                "score": 0.453125,
+                "wins": 104
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.8114600115031927,
+                  "upper": 0.896663706946817
+                },
+                "draws": 72,
+                "game_length_mean": 35.5703125,
+                "game_length_median": 34.0,
+                "games": 256,
+                "losses": 0,
+                "margin_mean": 7.71875,
+                "margin_median": 12.0,
+                "score": 0.859375,
+                "wins": 184
+              },
+              "current_minus_candidate_ds": 0.171875,
+              "disadvantaged_seat_score": 0.859375,
+              "ds": -0.40625,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 1.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 36.4453125,
+              "game_length_median": 37.0,
+              "margin_mean": 2.8125,
+              "margin_median": 2.0,
+              "move_time_mean_ms": 70.905,
+              "move_time_p95_ms": 202.865,
+              "p0_score": 0.453125,
+              "p1_score": 0.859375,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_100/384_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.40625,
+              "raw_current_ds": -0.234375,
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:256": {
+              "candidate_minus_current_ds": 0.203125,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.4856502298943122,
+                  "upper": 0.606713733381776
+                },
+                "draws": 80,
+                "game_length_mean": 33.7890625,
+                "game_length_median": 36.0,
+                "games": 256,
+                "losses": 76,
+                "margin_mean": 0.796875,
+                "margin_median": 0.0,
+                "score": 0.546875,
+                "wins": 100
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.6607518659198027,
+                  "upper": 0.7702799627019423
+                },
+                "draws": 80,
+                "game_length_mean": 31.90625,
+                "game_length_median": 32.0,
+                "games": 256,
+                "losses": 32,
+                "margin_mean": 6.34375,
+                "margin_median": 6.0,
+                "score": 0.71875,
+                "wins": 144
+              },
+              "current_minus_candidate_ds": -0.203125,
+              "disadvantaged_seat_score": 0.71875,
+              "ds": -0.171875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 1.0,
+              "effective_c_puct": 1.25,
+              "game_length_mean": 32.84765625,
+              "game_length_median": 33.0,
+              "margin_mean": 3.5703125,
+              "margin_median": 0.0,
+              "move_time_mean_ms": 124.33500000000001,
+              "move_time_p95_ms": 415.16999999999996,
+              "p0_score": 0.546875,
+              "p1_score": 0.71875,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_100/768_256/per_opening_metrics.json",
+              "raw_candidate_ds": -0.171875,
+              "raw_current_ds": -0.375,
+              "search_profile_hash": "38484cf12cc8360fb400ec1a37d9d98a84de195890fd8b0cf4a35e3e3bb74790",
+              "total_games": 512,
+              "unique_trajectories": 20
+            },
+            "768:768": {
+              "candidate_minus_current_ds": -0.66015625,
+              "challenger_starts_0": {
+                "ci95": {
+                  "lower": 0.5326305715645442,
+                  "upper": 0.6520973549876322
+                },
+                "draws": 28,
+                "game_length_mean": 40.5078125,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 90,
+                "margin_mean": -0.1875,
+                "margin_median": 4.0,
+                "score": 0.59375,
+                "wins": 138
+              },
+              "challenger_starts_1": {
+                "ci95": {
+                  "lower": 0.5444613904746058,
+                  "upper": 0.6633575268965927
+                },
+                "draws": 10,
+                "game_length_mean": 41.8046875,
+                "game_length_median": 43.0,
+                "games": 256,
+                "losses": 96,
+                "margin_mean": -1.390625,
+                "margin_median": 4.0,
+                "score": 0.60546875,
+                "wins": 150
+              },
+              "current_minus_candidate_ds": 0.66015625,
+              "disadvantaged_seat_score": 0.60546875,
+              "ds": -0.01171875,
+              "duplicate_trajectory_count": 512,
+              "duplicate_trajectory_rate": 1.0,
+              "effective_alpha": 1.0,
+              "effective_c_puct": 0.9,
+              "game_length_mean": 41.15625,
+              "game_length_median": 43.0,
+              "margin_mean": -0.7890625,
+              "margin_median": 4.0,
+              "move_time_mean_ms": 162.76,
+              "move_time_p95_ms": 416.755,
+              "p0_score": 0.59375,
+              "p1_score": 0.60546875,
+              "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_100/768_768/per_opening_metrics.json",
+              "raw_candidate_ds": -0.01171875,
+              "raw_current_ds": 0.6484375,
+              "search_profile_hash": "ce678807806fda0f938a18715fc02c9f40690b0d1a5a7834ddc7c69a3a8ac5cf",
+              "total_games": 512,
+              "unique_trajectories": 20
+            }
+          },
+          "completed": true,
+          "effective_alpha_by_budget": {
+            "1200:1200": 1.0,
+            "1200:256": 1.0,
+            "256:768": 1.0,
+            "384:256": 1.0,
+            "768:256": 1.0,
+            "768:768": 1.0
+          },
+          "per_opening_artifact": "/tmp/azlite_value_delta_blend_suite_completion/medium/blend_alpha_100",
+          "role": "diagnostic_reference"
+        }
+      },
+      "status": "completed"
+    }
+  }
+}

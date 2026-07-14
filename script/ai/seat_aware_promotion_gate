@@ -116,6 +116,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--root-prior-transform", default=None)
     parser.add_argument("--challenger-root-prior-transform", default=None)
     parser.add_argument("--current-root-prior-transform", default=None)
+    parser.add_argument(
+        "--challenger-blend-current",
+        action="store_true",
+        help="Blend challenger values with current while retaining current policy.",
+    )
+    parser.add_argument("--challenger-value-alpha", type=float, default=1.0)
+    parser.add_argument(
+        "--challenger-value-alpha-by-budget",
+        default=None,
+        help="Optional JSON object of challenger:current budget labels to alpha values.",
+    )
     return parser.parse_args()
 
 
@@ -144,6 +155,8 @@ def run_arena(
     root_prior_transform: str | None = None,
     challenger_root_prior_transform: str | None = None,
     current_root_prior_transform: str | None = None,
+    challenger_blend_current: bool = False,
+    challenger_value_alpha: float = 1.0,
     timeout: int = 3600,
 ) -> dict:
     python = _find_python()
@@ -215,6 +228,14 @@ def run_arena(
         )
     if challenger_starts is not None:
         cmd.extend(["--challenger-starts", str(challenger_starts)])
+    if challenger_blend_current:
+        cmd.extend(
+            [
+                "--challenger-blend-current",
+                "--challenger-value-alpha",
+                str(challenger_value_alpha),
+            ]
+        )
 
     result = subprocess.run(
         cmd,
@@ -247,6 +268,14 @@ def run_seat_aware_evaluation(
             c_str, cur_str = bp.split(":", 1)
             budget_pairs.append((int(c_str), int(cur_str)))
     cpuct_schedule = parse_cpuct_schedule_json(args.c_puct_schedule_json)
+    alpha_by_budget = (
+        {
+            str(key): float(value)
+            for key, value in json.loads(args.challenger_value_alpha_by_budget).items()
+        }
+        if args.challenger_value_alpha_by_budget
+        else {}
+    )
     schedule_manifest = schedule_definition(
         default_c_puct=float(args.c_puct), schedule=cpuct_schedule
     )
@@ -302,6 +331,12 @@ def run_seat_aware_evaluation(
                 root_prior_transform=args.root_prior_transform,
                 challenger_root_prior_transform=args.challenger_root_prior_transform,
                 current_root_prior_transform=args.current_root_prior_transform,
+                challenger_blend_current=bool(args.challenger_blend_current),
+                challenger_value_alpha=float(
+                    alpha_by_budget.get(
+                        f"{chall_sims}:{curr_sims}", args.challenger_value_alpha
+                    )
+                ),
             )
         except RuntimeError as e:
             print(f"  FAILED alternating: {e}", flush=True)
@@ -377,6 +412,12 @@ def run_seat_aware_evaluation(
                     root_prior_transform=args.root_prior_transform,
                     challenger_root_prior_transform=args.challenger_root_prior_transform,
                     current_root_prior_transform=args.current_root_prior_transform,
+                    challenger_blend_current=bool(args.challenger_blend_current),
+                    challenger_value_alpha=float(
+                        alpha_by_budget.get(
+                            f"{chall_sims}:{curr_sims}", args.challenger_value_alpha
+                        )
+                    ),
                 )
             except RuntimeError as e:
                 print(f"  FAILED forced starts={forced_starts}: {e}", flush=True)
