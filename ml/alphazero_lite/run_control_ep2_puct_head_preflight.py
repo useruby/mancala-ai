@@ -434,6 +434,10 @@ def benchmark_budget_results(
             "duplicate_trajectory_rate": budget_result.get("duplicate_trajectory_rate"),
             "total_games": budget_result.get("total_games"),
             "per_opening_metrics": budget_result.get("per_opening_metrics", []),
+            "move_time_mean_ms": budget_result.get("move_time_mean_ms"),
+            "move_time_p95_ms": budget_result.get("move_time_p95_ms"),
+            "search_profile_hash": budget_result.get("search_profile_hash"),
+            "search_profile": budget_result.get("search_profile"),
         }
     return results
 
