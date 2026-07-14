@@ -95,7 +95,7 @@ def seat(row: dict[str, Any]) -> str:
 
 
 def swap_state(state: dict[str, Any]) -> dict[str, Any]:
-    """Exchange identities on the physical Kalah ring (absolute pit i -> i+6)."""
+    """Apply the player-label permutation (0 <-> 1) to a Kalah state."""
     return {
         "player_pits": list(state["opponent_pits"]),
         "opponent_pits": list(state["player_pits"]),
@@ -109,8 +109,29 @@ def swap_move(move: int) -> int:
     return int(move)
 
 
-def swapped_winner(winner: int | None) -> int | None:
+def swap_player(player: int) -> int:
+    """Return the player identity under the 0 <-> 1 label permutation."""
+    return 1 - int(player)
+
+
+def swap_winner(winner: int | None) -> int | None:
+    """Return the terminal winner identity under the label permutation."""
     return None if winner is None else 1 - int(winner)
+
+
+swapped_winner = swap_winner
+
+
+def outcome_for_recorded_player(winner: int | None, player: int) -> float:
+    """Return a terminal outcome from the recorded absolute player's view."""
+    return 0.0 if winner is None else (1.0 if int(winner) == int(player) else -1.0)
+
+
+def transformed_replay_target(row: dict[str, Any]) -> float:
+    """Derive a relabeled replay target without assuming a value sign flip."""
+    return outcome_for_recorded_player(
+        swap_winner(row.get("winner")), swap_player(int(row["player"]))
+    )
 
 
 def state_key(state: dict[str, Any]) -> str:
@@ -268,19 +289,23 @@ def deterministic_replay_indexes(
                     )
                 ].append(game)
         strata = {key: sorted(set(value)) for key, value in strata.items()}
+    # Cycle shuffled complete groups.  This makes the claimed balancing exact up
+    # to one sample, rather than relying on a random draw being approximately fair.
+    game_cycle: list[int] = []
+    stratum_cycle: list[tuple[str, str]] = []
     for draw in range(draws):
         if mode == "game_balanced":
-            game = (
-                games[draw % len(games)] if draws <= len(games) else rng.choice(games)
-            )
+            if not game_cycle:
+                game_cycle = list(games)
+                rng.shuffle(game_cycle)
+            game = game_cycle.pop()
             indexes.append(rng.choice(by_game[game]))
         elif mode == "seat_outcome_balanced":
             available = sorted(strata)
-            bucket = (
-                available[draw % len(available)]
-                if draws <= len(available)
-                else rng.choice(available)
-            )
+            if not stratum_cycle:
+                stratum_cycle = list(available)
+                rng.shuffle(stratum_cycle)
+            bucket = stratum_cycle.pop()
             game = rng.choice(strata[bucket])
             candidates = [
                 i
@@ -301,6 +326,58 @@ def pr155_training_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     game_indexes = sorted(by_game)
     train_game_count = max(1, int(len(game_indexes) * 0.85))
     return [row for game in game_indexes[:train_game_count] for row in by_game[game]]
+
+
+def realized_sampling_frequencies(
+    rows: list[dict[str, Any]], indexes: np.ndarray
+) -> dict[str, Any]:
+    """Describe actual gradient mass rather than only the sampler's intention."""
+    selected = [rows[int(index)] for index in indexes]
+    games = Counter(int(row["game_index"]) for row in selected)
+    deciles = game_deciles(rows)
+    values = list(games.values())
+
+    def counts(key_fn):
+        return dict(sorted(Counter(str(key_fn(row)) for row in selected).items()))
+
+    mean = statistics.fmean(values) if values else 0.0
+    return {
+        "samples": len(selected),
+        "sample_count_per_game": dict(sorted(games.items())),
+        "minimum_samples_per_game": min(values, default=0),
+        "maximum_samples_per_game": max(values, default=0),
+        "coefficient_of_variation_across_games": (
+            statistics.pstdev(values) / mean if mean else 0.0
+        ),
+        "sample_count_by_player": counts(seat),
+        "sample_count_by_outcome_sign": counts(
+            lambda row: outcome_sign(float(row["value"]))
+        ),
+        "sample_count_by_player_x_outcome": counts(
+            lambda row: f"{seat(row)}:{outcome_sign(float(row['value']))}"
+        ),
+        "sample_count_by_game_length_decile": counts(
+            lambda row: deciles[int(row.get("game_length", 0))]
+        ),
+        "available_player_x_outcome_strata": sorted(
+            {f"{seat(row)}:{outcome_sign(float(row['value']))}" for row in rows}
+        ),
+        "missing_player_x_outcome_strata": sorted(
+            {
+                f"player_{player}:{outcome}"
+                for player in (0, 1)
+                for outcome in ("win", "loss", "draw")
+            }
+            - {f"{seat(row)}:{outcome_sign(float(row['value']))}" for row in rows}
+        ),
+        "rare_player_x_outcome_strata": sorted(
+            key
+            for key, count in Counter(
+                f"{seat(row)}:{outcome_sign(float(row['value']))}" for row in rows
+            ).items()
+            if count < 10
+        ),
+    }
 
 
 def symmetry_invariants(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -328,23 +405,31 @@ def symmetry_invariants(rows: list[dict[str, Any]]) -> dict[str, Any]:
         if failures:
             break
         original_features = np.asarray(
-            encode_state(state, input_encoding=INPUT_ENCODING)[:15]
+            encode_state(state, input_encoding=INPUT_ENCODING)
         )
-        expected_features = original_features[[*range(6, 12), *range(6), 13, 12, 14]]
-        expected_features[-1] = 1.0 - expected_features[-1]
+        expected_features = original_features[
+            [*range(6, 12), *range(6), 13, 12, 14, *range(21, 27), *range(15, 21)]
+        ]
+        expected_features[14] = 1.0 - expected_features[14]
         if not np.allclose(
-            encode_state(transformed, input_encoding=INPUT_ENCODING)[:15],
+            encode_state(transformed, input_encoding=INPUT_ENCODING),
             expected_features,
         ):
             failures.append("state_transform_or_encoding_bug")
             break
         winner = row.get("winner")
         player = int(row.get("player", state["current_player"]))
-        expected_target = (
-            0.0 if winner is None else (1.0 if int(winner) == player else -1.0)
-        )
-        # Targets are side-to-move values; an identity-swapped row negates them.
+        expected_target = outcome_for_recorded_player(winner, player)
         if not math.isclose(float(row["value"]), expected_target, abs_tol=1e-9):
+            failures.append("target_perspective_bug")
+            break
+        transformed_player = swap_player(player)
+        transformed_winner = swap_winner(winner)
+        if (
+            transformed_player != 1 - player
+            or transformed_winner != (None if winner is None else 1 - int(winner))
+            or transformed_replay_target(row) != expected_target
+        ):
             failures.append("target_perspective_bug")
             break
         margin = float(row.get("final_margin", 0))
@@ -368,6 +453,46 @@ def raw_value(
 def bucket(value: float, width: float = 0.2) -> str:
     lower = math.floor(value / width) * width
     return f"{lower:+.1f}:{lower + width:+.1f}"
+
+
+def value_symmetry_residual(value: float, transformed_value: float) -> float:
+    """Residual for an evaluator invariant under a player-label permutation."""
+    return abs(float(value) - float(transformed_value))
+
+
+def average_symmetry_residual(audit: dict[str, Any], key: str) -> float:
+    values = [float(group[key]) for group in audit["breakdowns"]["seat"].values()]
+    return statistics.fmean(values) if values else 0.0
+
+
+def reproduction_metrics(
+    rows: list[dict[str, Any]], reproduced: Path, reference: Path
+) -> dict[str, Any]:
+    """Compare values directly when a byte-identical training run is unavailable."""
+    reproduced_evaluator = ArtifactEvaluator(reproduced)
+    reference_evaluator = ArtifactEvaluator(reference)
+    values = [
+        (
+            raw_value(reproduced_evaluator, row["raw_state"])[1],
+            raw_value(reference_evaluator, row["raw_state"])[1],
+        )
+        for row in rows
+    ]
+    return {
+        "max_absolute_value_difference": max(
+            (abs(left - right) for left, right in values), default=0.0
+        ),
+        "value_sign_agreement": statistics.fmean(
+            float((left > 0) == (right > 0)) for left, right in values
+        )
+        if values
+        else 1.0,
+        "value_mae_difference": statistics.fmean(
+            abs(left - right) for left, right in values
+        )
+        if values
+        else 0.0,
+    }
 
 
 def symmetry_audit(
@@ -396,9 +521,9 @@ def symmetry_audit(
                 "decile": str(deciles[int(row.get("game_length", 0))]),
                 "current_bucket": bucket(cv),
                 "delta_bucket": bucket(pv - cv),
-                "current_residual": abs(cv + ctv),
-                "candidate_residual": abs(pv + ptv),
-                "delta_residual": abs((pv - cv) + (ptv - ctv)),
+                "current_residual": value_symmetry_residual(cv, ctv),
+                "candidate_residual": value_symmetry_residual(pv, ptv),
+                "delta_residual": abs((pv - cv) - (ptv - ctv)),
                 "delta": pv - cv,
                 "sign_consistent": float((pv > 0) == (float(row["value"]) > 0)),
                 "policy_symmetry_l1": float(np.abs(pp - mapped_policy).sum()),
@@ -550,6 +675,7 @@ def train_lane(
         "weights_sha256": sha256(artifact / "weights.json"),
         "checkpoint": str(checkpoint),
         "sampler": sampler,
+        "realized_sampling_frequencies": realized_sampling_frequencies(rows, indexes),
         "epochs": epochs,
         "training": {
             "policy_loss": policy_loss,
@@ -622,18 +748,74 @@ def value_metrics(
     return {key: metrics(items) for key, items in groups.items()}
 
 
+def probe_sample(
+    rows: list[dict[str, Any]], *, seed: int, cap: int = 256
+) -> list[dict[str, Any]]:
+    """Select unique probe states across replay covariates, not replay order."""
+    deciles = game_deciles(rows)
+    buckets: dict[tuple[str, ...], list[dict[str, Any]]] = defaultdict(list)
+    seen: set[str] = set()
+    for row in rows:
+        key = state_key(row["raw_state"])
+        if key in seen:
+            continue
+        seen.add(key)
+        buckets[
+            (
+                seat(row),
+                phase(row),
+                outcome_sign(float(row["value"])),
+                str(deciles[int(row.get("game_length", 0))]),
+                bucket(float(row["value"])),
+            )
+        ].append(row)
+    rng = random.Random(seed)
+    selected: list[dict[str, Any]] = []
+    pools = {key: list(value) for key, value in buckets.items()}
+    for values in pools.values():
+        rng.shuffle(values)
+    while len(selected) < min(cap, len(seen)):
+        progressed = False
+        for key in sorted(pools):
+            if pools[key] and len(selected) < cap:
+                selected.append(pools[key].pop())
+                progressed = True
+        if not progressed:
+            break
+    return selected
+
+
+def wilson_interval(successes: int, total: int) -> dict[str, float]:
+    if total <= 0:
+        return {"lower": 0.0, "upper": 0.0}
+    z = 1.96
+    rate = successes / total
+    denominator = 1.0 + z * z / total
+    center = rate + z * z / (2.0 * total)
+    margin = z * math.sqrt((rate * (1.0 - rate) + z * z / (4.0 * total)) / total)
+    return {
+        "lower": max(0.0, (center - margin) / denominator),
+        "upper": min(1.0, (center + margin) / denominator),
+    }
+
+
 def search_probe(
     rows: list[dict[str, Any]], candidate: Path, current: Path, args: argparse.Namespace
 ) -> dict[str, Any]:
-    sample = rows[:256]
+    sample = probe_sample(rows, seed=args.seed)
     schedule = parse_cpuct_schedule_json(args.cpuct_schedule)
     ce, pe = ArtifactEvaluator(current), ArtifactEvaluator(candidate)
     out: dict[str, Any] = {}
     for budget in BUDGETS:
         cs, rs = (int(x) for x in budget.split(":"))
-        changed: list[float] = []
+        artifact_changed: list[float] = []
+        budget_changed: list[float] = []
         kls: list[float] = []
+        budget_kls: list[float] = []
         deltas: list[float] = []
+        budget_deltas: list[float] = []
+        child_q_deltas: list[float] = []
+        budget_child_q_deltas: list[float] = []
         by_seat: dict[str, list[float]] = defaultdict(list)
         by_phase: dict[str, list[float]] = defaultdict(list)
         cpuct = resolve_budget_cpuct(
@@ -662,39 +844,90 @@ def search_probe(
             right = evaluate_artifact_position(
                 evaluator=ce,
                 state=row["raw_state"],
+                simulations=cs,
+                seed=args.seed + i,
+                c_puct=cpuct,
+                search_options=opts,
+            )
+            budget_right = evaluate_artifact_position(
+                evaluator=ce,
+                state=row["raw_state"],
                 simulations=rs,
                 seed=args.seed + i,
                 c_puct=cpuct,
                 search_options=opts,
             )
             flag = float(left["selected_move"] != right["selected_move"])
-            changed.append(flag)
+            budget_flag = float(right["selected_move"] != budget_right["selected_move"])
+            artifact_changed.append(flag)
+            budget_changed.append(budget_flag)
             by_seat[seat(row)].append(flag)
             by_phase[phase(row)].append(flag)
             a, b = np.asarray(left["visits"], float), np.asarray(right["visits"], float)
             a = (a + 1e-8) / sum(a + 1e-8)
             b = (b + 1e-8) / sum(b + 1e-8)
             kls.append(float(np.sum(b * np.log(b / a))))
+            bbudget = np.asarray(budget_right["visits"], float)
+            bbudget = (bbudget + 1e-8) / sum(bbudget + 1e-8)
+            budget_kls.append(float(np.sum(bbudget * np.log(bbudget / b))))
             deltas.append(
                 float(left.get("search_root_value", left["value"]))
                 - float(right.get("search_root_value", right["value"]))
             )
-        rate = statistics.fmean(changed) if changed else 0.0
+            budget_deltas.append(
+                float(right.get("search_root_value", right["value"]))
+                - float(budget_right.get("search_root_value", budget_right["value"]))
+            )
+            left_q = {
+                int(x["move"]): float(x["q_value"]) for x in left.get("child_stats", [])
+            }
+            right_q = {
+                int(x["move"]): float(x["q_value"])
+                for x in right.get("child_stats", [])
+            }
+            budget_q = {
+                int(x["move"]): float(x["q_value"])
+                for x in budget_right.get("child_stats", [])
+            }
+            shared = sorted(set(left_q) & set(right_q))
+            if shared:
+                child_q_deltas.append(
+                    statistics.fmean(abs(left_q[m] - right_q[m]) for m in shared)
+                )
+            shared_budget = sorted(set(right_q) & set(budget_q))
+            if shared_budget:
+                budget_child_q_deltas.append(
+                    statistics.fmean(
+                        abs(right_q[m] - budget_q[m]) for m in shared_budget
+                    )
+                )
+        rate = statistics.fmean(artifact_changed) if artifact_changed else 0.0
         out[budget] = {
             "rows": len(sample),
-            "changed_move_rate": rate,
-            "wilson_95": {
-                "lower": max(
-                    0.0,
-                    rate - 1.96 * math.sqrt(rate * (1 - rate) / max(len(sample), 1)),
-                ),
-                "upper": min(
-                    1.0,
-                    rate + 1.96 * math.sqrt(rate * (1 - rate) / max(len(sample), 1)),
-                ),
-            },
-            "root_visit_kl": statistics.fmean(kls) if kls else 0.0,
-            "root_value_delta": statistics.fmean(deltas) if deltas else 0.0,
+            "artifact_changed_move_rate": rate,
+            "artifact_wilson_95": wilson_interval(
+                int(sum(artifact_changed)), len(artifact_changed)
+            ),
+            "artifact_root_visit_kl": statistics.fmean(kls) if kls else 0.0,
+            "artifact_root_value_delta": statistics.fmean(deltas) if deltas else 0.0,
+            "artifact_child_q_delta": statistics.fmean(child_q_deltas)
+            if child_q_deltas
+            else None,
+            "budget_only_changed_move_rate": statistics.fmean(budget_changed)
+            if budget_changed
+            else 0.0,
+            "budget_only_wilson_95": wilson_interval(
+                int(sum(budget_changed)), len(budget_changed)
+            ),
+            "budget_only_root_visit_kl": statistics.fmean(budget_kls)
+            if budget_kls
+            else 0.0,
+            "budget_only_root_value_delta": statistics.fmean(budget_deltas)
+            if budget_deltas
+            else 0.0,
+            "budget_only_child_q_delta": statistics.fmean(budget_child_q_deltas)
+            if budget_child_q_deltas
+            else None,
             "changed_rate_by_player": {
                 k: statistics.fmean(v) for k, v in by_seat.items()
             },
@@ -774,8 +1007,52 @@ def classify(summary: dict[str, Any]) -> str:
     lanes = summary.get("lanes", {})
     balanced = [x for x in lanes.values() if x.get("probe_pass")]
     if not balanced:
-        return "terminal_outcome_value_head_path_closed"
-    return "balanced_value_safe_but_strength_neutral"
+        return "no_balanced_lane_passed_probes"
+    if "medium" not in summary:
+        return "replay_balance_experiment_incomplete"
+    medium = summary["medium"]
+    candidates = [x for name, x in medium.items() if name != "current_ref"]
+    if candidates and all(
+        x["by_budget"]["384:256"]["candidate_minus_current_ds"] < 0.03
+        for x in candidates
+    ):
+        return "balanced_value_safe_but_strength_neutral"
+    if any(
+        x["by_budget"]["384:256"]["candidate_minus_current_ds"] > 0
+        and any(
+            x["by_budget"][budget]["candidate_minus_current_ds"] < limit
+            for budget, limit in (
+                ("768:768", -0.03),
+                ("1200:1200", -0.03),
+                ("1200:256", -0.03),
+            )
+        )
+        for x in candidates
+    ):
+        return "balanced_value_tradeoff"
+    if any(x.get("fixed_large_pass") for x in summary.get("fixed_large", {}).values()):
+        return "game_balanced_value_candidate"
+    return "terminal_outcome_value_head_path_closed"
+
+
+def medium_pass(metrics: dict[str, Any]) -> bool:
+    values = metrics["by_budget"]
+    return (
+        values["384:256"]["candidate_minus_current_ds"] >= 0.03
+        and values["768:768"]["candidate_minus_current_ds"] >= -0.03
+        and values["1200:1200"]["candidate_minus_current_ds"] >= -0.03
+        and values["1200:256"]["candidate_minus_current_ds"] >= -0.03
+    )
+
+
+def fixed_large_pass(metrics: dict[str, Any]) -> bool:
+    values = metrics["by_budget"]
+    return (
+        values["384:256"]["candidate_minus_current_ds"] >= 0.05
+        and values["768:768"]["candidate_minus_current_ds"] >= -0.05
+        and values["1200:1200"]["candidate_minus_current_ds"] >= -0.03
+        and values["1200:256"]["candidate_minus_current_ds"] >= -0.03
+    )
 
 
 def report(summary: dict[str, Any]) -> str:
@@ -803,13 +1080,96 @@ def report(summary: dict[str, Any]) -> str:
         "",
         "## Training Lanes",
         "",
-        "| lane | sampler | epochs | probe pass |",
-        "|---|---|---:|---:|",
+        "| lane | sampler | epochs | probe pass | stop reasons |",
+        "|---|---|---:|---:|---|",
     ]
     for name, lane in summary.get("lanes", {}).items():
         lines.append(
-            f"| {name} | {lane.get('sampler')} | {lane.get('epochs')} | {lane.get('probe_pass', False)} |"
+            f"| {name} | {lane.get('sampler')} | {lane.get('epochs')} | {lane.get('probe_pass', False)} | {', '.join(lane.get('abort_reasons', [])) or 'none'} |"
         )
+    reproduction = (
+        summary.get("lanes", {}).get("row_uniform_repro", {}).get("reproduction")
+    )
+    if reproduction:
+        lines += [
+            "",
+            "## Row-Uniform Reproduction",
+            "",
+            f"- exact weights match: `{reproduction['matches_expected_weights']}`",
+            f"- max absolute value difference: `{reproduction['max_absolute_value_difference']:.8f}`",
+            f"- value sign agreement: `{reproduction['value_sign_agreement']:.6f}`",
+            f"- value MAE difference: `{reproduction['value_mae_difference']:.8f}`",
+            f"- failure reasons: `{', '.join(reproduction.get('reasons', [])) or 'none'}`",
+        ]
+    lines += [
+        "",
+        "## Value And Search Diagnostics",
+        "",
+        "| lane | group | MAE | sign accuracy | Pearson | Spearman | mean delta |",
+        "|---|---|---:|---:|---:|---:|---:|",
+    ]
+    for name, lane in summary.get("lanes", {}).items():
+        for group in (
+            "overall",
+            "player_0",
+            "player_1",
+            "phase:opening",
+            "phase:mid",
+            "phase:late",
+        ):
+            values = lane["value_metrics"].get(group, {})
+            lines.append(
+                f"| {name} | {group} | {values.get('mae', 0):.4f} | {values.get('sign_accuracy', 0):.4f} | {values.get('pearson', 0):.4f} | {values.get('spearman', 0):.4f} | {values.get('mean_delta', 0):+.4f} |"
+            )
+    lines += [
+        "",
+        "| lane | budget | artifact changed rate (95% CI) | budget-only changed rate (95% CI) | artifact KL | budget KL |",
+        "|---|---|---:|---:|---:|---:|",
+    ]
+    for name, lane in summary.get("lanes", {}).items():
+        for budget, probe in lane["search_probes"].items():
+            artifact_ci = probe["artifact_wilson_95"]
+            budget_ci = probe["budget_only_wilson_95"]
+            lines.append(
+                f"| {name} | {budget} | {probe['artifact_changed_move_rate']:.4f} ({artifact_ci['lower']:.4f}, {artifact_ci['upper']:.4f}) | {probe['budget_only_changed_move_rate']:.4f} ({budget_ci['lower']:.4f}, {budget_ci['upper']:.4f}) | {probe['artifact_root_visit_kl']:.4f} | {probe['budget_only_root_visit_kl']:.4f} |"
+            )
+    lines += [
+        "",
+        "## Realized Sampling",
+        "",
+        "| lane | samples | game min/max | game CV | player/outcome strata |",
+        "|---|---:|---:|---:|---|",
+    ]
+    for name, lane in summary.get("lanes", {}).items():
+        sampling = lane["realized_sampling_frequencies"]
+        strata = ", ".join(
+            f"{key}={value}"
+            for key, value in sampling["sample_count_by_player_x_outcome"].items()
+        )
+        lines.append(
+            f"| {name} | {sampling['samples']} | {sampling['minimum_samples_per_game']}/{sampling['maximum_samples_per_game']} | {sampling['coefficient_of_variation_across_games']:.4f} | {strata} |"
+        )
+    lines += ["", "## Staged Strength", ""]
+    if "medium" in summary:
+        lines += [
+            "### Medium",
+            "",
+            "| lane | budget | candidate-current DS |",
+            "|---|---|---:|",
+        ]
+        for name, lane in summary["medium"].items():
+            if name == "current_ref":
+                continue
+            for budget, values in lane["by_budget"].items():
+                lines.append(
+                    f"| {name} | {budget} | {values['candidate_minus_current_ds']:+.4f} |"
+                )
+    else:
+        lines.append(
+            "- medium: not run because no balanced lane passed corrected probes"
+        )
+    if "fixed_large" not in summary:
+        lines.append("- fixed-large and held-out: not reached")
     lines += [
         "",
         "## Stop Reasons",
@@ -883,7 +1243,8 @@ def main() -> int:
             "game_seat_balanced_e2": ("seat_outcome_balanced", 2),
         }
         training_rows = pr155_training_rows(rows)
-        current_metrics = value_metrics(rows[:4096], current)
+        evaluation_rows = rows[:4096]
+        current_metrics = value_metrics(evaluation_rows, current)
         for name in [x.strip() for x in args.lanes.split(",") if x.strip()]:
             sampler, epochs = lane_map[name]
             lane = train_lane(
@@ -896,35 +1257,131 @@ def main() -> int:
                 seed=args.seed,
             )
             artifact = Path(lane["artifact"])
-            lane["value_metrics"] = value_metrics(rows[:4096], artifact, current)
+            lane["value_metrics"] = value_metrics(evaluation_rows, artifact, current)
             lane["symmetry_metrics"] = symmetry_audit(rows, current, artifact)
             lane["search_probes"] = search_probe(rows, artifact, current, args)
             p0 = lane["value_metrics"]["player_0"]
             p1 = lane["value_metrics"]["player_1"]
             search = lane["search_probes"]
             if name == "row_uniform_repro":
+                reference_search = search_probe(rows, candidate, current, args)
                 lane["reproduction"] = {
                     "expected_weights_sha256": args.expected_pr155_candidate_sha256,
                     "matches_expected_weights": lane["weights_sha256"]
                     == args.expected_pr155_candidate_sha256,
+                    **reproduction_metrics(evaluation_rows, artifact, candidate),
+                    "search_changed_rate_difference": {
+                        budget: abs(
+                            search[budget]["artifact_changed_move_rate"]
+                            - reference_search[budget]["artifact_changed_move_rate"]
+                        )
+                        for budget in BUDGETS
+                    },
                 }
-                if not lane["reproduction"]["matches_expected_weights"]:
+                lane["reproduction"]["reasons"] = [
+                    reason
+                    for reason, passed in {
+                        "weights_not_identical": lane["reproduction"][
+                            "matches_expected_weights"
+                        ],
+                        "value_predictions_not_reproduced": lane["reproduction"][
+                            "max_absolute_value_difference"
+                        ]
+                        <= 1e-5
+                        and lane["reproduction"]["value_mae_difference"] <= 1e-6
+                        and lane["reproduction"]["value_sign_agreement"] >= 0.999,
+                        "search_changed_rate_not_reproduced": max(
+                            lane["reproduction"][
+                                "search_changed_rate_difference"
+                            ].values(),
+                            default=0.0,
+                        )
+                        <= 0.01,
+                    }.items()
+                    if not passed
+                ]
+                lane["reproduction"]["passes"] = bool(
+                    lane["reproduction"]["matches_expected_weights"]
+                    or (
+                        lane["reproduction"]["max_absolute_value_difference"] <= 1e-5
+                        and lane["reproduction"]["value_mae_difference"] <= 1e-6
+                        and lane["reproduction"]["value_sign_agreement"] >= 0.999
+                        and max(
+                            lane["reproduction"][
+                                "search_changed_rate_difference"
+                            ].values(),
+                            default=0.0,
+                        )
+                        <= 0.01
+                    )
+                )
+                if not lane["reproduction"]["passes"]:
                     summary["stop_reasons"].append(
                         "pr155_value_training_not_reproducible"
                     )
-            lane["probe_pass"] = bool(
-                lane["parameter_audit"]["passes"]
-                and lane["value_metrics"]["overall"]["mae"]
-                < current_metrics["overall"]["mae"]
-                and p0["sign_accuracy"] >= current_metrics["player_0"]["sign_accuracy"]
-                and p1["sign_accuracy"] >= current_metrics["player_1"]["sign_accuracy"]
-                and search["768:768"]["changed_move_rate"] <= 0.08
-                and search["1200:1200"]["changed_move_rate"] <= 0.08
-                and search["1200:256"]["changed_move_rate"] <= 0.10
+            imbalance = abs(p0["mean_delta"] - p1["mean_delta"])
+            baseline_imbalance = abs(
+                summary["lanes"]
+                .get("row_uniform_repro", {})
+                .get("value_metrics", {})
+                .get("player_0", {})
+                .get("mean_delta", float("inf"))
+                - summary["lanes"]
+                .get("row_uniform_repro", {})
+                .get("value_metrics", {})
+                .get("player_1", {})
+                .get("mean_delta", 0.0)
             )
+            reasons = []
+            checks = {
+                "parameter_audit_failed": lane["parameter_audit"]["passes"],
+                "symmetry_invariant_failed": lane["symmetry_metrics"]["invariants"][
+                    "passes"
+                ],
+                "terminal_outcome_mae_not_improved": lane["value_metrics"]["overall"][
+                    "mae"
+                ]
+                < current_metrics["overall"]["mae"],
+                "player_0_sign_regressed": p0["sign_accuracy"]
+                >= current_metrics["player_0"]["sign_accuracy"],
+                "player_1_sign_regressed": p1["sign_accuracy"]
+                >= current_metrics["player_1"]["sign_accuracy"],
+                "correlation_not_improved": lane["value_metrics"]["overall"]["pearson"]
+                > current_metrics["overall"]["pearson"]
+                or lane["value_metrics"]["overall"]["spearman"]
+                > current_metrics["overall"]["spearman"],
+                "player_delta_imbalance_not_lower": name == "row_uniform_repro"
+                or imbalance < baseline_imbalance,
+                "artifact_768_768_changed_rate": search["768:768"][
+                    "artifact_changed_move_rate"
+                ]
+                <= 0.08,
+                "artifact_1200_1200_changed_rate": search["1200:1200"][
+                    "artifact_changed_move_rate"
+                ]
+                <= 0.08,
+                "artifact_1200_256_changed_rate": search["1200:256"][
+                    "artifact_changed_move_rate"
+                ]
+                <= 0.10,
+                "symmetry_residual_materially_worse": average_symmetry_residual(
+                    lane["symmetry_metrics"], "candidate_symmetry_residual"
+                )
+                <= average_symmetry_residual(
+                    lane["symmetry_metrics"], "current_symmetry_residual"
+                )
+                + 0.02,
+            }
+            reasons = [reason for reason, passed in checks.items() if not passed]
+            lane["value_delta_imbalance"] = imbalance
+            lane["abort_reasons"] = reasons
+            lane["probe_pass"] = not reasons and name != "row_uniform_repro"
             summary["lanes"][name] = lane
         passing = {
             "current_ref": current,
+            "row_uniform_repro": Path(
+                summary["lanes"]["row_uniform_repro"]["artifact"]
+            ),
             **{
                 name: Path(x["artifact"])
                 for name, x in summary["lanes"].items()
@@ -935,6 +1392,34 @@ def main() -> int:
             summary["medium"] = run_stage(
                 Path(args.medium_suite), passing, current, args, workdir / "medium"
             )
+            carry = [
+                name
+                for name, metrics in summary["medium"].items()
+                if name not in {"current_ref", "row_uniform_repro"}
+                and medium_pass(metrics)
+            ][:2]
+            if carry:
+                fixed_candidates = {
+                    "current_ref": current,
+                    **{
+                        name: Path(summary["lanes"][name]["artifact"]) for name in carry
+                    },
+                }
+                summary["fixed_large"] = run_stage(
+                    Path(args.fixed_large_suite),
+                    fixed_candidates,
+                    current,
+                    args,
+                    workdir / "fixed_large",
+                )
+                for name in carry:
+                    summary["fixed_large"][name]["fixed_large_pass"] = fixed_large_pass(
+                        summary["fixed_large"][name]
+                    )
+            else:
+                summary["stop_reasons"].append(
+                    "no balanced lane passed medium carry criteria"
+                )
         else:
             summary["stop_reasons"].append(
                 "no balanced lane passed probes; medium evaluation skipped"

@@ -14,9 +14,13 @@ from ml.alphazero_lite.run_terminal_outcome_replay_balance_audit import (
     apply_relative_move,
     deterministic_replay_indexes,
     freeze_value_head,
+    outcome_for_recorded_player,
+    swap_player,
     swap_move,
     swap_state,
-    swapped_winner,
+    swap_winner,
+    transformed_replay_target,
+    value_symmetry_residual,
 )
 from ml.alphazero_lite.self_play import encode_state
 from ml.alphazero_lite.train import PolicyValueNet, input_size_for_encoding
@@ -45,7 +49,9 @@ class TerminalOutcomeReplayBalanceTest(unittest.TestCase):
                 apply_relative_move(swap_state(self.state), swap_move(move)),
             )
 
-    def test_terminal_winner_margin_and_target_are_antisymmetric(self) -> None:
+    def test_terminal_winner_margin_and_target_preserve_recorded_perspective(
+        self,
+    ) -> None:
         terminal = {
             "player_pits": [0, 0, 0, 0, 0, 0],
             "opponent_pits": [0, 0, 0, 0, 0, 0],
@@ -56,20 +62,33 @@ class TerminalOutcomeReplayBalanceTest(unittest.TestCase):
         swapped = swap_state(terminal)
         self.assertEqual(1, KalahGame.from_state(swapped).current_player)
         self.assertEqual(-12, swapped["player_store"] - swapped["opponent_store"])
-        self.assertEqual(1, swapped_winner(0))
-        self.assertEqual(0, swapped_winner(1))
-        self.assertIsNone(swapped_winner(None))
-        target = 1.0
-        self.assertEqual(-target, -1.0)  # z(T(s)) = -z(s) for player-0 win.
+        self.assertEqual(1, swap_winner(0))
+        self.assertEqual(0, swap_winner(1))
+        self.assertIsNone(swap_winner(None))
+        self.assertEqual(0, swap_player(swap_player(0)))
+        self.assertEqual(1, swap_winner(swap_winner(1)))
+        row = {"winner": 0, "player": 0, "value": 1.0, "final_margin": 12}
+        transformed_winner = swap_winner(row["winner"])
+        transformed_player = swap_player(row["player"])
+        self.assertEqual(1, transformed_winner)
+        self.assertEqual(1, transformed_player)
+        self.assertEqual(row["value"], transformed_replay_target(row))
+        self.assertEqual(
+            outcome_for_recorded_player(transformed_winner, transformed_player),
+            row["value"],
+        )
+        self.assertEqual(row["final_margin"], 30 - 18)
 
     def test_encoded_transform_has_expected_base_feature_mapping(self) -> None:
         original = np.asarray(encode_state(self.state, input_encoding=INPUT_ENCODING))
         transformed = np.asarray(
             encode_state(swap_state(self.state), input_encoding=INPUT_ENCODING)
         )
-        expected = original[[*range(6, 12), *range(6), 13, 12, 14]]
-        expected[-1] = 1.0 - expected[-1]
-        self.assertTrue(np.allclose(transformed[:15], expected))
+        expected = original[
+            [*range(6, 12), *range(6), 13, 12, 14, *range(21, 27), *range(15, 21)]
+        ]
+        expected[14] = 1.0 - expected[14]
+        self.assertTrue(np.allclose(transformed, expected))
 
     def test_game_balanced_sampler_is_deterministic_and_uniform_per_game(self) -> None:
         rows = []
@@ -81,7 +100,7 @@ class TerminalOutcomeReplayBalanceTest(unittest.TestCase):
         self.assertTrue(np.array_equal(first, second))
         games = [rows[index]["game_index"] for index in first]
         counts = [games.count(game) for game in range(3)]
-        self.assertLessEqual(max(counts) - min(counts), 25)
+        self.assertLessEqual(max(counts) - min(counts), 1)
 
     def test_seat_outcome_sampler_covers_all_available_strata(self) -> None:
         rows = [
@@ -95,6 +114,14 @@ class TerminalOutcomeReplayBalanceTest(unittest.TestCase):
         )
         strata = {(rows[index]["player"], rows[index]["value"]) for index in indexes}
         self.assertEqual({(0, 1.0), (0, -1.0), (1, 1.0), (1, -1.0)}, strata)
+        counts = {
+            stratum: sum(
+                (rows[index]["player"], rows[index]["value"]) == stratum
+                for index in indexes
+            )
+            for stratum in strata
+        }
+        self.assertLessEqual(max(counts.values()) - min(counts.values()), 1)
 
     def test_only_value_head_is_trainable(self) -> None:
         model = PolicyValueNet(
@@ -115,6 +142,9 @@ class TerminalOutcomeReplayBalanceTest(unittest.TestCase):
             },
             trainable,
         )
+
+    def test_symmetric_evaluator_values_have_zero_residual(self) -> None:
+        self.assertEqual(0.0, value_symmetry_residual(0.375, 0.375))
 
 
 if __name__ == "__main__":
