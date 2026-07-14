@@ -145,3 +145,40 @@ class ValueDeltaBlendTest(unittest.TestCase):
                 metrics["rows"] = MIN_PROBE_ROWS
         del summary["probes"]["global025"]
         self.assertEqual(classify(summary), "value_delta_blend_smoke_inconclusive")
+
+    def test_passing_probe_requires_completed_medium_results(self):
+        lane = {
+            "role": "candidate_lane",
+            "candidate_probe_pass": True,
+            "carry_to_medium": True,
+            "search": {
+                "by_budget": {budget: {"rows": MIN_PROBE_ROWS} for budget in BUDGETS}
+            },
+        }
+        summary = {
+            "run_arguments": {
+                "probe_only": False,
+                "global_alphas": [0.0, 1.0],
+                "budget_alpha_lanes": [],
+            },
+            "probe_only": False,
+            "probes": {
+                "blend_alpha_000": {**lane, "role": "required_reference"},
+                "blend_alpha_100": {**lane, "role": "diagnostic_reference"},
+                "blend_alpha_025": lane,
+            },
+            "semantic_endpoints": {
+                "alpha_000_identity": True,
+                "alpha_100_candidate_reproduction": True,
+            },
+            "monotonicity": {
+                budget: {
+                    "root_value_delta_monotonic": True,
+                    "child_q_delta_monotonic": True,
+                    "visit_kl_generally_increasing": True,
+                }
+                for budget in BUDGETS
+            },
+            "suites": {"medium": {"status": "stopped_by_probe_gates"}},
+        }
+        self.assertEqual(classify(summary), "value_delta_blend_suite_incomplete")

@@ -118,7 +118,7 @@
     }
   },
   "candidate_artifact_hash": "69f56d96e86970a4aca16c23f4215bde04db199baf85f7e58271dc191de1ef8f",
-  "classification": "blended_value_safe_but_strength_neutral",
+  "classification": "value_delta_blend_suite_incomplete",
   "current_artifact_hash": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
   "monotonicity": {
     "1200:1200": {
@@ -3171,7 +3171,7 @@
       "status": "not_reached"
     },
     "medium": {
-      "status": "stopped_by_probe_gates"
+      "status": "pending_suite_completion"
     }
   },
   "value_metrics": {

@@ -571,6 +571,18 @@ def classify(summary):
     if not passed:
         return "outcome_value_learning_blocked_by_search"
     suites = summary["suites"]
+    medium = suites.get("medium", {})
+    if (
+        not args["probe_only"]
+        and any(
+            item.get("candidate_probe_pass")
+            and item.get("carry_to_medium")
+            and not summary.get("probe_only", False)
+            for item in candidates
+        )
+        and not medium_candidate_results_complete(medium)
+    ):
+        return "value_delta_blend_suite_incomplete"
     heldout = suites.get("heldout", {})
     for name, result in heldout.items():
         if not isinstance(result, dict):
@@ -586,8 +598,7 @@ def classify(summary):
             and result.get("gate_passed")
         ):
             return "blended_value_runtime_candidate"
-    medium = suites.get("medium", {})
-    if medium and not any(
+    if medium_candidate_results_complete(medium) and not any(
         result.get("by_budget", {}).get("384:256", 0.0) > 0.0
         for result in medium.values()
         if isinstance(result, dict) and result.get("role") == "candidate_lane"
@@ -608,6 +619,30 @@ def classify(summary):
     ):
         return "blended_value_tradeoff"
     return "value_update_magnitude_too_large"
+
+
+def medium_candidate_results_complete(medium: dict[str, Any]) -> bool:
+    """A stage status is not evidence of candidate game strength."""
+    if not isinstance(medium, dict):
+        return False
+    candidates = [
+        result
+        for result in medium.values()
+        if isinstance(result, dict) and result.get("role") == "candidate_lane"
+    ]
+    return bool(candidates) and all(
+        result.get("completed") is True
+        and isinstance(result.get("by_budget"), dict)
+        and all(
+            isinstance(metrics, dict)
+            and "candidate_minus_current_ds" in metrics
+            and "raw_candidate_ds" in metrics
+            and "raw_current_ds" in metrics
+            and result.get("per_opening_artifact")
+            for metrics in result["by_budget"].values()
+        )
+        for result in candidates
+    )
 
 
 def report(summary, workdir):
@@ -848,7 +883,11 @@ def main() -> int:
         "probes": probes,
         "classification": "value_delta_blend_smoke_inconclusive",
         "suites": {
-            "medium": {"status": "stopped_by_probe_gates"},
+            "medium": {
+                "status": "pending_suite_completion"
+                if any(item["candidate_probe_pass"] for item in probes.values())
+                else "stopped_by_probe_gates"
+            },
             "fixed_large": {"status": "not_reached"},
             "heldout": {"status": "not_reached"},
         },
