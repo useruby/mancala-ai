@@ -7,8 +7,10 @@ import argparse
 import concurrent.futures
 import hashlib
 import json
+import os
 import statistics
 import sys
+import tempfile
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -50,7 +52,18 @@ HEAD_KEYS = {
     "w_value_hidden",
     "b_value_hidden",
 }
-TRACE_BUDGETS = ("384:256", "768:768", "1200:1200", "1200:256")
+COMPOSITION_BUDGETS = (
+    "384:256",
+    "768:256",
+    "768:768",
+    "1200:1200",
+    "1200:256",
+    "256:768",
+)
+TRACE_BUDGETS = ("384:256",)
+STAGES = ("composition_scores", "trace_384", "coverage", "forced", "classify")
+_WORKER_EVALUATORS: dict[str, arena.ComposedArtifactEvaluator] | None = None
+_WORKER_CURRENT: arena.ArtifactEvaluator | None = None
 
 
 def canonical_hash(value: Any) -> str:
@@ -65,10 +78,30 @@ def stable_seed(*parts: Any) -> int:
 
 
 def write_json(path: Path, value: dict[str, Any]) -> None:
+    """Atomically publish a JSON artifact so interrupted stages remain resumable."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=path.parent, delete=False
+    ) as handle:
+        handle.write(json.dumps(value, indent=2, sort_keys=True) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+        temporary = Path(handle.name)
+    os.replace(temporary, path)
+
+
+def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Atomically publish a JSONL shard."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=path.parent, delete=False
+    ) as handle:
+        for row in rows:
+            handle.write(json.dumps(row, sort_keys=True) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+        temporary = Path(handle.name)
+    os.replace(temporary, path)
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -104,6 +137,76 @@ def lane_evaluators(
         )
         for name, (p, v) in LANES.items()
     }
+
+
+def initialize_play_worker(current: str, candidate: str) -> None:
+    """Create immutable evaluators once per worker process."""
+    global _WORKER_EVALUATORS, _WORKER_CURRENT
+    _WORKER_CURRENT = arena.ArtifactEvaluator(Path(current))
+    candidate_evaluator = arena.ArtifactEvaluator(Path(candidate))
+    _WORKER_EVALUATORS = {
+        name: arena.ComposedArtifactEvaluator(
+            _WORKER_CURRENT,
+            candidate_evaluator,
+            policy_source=policy,
+            value_source=value,
+        )
+        for name, (policy, value) in LANES.items()
+    }
+
+
+def forced_item_worker(payload: dict[str, Any]) -> tuple[str, list[dict[str, Any]]]:
+    """Run one persisted intervention using the worker's initialized evaluator."""
+    if _WORKER_EVALUATORS is None or _WORKER_CURRENT is None:
+        raise RuntimeError("forced worker was not initialized")
+    row = payload["row"]
+    baseline, move = int(payload["baseline_move"]), int(payload["alternative_move"])
+    continuation_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
+    records = []
+    for mode, budget, cpuct in payload["contexts"]:
+        item_seed = stable_seed(
+            payload["seed"],
+            row["state_hash"],
+            row["budget_pair"],
+            payload["component"],
+            mode,
+            budget,
+        )
+
+        def continuation(forced_move: int) -> dict[str, Any]:
+            key = (row["state_hash"], forced_move, budget, cpuct, item_seed)
+            if key not in continuation_cache:
+                continuation_cache[key] = forced_continuation(
+                    state=row["state"],
+                    forced_move=forced_move,
+                    evaluator=_WORKER_CURRENT,
+                    simulations=budget,
+                    c_puct=cpuct,
+                    search_options=options(),
+                    seed=item_seed,
+                )
+            return continuation_cache[key]
+
+        base, forced = continuation(baseline), continuation(move)
+        records.append(
+            {
+                "mode": mode,
+                "component": payload["component"],
+                "state_hash": row["state_hash"],
+                "budget_pair": row["budget_pair"],
+                "challenger_player": row["challenger_player"],
+                "acting_player": row["acting_player"],
+                "phase": row["phase"],
+                "coverage_status": "covered"
+                if not row["no_exact_replay_overlap"]
+                else "non_overlapping",
+                "nearest_distance_quartile": row.get("nearest_distance_quartile"),
+                "delta": float(forced["outcome_root"] - base["outcome_root"]),
+                "continuation_simulations": budget,
+                "effective_c_puct": cpuct,
+            }
+        )
+    return payload["item_id"], records
 
 
 def verify_inputs(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -176,7 +279,9 @@ def profile_hash(budget_pair: str, c_puct: float) -> str:
 
 def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """One opening/seat/composition work unit with private immutable evaluators."""
-    evaluators = lane_evaluators(Path(payload["current"]), Path(payload["candidate"]))
+    evaluators = _WORKER_EVALUATORS or lane_evaluators(
+        Path(payload["current"]), Path(payload["candidate"])
+    )
     lane, opening, challenger_player = (
         payload["lane"],
         payload["opening"],
@@ -198,7 +303,7 @@ def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, A
         simulations = challenger_sims if acting_challenger else current_sims
         seed = stable_seed(
             payload["seed"],
-            lane,
+            payload["budget_pair"],
             payload["opening_index"],
             challenger_player,
             ply,
@@ -213,14 +318,6 @@ def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, A
             seed,
             c_puct,
         )
-        all_results = (
-            {
-                name: search(evaluator, state, simulations, seed, c_puct)
-                for name, evaluator in evaluators.items()
-            }
-            if payload.get("trace", True)
-            else {}
-        )
         if payload.get("trace", True):
             traces.append(
                 {
@@ -230,6 +327,7 @@ def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, A
                     "challenger_simulations": challenger_sims,
                     "incumbent_simulations": current_sims,
                     "effective_c_puct": c_puct,
+                    "search_seed": seed,
                     "challenger_player": challenger_player,
                     "acting_player": game.current_player,
                     "composition_trajectory_source": lane,
@@ -238,13 +336,11 @@ def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, A
                     "ply": ply,
                     "phase": phase(game),
                     "legal_moves": legal,
-                    "selected_moves": {
-                        name: result["selected_move"]
-                        for name, result in all_results.items()
-                    },
-                    "composition_child_visits": {
-                        name: result["visits"] for name, result in all_results.items()
-                    },
+                    # The trajectory search is itself this composition's result.
+                    # Other compositions are evaluated once per deduplicated context
+                    # after all trajectories have completed.
+                    "active_selected_move": selected["selected_move"],
+                    "active_child_visits": selected["visits"],
                     "search_profile_hash": profile_hash(payload["budget_pair"], c_puct),
                 }
             )
@@ -294,9 +390,13 @@ def run_budget(
         for lane in LANES
         for player in (0, 1)
     ]
-    # Every process builds private evaluators; merge uses input order for determinism.
+    # Each process initializes immutable evaluators once; map preserves task order.
     if workers > 1:
-        with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
+        with concurrent.futures.ProcessPoolExecutor(
+            max_workers=workers,
+            initializer=initialize_play_worker,
+            initargs=(str(current), str(candidate)),
+        ) as pool:
             completed = list(pool.map(play_unit, units))
     else:
         completed = [play_unit(unit) for unit in units]
@@ -341,7 +441,11 @@ def raw_state_vector(state: dict[str, Any]) -> np.ndarray:
 
 
 def replay_coverage(
-    traces: list[dict[str, Any]], replay: Path, manifest: dict[str, Any], workers: int
+    traces: list[dict[str, Any]],
+    replay: Path,
+    manifest: dict[str, Any],
+    workers: int,
+    distance_selector: Any = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     rows = read_jsonl(replay)
     train, validation = (
@@ -388,22 +492,84 @@ def replay_coverage(
         dtype=np.int16,
     )
 
+    unique_rows = {row["state_hash"]: row for row in traces}
+    changed_hashes = {
+        row["state_hash"]
+        for row in unique_rows.values()
+        if any(
+            move != row["selected_moves"]["current_policy_current_value"]
+            for lane, move in row.get("selected_moves", {}).items()
+            if lane != "current_policy_current_value"
+        )
+    }
+
+    def stratum(row: dict[str, Any]) -> tuple[Any, ...]:
+        return (
+            row["acting_player"],
+            row["phase"],
+            row.get("opening_identifier"),
+            len(row["legal_moves"]),
+            row.get("budget_pair"),
+        )
+
+    changed_strata = Counter(stratum(unique_rows[key]) for key in changed_hashes)
+    controls: set[str] = set()
+    for key, row in sorted(unique_rows.items()):
+        group = stratum(row)
+        if (
+            key not in changed_hashes
+            and changed_strata[group] > 0
+            and len(controls) < 512
+        ):
+            controls.add(key)
+            changed_strata[group] -= 1
+    # Fill unmatched control strata deterministically without exceeding the cap.
+    for key in sorted(unique_rows):
+        if key not in changed_hashes and len(controls) < 512:
+            controls.add(key)
+    distance_hashes = changed_hashes | controls
+
+    def nearest_distances(
+        vector: np.ndarray,
+    ) -> tuple[int | None, int | None, int | None, dict[str, Any] | None]:
+        def nearest(vectors: np.ndarray) -> int | None:
+            if not len(vectors):
+                return None
+            best: int | None = None
+            for start in range(0, len(vectors), 2048):
+                distance = int(
+                    np.abs(vectors[start : start + 2048] - vector).sum(axis=1).min()
+                )
+                best = distance if best is None else min(best, distance)
+            return best
+
+        best_index, best_distance = 0, None
+        for start in range(0, len(replay_vectors), 2048):
+            distances = np.abs(replay_vectors[start : start + 2048] - vector).sum(
+                axis=1
+            )
+            index = int(np.argmin(distances))
+            distance = int(distances[index])
+            if best_distance is None or distance < best_distance:
+                best_index, best_distance = start + index, distance
+        return (
+            best_distance,
+            nearest(replay_train),
+            nearest(replay_validation),
+            replay_entries[best_index] if best_distance is not None else None,
+        )
+
     def annotate(row: dict[str, Any]) -> dict[str, Any]:
         raw_hash = canonical_hash(row["state"])
         assert raw_hash == row["state_hash"], (
             "trace state hashes must be raw-state hashes"
         )
         entry = indexes.get(raw_hash)
+        include_distances = raw_hash in distance_hashes
         vector = raw_state_vector(row["state"])
-        distances = np.abs(replay_vectors - vector).sum(axis=1)
-        nearest = replay_entries[int(np.argmin(distances))]
-
-        def distance(vectors: np.ndarray) -> int | None:
-            return (
-                int(np.abs(vectors - vector).sum(axis=1).min())
-                if len(vectors)
-                else None
-            )
+        nearest_replay, nearest_train, nearest_validation, nearest = (
+            nearest_distances(vector) if include_distances else (None, None, None, None)
+        )
 
         return {
             **row,
@@ -419,21 +585,45 @@ def replay_coverage(
             "validation_replay_game_ids": []
             if entry is None
             else sorted(entry["validation_game_ids"]),
-            "same_current_player": nearest["player"] == row["acting_player"],
-            "same_phase": nearest["phase"] == row["phase"],
-            "same_legal_move_count": nearest["legal_move_count"]
-            == len(row["legal_moves"]),
-            "pit_store_l1_distance": int(distances.min()),
-            "nearest_replay_state_distance": distance(replay_vectors),
-            "nearest_train_state_distance": distance(replay_train),
-            "nearest_validation_state_distance": distance(replay_validation),
+            "distance_evaluated": include_distances,
+            "same_current_player": None
+            if nearest is None
+            else nearest["player"] == row["acting_player"],
+            "same_phase": None if nearest is None else nearest["phase"] == row["phase"],
+            "same_legal_move_count": None
+            if nearest is None
+            else nearest["legal_move_count"] == len(row["legal_moves"]),
+            "pit_store_l1_distance": nearest_replay,
+            "nearest_replay_state_distance": nearest_replay,
+            "nearest_train_state_distance": nearest_train,
+            "nearest_validation_state_distance": nearest_validation,
         }
 
-    if workers > 1:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
-            annotated = list(pool.map(annotate, traces))
-    else:
-        annotated = [annotate(row) for row in traces]
+    annotated_unique = {key: annotate(row) for key, row in unique_rows.items()}
+    distances = sorted(
+        row["nearest_replay_state_distance"]
+        for row in annotated_unique.values()
+        if row["nearest_replay_state_distance"] is not None
+    )
+    edges = np.percentile(distances, [25, 50, 75]).tolist() if distances else []
+    for row in annotated_unique.values():
+        distance = row["nearest_replay_state_distance"]
+        row["nearest_distance_quartile"] = (
+            None
+            if distance is None
+            else str(1 + sum(distance > edge for edge in edges))
+        )
+    annotated = [
+        {
+            **row,
+            **{
+                key: value
+                for key, value in annotated_unique[row["state_hash"]].items()
+                if key not in row
+            },
+        }
+        for row in traces
+    ]
     # Identical raw states are a protocol invariant; encoded representations are never compared here.
     assert all(canonical_hash(row["state"]) == row["state_hash"] for row in annotated)
     return {
@@ -450,23 +640,40 @@ def replay_coverage(
             row["no_exact_replay_overlap"] for row in annotated
         )
         / max(1, len(annotated)),
+        "distance_rows_evaluated": sum(row["distance_evaluated"] for row in annotated),
+        "unique_traced_states": len(unique_rows),
+        "changed_unique_states": len(changed_hashes),
+        "matched_unchanged_controls": len(controls),
+        "distance_chunk_rows": 2048,
+        "nearest_distance_quartile_edges": edges,
         "hash_representation": "canonical_hash(raw_state_dict)",
         "encoded_hashes_compared": False,
     }, annotated
 
 
-def aggregate(values: list[float], seed: int) -> dict[str, Any]:
+def aggregate(
+    values: list[float],
+    seed: int,
+    clusters: list[str] | None = None,
+    bootstrap_samples: int = 1000,
+) -> dict[str, Any]:
+    """Summarize effects with deterministic cluster (state) bootstrap samples."""
     rng = np.random.default_rng(seed)
+    grouped: dict[str, list[float]] = defaultdict(list)
+    for index, value in enumerate(values):
+        grouped[(clusters or [str(index)] * len(values))[index]].append(value)
+    cluster_means = [statistics.fmean(group) for _, group in sorted(grouped.items())]
     boot = (
         [
-            float(np.mean(rng.choice(values, len(values), replace=True)))
-            for _ in range(1000)
+            float(np.mean(rng.choice(cluster_means, len(cluster_means), replace=True)))
+            for _ in range(bootstrap_samples)
         ]
-        if values
+        if cluster_means
         else [0.0]
     )
     return {
-        "unique_changed_states": len(values),
+        "unique_state_hashes": len(cluster_means),
+        "continuation_records": len(values),
         "mean_forced_outcome_delta": statistics.fmean(values) if values else 0.0,
         "median_forced_outcome_delta": statistics.median(values) if values else 0.0,
         "bootstrap_95_ci": [
@@ -483,14 +690,19 @@ def aggregate(values: list[float], seed: int) -> dict[str, Any]:
 def forced_move_audit(
     traces: list[dict[str, Any]],
     current: Path,
+    candidate: Path,
+    shard_dir: Path,
     continuation_budgets: list[int],
     default_c_puct: float,
     schedule: dict[str, float],
     seed: int,
     workers: int,
+    sample_size: int = 128,
+    bootstrap_samples: int = 1000,
 ) -> dict[str, Any]:
-    selected = []
-    seen_context_moves: set[tuple[str, str, str]] = set()
+    """Run a bounded, resumable forced audit with one atomic shard per item."""
+    candidates: dict[str, list[tuple[dict[str, Any], int, int]]] = defaultdict(list)
+    seen: set[tuple[str, str, str, int, int]] = set()
     for row in sorted(
         traces,
         key=lambda r: (
@@ -500,113 +712,164 @@ def forced_move_audit(
             r["game_identifier"],
         ),
     ):
-        baseline = row["selected_moves"]["current_policy_current_value"]
-        for lane, move in sorted(row["selected_moves"].items()):
-            if (
-                move != baseline
-                and (key := (row["state_hash"], row["budget_pair"], lane))
-                not in seen_context_moves
+        baseline = int(row["selected_moves"]["current_policy_current_value"])
+        moves = row["selected_moves"]
+        component_moves = {
+            "policy": moves["candidate_policy_current_value"],
+            "value": moves["current_policy_candidate_value"],
+            "joint_only": moves["candidate_policy_candidate_value"],
+        }
+        for component, move in component_moves.items():
+            move = int(move)
+            if move == baseline:
+                continue
+            if component == "joint_only" and (
+                moves["candidate_policy_current_value"] != baseline
+                or moves["current_policy_candidate_value"] != baseline
             ):
-                seen_context_moves.add(key)
-                selected.append((row, lane, baseline, move))
-    # Cap contexts per state only for aggregate weighting, not trace retention.
-    capped, counts = [], Counter()
-    for item in selected:
-        if counts[item[0]["state_hash"]] < 4:
-            capped.append(item)
-            counts[item[0]["state_hash"]] += 1
-
-    def task(item: tuple[dict[str, Any], str, int, int]) -> list[dict[str, Any]]:
-        row, lane, baseline, move = item
-        evaluator = arena.ArtifactEvaluator(current)
-        component = (
-            "policy"
-            if lane == "candidate_policy_current_value"
-            else "value"
-            if lane == "current_policy_candidate_value"
-            else "joint"
-        )
-        contexts = [("neutral", budget, 1.25) for budget in continuation_budgets]
-        challenger, incumbent = map(int, row["budget_pair"].split(":"))
-        contexts.append(
-            (
-                "context_matched",
-                challenger,
-                resolve_budget_cpuct(
-                    schedule=schedule,
-                    challenger_simulations=challenger,
-                    current_simulations=incumbent,
-                    default_c_puct=default_c_puct,
-                ),
+                continue
+            key = (row["state_hash"], row["budget_pair"], component, baseline, move)
+            if key not in seen:
+                seen.add(key)
+                candidates[component].append((row, baseline, move))
+    selected: list[dict[str, Any]] = []
+    for component in ("policy", "value", "joint_only"):
+        unique_states: set[str] = set()
+        for row, baseline, move in sorted(
+            candidates[component],
+            key=lambda item: stable_seed(
+                seed, component, item[0]["state_hash"], item[0]["opening_identifier"]
+            ),
+        ):
+            if len(unique_states) >= sample_size or row["state_hash"] in unique_states:
+                continue
+            unique_states.add(row["state_hash"])
+            challenger, incumbent = map(int, row["budget_pair"].split(":"))
+            contexts = [("neutral", budget, 1.25) for budget in continuation_budgets]
+            contexts.append(
+                (
+                    "context_matched",
+                    challenger,
+                    resolve_budget_cpuct(
+                        schedule=schedule,
+                        challenger_simulations=challenger,
+                        current_simulations=incumbent,
+                        default_c_puct=default_c_puct,
+                    ),
+                )
             )
-        )
-        records = []
-        for mode, budget, cpuct in contexts:
-            item_seed = stable_seed(
-                seed, row["state_hash"], row["budget_pair"], lane, mode, budget
+            item_id = canonical_hash(
+                [
+                    "forced-v3",
+                    row["state_hash"],
+                    row["budget_pair"],
+                    component,
+                    baseline,
+                    move,
+                ]
             )
-            base = forced_continuation(
-                state=row["state"],
-                forced_move=baseline,
-                evaluator=evaluator,
-                simulations=budget,
-                c_puct=cpuct,
-                search_options=options(),
-                seed=item_seed,
-            )
-            forced = forced_continuation(
-                state=row["state"],
-                forced_move=move,
-                evaluator=evaluator,
-                simulations=budget,
-                c_puct=cpuct,
-                search_options=options(),
-                seed=item_seed,
-            )
-            records.append(
+            selected.append(
                 {
-                    "mode": mode,
+                    "item_id": item_id,
+                    "row": row,
                     "component": component,
-                    "state_hash": row["state_hash"],
-                    "budget_pair": row["budget_pair"],
-                    "challenger_player": row["challenger_player"],
-                    "phase": row["phase"],
-                    "coverage_status": "covered"
-                    if not row["no_exact_replay_overlap"]
-                    else "non_overlapping",
-                    "delta": float(forced["outcome_root"] - base["outcome_root"]),
-                    "continuation_simulations": budget,
-                    "effective_c_puct": cpuct,
+                    "baseline_move": baseline,
+                    "alternative_move": move,
+                    "contexts": contexts,
+                    "seed": seed,
                 }
             )
-        return records
-
-    # Each independent continuation has a private evaluator and private PUCT state.
-    if workers > 1:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
-            records = [record for result in pool.map(task, capped) for record in result]
-    else:
-        records = [record for item in capped for record in task(item)]
+    shard_dir.mkdir(parents=True, exist_ok=True)
+    completed: dict[str, list[dict[str, Any]]] = {}
+    pending = []
+    for item in selected:
+        path = shard_dir / f"{item['item_id']}.json"
+        if path.is_file():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                if payload.get("item_id") == item["item_id"]:
+                    completed[item["item_id"]] = payload["records"]
+                    continue
+            except (json.JSONDecodeError, KeyError):
+                pass
+        pending.append(item)
+    if pending:
+        if workers > 1:
+            with concurrent.futures.ProcessPoolExecutor(
+                max_workers=workers,
+                initializer=initialize_play_worker,
+                initargs=(str(current), str(candidate)),
+            ) as pool:
+                futures = [pool.submit(forced_item_worker, item) for item in pending]
+                for future in concurrent.futures.as_completed(futures):
+                    item_id, item_records = future.result()
+                    write_json(
+                        shard_dir / f"{item_id}.json",
+                        {"item_id": item_id, "records": item_records},
+                    )
+                    completed[item_id] = item_records
+        else:
+            initialize_play_worker(str(current), str(candidate))
+            for item in pending:
+                item_id, item_records = forced_item_worker(item)
+                write_json(
+                    shard_dir / f"{item_id}.json",
+                    {"item_id": item_id, "records": item_records},
+                )
+                completed[item_id] = item_records
+    records = [record for item in selected for record in completed[item["item_id"]]]
     result: dict[str, Any] = {
-        "selected_context_moves": len(capped),
+        "selected_context_moves": len(selected),
+        "available_unique_states": {
+            component: len({row["state_hash"] for row, _, _ in values})
+            for component, values in candidates.items()
+        },
         "records": records,
         "neutral": {},
         "context_matched": {},
     }
     for mode in ("neutral", "context_matched"):
         subset = [record for record in records if record["mode"] == mode]
-        for component in ("policy", "value", "joint"):
+        for component in ("policy", "value", "joint_only"):
             values = [
                 record["delta"] for record in subset if record["component"] == component
             ]
-            result[mode][component] = aggregate(
-                values, stable_seed(seed, mode, component)
+            summary = aggregate(
+                values,
+                stable_seed(seed, mode, component),
+                [
+                    record["state_hash"]
+                    for record in subset
+                    if record["component"] == component
+                ],
+                bootstrap_samples,
             )
-        for field in ("budget_pair", "challenger_player", "phase", "coverage_status"):
+            component_records = [r for r in subset if r["component"] == component]
+            summary["unique_state_context_pairs"] = len(
+                {
+                    (
+                        r["state_hash"],
+                        r["budget_pair"],
+                        r["continuation_simulations"],
+                        r["effective_c_puct"],
+                    )
+                    for r in component_records
+                }
+            )
+            result[mode][component] = summary
+        for field in (
+            "challenger_player",
+            "acting_player",
+            "phase",
+            "coverage_status",
+            "nearest_distance_quartile",
+        ):
             result[mode][f"by_{field}"] = {
                 key: aggregate(
                     [r["delta"] for r in subset if str(r[field]) == key],
                     stable_seed(seed, mode, field, key),
+                    [r["state_hash"] for r in subset if str(r[field]) == key],
+                    bootstrap_samples,
                 )
                 for key in sorted({str(r[field]) for r in subset})
             }
@@ -622,6 +885,7 @@ def trace_summary(traces: list[dict[str, Any]]) -> dict[str, Any]:
         }
         for lane in LANES
     }
+
     shared = set.intersection(*states.values()) if states else set()
     unique = {
         lane: values
@@ -676,9 +940,51 @@ def trace_summary(traces: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def distance_harm_evidence(records: list[dict[str, Any]], seed: int) -> dict[str, Any]:
+    """Apply the preregistered low/high-distance harm criterion by state."""
+    grouped = {
+        quartile: [r for r in records if r.get("nearest_distance_quartile") == quartile]
+        for quartile in ("1", "2", "3", "4")
+    }
+
+    def state_means(rows: list[dict[str, Any]]) -> np.ndarray:
+        values: dict[str, list[float]] = defaultdict(list)
+        for row in rows:
+            values[row["state_hash"]].append(row["delta"])
+        return np.asarray(
+            [statistics.fmean(value) for _, value in sorted(values.items())]
+        )
+
+    low, high = state_means(grouped["1"]), state_means(grouped["4"])
+    difference, ci, concentrated = None, None, False
+    if len(low) >= 64 and len(high) >= 64:
+        rng = np.random.default_rng(stable_seed(seed, "distance-harm"))
+        samples = [
+            float(rng.choice(high, len(high)).mean() - rng.choice(low, len(low)).mean())
+            for _ in range(1000)
+        ]
+        difference = float(high.mean() - low.mean())
+        ci = [float(np.percentile(samples, 2.5)), float(np.percentile(samples, 97.5))]
+        concentrated = difference <= -0.10 and ci[1] < 0
+    return {
+        "by_quartile": {
+            key: {
+                "unique_state_hashes": len(state_means(rows)),
+                "mean_forced_delta": float(state_means(rows).mean())
+                if len(rows)
+                else None,
+            }
+            for key, rows in grouped.items()
+        },
+        "high_minus_low_mean_forced_delta": difference,
+        "high_minus_low_bootstrap_95_ci": ci,
+        "distance_harm_concentrated": concentrated,
+    }
+
+
 def attribution(metrics: dict[str, dict[str, Any]]) -> dict[str, Any]:
     table = {}
-    for label in ("384:256", "768:768", "1200:1200", "1200:256"):
+    for label in COMPOSITION_BUDGETS:
         base = metrics["current_policy_current_value"][label]["raw_ds"]
         policy = metrics["candidate_policy_current_value"][label]["raw_ds"] - base
         value = metrics["current_policy_candidate_value"][label]["raw_ds"] - base
@@ -739,15 +1045,26 @@ def classify(
             for mode in ("neutral", "context_matched")
         )
 
+    def component_states(mode: str, component: str) -> int:
+        summary = forced[mode].get(component, {})
+        return int(
+            summary.get("unique_state_hashes", summary.get("unique_changed_states", 0))
+        )
+
     for component, delta_key in (
         ("policy", "policy_only_delta"),
         ("value", "value_only_delta"),
     ):
         enough = (
-            forced["neutral"].get(component, {}).get("unique_changed_states", 0) >= 64
+            component_states("neutral", component) >= 64
             or forced["context_matched"]
             .get(component, {})
-            .get("unique_changed_states", 0)
+            .get(
+                "unique_state_hashes",
+                forced["context_matched"]
+                .get(component, {})
+                .get("unique_changed_states", 0),
+            )
             >= 64
         )
         if (
@@ -764,7 +1081,11 @@ def classify(
         abs(values["policy_only_delta"]) <= 0.03
         and abs(values["value_only_delta"]) <= 0.03
         and interaction >= 0.5
-        and component_harm("joint")
+        and (
+            component_states("neutral", "joint_only") >= 64
+            or component_states("context_matched", "joint_only") >= 64
+        )
+        and component_harm("joint_only")
     ):
         return {
             "classification": "destructive_policy_value_interaction",
@@ -862,7 +1183,216 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tactical-root-bias", type=float, default=0.0)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--stages",
+        default="all",
+        help="Comma-separated stages: composition_scores,trace_384,coverage,forced,classify (default: all).",
+    )
+    parser.add_argument("--resume", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument(
+        "--force-recompute-stage", action="store_true", help="Rebuild selected stages."
+    )
+    parser.add_argument(
+        "--sample",
+        type=int,
+        default=None,
+        help="Deterministically limit medium-suite openings for a bounded run.",
+    )
+    parser.add_argument("--forced-sample-per-component", type=int, default=128)
+    parser.add_argument("--bootstrap-samples", type=int, default=1000)
     return parser.parse_args()
+
+
+def parse_stages(value: str) -> set[str]:
+    """Validate the explicitly requested stage subset."""
+    aliases = {"composition": "composition_scores", "trace": "trace_384"}
+    stages = {
+        aliases.get(stage, stage)
+        for stage in (STAGES if value == "all" else filter(None, value.split(",")))
+    }
+    unknown = stages - set(STAGES)
+    if unknown:
+        raise ValueError(f"unknown stages: {', '.join(sorted(unknown))}")
+    if not stages:
+        raise ValueError("at least one stage is required")
+    return stages
+
+
+def stage_manifest_path(workdir: Path, stage: str) -> Path:
+    return workdir / "stages" / stage / "manifest.json"
+
+
+def stage_is_ready(workdir: Path, stage: str, fingerprint: str) -> bool:
+    path = stage_manifest_path(workdir, stage)
+    if not path.exists():
+        return False
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    return (
+        manifest.get("fingerprint") == fingerprint
+        and manifest.get("completion_status") == "complete"
+        and all(
+            Path(output).is_file() and sha256_file(Path(output)) == output_hash
+            for output, output_hash in manifest.get("output_shard_hashes", {}).items()
+        )
+    )
+
+
+def publish_stage(
+    workdir: Path,
+    stage: str,
+    fingerprint: str,
+    outputs: list[Path],
+    inputs: dict[str, str] | None = None,
+    configuration: dict[str, Any] | None = None,
+) -> None:
+    """Publish stage completion only after every atomically-written output exists."""
+    if not all(path.is_file() for path in outputs):
+        raise RuntimeError(f"cannot publish incomplete {stage} stage")
+    run_manifest = workdir / "run_manifest.json"
+    run_inputs = (
+        json.loads(run_manifest.read_text(encoding="utf-8"))
+        if run_manifest.exists()
+        else {}
+    )
+    write_json(
+        stage_manifest_path(workdir, stage),
+        {
+            "schema": "azlite_joint_heads_attribution_stage_v1",
+            "stage": stage,
+            "fingerprint": fingerprint,
+            "current_artifact_hash": run_inputs.get("current_artifact_hash"),
+            "candidate_artifact_hash": run_inputs.get("candidate_artifact_hash"),
+            "replay_hash": run_inputs.get("replay_hash"),
+            "training_manifest_hash": run_inputs.get("training_manifest_hash"),
+            "medium_suite_hash": run_inputs.get("medium_suite_hash"),
+            "runtime_profile_hash": run_inputs.get("runtime_profile_hash"),
+            "input_shard_hashes": inputs or {},
+            "output_shard_hashes": {str(path): sha256_file(path) for path in outputs},
+            "stage_configuration": configuration or {},
+            "completion_status": "complete",
+        },
+    )
+
+
+def rejoin_trace_contexts(
+    traces: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Deduplicate trajectory contexts without recomputing their active result."""
+    cache: dict[str, dict[str, Any]] = {}
+    rejoined: list[dict[str, Any]] = []
+    for row in traces:
+        context = {
+            "state_hash": row["state_hash"],
+            "budget_pair": row["budget_pair"],
+            "effective_c_puct": row["effective_c_puct"],
+            "challenger_player": row.get(
+                "challenger_player", row.get("acting_player", 0)
+            ),
+            "simulations": (
+                row.get("challenger_simulations", 384)
+                if row.get("acting_player", 0)
+                == row.get("challenger_player", row.get("acting_player", 0))
+                else row.get("incumbent_simulations", 256)
+            ),
+            "search_seed": row.get("search_seed"),
+        }
+        key = canonical_hash(context)
+        legacy_moves = row.get("selected_moves", {})
+        legacy_visits = row.get("composition_child_visits", {})
+        observation = {
+            "state": row.get("state"),
+            "active_lane": row.get(
+                "composition_trajectory_source", "current_policy_current_value"
+            ),
+            "active_selected_move": row.get(
+                "active_selected_move", legacy_moves.get("current_policy_current_value")
+            ),
+            "active_child_visits": row.get(
+                "active_child_visits", legacy_visits.get("current_policy_current_value")
+            ),
+        }
+        prior = cache.setdefault(key, {**context, **observation})
+        if prior["active_lane"] == observation["active_lane"] and prior != {
+            **context,
+            **observation,
+        }:
+            raise RuntimeError(
+                "non-deterministic trace observation for identical context"
+            )
+        rejoined.append({**row, "trace_context_key": key})
+    return rejoined, {"unique_contexts": len(cache), "cache": cache}
+
+
+def search_trace_context(context: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Evaluate all compositions once for a trace context in an initialized worker."""
+    if _WORKER_EVALUATORS is None:
+        raise RuntimeError("trace search worker was not initialized")
+    results = {
+        lane: search(
+            evaluator,
+            context["state"],
+            int(context["simulations"]),
+            int(context["search_seed"]),
+            float(context["effective_c_puct"]),
+        )
+        for lane, evaluator in _WORKER_EVALUATORS.items()
+    }
+    # The active composition result was already paid for during trajectory play.
+    results[context["active_lane"]] = {
+        "selected_move": context["active_selected_move"],
+        "visits": context["active_child_visits"],
+    }
+    return canonical_hash(
+        {
+            key: context[key]
+            for key in context
+            if key != "state"
+            and key
+            not in {"active_lane", "active_selected_move", "active_child_visits"}
+        }
+    ), results
+
+
+def complete_trace_searches(
+    traces: list[dict[str, Any]], current: Path, candidate: Path, workers: int
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    """Evaluate missing heads once per context and deterministically rejoin occurrences."""
+    occurrences, context_data = rejoin_trace_contexts(traces)
+    contexts = [context_data["cache"][key] for key in sorted(context_data["cache"])]
+    if workers > 1:
+        with concurrent.futures.ProcessPoolExecutor(
+            max_workers=workers,
+            initializer=initialize_play_worker,
+            initargs=(str(current), str(candidate)),
+        ) as pool:
+            searched = list(pool.map(search_trace_context, contexts))
+    else:
+        initialize_play_worker(str(current), str(candidate))
+        searched = [search_trace_context(context) for context in contexts]
+    results = dict(searched)
+    joined = [
+        {
+            **row,
+            "selected_moves": {
+                lane: result["selected_move"]
+                for lane, result in results[row["trace_context_key"]].items()
+            },
+            "composition_child_visits": {
+                lane: result["visits"]
+                for lane, result in results[row["trace_context_key"]].items()
+            },
+        }
+        for row in occurrences
+    ]
+    report = {
+        "raw_trace_occurrences": len(traces),
+        "unique_search_contexts": len(contexts),
+        "search_cache_hit_rate": 1.0 - len(contexts) / max(1, len(traces)),
+        "searches_avoided_vs_pr166": max(
+            0, len(traces) * 4 - (len(traces) + len(contexts) * 3)
+        ),
+    }
+    return joined, contexts, report
 
 
 def main() -> int:
@@ -882,6 +1412,12 @@ def main() -> int:
     )
     if not openings:
         raise RuntimeError("medium suite is empty")
+    if args.sample is not None:
+        if args.sample <= 0:
+            raise ValueError("--sample must be positive")
+        openings = openings[: args.sample]
+    if args.forced_sample_per_component <= 0 or args.bootstrap_samples <= 0:
+        raise ValueError("forced sample and bootstrap sizes must be positive")
     semantic = {
         "four_compositions_available": set(evaluators) == set(LANES),
         "terminal_uncomposed": all(
@@ -896,34 +1432,184 @@ def main() -> int:
     if not all(semantic.values()):
         raise RuntimeError(f"composition semantic checks failed: {semantic}")
     schedule = parse_cpuct_schedule_json(args.cpuct_schedule)
-    labels = ("384:256", "768:256", "768:768", "1200:1200", "1200:256", "256:768")
-    metrics = {lane: {} for lane in LANES}
-    traces = []
-    for label in labels:
-        challenger, incumbent = map(int, label.split(":"))
-        cpuct = resolve_budget_cpuct(
-            schedule=schedule,
-            challenger_simulations=challenger,
-            current_simulations=incumbent,
-            default_c_puct=args.default_c_puct,
+    selected_stages = parse_stages(args.stages)
+    last_stage = max(selected_stages, key=STAGES.index)
+    input_fingerprint = canonical_hash(
+        {
+            "current": sha256_file(current / "weights.json"),
+            "candidate": sha256_file(candidate / "weights.json"),
+            "replay": sha256_file(Path(args.replay)),
+            "openings": sha256_file(Path(args.medium_suite)),
+            "seed": args.seed,
+            "sample": args.sample,
+            "schedule": schedule,
+            "default_c_puct": args.default_c_puct,
+        }
+    )
+    write_json(
+        workdir / "run_manifest.json",
+        {
+            "schema": "azlite_joint_heads_attribution_run_v1",
+            "current_artifact_hash": sha256_file(current / "weights.json"),
+            "candidate_artifact_hash": sha256_file(candidate / "weights.json"),
+            "replay_hash": sha256_file(Path(args.replay)),
+            "training_manifest_hash": canonical_manifest_hash(manifest),
+            "medium_suite_hash": sha256_file(Path(args.medium_suite)),
+            "runtime_profile_hash": canonical_hash(
+                {
+                    "default_c_puct": args.default_c_puct,
+                    "schedule": schedule,
+                    "tactical_root_bias": args.tactical_root_bias,
+                    "options": options(),
+                }
+            ),
+            "configuration": {
+                "seed": args.seed,
+                "continuation_budgets": args.continuation_budgets,
+                "forced_sample_per_component": args.forced_sample_per_component,
+            },
+        },
+    )
+    shards = workdir / "stages"
+    composition_paths = [
+        shards
+        / "composition_scores"
+        / f"{label.replace(':', '_')}-{lane}-{player}.json"
+        for label in COMPOSITION_BUDGETS
+        for lane in LANES
+        for player in (0, 1)
+    ]
+    composition_fingerprint = canonical_hash(
+        [input_fingerprint, "composition", COMPOSITION_BUDGETS]
+    )
+    if "composition_scores" in selected_stages and (
+        args.force_recompute_stage
+        or not args.resume
+        or not stage_is_ready(workdir, "composition_scores", composition_fingerprint)
+    ):
+        for label in COMPOSITION_BUDGETS:
+            label_paths = [
+                shards
+                / "composition_scores"
+                / f"{label.replace(':', '_')}-{lane}-{player}.json"
+                for lane in LANES
+                for player in (0, 1)
+            ]
+            if (
+                args.resume
+                and not args.force_recompute_stage
+                and all(path.is_file() for path in label_paths)
+            ):
+                continue
+            challenger, incumbent = map(int, label.split(":"))
+            result, _ = run_budget(
+                current=current,
+                candidate=candidate,
+                openings=openings,
+                label=label,
+                seed=args.seed,
+                c_puct=resolve_budget_cpuct(
+                    schedule=schedule,
+                    challenger_simulations=challenger,
+                    current_simulations=incumbent,
+                    default_c_puct=args.default_c_puct,
+                ),
+                workers=args.workers,
+                trace=False,
+            )
+            for lane in LANES:
+                for player in (0, 1):
+                    path = (
+                        shards
+                        / "composition_scores"
+                        / f"{label.replace(':', '_')}-{lane}-{player}.json"
+                    )
+                    write_json(
+                        path,
+                        {
+                            "label": label,
+                            "lane": lane,
+                            "challenger_player": player,
+                            "metrics": result[lane],
+                        },
+                    )
+        publish_stage(
+            workdir, "composition_scores", composition_fingerprint, composition_paths
         )
-        result, rows = run_budget(
+    if not stage_is_ready(workdir, "composition_scores", composition_fingerprint):
+        raise RuntimeError(
+            "matching composition shards are required; run --stages composition_scores first"
+        )
+    if last_stage == "composition_scores":
+        print(json.dumps({"completed_stage": "composition_scores"}))
+        return 0
+    metrics = {lane: {} for lane in LANES}
+    for path in composition_paths:
+        shard = json.loads(path.read_text(encoding="utf-8"))
+        metrics[shard["lane"]][shard["label"]] = shard["metrics"]
+    for label in COMPOSITION_BUDGETS:
+        baseline = metrics["current_policy_current_value"][label]["raw_ds"]
+        for lane in LANES:
+            metrics[lane][label]["composition_minus_current_ds"] = (
+                metrics[lane][label]["raw_ds"] - baseline
+            )
+    trace_path, trace_cache_path = (
+        shards / "trace_384" / "trace_384_joined.jsonl",
+        shards / "trace_384" / "trace_384_unique_states.jsonl",
+    )
+    trace_fingerprint = canonical_hash([input_fingerprint, "trace", TRACE_BUDGETS])
+    if "trace_384" in selected_stages and (
+        args.force_recompute_stage
+        or not args.resume
+        or not stage_is_ready(workdir, "trace_384", trace_fingerprint)
+    ):
+        label = TRACE_BUDGETS[0]
+        challenger, incumbent = map(int, label.split(":"))
+        _, traces = run_budget(
             current=current,
             candidate=candidate,
             openings=openings,
             label=label,
             seed=args.seed,
-            c_puct=cpuct,
+            c_puct=resolve_budget_cpuct(
+                schedule=schedule,
+                challenger_simulations=challenger,
+                current_simulations=incumbent,
+                default_c_puct=args.default_c_puct,
+            ),
             workers=args.workers,
-            trace=label in TRACE_BUDGETS,
+            trace=True,
         )
-        for lane in LANES:
-            metrics[lane][label] = result[lane]
-            metrics[lane][label]["composition_minus_current_ds"] = (
-                result[lane]["raw_ds"]
-                - result["current_policy_current_value"]["raw_ds"]
-            )
-        traces.extend(rows)
+        trajectory_path = shards / "trace_384" / "trace_384_trajectory_rows.jsonl"
+        write_jsonl(trajectory_path, traces)
+        traces, contexts, cache = complete_trace_searches(
+            traces, current, candidate, args.workers
+        )
+        write_jsonl(trace_path, traces)
+        write_jsonl(trace_cache_path, contexts)
+        searches_path = shards / "trace_384" / "trace_384_composition_searches.jsonl"
+        write_jsonl(searches_path, contexts)
+        write_json(shards / "trace_384" / "cache_report.json", cache)
+        publish_stage(
+            workdir,
+            "trace_384",
+            trace_fingerprint,
+            [
+                trajectory_path,
+                trace_path,
+                trace_cache_path,
+                searches_path,
+                shards / "trace_384" / "cache_report.json",
+            ],
+        )
+    if not stage_is_ready(workdir, "trace_384", trace_fingerprint):
+        raise RuntimeError(
+            "matching trace shard is required; run --stages trace_384 first"
+        )
+    traces = read_jsonl(trace_path)
+    if last_stage == "trace_384":
+        print(json.dumps({"completed_stage": "trace_384", "trace_rows": len(traces)}))
+        return 0
     expected = (
         prior.get("medium", {}).get("384:256", {}).get("candidate_minus_current_ds")
     )
@@ -949,21 +1635,126 @@ def main() -> int:
         "batch_plan_sha256": manifest["batch_plan_sha256"],
         "medium_384_256_reproduced": reproduced,
     }
-    coverage, traces = replay_coverage(
-        traces, Path(args.replay), manifest, args.workers
+    coverage_path, covered_trace_path = (
+        shards / "coverage.json",
+        shards / "trace-with-coverage.jsonl",
     )
-    forced = forced_move_audit(
-        traces,
-        current,
-        [int(value) for value in args.continuation_budgets.split(",")],
-        args.default_c_puct,
-        schedule,
-        args.seed,
-        args.workers,
+    coverage_fingerprint = canonical_hash(
+        [input_fingerprint, "coverage-v2", trace_fingerprint]
     )
+    if "coverage" in selected_stages and (
+        args.force_recompute_stage
+        or not args.resume
+        or not stage_is_ready(workdir, "coverage", coverage_fingerprint)
+    ):
+        coverage, covered_traces = replay_coverage(
+            traces,
+            Path(args.replay),
+            manifest,
+            args.workers,
+            lambda row: any(
+                move != row["selected_moves"]["current_policy_current_value"]
+                for move in row["selected_moves"].values()
+            ),
+        )
+        write_json(coverage_path, coverage)
+        write_jsonl(covered_trace_path, covered_traces)
+        publish_stage(
+            workdir,
+            "coverage",
+            coverage_fingerprint,
+            [coverage_path, covered_trace_path],
+        )
+    if not stage_is_ready(workdir, "coverage", coverage_fingerprint):
+        raise RuntimeError(
+            "matching coverage artifacts are required; run --stages coverage first"
+        )
+    coverage, traces = (
+        json.loads(coverage_path.read_text(encoding="utf-8")),
+        read_jsonl(covered_trace_path),
+    )
+    if last_stage == "coverage":
+        print(json.dumps({"completed_stage": "coverage", "trace_rows": len(traces)}))
+        return 0
+    forced_dir = shards / "forced"
+    forced_path, forced_records_path = (
+        forced_dir / "summary.json",
+        forced_dir / "forced_records.jsonl",
+    )
+    forced_fingerprint = canonical_hash(
+        [
+            input_fingerprint,
+            "forced-v2",
+            coverage_fingerprint,
+            args.forced_sample_per_component,
+            args.bootstrap_samples,
+        ]
+    )
+    if "forced" in selected_stages and (
+        args.force_recompute_stage
+        or not args.resume
+        or not stage_is_ready(workdir, "forced", forced_fingerprint)
+    ):
+        forced = forced_move_audit(
+            traces,
+            current,
+            candidate,
+            forced_dir / "items",
+            [int(value) for value in args.continuation_budgets.split(",")],
+            args.default_c_puct,
+            schedule,
+            args.seed,
+            args.workers,
+            args.forced_sample_per_component,
+            args.bootstrap_samples,
+        )
+        write_json(
+            forced_path,
+            {key: value for key, value in forced.items() if key != "records"},
+        )
+        write_jsonl(forced_records_path, forced["records"])
+        write_json(
+            forced_dir / "forced_sample_manifest.json",
+            {
+                "forced_sample_per_component": args.forced_sample_per_component,
+                "available_unique_states": forced["available_unique_states"],
+            },
+        )
+        write_jsonl(
+            forced_dir / "forced_tasks.jsonl",
+            [
+                {"item_id": path.stem, "sha256": sha256_file(path)}
+                for path in sorted((forced_dir / "items").glob("*.json"))
+            ],
+        )
+        publish_stage(
+            workdir,
+            "forced",
+            forced_fingerprint,
+            [
+                forced_path,
+                forced_records_path,
+                forced_dir / "forced_sample_manifest.json",
+                forced_dir / "forced_tasks.jsonl",
+            ],
+        )
+    if not stage_is_ready(workdir, "forced", forced_fingerprint):
+        raise RuntimeError(
+            "matching forced artifacts are required; run --stages forced first"
+        )
+    forced = json.loads(forced_path.read_text(encoding="utf-8"))
+    forced["records"] = read_jsonl(forced_records_path)
+    if last_stage == "forced":
+        print(
+            json.dumps(
+                {"completed_stage": "forced", "forced_records": len(forced["records"])}
+            )
+        )
+        return 0
     changed = [r for r in forced["records"] if r["component"] in {"policy", "value"}]
     covered = [r for r in changed if r["coverage_status"] == "covered"]
     uncovered = [r for r in changed if r["coverage_status"] == "non_overlapping"]
+    distance_evidence = distance_harm_evidence(forced["records"], args.seed)
     coverage.update(
         {
             "covered_harm_count": len(covered),
@@ -978,7 +1769,7 @@ def main() -> int:
             > statistics.fmean([r["delta"] for r in uncovered]) + 0.03
             if covered and uncovered
             else False,
-            "distance_harm_concentrated": False,
+            **distance_evidence,
         }
     )
     classification = classify(metrics, forced, coverage, traces)
@@ -1009,22 +1800,41 @@ def main() -> int:
         "forced_move_audit": {k: v for k, v in forced.items() if k != "records"},
         "next_recommended_scientific_action": action,
     }
-    with (workdir / "arena_state_traces.jsonl").open("w", encoding="utf-8") as handle:
-        for row in traces:
-            handle.write(json.dumps(row, sort_keys=True) + "\n")
-    with (workdir / "forced_move_records.jsonl").open("w", encoding="utf-8") as handle:
-        for row in forced["records"]:
-            handle.write(json.dumps(row, sort_keys=True) + "\n")
-    write_json(workdir / "summary_metrics.json", summary)
-    write_json(
-        REPO_ROOT
-        / "docs/data/alphazero-lite-joint-heads-arena-failure-attribution-summary.json",
-        summary,
+    summary_path = workdir / "summary_metrics.json"
+    classify_fingerprint = canonical_hash(
+        [input_fingerprint, "classify", forced_fingerprint]
     )
-    (
-        REPO_ROOT
-        / "docs/alphazero-lite-joint-heads-arena-failure-attribution-results.md"
-    ).write_text(markdown(summary), encoding="utf-8")
+    if "classify" in selected_stages and (
+        args.force_recompute_stage
+        or not args.resume
+        or not stage_is_ready(workdir, "classify", classify_fingerprint)
+    ):
+        write_jsonl(workdir / "arena_state_traces.jsonl", traces)
+        write_jsonl(workdir / "forced_move_records.jsonl", forced["records"])
+        write_json(summary_path, summary)
+        write_json(
+            REPO_ROOT
+            / "docs/data/alphazero-lite-joint-heads-arena-failure-attribution-summary.json",
+            summary,
+        )
+        results_path = (
+            REPO_ROOT
+            / "docs/alphazero-lite-joint-heads-arena-failure-attribution-results.md"
+        )
+        results_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = results_path.with_suffix(results_path.suffix + ".tmp")
+        temporary.write_text(markdown(summary), encoding="utf-8")
+        os.replace(temporary, results_path)
+        publish_stage(
+            workdir,
+            "classify",
+            classify_fingerprint,
+            [
+                summary_path,
+                workdir / "arena_state_traces.jsonl",
+                workdir / "forced_move_records.jsonl",
+            ],
+        )
     print(
         json.dumps(
             {

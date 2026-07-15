@@ -13,8 +13,13 @@ from ml.alphazero_lite.run_joint_heads_arena_failure_attribution import (
     aggregate,
     classify,
     composition_hash,
+    parse_stages,
     play_unit,
+    publish_stage,
+    rejoin_trace_contexts,
     replay_coverage,
+    stage_is_ready,
+    write_json,
 )
 
 
@@ -242,6 +247,32 @@ class JointHeadsArenaFailureAttributionTests(unittest.TestCase):
         )
         self.assertEqual(
             aggregate([-0.5, 0.0, 0.5], 42), aggregate([-0.5, 0.0, 0.5], 42)
+        )
+
+    def test_stage_manifest_is_resumable_only_after_atomic_outputs_exist(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workdir = Path(directory)
+            output = workdir / "shards" / "composition.json"
+            write_json(output, {"complete": True})
+            publish_stage(workdir, "composition", "fingerprint", [output])
+            self.assertTrue(stage_is_ready(workdir, "composition", "fingerprint"))
+            output.unlink()
+            self.assertFalse(stage_is_ready(workdir, "composition", "fingerprint"))
+        self.assertEqual(parse_stages("trace_384,coverage"), {"trace_384", "coverage"})
+
+    def test_trace_context_cache_rejoins_identical_deterministic_observations(self):
+        row = {
+            "state_hash": "state",
+            "budget_pair": "384:256",
+            "effective_c_puct": 1.25,
+            "acting_player": 0,
+            "selected_moves": {lane: 1 for lane in LANES},
+            "composition_child_visits": {lane: [1.0] * 6 for lane in LANES},
+        }
+        rejoined, cache = rejoin_trace_contexts([row, {**row, "ply": 1}])
+        self.assertEqual(cache["unique_contexts"], 1)
+        self.assertEqual(
+            rejoined[0]["trace_context_key"], rejoined[1]["trace_context_key"]
         )
 
 
