@@ -1,0 +1,108 @@
+{
+  "schema": "azlite_joint_heads_arena_failure_attribution_v2",
+  "outcome": "no_joint_384_256_regression_reproduced",
+  "stop_rule_applied": true,
+  "stop_reason": "Corrected paired-seed candidate/candidate result was positive, not the PR #164 negative direction; causal stages were not run.",
+  "input_hashes": {
+    "current_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "candidate_weights_sha256": "4dfa06f0301d9daebb3d164275de6d819c92315a578e0810ed422cd8f4d2237c",
+    "replay_sha256": "101eb0a0e421a9ba48c8e05cde77f00ea9a779eb066d0d5a0c4b79c842d6a8f6",
+    "training_manifest_sha256": "1636a37d3665f52c037f959f14e69f78ebf857fba54803dc71c08a7eedafb342",
+    "medium_suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+  },
+  "runtime_profile": {
+    "tactical_root_bias": 0.0,
+    "default_c_puct": 1.25,
+    "c_puct_schedule": {"768:768": 0.9},
+    "root_policy": "deterministic",
+    "normalize_values": false,
+    "workers": 16,
+    "forced_sample_per_component": 128,
+    "bootstrap_samples": 1000
+  },
+  "stage_manifests": {
+    "composition_scores": {
+      "status": "complete_and_hash_verified",
+      "path": "/tmp/azlite_joint_heads_arena_attribution_v2/stages/composition_scores/manifest.json",
+      "sha256": "0f48c211885177aeaf5cd69ffb18842f0e04fd89722b092b38cd3caa1e6626b3",
+      "output_shards": 48,
+      "all_output_hashes_verified": true
+    },
+    "trace_384": {"status": "not_run_stop_rule"},
+    "coverage": {"status": "not_run_stop_rule"},
+    "forced": {"status": "not_run_stop_rule"},
+    "classify": {"status": "not_run_stop_rule"}
+  },
+  "composition_scores": {
+    "384:256": {
+      "current_policy_current_value": [0.609375, 0.59375, 0.015625],
+      "candidate_policy_current_value": [0.6640625, 0.59375, 0.0703125],
+      "current_policy_candidate_value": [0.63671875, 0.59765625, 0.0390625],
+      "candidate_policy_candidate_value": [0.60546875, 0.5546875, 0.05078125]
+    },
+    "768:256": {
+      "current_policy_current_value": [0.78515625, 0.7578125, 0.02734375],
+      "candidate_policy_current_value": [0.765625, 0.79296875, -0.02734375],
+      "current_policy_candidate_value": [0.8125, 0.77734375, 0.03515625],
+      "candidate_policy_candidate_value": [0.79296875, 0.76171875, 0.03125]
+    },
+    "768:768": {
+      "current_policy_current_value": [0.5234375, 0.4765625, 0.046875],
+      "candidate_policy_current_value": [0.546875, 0.42578125, 0.12109375],
+      "current_policy_candidate_value": [0.546875, 0.49609375, 0.05078125],
+      "candidate_policy_candidate_value": [0.515625, 0.49609375, 0.01953125]
+    },
+    "1200:1200": {
+      "current_policy_current_value": [0.5390625, 0.4609375, 0.078125],
+      "candidate_policy_current_value": [0.51953125, 0.43359375, 0.0859375],
+      "current_policy_candidate_value": [0.58984375, 0.48046875, 0.109375],
+      "candidate_policy_candidate_value": [0.56640625, 0.49609375, 0.0703125]
+    },
+    "1200:256": {
+      "current_policy_current_value": [0.85546875, 0.875, -0.01953125],
+      "candidate_policy_current_value": [0.859375, 0.87109375, -0.01171875],
+      "current_policy_candidate_value": [0.875, 0.84765625, 0.02734375],
+      "candidate_policy_candidate_value": [0.8671875, 0.84765625, 0.01953125]
+    },
+    "256:768": {
+      "current_policy_current_value": [0.2421875, 0.21484375, 0.02734375],
+      "candidate_policy_current_value": [0.24609375, 0.21875, 0.02734375],
+      "current_policy_candidate_value": [0.2578125, 0.16796875, 0.08984375],
+      "candidate_policy_candidate_value": [0.24609375, 0.171875, 0.07421875]
+    }
+  },
+  "composition_score_fields": ["p0_score", "p1_score", "raw_ds"],
+  "signed_attribution": {
+    "384:256": [0.0546875, 0.0234375, -0.04296875, 0.03515625],
+    "768:256": [-0.0546875, 0.0078125, 0.05078125, 0.00390625],
+    "768:768": [0.07421875, 0.00390625, -0.10546875, -0.02734375],
+    "1200:1200": [0.0078125, 0.03125, -0.046875, -0.0078125],
+    "1200:256": [0.0078125, 0.046875, -0.015625, 0.0390625],
+    "256:768": [0.0, 0.0625, -0.015625, 0.046875]
+  },
+  "signed_attribution_fields": ["policy_only_delta", "value_only_delta", "interaction_residual", "joint_delta"],
+  "reproduction": {
+    "pr164_384_256_candidate_minus_current_ds": -0.03125,
+    "corrected_paired_seed_384_256_candidate_minus_current_ds": 0.03515625,
+    "direction_reproduced": false,
+    "current_current_raw_ds": 0.015625,
+    "serial_parallel_subset_score_shards_identical": true
+  },
+  "unavailable_after_stop": {
+    "trace_cache_counts": null,
+    "replay_coverage": null,
+    "distance_harm_evidence": null,
+    "neutral_forced_outcomes": null,
+    "context_matched_forced_outcomes": null
+  },
+  "classification_evidence": [
+    {
+      "criterion": "Primary joint 384:256 regression reproduces PR #164 negative direction",
+      "required_threshold": "candidate/current delta < 0 and equal PR #164 within deterministic tolerance",
+      "observed_value": 0.03515625,
+      "pass": false,
+      "supporting_output_sha256": "0f48c211885177aeaf5cd69ffb18842f0e04fd89722b092b38cd3caa1e6626b3"
+    }
+  ],
+  "final_recommendation": "Do not run causal attribution or propose a head/replay intervention. Explain the pre-fix versus paired-seed composition discrepancy before any follow-up."
+}
