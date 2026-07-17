@@ -27,6 +27,7 @@ from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
     resolve_budget_cpuct,
     schedule_definition,
 )
+from ml.alphazero_lite.evaluation_seed_contract import SEED_CONTRACT_VERSION  # noqa: E402
 
 
 def _find_python() -> str:
@@ -66,6 +67,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--games", type=int, default=120, help="Games per arena run")
     parser.add_argument("--seed", type=int, default=42, help="Base random seed")
+    parser.add_argument("--base-seed", type=int, default=None)
+    parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
+    parser.add_argument("--seed-ledger-output", default=None)
     parser.add_argument(
         "--workers", type=int, default=1, help="Number of worker processes"
     )
@@ -157,6 +161,8 @@ def run_arena(
     current_root_prior_transform: str | None = None,
     challenger_blend_current: bool = False,
     challenger_value_alpha: float = 1.0,
+    seed_contract: str = SEED_CONTRACT_VERSION,
+    seed_ledger_output: str | None = None,
     timeout: int = 3600,
 ) -> dict:
     python = _find_python()
@@ -175,6 +181,10 @@ def run_arena(
         str(games),
         "--seed",
         str(seed),
+        "--base-seed",
+        str(seed),
+        "--seed-contract",
+        seed_contract,
         "--workers",
         str(workers),
         "--c-puct",
@@ -190,6 +200,8 @@ def run_arena(
         "--root-temperature",
         str(root_temperature),
     ]
+    if seed_ledger_output is not None:
+        cmd.extend(["--seed-ledger-output", seed_ledger_output])
     if tactical_root_bias is not None:
         cmd.extend(["--tactical-root-bias", str(tactical_root_bias)])
     if value_trust_enabled:
@@ -337,6 +349,8 @@ def run_seat_aware_evaluation(
                         f"{chall_sims}:{curr_sims}", args.challenger_value_alpha
                     )
                 ),
+                seed_contract=args.seed_contract,
+                seed_ledger_output=str(pair_dir / "alternating_seed_ledger.jsonl"),
             )
         except RuntimeError as e:
             print(f"  FAILED alternating: {e}", flush=True)
@@ -418,6 +432,8 @@ def run_seat_aware_evaluation(
                             f"{chall_sims}:{curr_sims}", args.challenger_value_alpha
                         )
                     ),
+                    seed_contract=args.seed_contract,
+                    seed_ledger_output=str(ss_dir / "seed_ledger.jsonl"),
                 )
             except RuntimeError as e:
                 print(f"  FAILED forced starts={forced_starts}: {e}", flush=True)
@@ -449,6 +465,8 @@ def run_seat_aware_evaluation(
     )
     report["c_puct"] = float(args.c_puct)
     report["c_puct_schedule"] = schedule_manifest
+    report["seed_contract"] = args.seed_contract
+    report["base_seed"] = args.seed
 
     print(f"\nClassification: {report['classification']}")
     print(f"Standard alternating score: {report['standard_alternating_score']:.4f}")
@@ -462,6 +480,10 @@ def run_seat_aware_evaluation(
 
 def main() -> int:
     args = parse_args()
+    if args.seed_contract != SEED_CONTRACT_VERSION:
+        raise SystemExit(f"only {SEED_CONTRACT_VERSION} is supported")
+    if args.base_seed is not None:
+        args.seed = args.base_seed
     report = run_seat_aware_evaluation(args)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")

@@ -32,6 +32,7 @@ from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
     resolve_budget_cpuct,
     schedule_definition,
 )
+from ml.alphazero_lite.evaluation_seed_contract import SEED_CONTRACT_VERSION  # noqa: E402
 
 
 def default_eval_tactical_root_bias() -> float:
@@ -100,6 +101,8 @@ def run_arena(
     current_value_transform_json: str | None = None,
     challenger_blend_current: bool = False,
     challenger_value_alpha: float = 1.0,
+    seed_contract: str = SEED_CONTRACT_VERSION,
+    seed_ledger_output: str | None = None,
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -118,6 +121,10 @@ def run_arena(
         str(games),
         "--seed",
         str(seed),
+        "--base-seed",
+        str(seed),
+        "--seed-contract",
+        seed_contract,
         "--workers",
         str(workers),
         "--min-score",
@@ -139,6 +146,8 @@ def run_arena(
         "--c-puct",
         str(c_puct),
     ]
+    if seed_ledger_output is not None:
+        cmd.extend(["--seed-ledger-output", seed_ledger_output])
     if normalize_values:
         cmd.append("--normalize-values")
     if tactical_root_bias is not None:
@@ -214,6 +223,7 @@ def budget_cache_context(
     c_puct_schedule: dict[str, float],
     tactical_root_bias: float,
     seed: int,
+    seed_contract: str,
 ) -> dict[str, Any]:
     return {
         "suite_path": suite_path,
@@ -234,6 +244,7 @@ def budget_cache_context(
         "c_puct_schedule": c_puct_schedule,
         "tactical_root_bias": tactical_root_bias,
         "seed": seed,
+        "seed_contract": seed_contract,
     }
 
 
@@ -467,6 +478,9 @@ def parse_args() -> argparse.Namespace:
         help="Games per opening prefix (must be ≥2 for seat splits).",
     )
     parser.add_argument("--seed", type=int, default=42, help="Base random seed.")
+    parser.add_argument("--base-seed", type=int, default=None)
+    parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
+    parser.add_argument("--seed-ledger-output", default=None)
     parser.add_argument(
         "--root-policy-mode",
         choices=("deterministic", "visit_count"),
@@ -505,6 +519,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.seed_contract != SEED_CONTRACT_VERSION:
+        raise ValueError(f"only {SEED_CONTRACT_VERSION} is supported")
+    if args.base_seed is not None:
+        args.seed = args.base_seed
     workdir = Path(args.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
 
@@ -610,6 +628,7 @@ def main() -> int:
                         c_puct_schedule=schedule_manifest["overrides"],
                         tactical_root_bias=effective_tactical_root_bias,
                         seed=arena_seed,
+                        seed_contract=args.seed_contract,
                     )
                     metrics_path = budget_dir / "metrics.json"
                     if metrics_path.is_file():
@@ -688,6 +707,8 @@ def main() -> int:
                                 normalize_values=bool(args.normalize_values),
                                 c_puct=effective_c_puct,
                                 tactical_root_bias=effective_tactical_root_bias,
+                                seed_contract=args.seed_contract,
+                                seed_ledger_output=str(seat_dir / "seed_ledger.jsonl"),
                                 timeout=args.timeout,
                             )
                             elapsed = time.time() - t0
@@ -833,6 +854,8 @@ def main() -> int:
             "suite_sha256": suite_sha,
             "suite_size": suite_size,
             "current_sha256": current_sha,
+            "seed_contract": args.seed_contract,
+            "base_seed": args.seed,
             "c_puct": float(args.c_puct),
             "c_puct_schedule": schedule_manifest,
             "root_policy_mode": args.root_policy_mode,

@@ -5,6 +5,7 @@ from ml.alphazero_lite.evaluation_seed_contract import (
     SEED_IDENTITY_FIELDS,
     derive_search_seed,
     stable_hash,
+    search_seed_context,
 )
 
 
@@ -50,3 +51,10 @@ class EvaluationSeedContractTests(unittest.TestCase):
     def test_hash_is_canonical_and_cryptographic_shape(self):
         self.assertEqual(stable_hash({"b": 2, "a": 1}), stable_hash({"a": 1, "b": 2}))
         self.assertEqual(64, len(stable_hash(SEED_CONTRACT_VERSION)))
+
+    def test_canonical_serialization_has_no_model_identifier(self):
+        context = search_seed_context(**self.context())
+        serialized = str(context)
+        self.assertNotIn("artifact", serialized)
+        self.assertNotIn("candidate", serialized)
+        self.assertNotIn("composition", serialized)

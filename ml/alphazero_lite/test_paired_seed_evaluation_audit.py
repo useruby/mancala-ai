@@ -20,7 +20,7 @@ class PairedSeedEvaluationAuditTests(unittest.TestCase):
         self.assertEqual(0.9, effective_cpuct("768:768", 1.25, {"768:768": 0.9}))
         self.assertEqual(1.25, effective_cpuct("384:256", 1.25, {"768:768": 0.9}))
 
-    def test_compliance_identifies_standard_arena_defect(self):
+    def test_compliance_marks_standard_arena_as_canonical(self):
         table = {row["path"]: row["status"] for row in compliance_table()}
-        self.assertIn("non-compliant", table["arena.py"])
+        self.assertEqual("compliant: per-search v1 seed context", table["arena.py"])
         self.assertEqual("compliant", table["run_paired_seed_evaluation_audit.py"])

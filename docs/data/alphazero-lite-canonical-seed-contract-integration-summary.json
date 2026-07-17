@@ -1,0 +1,13 @@
+{
+  "schema": "azlite_canonical_seed_contract_integration_v1",
+  "classification": "evaluation_contract_promoted_candidate_rejected",
+  "contract_version": "azlite_eval_seed_v1",
+  "serialization_schema": ["contract_version", "base_seed", "suite_sha256", "budget_pair", "opening_index", "opening_state_hash", "challenger_player", "game_within_opening", "ply", "canonical_current_state_hash", "acting_role", "simulations", "effective_c_puct"],
+  "runtime_profile": {"default_c_puct": 1.25, "c_puct_schedule": {"768:768": 0.9}, "tactical_root_bias": 0.0, "root_policy_mode": "deterministic", "normalize_values": false},
+  "seed_ledger": {"base_seed": 42, "sha256": "3efb17739dbef1a8c33aff0c865c4af8246b276241a10fd516345dcd0602adfb", "path": "/tmp/azlite_canonical_seed_contract_integration/seed42/seed_ledger.jsonl"},
+  "medium": {"unique_openings": 128, "duplicate_current_delta": 0.0, "candidate_minus_current_ds": {"384:256": {"mean": 0.03515625, "lower_95": -0.05078125, "upper_95": 0.12119140624999858, "positive": 23, "zero": 86, "negative": 19}, "768:768": {"mean": -0.02734375}, "1200:1200": {"mean": -0.0078125}, "1200:256": {"mean": 0.0390625}}},
+  "fixed_large": {"status": "not_run", "reason": "medium 384:256 opening-bootstrap lower bound is not positive"},
+  "heldout_and_gate": {"status": "not_run", "reason": "fixed-large was not eligible"},
+  "invariance_tests": {"same_base_seed_reproduces_ledger": true, "different_base_seed_changes_ledger": true, "model_identity_excluded": true, "duplicate_current_null": true, "worker_and_cache_invariance": "covered by canonical per-search seed implementation and targeted tests"},
+  "historical_recheck_list": ["PR #164 deterministic joint-head medium result", "PR #168 composition result", "search-calibration runners", "value-transform/value-blend runners"]
+}
