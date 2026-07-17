@@ -24,6 +24,19 @@ except ModuleNotFoundError:
     from report_validation import wilson_interval_95
 
 try:
+    from ml.alphazero_lite.evaluation_seed_contract import (
+        SEED_CONTRACT_VERSION,
+        derive_search_seed,
+        stable_hash,
+    )
+except ModuleNotFoundError:
+    from evaluation_seed_contract import (
+        SEED_CONTRACT_VERSION,
+        derive_search_seed,
+        stable_hash,
+    )
+
+try:
     from ml.alphazero_lite.value_transforms import (
         normalize_value_transform_config,
         parse_value_transform_json,
@@ -144,6 +157,9 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--challenger-simulations", type=int, default=384)
     parser.add_argument("--current-simulations", type=int, default=256)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--base-seed", type=int, default=None)
+    parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
+    parser.add_argument("--seed-ledger-output", default=None)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--min-score", type=float, default=0.55)
     parser.add_argument("--max-moves", type=int, default=200)
@@ -280,6 +296,10 @@ def attach_score_confidence_interval(report: dict, *, threshold: float) -> None:
 
 def run_stub_main(argv: list[str] | None = None) -> int:
     args = parse_stub_args(argv)
+    if args.seed_contract != SEED_CONTRACT_VERSION:
+        raise ValueError(f"only {SEED_CONTRACT_VERSION} is supported")
+    if args.base_seed is not None:
+        args.seed = args.base_seed
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     search_options = search_options_from_stub_args(args)
@@ -303,6 +323,8 @@ def run_stub_main(argv: list[str] | None = None) -> int:
             "challenger_simulations": int(args.challenger_simulations),
             "current_simulations": int(args.current_simulations),
             "seed": int(args.seed),
+            "seed_contract": SEED_CONTRACT_VERSION,
+            "base_seed": int(args.seed),
             "workers_requested": 1,
             "workers_used": 1,
             "worker_game_counts": [int(args.games)],
@@ -382,6 +404,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--challenger-simulations", type=int, default=384)
     parser.add_argument("--current-simulations", type=int, default=256)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--base-seed", type=int, default=None)
+    parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
+    parser.add_argument("--seed-ledger-output", default=None)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--min-score", type=float, default=0.55)
     parser.add_argument("--max-moves", type=int, default=200)
@@ -542,6 +567,14 @@ def apply_opening_moves(game: KalahGame, moves: list[int]) -> int:
             break
         applied += 1
     return applied
+
+
+def canonical_game_state_hash(game: KalahGame) -> str:
+    """Hash an evaluation state without relying on object identity."""
+    if hasattr(game, "to_state"):
+        return stable_hash(game.to_state())
+    # Lightweight test games retain state in instance attributes.
+    return stable_hash(vars(game))
 
 
 class ArtifactEvaluator:
@@ -1535,7 +1568,6 @@ def run_arena_worker(
     opening_cache=None,
     opening_cache_path: str | None = None,
 ) -> dict:
-    rng = np.random.default_rng(seed + worker_id)
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
         BlendedArtifactEvaluator(
@@ -1696,6 +1728,17 @@ def run_arena_worker(
         if illegal_prefix_count > 0:
             opening_prefix_cache = None
 
+    # The suite identity is data-derived, never a path or model identifier.
+    suite_sha256 = stable_hash(
+        opening_prefix_cache
+        if opening_prefix_cache is not None
+        else {
+            "random_opening_plies": int(random_opening_plies),
+            "opening_seed": effective_opening_seed,
+        }
+    )
+    search_ledger: list[dict] = []
+
     for local_index in range(games):
         game_index = start_index + local_index
         game = KalahGame.from_state(
@@ -1729,12 +1772,13 @@ def run_arena_worker(
                 opening_plies=int(random_opening_plies),
             )
             opening_prefix_plies_applied.append(applied)
+        opening_state_hash = canonical_game_state_hash(game)
         reusable_roots = {
             0: None,
             1: None,
         }
         challenger_phase_buckets_seen: set[str] = set()
-        ply = 0
+        ply = applied
         first_move_challenger: int | None = None
         first_move_current: int | None = None
         game_moves: list[int] = []
@@ -1753,10 +1797,33 @@ def run_arena_worker(
             if game.current_player == challenger_player:
                 evaluator = challenger
                 sims = challenger_simulations
+                acting_role = "challenger"
             else:
                 evaluator = current
                 sims = current_simulations
+                acting_role = "current"
             acting_player = game.current_player
+            effective_c_puct = (
+                float(challenger_c_puct)
+                if acting_player == challenger_player and challenger_c_puct is not None
+                else float(current_c_puct)
+                if acting_player != challenger_player and current_c_puct is not None
+                else float(c_puct)
+            )
+            derived_search_seed, seed_context_hash = derive_search_seed(
+                base_seed=seed,
+                suite_sha256=suite_sha256,
+                budget_pair=f"{challenger_simulations}:{current_simulations}",
+                opening_index=game_index // max(1, int(games_per_opening)),
+                opening_state_hash=opening_state_hash,
+                challenger_player=challenger_player,
+                game_within_opening=challenger_player,
+                ply=ply,
+                canonical_current_state_hash=canonical_game_state_hash(game),
+                acting_role=acting_role,
+                simulations=sims,
+                effective_c_puct=effective_c_puct,
+            )
 
             cached_move: int | None = None
             lookup_duration_ms = 0.0
@@ -1812,16 +1879,8 @@ def run_arena_worker(
                 search = PUCT(
                     evaluator=evaluator,
                     simulations=sims,
-                    c_puct=(
-                        float(challenger_c_puct)
-                        if acting_player == challenger_player
-                        and challenger_c_puct is not None
-                        else float(current_c_puct)
-                        if acting_player != challenger_player
-                        and current_c_puct is not None
-                        else c_puct
-                    ),
-                    rng=random.Random(int(rng.integers(0, 2**31 - 1))),
+                    c_puct=effective_c_puct,
+                    rng=random.Random(derived_search_seed),
                     root=reusable_roots[acting_player],
                     fpu_mode=str(acting_search_options["fpu_mode"]),
                     reuse_subtree=bool(acting_search_options["reuse_subtree"]),
@@ -1889,6 +1948,30 @@ def run_arena_worker(
             else:
                 root = None
                 move = cached_move
+            search_ledger.append(
+                {
+                    "seed_contract": SEED_CONTRACT_VERSION,
+                    "base_seed": seed,
+                    "seed_context_hash": seed_context_hash,
+                    "derived_search_seed": derived_search_seed,
+                    "suite_sha256": suite_sha256,
+                    "budget_pair": f"{challenger_simulations}:{current_simulations}",
+                    "opening_index": game_index // max(1, int(games_per_opening)),
+                    "opening_state_hash": opening_state_hash,
+                    "challenger_player": challenger_player,
+                    "game_within_opening": challenger_player,
+                    "game_index": game_index,
+                    "ply": ply,
+                    "canonical_current_state_hash": canonical_game_state_hash(game),
+                    "acting_role": acting_role,
+                    "simulations": sims,
+                    "effective_c_puct": effective_c_puct,
+                    "cache_hit": cached_move is not None,
+                    "search_executed": cached_move is None,
+                    "selected_move": int(move),
+                    "evaluation_profile_hash": search_profile["hash"],
+                }
+            )
             relative_move = game.pit_index(move)
             game_moves.append(relative_move)
             if acting_player == challenger_player and first_move_challenger is None:
@@ -1976,11 +2059,18 @@ def run_arena_worker(
                 current_root_prior_telemetry_entries
             ),
         },
+        "seed_contract": SEED_CONTRACT_VERSION,
+        "suite_sha256": suite_sha256,
+        "search_ledger": search_ledger,
     }
 
 
 def main() -> None:
     args = parse_args()
+    if args.seed_contract != SEED_CONTRACT_VERSION:
+        raise SystemExit(f"only {SEED_CONTRACT_VERSION} is supported")
+    if args.base_seed is not None:
+        args.seed = args.base_seed
     training_summary = load_training_summary(args.opening_cache_training_summary)
 
     if args.root_prior_transform is not None:
@@ -2238,6 +2328,33 @@ def main() -> None:
         search_options=search_options,
         results=results,
         training_summary=training_summary,
+    )
+    ordered_ledger = sorted(
+        (row for result in results for row in result.get("search_ledger", [])),
+        key=lambda row: (
+            int(row["game_index"]),
+            int(row["ply"]),
+            str(row["acting_role"]),
+            str(row["seed_context_hash"]),
+        ),
+    )
+    ledger_hash = stable_hash(ordered_ledger)
+    if args.seed_ledger_output:
+        ledger_path = Path(args.seed_ledger_output)
+        ledger_path.parent.mkdir(parents=True, exist_ok=True)
+        ledger_path.write_text(
+            "".join(json.dumps(row, sort_keys=True) + "\n" for row in ordered_ledger),
+            encoding="utf-8",
+        )
+    report["notes"].update(
+        {
+            "seed_contract": SEED_CONTRACT_VERSION,
+            "base_seed": int(args.seed),
+            "suite_sha256": results[0].get("suite_sha256") if results else None,
+            "seed_ledger_hash": ledger_hash,
+            "seed_ledger_records": len(ordered_ledger),
+            "seed_ledger_output": args.seed_ledger_output,
+        }
     )
 
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

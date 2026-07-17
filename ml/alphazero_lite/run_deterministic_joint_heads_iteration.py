@@ -42,6 +42,7 @@ from ml.alphazero_lite.run_current_init_policy_only_distillation_preflight impor
     evaluate_raw_outputs,
 )
 from ml.alphazero_lite.cpuct_schedule import parse_cpuct_schedule_json  # noqa: E402
+from ml.alphazero_lite.evaluation_seed_contract import SEED_CONTRACT_VERSION  # noqa: E402
 from ml.alphazero_lite.run_control_ep2_puct_head_preflight import (  # noqa: E402
     benchmark_budget_results,
     bootstrap_ci,
@@ -780,6 +781,8 @@ def suite_evaluation(
         seed=seed,
         workers=workers,
         timeout=14400,
+        seed_contract=SEED_CONTRACT_VERSION,
+        seed_ledger_output=str(workdir / "seed_ledger.jsonl"),
     )
     current_report = find_candidate_report(report, current.name)
     candidate_report = find_candidate_report(report, candidate.name)
@@ -877,6 +880,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--batch-size", type=int, default=512)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--base-seed", type=int, default=None)
+    parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
+    parser.add_argument("--seed-ledger-output", default=None)
     parser.add_argument("--default-c-puct", type=float, default=1.25)
     parser.add_argument("--cpuct-schedule", default='{"768:768":0.90}')
     parser.add_argument("--tactical-root-bias", type=float, default=0.0)
@@ -908,6 +914,10 @@ def markdown(summary: dict[str, Any]) -> str:
 
 def main() -> int:
     args = parse_args()
+    if args.seed_contract != SEED_CONTRACT_VERSION:
+        raise ValueError(f"only {SEED_CONTRACT_VERSION} is supported")
+    if args.base_seed is not None:
+        args.seed = args.base_seed
     workdir = Path(args.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     current, replay, audit = (
@@ -961,6 +971,8 @@ def main() -> int:
         stop_reasons.append("trunk_changed")
     summary = {
         "schema": "azlite_deterministic_joint_heads_iteration_v1",
+        "seed_contract": SEED_CONTRACT_VERSION,
+        "base_seed": args.seed,
         "manifest": manifest,
         "search_probe_manifest": search_probe_manifest,
         "device": str(device),

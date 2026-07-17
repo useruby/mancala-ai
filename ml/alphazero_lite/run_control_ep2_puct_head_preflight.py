@@ -316,6 +316,8 @@ def run_opening_suite_benchmark(
     seed: int,
     workers: int,
     timeout: int,
+    seed_contract: str = "azlite_eval_seed_v1",
+    seed_ledger_output: str | None = None,
 ) -> dict[str, Any]:
     cmd = [
         _python(),
@@ -334,6 +336,10 @@ def run_opening_suite_benchmark(
         str(games_per_opening),
         "--seed",
         str(seed),
+        "--base-seed",
+        str(seed),
+        "--seed-contract",
+        seed_contract,
         "--root-policy-mode",
         "deterministic",
         "--workers",
@@ -341,6 +347,8 @@ def run_opening_suite_benchmark(
         "--timeout",
         str(timeout),
     ]
+    if seed_ledger_output is not None:
+        cmd.extend(["--seed-ledger-output", seed_ledger_output])
     print(f"[suite-eval] {' '.join(cmd)}", flush=True)
     result = subprocess.run(
         cmd,

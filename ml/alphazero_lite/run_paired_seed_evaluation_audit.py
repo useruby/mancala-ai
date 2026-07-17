@@ -225,7 +225,7 @@ def evaluate_suite(
     workers: int = 1,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     openings = read_suite(suite, limit)
-    suite_sha = sha256_file(suite)
+    suite_sha = stable_hash([opening.get("prefix_moves", []) for opening in openings])
     ledger: list[dict[str, Any]] = []
     results: dict[str, Any] = {}
     tasks = [
@@ -273,12 +273,50 @@ def evaluate_suite(
     return results, ledger
 
 
+def paired_opening_bootstrap(values: dict[int, float], seed: int) -> dict[str, Any]:
+    """Estimate uncertainty by resampling paired opening blocks, not seed means."""
+    ordered = sorted(values.items())
+    if not ordered:
+        return {
+            "mean": 0.0,
+            "median": 0.0,
+            "standard_error": 0.0,
+            "lower": 0.0,
+            "upper": 0.0,
+            "unique_openings": 0,
+        }
+    indexes, raw_values = zip(*ordered, strict=True)
+    array = np.asarray(raw_values, dtype=np.float64)
+    rng = np.random.default_rng(seed)
+    samples = array[rng.integers(0, len(array), size=(10_000, len(array)))].mean(axis=1)
+    rows = [
+        {"opening_index": int(index), "paired_delta": float(value)}
+        for index, value in ordered
+    ]
+    ranked_rows = sorted(rows, key=lambda row: row["paired_delta"])
+    return {
+        "mean": float(array.mean()),
+        "median": float(np.median(array)),
+        "standard_error": float(array.std(ddof=1) / np.sqrt(len(array)))
+        if len(array) > 1
+        else 0.0,
+        "lower": float(np.percentile(samples, 2.5)),
+        "upper": float(np.percentile(samples, 97.5)),
+        "unique_openings": len(array),
+        "positive_openings": int(np.count_nonzero(array > 0)),
+        "zero_openings": int(np.count_nonzero(array == 0)),
+        "negative_openings": int(np.count_nonzero(array < 0)),
+        "worst_20_openings": ranked_rows[:20],
+        "best_20_openings": ranked_rows[-20:][::-1],
+    }
+
+
 def bootstrap(values: list[float], seed: int) -> dict[str, float]:
     if not values:
         return {"mean": 0.0, "lower": 0.0, "upper": 0.0}
     array = np.asarray(values, dtype=np.float64)
     rng = np.random.default_rng(seed)
-    samples = array[rng.integers(0, len(array), size=(2000, len(array)))].mean(axis=1)
+    samples = array[rng.integers(0, len(array), size=(10_000, len(array)))].mean(axis=1)
     return {
         "mean": float(array.mean()),
         "lower": float(np.percentile(samples, 2.5)),
@@ -289,14 +327,14 @@ def bootstrap(values: list[float], seed: int) -> dict[str, float]:
 def compliance_table() -> list[dict[str, str]]:
     return [
         {"path": "run_paired_seed_evaluation_audit.py", "status": "compliant"},
-        {"path": "arena.py", "status": "non-compliant: worker-local sequential RNG"},
+        {"path": "arena.py", "status": "compliant: per-search v1 seed context"},
         {
             "path": "run_opening_suite_seat_benchmark.py",
-            "status": "non-compliant: delegates to arena without v1 ledger",
+            "status": "compliant: delegates v1 seed contract to arena",
         },
         {
             "path": "seat_aware_promotion_gate",
-            "status": "non-compliant: delegates to arena without v1 ledger",
+            "status": "compliant: delegates v1 seed contract to arena",
         },
         {
             "path": "run_deterministic_joint_heads_iteration.py",
@@ -431,6 +469,22 @@ def main() -> int:
                 "candidate_minus_current_ds": candidate_result[budget]["ds"]
                 - duplicate_result[budget]["ds"],
                 "duplicate_current_delta": 0.0,
+                "paired_opening_records": [
+                    {
+                        "opening_index": index,
+                        "current_per_opening_ds": duplicate_result[budget][
+                            "per_opening_ds"
+                        ][index],
+                        "candidate_per_opening_ds": candidate_result[budget][
+                            "per_opening_ds"
+                        ][index],
+                        "paired_delta": candidate_result[budget]["per_opening_ds"][
+                            index
+                        ]
+                        - duplicate_result[budget]["per_opening_ds"][index],
+                    }
+                    for index in candidate_result[budget]["per_opening_ds"]
+                ],
                 "per_opening_paired_delta": {
                     str(index): candidate_result[budget]["per_opening_ds"][index]
                     - duplicate_result[budget]["per_opening_ds"][index]
@@ -444,16 +498,25 @@ def main() -> int:
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in ledgers),
         encoding="utf-8",
     )
-    aggregate = {
-        budget: bootstrap(
-            [
+    aggregate = {}
+    for budget in BUDGETS:
+        opening_values = {
+            int(row["opening_index"]): float(row["paired_delta"])
+            for row in per_seed[str(seeds[0])][budget]["paired_opening_records"]
+        }
+        aggregate[budget] = paired_opening_bootstrap(
+            opening_values, stable_seed("opening-bootstrap", budget)
+        )
+        aggregate[budget]["search_seed_sensitivity_range"] = {
+            "minimum": min(
                 per_seed[str(seed)][budget]["candidate_minus_current_ds"]
                 for seed in seeds
-            ],
-            stable_seed("bootstrap", budget),
-        )
-        for budget in BUDGETS
-    }
+            ),
+            "maximum": max(
+                per_seed[str(seed)][budget]["candidate_minus_current_ds"]
+                for seed in seeds
+            ),
+        }
     primary = aggregate["384:256"]
     medium_pass = (
         primary["mean"] >= 0.03
@@ -500,15 +563,39 @@ def main() -> int:
                 workers=args.workers,
             )
             fixed_per_seed[str(seed)] = {
-                budget: candidate_result[budget]["ds"] - duplicate_result[budget]["ds"]
+                budget: {
+                    "candidate_minus_current_ds": candidate_result[budget]["ds"]
+                    - duplicate_result[budget]["ds"],
+                    "paired_opening_records": [
+                        {
+                            "opening_index": index,
+                            "current_per_opening_ds": duplicate_result[budget][
+                                "per_opening_ds"
+                            ][index],
+                            "candidate_per_opening_ds": candidate_result[budget][
+                                "per_opening_ds"
+                            ][index],
+                            "paired_delta": candidate_result[budget]["per_opening_ds"][
+                                index
+                            ]
+                            - duplicate_result[budget]["per_opening_ds"][index],
+                        }
+                        for index in candidate_result[budget]["per_opening_ds"]
+                    ],
+                }
                 for budget in BUDGETS
             }
             ledgers.extend(candidate_ledger + duplicate_ledger)
     fixed_aggregate = (
         {
-            budget: bootstrap(
-                [fixed_per_seed[str(seed)][budget] for seed in seeds[:4]],
-                stable_seed("fixed-bootstrap", budget),
+            budget: paired_opening_bootstrap(
+                {
+                    int(row["opening_index"]): float(row["paired_delta"])
+                    for row in fixed_per_seed[str(seeds[0])][budget][
+                        "paired_opening_records"
+                    ]
+                },
+                stable_seed("fixed-opening-bootstrap", budget),
             )
             for budget in BUDGETS
         }
@@ -525,9 +612,9 @@ def main() -> int:
         )
     )
     classification = (
-        "joint_heads_candidate_reopened"
+        "evaluation_contract_promoted_candidate_reopened"
         if fixed_pass
-        else "evaluation_contract_fixed_candidate_not_ready"
+        else "evaluation_contract_promoted_candidate_rejected"
     )
     summary = {
         "schema": "azlite_paired_seed_evaluation_audit_v1",

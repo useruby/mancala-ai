@@ -26,6 +26,11 @@ from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
     parse_cpuct_schedule_json,
     resolve_budget_cpuct,
 )
+from ml.alphazero_lite.evaluation_seed_contract import (  # noqa: E402
+    SEED_CONTRACT_VERSION,
+    derive_search_seed,
+    stable_hash,
+)
 from ml.alphazero_lite.kalah_rules import KalahGame  # noqa: E402
 from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (  # noqa: E402
     canonical_manifest_hash,
@@ -301,13 +306,24 @@ def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, A
             break
         acting_challenger = game.current_player == challenger_player
         simulations = challenger_sims if acting_challenger else current_sims
-        seed = stable_seed(
-            payload["seed"],
-            payload["budget_pair"],
-            payload["opening_index"],
-            challenger_player,
-            ply,
-            state,
+        acting_role = "challenger" if acting_challenger else "current"
+        seed, seed_context_hash = derive_search_seed(
+            base_seed=payload["seed"],
+            suite_sha256=payload.get(
+                "suite_sha256", stable_hash([opening.get("state")])
+            ),
+            budget_pair=payload["budget_pair"],
+            opening_index=payload["opening_index"],
+            opening_state_hash=payload.get(
+                "opening_state_hash", stable_hash(opening["state"])
+            ),
+            challenger_player=challenger_player,
+            game_within_opening=challenger_player,
+            ply=ply,
+            canonical_current_state_hash=stable_hash(state),
+            acting_role=acting_role,
+            simulations=simulations,
+            effective_c_puct=c_puct,
         )
         selected = search(
             evaluators[lane]
@@ -328,6 +344,8 @@ def play_unit(payload: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, A
                     "incumbent_simulations": current_sims,
                     "effective_c_puct": c_puct,
                     "search_seed": seed,
+                    "seed_contract": SEED_CONTRACT_VERSION,
+                    "seed_context_hash": seed_context_hash,
                     "challenger_player": challenger_player,
                     "acting_player": game.current_player,
                     "composition_trajectory_source": lane,
@@ -371,6 +389,9 @@ def run_budget(
     trace: bool,
 ) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
     challenger_sims, current_sims = map(int, label.split(":"))
+    suite_sha256 = stable_hash(
+        [opening.get("prefix_moves", opening.get("state")) for opening in openings]
+    )
     units = [
         {
             "current": str(current),
@@ -384,6 +405,8 @@ def run_budget(
             "budget_pair": label,
             "c_puct": c_puct,
             "seed": seed,
+            "suite_sha256": suite_sha256,
+            "opening_state_hash": stable_hash(opening["state"]),
             "trace": trace,
         }
         for i, opening in enumerate(openings)
