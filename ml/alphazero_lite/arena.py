@@ -160,6 +160,7 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--base-seed", type=int, default=None)
     parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
     parser.add_argument("--seed-ledger-output", default=None)
+    parser.add_argument("--search-outcome-ledger-output", default=None)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--min-score", type=float, default=0.55)
     parser.add_argument("--max-moves", type=int, default=200)
@@ -407,6 +408,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-seed", type=int, default=None)
     parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
     parser.add_argument("--seed-ledger-output", default=None)
+    parser.add_argument("--search-outcome-ledger-output", default=None)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--min-score", type=float, default=0.55)
     parser.add_argument("--max-moves", type=int, default=200)
@@ -1737,7 +1739,8 @@ def run_arena_worker(
             "opening_seed": effective_opening_seed,
         }
     )
-    search_ledger: list[dict] = []
+    seed_identity_ledger: list[dict] = []
+    search_outcome_ledger: list[dict] = []
 
     for local_index in range(games):
         game_index = start_index + local_index
@@ -1817,7 +1820,7 @@ def run_arena_worker(
                 opening_index=game_index // max(1, int(games_per_opening)),
                 opening_state_hash=opening_state_hash,
                 challenger_player=challenger_player,
-                game_within_opening=challenger_player,
+                game_within_opening=game_index % max(1, int(games_per_opening)),
                 ply=ply,
                 canonical_current_state_hash=canonical_game_state_hash(game),
                 acting_role=acting_role,
@@ -1948,9 +1951,9 @@ def run_arena_worker(
             else:
                 root = None
                 move = cached_move
-            search_ledger.append(
+            seed_identity_ledger.append(
                 {
-                    "seed_contract": SEED_CONTRACT_VERSION,
+                    "contract_version": SEED_CONTRACT_VERSION,
                     "base_seed": seed,
                     "seed_context_hash": seed_context_hash,
                     "derived_search_seed": derived_search_seed,
@@ -1959,16 +1962,26 @@ def run_arena_worker(
                     "opening_index": game_index // max(1, int(games_per_opening)),
                     "opening_state_hash": opening_state_hash,
                     "challenger_player": challenger_player,
-                    "game_within_opening": challenger_player,
-                    "game_index": game_index,
+                    "game_within_opening": game_index % max(1, int(games_per_opening)),
                     "ply": ply,
                     "canonical_current_state_hash": canonical_game_state_hash(game),
                     "acting_role": acting_role,
                     "simulations": sims,
                     "effective_c_puct": effective_c_puct,
+                }
+            )
+            search_outcome_ledger.append(
+                {
+                    "seed_context_hash": seed_context_hash,
+                    "game_index": game_index,
+                    "ply": ply,
+                    "acting_role": acting_role,
+                    "selected_move": int(move),
+                    "visit_hash": stable_hash(
+                        visits.tolist() if cached_move is None else []
+                    ),
                     "cache_hit": cached_move is not None,
                     "search_executed": cached_move is None,
-                    "selected_move": int(move),
                     "evaluation_profile_hash": search_profile["hash"],
                 }
             )
@@ -2061,7 +2074,8 @@ def run_arena_worker(
         },
         "seed_contract": SEED_CONTRACT_VERSION,
         "suite_sha256": suite_sha256,
-        "search_ledger": search_ledger,
+        "seed_identity_ledger": seed_identity_ledger,
+        "search_outcome_ledger": search_outcome_ledger,
     }
 
 
@@ -2329,8 +2343,18 @@ def main() -> None:
         results=results,
         training_summary=training_summary,
     )
-    ordered_ledger = sorted(
-        (row for result in results for row in result.get("search_ledger", [])),
+    ordered_seed_identity_ledger = sorted(
+        (row for result in results for row in result.get("seed_identity_ledger", [])),
+        key=lambda row: (
+            int(row["opening_index"]),
+            int(row["game_within_opening"]),
+            int(row["ply"]),
+            str(row["acting_role"]),
+            str(row["seed_context_hash"]),
+        ),
+    )
+    ordered_search_outcome_ledger = sorted(
+        (row for result in results for row in result.get("search_outcome_ledger", [])),
         key=lambda row: (
             int(row["game_index"]),
             int(row["ply"]),
@@ -2338,12 +2362,26 @@ def main() -> None:
             str(row["seed_context_hash"]),
         ),
     )
-    ledger_hash = stable_hash(ordered_ledger)
+    seed_identity_ledger_hash = stable_hash(ordered_seed_identity_ledger)
+    search_outcome_ledger_hash = stable_hash(ordered_search_outcome_ledger)
     if args.seed_ledger_output:
         ledger_path = Path(args.seed_ledger_output)
         ledger_path.parent.mkdir(parents=True, exist_ok=True)
         ledger_path.write_text(
-            "".join(json.dumps(row, sort_keys=True) + "\n" for row in ordered_ledger),
+            "".join(
+                json.dumps(row, sort_keys=True) + "\n"
+                for row in ordered_seed_identity_ledger
+            ),
+            encoding="utf-8",
+        )
+    if args.search_outcome_ledger_output:
+        outcome_path = Path(args.search_outcome_ledger_output)
+        outcome_path.parent.mkdir(parents=True, exist_ok=True)
+        outcome_path.write_text(
+            "".join(
+                json.dumps(row, sort_keys=True) + "\n"
+                for row in ordered_search_outcome_ledger
+            ),
             encoding="utf-8",
         )
     report["notes"].update(
@@ -2351,9 +2389,13 @@ def main() -> None:
             "seed_contract": SEED_CONTRACT_VERSION,
             "base_seed": int(args.seed),
             "suite_sha256": results[0].get("suite_sha256") if results else None,
-            "seed_ledger_hash": ledger_hash,
-            "seed_ledger_records": len(ordered_ledger),
+            "seed_identity_ledger_sha256": seed_identity_ledger_hash,
+            "search_outcome_ledger_sha256": search_outcome_ledger_hash,
+            # Retained for callers that predate the split provenance contract.
+            "seed_ledger_hash": seed_identity_ledger_hash,
+            "seed_ledger_records": len(ordered_seed_identity_ledger),
             "seed_ledger_output": args.seed_ledger_output,
+            "search_outcome_ledger_output": args.search_outcome_ledger_output,
         }
     )
 
