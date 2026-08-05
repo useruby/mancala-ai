@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import gzip
+import hashlib
 import json
 import os
 import random
@@ -26,13 +28,17 @@ except ModuleNotFoundError:
 try:
     from ml.alphazero_lite.evaluation_seed_contract import (
         SEED_CONTRACT_VERSION,
+        SUPPORTED_SEED_CONTRACT_VERSIONS,
         derive_search_seed,
+        search_configuration_ledger_record,
         stable_hash,
     )
 except ModuleNotFoundError:
     from evaluation_seed_contract import (
         SEED_CONTRACT_VERSION,
+        SUPPORTED_SEED_CONTRACT_VERSIONS,
         derive_search_seed,
+        search_configuration_ledger_record,
         stable_hash,
     )
 
@@ -160,6 +166,7 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--base-seed", type=int, default=None)
     parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
     parser.add_argument("--seed-ledger-output", default=None)
+    parser.add_argument("--search-configuration-ledger-output", default=None)
     parser.add_argument("--search-outcome-ledger-output", default=None)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--min-score", type=float, default=0.55)
@@ -297,8 +304,8 @@ def attach_score_confidence_interval(report: dict, *, threshold: float) -> None:
 
 def run_stub_main(argv: list[str] | None = None) -> int:
     args = parse_stub_args(argv)
-    if args.seed_contract != SEED_CONTRACT_VERSION:
-        raise ValueError(f"only {SEED_CONTRACT_VERSION} is supported")
+    if args.seed_contract not in SUPPORTED_SEED_CONTRACT_VERSIONS:
+        raise ValueError(f"unsupported seed contract: {args.seed_contract}")
     if args.base_seed is not None:
         args.seed = args.base_seed
     out_path = Path(args.out)
@@ -408,6 +415,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-seed", type=int, default=None)
     parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
     parser.add_argument("--seed-ledger-output", default=None)
+    parser.add_argument("--search-configuration-ledger-output", default=None)
     parser.add_argument("--search-outcome-ledger-output", default=None)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--min-score", type=float, default=0.55)
@@ -463,6 +471,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--challenger-c-puct", type=float, default=None)
     parser.add_argument("--current-c-puct", type=float, default=None)
+    parser.add_argument("--challenger-runtime-profile-hash", default=None)
+    parser.add_argument("--current-runtime-profile-hash", default=None)
     parser.add_argument(
         "--challenger-blend-current",
         action="store_true",
@@ -577,6 +587,31 @@ def canonical_game_state_hash(game: KalahGame) -> str:
         return stable_hash(game.to_state())
     # Lightweight test games retain state in instance attributes.
     return stable_hash(vars(game))
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8192), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def artifact_weights_hash(artifact_dir: str) -> str:
+    """Return the artifact digest, or a path-independent test-stub sentinel."""
+    weights_path = Path(artifact_dir) / "weights.json"
+    return sha256_file(weights_path) if weights_path.is_file() else "unavailable"
+
+
+def write_ledger(path: Path, records: list[dict]) -> None:
+    """Write detailed provenance records, compressing when requested by suffix."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = "".join(json.dumps(record, sort_keys=True) + "\n" for record in records)
+    if path.suffix == ".gz":
+        with gzip.open(path, "wt", encoding="utf-8") as handle:
+            handle.write(payload)
+    else:
+        path.write_text(payload, encoding="utf-8")
 
 
 class ArtifactEvaluator:
@@ -1554,6 +1589,8 @@ def run_arena_worker(
     current_search_options: dict | None = None,
     challenger_c_puct: float | None = None,
     current_c_puct: float | None = None,
+    challenger_runtime_profile_hash: str | None = None,
+    current_runtime_profile_hash: str | None = None,
     value_transform: dict | None = None,
     challenger_value_transform: dict | None = None,
     current_value_transform: dict | None = None,
@@ -1569,6 +1606,7 @@ def run_arena_worker(
     game_jsonl_path: str | None = None,
     opening_cache=None,
     opening_cache_path: str | None = None,
+    seed_contract: str = SEED_CONTRACT_VERSION,
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1580,6 +1618,8 @@ def run_arena_worker(
         if challenger_blend_current
         else ArtifactEvaluator(Path(challenger_path))
     )
+    challenger_artifact_hash = artifact_weights_hash(challenger_path)
+    current_artifact_hash = artifact_weights_hash(current_path)
     if opening_cache is None and opening_cache_path:
         opening_cache = load_opening_cache_artifact(opening_cache_path)
 
@@ -1740,6 +1780,7 @@ def run_arena_worker(
         }
     )
     seed_identity_ledger: list[dict] = []
+    search_configuration_ledger: list[dict] = []
     search_outcome_ledger: list[dict] = []
 
     for local_index in range(games):
@@ -1814,6 +1855,7 @@ def run_arena_worker(
                 else float(c_puct)
             )
             derived_search_seed, seed_context_hash = derive_search_seed(
+                contract_version=seed_contract,
                 base_seed=seed,
                 suite_sha256=suite_sha256,
                 budget_pair=f"{challenger_simulations}:{current_simulations}",
@@ -1953,22 +1995,63 @@ def run_arena_worker(
                 move = cached_move
             seed_identity_ledger.append(
                 {
-                    "contract_version": SEED_CONTRACT_VERSION,
-                    "base_seed": seed,
+                    **{
+                        "contract_version": seed_contract,
+                        "base_seed": seed,
+                        "suite_sha256": suite_sha256,
+                        "opening_index": game_index // max(1, int(games_per_opening)),
+                        "opening_state_hash": opening_state_hash,
+                        "challenger_player": challenger_player,
+                        "game_within_opening": game_index
+                        % max(1, int(games_per_opening)),
+                        "ply": ply,
+                        "canonical_current_state_hash": canonical_game_state_hash(game),
+                        "acting_role": acting_role,
+                    },
+                    **(
+                        {"rng_stream_name": "puct_search"}
+                        if seed_contract == SEED_CONTRACT_VERSION
+                        else {}
+                    ),
+                    **(
+                        {
+                            "budget_pair": f"{challenger_simulations}:{current_simulations}",
+                            "simulations": sims,
+                            "effective_c_puct": effective_c_puct,
+                        }
+                        if seed_contract != SEED_CONTRACT_VERSION
+                        else {}
+                    ),
                     "seed_context_hash": seed_context_hash,
                     "derived_search_seed": derived_search_seed,
-                    "suite_sha256": suite_sha256,
-                    "budget_pair": f"{challenger_simulations}:{current_simulations}",
-                    "opening_index": game_index // max(1, int(games_per_opening)),
-                    "opening_state_hash": opening_state_hash,
-                    "challenger_player": challenger_player,
-                    "game_within_opening": game_index % max(1, int(games_per_opening)),
-                    "ply": ply,
-                    "canonical_current_state_hash": canonical_game_state_hash(game),
-                    "acting_role": acting_role,
-                    "simulations": sims,
-                    "effective_c_puct": effective_c_puct,
                 }
+            )
+            acting_search_options = (
+                effective_challenger_search_options
+                if acting_player == challenger_player
+                else effective_current_search_options
+            )
+            search_configuration_ledger.append(
+                search_configuration_ledger_record(
+                    seed_context_hash=seed_context_hash,
+                    simulations=sims,
+                    effective_c_puct=effective_c_puct,
+                    tactical_root_bias=float(
+                        acting_search_options["tactical_root_bias"]
+                    ),
+                    runtime_profile_hash=(
+                        challenger_runtime_profile_hash
+                        if acting_player == challenger_player
+                        else current_runtime_profile_hash
+                    )
+                    or search_profile["hash"],
+                    budget_pair=f"{challenger_simulations}:{current_simulations}",
+                    artifact_hash=(
+                        challenger_artifact_hash
+                        if acting_player == challenger_player
+                        else current_artifact_hash
+                    ),
+                )
             )
             search_outcome_ledger.append(
                 {
@@ -2075,14 +2158,15 @@ def run_arena_worker(
         "seed_contract": SEED_CONTRACT_VERSION,
         "suite_sha256": suite_sha256,
         "seed_identity_ledger": seed_identity_ledger,
+        "search_configuration_ledger": search_configuration_ledger,
         "search_outcome_ledger": search_outcome_ledger,
     }
 
 
 def main() -> None:
     args = parse_args()
-    if args.seed_contract != SEED_CONTRACT_VERSION:
-        raise SystemExit(f"only {SEED_CONTRACT_VERSION} is supported")
+    if args.seed_contract not in SUPPORTED_SEED_CONTRACT_VERSIONS:
+        raise SystemExit(f"unsupported seed contract: {args.seed_contract}")
     if args.base_seed is not None:
         args.seed = args.base_seed
     training_summary = load_training_summary(args.opening_cache_training_summary)
@@ -2303,6 +2387,8 @@ def main() -> None:
                     current_search_options=current_search_options,
                     challenger_c_puct=args.challenger_c_puct,
                     current_c_puct=args.current_c_puct,
+                    challenger_runtime_profile_hash=args.challenger_runtime_profile_hash,
+                    current_runtime_profile_hash=args.current_runtime_profile_hash,
                     value_transform=search_options.get("value_transform"),
                     challenger_value_transform=challenger_value_transform,
                     current_value_transform=current_value_transform,
@@ -2320,6 +2406,7 @@ def main() -> None:
                     opening_prefixes_jsonl=getattr(
                         args, "opening_prefixes_jsonl", None
                     ),
+                    seed_contract=args.seed_contract,
                 )
             )
         results = [future.result() for future in futures]
@@ -2362,39 +2449,42 @@ def main() -> None:
             str(row["seed_context_hash"]),
         ),
     )
+    ordered_search_configuration_ledger = sorted(
+        (
+            row
+            for result in results
+            for row in result.get("search_configuration_ledger", [])
+        ),
+        key=lambda row: (
+            str(row["seed_context_hash"]),
+            str(row["search_configuration_hash"]),
+        ),
+    )
     seed_identity_ledger_hash = stable_hash(ordered_seed_identity_ledger)
+    search_configuration_ledger_hash = stable_hash(ordered_search_configuration_ledger)
     search_outcome_ledger_hash = stable_hash(ordered_search_outcome_ledger)
     if args.seed_ledger_output:
         ledger_path = Path(args.seed_ledger_output)
-        ledger_path.parent.mkdir(parents=True, exist_ok=True)
-        ledger_path.write_text(
-            "".join(
-                json.dumps(row, sort_keys=True) + "\n"
-                for row in ordered_seed_identity_ledger
-            ),
-            encoding="utf-8",
-        )
+        write_ledger(ledger_path, ordered_seed_identity_ledger)
+    if args.search_configuration_ledger_output:
+        configuration_path = Path(args.search_configuration_ledger_output)
+        write_ledger(configuration_path, ordered_search_configuration_ledger)
     if args.search_outcome_ledger_output:
         outcome_path = Path(args.search_outcome_ledger_output)
-        outcome_path.parent.mkdir(parents=True, exist_ok=True)
-        outcome_path.write_text(
-            "".join(
-                json.dumps(row, sort_keys=True) + "\n"
-                for row in ordered_search_outcome_ledger
-            ),
-            encoding="utf-8",
-        )
+        write_ledger(outcome_path, ordered_search_outcome_ledger)
     report["notes"].update(
         {
             "seed_contract": SEED_CONTRACT_VERSION,
             "base_seed": int(args.seed),
             "suite_sha256": results[0].get("suite_sha256") if results else None,
             "seed_identity_ledger_sha256": seed_identity_ledger_hash,
+            "search_configuration_ledger_sha256": search_configuration_ledger_hash,
             "search_outcome_ledger_sha256": search_outcome_ledger_hash,
             # Retained for callers that predate the split provenance contract.
             "seed_ledger_hash": seed_identity_ledger_hash,
             "seed_ledger_records": len(ordered_seed_identity_ledger),
             "seed_ledger_output": args.seed_ledger_output,
+            "search_configuration_ledger_output": args.search_configuration_ledger_output,
             "search_outcome_ledger_output": args.search_outcome_ledger_output,
         }
     )
