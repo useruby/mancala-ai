@@ -4,8 +4,10 @@ from ml.alphazero_lite.evaluation_seed_contract import (
     SEED_CONTRACT_VERSION,
     SEED_IDENTITY_FIELDS,
     derive_search_seed,
+    search_configuration_ledger_record,
     stable_hash,
     search_seed_context,
+    verify_provenance_ledgers,
 )
 
 
@@ -58,3 +60,65 @@ class EvaluationSeedContractTests(unittest.TestCase):
         self.assertNotIn("artifact", serialized)
         self.assertNotIn("candidate", serialized)
         self.assertNotIn("composition", serialized)
+
+    def test_treatments_do_not_change_v2_seed_identity(self):
+        baseline = self.context()
+        lower_cpuct = self.context(effective_c_puct=0.90)
+        larger_budget = self.context(simulations=768, budget_pair="768:768")
+        self.assertEqual(
+            derive_search_seed(**baseline), derive_search_seed(**lower_cpuct)
+        )
+        self.assertEqual(
+            derive_search_seed(**baseline), derive_search_seed(**larger_budget)
+        )
+        seed, context_hash = derive_search_seed(**baseline)
+        first = search_configuration_ledger_record(
+            seed_context_hash=context_hash,
+            simulations=256,
+            effective_c_puct=1.25,
+            tactical_root_bias=0.10,
+            runtime_profile_hash="a",
+            budget_pair="256:256",
+            artifact_hash="artifact-a",
+        )
+        second = search_configuration_ledger_record(
+            seed_context_hash=context_hash,
+            simulations=768,
+            effective_c_puct=0.90,
+            tactical_root_bias=0.00,
+            runtime_profile_hash="renamed-profile",
+            budget_pair="768:768",
+            artifact_hash="artifact-b",
+        )
+        self.assertNotEqual(
+            first["search_configuration_hash"], second["search_configuration_hash"]
+        )
+        self.assertEqual(seed, derive_search_seed(**self.context())[0])
+
+    def test_state_changes_v2_seed_and_mixed_contracts_are_rejected(self):
+        first = seed_identity = {
+            **search_seed_context(**self.context()),
+            "seed_context_hash": derive_search_seed(**self.context())[1],
+            "derived_search_seed": derive_search_seed(**self.context())[0],
+        }
+        other = self.context(canonical_current_state_hash="other")
+        self.assertNotEqual(
+            first["derived_search_seed"], derive_search_seed(**other)[0]
+        )
+        v1 = {
+            **search_seed_context(
+                **self.context(), contract_version="azlite_eval_seed_v1"
+            ),
+            "seed_context_hash": derive_search_seed(
+                **self.context(), contract_version="azlite_eval_seed_v1"
+            )[1],
+            "derived_search_seed": derive_search_seed(
+                **self.context(), contract_version="azlite_eval_seed_v1"
+            )[0],
+        }
+        with self.assertRaises(ValueError):
+            verify_provenance_ledgers(
+                seed_identity_ledger=[seed_identity, v1],
+                search_configuration_ledger=[],
+                search_outcome_ledger=[],
+            )

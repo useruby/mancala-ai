@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Canonical 2x2 runtime-profile revalidation without training or promotion."""
+"""Treatment-invariant, direct 2x2 runtime-profile revalidation."""
 
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import statistics
@@ -23,9 +24,7 @@ from ml.alphazero_lite.evaluation_seed_contract import (  # noqa: E402
     SEED_CONTRACT_VERSION,
     stable_hash,
 )
-from ml.alphazero_lite.run_opening_suite_seat_benchmark import (  # noqa: E402
-    compute_seat_metrics,
-)
+from ml.alphazero_lite.run_opening_suite_seat_benchmark import compute_seat_metrics  # noqa: E402
 
 PROFILES = {
     "legacy_tactical_no_schedule": {"tactical_root_bias": 0.10, "schedule": {}},
@@ -44,6 +43,12 @@ PROFILE_B = "no_tactical_no_schedule"
 PROFILE_C = "legacy_tactical_with_schedule"
 PROFILE_D = "current_promoted_profile"
 BUDGETS = ("384:256", "768:256", "768:768", "1200:1200", "1200:256", "256:768")
+DIRECT_CONTRASTS = {
+    "B_minus_A": (PROFILE_B, PROFILE_A),
+    "D_minus_C": (PROFILE_D, PROFILE_C),
+    "C_minus_A": (PROFILE_C, PROFILE_A),
+    "D_minus_B": (PROFILE_D, PROFILE_B),
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -56,7 +61,7 @@ def sha256_file(path: Path) -> str:
 
 def profile_definition(name: str) -> dict[str, Any]:
     profile = PROFILES[name]
-    return {
+    definition = {
         "name": name,
         "default_c_puct": 1.25,
         "c_puct_schedule": profile["schedule"],
@@ -65,8 +70,8 @@ def profile_definition(name: str) -> dict[str, Any]:
         "normalize_values": False,
         "value_transform": None,
         "root_prior_transform": None,
-        "hash": stable_hash(profile),
     }
+    return {**definition, "hash": stable_hash(definition)}
 
 
 def bootstrap_ci(
@@ -96,253 +101,405 @@ def opening_ds(entries: list[dict], games_per_opening: int = 2) -> dict[int, flo
 
 
 def paired_delta(left: list[dict], right: list[dict], *, seed: int) -> dict[str, Any]:
-    left_by_opening = opening_ds(left)
-    right_by_opening = opening_ds(right)
+    left_by_opening, right_by_opening = opening_ds(left), opening_ds(right)
     indices = sorted(set(left_by_opening) & set(right_by_opening))
     deltas = [left_by_opening[i] - right_by_opening[i] for i in indices]
     return {
         "paired_per_opening_delta": deltas,
         "opening_cluster_ci95": bootstrap_ci(deltas, seed=seed),
-        "positive_openings": sum(delta > 0 for delta in deltas),
-        "zero_openings": sum(delta == 0 for delta in deltas),
-        "negative_openings": sum(delta < 0 for delta in deltas),
+        "positive_openings": sum(x > 0 for x in deltas),
+        "zero_openings": sum(x == 0 for x in deltas),
+        "negative_openings": sum(x < 0 for x in deltas),
     }
 
 
-def factorial_contrasts(
-    results: dict[str, dict[str, dict]], *, seed: int
-) -> dict[str, dict]:
-    contrasts: dict[str, dict] = {}
-    definitions = {
-        "no_tactical_without_schedule_B_minus_A": (PROFILE_B, PROFILE_A),
-        "no_tactical_with_schedule_D_minus_C": (PROFILE_D, PROFILE_C),
-        "schedule_with_tactical_C_minus_A": (PROFILE_C, PROFILE_A),
-        "schedule_without_tactical_D_minus_B": (PROFILE_D, PROFILE_B),
+def profile_cpuct(profile: str, budget: str) -> float:
+    challenger, current = (int(value) for value in budget.split(":"))
+    return resolve_budget_cpuct(
+        schedule=PROFILES[profile]["schedule"],
+        challenger_simulations=challenger,
+        current_simulations=current,
+        default_c_puct=1.25,
+    )
+
+
+def _load_jsonl(path: Path) -> list[dict]:
+    if path.suffix == ".gz":
+        with gzip.open(path, "rt", encoding="utf-8") as handle:
+            return [json.loads(line) for line in handle if line.strip()]
+    return [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+
+
+def _score_by_opening(
+    entries: list[dict], *, games_per_opening: int = 2
+) -> dict[int, float]:
+    grouped: dict[int, list[dict]] = defaultdict(list)
+    for entry in entries:
+        grouped[int(entry["game_index"]) // games_per_opening].append(entry)
+    return {
+        key: statistics.fmean(
+            1.0
+            if row["winner"] == "challenger"
+            else 0.5
+            if row["winner"] == "draw"
+            else 0.0
+            for row in rows
+        )
+        for key, rows in grouped.items()
     }
-    for budget in BUDGETS:
-        rows = {}
-        for label, (left, right) in definitions.items():
-            rows[label] = paired_delta(
-                results[left][budget]["games"],
-                results[right][budget]["games"],
-                seed=seed,
+
+
+def _run_orientation(
+    *,
+    args: argparse.Namespace,
+    first: str,
+    second: str,
+    budget: str,
+    suite: Path,
+    seed: int,
+    out: Path,
+) -> dict[str, Any]:
+    challenger_sims, current_sims = (int(value) for value in budget.split(":"))
+    out.mkdir(parents=True, exist_ok=True)
+    all_games, reports = [], []
+    suite_size = len(_load_jsonl(suite))
+    for seat in (0, 1):
+        seat_dir = out / f"starts_{seat}"
+        report_path, games_path = seat_dir / "arena.json", seat_dir / "games.jsonl"
+        cached_games_path = (
+            games_path if games_path.is_file() else games_path.with_suffix(".jsonl.gz")
+        )
+        if not (report_path.is_file() and cached_games_path.is_file()):
+            seat_dir.mkdir(parents=True, exist_ok=True)
+            command = [
+                sys.executable,
+                str(REPO_ROOT / "ml/alphazero_lite/arena.py"),
+                "--challenger",
+                args.current,
+                "--current",
+                args.current,
+                "--challenger-simulations",
+                str(challenger_sims),
+                "--current-simulations",
+                str(current_sims),
+                "--games",
+                str(suite_size * 2),
+                "--base-seed",
+                str(seed),
+                "--seed-contract",
+                args.seed_contract,
+                "--workers",
+                str(args.workers),
+                "--min-score",
+                "0",
+                "--out",
+                str(report_path),
+                "--game-jsonl",
+                str(games_path),
+                "--challenger-starts",
+                str(seat),
+                "--games-per-opening",
+                "2",
+                "--opening-prefixes-jsonl",
+                str(suite),
+                "--root-policy-mode",
+                "deterministic",
+                "--challenger-c-puct",
+                str(profile_cpuct(first, budget)),
+                "--current-c-puct",
+                str(profile_cpuct(second, budget)),
+                "--challenger-search-options-json",
+                json.dumps(
+                    {"tactical_root_bias": PROFILES[first]["tactical_root_bias"]}
+                ),
+                "--current-search-options-json",
+                json.dumps(
+                    {"tactical_root_bias": PROFILES[second]["tactical_root_bias"]}
+                ),
+                "--challenger-runtime-profile-hash",
+                profile_definition(first)["hash"],
+                "--current-runtime-profile-hash",
+                profile_definition(second)["hash"],
+                "--seed-ledger-output",
+                str(seat_dir / "seed_identity_ledger.jsonl.gz"),
+                "--search-configuration-ledger-output",
+                str(seat_dir / "search_configuration_ledger.jsonl.gz"),
+                "--search-outcome-ledger-output",
+                str(seat_dir / "search_outcome_ledger.jsonl.gz"),
+            ]
+            subprocess.run(command, cwd=REPO_ROOT, check=True)
+            cached_games_path = games_path
+        reports.append(json.loads(report_path.read_text(encoding="utf-8")))
+        all_games.extend(_load_jsonl(cached_games_path))
+    notes = [report["notes"] for report in reports]
+    return {
+        "games": all_games,
+        "metrics": compute_seat_metrics(all_games),
+        "per_opening_score": _score_by_opening(all_games),
+        "provenance": {
+            key: stable_hash([note[key] for note in notes])
+            for key in (
+                "seed_identity_ledger_sha256",
+                "search_configuration_ledger_sha256",
+                "search_outcome_ledger_sha256",
             )
-        interaction = [
-            a - b
-            for a, b in zip(
-                rows["schedule_without_tactical_D_minus_B"]["paired_per_opening_delta"],
-                rows["schedule_with_tactical_C_minus_A"]["paired_per_opening_delta"],
-            )
-        ]
-        rows["interaction_(D_minus_B)_minus_(C_minus_A)"] = {
-            "paired_per_opening_delta": interaction,
-            "opening_cluster_ci95": bootstrap_ci(interaction, seed=seed),
-        }
-        contrasts[budget] = rows
-    return contrasts
+        },
+        "latency": {
+            "mean_ms": statistics.fmean(note["move_time_mean_ms"] for note in notes),
+            "p95_ms": statistics.fmean(note["move_time_p95_ms"] for note in notes),
+        },
+    }
+
+
+def direct_match(
+    *,
+    args: argparse.Namespace,
+    first: str,
+    second: str,
+    budget: str,
+    suite: Path,
+    seed: int,
+    out: Path,
+) -> dict[str, Any]:
+    forward = _run_orientation(
+        args=args,
+        first=first,
+        second=second,
+        budget=budget,
+        suite=suite,
+        seed=seed,
+        out=out / "first_challenger",
+    )
+    reverse = _run_orientation(
+        args=args,
+        first=second,
+        second=first,
+        budget=budget,
+        suite=suite,
+        seed=seed,
+        out=out / "second_challenger",
+    )
+    keys = sorted(set(forward["per_opening_score"]) & set(reverse["per_opening_score"]))
+    # The reverse challenger score is second-minus-first, so negate before pooling.
+    deltas = [
+        (forward["per_opening_score"][key] - reverse["per_opening_score"][key]) / 2.0
+        for key in keys
+    ]
+    orientation = {
+        "first_challenger": bootstrap_ci(
+            [forward["per_opening_score"][key] - 0.5 for key in keys], seed=seed
+        ),
+        "second_challenger_normalized": bootstrap_ci(
+            [0.5 - reverse["per_opening_score"][key] for key in keys], seed=seed
+        ),
+    }
+    return {
+        "first_profile": first,
+        "second_profile": second,
+        "budget": budget,
+        "base_seed": seed,
+        "orientation_normalized_ds": statistics.fmean(deltas) if deltas else 0.0,
+        "paired_per_opening_delta": deltas,
+        "opening_cluster_ci95": bootstrap_ci(deltas, seed=seed),
+        "positive_openings": sum(x > 0 for x in deltas),
+        "zero_openings": sum(x == 0 for x in deltas),
+        "negative_openings": sum(x < 0 for x in deltas),
+        "orientation_decomposition": orientation,
+        "p0_p1": {
+            "first_challenger": forward["metrics"],
+            "second_challenger": reverse["metrics"],
+        },
+        "trajectory_agreement": {
+            "first_challenger_unique": forward["metrics"]["unique_trajectories"],
+            "second_challenger_unique": reverse["metrics"]["unique_trajectories"],
+        },
+        "latency": {
+            "mean_ms": statistics.fmean(
+                [forward["latency"]["mean_ms"], reverse["latency"]["mean_ms"]]
+            ),
+            "p95_ms": max(forward["latency"]["p95_ms"], reverse["latency"]["p95_ms"]),
+        },
+        "provenance": {
+            key: stable_hash([forward["provenance"][key], reverse["provenance"][key]])
+            for key in forward["provenance"]
+        },
+    }
+
+
+def evaluate_suite(
+    *,
+    args: argparse.Namespace,
+    label: str,
+    suite: Path,
+    contrasts: dict[str, tuple[str, str]],
+    budgets: tuple[str, ...] = BUDGETS,
+) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for contrast, (first, second) in contrasts.items():
+        result[contrast] = {}
+        for budget in budgets:
+            blocks = [
+                direct_match(
+                    args=args,
+                    first=first,
+                    second=second,
+                    budget=budget,
+                    suite=suite,
+                    seed=seed,
+                    out=Path(args.workdir)
+                    / label
+                    / contrast
+                    / budget.replace(":", "_")
+                    / f"seed_{seed}",
+                )
+                for seed in args.base_seeds
+            ]
+            pooled = [
+                delta for block in blocks for delta in block["paired_per_opening_delta"]
+            ]
+            result[contrast][budget] = {
+                **blocks[0],
+                "orientation_normalized_ds": statistics.fmean(
+                    block["orientation_normalized_ds"] for block in blocks
+                ),
+                "opening_cluster_ci95": bootstrap_ci(pooled, seed=42),
+                "seed_block_sensitivity": {
+                    str(block["base_seed"]): block["orientation_normalized_ds"]
+                    for block in blocks
+                },
+                "provenance_by_seed": {
+                    str(block["base_seed"]): block["provenance"] for block in blocks
+                },
+            }
+    return result
+
+
+def factorial_effects(fixed: dict[str, Any]) -> dict[str, Any]:
+    rows = fixed
+    effects = {name: rows[name]["768:768"] for name in DIRECT_CONTRASTS}
+    scheduled_no_tactical = effects["D_minus_B"]["paired_per_opening_delta"]
+    scheduled_tactical = effects["C_minus_A"]["paired_per_opening_delta"]
+    interaction = [a - b for a, b in zip(scheduled_no_tactical, scheduled_tactical)]
+    effects["interaction_(D_minus_B)_minus_(C_minus_A)"] = {
+        "point_estimate": statistics.fmean(interaction) if interaction else 0.0,
+        "paired_per_opening_delta": interaction,
+        "opening_cluster_ci95": bootstrap_ci(interaction, seed=42),
+        "positive_openings": sum(x > 0 for x in interaction),
+        "negative_openings": sum(x < 0 for x in interaction),
+    }
+    return effects
 
 
 def classify(summary: dict[str, Any]) -> str:
-    fixed = summary["fixed_large"]["profiles"]
-    heldout = summary["heldout"]
-    d_768 = fixed[PROFILE_D]["768:768"]["profile_minus_B"]["opening_cluster_ci95"]
-    d_primary = fixed[PROFILE_D]["384:256"]
-    interaction = summary["fixed_large"]["factorial_contrasts"]["768:768"][
-        "interaction_(D_minus_B)_minus_(C_minus_A)"
-    ]["opening_cluster_ci95"]
-    if interaction["lower_95"] > 0 or interaction["upper_95"] < 0:
-        return "runtime_profile_interaction_detected"
-    if (
-        d_768["mean"] <= 0
-        or min(
-            fixed[PROFILE_D][budget]["profile_minus_B"]["opening_cluster_ci95"]["mean"]
-            for budget in ("1200:1200", "1200:256")
-        )
-        < -0.03
-    ):
-        return "cpuct_schedule_promotion_invalidated"
-    if any(
-        paired_delta(
-            fixed[left][budget]["games"], fixed[right][budget]["games"], seed=42
-        )["opening_cluster_ci95"]["lower_95"]
-        > 0
-        for left, right in ((PROFILE_A, PROFILE_B), (PROFILE_C, PROFILE_D))
+    fixed = summary["fixed_large"]
+    schedule = fixed["D_minus_B"]["768:768"]["opening_cluster_ci95"]
+    tactical = fixed["D_minus_C"]["768:768"]["opening_cluster_ci95"]
+    nonactive_failure = any(
+        abs(fixed[name][budget]["orientation_normalized_ds"]) > 1e-12
+        for name in ("C_minus_A", "D_minus_B")
         for budget in BUDGETS
+        if budget != "768:768"
+    )
+    if (
+        nonactive_failure
+        or summary["nulls"]["D_minus_D"]["768:768"]["orientation_normalized_ds"] != 0
+        or summary["nulls"]["A_minus_A"]["768:768"]["orientation_normalized_ds"] != 0
     ):
+        return "evaluation_seed_v2_failed"
+    if schedule["mean"] <= 0:
+        return "cpuct_schedule_promotion_invalidated"
+    if tactical["upper_95"] < 0:
         return "no_tactical_bias_promotion_invalidated"
-    if heldout.get("worse_suite_collapse"):
+    gate = summary.get("gate", {})
+    gate_result = gate.get("result", {}) if isinstance(gate, dict) else {}
+    if (
+        gate.get("status") == "executed"
+        and gate_result.get("classification") == "regression_masked_by_seat"
+    ):
         return "current_runtime_profile_statistically_inconclusive"
-    primary_ci = d_primary["profile_minus_D"]["opening_cluster_ci95"]
-    if primary_ci["lower_95"] >= 0 and d_768["lower_95"] > 0:
+    if schedule["lower_95"] > 0:
         return "current_runtime_profile_revalidated"
     return "current_runtime_profile_statistically_inconclusive"
 
 
-def run_arena(
-    *, args: argparse.Namespace, profile: str, budget: str, suite: Path, out: Path
-) -> dict:
-    challenger_sims, current_sims = (int(value) for value in budget.split(":"))
-    definition = profile_definition(profile)
-    c_puct = resolve_budget_cpuct(
-        schedule=definition["c_puct_schedule"],
-        challenger_simulations=challenger_sims,
-        current_simulations=current_sims,
-        default_c_puct=1.25,
-    )
-    suite_size = sum(
-        1 for line in suite.read_text(encoding="utf-8").splitlines() if line.strip()
-    )
-    games = suite_size * 2
-    all_games: list[dict] = []
-    reports = []
-    for seat in (0, 1):
-        seat_dir = out / f"starts_{seat}"
-        seat_dir.mkdir(parents=True, exist_ok=True)
-        report_path, games_path = seat_dir / "arena.json", seat_dir / "games.jsonl"
-        if report_path.is_file() and games_path.is_file():
-            reports.append(json.loads(report_path.read_text(encoding="utf-8")))
-            all_games.extend(
-                json.loads(line)
-                for line in games_path.read_text(encoding="utf-8").splitlines()
-                if line
-            )
-            continue
-        command = [
-            sys.executable,
-            str(REPO_ROOT / "ml/alphazero_lite/arena.py"),
-            "--challenger",
-            args.current,
-            "--current",
-            args.current,
-            "--challenger-simulations",
-            str(challenger_sims),
-            "--current-simulations",
-            str(current_sims),
-            "--games",
-            str(games),
-            "--base-seed",
-            str(args.base_seed),
-            "--seed-contract",
-            args.seed_contract,
-            "--workers",
-            str(args.workers),
-            "--min-score",
-            "0",
-            "--out",
-            str(report_path),
-            "--game-jsonl",
-            str(games_path),
-            "--challenger-starts",
-            str(seat),
-            "--games-per-opening",
-            "2",
-            "--opening-prefixes-jsonl",
-            str(suite),
-            "--root-policy-mode",
-            "deterministic",
-            "--c-puct",
-            "1.25",
-            "--challenger-c-puct",
-            str(c_puct),
-            "--challenger-search-options-json",
-            json.dumps({"tactical_root_bias": definition["tactical_root_bias"]}),
-            "--seed-ledger-output",
-            str(seat_dir / "seed_identity_ledger.jsonl"),
-            "--search-outcome-ledger-output",
-            str(seat_dir / "search_outcome_ledger.jsonl"),
-        ]
-        subprocess.run(command, cwd=REPO_ROOT, check=True)
-        reports.append(json.loads(report_path.read_text(encoding="utf-8")))
-        all_games.extend(
-            json.loads(line)
-            for line in games_path.read_text(encoding="utf-8").splitlines()
-            if line
-        )
-    metrics = compute_seat_metrics(all_games)
-    notes = reports[0]["notes"]
-    return {
-        **metrics,
-        "games": all_games,
-        "effective_c_puct": c_puct,
-        "seed_identity_ledger_sha256": stable_hash(
-            [r["notes"]["seed_identity_ledger_sha256"] for r in reports]
-        ),
-        "search_outcome_ledger_sha256": stable_hash(
-            [r["notes"]["search_outcome_ledger_sha256"] for r in reports]
-        ),
-        "effective_runtime_profile_hash": definition["hash"],
-        "move_time_mean_ms": statistics.fmean(
-            r["notes"]["move_time_mean_ms"] for r in reports
-        ),
-        "move_time_p95_ms": statistics.fmean(
-            r["notes"]["move_time_p95_ms"] for r in reports
-        ),
-        "arena_search_profile_hash": notes.get("search_profile_hash"),
-    }
-
-
-def add_comparisons(profiles: dict[str, dict], *, seed: int) -> None:
-    for profile, budgets in profiles.items():
-        for budget, row in budgets.items():
-            for reference, suffix in (
-                (PROFILE_A, "A"),
-                (PROFILE_B, "B"),
-                (PROFILE_D, "D"),
-            ):
-                row[f"profile_minus_{suffix}"] = paired_delta(
-                    row["games"], profiles[reference][budget]["games"], seed=seed
-                )
-
-
-def heldout_summary(suites: dict[str, dict[str, dict]]) -> dict[str, Any]:
-    aggregate: dict[str, Any] = {"by_budget": {}}
-    profiles = sorted({profile for suite in suites.values() for profile in suite})
-    for budget in BUDGETS:
-        rows: dict[str, Any] = {}
-        for profile in profiles:
-            values = [
-                suite[profile][budget]["ds"]
-                for suite in suites.values()
-                if profile in suite
-            ]
-            rows[profile] = {
-                "mean_ds": statistics.fmean(values),
-                "worst_suite_ds": min(values),
-                "suite_count": len(values),
-            }
-        if PROFILE_D in rows:
-            for profile in profiles:
-                if profile == PROFILE_D:
-                    continue
-                deltas = [
-                    suite[profile][budget]["ds"] - suite[PROFILE_D][budget]["ds"]
-                    for suite in suites.values()
-                    if profile in suite
-                ]
-                rows[profile]["profile_minus_current"] = {
-                    "suite_mean_delta": statistics.fmean(deltas),
-                    # Suite-level rows are already opening-cluster paired internally.
-                    "suite_cluster_ci95": bootstrap_ci(deltas, seed=42),
-                }
-        aggregate["by_budget"][budget] = rows
-    aggregate["worse_suite_collapse"] = any(
-        row[PROFILE_D]["worst_suite_ds"] < -0.03
-        for row in aggregate["by_budget"].values()
-        if PROFILE_D in row
-    )
-    return aggregate
-
-
-def remove_detailed_opening_rows(value: Any) -> None:
-    """Keep committed summaries aggregate-only; detailed rows stay in the workdir."""
+def _strip_details(value: Any) -> None:
     if isinstance(value, dict):
-        value.pop("games", None)
         value.pop("paired_per_opening_delta", None)
+        p0_p1 = value.get("p0_p1")
+        if isinstance(p0_p1, dict):
+            value["p0_p1"] = {
+                orientation: {
+                    "p0_score": metrics.get("p0_score"),
+                    "p1_score": metrics.get("p1_score"),
+                }
+                for orientation, metrics in p0_p1.items()
+                if isinstance(metrics, dict)
+            }
+        value.pop("provenance_by_seed", None)
+        value.pop("orientation_decomposition", None)
         for child in value.values():
-            remove_detailed_opening_rows(child)
+            _strip_details(child)
     elif isinstance(value, list):
         for child in value:
-            remove_detailed_opening_rows(child)
+            _strip_details(child)
+
+
+def markdown(summary: dict[str, Any]) -> str:
+    lines = [
+        "# Treatment-Invariant Runtime Profile Revalidation",
+        "",
+        f"Classification: `{summary['classification']}`.",
+        "",
+        "## Direct Contrasts",
+        "",
+        "| Suite | Contrast | Budget | DS | 95% CI | +/0/- |",
+        "|---|---|---:|---:|---|---:|",
+    ]
+    for suite in ("medium", "fixed_large"):
+        for name, budgets in summary[suite].items():
+            for budget, row in budgets.items():
+                ci = row["opening_cluster_ci95"]
+                lines.append(
+                    f"| {suite} | {name} | {budget} | {row['orientation_normalized_ds']:+.4f} | [{ci['lower_95']:+.4f}, {ci['upper_95']:+.4f}] | {row['positive_openings']}/{row['zero_openings']}/{row['negative_openings']} |"
+                )
+    lines += [
+        "",
+        "## Factorial Effects",
+        "",
+        "| Effect | Estimate | 95% CI |",
+        "|---|---:|---|",
+    ]
+    for name, row in summary["factorial_effects"].items():
+        ci = row["opening_cluster_ci95"]
+        estimate = row.get("point_estimate", row.get("orientation_normalized_ds", 0.0))
+        lines.append(
+            f"| {name} | {estimate:+.4f} | [{ci['lower_95']:+.4f}, {ci['upper_95']:+.4f}] |"
+        )
+    lines += [
+        "",
+        "## Held-Out Primary Decisions",
+        "",
+        "| Suite | Contrast | DS | 95% CI |",
+        "|---|---|---:|---|",
+    ]
+    for suite, contrasts in summary["heldout"].items():
+        for name, budgets in contrasts.items():
+            row = budgets["768:768"]
+            ci = row["opening_cluster_ci95"]
+            lines.append(
+                f"| {suite} | {name} | {row['orientation_normalized_ds']:+.4f} | [{ci['lower_95']:+.4f}, {ci['upper_95']:+.4f}] |"
+            )
+    lines += [
+        "",
+        "## Null Comparisons",
+        "",
+        "Duplicate A-v-A and D-v-D are required to be exactly zero per opening and in aggregate. Detailed ledgers remain in the work directory.",
+    ]
+    return "\n".join(lines) + "\n"
 
 
 def parse_args() -> argparse.Namespace:
@@ -353,94 +510,129 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--medium-suite", required=True)
     parser.add_argument("--fixed-large-suite", required=True)
     parser.add_argument("--heldout-suites", required=True)
-    parser.add_argument("--profiles", default=",".join(PROFILES))
     parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
-    parser.add_argument("--base-seed", type=int, default=42)
-    parser.add_argument("--workers", type=int, default=24)
+    parser.add_argument("--base-seeds", default="42,43,44,45")
+    parser.add_argument("--workers", type=int, default=32)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    args.base_seeds = [int(seed) for seed in args.base_seeds.split(",")]
     if args.seed_contract != SEED_CONTRACT_VERSION:
-        raise ValueError(f"only {SEED_CONTRACT_VERSION} is supported")
-    selected = [name for name in args.profiles.split(",") if name]
-    if selected != list(PROFILES):
-        raise ValueError("the revalidation requires the exact four canonical profiles")
-    weights_sha = sha256_file(Path(args.current) / "weights.json")
-    if weights_sha != args.expected_current_weights_sha256:
-        raise ValueError("current weights SHA256 does not match the expected artifact")
-    workdir = Path(args.workdir)
-    workdir.mkdir(parents=True, exist_ok=True)
-
-    def evaluate_suite(label: str, suite: Path, profiles: list[str]) -> dict[str, dict]:
-        result = {profile: {} for profile in profiles}
-        for profile in profiles:
-            for budget in BUDGETS:
-                result[profile][budget] = run_arena(
-                    args=args,
-                    profile=profile,
-                    budget=budget,
-                    suite=suite,
-                    out=workdir / label / profile / budget.replace(":", "_"),
-                )
-        add_comparisons(result, seed=args.base_seed)
-        return result
-
-    medium = evaluate_suite("medium", Path(args.medium_suite), selected)
-    fixed = evaluate_suite("fixed_large", Path(args.fixed_large_suite), selected)
-    fixed_contrasts = factorial_contrasts(fixed, seed=args.base_seed)
-    heldout_profiles = [PROFILE_D, PROFILE_B, PROFILE_A]
-    interaction = fixed_contrasts["768:768"][
-        "interaction_(D_minus_B)_minus_(C_minus_A)"
-    ]["opening_cluster_ci95"]
-    if interaction["lower_95"] > 0 or interaction["upper_95"] < 0:
-        heldout_profiles.append(PROFILE_C)
-    heldout = {}
-    for suite_text in args.heldout_suites.split(","):
-        suite = Path(suite_text)
-        heldout[suite.stem] = evaluate_suite(
-            f"heldout/{suite.stem}", suite, heldout_profiles
-        )
-    summary = {
-        "schema": "azlite_canonical_runtime_profile_revalidation_v1",
-        "artifact_weights_sha256": weights_sha,
-        "seed_contract": args.seed_contract,
-        "base_seed": args.base_seed,
-        "profiles": {name: profile_definition(name) for name in selected},
-        "medium": {"profiles": medium},
-        "fixed_large": {"profiles": fixed, "factorial_contrasts": fixed_contrasts},
-        "heldout": {"suites": heldout, **heldout_summary(heldout)},
-        "gate": {
-            "status": "not_run",
-            "reason": "A gate is only eligible for a held-out primary effect of at least 0.05 with a non-zero lower CI and robustness limits passing.",
+        raise ValueError("new revalidation requires azlite_eval_seed_v2")
+    if (
+        sha256_file(Path(args.current) / "weights.json")
+        != args.expected_current_weights_sha256
+    ):
+        raise ValueError("current weights SHA256 does not match expected artifact")
+    Path(args.workdir).mkdir(parents=True, exist_ok=True)
+    medium = evaluate_suite(
+        args=args,
+        label="medium",
+        suite=Path(args.medium_suite),
+        contrasts=DIRECT_CONTRASTS,
+    )
+    fixed = evaluate_suite(
+        args=args,
+        label="fixed_large",
+        suite=Path(args.fixed_large_suite),
+        contrasts=DIRECT_CONTRASTS,
+    )
+    nulls = evaluate_suite(
+        args=args,
+        label="nulls",
+        suite=Path(args.fixed_large_suite),
+        contrasts={
+            "D_minus_D": (PROFILE_D, PROFILE_D),
+            "A_minus_A": (PROFILE_A, PROFILE_A),
         },
+    )
+    heldout = {
+        Path(text).stem: evaluate_suite(
+            args=args,
+            label=f"heldout/{Path(text).stem}",
+            suite=Path(text),
+            contrasts={
+                "D_minus_B": (PROFILE_D, PROFILE_B),
+                "D_minus_C": (PROFILE_D, PROFILE_C),
+                "D_minus_A": (PROFILE_D, PROFILE_A),
+            },
+            budgets=("768:768",),
+        )
+        for text in args.heldout_suites.split(",")
+    }
+    primary_rows = [
+        suite[contrast]["768:768"]["opening_cluster_ci95"]
+        for suite in heldout.values()
+        for contrast in ("D_minus_B", "D_minus_C", "D_minus_A")
+    ]
+    gate_eligible = bool(primary_rows) and all(
+        row["lower_95"] > 0 for row in primary_rows
+    )
+    gate: dict[str, Any] = {"status": "not_eligible"}
+    if gate_eligible:
+        gate_path = Path(args.workdir) / "seat_aware_promotion_gate.json"
+        command = [
+            sys.executable,
+            str(REPO_ROOT / "script/ai/seat_aware_promotion_gate"),
+            "--candidate-path",
+            args.current,
+            "--current-path",
+            args.current,
+            "--out",
+            str(gate_path),
+            "--workdir",
+            str(Path(args.workdir) / "seat_aware_gate"),
+            "--workers",
+            str(args.workers),
+            "--base-seed",
+            "42",
+            "--seed-contract",
+            args.seed_contract,
+            "--budget-pairs",
+            "768:768",
+            "--c-puct",
+            "1.25",
+            "--c-puct-schedule-json",
+            '{"768:768":0.90}',
+            "--tactical-root-bias",
+            "0.00",
+        ]
+        if not gate_path.is_file():
+            subprocess.run(command, cwd=REPO_ROOT, check=True)
+        gate = {
+            "status": "executed",
+            "report": str(gate_path),
+            "result": json.loads(gate_path.read_text(encoding="utf-8")),
+        }
+    summary = {
+        "schema": "azlite_treatment_invariant_runtime_revalidation_v2",
+        "artifact_weights_sha256": args.expected_current_weights_sha256,
+        "seed_contract": args.seed_contract,
+        "base_seeds": args.base_seeds,
+        "profiles": {name: profile_definition(name) for name in PROFILES},
+        "medium": medium,
+        "fixed_large": fixed,
+        "nulls": nulls,
+        "heldout": heldout,
+        "factorial_effects": factorial_effects(fixed),
+        "gate": gate,
     }
     summary["classification"] = classify(summary)
-    remove_detailed_opening_rows(summary)
-    output = workdir / "summary_metrics.json"
-    output.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    docs_data = (
+    detailed = Path(args.workdir) / "summary_metrics.json"
+    detailed.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    committed = json.loads(json.dumps(summary))
+    _strip_details(committed)
+    (
         REPO_ROOT
-        / "docs/data/alphazero-lite-canonical-runtime-profile-revalidation-summary.json"
-    )
-    docs_data.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    report = (
+        / "docs/data/alphazero-lite-treatment-invariant-runtime-revalidation-summary.json"
+    ).write_text(json.dumps(committed, indent=2), encoding="utf-8")
+    (
         REPO_ROOT
-        / "docs/alphazero-lite-canonical-runtime-profile-revalidation-results.md"
-    )
-    report.write_text(
-        "# Canonical Runtime Profile Revalidation\n\n"
-        f"Classification: `{summary['classification']}`.\n\n"
-        f"Artifact SHA256: `{weights_sha}`. Seed contract: `{args.seed_contract}`; base seed: `{args.base_seed}`.\n\n"
-        "Seed identity ledgers contain only canonical seed inputs and derived identities; outcome ledgers contain moves, visits, cache execution, trajectories, and profile hashes. Detailed ledgers remain in the workdir.\n\n"
-        "## Profiles\n\n```json\n"
-        + json.dumps(summary["profiles"], indent=2)
-        + "\n```\n\n"
-        "## Results\n\nAggregate medium, fixed-large, held-out, P0/P1, latency, paired opening-cluster CI, and factorial contrast tables are in `docs/data/alphazero-lite-canonical-runtime-profile-revalidation-summary.json`.\n",
-        encoding="utf-8",
-    )
-    print(f"wrote {output}")
+        / "docs/alphazero-lite-treatment-invariant-runtime-revalidation-results.md"
+    ).write_text(markdown(summary), encoding="utf-8")
+    print(f"wrote {detailed}")
     return 0
 
 

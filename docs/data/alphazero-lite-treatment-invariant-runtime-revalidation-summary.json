@@ -1,0 +1,3936 @@
+{
+  "schema": "azlite_treatment_invariant_runtime_revalidation_v2",
+  "artifact_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "seed_contract": "azlite_eval_seed_v2",
+  "base_seeds": [
+    42,
+    43,
+    44,
+    45
+  ],
+  "profiles": {
+    "legacy_tactical_no_schedule": {
+      "name": "legacy_tactical_no_schedule",
+      "default_c_puct": 1.25,
+      "c_puct_schedule": {},
+      "tactical_root_bias": 0.1,
+      "root_policy_mode": "deterministic",
+      "normalize_values": false,
+      "value_transform": null,
+      "root_prior_transform": null,
+      "hash": "ce0bc62c83bffa1110d9b2480f5f4ed1d96e85f18705b433361e5c9c7b975f90"
+    },
+    "no_tactical_no_schedule": {
+      "name": "no_tactical_no_schedule",
+      "default_c_puct": 1.25,
+      "c_puct_schedule": {},
+      "tactical_root_bias": 0.0,
+      "root_policy_mode": "deterministic",
+      "normalize_values": false,
+      "value_transform": null,
+      "root_prior_transform": null,
+      "hash": "bf13b25e23f0b1cdb62cc96a4a16a3a2b1f7ef4d6ade285a281bbae46370bc89"
+    },
+    "legacy_tactical_with_schedule": {
+      "name": "legacy_tactical_with_schedule",
+      "default_c_puct": 1.25,
+      "c_puct_schedule": {
+        "768:768": 0.9
+      },
+      "tactical_root_bias": 0.1,
+      "root_policy_mode": "deterministic",
+      "normalize_values": false,
+      "value_transform": null,
+      "root_prior_transform": null,
+      "hash": "8ad79f53d8ff98ad57bfe421c02ca2505ae4b781fd3c296e2ec8ddb7425b44c7"
+    },
+    "current_promoted_profile": {
+      "name": "current_promoted_profile",
+      "default_c_puct": 1.25,
+      "c_puct_schedule": {
+        "768:768": 0.9
+      },
+      "tactical_root_bias": 0.0,
+      "root_policy_mode": "deterministic",
+      "normalize_values": false,
+      "value_transform": null,
+      "root_prior_transform": null,
+      "hash": "1ffd35f4e88cb38adfada489bb8d92a40ab55ac043864814618f54361fab8791"
+    }
+  },
+  "medium": {
+    "B_minus_A": {
+      "384:256": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.005859375,
+        "opening_cluster_ci95": {
+          "mean": 0.005859375,
+          "lower_95": -0.00048828125,
+          "upper_95": 0.01220703125,
+          "samples": 10000
+        },
+        "positive_openings": 7,
+        "zero_openings": 117,
+        "negative_openings": 4,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.48046875,
+            "p1_score": 0.91796875
+          },
+          "second_challenger": {
+            "p0_score": 0.42578125,
+            "p1_score": 0.94921875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 47.815,
+          "p95_ms": 117.53999999999999
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "917cf4fc9607bd4c86574e39c56d621a492d1a16b89042635e2f3f3c2b39f4bb",
+          "search_configuration_ledger_sha256": "765fdf468e1cbbe27ddea27a6bebb760991d17fd2bb94b76938490371323630d",
+          "search_outcome_ledger_sha256": "adc9f29d98fbc552903722e964bf55df9c106117ad853021f38deb1bfcc7fa6f"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.005859375,
+          "43": 0.005859375,
+          "44": 0.005859375,
+          "45": 0.005859375
+        }
+      },
+      "768:256": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0615234375,
+        "opening_cluster_ci95": {
+          "mean": -0.0615234375,
+          "lower_95": -0.072265625,
+          "upper_95": -0.051025390625,
+          "samples": 10000
+        },
+        "positive_openings": 12,
+        "zero_openings": 76,
+        "negative_openings": 40,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.41015625,
+            "p1_score": 0.94921875
+          },
+          "second_challenger": {
+            "p0_score": 0.625,
+            "p1_score": 0.98046875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 75.35999999999999,
+          "p95_ms": 239.225
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "566dfe4398f28aa3ef73180f20dad023c680bb7b155c956251c311bda20d8af5",
+          "search_configuration_ledger_sha256": "2cacc167e5e711271cae23db228c0ce8db982de147d2550e8d81b02d8ac26394",
+          "search_outcome_ledger_sha256": "bc92b1ae73247cdd754a4e3dbe6c3ec56cbe9b9427189200b47f441c6fc407a9"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0615234375,
+          "43": -0.0615234375,
+          "44": -0.0615234375,
+          "45": -0.0615234375
+        }
+      },
+      "768:768": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0546875,
+        "opening_cluster_ci95": {
+          "mean": -0.0546875,
+          "lower_95": -0.0634765625,
+          "upper_95": -0.0458984375,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 100,
+        "negative_openings": 28,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.453125,
+            "p1_score": 0.4375
+          },
+          "second_challenger": {
+            "p0_score": 0.5625,
+            "p1_score": 0.546875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 14,
+          "second_challenger_unique": 14
+        },
+        "latency": {
+          "mean_ms": 105.6225,
+          "p95_ms": 250.22500000000002
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "9ffa93a92516e25b74aecf0313cb24d877d0907b78d9cd25f606fe0b39cd5837",
+          "search_configuration_ledger_sha256": "33c4e39010c9faf8319f95b28a53658d59f8b0f5ba7a9c81b438efcdda305012",
+          "search_outcome_ledger_sha256": "4235df560946988fee422c7d975835c19c1dd443be0024b451c3879e8baff014"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0546875,
+          "43": -0.0546875,
+          "44": -0.0546875,
+          "45": -0.0546875
+        }
+      },
+      "1200:1200": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.048828125,
+        "opening_cluster_ci95": {
+          "mean": -0.048828125,
+          "lower_95": -0.0693359375,
+          "upper_95": -0.02783203125,
+          "samples": 10000
+        },
+        "positive_openings": 16,
+        "zero_openings": 55,
+        "negative_openings": 57,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.48828125,
+            "p1_score": 0.4140625
+          },
+          "second_challenger": {
+            "p0_score": 0.5859375,
+            "p1_score": 0.51171875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 19,
+          "second_challenger_unique": 19
+        },
+        "latency": {
+          "mean_ms": 174.6525,
+          "p95_ms": 393.57500000000005
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "1a557cf1807202ed56b10e25ca40969c983e1dd7e6fdf052ce870d19c902ea82",
+          "search_configuration_ledger_sha256": "25dcbab1f8e07d7bad628111d827028196e4c09217b556254b50cbeea8cfdde3",
+          "search_outcome_ledger_sha256": "639519b6d5dd5621158e3814b4e739783ce3a46f72161fb3324a84f54f63bfba"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.048828125,
+          "43": -0.048828125,
+          "44": -0.048828125,
+          "45": -0.048828125
+        }
+      },
+      "1200:256": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0146484375,
+        "opening_cluster_ci95": {
+          "mean": -0.0146484375,
+          "lower_95": -0.0244140625,
+          "upper_95": -0.0048828125,
+          "samples": 10000
+        },
+        "positive_openings": 31,
+        "zero_openings": 67,
+        "negative_openings": 30,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6875,
+            "p1_score": 0.94140625
+          },
+          "second_challenger": {
+            "p0_score": 0.8359375,
+            "p1_score": 0.8515625
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 111.3425,
+          "p95_ms": 381.75
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "6450d0d2b2ca3dce93b372945ceab62e682aa029ff2bdbeacd3bac85bd5046ee",
+          "search_configuration_ledger_sha256": "c76108d79ed741581ca58c41baf76da65f2980aa689cc4be4acf6d6947b5aad2",
+          "search_outcome_ledger_sha256": "420e28b2d150a20df7a8294644888937edf8e91b9330492346457c9019f4f53e"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0146484375,
+          "43": -0.0146484375,
+          "44": -0.0146484375,
+          "45": -0.0146484375
+        }
+      },
+      "256:768": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0615234375,
+        "opening_cluster_ci95": {
+          "mean": -0.0615234375,
+          "lower_95": -0.072265625,
+          "upper_95": -0.051025390625,
+          "samples": 10000
+        },
+        "positive_openings": 12,
+        "zero_openings": 76,
+        "negative_openings": 40,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.01953125,
+            "p1_score": 0.375
+          },
+          "second_challenger": {
+            "p0_score": 0.05078125,
+            "p1_score": 0.58984375
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 75.045,
+          "p95_ms": 237.98000000000002
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "bc52d4ed749e83d333869408294e5d7cd635fd6724fa9e6c940086c205214aef",
+          "search_configuration_ledger_sha256": "32a622113671e910c24459b3de9ecfa29d61af74bc1fa0bb1964cc41210d4fa2",
+          "search_outcome_ledger_sha256": "7e568d6133c2e64711986f3ae88152ea260c27a4d9288c3c25ce130ad9a8864c"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0615234375,
+          "43": -0.0615234375,
+          "44": -0.0615234375,
+          "45": -0.0615234375
+        }
+      }
+    },
+    "D_minus_C": {
+      "384:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.005859375,
+        "opening_cluster_ci95": {
+          "mean": 0.005859375,
+          "lower_95": -0.00048828125,
+          "upper_95": 0.01220703125,
+          "samples": 10000
+        },
+        "positive_openings": 7,
+        "zero_openings": 117,
+        "negative_openings": 4,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.48046875,
+            "p1_score": 0.91796875
+          },
+          "second_challenger": {
+            "p0_score": 0.42578125,
+            "p1_score": 0.94921875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 48.995000000000005,
+          "p95_ms": 117.935
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "917cf4fc9607bd4c86574e39c56d621a492d1a16b89042635e2f3f3c2b39f4bb",
+          "search_configuration_ledger_sha256": "10212de051fbc13fee09a918c9c9c81989ee0904c0a292693910fe00e6a3e065",
+          "search_outcome_ledger_sha256": "adc9f29d98fbc552903722e964bf55df9c106117ad853021f38deb1bfcc7fa6f"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.005859375,
+          "43": 0.005859375,
+          "44": 0.005859375,
+          "45": 0.005859375
+        }
+      },
+      "768:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0615234375,
+        "opening_cluster_ci95": {
+          "mean": -0.0615234375,
+          "lower_95": -0.072265625,
+          "upper_95": -0.051025390625,
+          "samples": 10000
+        },
+        "positive_openings": 12,
+        "zero_openings": 76,
+        "negative_openings": 40,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.41015625,
+            "p1_score": 0.94921875
+          },
+          "second_challenger": {
+            "p0_score": 0.625,
+            "p1_score": 0.98046875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 74.89,
+          "p95_ms": 237.95999999999998
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "566dfe4398f28aa3ef73180f20dad023c680bb7b155c956251c311bda20d8af5",
+          "search_configuration_ledger_sha256": "5afe0cca61cf2ab3d868924025b5658c2da1c479f08715c50b3f60bc731e0094",
+          "search_outcome_ledger_sha256": "bc92b1ae73247cdd754a4e3dbe6c3ec56cbe9b9427189200b47f441c6fc407a9"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0615234375,
+          "43": -0.0615234375,
+          "44": -0.0615234375,
+          "45": -0.0615234375
+        }
+      },
+      "768:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.05859375,
+        "opening_cluster_ci95": {
+          "mean": 0.05859375,
+          "lower_95": 0.0341796875,
+          "upper_95": 0.08203125,
+          "samples": 10000
+        },
+        "positive_openings": 28,
+        "zero_openings": 87,
+        "negative_openings": 13,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6171875,
+            "p1_score": 0.5
+          },
+          "second_challenger": {
+            "p0_score": 0.5,
+            "p1_score": 0.3828125
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 18,
+          "second_challenger_unique": 18
+        },
+        "latency": {
+          "mean_ms": 114.775,
+          "p95_ms": 248.39999999999998
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "a577c90db8487935a71ac2f9cf274ff8942755529d6dd3e1f93fa31dd0803065",
+          "search_configuration_ledger_sha256": "c6be3297adeb2257e6f93bb43438ae87e096ac6e55b4161cbfe29c109a9e4408",
+          "search_outcome_ledger_sha256": "cdc38bf4f616b9c7ee3068ea02355c6bf99fe4bb4322a3e1816407af6fa38145"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.05859375,
+          "43": 0.05859375,
+          "44": 0.05859375,
+          "45": 0.05859375
+        }
+      },
+      "1200:1200": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.048828125,
+        "opening_cluster_ci95": {
+          "mean": -0.048828125,
+          "lower_95": -0.0693359375,
+          "upper_95": -0.02783203125,
+          "samples": 10000
+        },
+        "positive_openings": 16,
+        "zero_openings": 55,
+        "negative_openings": 57,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.48828125,
+            "p1_score": 0.4140625
+          },
+          "second_challenger": {
+            "p0_score": 0.5859375,
+            "p1_score": 0.51171875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 19,
+          "second_challenger_unique": 19
+        },
+        "latency": {
+          "mean_ms": 174.8125,
+          "p95_ms": 394.03999999999996
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "1a557cf1807202ed56b10e25ca40969c983e1dd7e6fdf052ce870d19c902ea82",
+          "search_configuration_ledger_sha256": "2f931f43efc9c6f08a05cae2a56769c47710615d4cef9c4621312c3819a81115",
+          "search_outcome_ledger_sha256": "639519b6d5dd5621158e3814b4e739783ce3a46f72161fb3324a84f54f63bfba"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.048828125,
+          "43": -0.048828125,
+          "44": -0.048828125,
+          "45": -0.048828125
+        }
+      },
+      "1200:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0146484375,
+        "opening_cluster_ci95": {
+          "mean": -0.0146484375,
+          "lower_95": -0.0244140625,
+          "upper_95": -0.0048828125,
+          "samples": 10000
+        },
+        "positive_openings": 31,
+        "zero_openings": 67,
+        "negative_openings": 30,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6875,
+            "p1_score": 0.94140625
+          },
+          "second_challenger": {
+            "p0_score": 0.8359375,
+            "p1_score": 0.8515625
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 112.095,
+          "p95_ms": 383.82
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "6450d0d2b2ca3dce93b372945ceab62e682aa029ff2bdbeacd3bac85bd5046ee",
+          "search_configuration_ledger_sha256": "55a0f93bf7462c06cfb38b59882566b23b31e799b0c6fe3be25cdac815f3c807",
+          "search_outcome_ledger_sha256": "420e28b2d150a20df7a8294644888937edf8e91b9330492346457c9019f4f53e"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0146484375,
+          "43": -0.0146484375,
+          "44": -0.0146484375,
+          "45": -0.0146484375
+        }
+      },
+      "256:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0615234375,
+        "opening_cluster_ci95": {
+          "mean": -0.0615234375,
+          "lower_95": -0.072265625,
+          "upper_95": -0.051025390625,
+          "samples": 10000
+        },
+        "positive_openings": 12,
+        "zero_openings": 76,
+        "negative_openings": 40,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.01953125,
+            "p1_score": 0.375
+          },
+          "second_challenger": {
+            "p0_score": 0.05078125,
+            "p1_score": 0.58984375
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 75.035,
+          "p95_ms": 237.35500000000002
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "bc52d4ed749e83d333869408294e5d7cd635fd6724fa9e6c940086c205214aef",
+          "search_configuration_ledger_sha256": "6f2e3bb57db7108dd9f5ac0f50ff2d2a32b5bd33854f7b82a1eda54f88efb323",
+          "search_outcome_ledger_sha256": "7e568d6133c2e64711986f3ae88152ea260c27a4d9288c3c25ce130ad9a8864c"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0615234375,
+          "43": -0.0615234375,
+          "44": -0.0615234375,
+          "45": -0.0615234375
+        }
+      }
+    },
+    "C_minus_A": {
+      "384:256": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.46484375,
+            "p1_score": 0.9375
+          },
+          "second_challenger": {
+            "p0_score": 0.46484375,
+            "p1_score": 0.9375
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 49.0225,
+          "p95_ms": 117.935
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "c023d4cc52a0749ef119f976e9cc6c5a496224672aaa75564550acb1f7fb8974",
+          "search_configuration_ledger_sha256": "db4fdd0f835e848d9bbaa4790bea8c0adf9906be26a5ffd11e2db7e144fbbbd7",
+          "search_outcome_ledger_sha256": "a0709a30bf8a1f7af0aef26c54a1addd1ca4af15727e9deae73916f004181210"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:256": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4296875,
+            "p1_score": 0.96875
+          },
+          "second_challenger": {
+            "p0_score": 0.4296875,
+            "p1_score": 0.96875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 76.7525,
+          "p95_ms": 238.305
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "d1eecc163f72689dabe678afc1f04006d46eff991ab67097abb12c2fcc46fdb5",
+          "search_configuration_ledger_sha256": "485cf8258772937c6708a068fb2fdf89677826a4e89df7db27fafa02bf998f07",
+          "search_outcome_ledger_sha256": "6c4f3e52f52e74472d8fcf43cabbba6642a45c613a7d813bf070ffde06e39450"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:768": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.109375,
+        "opening_cluster_ci95": {
+          "mean": 0.109375,
+          "lower_95": 0.0751953125,
+          "upper_95": 0.1435546875,
+          "samples": 10000
+        },
+        "positive_openings": 56,
+        "zero_openings": 44,
+        "negative_openings": 28,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.58984375,
+            "p1_score": 0.62890625
+          },
+          "second_challenger": {
+            "p0_score": 0.37109375,
+            "p1_score": 0.41015625
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 117.1325,
+          "p95_ms": 249.94
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "40e0e6a3e839e41559c1a959e5af67292dc1eccb9be2543b784bb92ddce8f0b2",
+          "search_configuration_ledger_sha256": "d7b5245a0c8975f91d893f21a5fb479e7126c7629e6db921b0ff53301cc508ce",
+          "search_outcome_ledger_sha256": "22a2b4da441550051b20cd5084d70c1c1c4a0571b3153e88fa7bef47966e7741"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.109375,
+          "43": 0.109375,
+          "44": 0.109375,
+          "45": 0.109375
+        }
+      },
+      "1200:1200": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.5,
+            "p1_score": 0.5
+          },
+          "second_challenger": {
+            "p0_score": 0.5,
+            "p1_score": 0.5
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 10,
+          "second_challenger_unique": 10
+        },
+        "latency": {
+          "mean_ms": 178.22,
+          "p95_ms": 394.375
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "b32aac0946a133b7f550f99244328d25fe6f0d039351874f29bcec449ce5f102",
+          "search_configuration_ledger_sha256": "9856d0035e22fa484d9fe2fadd482e2707a19076131a4cc2554bb77017e806e7",
+          "search_outcome_ledger_sha256": "5d85811afa63a2cc5f15d1e2649aab94781dccfcd56f2b07cc7c816d923d4af5"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:256": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.7421875,
+            "p1_score": 0.8203125
+          },
+          "second_challenger": {
+            "p0_score": 0.7421875,
+            "p1_score": 0.8203125
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 109.805,
+          "p95_ms": 380.23
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "6eca93d0dfe3b0b90d368729f37199243e9c6b6c77ea47eac7d4b4ccc3b5a466",
+          "search_configuration_ledger_sha256": "c0c00cb607906108492232bb2690921e7f49a05ce4378ce140a5ba9a9db7696a",
+          "search_outcome_ledger_sha256": "aa0e94c68da3cd86b7980dfe0e6f87be2c7c3e80938d855d70601ab78c97da62"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "256:768": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.03125,
+            "p1_score": 0.5703125
+          },
+          "second_challenger": {
+            "p0_score": 0.03125,
+            "p1_score": 0.5703125
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 76.485,
+          "p95_ms": 238.435
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "3e659f44ba1f13e34f0eeb719c7bdd8bbe9fae095c7d50903995dd36dc94fc8a",
+          "search_configuration_ledger_sha256": "65302b7339dfca5a51ca72fdbbdf838353360ed44c339123da47abea6aa80fc7",
+          "search_outcome_ledger_sha256": "b6b6523d0d0b4c062dc57645b48a0da65341e53702c9cda3dd29697df13842ff"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      }
+    },
+    "D_minus_B": {
+      "384:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.69921875,
+            "p1_score": 0.93359375
+          },
+          "second_challenger": {
+            "p0_score": 0.69921875,
+            "p1_score": 0.93359375
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 48.4025,
+          "p95_ms": 118.15
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "2d7d0742b242805c9909b4ae5ee12f9dbaae540c10349b97e7ce00b948851f4b",
+          "search_configuration_ledger_sha256": "4f630ac34dab478236fe5664b93bfae47c9f3f4e4ded75476c14cb95bf91eb11",
+          "search_outcome_ledger_sha256": "e105f3d7e28abcad3896ec0de2d726f0f420e0471459d36925bdcb9c153f174e"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.60546875,
+            "p1_score": 0.98046875
+          },
+          "second_challenger": {
+            "p0_score": 0.60546875,
+            "p1_score": 0.98046875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 74.825,
+          "p95_ms": 237.375
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "b8b0c576f712f2e43776128552e8053eb19e008ccfc18c7b8de2d5e9a37a2743",
+          "search_configuration_ledger_sha256": "7015dc5fc4d3c364a63eb210c3103b8f9bcb7d197b5f19864d7a258c3bc04a96",
+          "search_outcome_ledger_sha256": "782519cdace207b15d5dd1786cad8205f619d4a5714c83b49678de445a05bca2"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.236328125,
+        "opening_cluster_ci95": {
+          "mean": 0.236328125,
+          "lower_95": 0.21240234375,
+          "upper_95": 0.25927734375,
+          "samples": 10000
+        },
+        "positive_openings": 83,
+        "zero_openings": 38,
+        "negative_openings": 7,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.9296875,
+            "p1_score": 0.54296875
+          },
+          "second_challenger": {
+            "p0_score": 0.45703125,
+            "p1_score": 0.0703125
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 114.20750000000001,
+          "p95_ms": 249.095
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "87f3f3093d124fb651d434dcf3e1320d44b583c01f7b84de7cc6f740fff8bcc0",
+          "search_configuration_ledger_sha256": "695d097e1d068e10ccdc5ea86b7c23f42533625c6e364ef0c9abc889cfb28378",
+          "search_outcome_ledger_sha256": "04c74e8fb8c83b726972bf8f375eedc58f394f05eddd5a9e53d52ef86d29923e"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.236328125,
+          "43": 0.236328125,
+          "44": 0.236328125,
+          "45": 0.236328125
+        }
+      },
+      "1200:1200": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6953125,
+            "p1_score": 0.3046875
+          },
+          "second_challenger": {
+            "p0_score": 0.6953125,
+            "p1_score": 0.3046875
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 10,
+          "second_challenger_unique": 10
+        },
+        "latency": {
+          "mean_ms": 176.32999999999998,
+          "p95_ms": 393.905
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "ccd168fb08e9105e369438a0deccde3016b3e9fe49432a8e2cfb5f0c1afa600d",
+          "search_configuration_ledger_sha256": "71674389ef36c4f2e0a6a7d638740a3bbb020f3d60a2eccf5fad4e7fe2fc49f4",
+          "search_outcome_ledger_sha256": "45e334f0521e144df204b805fed40a710870a0fcdb2c76dd4716c8f3a488762c"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.8359375,
+            "p1_score": 0.97265625
+          },
+          "second_challenger": {
+            "p0_score": 0.8359375,
+            "p1_score": 0.97265625
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 109.92999999999999,
+          "p95_ms": 382.07000000000005
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "5c1961be26da7fd8153fa794feec1d6118cfb4da1d7305fd15c7f8efab25d964",
+          "search_configuration_ledger_sha256": "1f976d9fbce260f362ebee240abc6ccca6ffba4584469e701bec8d784a47ff75",
+          "search_outcome_ledger_sha256": "4faa65fa1a253f40cc83198d5f68a67661ca3348b3cd9006a93c7080a5647235"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "256:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 128,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.01953125,
+            "p1_score": 0.39453125
+          },
+          "second_challenger": {
+            "p0_score": 0.01953125,
+            "p1_score": 0.39453125
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 75.0,
+          "p95_ms": 237.53
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "4cd468c3c8c2ba48208960fda73d918033b135d1c2a8eabe8e6520d68be1f375",
+          "search_configuration_ledger_sha256": "8b50b6ed834a46d4d72902ce3253138f07905cad20bf63056a987c26180f4f89",
+          "search_outcome_ledger_sha256": "e36248b76ec01440cbdbb954369e816e9e9fe9223dcfa15c742faeb0a4280428"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      }
+    }
+  },
+  "fixed_large": {
+    "B_minus_A": {
+      "384:256": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.012369791666666666,
+        "opening_cluster_ci95": {
+          "mean": 0.012369791666666666,
+          "lower_95": 0.008622233072916671,
+          "upper_95": 0.016276041666666668,
+          "samples": 10000
+        },
+        "positive_openings": 28,
+        "zero_openings": 347,
+        "negative_openings": 9,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.43359375,
+            "p1_score": 0.9283854166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.3606770833333333,
+            "p1_score": 0.9518229166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 49.0625,
+          "p95_ms": 118.14500000000001
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "f8ca93e423aba9eb10abd6971d8ee95019dd091aca0e44abc1de990ac2df77a4",
+          "search_configuration_ledger_sha256": "06c9d1217308b59231572d3c2257aaa2fcb1ea1bee7c239375879668bd3d3fc1",
+          "search_outcome_ledger_sha256": "058e9c6a1e8aba9c1e48362e013d2c7699649f284beae0bb868a8037b4c95650"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.012369791666666666,
+          "43": 0.012369791666666666,
+          "44": 0.012369791666666666,
+          "45": 0.012369791666666666
+        }
+      },
+      "768:256": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0322265625,
+        "opening_cluster_ci95": {
+          "mean": -0.0322265625,
+          "lower_95": -0.038248697916666664,
+          "upper_95": -0.0263671875,
+          "samples": 10000
+        },
+        "positive_openings": 66,
+        "zero_openings": 227,
+        "negative_openings": 91,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4895833333333333,
+            "p1_score": 0.9544270833333334
+          },
+          "second_challenger": {
+            "p0_score": 0.5950520833333334,
+            "p1_score": 0.9778645833333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.2525,
+          "p95_ms": 239.665
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "b50d16ee0188e3a8007b47b925547627ffc503b2993a682b5a9da289a44b9fc0",
+          "search_configuration_ledger_sha256": "751ed5b4b247e2eab42e63d6e0aa0393b670309d2cb4b255984eac9dcd722c99",
+          "search_outcome_ledger_sha256": "822d59e72d7b7837b2d36f74c477c892d6ef9744c05c3527defb4bfbbacd7fb4"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0322265625,
+          "43": -0.0322265625,
+          "44": -0.0322265625,
+          "45": -0.0322265625
+        }
+      },
+      "768:768": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.044921875,
+        "opening_cluster_ci95": {
+          "mean": -0.044921875,
+          "lower_95": -0.049641927083333336,
+          "upper_95": -0.040201822916666664,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 315,
+        "negative_openings": 69,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.3528645833333333,
+            "p1_score": 0.5572916666666666
+          },
+          "second_challenger": {
+            "p0_score": 0.4427083333333333,
+            "p1_score": 0.6471354166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 15,
+          "second_challenger_unique": 15
+        },
+        "latency": {
+          "mean_ms": 107.30250000000001,
+          "p95_ms": 250.39
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "43d3ac48584c32a12054e2f994c22a220f8ecd693dc8122003d0b931a61834e2",
+          "search_configuration_ledger_sha256": "768ea94255c61f867d3573c13352f3dec05371a687d3600b161a309d63a43411",
+          "search_outcome_ledger_sha256": "db0a35e47e55ad184eb33be9081a2443461aceb6d6ada030727fbd2c403e1b76"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.044921875,
+          "43": -0.044921875,
+          "44": -0.044921875,
+          "45": -0.044921875
+        }
+      },
+      "1200:1200": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.01953125,
+        "opening_cluster_ci95": {
+          "mean": -0.01953125,
+          "lower_95": -0.03173828125,
+          "upper_95": -0.007161458333333333,
+          "samples": 10000
+        },
+        "positive_openings": 60,
+        "zero_openings": 174,
+        "negative_openings": 150,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4739583333333333,
+            "p1_score": 0.4869791666666667
+          },
+          "second_challenger": {
+            "p0_score": 0.5130208333333334,
+            "p1_score": 0.5260416666666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 21,
+          "second_challenger_unique": 21
+        },
+        "latency": {
+          "mean_ms": 173.92000000000002,
+          "p95_ms": 393.67499999999995
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "2fd28e6de3622f766bd1e7540540c2e17d7dd88bd81a2b77ae248027dc57cb7f",
+          "search_configuration_ledger_sha256": "fd3c15af2df83cc9e56c1582b8b989f5a19a5f0a000f126e1a812a06d8ccd863",
+          "search_outcome_ledger_sha256": "db911f882d868b777682c7f5a1a1b6e101be59919c3a4aebb6f39347584620e4"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.01953125,
+          "43": -0.01953125,
+          "44": -0.01953125,
+          "45": -0.01953125
+        }
+      },
+      "1200:256": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.043619791666666664,
+        "opening_cluster_ci95": {
+          "mean": -0.043619791666666664,
+          "lower_95": -0.049723307291666664,
+          "upper_95": -0.037516276041666664,
+          "samples": 10000
+        },
+        "positive_openings": 65,
+        "zero_openings": 195,
+        "negative_openings": 124,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6223958333333334,
+            "p1_score": 0.9505208333333334
+          },
+          "second_challenger": {
+            "p0_score": 0.8580729166666666,
+            "p1_score": 0.8893229166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 113.2975,
+          "p95_ms": 384.06
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "5a65568f9e7754107e37e8a437805242f26e5ff6c7b347dec16901fba6073f48",
+          "search_configuration_ledger_sha256": "557d932caf3d4501889f3688cee4b5f192c8f22169bbd9e11f2cc080d1af3c39",
+          "search_outcome_ledger_sha256": "00ac076d0da834369a3c6d9fa0b9f426a34f7e07a1ad53baeff8b89b3ac7939f"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.043619791666666664,
+          "43": -0.043619791666666664,
+          "44": -0.043619791666666664,
+          "45": -0.043619791666666664
+        }
+      },
+      "256:768": {
+        "first_profile": "no_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0322265625,
+        "opening_cluster_ci95": {
+          "mean": -0.0322265625,
+          "lower_95": -0.038248697916666664,
+          "upper_95": -0.0263671875,
+          "samples": 10000
+        },
+        "positive_openings": 66,
+        "zero_openings": 227,
+        "negative_openings": 91,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.022135416666666668,
+            "p1_score": 0.4049479166666667
+          },
+          "second_challenger": {
+            "p0_score": 0.045572916666666664,
+            "p1_score": 0.5104166666666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.15,
+          "p95_ms": 239.875
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "7edf0985a58ec11d1dfe16da6c8e622b8bcb95d350e6f5dcec1b5d4caded5a5c",
+          "search_configuration_ledger_sha256": "d6c0eeada314b9a57cff6145fd6c3eb1d9267936cd3bb25f97ea1d7a986d9354",
+          "search_outcome_ledger_sha256": "16588724ced5b80aea89153dea1e1dc549cdb58c917835b6e328b79f3a1ae1d9"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0322265625,
+          "43": -0.0322265625,
+          "44": -0.0322265625,
+          "45": -0.0322265625
+        }
+      }
+    },
+    "D_minus_C": {
+      "384:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.012369791666666666,
+        "opening_cluster_ci95": {
+          "mean": 0.012369791666666666,
+          "lower_95": 0.008622233072916671,
+          "upper_95": 0.016276041666666668,
+          "samples": 10000
+        },
+        "positive_openings": 28,
+        "zero_openings": 347,
+        "negative_openings": 9,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.43359375,
+            "p1_score": 0.9283854166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.3606770833333333,
+            "p1_score": 0.9518229166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 48.7825,
+          "p95_ms": 118.775
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "f8ca93e423aba9eb10abd6971d8ee95019dd091aca0e44abc1de990ac2df77a4",
+          "search_configuration_ledger_sha256": "7375a259eb1674ac1c8451f597b21d986da9687cc3d13e2c9d18f10dd90bec14",
+          "search_outcome_ledger_sha256": "058e9c6a1e8aba9c1e48362e013d2c7699649f284beae0bb868a8037b4c95650"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.012369791666666666,
+          "43": 0.012369791666666666,
+          "44": 0.012369791666666666,
+          "45": 0.012369791666666666
+        }
+      },
+      "768:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0322265625,
+        "opening_cluster_ci95": {
+          "mean": -0.0322265625,
+          "lower_95": -0.038248697916666664,
+          "upper_95": -0.0263671875,
+          "samples": 10000
+        },
+        "positive_openings": 66,
+        "zero_openings": 227,
+        "negative_openings": 91,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4895833333333333,
+            "p1_score": 0.9544270833333334
+          },
+          "second_challenger": {
+            "p0_score": 0.5950520833333334,
+            "p1_score": 0.9778645833333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.4375,
+          "p95_ms": 240.45
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "b50d16ee0188e3a8007b47b925547627ffc503b2993a682b5a9da289a44b9fc0",
+          "search_configuration_ledger_sha256": "d258efee2202532de04619ee93f5893abfd1edf287d05936ef8ab6f0cb1df0c6",
+          "search_outcome_ledger_sha256": "822d59e72d7b7837b2d36f74c477c892d6ef9744c05c3527defb4bfbbacd7fb4"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0322265625,
+          "43": -0.0322265625,
+          "44": -0.0322265625,
+          "45": -0.0322265625
+        }
+      },
+      "768:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.037760416666666664,
+        "opening_cluster_ci95": {
+          "mean": 0.037760416666666664,
+          "lower_95": 0.0244140625,
+          "upper_95": 0.05078125,
+          "samples": 10000
+        },
+        "positive_openings": 69,
+        "zero_openings": 275,
+        "negative_openings": 40,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6822916666666666,
+            "p1_score": 0.3932291666666667
+          },
+          "second_challenger": {
+            "p0_score": 0.6067708333333334,
+            "p1_score": 0.3177083333333333
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 20,
+          "second_challenger_unique": 20
+        },
+        "latency": {
+          "mean_ms": 117.36500000000001,
+          "p95_ms": 250.45
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "6717ffd80c884e8cc73dfa671465fb163a342ee37de687277c31217e251649db",
+          "search_configuration_ledger_sha256": "31e1ba649008754340f10f506aef61aaf43c5ea56214a3790e3014a249c78ca2",
+          "search_outcome_ledger_sha256": "35c67e7a96b26ba580ab5a5502028e89a13aae8dc4ae521eecf44730d0da0fc7"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.037760416666666664,
+          "43": 0.037760416666666664,
+          "44": 0.037760416666666664,
+          "45": 0.037760416666666664
+        }
+      },
+      "1200:1200": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.01953125,
+        "opening_cluster_ci95": {
+          "mean": -0.01953125,
+          "lower_95": -0.03173828125,
+          "upper_95": -0.007161458333333333,
+          "samples": 10000
+        },
+        "positive_openings": 60,
+        "zero_openings": 174,
+        "negative_openings": 150,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4739583333333333,
+            "p1_score": 0.4869791666666667
+          },
+          "second_challenger": {
+            "p0_score": 0.5130208333333334,
+            "p1_score": 0.5260416666666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 21,
+          "second_challenger_unique": 21
+        },
+        "latency": {
+          "mean_ms": 174.23749999999998,
+          "p95_ms": 394.775
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "2fd28e6de3622f766bd1e7540540c2e17d7dd88bd81a2b77ae248027dc57cb7f",
+          "search_configuration_ledger_sha256": "990b3a071dd9105ca8daf807cf14b000027465777f3281a197b76b1130defd0d",
+          "search_outcome_ledger_sha256": "db911f882d868b777682c7f5a1a1b6e101be59919c3a4aebb6f39347584620e4"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.01953125,
+          "43": -0.01953125,
+          "44": -0.01953125,
+          "45": -0.01953125
+        }
+      },
+      "1200:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.043619791666666664,
+        "opening_cluster_ci95": {
+          "mean": -0.043619791666666664,
+          "lower_95": -0.049723307291666664,
+          "upper_95": -0.037516276041666664,
+          "samples": 10000
+        },
+        "positive_openings": 65,
+        "zero_openings": 195,
+        "negative_openings": 124,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6223958333333334,
+            "p1_score": 0.9505208333333334
+          },
+          "second_challenger": {
+            "p0_score": 0.8580729166666666,
+            "p1_score": 0.8893229166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 114.05000000000001,
+          "p95_ms": 384.25
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "5a65568f9e7754107e37e8a437805242f26e5ff6c7b347dec16901fba6073f48",
+          "search_configuration_ledger_sha256": "2a2f79bec817a3c47984c5acee93a9e96242606bce1acb47bbfe42ec34e05a0b",
+          "search_outcome_ledger_sha256": "00ac076d0da834369a3c6d9fa0b9f426a34f7e07a1ad53baeff8b89b3ac7939f"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.043619791666666664,
+          "43": -0.043619791666666664,
+          "44": -0.043619791666666664,
+          "45": -0.043619791666666664
+        }
+      },
+      "256:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "legacy_tactical_with_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": -0.0322265625,
+        "opening_cluster_ci95": {
+          "mean": -0.0322265625,
+          "lower_95": -0.038248697916666664,
+          "upper_95": -0.0263671875,
+          "samples": 10000
+        },
+        "positive_openings": 66,
+        "zero_openings": 227,
+        "negative_openings": 91,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.022135416666666668,
+            "p1_score": 0.4049479166666667
+          },
+          "second_challenger": {
+            "p0_score": 0.045572916666666664,
+            "p1_score": 0.5104166666666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.0825,
+          "p95_ms": 239.55
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "7edf0985a58ec11d1dfe16da6c8e622b8bcb95d350e6f5dcec1b5d4caded5a5c",
+          "search_configuration_ledger_sha256": "791de097e88cb198a53c78334ae2069b8d626a088f10f95889ea752bc25bdd7f",
+          "search_outcome_ledger_sha256": "16588724ced5b80aea89153dea1e1dc549cdb58c917835b6e328b79f3a1ae1d9"
+        },
+        "seed_block_sensitivity": {
+          "42": -0.0322265625,
+          "43": -0.0322265625,
+          "44": -0.0322265625,
+          "45": -0.0322265625
+        }
+      }
+    },
+    "C_minus_A": {
+      "384:256": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4049479166666667,
+            "p1_score": 0.9505208333333334
+          },
+          "second_challenger": {
+            "p0_score": 0.4049479166666667,
+            "p1_score": 0.9505208333333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 49.394999999999996,
+          "p95_ms": 118.28999999999999
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "4f821cb643b8afddd7a340432195bb512257cf482c635f7bed7b32907ee323df",
+          "search_configuration_ledger_sha256": "6e4e162b7f9fb21327090b4d8246e3574133df1a9dd85a008b63ba26c798d39a",
+          "search_outcome_ledger_sha256": "76c0d9e8a3e18a69364b7c0a203951cc364d9667f5c690369b42ef9353d0321e"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:256": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.51171875,
+            "p1_score": 0.9765625
+          },
+          "second_challenger": {
+            "p0_score": 0.51171875,
+            "p1_score": 0.9765625
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.5775,
+          "p95_ms": 240.06
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "016e7c3dbab5f9db3d492be64961cb0637410e5c48f855c4b2fdf02cce491719",
+          "search_configuration_ledger_sha256": "0bfac0c3564de8beed24c95977a3c80e464cb6d2af3de3e8694f1b4c0e736f06",
+          "search_outcome_ledger_sha256": "ebeca64e6ccef0b373c91491e66c4cd174be1220b60cf5366e9801d461d10500"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:768": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.18229166666666666,
+        "opening_cluster_ci95": {
+          "mean": 0.18229166666666666,
+          "lower_95": 0.16276041666666666,
+          "upper_95": 0.20118001302083321,
+          "samples": 10000
+        },
+        "positive_openings": 209,
+        "zero_openings": 106,
+        "negative_openings": 69,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6549479166666666,
+            "p1_score": 0.7096354166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.2903645833333333,
+            "p1_score": 0.3450520833333333
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 116.33500000000001,
+          "p95_ms": 251.565
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "a18b1e1843faae2c8c27836f35d98b0175f0550f286b42cfa6eac584be29407f",
+          "search_configuration_ledger_sha256": "c889aa58dab194ab057d988042f5eff58688064a8de805fb0da2ca36608d338a",
+          "search_outcome_ledger_sha256": "7dbeac80ef5be7b9a8009fec8ad961536595e5b79b7e749917862916ad44b69c"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.18229166666666666,
+          "43": 0.18229166666666666,
+          "44": 0.18229166666666666,
+          "45": 0.18229166666666666
+        }
+      },
+      "1200:1200": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4309895833333333,
+            "p1_score": 0.5690104166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.4309895833333333,
+            "p1_score": 0.5690104166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 11,
+          "second_challenger_unique": 11
+        },
+        "latency": {
+          "mean_ms": 175.95499999999998,
+          "p95_ms": 395.745
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "1a8c8852c820cd2470d9525f115d1490e647e234936188d85fe00b3118bff0c1",
+          "search_configuration_ledger_sha256": "0c8dabd660e17df9f6d1cdeaeb930958c4a0f8c6abead04f0f645cb9aa9cce5e",
+          "search_outcome_ledger_sha256": "4b8275368f66f2fe573bb727cb1958044d98653a863adf030d69dbbb8ada3e88"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:256": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6861979166666666,
+            "p1_score": 0.8658854166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.6861979166666666,
+            "p1_score": 0.8658854166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 111.2775,
+          "p95_ms": 381.025
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "4432dd7a7105faf44c17d0ab4321d1414642bd94054407cc360877750b5bb8fe",
+          "search_configuration_ledger_sha256": "fc966b1f674ee01b5f7bebae4bd7daedff2b4db6cb0d69d78fcc7921e21843c3",
+          "search_outcome_ledger_sha256": "47692fb60627b28027f0a421981c32a1f59488bb0f2fe40a402ee2aa2a840430"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "256:768": {
+        "first_profile": "legacy_tactical_with_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.0234375,
+            "p1_score": 0.48828125
+          },
+          "second_challenger": {
+            "p0_score": 0.0234375,
+            "p1_score": 0.48828125
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 77.14750000000001,
+          "p95_ms": 240.755
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "98e282a08a3ce5db50199d0c7e46470ed5e5597a80cb36f8ed85bb87837c79cb",
+          "search_configuration_ledger_sha256": "7b981d8fc00aefddba4921a499caf71866b37eb989082c487c721df95b83a795",
+          "search_outcome_ledger_sha256": "7d5440be87f1708fb13da0e331c8193f094d555f7ab7ebb43c2cfc2f2ec0fdb4"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      }
+    },
+    "D_minus_B": {
+      "384:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.61328125,
+            "p1_score": 0.9231770833333334
+          },
+          "second_challenger": {
+            "p0_score": 0.61328125,
+            "p1_score": 0.9231770833333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 48.2225,
+          "p95_ms": 118.225
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "6e9c3db5f20fc30227235175dcae5e93e88ec1bf3b439b1ad3261fcb4b42b2da",
+          "search_configuration_ledger_sha256": "c14a674aa200f923b2bc6adc65ec97eba7932a00c36b3c87ae290fd1fe45eb4d",
+          "search_outcome_ledger_sha256": "e2cde24c0d62a99fa5b9bb42224722583df0e5cdc1cf6b9a46aeb8f11fb14b90"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.5729166666666666,
+            "p1_score": 0.9778645833333334
+          },
+          "second_challenger": {
+            "p0_score": 0.5729166666666666,
+            "p1_score": 0.9778645833333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 75.945,
+          "p95_ms": 238.59
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "61d2275ed82e39ec009749b2dc41a3e5af6b9ae3e5f3658468da7652dda12ef3",
+          "search_configuration_ledger_sha256": "7fe6503955657fd35dca8de5fa817377d7428aca8528b39d0940b71424a16182",
+          "search_outcome_ledger_sha256": "1e8229c18644afa51fe79bab6ea701feeb67294d49e50fcad5b8c30d9f762281"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.2766927083333333,
+        "opening_cluster_ci95": {
+          "mean": 0.2766927083333333,
+          "lower_95": 0.2626953125,
+          "upper_95": 0.2903645833333333,
+          "samples": 10000
+        },
+        "positive_openings": 265,
+        "zero_openings": 99,
+        "negative_openings": 20,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.9192708333333334,
+            "p1_score": 0.6341145833333334
+          },
+          "second_challenger": {
+            "p0_score": 0.3658854166666667,
+            "p1_score": 0.08072916666666667
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 115.0,
+          "p95_ms": 250.09
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "bd9122f0c9844c4c6866ebbddb4072900ccf4cd97fea9950e51d3f80babba6bf",
+          "search_configuration_ledger_sha256": "61b3be4ce1c8872a022b7a1c6384e513615e6c9d1338af4e655ca6b908f556e6",
+          "search_outcome_ledger_sha256": "7bc5a61273ae5ef133b1e5646c476efc88e995aa2bf23e5f4abfae564616c406"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.2766927083333333,
+          "43": 0.2766927083333333,
+          "44": 0.2766927083333333,
+          "45": 0.2766927083333333
+        }
+      },
+      "1200:1200": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.640625,
+            "p1_score": 0.359375
+          },
+          "second_challenger": {
+            "p0_score": 0.640625,
+            "p1_score": 0.359375
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 11,
+          "second_challenger_unique": 11
+        },
+        "latency": {
+          "mean_ms": 174.35750000000002,
+          "p95_ms": 392.955
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "a8ea183bfb4891661544118fe05dec5752ef9d99109fbb4b9bbfb7342d7c2139",
+          "search_configuration_ledger_sha256": "1b65bcef4e012ba1fcc4327c50e80d0747c40ca299b2836ea5d778d366ebc761",
+          "search_outcome_ledger_sha256": "d19372c748b58b4f96fa1d581e27f7a24712094d765886b11ac128dd8bd55724"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.8580729166666666,
+            "p1_score": 0.9739583333333334
+          },
+          "second_challenger": {
+            "p0_score": 0.8580729166666666,
+            "p1_score": 0.9739583333333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 114.195,
+          "p95_ms": 381.81
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "7920f45dbb24dbb0ba6e0ada5b280c4ab04b400c0127273eda500ea475113bb9",
+          "search_configuration_ledger_sha256": "f05f7b1c953039251af5a0f56aa0b801fc049ea19d2e1b3278989172d01a2575",
+          "search_outcome_ledger_sha256": "c183fd592e30f30758868d027996bc230d627f2b0d167e39ab8b363666fdf44d"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "256:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "no_tactical_no_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.022135416666666668,
+            "p1_score": 0.4270833333333333
+          },
+          "second_challenger": {
+            "p0_score": 0.022135416666666668,
+            "p1_score": 0.4270833333333333
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.02499999999999,
+          "p95_ms": 239.595
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "29164bb1f77747dc8b540fb0e50f2bc994c91e479241d4c179e4f5978348c04f",
+          "search_configuration_ledger_sha256": "829a5f1793510ca3a537e0347536cece5e2680debb2da5673a3476775afe55d1",
+          "search_outcome_ledger_sha256": "2ee866b82c62aad89f869ffd8b9bf2794fe326daf169c9071be3cddad4d4be16"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      }
+    }
+  },
+  "nulls": {
+    "D_minus_D": {
+      "384:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "current_promoted_profile",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.61328125,
+            "p1_score": 0.9231770833333334
+          },
+          "second_challenger": {
+            "p0_score": 0.61328125,
+            "p1_score": 0.9231770833333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 48.3575,
+          "p95_ms": 118.535
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "6e9c3db5f20fc30227235175dcae5e93e88ec1bf3b439b1ad3261fcb4b42b2da",
+          "search_configuration_ledger_sha256": "e5052b23b86977d0121327d440d4b86182333666a96f626dceae7f4353f80643",
+          "search_outcome_ledger_sha256": "e2cde24c0d62a99fa5b9bb42224722583df0e5cdc1cf6b9a46aeb8f11fb14b90"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "current_promoted_profile",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.5729166666666666,
+            "p1_score": 0.9778645833333334
+          },
+          "second_challenger": {
+            "p0_score": 0.5729166666666666,
+            "p1_score": 0.9778645833333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.05250000000001,
+          "p95_ms": 239.155
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "61d2275ed82e39ec009749b2dc41a3e5af6b9ae3e5f3658468da7652dda12ef3",
+          "search_configuration_ledger_sha256": "cf4474413b1a0db160f4f6310145f76f7050fc30c96cf472a004ec50044328e1",
+          "search_outcome_ledger_sha256": "1e8229c18644afa51fe79bab6ea701feeb67294d49e50fcad5b8c30d9f762281"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "current_promoted_profile",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.8424479166666666,
+            "p1_score": 0.15755208333333334
+          },
+          "second_challenger": {
+            "p0_score": 0.8424479166666666,
+            "p1_score": 0.15755208333333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 11,
+          "second_challenger_unique": 11
+        },
+        "latency": {
+          "mean_ms": 119.3425,
+          "p95_ms": 250.245
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "cd6529052850da4042efdcd9017a18a5dee13b2c34c0c80f730e0be857f46d52",
+          "search_configuration_ledger_sha256": "e2919fd23faa9096907af1d73ac4d2aeff0719a1dd4257b96f1250f982fb2c56",
+          "search_outcome_ledger_sha256": "08fb2f2549e4b36972f0a4e5390efa0c33bd19bc3254af151f54a01f1cbd93ba"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:1200": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "current_promoted_profile",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.640625,
+            "p1_score": 0.359375
+          },
+          "second_challenger": {
+            "p0_score": 0.640625,
+            "p1_score": 0.359375
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 11,
+          "second_challenger_unique": 11
+        },
+        "latency": {
+          "mean_ms": 173.745,
+          "p95_ms": 393.94500000000005
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "a8ea183bfb4891661544118fe05dec5752ef9d99109fbb4b9bbfb7342d7c2139",
+          "search_configuration_ledger_sha256": "fb2a94acc320ab36c9ce424464c62ca729ecc189072fc7cf663cdf55d118e869",
+          "search_outcome_ledger_sha256": "d19372c748b58b4f96fa1d581e27f7a24712094d765886b11ac128dd8bd55724"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:256": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "current_promoted_profile",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.8580729166666666,
+            "p1_score": 0.9739583333333334
+          },
+          "second_challenger": {
+            "p0_score": 0.8580729166666666,
+            "p1_score": 0.9739583333333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 113.65,
+          "p95_ms": 381.78499999999997
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "7920f45dbb24dbb0ba6e0ada5b280c4ab04b400c0127273eda500ea475113bb9",
+          "search_configuration_ledger_sha256": "745cd446abfa4fb629fdd3feb83af5e125ea5402d4a3fa81b9fc49e8255f56f2",
+          "search_outcome_ledger_sha256": "c183fd592e30f30758868d027996bc230d627f2b0d167e39ab8b363666fdf44d"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "256:768": {
+        "first_profile": "current_promoted_profile",
+        "second_profile": "current_promoted_profile",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.022135416666666668,
+            "p1_score": 0.4270833333333333
+          },
+          "second_challenger": {
+            "p0_score": 0.022135416666666668,
+            "p1_score": 0.4270833333333333
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 75.63499999999999,
+          "p95_ms": 238.075
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "29164bb1f77747dc8b540fb0e50f2bc994c91e479241d4c179e4f5978348c04f",
+          "search_configuration_ledger_sha256": "35a9176cb4282c5b9e4e2022a5990bc4134486abeafd1ae2cb234d548f2869b3",
+          "search_outcome_ledger_sha256": "2ee866b82c62aad89f869ffd8b9bf2794fe326daf169c9071be3cddad4d4be16"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      }
+    },
+    "A_minus_A": {
+      "384:256": {
+        "first_profile": "legacy_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "384:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4049479166666667,
+            "p1_score": 0.9505208333333334
+          },
+          "second_challenger": {
+            "p0_score": 0.4049479166666667,
+            "p1_score": 0.9505208333333334
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 49.207499999999996,
+          "p95_ms": 117.85
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "4f821cb643b8afddd7a340432195bb512257cf482c635f7bed7b32907ee323df",
+          "search_configuration_ledger_sha256": "3bca7e77904e4d9be47f2fd437c1d2e9219ada88996275e3f6f592104c7c4c99",
+          "search_outcome_ledger_sha256": "76c0d9e8a3e18a69364b7c0a203951cc364d9667f5c690369b42ef9353d0321e"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:256": {
+        "first_profile": "legacy_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.51171875,
+            "p1_score": 0.9765625
+          },
+          "second_challenger": {
+            "p0_score": 0.51171875,
+            "p1_score": 0.9765625
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.12,
+          "p95_ms": 238.89
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "016e7c3dbab5f9db3d492be64961cb0637410e5c48f855c4b2fdf02cce491719",
+          "search_configuration_ledger_sha256": "dd8cc9ee851164ac95d5e0e652a999e9162e0809b2fd59441b3b9aa914f64aa1",
+          "search_outcome_ledger_sha256": "ebeca64e6ccef0b373c91491e66c4cd174be1220b60cf5366e9801d461d10500"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "768:768": {
+        "first_profile": "legacy_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "768:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.3528645833333333,
+            "p1_score": 0.6471354166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.3528645833333333,
+            "p1_score": 0.6471354166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 11,
+          "second_challenger_unique": 11
+        },
+        "latency": {
+          "mean_ms": 108.54249999999999,
+          "p95_ms": 250.45
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "414f4d730c2434f068843b4364e7beb0db9f9ca2510dc3b818babe966bfb68cc",
+          "search_configuration_ledger_sha256": "83a06dc1341289a1e8b8556c513d3f300fafca49b0558c6b5cc010a2c167ebc2",
+          "search_outcome_ledger_sha256": "e76ef59a7dbf1cdc331006b97f3fac5b703e64aada34aef52abe4946988ad712"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:1200": {
+        "first_profile": "legacy_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:1200",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.4309895833333333,
+            "p1_score": 0.5690104166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.4309895833333333,
+            "p1_score": 0.5690104166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 11,
+          "second_challenger_unique": 11
+        },
+        "latency": {
+          "mean_ms": 176.39,
+          "p95_ms": 395.375
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "1a8c8852c820cd2470d9525f115d1490e647e234936188d85fe00b3118bff0c1",
+          "search_configuration_ledger_sha256": "2ca8e73c76a32d494dbef55b9b63f56eef68af1186369e3c240ecc96689d9a74",
+          "search_outcome_ledger_sha256": "4b8275368f66f2fe573bb727cb1958044d98653a863adf030d69dbbb8ada3e88"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "1200:256": {
+        "first_profile": "legacy_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "1200:256",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.6861979166666666,
+            "p1_score": 0.8658854166666666
+          },
+          "second_challenger": {
+            "p0_score": 0.6861979166666666,
+            "p1_score": 0.8658854166666666
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 110.745,
+          "p95_ms": 381.72
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "4432dd7a7105faf44c17d0ab4321d1414642bd94054407cc360877750b5bb8fe",
+          "search_configuration_ledger_sha256": "67f43121af9150cbbab07ac181c67f0541750ce989e6ad952973502069b51858",
+          "search_outcome_ledger_sha256": "47692fb60627b28027f0a421981c32a1f59488bb0f2fe40a402ee2aa2a840430"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      },
+      "256:768": {
+        "first_profile": "legacy_tactical_no_schedule",
+        "second_profile": "legacy_tactical_no_schedule",
+        "budget": "256:768",
+        "base_seed": 42,
+        "orientation_normalized_ds": 0.0,
+        "opening_cluster_ci95": {
+          "mean": 0.0,
+          "lower_95": 0.0,
+          "upper_95": 0.0,
+          "samples": 10000
+        },
+        "positive_openings": 0,
+        "zero_openings": 384,
+        "negative_openings": 0,
+        "p0_p1": {
+          "first_challenger": {
+            "p0_score": 0.0234375,
+            "p1_score": 0.48828125
+          },
+          "second_challenger": {
+            "p0_score": 0.0234375,
+            "p1_score": 0.48828125
+          }
+        },
+        "trajectory_agreement": {
+          "first_challenger_unique": 22,
+          "second_challenger_unique": 22
+        },
+        "latency": {
+          "mean_ms": 76.5675,
+          "p95_ms": 239.5
+        },
+        "provenance": {
+          "seed_identity_ledger_sha256": "98e282a08a3ce5db50199d0c7e46470ed5e5597a80cb36f8ed85bb87837c79cb",
+          "search_configuration_ledger_sha256": "1dcb84ed393bda32c35bfdb4a38bed0a0144c0c3cf1044399c3d3dbc6575c911",
+          "search_outcome_ledger_sha256": "7d5440be87f1708fb13da0e331c8193f094d555f7ab7ebb43c2cfc2f2ec0fdb4"
+        },
+        "seed_block_sensitivity": {
+          "42": 0.0,
+          "43": 0.0,
+          "44": 0.0,
+          "45": 0.0
+        }
+      }
+    }
+  },
+  "heldout": {
+    "heldout_seed43_large": {
+      "D_minus_B": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "no_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.2916666666666667,
+          "opening_cluster_ci95": {
+            "mean": 0.2916666666666667,
+            "lower_95": 0.27783203125,
+            "upper_95": 0.3050130208333333,
+            "samples": 10000
+          },
+          "positive_openings": 271,
+          "zero_openings": 96,
+          "negative_openings": 17,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.9322916666666666,
+              "p1_score": 0.6510416666666666
+            },
+            "second_challenger": {
+              "p0_score": 0.3489583333333333,
+              "p1_score": 0.06770833333333333
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 115.67750000000001,
+            "p95_ms": 249.69
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "d076b8c1e5d45825b54ae93266e47decd1c595a3fb956eac4f27c2146f8ff2ac",
+            "search_configuration_ledger_sha256": "f714eb909c60592275dcf56c573aa4d72dddc89ba7c215280263e636286cccad",
+            "search_outcome_ledger_sha256": "05bbb82291653261295ccb0b8efa63a618ddf1d95b940de06a182fb58e9c060c"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.2916666666666667,
+            "43": 0.2916666666666667,
+            "44": 0.2916666666666667,
+            "45": 0.2916666666666667
+          }
+        }
+      },
+      "D_minus_C": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_with_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.04296875,
+          "opening_cluster_ci95": {
+            "mean": 0.04296875,
+            "lower_95": 0.0302734375,
+            "upper_95": 0.055989583333333336,
+            "samples": 10000
+          },
+          "positive_openings": 67,
+          "zero_openings": 283,
+          "negative_openings": 34,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.703125,
+              "p1_score": 0.3828125
+            },
+            "second_challenger": {
+              "p0_score": 0.6171875,
+              "p1_score": 0.296875
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 18,
+            "second_challenger_unique": 18
+          },
+          "latency": {
+            "mean_ms": 116.38,
+            "p95_ms": 249.595
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "1d6118303ec1be45712215587192f61c627f85ac16cac91a4b02157652cf8bd0",
+            "search_configuration_ledger_sha256": "2c610644befad55ef4f7ed7443317541f50b5ee1b473fe47b7b4cca3cf6dffa9",
+            "search_outcome_ledger_sha256": "95aaf8cf55e3722d9acdb82fec11f310c077458f1eb976e4189f1e4f18a3aa1d"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.04296875,
+            "43": 0.04296875,
+            "44": 0.04296875,
+            "45": 0.04296875
+          }
+        }
+      },
+      "D_minus_A": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.208984375,
+          "opening_cluster_ci95": {
+            "mean": 0.208984375,
+            "lower_95": 0.19140625,
+            "upper_95": 0.22607421875,
+            "samples": 10000
+          },
+          "positive_openings": 211,
+          "zero_openings": 89,
+          "negative_openings": 84,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.7669270833333334,
+              "p1_score": 0.6510416666666666
+            },
+            "second_challenger": {
+              "p0_score": 0.3489583333333333,
+              "p1_score": 0.23307291666666666
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 113.2175,
+            "p95_ms": 250.16
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "4c1b75e7792f2ec3d41341236e57f415a5f1f849d91e9c82567b226a08ff6575",
+            "search_configuration_ledger_sha256": "8f2d749512ecaa6daecabe3c7b8ff95673fc687f6d15d64b47bd3803f5fe0f09",
+            "search_outcome_ledger_sha256": "b61bdca7576bdae2c5d9e4d060f93a88919f5049950e57045c6fe87cc9463860"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.208984375,
+            "43": 0.208984375,
+            "44": 0.208984375,
+            "45": 0.208984375
+          }
+        }
+      }
+    },
+    "heldout_seed44_large": {
+      "D_minus_B": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "no_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.2858072916666667,
+          "opening_cluster_ci95": {
+            "mean": 0.2858072916666667,
+            "lower_95": 0.27197265625,
+            "upper_95": 0.2994791666666667,
+            "samples": 10000
+          },
+          "positive_openings": 269,
+          "zero_openings": 96,
+          "negative_openings": 19,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.9140625,
+              "p1_score": 0.6575520833333334
+            },
+            "second_challenger": {
+              "p0_score": 0.3424479166666667,
+              "p1_score": 0.0859375
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 115.22999999999999,
+            "p95_ms": 249.79
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "a2334d598dbe030496996db0e216b592a2367f98448c346030a84f5b5c504846",
+            "search_configuration_ledger_sha256": "90fa597c023c1c24de6abba1a2be211f87ffd1b91815c368221b92ee04b6b9e6",
+            "search_outcome_ledger_sha256": "f1a93fb866e9e4032c4b2a9b290bbc7a29c3e3ead7794240b7db3a7de2c98862"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.2858072916666667,
+            "43": 0.2858072916666667,
+            "44": 0.2858072916666667,
+            "45": 0.2858072916666667
+          }
+        }
+      },
+      "D_minus_C": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_with_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.032552083333333336,
+          "opening_cluster_ci95": {
+            "mean": 0.032552083333333336,
+            "lower_95": 0.01953125,
+            "upper_95": 0.045572916666666664,
+            "samples": 10000
+          },
+          "positive_openings": 65,
+          "zero_openings": 279,
+          "negative_openings": 40,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.6927083333333334,
+              "p1_score": 0.3723958333333333
+            },
+            "second_challenger": {
+              "p0_score": 0.6276041666666666,
+              "p1_score": 0.3072916666666667
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 18,
+            "second_challenger_unique": 18
+          },
+          "latency": {
+            "mean_ms": 118.145,
+            "p95_ms": 249.89
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "6e07c506ecc3b7eccc3b666fbbbb2a6e815f83ad389aeed42dc9d83015b5b16d",
+            "search_configuration_ledger_sha256": "4c25414ad16a040347af8ce1646516c7f0a9602bad0c86812a1a099894fc08e0",
+            "search_outcome_ledger_sha256": "834c2c0e0aefab1c73c9143c455e927b9786bd0a3a0e2559a245541b98e38fa4"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.032552083333333336,
+            "43": 0.032552083333333336,
+            "44": 0.032552083333333336,
+            "45": 0.032552083333333336
+          }
+        }
+      },
+      "D_minus_A": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.20377604166666666,
+          "opening_cluster_ci95": {
+            "mean": 0.20377604166666666,
+            "lower_95": 0.18668619791666666,
+            "upper_95": 0.22102864583333334,
+            "samples": 10000
+          },
+          "positive_openings": 208,
+          "zero_openings": 92,
+          "negative_openings": 84,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.75,
+              "p1_score": 0.6575520833333334
+            },
+            "second_challenger": {
+              "p0_score": 0.3424479166666667,
+              "p1_score": 0.25
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 113.9125,
+            "p95_ms": 250.065
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "8c59cd7cccee9c9b21b531c86ae262cf9c923a8df0f2a2b6e49f6694d2478122",
+            "search_configuration_ledger_sha256": "0772d6c494ef0a694c00fbd7264fd684257a637997c0a603444bb53a5716cdfa",
+            "search_outcome_ledger_sha256": "e9c8a33ac721d17346578e77ac422f960bcc08958b400f3f014de8be9ffe387f"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.20377604166666666,
+            "43": 0.20377604166666666,
+            "44": 0.20377604166666666,
+            "45": 0.20377604166666666
+          }
+        }
+      }
+    },
+    "heldout_seed45_large": {
+      "D_minus_B": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "no_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.283203125,
+          "opening_cluster_ci95": {
+            "mean": 0.283203125,
+            "lower_95": 0.2692057291666667,
+            "upper_95": 0.2970418294270833,
+            "samples": 10000
+          },
+          "positive_openings": 267,
+          "zero_openings": 98,
+          "negative_openings": 19,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.90625,
+              "p1_score": 0.66015625
+            },
+            "second_challenger": {
+              "p0_score": 0.33984375,
+              "p1_score": 0.09375
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 167.42249999999999,
+            "p95_ms": 261.47
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "c96f501a23866a4c7164b9153673cb0c7dcfbf4b35aa1142fa5a2848a35ae2ef",
+            "search_configuration_ledger_sha256": "9455f47ae9c9e287cb39aebb1e892e84e8067bac203c54e2a24f508a1ce5db11",
+            "search_outcome_ledger_sha256": "1e24f4c48e6b2ff03b02cf1c07840550324091e2df0f8af8f6c255bbaa3c4ab4"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.283203125,
+            "43": 0.283203125,
+            "44": 0.283203125,
+            "45": 0.283203125
+          }
+        }
+      },
+      "D_minus_C": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_with_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.026041666666666668,
+          "opening_cluster_ci95": {
+            "mean": 0.026041666666666668,
+            "lower_95": 0.0126953125,
+            "upper_95": 0.039388020833333336,
+            "samples": 10000
+          },
+          "positive_openings": 66,
+          "zero_openings": 272,
+          "negative_openings": 46,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.6796875,
+              "p1_score": 0.3723958333333333
+            },
+            "second_challenger": {
+              "p0_score": 0.6276041666666666,
+              "p1_score": 0.3203125
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 18,
+            "second_challenger_unique": 18
+          },
+          "latency": {
+            "mean_ms": 168.4575,
+            "p95_ms": 260.04499999999996
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "00a0c924e00dd795114b1c5e73d95e8835629e68a555ba1aa1a4b2f7e92d0341",
+            "search_configuration_ledger_sha256": "ceefb80d79295a71c94cebb7cc39f0fca372d63473d6326ab61369bc6113329d",
+            "search_outcome_ledger_sha256": "b779b78e561e3538c3a022f7f1b706e3e2806731398f015d6262365c827c5e33"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.026041666666666668,
+            "43": 0.026041666666666668,
+            "44": 0.026041666666666668,
+            "45": 0.026041666666666668
+          }
+        }
+      },
+      "D_minus_A": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.20052083333333334,
+          "opening_cluster_ci95": {
+            "mean": 0.20052083333333334,
+            "lower_95": 0.18343098958333334,
+            "upper_95": 0.21793619791666666,
+            "samples": 10000
+          },
+          "positive_openings": 206,
+          "zero_openings": 93,
+          "negative_openings": 85,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.7408854166666666,
+              "p1_score": 0.66015625
+            },
+            "second_challenger": {
+              "p0_score": 0.33984375,
+              "p1_score": 0.2591145833333333
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 164.5525,
+            "p95_ms": 261.14
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "e9e48ff87792f80e00048168d8f25462af92cc32e0fc1b53a09ecf4a31b0d882",
+            "search_configuration_ledger_sha256": "9e200875fc2eee364e9846d6e8100a700a683f427fbe86b2e2b25262e32b0b8d",
+            "search_outcome_ledger_sha256": "ff754395035529beb71b493fd468ae0d7a2e770e4a30b886eb79d70179a90b6a"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.20052083333333334,
+            "43": 0.20052083333333334,
+            "44": 0.20052083333333334,
+            "45": 0.20052083333333334
+          }
+        }
+      }
+    },
+    "heldout_seed46_large": {
+      "D_minus_B": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "no_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.2701822916666667,
+          "opening_cluster_ci95": {
+            "mean": 0.2701822916666667,
+            "lower_95": 0.2560221354166667,
+            "upper_95": 0.2840169270833333,
+            "samples": 10000
+          },
+          "positive_openings": 260,
+          "zero_openings": 102,
+          "negative_openings": 22,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.90625,
+              "p1_score": 0.6341145833333334
+            },
+            "second_challenger": {
+              "p0_score": 0.3658854166666667,
+              "p1_score": 0.09375
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 165.16000000000003,
+            "p95_ms": 261.105
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "b385302ed2378068a94b4665d4b8092ae89974708074d70180f53b3bd5bdb3e6",
+            "search_configuration_ledger_sha256": "d6e22063ce603a6fe8e6244784c31d59951f73790b9a75046ccaedb9a2ecf8b2",
+            "search_outcome_ledger_sha256": "a0075fc8a283372e659fdb2165002d528c714c6c1f3c91d88e3d135d8f36a621"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.2701822916666667,
+            "43": 0.2701822916666667,
+            "44": 0.2701822916666667,
+            "45": 0.2701822916666667
+          }
+        }
+      },
+      "D_minus_C": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_with_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.028645833333333332,
+          "opening_cluster_ci95": {
+            "mean": 0.028645833333333332,
+            "lower_95": 0.015299479166666666,
+            "upper_95": 0.0419921875,
+            "samples": 10000
+          },
+          "positive_openings": 66,
+          "zero_openings": 274,
+          "negative_openings": 44,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.6979166666666666,
+              "p1_score": 0.359375
+            },
+            "second_challenger": {
+              "p0_score": 0.640625,
+              "p1_score": 0.3020833333333333
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 18,
+            "second_challenger_unique": 18
+          },
+          "latency": {
+            "mean_ms": 168.4925,
+            "p95_ms": 260.15
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "27ac49a16131aeb833a7d712449eaa4b246ae9cd1654650f39c2ab7187598462",
+            "search_configuration_ledger_sha256": "0dc03be9ae48dcebbea07cf745ea93be75909ed89e76059293d147716ea04d99",
+            "search_outcome_ledger_sha256": "ad52804b75af5ccf44f98beb49f48c004a7faf3f2a3b8d94acc480d0095855f1"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.028645833333333332,
+            "43": 0.028645833333333332,
+            "44": 0.028645833333333332,
+            "45": 0.028645833333333332
+          }
+        }
+      },
+      "D_minus_A": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.1875,
+          "opening_cluster_ci95": {
+            "mean": 0.1875,
+            "lower_95": 0.17008463541666666,
+            "upper_95": 0.20458984375,
+            "samples": 10000
+          },
+          "positive_openings": 199,
+          "zero_openings": 97,
+          "negative_openings": 88,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.7408854166666666,
+              "p1_score": 0.6341145833333334
+            },
+            "second_challenger": {
+              "p0_score": 0.3658854166666667,
+              "p1_score": 0.2591145833333333
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 162.0525,
+            "p95_ms": 260.295
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "30c54ebe08a2da3859246ba5d0b4e70999db3f396fb341717713a4f26405592d",
+            "search_configuration_ledger_sha256": "bcf1c11604f1e6dfb80e4bf617f1a4953d948f360811edc920c464c1c11cc8ac",
+            "search_outcome_ledger_sha256": "b2ff7d3351b81aeeb860c75d500c4a8330e3c46dfc265c22a70155a2cff1ac8f"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.1875,
+            "43": 0.1875,
+            "44": 0.1875,
+            "45": 0.1875
+          }
+        }
+      }
+    },
+    "heldout_seed47_large": {
+      "D_minus_B": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "no_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.30078125,
+          "opening_cluster_ci95": {
+            "mean": 0.30078125,
+            "lower_95": 0.2877604166666667,
+            "upper_95": 0.3134765625,
+            "samples": 10000
+          },
+          "positive_openings": 276,
+          "zero_openings": 95,
+          "negative_openings": 13,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.9401041666666666,
+              "p1_score": 0.6614583333333334
+            },
+            "second_challenger": {
+              "p0_score": 0.3385416666666667,
+              "p1_score": 0.059895833333333336
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 165.8825,
+            "p95_ms": 261.12
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "1156678b2c08130f901e1835e29c771f1becb08167b03d0282b0a63e3d174782",
+            "search_configuration_ledger_sha256": "afc39c83058ffeb8b1c31ff2deff3403ee265eb1fef17cdeacdff16a7a77c604",
+            "search_outcome_ledger_sha256": "f613d491becf04f7727d06b55bdcc8088f3d0d3a32dff2f837bc2b76ce59835c"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.30078125,
+            "43": 0.30078125,
+            "44": 0.30078125,
+            "45": 0.30078125
+          }
+        }
+      },
+      "D_minus_C": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_with_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.044270833333333336,
+          "opening_cluster_ci95": {
+            "mean": 0.044270833333333336,
+            "lower_95": 0.03189290364583334,
+            "upper_95": 0.056640625,
+            "samples": 10000
+          },
+          "positive_openings": 67,
+          "zero_openings": 284,
+          "negative_openings": 33,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.6875,
+              "p1_score": 0.4010416666666667
+            },
+            "second_challenger": {
+              "p0_score": 0.5989583333333334,
+              "p1_score": 0.3125
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 18,
+            "second_challenger_unique": 18
+          },
+          "latency": {
+            "mean_ms": 168.0675,
+            "p95_ms": 261.45000000000005
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "d6dcb02e2bd8392013cdc69484316ecabe824f398cd382d02aaf1f2ddcc5a343",
+            "search_configuration_ledger_sha256": "b9c050e5ea1de3b433653e1a29f9426abb65944952c5801fdebd3788f3bee394",
+            "search_outcome_ledger_sha256": "64f9f24680fc643e65c321592d27e26153dfb8340e0efbb3018ab5237dde5cb1"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.044270833333333336,
+            "43": 0.044270833333333336,
+            "44": 0.044270833333333336,
+            "45": 0.044270833333333336
+          }
+        }
+      },
+      "D_minus_A": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.21549479166666666,
+          "opening_cluster_ci95": {
+            "mean": 0.21549479166666666,
+            "lower_95": 0.19840494791666666,
+            "upper_95": 0.23177083333333334,
+            "samples": 10000
+          },
+          "positive_openings": 212,
+          "zero_openings": 92,
+          "negative_openings": 80,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.76953125,
+              "p1_score": 0.6614583333333334
+            },
+            "second_challenger": {
+              "p0_score": 0.3385416666666667,
+              "p1_score": 0.23046875
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 162.42000000000002,
+            "p95_ms": 260.7
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "be15a880ff2cf98c898b5ee2bc4e770fa51c4fd36decc4da2e6b3764665f7442",
+            "search_configuration_ledger_sha256": "4bbd5c8e0140ae911747446684c602fa44f2a9cd808e9417b4dbd679f98040c7",
+            "search_outcome_ledger_sha256": "84e0a5e6ef63315901e6db88bbf7f4e1bea8d22419d5eb2eb52df87dbd0d1a09"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.21549479166666666,
+            "43": 0.21549479166666666,
+            "44": 0.21549479166666666,
+            "45": 0.21549479166666666
+          }
+        }
+      }
+    },
+    "heldout_seed48_large": {
+      "D_minus_B": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "no_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.2805989583333333,
+          "opening_cluster_ci95": {
+            "mean": 0.2805989583333333,
+            "lower_95": 0.26611328125,
+            "upper_95": 0.2947591145833333,
+            "samples": 10000
+          },
+          "positive_openings": 269,
+          "zero_openings": 93,
+          "negative_openings": 22,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.921875,
+              "p1_score": 0.6393229166666666
+            },
+            "second_challenger": {
+              "p0_score": 0.3606770833333333,
+              "p1_score": 0.078125
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 165.7425,
+            "p95_ms": 260.91999999999996
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "906ec008a1183477426830666e807f078caf38ed617aa06098600239d309c304",
+            "search_configuration_ledger_sha256": "98eb1381e46ebbfbf1be9a4a6d5eae5147bea62e57f31301fc73849a7d9236da",
+            "search_outcome_ledger_sha256": "327be5cb2fea1b30a16d2514dd85e26cc597f37f72acf7162cc6b6791afc32be"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.2805989583333333,
+            "43": 0.2805989583333333,
+            "44": 0.2805989583333333,
+            "45": 0.2805989583333333
+          }
+        }
+      },
+      "D_minus_C": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_with_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.033854166666666664,
+          "opening_cluster_ci95": {
+            "mean": 0.033854166666666664,
+            "lower_95": 0.021158854166666668,
+            "upper_95": 0.046549479166666664,
+            "samples": 10000
+          },
+          "positive_openings": 65,
+          "zero_openings": 280,
+          "negative_openings": 39,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.6979166666666666,
+              "p1_score": 0.3697916666666667
+            },
+            "second_challenger": {
+              "p0_score": 0.6302083333333334,
+              "p1_score": 0.3020833333333333
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 18,
+            "second_challenger_unique": 18
+          },
+          "latency": {
+            "mean_ms": 167.8225,
+            "p95_ms": 259.70500000000004
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "288faf5e5679b363d6b3ae61c52a55bd125b952464f8137cf317982713b32463",
+            "search_configuration_ledger_sha256": "8af75ffb27042e498f46abd88741d153b794ccba3ae80db4b63c8abbdec75fe4",
+            "search_outcome_ledger_sha256": "32ca84d0499cd893b9f2832817e4d6049ecf8c81fffaea150cfb7e27c4d4cb2b"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.033854166666666664,
+            "43": 0.033854166666666664,
+            "44": 0.033854166666666664,
+            "45": 0.033854166666666664
+          }
+        }
+      },
+      "D_minus_A": {
+        "768:768": {
+          "first_profile": "current_promoted_profile",
+          "second_profile": "legacy_tactical_no_schedule",
+          "budget": "768:768",
+          "base_seed": 42,
+          "orientation_normalized_ds": 0.197265625,
+          "opening_cluster_ci95": {
+            "mean": 0.197265625,
+            "lower_95": 0.18001302083333334,
+            "upper_95": 0.21451822916666666,
+            "samples": 10000
+          },
+          "positive_openings": 206,
+          "zero_openings": 91,
+          "negative_openings": 87,
+          "p0_p1": {
+            "first_challenger": {
+              "p0_score": 0.7552083333333334,
+              "p1_score": 0.6393229166666666
+            },
+            "second_challenger": {
+              "p0_score": 0.3606770833333333,
+              "p1_score": 0.24479166666666666
+            }
+          },
+          "trajectory_agreement": {
+            "first_challenger_unique": 20,
+            "second_challenger_unique": 20
+          },
+          "latency": {
+            "mean_ms": 163.575,
+            "p95_ms": 261.01
+          },
+          "provenance": {
+            "seed_identity_ledger_sha256": "eb14939b08a66f6fea06ed19d3ae0880fed58e4368c7fc88f88d99e5ae9ccf7c",
+            "search_configuration_ledger_sha256": "a909110b40aac8086be685328de7c05ca1df04d32eed627010b604250b5f4b65",
+            "search_outcome_ledger_sha256": "13ca46539f0843ab3fd2c9ba6ce7643e4a2543dbd5b65cf3f5dfad04adfbd7f1"
+          },
+          "seed_block_sensitivity": {
+            "42": 0.197265625,
+            "43": 0.197265625,
+            "44": 0.197265625,
+            "45": 0.197265625
+          }
+        }
+      }
+    }
+  },
+  "factorial_effects": {
+    "B_minus_A": {
+      "first_profile": "no_tactical_no_schedule",
+      "second_profile": "legacy_tactical_no_schedule",
+      "budget": "768:768",
+      "base_seed": 42,
+      "orientation_normalized_ds": -0.044921875,
+      "opening_cluster_ci95": {
+        "mean": -0.044921875,
+        "lower_95": -0.049641927083333336,
+        "upper_95": -0.040201822916666664,
+        "samples": 10000
+      },
+      "positive_openings": 0,
+      "zero_openings": 315,
+      "negative_openings": 69,
+      "p0_p1": {
+        "first_challenger": {
+          "p0_score": 0.3528645833333333,
+          "p1_score": 0.5572916666666666
+        },
+        "second_challenger": {
+          "p0_score": 0.4427083333333333,
+          "p1_score": 0.6471354166666666
+        }
+      },
+      "trajectory_agreement": {
+        "first_challenger_unique": 15,
+        "second_challenger_unique": 15
+      },
+      "latency": {
+        "mean_ms": 107.30250000000001,
+        "p95_ms": 250.39
+      },
+      "provenance": {
+        "seed_identity_ledger_sha256": "43d3ac48584c32a12054e2f994c22a220f8ecd693dc8122003d0b931a61834e2",
+        "search_configuration_ledger_sha256": "768ea94255c61f867d3573c13352f3dec05371a687d3600b161a309d63a43411",
+        "search_outcome_ledger_sha256": "db0a35e47e55ad184eb33be9081a2443461aceb6d6ada030727fbd2c403e1b76"
+      },
+      "seed_block_sensitivity": {
+        "42": -0.044921875,
+        "43": -0.044921875,
+        "44": -0.044921875,
+        "45": -0.044921875
+      }
+    },
+    "D_minus_C": {
+      "first_profile": "current_promoted_profile",
+      "second_profile": "legacy_tactical_with_schedule",
+      "budget": "768:768",
+      "base_seed": 42,
+      "orientation_normalized_ds": 0.037760416666666664,
+      "opening_cluster_ci95": {
+        "mean": 0.037760416666666664,
+        "lower_95": 0.0244140625,
+        "upper_95": 0.05078125,
+        "samples": 10000
+      },
+      "positive_openings": 69,
+      "zero_openings": 275,
+      "negative_openings": 40,
+      "p0_p1": {
+        "first_challenger": {
+          "p0_score": 0.6822916666666666,
+          "p1_score": 0.3932291666666667
+        },
+        "second_challenger": {
+          "p0_score": 0.6067708333333334,
+          "p1_score": 0.3177083333333333
+        }
+      },
+      "trajectory_agreement": {
+        "first_challenger_unique": 20,
+        "second_challenger_unique": 20
+      },
+      "latency": {
+        "mean_ms": 117.36500000000001,
+        "p95_ms": 250.45
+      },
+      "provenance": {
+        "seed_identity_ledger_sha256": "6717ffd80c884e8cc73dfa671465fb163a342ee37de687277c31217e251649db",
+        "search_configuration_ledger_sha256": "31e1ba649008754340f10f506aef61aaf43c5ea56214a3790e3014a249c78ca2",
+        "search_outcome_ledger_sha256": "35c67e7a96b26ba580ab5a5502028e89a13aae8dc4ae521eecf44730d0da0fc7"
+      },
+      "seed_block_sensitivity": {
+        "42": 0.037760416666666664,
+        "43": 0.037760416666666664,
+        "44": 0.037760416666666664,
+        "45": 0.037760416666666664
+      }
+    },
+    "C_minus_A": {
+      "first_profile": "legacy_tactical_with_schedule",
+      "second_profile": "legacy_tactical_no_schedule",
+      "budget": "768:768",
+      "base_seed": 42,
+      "orientation_normalized_ds": 0.18229166666666666,
+      "opening_cluster_ci95": {
+        "mean": 0.18229166666666666,
+        "lower_95": 0.16276041666666666,
+        "upper_95": 0.20118001302083321,
+        "samples": 10000
+      },
+      "positive_openings": 209,
+      "zero_openings": 106,
+      "negative_openings": 69,
+      "p0_p1": {
+        "first_challenger": {
+          "p0_score": 0.6549479166666666,
+          "p1_score": 0.7096354166666666
+        },
+        "second_challenger": {
+          "p0_score": 0.2903645833333333,
+          "p1_score": 0.3450520833333333
+        }
+      },
+      "trajectory_agreement": {
+        "first_challenger_unique": 22,
+        "second_challenger_unique": 22
+      },
+      "latency": {
+        "mean_ms": 116.33500000000001,
+        "p95_ms": 251.565
+      },
+      "provenance": {
+        "seed_identity_ledger_sha256": "a18b1e1843faae2c8c27836f35d98b0175f0550f286b42cfa6eac584be29407f",
+        "search_configuration_ledger_sha256": "c889aa58dab194ab057d988042f5eff58688064a8de805fb0da2ca36608d338a",
+        "search_outcome_ledger_sha256": "7dbeac80ef5be7b9a8009fec8ad961536595e5b79b7e749917862916ad44b69c"
+      },
+      "seed_block_sensitivity": {
+        "42": 0.18229166666666666,
+        "43": 0.18229166666666666,
+        "44": 0.18229166666666666,
+        "45": 0.18229166666666666
+      }
+    },
+    "D_minus_B": {
+      "first_profile": "current_promoted_profile",
+      "second_profile": "no_tactical_no_schedule",
+      "budget": "768:768",
+      "base_seed": 42,
+      "orientation_normalized_ds": 0.2766927083333333,
+      "opening_cluster_ci95": {
+        "mean": 0.2766927083333333,
+        "lower_95": 0.2626953125,
+        "upper_95": 0.2903645833333333,
+        "samples": 10000
+      },
+      "positive_openings": 265,
+      "zero_openings": 99,
+      "negative_openings": 20,
+      "p0_p1": {
+        "first_challenger": {
+          "p0_score": 0.9192708333333334,
+          "p1_score": 0.6341145833333334
+        },
+        "second_challenger": {
+          "p0_score": 0.3658854166666667,
+          "p1_score": 0.08072916666666667
+        }
+      },
+      "trajectory_agreement": {
+        "first_challenger_unique": 22,
+        "second_challenger_unique": 22
+      },
+      "latency": {
+        "mean_ms": 115.0,
+        "p95_ms": 250.09
+      },
+      "provenance": {
+        "seed_identity_ledger_sha256": "bd9122f0c9844c4c6866ebbddb4072900ccf4cd97fea9950e51d3f80babba6bf",
+        "search_configuration_ledger_sha256": "61b3be4ce1c8872a022b7a1c6384e513615e6c9d1338af4e655ca6b908f556e6",
+        "search_outcome_ledger_sha256": "7bc5a61273ae5ef133b1e5646c476efc88e995aa2bf23e5f4abfae564616c406"
+      },
+      "seed_block_sensitivity": {
+        "42": 0.2766927083333333,
+        "43": 0.2766927083333333,
+        "44": 0.2766927083333333,
+        "45": 0.2766927083333333
+      }
+    },
+    "interaction_(D_minus_B)_minus_(C_minus_A)": {
+      "point_estimate": 0.09440104166666667,
+      "opening_cluster_ci95": {
+        "mean": 0.09440104166666667,
+        "lower_95": 0.06901041666666667,
+        "upper_95": 0.11979166666666667,
+        "samples": 10000
+      },
+      "positive_openings": 134,
+      "negative_openings": 29
+    }
+  },
+  "gate": {
+    "status": "executed",
+    "report": "/tmp/azlite_treatment_invariant_runtime_revalidation/seat_aware_promotion_gate.json",
+    "result": {
+      "schema": "azlite_seat_aware_promotion_gate_v1",
+      "candidate_path": "model-artifact/current",
+      "candidate_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+      "current_path": "model-artifact/current",
+      "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+      "classification": "regression_masked_by_seat",
+      "standard_alternating_score": 0.0,
+      "budget_results": {
+        "768_vs_768": {
+          "challenger_starts_0": {
+            "games": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "score": 0.0,
+            "ci95": {
+              "lower": 0.0,
+              "upper": 0.0
+            },
+            "margin_mean": 0.0,
+            "margin_median": 0.0,
+            "game_length_mean": 0.0,
+            "game_length_median": 0.0
+          },
+          "challenger_starts_1": {
+            "games": 120,
+            "wins": 0,
+            "losses": 120,
+            "draws": 0,
+            "score": 0.0,
+            "ci95": {
+              "lower": 0.0,
+              "upper": 0.031020271055929517
+            },
+            "margin_mean": -2.0,
+            "margin_median": -2.0,
+            "game_length_mean": 60.0,
+            "game_length_median": 60.0
+          },
+          "disadvantaged_seat_score": 0.0,
+          "first_move_challenger_dist": {
+            "5": 120
+          },
+          "first_move_current_dist": {
+            "2": 120
+          },
+          "margin_mean": -2.0,
+          "margin_median": -2.0,
+          "game_length_mean": 60.0,
+          "game_length_median": 60.0,
+          "unique_trajectories": 1,
+          "duplicate_trajectory_count": 120,
+          "total_games": 120,
+          "arena_score": 0.0,
+          "arena_wins": 0,
+          "arena_losses": 120,
+          "arena_draws": 0,
+          "move_time_mean_ms": 145.2,
+          "move_time_p95_ms": 255.3,
+          "effective_c_puct": null,
+          "tactical_root_bias": null,
+          "challenger_simulations": 768,
+          "current_simulations": 768,
+          "search_profile": null,
+          "search_profile_hash": null
+        }
+      },
+      "ranking_table": {
+        "candidate": "current",
+        "artifact_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+        "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+        "standard_alternating_score": null,
+        "standard_disadvantaged_seat_score": null,
+        "equal_high_disadvantaged_seat_score": null,
+        "challenger_high_disadvantaged_seat_score": null,
+        "current_high_disadvantaged_seat_score": null,
+        "margin_mean": -2.0,
+        "latency_p95_ms": 255.3,
+        "classification": "regression_masked_by_seat"
+      },
+      "c_puct": 1.25,
+      "c_puct_schedule": {
+        "default_c_puct": 1.25,
+        "overrides": {
+          "768:768": 0.9
+        }
+      },
+      "seed_contract": "azlite_eval_seed_v2",
+      "base_seed": 42
+    }
+  },
+  "classification": "current_runtime_profile_statistically_inconclusive"
+}
