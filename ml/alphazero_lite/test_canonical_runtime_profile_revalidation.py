@@ -6,11 +6,15 @@ from ml.alphazero_lite.run_canonical_runtime_profile_revalidation import (
     PROFILE_B,
     PROFILE_C,
     PROFILE_D,
+    PROFILE_E,
     PROFILES,
+    aggregate_seed_opening_deltas,
     bootstrap_ci,
     opening_ds,
     paired_delta,
+    profile_cpuct,
     profile_definition,
+    profile_tactical_root_bias,
 )
 
 
@@ -84,6 +88,49 @@ class CanonicalRuntimeProfileRevalidationTests(unittest.TestCase):
             bootstrap_ci([0.0, 1.0, -1.0], seed=42),
             bootstrap_ci([0.0, 1.0, -1.0], seed=42),
         )
+
+    def test_identical_seed_blocks_are_bootstrapped_once(self):
+        result = aggregate_seed_opening_deltas(
+            {"42": [1.0, -1.0], "43": [1.0, -1.0]}, seed=42, samples=100
+        )
+        expected = bootstrap_ci([1.0, -1.0], seed=42, samples=100)
+        self.assertEqual(expected, result["opening_cluster_ci95"])
+
+    def test_hierarchical_interval_samples_seed_then_opening(self):
+        result = aggregate_seed_opening_deltas(
+            {"42": [1.0, 1.0], "43": [-1.0, -1.0]}, seed=42, samples=100
+        )
+        self.assertEqual(0.0, result["mean"])
+        self.assertLess(result["hierarchical_ci95"]["lower_95"], 0.0)
+        self.assertGreater(result["hierarchical_ci95"]["upper_95"], 0.0)
+
+    def test_budget_conditioned_profile_resolves_expected_values(self):
+        expected_tactical = {
+            "384:256": 0.0,
+            "768:768": 0.0,
+            "768:256": 0.1,
+            "1200:1200": 0.1,
+            "1200:256": 0.1,
+            "256:768": 0.1,
+        }
+        for budget, value in expected_tactical.items():
+            self.assertEqual(value, profile_tactical_root_bias(PROFILE_E, budget))
+            self.assertEqual(
+                0.9 if budget == "768:768" else 1.25, profile_cpuct(PROFILE_E, budget)
+            )
+        for budget in ("384:256", "768:768"):
+            self.assertEqual(
+                profile_cpuct(PROFILE_E, budget), profile_cpuct(PROFILE_D, budget)
+            )
+            self.assertEqual(
+                profile_tactical_root_bias(PROFILE_E, budget),
+                profile_tactical_root_bias(PROFILE_D, budget),
+            )
+        for budget in ("768:256", "1200:1200", "1200:256", "256:768"):
+            self.assertEqual(
+                profile_tactical_root_bias(PROFILE_E, budget),
+                profile_tactical_root_bias(PROFILE_C, budget),
+            )
 
 
 if __name__ == "__main__":

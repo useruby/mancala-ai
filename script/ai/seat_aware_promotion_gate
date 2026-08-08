@@ -24,10 +24,13 @@ from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
     DEFAULT_RUNTIME_C_PUCT,
     default_runtime_schedule_json,
     parse_cpuct_schedule_json,
-    resolve_budget_cpuct,
     schedule_definition,
 )
 from ml.alphazero_lite.evaluation_seed_contract import SEED_CONTRACT_VERSION  # noqa: E402
+from ml.alphazero_lite.runtime_profiles import (  # noqa: E402
+    parse_runtime_profile_json,
+    resolve_runtime_profile,
+)
 
 
 def _find_python() -> str:
@@ -90,6 +93,19 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--c-puct", type=float, default=DEFAULT_RUNTIME_C_PUCT)
     parser.add_argument(
+        "--candidate-runtime-profile-json",
+        help="Normalized JSON runtime profile applied only to the candidate side.",
+    )
+    parser.add_argument(
+        "--current-runtime-profile-json",
+        help="Normalized JSON runtime profile applied only to the current side.",
+    )
+    parser.add_argument(
+        "--allow-null-runtime-profile-comparison",
+        action="store_true",
+        help="Allow identical profile hashes only for an explicit null comparison.",
+    )
+    parser.add_argument(
         "--c-puct-schedule-json",
         default=default_runtime_schedule_json(),
         help=(
@@ -145,7 +161,12 @@ def run_arena(
     out_json: str,
     out_jsonl: str,
     challenger_starts: int | None = None,
-    c_puct: float = 1.25,
+    challenger_c_puct: float = 1.25,
+    current_c_puct: float = 1.25,
+    challenger_search_options_json: str | None = None,
+    current_search_options_json: str | None = None,
+    challenger_runtime_profile_hash: str | None = None,
+    current_runtime_profile_hash: str | None = None,
     root_policy_mode: str = "deterministic",
     root_temperature: float = 0.0,
     tactical_root_bias: float | None = None,
@@ -187,8 +208,10 @@ def run_arena(
         seed_contract,
         "--workers",
         str(workers),
-        "--c-puct",
-        str(c_puct),
+        "--challenger-c-puct",
+        str(challenger_c_puct),
+        "--current-c-puct",
+        str(current_c_puct),
         "--min-score",
         "0.0",
         "--out",
@@ -200,6 +223,16 @@ def run_arena(
         "--root-temperature",
         str(root_temperature),
     ]
+    if challenger_search_options_json is not None:
+        cmd.extend(["--challenger-search-options-json", challenger_search_options_json])
+    if current_search_options_json is not None:
+        cmd.extend(["--current-search-options-json", current_search_options_json])
+    if challenger_runtime_profile_hash is not None:
+        cmd.extend(
+            ["--challenger-runtime-profile-hash", challenger_runtime_profile_hash]
+        )
+    if current_runtime_profile_hash is not None:
+        cmd.extend(["--current-runtime-profile-hash", current_runtime_profile_hash])
     if seed_ledger_output is not None:
         cmd.extend(["--seed-ledger-output", seed_ledger_output])
     if tactical_root_bias is not None:
@@ -279,6 +312,15 @@ def run_seat_aware_evaluation(
         if ":" in bp:
             c_str, cur_str = bp.split(":", 1)
             budget_pairs.append((int(c_str), int(cur_str)))
+    if not args.candidate_runtime_profile_json or not args.current_runtime_profile_json:
+        raise ValueError("side-specific runtime profiles are required")
+    candidate_profile = parse_runtime_profile_json(args.candidate_runtime_profile_json)
+    current_profile = parse_runtime_profile_json(args.current_runtime_profile_json)
+    null_comparison = candidate_profile["hash"] == current_profile["hash"]
+    if null_comparison and not args.allow_null_runtime_profile_comparison:
+        raise ValueError(
+            "identical runtime-profile hashes require an explicit null comparison"
+        )
     cpuct_schedule = parse_cpuct_schedule_json(args.c_puct_schedule_json)
     alpha_by_budget = (
         {
@@ -302,12 +344,9 @@ def run_seat_aware_evaluation(
     arena_results: list[dict] = []
 
     for chall_sims, curr_sims in budget_pairs:
-        effective_c_puct = resolve_budget_cpuct(
-            schedule=cpuct_schedule,
-            challenger_simulations=chall_sims,
-            current_simulations=curr_sims,
-            default_c_puct=float(args.c_puct),
-        )
+        budget = f"{chall_sims}:{curr_sims}"
+        candidate_runtime = resolve_runtime_profile(candidate_profile, budget)
+        current_runtime = resolve_runtime_profile(current_profile, budget)
         budget_label = BUDGET_PAIR_LABELS.get(
             (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
         )
@@ -331,7 +370,24 @@ def run_seat_aware_evaluation(
                 workers=args.workers,
                 out_json=alt_json,
                 out_jsonl=alt_jsonl,
-                c_puct=effective_c_puct,
+                challenger_c_puct=candidate_runtime["c_puct"],
+                current_c_puct=current_runtime["c_puct"],
+                challenger_search_options_json=json.dumps(
+                    {
+                        **candidate_runtime["search_options"],
+                        "tactical_root_bias": candidate_runtime["tactical_root_bias"],
+                    },
+                    sort_keys=True,
+                ),
+                current_search_options_json=json.dumps(
+                    {
+                        **current_runtime["search_options"],
+                        "tactical_root_bias": current_runtime["tactical_root_bias"],
+                    },
+                    sort_keys=True,
+                ),
+                challenger_runtime_profile_hash=candidate_profile["hash"],
+                current_runtime_profile_hash=current_profile["hash"],
                 root_policy_mode=args.root_policy_mode,
                 root_temperature=args.root_temperature,
                 tactical_root_bias=args.tactical_root_bias,
@@ -377,8 +433,8 @@ def run_seat_aware_evaluation(
                 "budget_label": budget_label,
                 "challenger_sims": chall_sims,
                 "current_sims": curr_sims,
-                "effective_c_puct": effective_c_puct,
-                "tactical_root_bias": args.tactical_root_bias,
+                "candidate_runtime": candidate_runtime,
+                "current_runtime": current_runtime,
                 "arena_score": alt_report["score"],
                 "arena_wins": alt_report["wins"],
                 "arena_losses": alt_report["losses"],
@@ -414,7 +470,26 @@ def run_seat_aware_evaluation(
                     out_json=ss_json,
                     out_jsonl=ss_jsonl,
                     challenger_starts=forced_starts,
-                    c_puct=effective_c_puct,
+                    challenger_c_puct=candidate_runtime["c_puct"],
+                    current_c_puct=current_runtime["c_puct"],
+                    challenger_search_options_json=json.dumps(
+                        {
+                            **candidate_runtime["search_options"],
+                            "tactical_root_bias": candidate_runtime[
+                                "tactical_root_bias"
+                            ],
+                        },
+                        sort_keys=True,
+                    ),
+                    current_search_options_json=json.dumps(
+                        {
+                            **current_runtime["search_options"],
+                            "tactical_root_bias": current_runtime["tactical_root_bias"],
+                        },
+                        sort_keys=True,
+                    ),
+                    challenger_runtime_profile_hash=candidate_profile["hash"],
+                    current_runtime_profile_hash=current_profile["hash"],
                     root_policy_mode=args.root_policy_mode,
                     root_temperature=args.root_temperature,
                     tactical_root_bias=args.tactical_root_bias,
@@ -467,6 +542,43 @@ def run_seat_aware_evaluation(
     report["c_puct_schedule"] = schedule_manifest
     report["seed_contract"] = args.seed_contract
     report["base_seed"] = args.seed
+    report["runtime_profiles"] = {
+        "candidate": candidate_profile,
+        "current": current_profile,
+        "null_comparison": null_comparison,
+    }
+    validation_errors: list[str] = []
+    for chall_sims, curr_sims in budget_pairs:
+        label = BUDGET_PAIR_LABELS.get(
+            (chall_sims, curr_sims), f"{chall_sims}_vs_{curr_sims}"
+        )
+        forced = [
+            row
+            for row in arena_results
+            if row.get("budget_label") == label and "forced_starts" in row
+        ]
+        by_seat = {row["forced_starts"]: row for row in forced}
+        for seat in (0, 1):
+            metrics = by_seat.get(seat, {}).get("seat_metrics", {})
+            expected = int(args.games)
+            if metrics.get("total_games") != expected:
+                validation_errors.append(f"{label}: seat {seat} has wrong game count")
+            split = metrics.get(f"challenger_starts_{seat}", {})
+            if split.get("games", 0) != expected:
+                validation_errors.append(
+                    f"{label}: seat {seat} block is empty or malformed"
+                )
+            if metrics.get("duplicate_trajectory_count", 0):
+                validation_errors.append(
+                    f"{label}: duplicate trajectories in seat {seat}"
+                )
+    report["runtime_gate_validation"] = {
+        "valid": not validation_errors,
+        "errors": validation_errors,
+        "expected_games_per_seat": int(args.games),
+    }
+    if validation_errors:
+        report["classification"] = "runtime_profile_gate_invalid"
 
     print(f"\nClassification: {report['classification']}")
     print(f"Standard alternating score: {report['standard_alternating_score']:.4f}")
