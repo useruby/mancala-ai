@@ -19,10 +19,13 @@ import numpy as np
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from ml.alphazero_lite.cpuct_schedule import resolve_budget_cpuct  # noqa: E402
 from ml.alphazero_lite.evaluation_seed_contract import (  # noqa: E402
     SEED_CONTRACT_VERSION,
     stable_hash,
+)
+from ml.alphazero_lite.runtime_profiles import (  # noqa: E402
+    resolve_runtime_profile,
+    runtime_profile_definition,
 )
 from ml.alphazero_lite.run_opening_suite_seat_benchmark import compute_seat_metrics  # noqa: E402
 
@@ -42,12 +45,31 @@ PROFILE_A = "legacy_tactical_no_schedule"
 PROFILE_B = "no_tactical_no_schedule"
 PROFILE_C = "legacy_tactical_with_schedule"
 PROFILE_D = "current_promoted_profile"
+PROFILE_E = "budget_conditioned_tactical_profile"
 BUDGETS = ("384:256", "768:256", "768:768", "1200:1200", "1200:256", "256:768")
 DIRECT_CONTRASTS = {
     "B_minus_A": (PROFILE_B, PROFILE_A),
     "D_minus_C": (PROFILE_D, PROFILE_C),
     "C_minus_A": (PROFILE_C, PROFILE_A),
     "D_minus_B": (PROFILE_D, PROFILE_B),
+}
+
+
+def _runtime_profile(name: str) -> dict[str, Any]:
+    profile = PROFILES[name]
+    return runtime_profile_definition(
+        name=name,
+        default_tactical_root_bias=profile["tactical_root_bias"],
+        tactical_root_bias_overrides=profile.get("tactical_overrides", {}),
+        default_c_puct=1.25,
+        c_puct_overrides=profile["schedule"],
+    )
+
+
+PROFILES[PROFILE_E] = {
+    "tactical_root_bias": 0.10,
+    "tactical_overrides": {"384:256": 0.00, "768:768": 0.00},
+    "schedule": {"768:768": 0.90},
 }
 
 
@@ -60,18 +82,13 @@ def sha256_file(path: Path) -> str:
 
 
 def profile_definition(name: str) -> dict[str, Any]:
-    profile = PROFILES[name]
-    definition = {
-        "name": name,
-        "default_c_puct": 1.25,
-        "c_puct_schedule": profile["schedule"],
-        "tactical_root_bias": profile["tactical_root_bias"],
-        "root_policy_mode": "deterministic",
-        "normalize_values": False,
-        "value_transform": None,
-        "root_prior_transform": None,
+    # Preserve historical field names in reports while using one normalized resolver.
+    profile = _runtime_profile(name)
+    return {
+        **profile,
+        "c_puct_schedule": profile["c_puct_overrides"],
+        "tactical_root_bias": profile["default_tactical_root_bias"],
     }
-    return {**definition, "hash": stable_hash(definition)}
 
 
 def bootstrap_ci(
@@ -87,6 +104,46 @@ def bootstrap_ci(
         "lower_95": float(np.percentile(means, 2.5)),
         "upper_95": float(np.percentile(means, 97.5)),
         "samples": samples,
+    }
+
+
+def aggregate_seed_opening_deltas(
+    opening_deltas_by_seed: dict[str, list[float]], *, seed: int, samples: int = 10_000
+) -> dict[str, Any]:
+    """Aggregate seed blocks without treating repeated openings as replicates."""
+    blocks = list(opening_deltas_by_seed.values())
+    if not blocks:
+        return {
+            "mean": 0.0,
+            "opening_cluster_ci95": bootstrap_ci([], seed=seed, samples=samples),
+            "hierarchical_ci95": bootstrap_ci([], seed=seed, samples=samples),
+        }
+    if len({tuple(block) for block in blocks}) == 1:
+        unique_openings = blocks[0]
+    else:
+        unique_openings = [
+            statistics.fmean(values) for values in zip(*blocks, strict=True)
+        ]
+    rng = np.random.default_rng(seed)
+    hierarchical = np.asarray(
+        [
+            rng.choice(
+                blocks[rng.integers(len(blocks))], size=len(blocks[0]), replace=True
+            ).mean()
+            for _ in range(samples)
+        ]
+    )
+    return {
+        "mean": statistics.fmean(statistics.fmean(block) for block in blocks),
+        "opening_cluster_ci95": bootstrap_ci(
+            unique_openings, seed=seed, samples=samples
+        ),
+        "hierarchical_ci95": {
+            "mean": statistics.fmean(statistics.fmean(block) for block in blocks),
+            "lower_95": float(np.percentile(hierarchical, 2.5)),
+            "upper_95": float(np.percentile(hierarchical, 97.5)),
+            "samples": samples,
+        },
     }
 
 
@@ -114,12 +171,12 @@ def paired_delta(left: list[dict], right: list[dict], *, seed: int) -> dict[str,
 
 
 def profile_cpuct(profile: str, budget: str) -> float:
-    challenger, current = (int(value) for value in budget.split(":"))
-    return resolve_budget_cpuct(
-        schedule=PROFILES[profile]["schedule"],
-        challenger_simulations=challenger,
-        current_simulations=current,
-        default_c_puct=1.25,
+    return float(resolve_runtime_profile(_runtime_profile(profile), budget)["c_puct"])
+
+
+def profile_tactical_root_bias(profile: str, budget: str) -> float:
+    return float(
+        resolve_runtime_profile(_runtime_profile(profile), budget)["tactical_root_bias"]
     )
 
 
@@ -214,11 +271,11 @@ def _run_orientation(
                 str(profile_cpuct(second, budget)),
                 "--challenger-search-options-json",
                 json.dumps(
-                    {"tactical_root_bias": PROFILES[first]["tactical_root_bias"]}
+                    {"tactical_root_bias": profile_tactical_root_bias(first, budget)}
                 ),
                 "--current-search-options-json",
                 json.dumps(
-                    {"tactical_root_bias": PROFILES[second]["tactical_root_bias"]}
+                    {"tactical_root_bias": profile_tactical_root_bias(second, budget)}
                 ),
                 "--challenger-runtime-profile-hash",
                 profile_definition(first)["hash"],
@@ -358,15 +415,34 @@ def evaluate_suite(
                 )
                 for seed in args.base_seeds
             ]
-            pooled = [
-                delta for block in blocks for delta in block["paired_per_opening_delta"]
-            ]
+            opening_deltas_by_seed = {
+                str(block["base_seed"]): block["paired_per_opening_delta"]
+                for block in blocks
+            }
+            # Base seeds 42--45 deliberately share the same opening block.  Bootstrap
+            # unique opening indexes once, never seed x opening pseudo-replicates.
+            aggregate = aggregate_seed_opening_deltas(opening_deltas_by_seed, seed=42)
             result[contrast][budget] = {
                 **blocks[0],
                 "orientation_normalized_ds": statistics.fmean(
                     block["orientation_normalized_ds"] for block in blocks
                 ),
-                "opening_cluster_ci95": bootstrap_ci(pooled, seed=42),
+                "opening_cluster_ci95": aggregate["opening_cluster_ci95"],
+                "hierarchical_ci95": aggregate["hierarchical_ci95"],
+                "opening_deltas_by_seed": opening_deltas_by_seed,
+                "seed_sensitivity": {
+                    "min": min(block["orientation_normalized_ds"] for block in blocks),
+                    "max": max(block["orientation_normalized_ds"] for block in blocks),
+                    "sign_consistent": len(
+                        {
+                            (value > 0) - (value < 0)
+                            for value in (
+                                block["orientation_normalized_ds"] for block in blocks
+                            )
+                        }
+                    )
+                    == 1,
+                },
                 "seed_block_sensitivity": {
                     str(block["base_seed"]): block["orientation_normalized_ds"]
                     for block in blocks
@@ -410,6 +486,8 @@ def classify(summary: dict[str, Any]) -> str:
         or summary["nulls"]["A_minus_A"]["768:768"]["orientation_normalized_ds"] != 0
     ):
         return "evaluation_seed_v2_failed"
+    if summary.get("gate", {}).get("status") == "invalid_original_gate":
+        return "global_no_tactical_bias_not_robust"
     if schedule["mean"] <= 0:
         return "cpuct_schedule_promotion_invalidated"
     if tactical["upper_95"] < 0:
@@ -429,6 +507,9 @@ def classify(summary: dict[str, Any]) -> str:
 def _strip_details(value: Any) -> None:
     if isinstance(value, dict):
         value.pop("paired_per_opening_delta", None)
+        value.pop("opening_deltas_by_seed", None)
+        value.pop("games", None)
+        value.pop("per_opening_score", None)
         p0_p1 = value.get("p0_p1")
         if isinstance(p0_p1, dict):
             value["p0_p1"] = {
@@ -498,6 +579,10 @@ def markdown(summary: dict[str, Any]) -> str:
         "## Null Comparisons",
         "",
         "Duplicate A-v-A and D-v-D are required to be exactly zero per opening and in aggregate. Detailed ledgers remain in the work directory.",
+        "",
+        "## Gate Correction",
+        "",
+        "The original gate is invalid candidate evidence because it supplied one shared runtime profile to both equal-weight sides. Confidence intervals bootstrap unique opening indexes once; repeated base-seed opening blocks are reported as sensitivity, not independent observations.",
     ]
     return "\n".join(lines) + "\n"
 
@@ -570,42 +655,11 @@ def main() -> int:
     gate_eligible = bool(primary_rows) and all(
         row["lower_95"] > 0 for row in primary_rows
     )
-    gate: dict[str, Any] = {"status": "not_eligible"}
-    if gate_eligible:
-        gate_path = Path(args.workdir) / "seat_aware_promotion_gate.json"
-        command = [
-            sys.executable,
-            str(REPO_ROOT / "script/ai/seat_aware_promotion_gate"),
-            "--candidate-path",
-            args.current,
-            "--current-path",
-            args.current,
-            "--out",
-            str(gate_path),
-            "--workdir",
-            str(Path(args.workdir) / "seat_aware_gate"),
-            "--workers",
-            str(args.workers),
-            "--base-seed",
-            "42",
-            "--seed-contract",
-            args.seed_contract,
-            "--budget-pairs",
-            "768:768",
-            "--c-puct",
-            "1.25",
-            "--c-puct-schedule-json",
-            '{"768:768":0.90}',
-            "--tactical-root-bias",
-            "0.00",
-        ]
-        if not gate_path.is_file():
-            subprocess.run(command, cwd=REPO_ROOT, check=True)
-        gate = {
-            "status": "executed",
-            "report": str(gate_path),
-            "result": json.loads(gate_path.read_text(encoding="utf-8")),
-        }
+    gate: dict[str, Any] = {
+        "status": "invalid_original_gate",
+        "reason": "PR #172 supplied one shared profile to both same-weight sides; it is not candidate evidence.",
+        "would_have_been_eligible": gate_eligible,
+    }
     summary = {
         "schema": "azlite_treatment_invariant_runtime_revalidation_v2",
         "artifact_weights_sha256": args.expected_current_weights_sha256,
