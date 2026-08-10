@@ -316,10 +316,13 @@ def run_seat_aware_evaluation(
         raise ValueError("side-specific runtime profiles are required")
     candidate_profile = parse_runtime_profile_json(args.candidate_runtime_profile_json)
     current_profile = parse_runtime_profile_json(args.current_runtime_profile_json)
-    null_comparison = candidate_profile["hash"] == current_profile["hash"]
+    null_comparison = (
+        candidate_profile["runtime_treatment_hash"]
+        == current_profile["runtime_treatment_hash"]
+    )
     if null_comparison and not args.allow_null_runtime_profile_comparison:
         raise ValueError(
-            "identical runtime-profile hashes require an explicit null comparison"
+            "identical runtime treatment hashes require an explicit null comparison"
         )
     cpuct_schedule = parse_cpuct_schedule_json(args.c_puct_schedule_json)
     alpha_by_budget = (
@@ -546,6 +549,19 @@ def run_seat_aware_evaluation(
         "candidate": candidate_profile,
         "current": current_profile,
         "null_comparison": null_comparison,
+        "candidate_runtime_treatment_hash": candidate_profile["runtime_treatment_hash"],
+        "current_runtime_treatment_hash": current_profile["runtime_treatment_hash"],
+        "resolved_treatment_hashes": {
+            f"{chall_sims}:{curr_sims}": {
+                "candidate": resolve_runtime_profile(
+                    candidate_profile, f"{chall_sims}:{curr_sims}"
+                )["runtime_treatment_hash"],
+                "current": resolve_runtime_profile(
+                    current_profile, f"{chall_sims}:{curr_sims}"
+                )["runtime_treatment_hash"],
+            }
+            for chall_sims, curr_sims in budget_pairs
+        },
     }
     validation_errors: list[str] = []
     for chall_sims, curr_sims in budget_pairs:
@@ -576,6 +592,7 @@ def run_seat_aware_evaluation(
         "valid": not validation_errors,
         "errors": validation_errors,
         "expected_games_per_seat": int(args.games),
+        "expected_total_games_per_budget": int(args.games) * 3,
     }
     if validation_errors:
         report["classification"] = "runtime_profile_gate_invalid"

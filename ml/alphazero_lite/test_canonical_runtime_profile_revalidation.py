@@ -1,6 +1,7 @@
 import unittest
 
 from ml.alphazero_lite.evaluation_seed_contract import seed_identity_ledger_record
+from ml.alphazero_lite.runtime_profiles import resolve_runtime_profile
 from ml.alphazero_lite.run_canonical_runtime_profile_revalidation import (
     PROFILE_A,
     PROFILE_B,
@@ -130,6 +131,16 @@ class CanonicalRuntimeProfileRevalidationTests(unittest.TestCase):
             self.assertEqual(
                 profile_tactical_root_bias(PROFILE_E, budget),
                 profile_tactical_root_bias(PROFILE_C, budget),
+            )
+
+    def test_e_and_d_treatment_hashes_differ_but_null_budgets_resolve_equally(self):
+        e = profile_definition(PROFILE_E)
+        d = profile_definition(PROFILE_D)
+        self.assertNotEqual(e["runtime_treatment_hash"], d["runtime_treatment_hash"])
+        for budget in ("384:256", "768:768"):
+            self.assertEqual(
+                resolve_runtime_profile(e, budget)["runtime_treatment_hash"],
+                resolve_runtime_profile(d, budget)["runtime_treatment_hash"],
             )
 
 

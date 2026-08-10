@@ -62,7 +62,26 @@ def runtime_profile_definition(
             "root_prior_transform": None,
         },
     }
-    return {**definition, "hash": stable_hash(definition)}
+    treatment = runtime_treatment_definition(definition)
+    return {
+        **definition,
+        "hash": stable_hash(definition),
+        "runtime_treatment_hash": stable_hash(treatment),
+    }
+
+
+def runtime_treatment_definition(profile: dict[str, Any]) -> dict[str, Any]:
+    """Return the behavior-affecting portion of a normalized runtime profile."""
+    return {
+        key: profile[key]
+        for key in (
+            "default_tactical_root_bias",
+            "tactical_root_bias_overrides",
+            "default_c_puct",
+            "c_puct_overrides",
+            "search_options",
+        )
+    }
 
 
 def parse_runtime_profile_json(text: str) -> dict[str, Any]:
@@ -95,7 +114,7 @@ def resolve_runtime_profile(profile: dict[str, Any], budget: str) -> dict[str, A
     tactical = profile["tactical_root_bias_overrides"].get(
         label, profile["default_tactical_root_bias"]
     )
-    return {
+    resolved = {
         "tactical_root_bias": float(tactical),
         "c_puct": resolve_budget_cpuct(
             schedule=profile["c_puct_overrides"],
@@ -104,4 +123,8 @@ def resolve_runtime_profile(profile: dict[str, Any], budget: str) -> dict[str, A
             default_c_puct=float(profile["default_c_puct"]),
         ),
         "search_options": dict(profile["search_options"]),
+    }
+    return {
+        **resolved,
+        "runtime_treatment_hash": stable_hash(resolved),
     }

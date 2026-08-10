@@ -70,7 +70,27 @@ class SeatAwareRuntimeProfileGateTests(unittest.TestCase):
         ]
         with patch.object(sys, "argv", arguments):
             args = gate.parse_args()
-        with self.assertRaisesRegex(ValueError, "identical runtime-profile hashes"):
+        with self.assertRaisesRegex(ValueError, "identical runtime treatment hashes"):
+            gate.run_seat_aware_evaluation(args)
+
+    def test_gate_rejects_same_treatment_under_different_names(self):
+        gate = load_gate_module()
+        candidate = self.profile("candidate-display", 0.00)
+        current = self.profile("current-display", 0.00)
+        arguments = [
+            "seat_aware_promotion_gate",
+            "--candidate-path",
+            "model-artifact/current",
+            "--out",
+            "/tmp/runtime-profile-gate.json",
+            "--candidate-runtime-profile-json",
+            json.dumps(candidate),
+            "--current-runtime-profile-json",
+            json.dumps(current),
+        ]
+        with patch.object(sys, "argv", arguments):
+            args = gate.parse_args()
+        with self.assertRaisesRegex(ValueError, "identical runtime treatment hashes"):
             gate.run_seat_aware_evaluation(args)
 
 
