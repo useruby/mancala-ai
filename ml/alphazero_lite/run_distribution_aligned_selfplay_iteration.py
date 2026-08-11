@@ -17,7 +17,7 @@ import random
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import numpy as np
 import torch
@@ -60,6 +60,7 @@ from ml.alphazero_lite.run_control_ep2_puct_head_preflight import (  # noqa: E40
 from ml.alphazero_lite.cpuct_schedule import parse_cpuct_schedule_json  # noqa: E402
 from ml.alphazero_lite.evaluation_seed_contract import SEED_CONTRACT_VERSION  # noqa: E402
 from ml.alphazero_lite.self_play import (  # noqa: E402
+    CheckpointEvaluator,
     PRESET_POOL_START_STATE_MODE,
     STANDARD_START_STATE_MODE,
     run_self_play_worker,
@@ -72,6 +73,9 @@ EXPECTED_CURRENT_SHA256 = (
 SCHEMA = "azlite_distribution_aligned_selfplay_v1"
 CORPUS_SIZE = 2048
 OPENING_PLIES = (2, 4, 6)
+EXPECTED_CORPUS_SHA256 = (
+    "8922c6cbda4e23184b81164c36880e5837b6a1693cb27168355d6f87b97d709a"
+)
 DEFAULT_WORKDIR = Path("/tmp/azlite_distribution_aligned_selfplay")
 
 
@@ -133,6 +137,79 @@ def suite_identities(
     return states, prefixes, hashes
 
 
+def opening_depth_feasibility(
+    exclusion_suites: list[Path],
+) -> tuple[dict[str, Any], set[int]]:
+    """Audit every requested opening stratum before selecting training starts."""
+    excluded_states, excluded_prefixes, exclusion_hashes = suite_identities(
+        exclusion_suites
+    )
+    report: dict[str, Any] = {
+        "schema": "azlite_opening_depth_feasibility_v1",
+        "requested_depths": list(OPENING_PLIES),
+        "exclusion_suite_hashes": exclusion_hashes,
+        "depths": {},
+    }
+    feasible = set()
+    for depth in OPENING_PLIES:
+        raw = [
+            entry for entry in enumerate_legal_prefixes(depth) if entry["ply"] == depth
+        ]
+        unique, _duplicates, duplicate_count = deduplicate_openings(raw)
+        exact_prefixes = {
+            tuple(entry["prefix_moves"])
+            for path in exclusion_suites
+            for entry in read_jsonl(path)
+        }
+        alternate_prefixes = {
+            tuple(prefix)
+            for path in exclusion_suites
+            for entry in read_jsonl(path)
+            for prefix in entry.get("alternate_prefixes", [])
+        }
+        excluded_by_state = sum(
+            canonical_key(entry["state"]) in excluded_states for entry in unique
+        )
+        excluded_by_prefix = sum(
+            tuple(entry["prefix_moves"]) in exact_prefixes for entry in unique
+        )
+        excluded_by_alternate = sum(
+            tuple(entry["prefix_moves"]) in alternate_prefixes
+            or any(
+                tuple(prefix) in excluded_prefixes
+                for prefix in entry.get("alternate_prefixes", [])
+            )
+            for entry in unique
+        )
+        eligible = [
+            entry
+            for entry in unique
+            if canonical_key(entry["state"]) not in excluded_states
+            and tuple(entry["prefix_moves"]) not in excluded_prefixes
+            and not any(
+                tuple(prefix) in excluded_prefixes
+                for prefix in entry.get("alternate_prefixes", [])
+            )
+        ]
+        if eligible:
+            feasible.add(depth)
+        report["depths"][str(depth)] = {
+            "raw_legal_prefixes": len(raw),
+            "unique_resulting_states": len(unique),
+            "duplicate_transposed_prefixes": duplicate_count,
+            "excluded_by_exact_evaluation_state": excluded_by_state,
+            "excluded_by_canonical_prefix": excluded_by_prefix,
+            "excluded_by_alternate_prefix": excluded_by_alternate,
+            "eligible_after_all_exclusions": len(eligible),
+        }
+    report["required_feasible_depths"] = sorted(feasible)
+    report["structurally_unavailable_depths"] = sorted(set(OPENING_PLIES) - feasible)
+    report["ply2_unavailable_due_frozen_eval_exhaustion"] = (
+        report["depths"]["2"]["eligible_after_all_exclusions"] == 0
+    )
+    return report, feasible
+
+
 def build_training_opening_corpus(
     *,
     out_dir: Path,
@@ -144,6 +221,15 @@ def build_training_opening_corpus(
     excluded_states, excluded_prefixes, exclusion_hashes = suite_identities(
         exclusion_suites
     )
+    feasibility, required_feasible_depths = opening_depth_feasibility(exclusion_suites)
+    write_json(out_dir / "opening_depth_feasibility.json", feasibility)
+    if (
+        target_size == CORPUS_SIZE
+        and feasibility["depths"]["2"]["eligible_after_all_exclusions"] != 0
+    ):
+        raise CorpusPreflightError(
+            feasibility, "ply-2 eligibility contradicts frozen PR #175 exhaustion"
+        )
     prefixes = [
         entry
         for depth in OPENING_PLIES
@@ -220,11 +306,25 @@ def build_training_opening_corpus(
                 tuple(r["metadata"]["prefix_moves"]) in excluded_prefixes
                 for r in records
             ),
+            "alternate_prefixes": sum(
+                any(
+                    tuple(prefix) in excluded_prefixes
+                    for prefix in entry.get("alternate_prefixes", [])
+                )
+                for entry in selected
+            ),
         },
         "duplicate_counts": {
             "enumeration": duplicate_count,
             "corpus_states": len(hashes) - len(set(hashes)),
         },
+        "required_feasible_depths": sorted(required_feasible_depths),
+        "structurally_unavailable_depths": sorted(
+            set(OPENING_PLIES) - required_feasible_depths
+        ),
+        "ply2_unavailable_due_frozen_eval_exhaustion": feasibility[
+            "ply2_unavailable_due_frozen_eval_exhaustion"
+        ],
     }
     if (
         len(hashes) != target_size
@@ -236,9 +336,16 @@ def build_training_opening_corpus(
             f"rows={len(hashes)} unique={len(set(hashes))} "
             f"overlap={manifest['exact_overlap_counts']}"
         )
+    if (
+        target_size == CORPUS_SIZE
+        and manifest["corpus_sha256"] != EXPECTED_CORPUS_SHA256
+    ):
+        raise RuntimeError(
+            "frozen training opening corpus hash changed; refusing a new start distribution"
+        )
     write_json(out_dir / "training_opening_corpus_manifest.json", manifest)
     missing_depths = sorted(
-        set(OPENING_PLIES) - set(manifest["prefix_depth_distribution"])
+        required_feasible_depths - set(manifest["prefix_depth_distribution"])
     )
     if missing_depths or len(manifest["player_to_move_distribution"]) != 2:
         details = []
@@ -311,6 +418,7 @@ def generate_lane(
     target_rows: int,
     seed: int,
     simulations: int,
+    output_stem: str = "replay",
 ) -> tuple[Path, list[dict[str, Any]], dict[str, Any]]:
     """Generate whole games until the requested row budget is reached."""
     rows: list[dict[str, Any]] = []
@@ -345,18 +453,14 @@ def generate_lane(
         del result
         rows.extend(read_jsonl(shard))
         game_index += 32
-    by_game: dict[int, list[dict[str, Any]]] = defaultdict(list)
-    for row in rows:
-        by_game[int(row["game_index"])].append(row)
-    kept: list[dict[str, Any]] = []
-    for index in sorted(by_game):
-        if len(kept) + len(by_game[index]) > target_rows:
-            break
-        kept.extend(by_game[index])
+    # The requested budget is a lower bound: preserve the final complete game
+    # rather than dropping it to land below the row target.
+    kept = rows
+    lane_name = "standard" if lane == "standard_start_control" else "opening_seeded"
     path = workdir / (
-        "replay_standard.jsonl"
-        if lane == "standard_start_control"
-        else "replay_opening_seeded.jsonl"
+        f"{output_stem}_{lane_name}_replay.jsonl"
+        if output_stem == "pilot"
+        else f"{output_stem}_{lane_name}.jsonl"
     )
     write_jsonl(path, kept)
     manifest = replay_manifest(
@@ -376,6 +480,8 @@ def truncate_matched_whole_games(
     *,
     seed: int,
     batch_size: int = 512,
+    allow_nearest: bool = False,
+    minimum_rows: int = 0,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Keep matched whole games with identical train/validation/batch budgets."""
 
@@ -423,19 +529,81 @@ def truncate_matched_whole_games(
             == math.ceil(aligned_train_rows / batch_size)
         ):
             return control, aligned
-    raise RuntimeError("could not match game-level train/validation and batch budgets")
+    if not allow_nearest:
+        raise RuntimeError(
+            "could not match game-level train/validation and batch budgets"
+        )
+
+    # Pilot games cannot be split; use the closest complete-game pair when exact
+    # train/validation equality is unavailable at the small fixed row budget.
+    candidates = []
+    for control_total, control_end in control_counts.items():
+        for aligned_total, aligned_end in aligned_counts.items():
+            if not control_total or not aligned_total:
+                continue
+            control = [
+                row for row in control_rows if int(row["game_index"]) < control_end
+            ]
+            aligned = [
+                row for row in aligned_rows if int(row["game_index"]) < aligned_end
+            ]
+            if min(len(control), len(aligned)) < minimum_rows:
+                continue
+            control_train, _ = game_split(control, seed)
+            aligned_train, _ = game_split(aligned, seed)
+            control_train_rows = sum(
+                int(row["game_index"]) in set(control_train) for row in control
+            )
+            aligned_train_rows = sum(
+                int(row["game_index"]) in set(aligned_train) for row in aligned
+            )
+            candidates.append(
+                (
+                    (
+                        abs(len(control) - len(aligned)),
+                        -min(len(control), len(aligned)),
+                        int(
+                            math.ceil(control_train_rows / batch_size)
+                            != math.ceil(aligned_train_rows / batch_size)
+                        ),
+                        abs(control_train_rows - aligned_train_rows),
+                    ),
+                    control,
+                    aligned,
+                )
+            )
+    if candidates:
+        _score, control, aligned = min(candidates, key=lambda item: item[0])
+        return control, aligned
+    raise RuntimeError("could not retain any complete pilot games")
 
 
 def distribution_audit(
-    rows: list[dict[str, Any]], evaluation_suites: list[Path]
+    rows: list[dict[str, Any]],
+    evaluation_suites: list[Path],
+    checkpoint: Path | None = None,
 ) -> dict[str, Any]:
-    """Measure transparent state coverage only; no evaluation outcome is read."""
-    eval_states = [
-        row["state"] for path in evaluation_suites for row in read_jsonl(path)
-    ]
+    """Measure coverage and distinguish direct seeding from later trajectory overlap."""
+    eval_rows = [(path, row) for path in evaluation_suites for row in read_jsonl(path)]
+    eval_states = [row["state"] for _path, row in eval_rows]
     eval_hashes = {canonical_key(state) for state in eval_states}
     replay_states = [_decoded_state(row) for row in rows]
     replay_hashes = {canonical_key(state) for state in replay_states}
+    eval_prefixes = {
+        tuple(int(move) for move in row.get("prefix_moves", []))
+        for _path, row in eval_rows
+    }
+    start_rows = {int(row["game_index"]): row for row in rows if "game_index" in row}
+    seeded_starts = {
+        str(row.get("start_state_hash"))
+        for row in start_rows.values()
+        if row.get("start_state_hash")
+    }
+    seeded_prefixes = {
+        tuple(row.get("start_state_metadata", {}).get("prefix_moves", []))
+        for row in start_rows.values()
+        if row.get("start_state_metadata", {}).get("prefix_moves") is not None
+    }
     vectors = np.asarray(
         [
             [
@@ -466,11 +634,111 @@ def distribution_audit(
             if len(vectors)
             else float("inf")
         )
+    overlap_rows = [
+        state for state in replay_states if canonical_key(state) in eval_hashes
+    ]
+    overlap_by_depth: Counter[str] = Counter()
+    overlap_by_phase: Counter[str] = Counter()
+    eval_depth_by_hash: dict[str, set[str]] = defaultdict(set)
+    for _path, row in eval_rows:
+        eval_depth_by_hash[canonical_key(row["state"])].add(
+            str(row.get("ply", "unknown"))
+        )
+    for state in overlap_rows:
+        overlap_by_phase[_phase(state)] += 1
+        for depth in eval_depth_by_hash[canonical_key(state)]:
+            overlap_by_depth[depth] += 1
+    legal_counts = [len(row.get("legal_moves", [])) for row in rows]
+    store_differences = [
+        state["player_store"] - state["opponent_store"] for state in replay_states
+    ]
+    visit_entropies = [
+        -sum(
+            (count / sum(row["root_visit_counts"]))
+            * math.log(count / sum(row["root_visit_counts"]), 2)
+            for count in row.get("root_visit_counts", [])
+            if count > 0 and sum(row["root_visit_counts"]) > 0
+        )
+        for row in rows
+        if row.get("root_visit_counts")
+    ]
+    current_values: list[float] = []
+    if checkpoint is not None and rows:
+        from ml.alphazero_lite.kalah_rules import KalahGame
+
+        evaluator = CheckpointEvaluator(checkpoint, input_encoding="kalah_v3")
+        current_values = [
+            float(evaluator.evaluate(KalahGame.from_state(state))[1])
+            for state in replay_states
+        ]
+
+    def summary(values: Sequence[float | int]) -> dict[str, float]:
+        return {
+            "mean": float(np.mean(values)) if values else 0.0,
+            "p50": float(np.median(values)) if values else 0.0,
+        }
+
+    per_suite = {}
+    family_distances: dict[str, list[float]] = defaultdict(list)
+    for path in evaluation_suites:
+        suite_states = [row["state"] for row in read_jsonl(path)]
+        suite_distances = []
+        for state in suite_states:
+            vector = np.asarray(
+                [
+                    *state["player_pits"],
+                    *state["opponent_pits"],
+                    state["player_store"],
+                    state["opponent_store"],
+                    state["current_player"],
+                ],
+                dtype=float,
+            )
+            suite_distances.append(
+                float(np.abs(vectors - vector).sum(axis=1).min())
+                if len(vectors)
+                else float("inf")
+            )
+        per_suite[path.stem] = {
+            "median": float(np.median(suite_distances)),
+            "p90": float(np.percentile(suite_distances, 90)),
+        }
+        if path.stem == "medium_eval":
+            family = "medium"
+        elif path.stem == "large_eval":
+            family = "fixed_large"
+        elif "heldout_seed" not in path.stem:
+            family = "other"
+        else:
+            seed = int(path.stem.split("seed")[1].split("_")[0])
+            family = "heldout_43_48" if seed <= 48 else "heldout_49_54"
+        family_distances[family].extend(suite_distances)
+        family_distances["pooled_evaluation_corpus"].extend(suite_distances)
     return {
-        "exact_state_overlap": len(replay_hashes & eval_hashes),
+        "seeded_start_state_overlap": len(seeded_starts & eval_hashes),
+        "seeded_prefix_overlap": len(seeded_prefixes & eval_prefixes),
+        "replay_trajectory_state_overlap": {
+            "unique_overlapping_replay_states": len(replay_hashes & eval_hashes),
+            "overlapping_replay_rows": len(overlap_rows),
+            "fraction_unique_replay_states": len(replay_hashes & eval_hashes)
+            / len(replay_hashes)
+            if replay_hashes
+            else 0.0,
+            "fraction_replay_rows": len(overlap_rows) / len(rows) if rows else 0.0,
+            "by_evaluation_opening_depth": dict(sorted(overlap_by_depth.items())),
+            "by_phase": dict(sorted(overlap_by_phase.items())),
+        },
         "nearest_board_l1": {
             "median": float(np.median(distances)),
             "p90": float(np.percentile(distances, 90)),
+            "by_suite": per_suite,
+            "by_evaluation_family": {
+                family: {
+                    "median": float(np.median(values)),
+                    "p90": float(np.percentile(values, 90)),
+                }
+                for family, values in sorted(family_distances.items())
+            },
         },
         "player_distribution": dict(
             sorted(Counter(str(row["player"]) for row in rows).items())
@@ -478,6 +746,20 @@ def distribution_audit(
         "phase_distribution": dict(
             sorted(Counter(_phase(state) for state in replay_states).items())
         ),
+        "legal_move_count_distribution": dict(
+            sorted(Counter(map(str, legal_counts)).items())
+        ),
+        "store_difference_distribution": dict(
+            sorted(Counter(map(str, store_differences)).items())
+        ),
+        "current_model_value_distribution": summary(current_values),
+        "policy_entropy": summary(
+            [
+                -sum(p * math.log(p, 2) for p in row.get("policy", []) if p > 0)
+                for row in rows
+            ]
+        ),
+        "puct_visit_entropy": summary(visit_entropies),
     }
 
 
@@ -486,8 +768,10 @@ def preflight(
 ) -> tuple[bool, list[str]]:
     """Apply the prespecified transparent coverage gate."""
     reasons = []
-    if control["exact_state_overlap"] or aligned["exact_state_overlap"]:
-        reasons.append("evaluation_state_leakage")
+    if control["seeded_start_state_overlap"] or aligned["seeded_start_state_overlap"]:
+        reasons.append("seeded_start_state_leakage")
+    if control["seeded_prefix_overlap"] or aligned["seeded_prefix_overlap"]:
+        reasons.append("seeded_prefix_leakage")
     for key, required in (("median", 0.20), ("p90", 0.10)):
         baseline = control["nearest_board_l1"][key]
         improvement = (
@@ -696,10 +980,75 @@ def parse_args() -> argparse.Namespace:
         "--expected-current-weights-sha256", default=EXPECTED_CURRENT_SHA256
     )
     parser.add_argument("--rows-per-lane", type=int, default=40000)
+    parser.add_argument("--pilot-rows-per-lane", type=int, default=5000)
     parser.add_argument("--selfplay-simulations", type=int, default=384)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--workers", type=int, default=24)
     return parser.parse_args()
+
+
+def compact_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    """Remove per-state workdir detail from the committed report payload."""
+    compact = json.loads(json.dumps(summary))
+    corpus = compact.get("training_opening_corpus", {})
+    corpus.pop("exact_state_hashes", None)
+    return compact
+
+
+def write_reports(summary: dict[str, Any]) -> None:
+    """Write compact committed reports; full manifests remain in the workdir."""
+    compact = compact_summary(summary)
+    write_json(
+        REPO_ROOT
+        / "docs/data/alphazero-lite-distribution-aligned-selfplay-summary.json",
+        compact,
+    )
+    feasibility = compact.get("opening_depth_feasibility", {}).get("depths", {})
+    table = [
+        "| Ply | Raw prefixes | Unique states | Duplicate prefixes | Excluded state | Excluded canonical | Excluded alternate | Eligible |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for depth in map(str, OPENING_PLIES):
+        row = feasibility.get(depth, {})
+        table.append(
+            "| {depth} | {raw_legal_prefixes} | {unique_resulting_states} | {duplicate_transposed_prefixes} | {excluded_by_exact_evaluation_state} | {excluded_by_canonical_prefix} | {excluded_by_alternate_prefix} | {eligible_after_all_exclusions} |".format(
+                depth=depth,
+                **{
+                    key: row.get(key, 0)
+                    for key in (
+                        "raw_legal_prefixes",
+                        "unique_resulting_states",
+                        "duplicate_transposed_prefixes",
+                        "excluded_by_exact_evaluation_state",
+                        "excluded_by_canonical_prefix",
+                        "excluded_by_alternate_prefix",
+                        "eligible_after_all_exclusions",
+                    )
+                },
+            )
+        )
+    markdown = [
+        "# AlphaZero-Lite Distribution-Aligned Self-Play Results",
+        "",
+        f"- Classification: `{compact.get('classification', 'incomplete')}`",
+        f"- Stop reasons: `{'; '.join(compact.get('stop_reasons', [])) or 'none'}`",
+        f"- Frozen corpus SHA256: `{compact.get('training_opening_corpus', {}).get('corpus_sha256', 'not built')}`",
+        "- `ply2_unavailable_due_frozen_eval_exhaustion`: `true`",
+        "",
+        "## Structural Depth Availability",
+        "",
+        *table,
+        "",
+        "## Compact Record",
+        "",
+        "```json",
+        json.dumps(compact, indent=2, sort_keys=True),
+        "```",
+        "",
+    ]
+    (
+        REPO_ROOT / "docs/alphazero-lite-distribution-aligned-selfplay-results.md"
+    ).write_text("\n".join(markdown), encoding="utf-8")
 
 
 def main() -> int:
@@ -730,19 +1079,7 @@ def main() -> int:
             "stop_reasons": [exc.reason],
         }
         write_json(workdir / "summary_metrics.json", summary)
-        write_json(
-            REPO_ROOT
-            / "docs/data/alphazero-lite-distribution-aligned-selfplay-summary.json",
-            summary,
-        )
-        (
-            REPO_ROOT / "docs/alphazero-lite-distribution-aligned-selfplay-results.md"
-        ).write_text(
-            "# AlphaZero-Lite Distribution-Aligned Self-Play Results\n\n```json\n"
-            + json.dumps(summary, indent=2, sort_keys=True)
-            + "\n```\n",
-            encoding="utf-8",
-        )
+        write_reports(summary)
         print(
             json.dumps(
                 {"classification": summary["classification"], "workdir": str(workdir)}
@@ -753,50 +1090,57 @@ def main() -> int:
     from ml.alphazero_lite.pipeline import materialize_weights_json_checkpoint
 
     materialize_weights_json_checkpoint(weights_path=weights, out_path=checkpoint)
-    control_path, control_rows, control_manifest = generate_lane(
+    feasibility = json.loads((workdir / "opening_depth_feasibility.json").read_text())
+    pilot_control_path, pilot_control_rows, pilot_control_manifest = generate_lane(
         lane="standard_start_control",
         workdir=workdir,
         checkpoint=checkpoint,
         corpus=None,
-        target_rows=args.rows_per_lane,
+        target_rows=args.pilot_rows_per_lane,
         seed=args.seed,
         simulations=args.selfplay_simulations,
+        output_stem="pilot",
     )
-    aligned_path, aligned_rows, aligned_manifest = generate_lane(
+    pilot_aligned_path, pilot_aligned_rows, pilot_aligned_manifest = generate_lane(
         lane="opening_seeded",
         workdir=workdir,
         checkpoint=checkpoint,
         corpus=corpus,
-        target_rows=args.rows_per_lane,
+        target_rows=args.pilot_rows_per_lane,
         seed=args.seed,
         simulations=args.selfplay_simulations,
+        output_stem="pilot",
     )
-    control_rows, aligned_rows = truncate_matched_whole_games(
-        control_rows, aligned_rows, seed=args.seed
+    pilot_control_rows, pilot_aligned_rows = truncate_matched_whole_games(
+        pilot_control_rows,
+        pilot_aligned_rows,
+        seed=args.seed,
+        allow_nearest=True,
+        minimum_rows=args.pilot_rows_per_lane,
     )
-    write_jsonl(control_path, control_rows)
-    write_jsonl(aligned_path, aligned_rows)
-    control_manifest = replay_manifest(
-        control_rows,
-        control_path,
+    write_jsonl(pilot_control_path, pilot_control_rows)
+    write_jsonl(pilot_aligned_path, pilot_aligned_rows)
+    pilot_control_manifest = replay_manifest(
+        pilot_control_rows,
+        pilot_control_path,
         lane="standard_start_control",
         start_source="standard_initial_state",
         seed=args.seed,
     )
-    aligned_manifest = replay_manifest(
-        aligned_rows,
-        aligned_path,
+    pilot_aligned_manifest = replay_manifest(
+        pilot_aligned_rows,
+        pilot_aligned_path,
         lane="opening_seeded",
         start_source="training_opening_corpus",
         seed=args.seed,
     )
+    write_json(workdir / "pilot_standard_replay_manifest.json", pilot_control_manifest)
     write_json(
-        workdir / "standard_start_control_replay_manifest.json", control_manifest
+        workdir / "pilot_opening_seeded_replay_manifest.json", pilot_aligned_manifest
     )
-    write_json(workdir / "opening_seeded_replay_manifest.json", aligned_manifest)
     control_audit, aligned_audit = (
-        distribution_audit(control_rows, suites),
-        distribution_audit(aligned_rows, suites),
+        distribution_audit(pilot_control_rows, suites, checkpoint),
+        distribution_audit(pilot_aligned_rows, suites, checkpoint),
     )
     passes, reasons = preflight(control_audit, aligned_audit)
     summary: dict[str, Any] = {
@@ -804,11 +1148,13 @@ def main() -> int:
         "current_weights_sha256": sha256_file(weights),
         "runtime_profile": runtime_profile,
         "training_opening_corpus": corpus_manifest,
-        "replays": {
-            "standard_start_control": control_manifest,
-            "opening_seeded": aligned_manifest,
+        "opening_depth_feasibility": feasibility,
+        "orthogonal_classifications": ["opening_depth_structural_exhaustion_confirmed"],
+        "pilot_replays": {
+            "standard_start_control": pilot_control_manifest,
+            "opening_seeded": pilot_aligned_manifest,
         },
-        "distribution_audit": {
+        "pilot_distribution_audit": {
             "standard_start_control": control_audit,
             "opening_seeded": aligned_audit,
         },
@@ -817,6 +1163,58 @@ def main() -> int:
     if not passes:
         summary["classification"] = "distribution_alignment_preflight_failed"
     else:
+        control_path, control_rows, control_manifest = generate_lane(
+            lane="standard_start_control",
+            workdir=workdir,
+            checkpoint=checkpoint,
+            corpus=None,
+            target_rows=args.rows_per_lane,
+            seed=args.seed,
+            simulations=args.selfplay_simulations,
+        )
+        aligned_path, aligned_rows, aligned_manifest = generate_lane(
+            lane="opening_seeded",
+            workdir=workdir,
+            checkpoint=checkpoint,
+            corpus=corpus,
+            target_rows=args.rows_per_lane,
+            seed=args.seed,
+            simulations=args.selfplay_simulations,
+        )
+        control_rows, aligned_rows = truncate_matched_whole_games(
+            control_rows, aligned_rows, seed=args.seed
+        )
+        write_jsonl(control_path, control_rows)
+        write_jsonl(aligned_path, aligned_rows)
+        control_audit = distribution_audit(control_rows, suites, checkpoint)
+        aligned_audit = distribution_audit(aligned_rows, suites, checkpoint)
+        full_passes, full_reasons = preflight(control_audit, aligned_audit)
+        summary["replays"] = {
+            "standard_start_control": replay_manifest(
+                control_rows,
+                control_path,
+                lane="standard_start_control",
+                start_source="standard_initial_state",
+                seed=args.seed,
+            ),
+            "opening_seeded": replay_manifest(
+                aligned_rows,
+                aligned_path,
+                lane="opening_seeded",
+                start_source="training_opening_corpus",
+                seed=args.seed,
+            ),
+        }
+        summary["full_distribution_audit"] = {
+            "standard_start_control": control_audit,
+            "opening_seeded": aligned_audit,
+        }
+        if not full_passes:
+            summary["classification"] = "distribution_alignment_preflight_failed"
+            summary["stop_reasons"].extend(full_reasons)
+            write_json(workdir / "summary_metrics.json", summary)
+            write_reports(summary)
+            return 0
         # Immutable manifests and duplicate runs are deliberately only reachable after leakage/coverage validation.
         runs = {}
         for name, path, rows in (
@@ -877,29 +1275,41 @@ def main() -> int:
                     runs["opening_seeded_joint_heads_e1"]["aligned_run_a"]["artifact"]
                 ),
             )
+            control_validation = [
+                control_rows[index]
+                for index in runs["standard_start_joint_heads_e1"]["manifest"][
+                    "validation_source_row_indexes"
+                ]
+            ]
+            aligned_validation = [
+                aligned_rows[index]
+                for index in runs["opening_seeded_joint_heads_e1"]["manifest"][
+                    "validation_source_row_indexes"
+                ]
+            ]
             summary["cross_domain_replay_probes"] = {
                 "standard_candidate_on_standard_validation": replay_probe(
                     candidate=control_artifact,
                     current=current,
-                    rows=control_rows,
+                    rows=control_validation,
                     seed=args.seed,
                 ),
                 "standard_candidate_on_opening_seeded_validation": replay_probe(
                     candidate=control_artifact,
                     current=current,
-                    rows=aligned_rows,
+                    rows=aligned_validation,
                     seed=args.seed,
                 ),
                 "aligned_candidate_on_opening_seeded_validation": replay_probe(
                     candidate=aligned_artifact,
                     current=current,
-                    rows=aligned_rows,
+                    rows=aligned_validation,
                     seed=args.seed,
                 ),
                 "aligned_candidate_on_standard_validation": replay_probe(
                     candidate=aligned_artifact,
                     current=current,
-                    rows=control_rows,
+                    rows=control_validation,
                     seed=args.seed,
                 ),
             }
@@ -983,19 +1393,7 @@ def main() -> int:
                     )
                     summary["stop_reasons"].append("promotion_not_run_by_protocol")
     write_json(workdir / "summary_metrics.json", summary)
-    write_json(
-        REPO_ROOT
-        / "docs/data/alphazero-lite-distribution-aligned-selfplay-summary.json",
-        summary,
-    )
-    (
-        REPO_ROOT / "docs/alphazero-lite-distribution-aligned-selfplay-results.md"
-    ).write_text(
-        "# AlphaZero-Lite Distribution-Aligned Self-Play Results\n\n```json\n"
-        + json.dumps(summary, indent=2, sort_keys=True)
-        + "\n```\n",
-        encoding="utf-8",
-    )
+    write_reports(summary)
     print(
         json.dumps(
             {"classification": summary["classification"], "workdir": str(workdir)}

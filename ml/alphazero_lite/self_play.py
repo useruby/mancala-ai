@@ -1817,7 +1817,13 @@ def load_start_state_pool(path: str) -> list[dict[str, Any]]:
 
     normalized_entries: list[dict[str, Any]] = []
     for index, entry in enumerate(entries, start=1):
-        state = validate_start_state_dict(entry, source=f"start_state_pool[{index}]")
+        # Opening corpora retain their selection metadata beside the raw board.
+        raw_state = entry.get("state", entry)
+        if not isinstance(raw_state, dict):
+            raise ValueError(f"start_state_pool[{index}].state must be an object")
+        state = validate_start_state_dict(
+            raw_state, source=f"start_state_pool[{index}]"
+        )
         metadata = entry.get("metadata", {})
         if metadata is None:
             metadata = {}
