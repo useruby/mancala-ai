@@ -36,6 +36,12 @@ Code base commit: `b5b7148631e146f22c909c5f296eb5c2e8ef74e4`.
 This measurement-correction rerun uses a clean work directory and retains only cache entries with matching per-seat provenance manifests. Existing arena files without manifests are reported as `legacy_cache_without_manifest` and rerun.
 E-D effects are calculated independently for `challenger_starts_0` and `challenger_starts_1` before pooling, controlling player seat across orientations.
 
+### Seat Metric Clarification
+
+The values in the player-seat table are the raw `raw_player_seat_score_difference`: the independently measured E-D score difference for a fixed player seat. They are not, by themselves, orientation-normalized DS units.
+
+Where a player-seat acceptance threshold is expressed in orientation-normalized DS units, the applicable quantity is `orientation_normalized_player_seat_ds`, computed from the two fixed-seat observations as `normalized_seat_delta = (forward_seat_score - reverse_seat_score) / 2`. Both forms are retained because the raw difference diagnoses seat asymmetry while the normalized value is the threshold-comparable statistic. This clarification does not recompute any frozen comparison and does not alter the rejection decision.
+
 ## Frozen Suites
 
 | Suite | SHA256 |
