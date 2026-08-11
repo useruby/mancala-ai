@@ -53,6 +53,7 @@ DIRECT_CONTRASTS = {
     "C_minus_A": (PROFILE_C, PROFILE_A),
     "D_minus_B": (PROFILE_D, PROFILE_B),
 }
+ORIENTATION_CACHE_MANIFEST_SCHEMA = "azlite_orientation_cache_manifest_v1"
 
 
 def _runtime_profile(name: str) -> dict[str, Any]:
@@ -210,6 +211,140 @@ def _score_by_opening(
     }
 
 
+def orientation_cache_identity(
+    *,
+    args: argparse.Namespace,
+    first: str,
+    second: str,
+    budget: str,
+    suite: Path,
+    seed: int,
+    seat: int,
+    suite_size: int,
+) -> dict[str, Any]:
+    """Return every input that must match before reusing one seat's arena output."""
+    challenger_sims, current_sims = (int(value) for value in budget.split(":"))
+    first_definition = profile_definition(first)
+    second_definition = profile_definition(second)
+    return {
+        "schema": ORIENTATION_CACHE_MANIFEST_SCHEMA,
+        "artifact_weights_sha256": args.expected_current_weights_sha256,
+        "suite_sha256": sha256_file(suite),
+        "suite_size": suite_size,
+        "base_seed": seed,
+        "seed_contract": args.seed_contract,
+        "challenger_starts": seat,
+        "games": suite_size * 2,
+        "games_per_opening": 2,
+        "budget": budget,
+        "challenger_simulations": challenger_sims,
+        "current_simulations": current_sims,
+        "root_policy_mode": "deterministic",
+        "first_profile": first,
+        "second_profile": second,
+        "first_profile_hash": first_definition["hash"],
+        "second_profile_hash": second_definition["hash"],
+        "challenger_runtime_treatment_hash": first_definition["runtime_treatment_hash"],
+        "incumbent_runtime_treatment_hash": second_definition["runtime_treatment_hash"],
+        "first_runtime_treatment_hash": resolve_runtime_profile(
+            first_definition, budget
+        )["runtime_treatment_hash"],
+        "second_runtime_treatment_hash": resolve_runtime_profile(
+            second_definition, budget
+        )["runtime_treatment_hash"],
+        "first_c_puct": profile_cpuct(first, budget),
+        "second_c_puct": profile_cpuct(second, budget),
+        "first_tactical_root_bias": profile_tactical_root_bias(first, budget),
+        "second_tactical_root_bias": profile_tactical_root_bias(second, budget),
+        "evaluation_profile_hash": stable_hash(
+            {
+                "root_policy_mode": "deterministic",
+                "games_per_opening": 2,
+                "workers_independent": True,
+            }
+        ),
+    }
+
+
+def write_orientation_cache_manifest(
+    path: Path,
+    identity: dict[str, Any],
+    report_path: Path,
+    games_path: Path,
+) -> None:
+    """Record the exact inputs and content hashes for reusable arena outputs."""
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    notes = report["notes"]
+    ledger_paths = {
+        "seed_identity": Path(notes["seed_ledger_output"]),
+        "search_configuration": Path(notes["search_configuration_ledger_output"]),
+        "search_outcome": Path(notes["search_outcome_ledger_output"]),
+    }
+    manifest = {
+        **identity,
+        "outputs": {
+            "report": {"path": report_path.name, "sha256": sha256_file(report_path)},
+            "games": {"path": games_path.name, "sha256": sha256_file(games_path)},
+            "ledgers": {
+                name: {"path": str(path), "sha256": sha256_file(path)}
+                for name, path in ledger_paths.items()
+            },
+        },
+    }
+    path.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def orientation_cache_status(
+    path: Path, identity: dict[str, Any], seat_dir: Path
+) -> tuple[bool, str, Path | None]:
+    """Validate a cached seat result without trusting legacy file presence alone."""
+    if not path.is_file():
+        legacy = any(
+            (seat_dir / name).is_file()
+            for name in ("arena.json", "games.jsonl", "games.jsonl.gz")
+        )
+        return (
+            False,
+            "legacy_cache_without_manifest" if legacy else "cache_missing",
+            None,
+        )
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False, "manifest_unreadable", None
+    if any(manifest.get(key) != value for key, value in identity.items()):
+        return False, "manifest_identity_mismatch", None
+    outputs = manifest.get("outputs")
+    if not isinstance(outputs, dict):
+        return False, "manifest_outputs_missing", None
+    report = outputs.get("report")
+    games = outputs.get("games")
+    if not isinstance(report, dict) or not isinstance(games, dict):
+        return False, "manifest_outputs_invalid", None
+    report_path = seat_dir / str(report.get("path", ""))
+    games_path = seat_dir / str(games.get("path", ""))
+    if not report_path.is_file() or not games_path.is_file():
+        return False, "cached_output_missing", None
+    if sha256_file(report_path) != report.get("sha256"):
+        return False, "cached_report_hash_mismatch", None
+    if sha256_file(games_path) != games.get("sha256"):
+        return False, "cached_games_hash_mismatch", None
+    ledgers = outputs.get("ledgers")
+    if not isinstance(ledgers, dict) or set(ledgers) != {
+        "seed_identity",
+        "search_configuration",
+        "search_outcome",
+    }:
+        return False, "manifest_ledger_outputs_missing", None
+    for ledger in ledgers.values():
+        ledger_path = Path(str(ledger.get("path", "")))
+        if not ledger_path.is_file():
+            return False, "cached_ledger_missing", None
+        if sha256_file(ledger_path) != ledger.get("sha256"):
+            return False, "cached_ledger_hash_mismatch", None
+    return True, "reused", games_path
+
+
 def _run_orientation(
     *,
     args: argparse.Namespace,
@@ -222,15 +357,26 @@ def _run_orientation(
 ) -> dict[str, Any]:
     challenger_sims, current_sims = (int(value) for value in budget.split(":"))
     out.mkdir(parents=True, exist_ok=True)
-    all_games, reports = [], []
+    all_games, reports, cache_diagnostics = [], [], []
     suite_size = len(_load_jsonl(suite))
     for seat in (0, 1):
         seat_dir = out / f"starts_{seat}"
         report_path, games_path = seat_dir / "arena.json", seat_dir / "games.jsonl"
-        cached_games_path = (
-            games_path if games_path.is_file() else games_path.with_suffix(".jsonl.gz")
+        manifest_path = seat_dir / "cache_manifest.json"
+        identity = orientation_cache_identity(
+            args=args,
+            first=first,
+            second=second,
+            budget=budget,
+            suite=suite,
+            seed=seed,
+            seat=seat,
+            suite_size=suite_size,
         )
-        if not (report_path.is_file() and cached_games_path.is_file()):
+        reusable, cache_reason, cached_games_path = orientation_cache_status(
+            manifest_path, identity, seat_dir
+        )
+        if not reusable:
             seat_dir.mkdir(parents=True, exist_ok=True)
             command = [
                 sys.executable,
@@ -290,13 +436,25 @@ def _run_orientation(
             ]
             subprocess.run(command, cwd=REPO_ROOT, check=True)
             cached_games_path = games_path
+            write_orientation_cache_manifest(
+                manifest_path, identity, report_path, cached_games_path
+            )
+        cache_diagnostics.append({"seat": seat, "status": cache_reason})
         reports.append(json.loads(report_path.read_text(encoding="utf-8")))
+        assert cached_games_path is not None
         all_games.extend(_load_jsonl(cached_games_path))
     notes = [report["notes"] for report in reports]
     return {
         "games": all_games,
         "metrics": compute_seat_metrics(all_games),
         "per_opening_score": _score_by_opening(all_games),
+        "per_opening_score_by_seat": {
+            seat: _score_by_opening(
+                [entry for entry in all_games if entry["challenger_player"] == seat]
+            )
+            for seat in (0, 1)
+        },
+        "cache_diagnostics": cache_diagnostics,
         "provenance": {
             key: stable_hash([note[key] for note in notes])
             for key in (
@@ -346,7 +504,7 @@ def direct_match(
         (forward["per_opening_score"][key] - reverse["per_opening_score"][key]) / 2.0
         for key in keys
     ]
-    orientation = {
+    orientation_effects = {
         "first_challenger": bootstrap_ci(
             [forward["per_opening_score"][key] - 0.5 for key in keys], seed=seed
         ),
@@ -354,6 +512,17 @@ def direct_match(
             [0.5 - reverse["per_opening_score"][key] for key in keys], seed=seed
         ),
     }
+    player_seat_effects = {}
+    for seat in (0, 1):
+        forward_scores = forward["per_opening_score_by_seat"][seat]
+        reverse_scores = reverse["per_opening_score_by_seat"][seat]
+        seat_keys = sorted(set(forward_scores) & set(reverse_scores))
+        seat_deltas = [forward_scores[key] - reverse_scores[key] for key in seat_keys]
+        player_seat_effects[f"E_minus_D_player{seat}"] = {
+            **bootstrap_ci(seat_deltas, seed=seed),
+            "paired_per_opening_delta": seat_deltas,
+            "openings": len(seat_deltas),
+        }
     return {
         "first_profile": first,
         "second_profile": second,
@@ -365,7 +534,8 @@ def direct_match(
         "positive_openings": sum(x > 0 for x in deltas),
         "zero_openings": sum(x == 0 for x in deltas),
         "negative_openings": sum(x < 0 for x in deltas),
-        "orientation_decomposition": orientation,
+        "orientation_decomposition": orientation_effects,
+        "player_seat_effects": player_seat_effects,
         "p0_p1": {
             "first_challenger": forward["metrics"],
             "second_challenger": reverse["metrics"],
@@ -383,6 +553,10 @@ def direct_match(
         "provenance": {
             key: stable_hash([forward["provenance"][key], reverse["provenance"][key]])
             for key in forward["provenance"]
+        },
+        "cache_diagnostics": {
+            "first_challenger": forward["cache_diagnostics"],
+            "second_challenger": reverse["cache_diagnostics"],
         },
     }
 
