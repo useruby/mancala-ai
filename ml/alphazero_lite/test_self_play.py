@@ -4632,6 +4632,31 @@ class StartStateModeTest(unittest.TestCase):
         self.assertEqual(1, rows[0]["start_player"])
         self.assertEqual("balanced-001", rows[0]["start_state_metadata"]["preset_id"])
 
+    def test_preset_pool_accepts_corpus_state_wrapper(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-start-state-corpus-") as tmp:
+            pool_path = Path(tmp) / "pool.jsonl"
+            pool_path.write_text(
+                json.dumps(
+                    {
+                        "state": {
+                            "player_pits": [0, 4, 4, 4, 4, 8],
+                            "opponent_pits": [0, 4, 4, 4, 4, 8],
+                            "player_store": 0,
+                            "opponent_store": 0,
+                            "current_player": 1,
+                        },
+                        "metadata": {"prefix_moves": [5, 11]},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            entries = self_play.load_start_state_pool(str(pool_path))
+
+        self.assertEqual(1, len(entries))
+        self.assertEqual([5, 11], entries[0]["metadata"]["prefix_moves"])
+        self.assertEqual(1, entries[0]["state"]["current_player"])
+
     def test_standard_start_state_omits_start_state_metadata(self):
         with tempfile.TemporaryDirectory(prefix="azlite-start-state-standard-") as tmp:
             shard_path = Path(tmp) / "worker.jsonl"
