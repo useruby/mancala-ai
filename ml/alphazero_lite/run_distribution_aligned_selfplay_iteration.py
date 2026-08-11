@@ -967,6 +967,34 @@ def medium_strength_pass(screen: dict[str, Any]) -> bool:
     )
 
 
+def heldout_qualification_pass(
+    heldout: dict[str, dict[str, Any]],
+) -> tuple[bool, dict[str, Any]]:
+    """Aggregate held-out aligned-versus-current evidence before candidate labeling."""
+    required_budgets = ("384:256", "768:768", "1200:1200", "1200:256")
+    if not heldout:
+        return False, {"reason": "no_heldout_results"}
+    aggregate = {}
+    for budget in required_budgets:
+        samples = [
+            screen["paired_opening_bootstrap_95"]["aligned_minus_current"][budget]
+            for screen in heldout.values()
+        ]
+        aggregate[budget] = {
+            "mean": float(np.mean([sample["mean"] for sample in samples])),
+            "lower": float(min(sample["lower"] for sample in samples)),
+            "suite_count": len(samples),
+        }
+    passes = bool(
+        aggregate["384:256"]["mean"] >= 0.05
+        and aggregate["384:256"]["lower"] > 0.01
+        and aggregate["768:768"]["mean"] >= -0.05
+        and aggregate["1200:1200"]["mean"] >= -0.03
+        and aggregate["1200:256"]["mean"] >= -0.03
+    )
+    return passes, {"budgets": aggregate, "passes": passes}
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--workdir", default=str(DEFAULT_WORKDIR))
@@ -1388,10 +1416,20 @@ def main() -> int:
                         )
                         for index, path in enumerate(heldout)
                     }
-                    summary["classification"] = (
-                        "distribution_aligned_joint_heads_candidate"
+                    heldout_pass, heldout_qualification = heldout_qualification_pass(
+                        summary["heldout_strength"]
                     )
-                    summary["stop_reasons"].append("promotion_not_run_by_protocol")
+                    summary["heldout_qualification"] = heldout_qualification
+                    if heldout_pass:
+                        summary["classification"] = (
+                            "distribution_aligned_joint_heads_candidate"
+                        )
+                        summary["stop_reasons"].append("promotion_not_run_by_protocol")
+                    else:
+                        summary["classification"] = (
+                            "distribution_alignment_improves_learning_but_not_strength"
+                        )
+                        summary["stop_reasons"].append("heldout_qualification_failed")
     write_json(workdir / "summary_metrics.json", summary)
     write_reports(summary)
     print(

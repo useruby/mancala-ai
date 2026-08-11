@@ -20,6 +20,9 @@ from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (
     verify_manifest,
     write_json,
 )
+from ml.alphazero_lite.run_distribution_aligned_selfplay_iteration import (
+    heldout_qualification_pass,
+)
 from ml.alphazero_lite.train import PolicyValueNet, input_size_for_encoding
 
 
@@ -201,6 +204,28 @@ class DeterministicJointHeadsIterationTest(unittest.TestCase):
                 }
             ),
         )
+
+    def test_destructive_heldout_results_cannot_receive_candidate_qualification(
+        self,
+    ) -> None:
+        def screen(primary: float, lower: float) -> dict:
+            return {
+                "paired_opening_bootstrap_95": {
+                    "aligned_minus_current": {
+                        "384:256": {"mean": primary, "lower": lower},
+                        "768:768": {"mean": -0.01, "lower": -0.1},
+                        "1200:1200": {"mean": -0.01, "lower": -0.1},
+                        "1200:256": {"mean": -0.01, "lower": -0.1},
+                    }
+                }
+            }
+
+        passes, qualification = heldout_qualification_pass(
+            {"safe": screen(0.08, 0.02), "destructive": screen(-0.40, -0.50)}
+        )
+        self.assertFalse(passes)
+        self.assertFalse(qualification["passes"])
+        self.assertLess(qualification["budgets"]["384:256"]["mean"], 0.05)
 
 
 if __name__ == "__main__":
