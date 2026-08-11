@@ -63,6 +63,25 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def assert_distinct_source_domains(
+    source_paths: dict[str, Path], *, aliases: set[frozenset[str]] | None = None
+) -> dict[str, str]:
+    """Reject accidental source reuse between scientific domains."""
+    aliases = aliases or set()
+    hashes: dict[str, str] = {}
+    result = {}
+    for domain, path in source_paths.items():
+        digest = sha256_file(path)
+        if digest in hashes and frozenset((hashes[digest], domain)) not in aliases:
+            raise RuntimeError(
+                "distinct source-domain labels reference the same file hash: "
+                f"{hashes[digest]} and {domain}"
+            )
+        hashes[digest] = domain
+        result[domain] = digest
+    return result
+
+
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
     with path.open(encoding="utf-8") as handle:
         return [json.loads(line) for line in handle if line.strip()]
@@ -1056,7 +1075,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--current", default="model-artifact/current")
     parser.add_argument(
         "--pr176-pilot",
-        default="/tmp/azlite_policy_target_noise_ablation/target_probe_states.jsonl",
+        default="/tmp/azlite_distribution_aligned_selfplay/pilot_standard_replay.jsonl",
     )
     parser.add_argument(
         "--pr177-probe-states",
@@ -1204,11 +1223,14 @@ def main() -> int:
     }
     if any(not path.is_file() for path in source_paths.values()):
         raise RuntimeError("all four source files must exist")
+    source_hashes = assert_distinct_source_domains(source_paths)
     selector = CheckpointEvaluator(checkpoint, input_encoding="kalah_v3")
     source_rows = {
         "pr176_standard_start_pilot": _rows_for_source(
             read_jsonl(source_paths["pr176_standard_start_pilot"]),
-            "pr176_standard_start_pilot",
+            # PR #176's replay is the source itself and does not carry the later
+            # PR #177 probe-domain annotation.
+            None,
         ),
         "pr177_evaluation_diagnostic": _rows_for_source(
             read_jsonl(source_paths["pr177_evaluation_diagnostic"]),
@@ -1224,9 +1246,7 @@ def main() -> int:
         evaluator=selector,
         seed=args.seed,
     )
-    manifest["source_hashes"] = {
-        name: sha256_file(path) for name, path in source_paths.items()
-    }
+    manifest["source_hashes"] = source_hashes
     manifest["current_model_hash"] = sha256_file(weights)
     for row in probe:
         policy, _ = selector.evaluate(KalahGame.from_state(row["state"]))
