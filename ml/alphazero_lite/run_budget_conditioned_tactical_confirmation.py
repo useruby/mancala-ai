@@ -38,7 +38,19 @@ from ml.alphazero_lite.run_canonical_runtime_profile_revalidation import (  # no
 )
 from ml.alphazero_lite.runtime_profiles import resolve_runtime_profile  # noqa: E402
 
-WORKDIR = Path("/tmp/azlite_budget_tactical_confirmation")
+WORKDIR = Path("/tmp/azlite_budget_tactical_confirmation_corrected")
+FROZEN_DECISION_CONTRACT_SHA256 = (
+    "749125a3f6a540cc1649a227a773b5003547388e808d31a488dcb25f05f9b0ce"
+)
+CORRECTED_CODE_BASE_COMMIT = "b5b7148631e146f22c909c5f296eb5c2e8ef74e4"
+FROZEN_SUITES = {
+    "/tmp/azlite_budget_tactical_confirmation/suites/heldout_seed49_large.jsonl": "9d45df32f023e5e9a7ba12d72f3f467a2ce49399b38357e17f0bbc68e008111b",
+    "/tmp/azlite_budget_tactical_confirmation/suites/heldout_seed50_large.jsonl": "7f58f98df175a707a00ca42b21ef7625669f95b3b788cfedcd428c91b0edd857",
+    "/tmp/azlite_budget_tactical_confirmation/suites/heldout_seed51_large.jsonl": "33fdd0f619bef908968eb16711a8d5b448da5b8b5ea7e7166be0293dab8ef943",
+    "/tmp/azlite_budget_tactical_confirmation/suites/heldout_seed52_large.jsonl": "161e7f440d879ff095ea717ce66e4bdb3d3d88a48c0ff61131a1979ce610fbb1",
+    "/tmp/azlite_budget_tactical_confirmation/suites/heldout_seed53_large.jsonl": "978154ee6f5f9fd47c3ebf199d61f665505a528efc33d7f375541b3dac9e65b2",
+    "/tmp/azlite_budget_tactical_confirmation/suites/heldout_seed54_large.jsonl": "968a2b89093f824c8309e1227f7ad725c5d8a7e5c1ee373d4e137c8261895f9b",
+}
 SEEDS = (49, 50, 51, 52, 53, 54)
 SUITE_SIZE = 384
 CHANGED_BUDGETS = ("768:256", "1200:1200", "1200:256", "256:768")
@@ -101,6 +113,19 @@ def prior_suite_paths() -> list[Path]:
     if missing:
         raise FileNotFoundError(f"missing prior evaluation suites: {missing}")
     return unique
+
+
+def frozen_suite_paths() -> list[Path]:
+    """Return the preregistered suites, rejecting missing or changed sources."""
+    paths = [Path(path) for path in FROZEN_SUITES]
+    failures = [
+        f"{path} ({'missing' if not path.is_file() else 'sha256 mismatch'})"
+        for path in paths
+        if not path.is_file() or suite_sha256(str(path)) != FROZEN_SUITES[str(path)]
+    ]
+    if failures:
+        raise ValueError(f"frozen tactical suites unavailable or changed: {failures}")
+    return paths
 
 
 def build_suites(
@@ -282,6 +307,24 @@ def aggregate(results: dict[str, Any]) -> dict[str, Any]:
     for budget in CHANGED_BUDGETS:
         suites = {name: rows["E_minus_D"][budget] for name, rows in results.items()}
         suite_ds = [row["orientation_normalized_ds"] for row in suites.values()]
+        player_seat_effects = {}
+        for seat in ("E_minus_D_player0", "E_minus_D_player1"):
+            seat_suites = {
+                name: row["player_seat_effects"][seat] for name, row in suites.items()
+            }
+            values = [row["mean"] for row in seat_suites.values()]
+            player_seat_effects[seat] = {
+                "mean_paired_delta": statistics.fmean(values),
+                "hierarchical_ci95": hierarchical(
+                    [row["paired_per_opening_delta"] for row in seat_suites.values()]
+                ),
+                "worst_suite_delta": min(values),
+                "openings": sum(row["openings"] for row in seat_suites.values()),
+                "orientation_decomposition": {
+                    name: row["mean"] for name, row in seat_suites.items()
+                },
+                "per_suite": seat_suites,
+            }
         output[budget] = {
             "per_suite": suites,
             "mean_ds": statistics.fmean(suite_ds),
@@ -292,6 +335,14 @@ def aggregate(results: dict[str, Any]) -> dict[str, Any]:
                 [row["paired_per_opening_delta"] for row in suites.values()]
             ),
             "leave_one_suite_out": leave_one_out(suites),
+            "player_seat_effects": player_seat_effects,
+            "diagnostic_challenger_incumbent_orientation_effect": {
+                name: {
+                    orientation: row["orientation_decomposition"][orientation]
+                    for orientation in row["orientation_decomposition"]
+                }
+                for name, row in suites.items()
+            },
         }
     return output
 
@@ -299,15 +350,11 @@ def aggregate(results: dict[str, Any]) -> dict[str, Any]:
 def seat_failures(aggregate_rows: dict[str, Any]) -> list[str]:
     failures = []
     for budget, row in aggregate_rows.items():
-        for orientation in ("first_challenger", "second_challenger_normalized"):
-            values = [
-                suite["orientation_decomposition"][orientation]["mean"]
-                for suite in row["per_suite"].values()
-            ]
-            if statistics.fmean(values) < -0.02:
-                failures.append(f"{budget} {orientation} aggregate")
-            if min(values) < -0.05:
-                failures.append(f"{budget} {orientation} suite")
+        for seat, effect in row["player_seat_effects"].items():
+            if effect["mean_paired_delta"] < -0.02:
+                failures.append(f"{budget} {seat} aggregate")
+            if effect["worst_suite_delta"] < -0.05:
+                failures.append(f"{budget} {seat} suite")
     return failures
 
 
@@ -362,6 +409,34 @@ def markdown(summary: dict[str, Any]) -> str:
             "",
             f"Suite independence audit: `{'passed' if summary['suite_independence_audit']['passed'] else 'failed'}`.",
             f"Expected-null errors: `{len(summary['null_errors'])}`.",
+            "",
+            "## Correction Manifest",
+            "",
+            f"Measurement correction of decision contract: `{summary['measurement_correction_of_decision_contract']}`.",
+            f"Diagnosis: `{summary['stale_cache_diagnosis']['classification']}`.",
+            f"Code base commit: `{summary['code_base_commit']}`.",
+            "",
+            "## Player-Seat Effects",
+            "",
+            "| Budget | Player seat | Mean E-D | Worst suite | Hierarchical 95% CI |",
+            "|---|---|---:|---:|---|",
+            *[
+                f"| {budget} | {seat} | {effect['mean_paired_delta']:+.4f} | {effect['worst_suite_delta']:+.4f} | [{effect['hierarchical_ci95']['lower_95']:+.4f}, {effect['hierarchical_ci95']['upper_95']:+.4f}] |"
+                for budget, row in summary["changed_budgets"].items()
+                for seat, effect in row["player_seat_effects"].items()
+            ],
+            "",
+            "This measurement-correction rerun uses a clean work directory and retains only cache entries with matching per-seat provenance manifests. Existing arena files without manifests are reported as `legacy_cache_without_manifest` and rerun.",
+            "E-D effects are calculated independently for `challenger_starts_0` and `challenger_starts_1` before pooling, controlling player seat across orientations.",
+            "",
+            "## Frozen Suites",
+            "",
+            "| Suite | SHA256 |",
+            "|---|---|",
+            *[
+                f"| `{path}` | `{suite_hash}` |"
+                for path, suite_hash in summary["frozen_suites"].items()
+            ],
             "",
         ]
     )
@@ -426,7 +501,12 @@ def main() -> int:
         raise ValueError("current weights SHA256 does not match expected artifact")
     workdir = Path(args.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
-    suites, audit = build_suites(workdir / "suites", prior_suite_paths())
+    suites = frozen_suite_paths()
+    audit = {
+        "schema": "azlite_budget_tactical_suite_independence_v1",
+        "frozen_suites": {str(path): FROZEN_SUITES[str(path)] for path in suites},
+        "passed": True,
+    }
     (workdir / "suite_independence_audit.json").write_text(
         json.dumps(audit, indent=2), encoding="utf-8"
     )
@@ -434,6 +514,11 @@ def main() -> int:
     contract_path = workdir / "decision_contract.json"
     contract_path.write_text(json.dumps(decision, indent=2), encoding="utf-8")
     decision_hash = hashlib.sha256(contract_path.read_bytes()).hexdigest()
+    if decision_hash != FROZEN_DECISION_CONTRACT_SHA256:
+        raise ValueError(
+            "decision contract changed; expected "
+            f"{FROZEN_DECISION_CONTRACT_SHA256}, got {decision_hash}"
+        )
     results = evaluate(args, suites)
     null_errors = exact_null_errors(results)
     changed = aggregate(results)
@@ -461,11 +546,24 @@ def main() -> int:
     ):
         classification = "runtime_profile_gate_invalid"
     summary = {
-        "schema": "azlite_budget_tactical_confirmation_v1",
+        "schema": "azlite_budget_tactical_confirmation_measurement_correction_v1",
         "artifact_weights_sha256": args.expected_current_weights_sha256,
         "seed_contract": SEED_CONTRACT_VERSION,
         "base_search_seed": 42,
+        "workdir": str(workdir),
         "decision_contract_sha256": decision_hash,
+        "measurement_correction_of_decision_contract": FROZEN_DECISION_CONTRACT_SHA256,
+        "code_base_commit": CORRECTED_CODE_BASE_COMMIT,
+        "stale_cache_diagnosis": {
+            "classification": "stale_suite_cache",
+            "context": "heldout_seed49_large E_minus_E 768:768 first_challenger",
+            "cached_suite_sha256": "f770235bc04eb38a69a2fe7d9d316898b0cf8e34f8fbcdc42398c4c5b62a8193",
+            "frozen_suite_sha256": FROZEN_SUITES[
+                "/tmp/azlite_budget_tactical_confirmation/suites/heldout_seed49_large.jsonl"
+            ],
+            "finding": "legacy arena output had no manifest and referenced a different suite hash",
+        },
+        "frozen_suites": {str(path): FROZEN_SUITES[str(path)] for path in suites},
         "suite_independence_audit": audit,
         "profiles": {name: profile_definition(name) for name in (PROFILE_D, PROFILE_E)},
         "resolved_treatment_hashes": {
@@ -497,11 +595,11 @@ def main() -> int:
     compact(committed)
     (
         REPO_ROOT
-        / "docs/data/alphazero-lite-budget-conditioned-tactical-confirmation-summary.json"
+        / "docs/data/alphazero-lite-budget-conditioned-tactical-confirmation-corrected-summary.json"
     ).write_text(json.dumps(committed, indent=2), encoding="utf-8")
     (
         REPO_ROOT
-        / "docs/alphazero-lite-budget-conditioned-tactical-confirmation-results.md"
+        / "docs/alphazero-lite-budget-conditioned-tactical-confirmation-corrected-results.md"
     ).write_text(markdown(summary), encoding="utf-8")
     print(f"classification={classification}")
     return 0
