@@ -554,13 +554,15 @@ def cross_teacher_validation(
         name: np.asarray([rows[int(i)]["policy"] for i in indexes], dtype=float)
         for name, rows in candidates.pop("_targets").items()
     }
-    # This function is intentionally fed only raw logits; masking is represented in target support.
+    # Targets have zero mass outside legal moves, but logits must also be masked:
+    # otherwise illegal actions steal probability mass from every reported metric.
+    masks = legal_mask_matrix_for_encoded_states(
+        np.asarray([rows[int(i)]["state"] for i in indexes], dtype=np.float32)
+    )
     result = {}
     for name, run in candidates.items():
-        probs = np.exp(
-            run["validation_logits"]
-            - np.max(run["validation_logits"], axis=1, keepdims=True)
-        )
+        masked_logits = np.where(masks > 0, run["validation_logits"], -np.inf)
+        probs = np.exp(masked_logits - np.max(masked_logits, axis=1, keepdims=True))
         probs /= probs.sum(axis=1, keepdims=True)
         result[name] = {}
         for teacher, target in targets.items():
