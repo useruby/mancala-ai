@@ -145,7 +145,13 @@ class InterpolatedPolicyEvaluator:
 
     def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
         current_policy, current_value = self.current.evaluate(game)
+        if self.alpha == 0.0:
+            return current_policy, float(current_value)
         candidate_policy, _ = self.candidate.evaluate(game)
+        if self.alpha == 1.0:
+            # Endpoint equivalence is bitwise, not merely algebraic: a log/exp
+            # reconstruction perturbs float32 artifact probabilities.
+            return candidate_policy, float(current_value)
         legal = game.possible_moves()
         policy = np.zeros(6, dtype=np.float32)
         if legal:
@@ -202,6 +208,7 @@ def run_search(
     visit_policy = legal_distribution(visits, legal)
     move = selected(root, legal)
     children = {move: root.children[move] for move in legal}
+    q_values = sorted((float(children[item].q_value) for item in legal), reverse=True)
     return {
         "selected_move": move,
         "legal_moves": legal,
@@ -210,6 +217,7 @@ def run_search(
         "selected_visit_share": float(visit_policy[move]),
         "root_value": float(root.q_value),
         "child_q": float(children[move].q_value),
+        "root_q_margin": float(q_values[0] - q_values[1]) if len(q_values) > 1 else 0.0,
         "visit_margin": float(
             sorted([children[m].visit_count for m in legal], reverse=True)[0]
             - sorted([children[m].visit_count for m in legal], reverse=True)[1]
@@ -584,9 +592,12 @@ def search_response(
                         "current_selected_q": base["child_q"],
                         "candidate_selected_q": candidate["child_q"],
                         "q_margin": abs(base["child_q"] - candidate["child_q"]),
+                        "current_root_q_margin": base["root_q_margin"],
                         "selected_move_changed": base["selected_move"]
                         != candidate["selected_move"],
                         "visit_js": output_js,
+                        "input_js": input_js,
+                        "output_js": output_js,
                         "amplification_statistic": output_js / max(input_js, 1e-12),
                         "selected_visit_share_delta": candidate["selected_visit_share"]
                         - base["selected_visit_share"],
