@@ -18,7 +18,8 @@
   },
   "affine_a": 0.40398396372919293,
   "affine_b": 0.012642515183378883,
-  "classification": "value_target_semantics_unresolved",
+  "classification": "margin_value_semantics_rejected_for_search",
+  "secondary_finding": "outcome_value_scale_unresolved",
   "continuation_configuration": {
     "budgets": [
       768,

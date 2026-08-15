@@ -374,6 +374,17 @@ def _child(result: dict[str, Any], move: int) -> dict[str, Any]:
     return next(item for item in result["child_stats"] if int(item["move"]) == move)
 
 
+def q_rank(result: dict[str, Any]) -> list[int]:
+    """Return the deterministic Q ordering without child-stat payloads."""
+    return [
+        int(item["move"])
+        for item in sorted(
+            result["child_stats"],
+            key=lambda item: (-float(item["q_value"]), int(item["move"])),
+        )
+    ]
+
+
 def search_position(
     evaluator: Evaluator, row: dict[str, Any], *, budget: int, seed: int
 ) -> dict[str, Any]:
@@ -499,14 +510,7 @@ def intervention(
                             - visit_margin(baseline),
                             "q_u_ratio_change": q_u_ratio(treatment)
                             - q_u_ratio(baseline),
-                            "q_ranking_changed": sorted(
-                                baseline["child_stats"],
-                                key=lambda x: (-x["q_value"], x["move"]),
-                            )
-                            != sorted(
-                                treatment["child_stats"],
-                                key=lambda x: (-x["q_value"], x["move"]),
-                            ),
+                            "q_ranking_changed": q_rank(baseline) != q_rank(treatment),
                         }
                     )
             entry: dict[str, Any] = {
@@ -614,6 +618,8 @@ def classify(
         for x in outcome_treatment
         for cont in CONTINUATION_BUDGETS
     ]
+    if any(x["upper"] < 0 for x in effects):
+        return "margin_value_semantics_rejected_for_search"
     if any(
         left["mean"] * right["mean"] < 0
         for left, right in zip(effects, outcome_effects, strict=True)
@@ -621,8 +627,6 @@ def classify(
         return "value_target_semantics_unresolved"
     if changed >= 64 and all(x["mean"] > 0 and x["lower"] >= 0 for x in effects):
         return "search_value_scale_mismatch_confirmed"
-    if any(x["upper"] < 0 for x in effects):
-        return "margin_value_semantics_rejected_for_search"
     return "margin_calibration_not_search_relevant"
 
 
