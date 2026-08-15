@@ -48,6 +48,11 @@ were run for this audit.
 
 ## Lineage Action
 
-No historical candidate was reopened. Policy-head-only teacher-budget tuning is
-permanently closed. The next ML branch should target value/representation work,
-not another policy-target variation.
+The direct-parent current-model comparison is resolved by
+`docs/alphazero-lite-current-model-lineage-requalification-results.md`:
+`8d70e90a...` is `current_model_canonically_revalidated` over `6ac71425...`
+under the paired candidate-effect metric and `azlite_eval_seed_v2`. Therefore
+the `historical_metric_blast_radius_closed` classification is retained.
+
+Policy-head-only teacher-budget tuning is permanently closed. The next ML branch
+should target value/representation work, not another policy-target variation.

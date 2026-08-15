@@ -2131,6 +2131,9 @@ def run_arena_worker(
         trajectory_str = ",".join(str(m) for m in game_moves)
         entry_data: dict = {
             "game_index": game_index,
+            # Preserve the suite-level cluster identity for paired opening metrics.
+            "opening_index": opening_index,
+            "game_within_opening": game_index % max(1, int(games_per_opening)),
             "challenger_player": challenger_player,
             "first_move_challenger": first_move_challenger,
             "first_move_current": first_move_current,
