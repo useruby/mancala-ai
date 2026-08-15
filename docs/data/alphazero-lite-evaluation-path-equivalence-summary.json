@@ -1,0 +1,162 @@
+{
+  "canonical_paired_opening_statistic": {
+    "D1200": {
+      "1200:1200": {
+        "lower_95": -0.02734375,
+        "mean": 0.00390625,
+        "n": 128,
+        "negative_openings": 12,
+        "positive_openings": 13,
+        "samples": 10000,
+        "upper_95": 0.037109375,
+        "zero_openings": 103
+      },
+      "1200:256": {
+        "lower_95": -0.03515625,
+        "mean": -0.009765625,
+        "n": 128,
+        "negative_openings": 12,
+        "positive_openings": 10,
+        "samples": 10000,
+        "upper_95": 0.015625,
+        "zero_openings": 106
+      },
+      "256:768": {
+        "lower_95": -0.0234375,
+        "mean": 0.01171875,
+        "n": 128,
+        "negative_openings": 14,
+        "positive_openings": 16,
+        "samples": 10000,
+        "upper_95": 0.048828125,
+        "zero_openings": 98
+      },
+      "384:256": {
+        "lower_95": -0.033203125,
+        "mean": 0.0,
+        "n": 128,
+        "negative_openings": 11,
+        "positive_openings": 12,
+        "samples": 10000,
+        "upper_95": 0.03125,
+        "zero_openings": 105
+      },
+      "768:256": {
+        "lower_95": -0.02734375,
+        "mean": 0.0,
+        "n": 128,
+        "negative_openings": 10,
+        "positive_openings": 11,
+        "samples": 10000,
+        "upper_95": 0.025390625,
+        "zero_openings": 107
+      },
+      "768:768": {
+        "lower_95": -0.05078125,
+        "mean": -0.013671875,
+        "n": 128,
+        "negative_openings": 20,
+        "positive_openings": 15,
+        "samples": 10000,
+        "upper_95": 0.0234375,
+        "zero_openings": 93
+      }
+    },
+    "D384": {
+      "1200:1200": {
+        "lower_95": -0.0390625,
+        "mean": -0.0078125,
+        "n": 128,
+        "negative_openings": 16,
+        "positive_openings": 12,
+        "samples": 10000,
+        "upper_95": 0.0234375,
+        "zero_openings": 100
+      },
+      "1200:256": {
+        "lower_95": -0.01171875,
+        "mean": 0.009765625,
+        "n": 128,
+        "negative_openings": 7,
+        "positive_openings": 10,
+        "samples": 10000,
+        "upper_95": 0.033203125,
+        "zero_openings": 111
+      },
+      "256:768": {
+        "lower_95": -0.037109375,
+        "mean": 0.0,
+        "n": 128,
+        "negative_openings": 17,
+        "positive_openings": 17,
+        "samples": 10000,
+        "upper_95": 0.037109375,
+        "zero_openings": 94
+      },
+      "384:256": {
+        "lower_95": -0.009765625,
+        "mean": 0.025390625,
+        "n": 128,
+        "negative_openings": 12,
+        "positive_openings": 21,
+        "samples": 10000,
+        "upper_95": 0.0625,
+        "zero_openings": 95
+      },
+      "768:256": {
+        "lower_95": -0.03515625,
+        "mean": -0.0078125,
+        "n": 128,
+        "negative_openings": 10,
+        "positive_openings": 9,
+        "samples": 10000,
+        "upper_95": 0.01953125,
+        "zero_openings": 109
+      },
+      "768:768": {
+        "lower_95": -0.076171875,
+        "mean": -0.0390625,
+        "n": 128,
+        "negative_openings": 26,
+        "positive_openings": 12,
+        "samples": 10000,
+        "upper_95": -0.00390625,
+        "zero_openings": 90
+      }
+    }
+  },
+  "classification": "evaluation_paths_equivalent",
+  "first_divergence_counts": {
+    "identical": 4608
+  },
+  "historical_conclusion": "PR #182 DS is a seat difference, while PR #184 reports candidate-minus-current paired score. They are different estimands; source-suite SHA and opening-state ply are now shared.",
+  "inputs": {
+    "artifact_weights_sha256": {
+      "D1200": "e9746387cc81a43ff42003d2ca8c30f4e307fb95cb2940ee639430112439bc23",
+      "D384": "ea8290d90d7e58b844c3fe821b526d01469a043fef858f84bdd8a5c7423de1f9",
+      "current": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+    },
+    "checkpoint_sha256": {
+      "D1200": "03dc5145a1d2fd471b6eb5a8dfacb4c57b5612594d1a5fd6d07acfc3dd8f02eb",
+      "D384": "6fe1444d6c82cb4a443d62111c3adb9ccd028d73071de52e1be2d186b6dec779"
+    },
+    "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+  },
+  "metric_semantics": {
+    "candidate_challenger_score": "mean(score(candidate as challenger))",
+    "candidate_minus_current_control_delta": "candidate_challenger_score - current_current_challenger_score",
+    "current_current_challenger_score": "mean(score(current as challenger))",
+    "historical_benchmark_DS": "P0 challenger score - P1 challenger score",
+    "orientation_normalized_DS": "mean over seats of candidate-minus-current control delta"
+  },
+  "runtime": {
+    "768:768_c_puct": 0.9,
+    "base_seed": 42,
+    "default_c_puct": 1.25,
+    "root_policy": "deterministic",
+    "seed_contract": "azlite_eval_seed_v2",
+    "tactical_root_bias": 0.0
+  },
+  "schema": "azlite_evaluation_path_equivalence_audit_v1",
+  "scope": "full_128"
+}
