@@ -751,12 +751,12 @@ class ArtifactEvaluator:
             ),
         ]
 
-    def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
+    def extract_trunk(self, game: KalahGame) -> np.ndarray:
+        """Return the activation immediately before specialized policy/value heads."""
         x = np.asarray(
             encode_state(game.to_state(), input_encoding=self.input_encoding),
             dtype=np.float32,
         )
-
         if self.residual_blocks:
             assert self.w_input is not None
             assert self.b_input is not None
@@ -769,6 +769,15 @@ class ArtifactEvaluator:
             hidden = x
             for w, b in self.hidden_layers:
                 hidden = np.maximum(0.0, (hidden @ w) + b)
+        return hidden.astype(np.float32, copy=False)
+
+    def apply_heads_to_trunk(
+        self, trunk: np.ndarray, game: KalahGame
+    ) -> tuple[np.ndarray, float]:
+        """Apply the artifact's unchanged heads to a pre-head trunk activation."""
+        hidden = np.asarray(trunk, dtype=np.float32)
+        if hidden.ndim != 1:
+            raise ValueError("trunk activation must be a one-dimensional vector")
 
         policy_hidden = hidden
         value_hidden = hidden
@@ -815,6 +824,9 @@ class ArtifactEvaluator:
             np.tanh((value_hidden @ self.w_value + self.b_value).reshape(-1)[0])
         )
         return masked, value
+
+    def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
+        return self.apply_heads_to_trunk(self.extract_trunk(game), game)
 
 
 class BlendedArtifactEvaluator:
