@@ -15,7 +15,9 @@ from ml.alphazero_lite.run_value_scale_causal_preflight import (
     CACHE_SCHEMA,
     cache_matches,
     canonical_manifest,
+    classify,
     load_cache,
+    q_rank,
     save_cache,
 )
 
@@ -69,6 +71,76 @@ class ValueScaleCausalPreflightTest(unittest.TestCase):
             path.write_text(json.dumps({"rows": []}), encoding="utf-8")
             self.assertIsNone(load_cache(path, self.manifest))
             self.assertFalse(cache_matches({"schema": CACHE_SCHEMA}, self.manifest))
+
+    def test_q_rank_ignores_changed_child_statistics_with_same_move_order(self) -> None:
+        baseline = {
+            "child_stats": [
+                {"move": 3, "q_value": 0.8, "visits": 4},
+                {"move": 1, "q_value": 0.2, "visits": 9},
+            ]
+        }
+        changed_stats = {
+            "child_stats": [
+                {"move": 3, "q_value": 0.7, "visits": 100},
+                {"move": 1, "q_value": -0.4, "visits": 1},
+            ]
+        }
+        swapped = {
+            "child_stats": [
+                {"move": 3, "q_value": 0.1},
+                {"move": 1, "q_value": 0.2},
+            ]
+        }
+        self.assertEqual([3, 1], q_rank(baseline))
+        self.assertEqual(q_rank(baseline), q_rank(changed_stats))
+        self.assertNotEqual(q_rank(baseline), q_rank(swapped))
+
+    def test_q_rank_breaks_ties_by_move_id(self) -> None:
+        self.assertEqual(
+            [1, 3],
+            q_rank(
+                {
+                    "child_stats": [
+                        {"move": 3, "q_value": 0.5},
+                        {"move": 1, "q_value": 0.5},
+                    ]
+                }
+            ),
+        )
+
+    def test_primary_margin_rejection_beats_secondary_control_conflict(self) -> None:
+        def treatment(mean: float, lower: float, upper: float) -> dict:
+            return {
+                "causal": {
+                    str(budget): {
+                        "normalized_final_margin_delta": {
+                            "mean": mean,
+                            "lower": lower,
+                            "upper": upper,
+                            "unique_states": 64,
+                        }
+                    }
+                    for budget in (768, 1200)
+                }
+            }
+
+        report = {
+            "fresh": {
+                "D1200": {
+                    "treatments": {
+                        "margin_affine": treatment(-0.1, -0.2, -0.01),
+                        "outcome_affine": treatment(0.1, 0.0, 0.2),
+                    }
+                }
+            }
+        }
+        evaluation = {
+            "current_value": {"margin": {"mae": 1.0}},
+            "margin_affine": {"margin": {"mae": 0.8}},
+        }
+        self.assertEqual(
+            "margin_value_semantics_rejected_for_search", classify(evaluation, report)
+        )
 
 
 if __name__ == "__main__":
