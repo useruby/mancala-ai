@@ -89,7 +89,8 @@ class OpeningSuiteSeatBenchmarkTest(unittest.TestCase):
                 rc = benchmark.main()
 
         self.assertEqual(0, rc)
-        self.assertEqual([123, 123], captured_seeds)
+        # Candidate seat splits and matched current/current controls share the seed.
+        self.assertEqual([123, 123, 123, 123], captured_seeds)
 
 
 if __name__ == "__main__":

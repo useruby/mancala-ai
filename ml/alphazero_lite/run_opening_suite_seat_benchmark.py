@@ -33,6 +33,10 @@ from ml.alphazero_lite.cpuct_schedule import (  # noqa: E402
     schedule_definition,
 )
 from ml.alphazero_lite.evaluation_seed_contract import SEED_CONTRACT_VERSION  # noqa: E402
+from ml.alphazero_lite.evaluation_metrics import (  # noqa: E402
+    paired_opening_candidate_effect,
+    seat_asymmetry_ds,
+)
 
 
 def default_eval_tactical_root_bias() -> float:
@@ -318,12 +322,14 @@ def compute_seat_metrics(entries: list[dict]) -> dict:
 
     p0_score = (p0_wins + 0.5 * p0_draws) / max(p0_total, 1)
     p1_score = (p1_wins + 0.5 * p1_draws) / max(p1_total, 1)
-    ds = p0_score - p1_score
+    ds = seat_asymmetry_ds(p0_score, p1_score)
 
     return {
         "p0_score": p0_score,
         "p1_score": p1_score,
+        # Deprecated compatibility field. Never use this as candidate strength.
         "ds": ds,
+        "seat_asymmetry_diagnostic": ds,
         "challenger_starts_0": {
             "games": p0_total,
             "wins": p0_wins,
@@ -522,6 +528,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    args.seed_contract = getattr(args, "seed_contract", SEED_CONTRACT_VERSION)
+    args.base_seed = getattr(args, "base_seed", None)
+    args.normalize_values = bool(getattr(args, "normalize_values", False))
     if args.seed_contract != SEED_CONTRACT_VERSION:
         raise ValueError(f"only {SEED_CONTRACT_VERSION} is supported")
     if args.base_seed is not None:
@@ -651,6 +660,7 @@ def main() -> int:
                             continue
 
                     all_game_entries: list[dict] = []
+                    current_control_entries: list[dict] = []
                     seat_reports: list[dict[str, Any]] = []
 
                     for seat in (0, 1):
@@ -740,7 +750,49 @@ def main() -> int:
                         print(f"      No game entries collected for {budget_label}")
                         continue
 
+                    # Matched current/current controls identify candidate effect;
+                    # P0-P1 differences alone measure only seat asymmetry.
+                    for seat in (0, 1):
+                        control_dir = budget_dir / f"current_control_starts_{seat}"
+                        control_dir.mkdir(parents=True, exist_ok=True)
+                        control_json = str(control_dir / "arena.json")
+                        control_jsonl = str(control_dir / "games.jsonl")
+                        control_suite = control_dir / "opening_suite.jsonl"
+                        with control_suite.open("w", encoding="utf-8") as handle:
+                            for entry in suite:
+                                handle.write(
+                                    json.dumps({"prefix_moves": entry["prefix_moves"]})
+                                    + "\n"
+                                )
+                        run_arena(
+                            challenger=args.current,
+                            current=args.current,
+                            challenger_sims=chall_sims,
+                            current_sims=curr_sims,
+                            games=total_games,
+                            seed=arena_seed,
+                            workers=args.workers,
+                            out_json=control_json,
+                            out_jsonl=control_jsonl,
+                            opening_prefixes_jsonl=str(control_suite),
+                            challenger_starts=seat,
+                            games_per_opening=gpo,
+                            root_policy_mode=args.root_policy_mode,
+                            root_temperature=rt,
+                            normalize_values=bool(args.normalize_values),
+                            c_puct=effective_c_puct,
+                            tactical_root_bias=effective_tactical_root_bias,
+                            seed_contract=args.seed_contract,
+                            suite_sha256=suite_sha,
+                            seed_ledger_output=str(control_dir / "seed_ledger.jsonl"),
+                            timeout=args.timeout,
+                        )
+                        current_control_entries.extend(parse_game_jsonl(control_jsonl))
+
                     metrics = compute_seat_metrics(all_game_entries)
+                    paired_metrics = paired_opening_candidate_effect(
+                        all_game_entries, current_control_entries
+                    )
                     per_opening = compute_per_opening_metrics(all_game_entries)
                     by_ply = compute_by_ply_metrics(all_game_entries)
                     report_notes = {}
@@ -759,6 +811,7 @@ def main() -> int:
 
                     budget_result = {
                         **metrics,
+                        **paired_metrics,
                         "cache_context": cache_context,
                         "per_opening_metrics": per_opening,
                         "by_ply_metrics": {str(k): v for k, v in by_ply.items()},
@@ -811,17 +864,17 @@ def main() -> int:
             for row in ranking_rows:
                 std_p0 = row.get("std_p0")
                 std_p1 = row.get("std_p1")
-                std_ds = row.get("std_ds")
-                eqhi_ds = row.get("equal_high_ds")
+                std_effect = row.get("std_paired_candidate_effect")
+                eqhi_effect = row.get("equal_high_paired_candidate_effect")
                 print(
                     f"    {row['candidate']:<30} P0={std_p0:.4f} "
                     if std_p0 is not None
                     else f"    {row['candidate']:<30} P0=N/A P1={std_p1:.4f} "
                     if std_p1 is not None
-                    else f"P1=N/A DS={std_ds:+.4f} "
-                    if std_ds is not None
-                    else f"DS=N/A eqhi={eqhi_ds:+.4f}"
-                    if eqhi_ds is not None
+                    else f"P1=N/A paired_effect={std_effect:+.4f} "
+                    if std_effect is not None
+                    else f"paired_effect=N/A eqhi={eqhi_effect:+.4f}"
+                    if eqhi_effect is not None
                     else "eqhi=N/A"
                 )
 
@@ -929,23 +982,31 @@ def _build_ranking_table(candidate_reports: list[dict]) -> list[dict]:
             "candidate_sha256": report.get("candidate_sha256", ""),
             "std_p0": std.get("p0_score"),
             "std_p1": std.get("p1_score"),
-            "std_ds": std.get("ds"),
+            "std_paired_candidate_effect": std.get("paired_candidate_effect"),
+            "std_seat_asymmetry_diagnostic": std.get("seat_asymmetry_diagnostic"),
             "std_disadvantaged": std.get("disadvantaged_seat_score"),
             "equal_high_p0": eq_hi.get("p0_score"),
             "equal_high_p1": eq_hi.get("p1_score"),
-            "equal_high_ds": eq_hi.get("ds"),
+            "equal_high_paired_candidate_effect": eq_hi.get("paired_candidate_effect"),
+            "equal_high_seat_asymmetry_diagnostic": eq_hi.get(
+                "seat_asymmetry_diagnostic"
+            ),
             "equal_high_disadvantaged": eq_hi.get("disadvantaged_seat_score"),
-            "equal_768_ds": eq_768.get("ds"),
-            "current_high_ds": curr_hi.get("ds"),
-            "challenger_768_ds": ch_768.get("ds"),
+            "equal_768_paired_candidate_effect": eq_768.get("paired_candidate_effect"),
+            "current_high_paired_candidate_effect": curr_hi.get(
+                "paired_candidate_effect"
+            ),
+            "challenger_768_paired_candidate_effect": ch_768.get(
+                "paired_candidate_effect"
+            ),
             "std_dup_traj_rate": std.get("duplicate_trajectory_rate"),
         }
         rows.append(row)
 
     def rank_key(row: dict) -> tuple:
-        std_ds = float(row.get("std_ds") or 0.0)
-        eq_ds = float(row.get("equal_high_ds") or 0.0)
-        return (-std_ds, -eq_ds)
+        std_effect = float(row.get("std_paired_candidate_effect") or 0.0)
+        eq_effect = float(row.get("equal_high_paired_candidate_effect") or 0.0)
+        return (-std_effect, -eq_effect)
 
     return sorted(rows, key=rank_key, reverse=True)
 
