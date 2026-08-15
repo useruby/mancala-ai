@@ -102,6 +102,7 @@ def run_arena(
     challenger_blend_current: bool = False,
     challenger_value_alpha: float = 1.0,
     seed_contract: str = SEED_CONTRACT_VERSION,
+    suite_sha256: str | None = None,
     seed_ledger_output: str | None = None,
     timeout: int = 7200,
 ) -> dict:
@@ -148,6 +149,8 @@ def run_arena(
     ]
     if seed_ledger_output is not None:
         cmd.extend(["--seed-ledger-output", seed_ledger_output])
+    if suite_sha256 is not None:
+        cmd.extend(["--suite-sha256", suite_sha256])
     if normalize_values:
         cmd.append("--normalize-values")
     if tactical_root_bias is not None:
@@ -708,6 +711,7 @@ def main() -> int:
                                 c_puct=effective_c_puct,
                                 tactical_root_bias=effective_tactical_root_bias,
                                 seed_contract=args.seed_contract,
+                                suite_sha256=suite_sha,
                                 seed_ledger_output=str(seat_dir / "seed_ledger.jsonl"),
                                 timeout=args.timeout,
                             )

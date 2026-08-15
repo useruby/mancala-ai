@@ -165,6 +165,7 @@ def parse_stub_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--base-seed", type=int, default=None)
     parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
+    parser.add_argument("--suite-sha256", default=None)
     parser.add_argument("--seed-ledger-output", default=None)
     parser.add_argument("--search-configuration-ledger-output", default=None)
     parser.add_argument("--search-outcome-ledger-output", default=None)
@@ -414,6 +415,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--base-seed", type=int, default=None)
     parser.add_argument("--seed-contract", default=SEED_CONTRACT_VERSION)
+    parser.add_argument(
+        "--suite-sha256",
+        default=None,
+        help="Canonical source-suite SHA256; required when a runner copies prefixes.",
+    )
     parser.add_argument("--seed-ledger-output", default=None)
     parser.add_argument("--search-configuration-ledger-output", default=None)
     parser.add_argument("--search-outcome-ledger-output", default=None)
@@ -1607,6 +1613,10 @@ def run_arena_worker(
     opening_cache=None,
     opening_cache_path: str | None = None,
     seed_contract: str = SEED_CONTRACT_VERSION,
+    suite_sha256_override: str | None = None,
+    opening_index_override: int | None = None,
+    opening_prefix_override: list[int] | None = None,
+    opening_state_override: dict | None = None,
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1771,7 +1781,7 @@ def run_arena_worker(
             opening_prefix_cache = None
 
     # The suite identity is data-derived, never a path or model identifier.
-    suite_sha256 = stable_hash(
+    derived_suite_sha256 = stable_hash(
         opening_prefix_cache
         if opening_prefix_cache is not None
         else {
@@ -1779,12 +1789,18 @@ def run_arena_worker(
             "opening_seed": effective_opening_seed,
         }
     )
+    suite_sha256 = suite_sha256_override or derived_suite_sha256
     seed_identity_ledger: list[dict] = []
     search_configuration_ledger: list[dict] = []
     search_outcome_ledger: list[dict] = []
 
     for local_index in range(games):
         game_index = start_index + local_index
+        opening_index = (
+            int(opening_index_override)
+            if opening_index_override is not None
+            else game_index // max(1, int(games_per_opening))
+        )
         game = KalahGame.from_state(
             {
                 "player_pits": [4, 4, 4, 4, 4, 4],
@@ -1794,15 +1810,24 @@ def run_arena_worker(
                 "current_player": 0,
             }
         )
+        if opening_state_override is not None:
+            game = KalahGame.from_state(opening_state_override)
         if challenger_starts is not None:
             challenger_player = challenger_starts
         else:
             challenger_player = 0 if game_index % 2 == 0 else 1
 
         opening_prefix_moves: list[int] = []
-        if opening_prefix_cache is not None:
-            gpo = max(1, int(games_per_opening))
-            sample_idx = game_index // gpo
+        if opening_state_override is not None:
+            opening_prefix_moves = []
+            applied = 0
+            opening_prefix_plies_applied.append(applied)
+        elif opening_prefix_override is not None:
+            opening_prefix_moves = [int(move) for move in opening_prefix_override]
+            applied = apply_opening_moves(game, opening_prefix_moves)
+            opening_prefix_plies_applied.append(applied)
+        elif opening_prefix_cache is not None:
+            sample_idx = opening_index
             if sample_idx < len(opening_prefix_cache):
                 opening_prefix_moves = list(opening_prefix_cache[sample_idx])
                 applied = apply_opening_moves(game, opening_prefix_moves)
@@ -1822,7 +1847,9 @@ def run_arena_worker(
             1: None,
         }
         challenger_phase_buckets_seen: set[str] = set()
-        ply = applied
+        # Evaluation ply is measured from the supplied opening state.  Prefix
+        # length is provenance, not part of the v2 stochastic identity.
+        ply = 0
         first_move_challenger: int | None = None
         first_move_current: int | None = None
         game_moves: list[int] = []
@@ -1859,7 +1886,7 @@ def run_arena_worker(
                 base_seed=seed,
                 suite_sha256=suite_sha256,
                 budget_pair=f"{challenger_simulations}:{current_simulations}",
-                opening_index=game_index // max(1, int(games_per_opening)),
+                opening_index=opening_index,
                 opening_state_hash=opening_state_hash,
                 challenger_player=challenger_player,
                 game_within_opening=game_index % max(1, int(games_per_opening)),
@@ -1999,7 +2026,7 @@ def run_arena_worker(
                         "contract_version": seed_contract,
                         "base_seed": seed,
                         "suite_sha256": suite_sha256,
-                        "opening_index": game_index // max(1, int(games_per_opening)),
+                        "opening_index": opening_index,
                         "opening_state_hash": opening_state_hash,
                         "challenger_player": challenger_player,
                         "game_within_opening": game_index
@@ -2147,6 +2174,7 @@ def run_arena_worker(
         "current_root_prior_transform": effective_current_root_prior_transform,
         "random_opening_plies": int(random_opening_plies),
         "opening_prefix_plies_applied": opening_prefix_plies_applied,
+        "game_entries": game_entries,
         "root_prior_telemetry": {
             "challenger": summarize_root_prior_telemetry(
                 challenger_root_prior_telemetry_entries
@@ -2407,6 +2435,7 @@ def main() -> None:
                         args, "opening_prefixes_jsonl", None
                     ),
                     seed_contract=args.seed_contract,
+                    suite_sha256_override=args.suite_sha256,
                 )
             )
         results = [future.result() for future in futures]

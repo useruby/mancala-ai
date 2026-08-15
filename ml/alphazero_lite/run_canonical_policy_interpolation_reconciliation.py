@@ -12,7 +12,6 @@ import argparse
 import concurrent.futures
 import hashlib
 import json
-import random
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,7 +21,7 @@ import numpy as np
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from ml.alphazero_lite.arena import ArtifactEvaluator
+from ml.alphazero_lite.arena import ArtifactEvaluator, evaluate_artifact_position
 from ml.alphazero_lite.evaluation_seed_contract import (
     derive_search_seed,
     stable_hash,
@@ -31,10 +30,10 @@ from ml.alphazero_lite.evaluation_seed_contract import (
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.pipeline import materialize_weights_json_checkpoint
 from ml.alphazero_lite.run_policy_prior_search_amplification_audit import EXPECTED
-from ml.alphazero_lite.self_play import PUCT
 
 ALPHAS = (0.0, 0.25, 0.50, 0.75, 1.0)
 POLICY_KEYS = frozenset({"w_policy", "b_policy", "w_policy_hidden", "b_policy_hidden"})
+CACHE_SCHEMA_VERSION = "azlite_canonical_parallel_benchmark_cache_v2"
 _WORKER_CURRENT: ArtifactEvaluator | None = None
 _WORKER_CANDIDATES: dict[str, ArtifactEvaluator] = {}
 
@@ -52,6 +51,58 @@ def write_json(path: Path, value: Any) -> None:
     path.write_text(
         json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
+
+
+def cache_manifest(
+    *,
+    suite_sha256: str,
+    challenger_artifact_sha256: str,
+    opponent_artifact_sha256: str,
+    budget_pairs: tuple[str, ...],
+    c_puct_schedule: dict[str, float],
+    tactical_root_bias: float,
+    root_policy: str,
+    seed_contract: str,
+    base_seed: int,
+    games_per_opening: int,
+) -> dict[str, Any]:
+    """Identity for a reusable parallel benchmark result.
+
+    Paths and labels are deliberately excluded: a cache is valid only for the
+    immutable inputs and runtime treatment that determine game records.
+    """
+    return {
+        "schema": CACHE_SCHEMA_VERSION,
+        "suite_sha256": suite_sha256,
+        "challenger_artifact_sha256": challenger_artifact_sha256,
+        "opponent_artifact_sha256": opponent_artifact_sha256,
+        "budget_pairs": list(budget_pairs),
+        "c_puct_resolution": dict(sorted(c_puct_schedule.items())),
+        "tactical_root_bias": float(tactical_root_bias),
+        "root_policy": root_policy,
+        "seed_contract": seed_contract,
+        "base_seed": int(base_seed),
+        "games_per_opening": int(games_per_opening),
+        "code_config_schema": CACHE_SCHEMA_VERSION,
+    }
+
+
+def cache_status(cache: Path, expected_manifest: dict[str, Any]) -> tuple[bool, str]:
+    """Return whether both the cache identity and its result hash verify."""
+    if not cache.is_file():
+        return False, "cache_missing"
+    try:
+        payload = json.loads(cache.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False, "cache_unreadable"
+    if payload.get("manifest") != expected_manifest:
+        return False, "manifest_mismatch"
+    records = payload.get("records")
+    if not isinstance(records, list) or payload.get("records_sha256") != stable_hash(
+        records
+    ):
+        return False, "output_hash_mismatch"
+    return True, "reused"
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -96,29 +147,36 @@ class CanonicalInterpolatedPolicyEvaluator:
 def run_search(
     evaluator: Any, state: dict[str, Any], budget: int, seed: int, c_puct: float = 1.25
 ) -> dict[str, Any]:
-    game = KalahGame.from_state(state)
-    search = PUCT(
+    # Arena owns the production PUCT invocation.  Keeping reconciliation on
+    # this primitive prevents a second direct-search implementation drifting.
+    result = evaluate_artifact_position(
         evaluator=evaluator,
+        state=state,
         simulations=budget,
+        seed=seed,
         c_puct=c_puct,
-        rng=random.Random(seed),
-        root_policy_mode="deterministic",
-        tactical_root_bias=0.0,
-        normalize_values=False,
+        search_options={
+            "fpu_mode": "zero",
+            "reuse_subtree": False,
+            "normalize_values": False,
+            "root_policy_mode": "deterministic",
+            "tactical_root_bias": 0.0,
+        },
     )
-    visits, root = search.run(game, dirichlet_alpha=None, dirichlet_epsilon=0.0)
-    legal = game.possible_moves()
-    move = search.select_root_move(root, legal)
+    move = result["selected_move"]
+    visits = result["visits"]
+    selected_move = int(move) if move is not None else -1
+    root_value = float(result.get("search_root_value", result["value"]))
     return {
         "seed": seed,
-        "move": int(move),
+        "move": selected_move,
         "visits": [int(value) for value in visits],
-        "root_value": float(root.q_value),
+        "root_value": root_value,
         "search_hash": stable_hash(
             {
-                "move": int(move),
+                "move": selected_move,
                 "visits": [int(value) for value in visits],
-                "root_value": float(root.q_value),
+                "root_value": root_value,
             }
         ),
     }
@@ -180,7 +238,9 @@ def canonical_game(
             opening_index=opening_index,
             opening_state_hash=opening_hash,
             challenger_player=challenger_player,
-            game_within_opening=challenger_player,
+            # Seat is already represented by challenger_player.  This runner
+            # evaluates one game per opening/seat, matching arena's index 0.
+            game_within_opening=0,
             ply=ply,
             canonical_current_state_hash=stable_hash(game.to_state()),
             acting_role=role,
@@ -193,7 +253,20 @@ def canonical_game(
             c_puct=0.90 if challenger_budget == current_budget == 768 else 1.25,
         )
         moves.append(result["move"])
-        trace.append({"role": role, "seed_context_hash": seed_hash, **result})
+        trace.append(
+            {
+                "ply": ply,
+                "acting_role": role,
+                "canonical_current_state_hash": stable_hash(game.to_state()),
+                "seed_context_hash": seed_hash,
+                "derived_search_seed": result["seed"],
+                "selected_move": result["move"],
+                # Arena hashes its numpy visit vector, whose JSON form retains
+                # float values (for example 4.0 rather than 4).
+                "visit_hash": stable_hash([float(value) for value in result["visits"]]),
+                "root_value": result["root_value"],
+            }
+        )
         if not game.move(game.pit_index(result["move"])):
             raise RuntimeError("canonical game selected illegal move")
     margin = int(
@@ -208,6 +281,8 @@ def canonical_game(
         "margin": margin,
         "trajectory_hash": stable_hash(moves),
         "search_hash": stable_hash(trace),
+        "trace": trace,
+        "final_score": [int(value) for value in game.captured_seeds],
     }
 
 
@@ -290,10 +365,25 @@ def parallel_benchmark(
     openings: list[dict[str, Any]],
     budgets: tuple[str, ...],
     suite_hash: str,
+    challenger_artifact_sha256: str,
+    opponent_artifact_sha256: str,
 ) -> list[dict[str, Any]]:
     cache = workdir / f"{label}_records.json"
-    if cache.is_file():
-        return json.loads(cache.read_text(encoding="utf-8"))
+    manifest = cache_manifest(
+        suite_sha256=suite_hash,
+        challenger_artifact_sha256=challenger_artifact_sha256,
+        opponent_artifact_sha256=opponent_artifact_sha256,
+        budget_pairs=budgets,
+        c_puct_schedule={"default": 1.25, "768:768": 0.90},
+        tactical_root_bias=0.0,
+        root_policy="deterministic",
+        seed_contract="azlite_eval_seed_v2",
+        base_seed=42,
+        games_per_opening=1,
+    )
+    reusable, _reason = cache_status(cache, manifest)
+    if reusable:
+        return json.loads(cache.read_text(encoding="utf-8"))["records"]
     tasks = [
         {
             "label": label,
@@ -311,7 +401,14 @@ def parallel_benchmark(
         for seat in (0, 1)
     ]
     records = list(executor.map(_benchmark_task, tasks, chunksize=1))
-    write_json(cache, records)
+    write_json(
+        cache,
+        {
+            "manifest": manifest,
+            "records": records,
+            "records_sha256": stable_hash(records),
+        },
+    )
     return records
 
 
@@ -554,6 +651,11 @@ def main() -> int:
             )
             for direction in ("D384", "D1200")
         }
+        current_artifact_sha256 = sha256_file(current / "weights.json")
+        candidate_artifact_sha256 = {
+            direction: sha256_file(Path(path) / "weights.json")
+            for direction, path in candidate_paths.items()
+        }
         with concurrent.futures.ProcessPoolExecutor(
             max_workers=args.workers,
             initializer=_init_benchmark_worker,
@@ -569,6 +671,8 @@ def main() -> int:
                 openings=openings,
                 budgets=phase_b_budgets,
                 suite_hash=suite_hash,
+                challenger_artifact_sha256=current_artifact_sha256,
+                opponent_artifact_sha256=current_artifact_sha256,
             )
             for direction in ("D384", "D1200"):
                 direct = parallel_benchmark(
@@ -581,6 +685,8 @@ def main() -> int:
                     openings=openings,
                     budgets=phase_b_budgets,
                     suite_hash=suite_hash,
+                    challenger_artifact_sha256=candidate_artifact_sha256[direction],
+                    opponent_artifact_sha256=current_artifact_sha256,
                 )
                 wrapped = parallel_benchmark(
                     executor=executor,
@@ -592,6 +698,8 @@ def main() -> int:
                     openings=openings,
                     budgets=phase_b_budgets,
                     suite_hash=suite_hash,
+                    challenger_artifact_sha256=candidate_artifact_sha256[direction],
+                    opponent_artifact_sha256=current_artifact_sha256,
                 )
                 equivalence = [
                     {
@@ -621,6 +729,8 @@ def main() -> int:
                         openings=openings,
                         budgets=phase_d_budgets,
                         suite_hash=suite_hash,
+                        challenger_artifact_sha256=candidate_artifact_sha256[direction],
+                        opponent_artifact_sha256=current_artifact_sha256,
                     )
                 direction_result["intermediate_vs_current"] = {
                     alpha: opening_effect(records, current_records, 42)
