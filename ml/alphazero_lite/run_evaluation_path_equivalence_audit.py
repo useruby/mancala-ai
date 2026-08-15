@@ -28,6 +28,7 @@ import numpy as np
 from ml.alphazero_lite.arena import ArtifactEvaluator, run_arena_worker
 from ml.alphazero_lite.cpuct_schedule import resolve_budget_cpuct
 from ml.alphazero_lite.evaluation_seed_contract import derive_search_seed, stable_hash
+from ml.alphazero_lite.evaluation_metrics import paired_opening_candidate_effect
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.self_play import PUCT
 from ml.alphazero_lite.run_canonical_policy_interpolation_reconciliation import (
@@ -428,24 +429,25 @@ def main() -> int:
                 for r in paired
                 if r["candidate"] == candidate and r["budget"] == budget
             ]
-            by_opening = [
-                float(
-                    np.mean(
-                        [
-                            r["score"]
-                            - current_controls[(budget, i, r["challenger_player"])]
-                            for r in candidate_rows
-                            if r["opening_index"] == i
-                        ]
-                    )
-                )
-                for i in range(len(rows))
+            controls = [
+                {
+                    "opening_index": opening,
+                    "challenger_player": seat,
+                    "score": score,
+                }
+                for (control_budget, opening, seat), score in current_controls.items()
+                if control_budget == budget
             ]
+            paired_metric = paired_opening_candidate_effect(candidate_rows, controls)
+            effects = list(paired_metric.pop("per_opening_effect").values())
             by_candidate[candidate][budget] = {
-                **bootstrap(by_opening),
-                "positive_openings": int(sum(x > 0 for x in by_opening)),
-                "zero_openings": int(sum(x == 0 for x in by_opening)),
-                "negative_openings": int(sum(x < 0 for x in by_opening)),
+                **paired_metric,
+                "mean": paired_metric["paired_candidate_effect"],
+                "lower_95": paired_metric["opening_bootstrap_ci"]["lower_95"],
+                "upper_95": paired_metric["opening_bootstrap_ci"]["upper_95"],
+                "positive_openings": int(sum(x > 0 for x in effects)),
+                "zero_openings": int(sum(x == 0 for x in effects)),
+                "negative_openings": int(sum(x < 0 for x in effects)),
             }
     complete_scope = args.full and args.openings is None
     summary = {
@@ -473,8 +475,8 @@ def main() -> int:
             "candidate_challenger_score": "mean(score(candidate as challenger))",
             "current_current_challenger_score": "mean(score(current as challenger))",
             "candidate_minus_current_control_delta": "candidate_challenger_score - current_current_challenger_score",
-            "historical_benchmark_DS": "P0 challenger score - P1 challenger score",
-            "orientation_normalized_DS": "mean over seats of candidate-minus-current control delta",
+            "seat_asymmetry_ds": "P0 challenger score - P1 challenger score; diagnostic only, not candidate strength",
+            "paired_opening_candidate_effect": "mean over openings of matched candidate-minus-current-control seat effects",
         },
         "historical_conclusion": "PR #182 DS is a seat difference, while PR #184 reports candidate-minus-current paired score. They are different estimands; source-suite SHA and opening-state ply are now shared.",
     }

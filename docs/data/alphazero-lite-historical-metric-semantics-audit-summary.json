@@ -1,0 +1,67 @@
+{
+  "schema": "azlite_historical_metric_semantics_audit_v1",
+  "classification": "historical_metric_blast_radius_closed",
+  "canonical_runtime": {
+    "current_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "tactical_root_bias": 0.0,
+    "default_c_puct": 1.25,
+    "768:768_c_puct": 0.9,
+    "root_policy": "deterministic",
+    "seed_contract": "azlite_eval_seed_v2"
+  },
+  "counts": {
+    "historical_experiments_inspected": 8,
+    "canonical_metric_already_used": 3,
+    "affected_by_historical_seat_ds": 4,
+    "recomputed_without_games": 2,
+    "requiring_game_reruns": 0,
+    "explicitly_unrecoverable_but_superseded": 2
+  },
+  "recomputations": [
+    {
+      "experiment": "PR #182 stronger-policy-teacher D384",
+      "raw_record_path": "/tmp/azlite_canonical_policy_interpolation/direct_D384_records.json",
+      "matched_control_path": "/tmp/azlite_canonical_policy_interpolation/current_records.json",
+      "historical_metric_name": "seat_asymmetry_ds",
+      "historical_metric_value": -0.31640625,
+      "canonical_candidate_effect": 0.025390625,
+      "canonical_lower_95": -0.009765625,
+      "canonical_upper_95": 0.0625,
+      "unique_openings": 128,
+      "bootstrap_samples": 10000,
+      "original_decision": "reject",
+      "corrected_decision": "reject",
+      "impact": "decision_unchanged"
+    },
+    {
+      "experiment": "PR #182 stronger-policy-teacher D1200",
+      "raw_record_path": "/tmp/azlite_canonical_policy_interpolation/direct_D1200_records.json",
+      "matched_control_path": "/tmp/azlite_canonical_policy_interpolation/current_records.json",
+      "historical_metric_name": "seat_asymmetry_ds",
+      "historical_metric_value": -0.24609375,
+      "canonical_candidate_effect": 0.0,
+      "canonical_lower_95": -0.033203125,
+      "canonical_upper_95": 0.03125,
+      "unique_openings": 128,
+      "bootstrap_samples": 10000,
+      "original_decision": "reject",
+      "corrected_decision": "reject",
+      "impact": "decision_unchanged"
+    }
+  ],
+  "superseded_or_unrecoverable": [
+    {
+      "experiment": "PR #117/#120 PUCT policy-head promotion",
+      "impact": "insufficient_raw_records",
+      "treatment": "promotion is an ancestor only; it was superseded by the balanced-current promotion and is not invalidated"
+    },
+    {
+      "experiment": "PR #127 balanced replay/current promotion",
+      "impact": "insufficient_raw_records",
+      "treatment": "aggregate DS reports remain historical evidence only; subsequent azlite_eval_seed_v2 canonical runtime revalidation supersedes runtime conclusions"
+    }
+  ],
+  "decisions_changed": [],
+  "reopened_candidate_artifacts": [],
+  "current_model_lineage_implications": "No promoted artifact loses justification absent later canonical evidence. No candidate is reopened; policy-head-only teacher-budget tuning is permanently closed. The next ML branch targets value/representation work."
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "azlite_historical_metric_inventory_v1",
+  "metric_definitions": {
+    "seat_asymmetry_ds": "P0 challenger score - P1 challenger score; a seat/budget asymmetry diagnostic, not candidate strength.",
+    "paired_opening_candidate_effect": "mean_i mean_s(score(candidate, i, s) - score(current-control, i, s))"
+  },
+  "records": [
+    {
+      "experiment": "PR #117/#120 PUCT policy-head promotion",
+      "runner": "run_control_ep2_puct_smoke.py",
+      "result_document": "docs/alphazero-lite-control-ep2-puct-e1-promotion-results.md",
+      "raw_game_record_path": "/tmp/azlite_control_ep2_puct_e1_promotion/opening_suite_eval",
+      "metric_used_for_final_decision": "historical_seat_ds_only",
+      "current_control_games_existed": true,
+      "paired_recomputation": "raw_records_missing",
+      "decision_materiality": "promoted ancestor; superseded by the later balanced-current promotion",
+      "classification": "raw_records_missing"
+    },
+    {
+      "experiment": "PR #127 balanced replay/current promotion",
+      "runner": "run_balanced_opening_puct_replay.py",
+      "result_document": "docs/alphazero-lite-balanced-w8s4-e1-promotion-results.md",
+      "raw_game_record_path": "/tmp/azlite_balanced_w8s4_e1_promotion/fixed_large_suite",
+      "metric_used_for_final_decision": "historical_seat_ds_only",
+      "current_control_games_existed": true,
+      "paired_recomputation": "raw_records_missing",
+      "decision_materiality": "current artifact; later canonical runtime revalidations supersede its runtime interpretation",
+      "classification": "raw_records_missing"
+    },
+    {
+      "experiment": "PR #155 terminal-outcome value candidates",
+      "runner": "run_terminal_outcome_replay_balance_audit.py",
+      "result_document": "docs/alphazero-lite-terminal-outcome-replay-balance-results.md",
+      "raw_game_record_path": "/tmp/azlite_terminal_outcome_selfplay_iteration/replay.jsonl",
+      "metric_used_for_final_decision": "probe gates before strength promotion",
+      "current_control_games_existed": false,
+      "paired_recomputation": "not_applicable",
+      "decision_materiality": "rejected before promotion evaluation",
+      "classification": "not_applicable"
+    },
+    {
+      "experiment": "PR #164 deterministic joint-head candidate",
+      "runner": "run_deterministic_joint_heads_iteration.py",
+      "result_document": "docs/data/alphazero-lite-deterministic-joint-heads-iteration-summary.json",
+      "raw_game_record_path": "/tmp/azlite_terminal_outcome_selfplay_iteration/replay.jsonl",
+      "metric_used_for_final_decision": "candidate-minus-current paired score",
+      "current_control_games_existed": true,
+      "paired_recomputation": "canonical_metric_already_used",
+      "decision_materiality": "rejected; independently rechecked by canonical seed-contract integration",
+      "classification": "canonical_metric_already_used"
+    },
+    {
+      "experiment": "PR #168 composition candidates",
+      "runner": "run_canonical_policy_interpolation_reconciliation.py",
+      "result_document": "docs/data/alphazero-lite-canonical-policy-interpolation-summary.json",
+      "raw_game_record_path": "/tmp/azlite_canonical_policy_interpolation/*_records.json",
+      "metric_used_for_final_decision": "candidate-minus-current paired score",
+      "current_control_games_existed": true,
+      "paired_recomputation": "canonical_metric_already_used",
+      "decision_materiality": "rejected",
+      "classification": "canonical_metric_already_used"
+    },
+    {
+      "experiment": "PR #182 stronger-policy-teacher D384",
+      "runner": "run_stronger_policy_teacher_ablation.py",
+      "result_document": "docs/data/alphazero-lite-stronger-policy-teacher-summary.json",
+      "raw_game_record_path": "/tmp/azlite_canonical_policy_interpolation/direct_D384_records.json",
+      "metric_used_for_final_decision": "historical_seat_ds_only",
+      "current_control_games_existed": true,
+      "paired_recomputation": "recomputable_from_raw_records",
+      "decision_materiality": "rejected policy-target variant",
+      "classification": "recomputable_from_raw_records"
+    },
+    {
+      "experiment": "PR #182 stronger-policy-teacher D1200",
+      "runner": "run_stronger_policy_teacher_ablation.py",
+      "result_document": "docs/data/alphazero-lite-stronger-policy-teacher-summary.json",
+      "raw_game_record_path": "/tmp/azlite_canonical_policy_interpolation/direct_D1200_records.json",
+      "metric_used_for_final_decision": "historical_seat_ds_only",
+      "current_control_games_existed": true,
+      "paired_recomputation": "recomputable_from_raw_records",
+      "decision_materiality": "rejected policy-target variant",
+      "classification": "recomputable_from_raw_records"
+    },
+    {
+      "experiment": "runtime tactical/c_puct decisions",
+      "runner": "run_budget_conditioned_tactical_confirmation.py",
+      "result_document": "docs/data/alphazero-lite-budget-conditioned-tactical-confirmation-corrected-summary.json",
+      "raw_game_record_path": "/tmp/azlite_budget_tactical_confirmation_corrected",
+      "metric_used_for_final_decision": "orientation-normalized paired effect",
+      "current_control_games_existed": true,
+      "paired_recomputation": "canonical_metric_already_used",
+      "decision_materiality": "independently revalidated under azlite_eval_seed_v2",
+      "classification": "canonical_metric_already_used"
+    }
+  ]
+}
