@@ -38,6 +38,9 @@ from ml.alphazero_lite.evaluation_metrics import (  # noqa: E402
     seat_asymmetry_ds,
 )
 
+METRIC_SCHEMA_VERSION = "azlite_opening_benchmark_metrics_v2"
+ARENA_RECORD_SCHEMA_VERSION = "azlite_opening_records_v2"
+
 
 def default_eval_tactical_root_bias() -> float:
     from ml.alphazero_lite.self_play import DEFAULT_EVAL_SEARCH_OPTIONS
@@ -210,6 +213,53 @@ def cache_matches(cached: dict[str, Any], expected: dict[str, Any]) -> bool:
     return all(cached.get(key) == value for key, value in expected.items())
 
 
+def record_files_sha256(paths: list[Path]) -> str | None:
+    """Hash complete, ordered evidence files so truncated controls cannot be reused."""
+    if not paths or any(not path.is_file() for path in paths):
+        return None
+    digest = hashlib.sha256()
+    for path in paths:
+        digest.update(path.name.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def cache_is_reusable(
+    metrics: dict[str, Any],
+    expected_manifest: dict[str, Any],
+    *,
+    candidate_record_paths: list[Path],
+    control_record_paths: list[Path],
+) -> bool:
+    """Require v2 provenance and intact paired candidate/control evidence."""
+    manifest = metrics.get("cache_manifest")
+    if not isinstance(manifest, dict) or not cache_matches(manifest, expected_manifest):
+        return False
+    if "paired_candidate_effect" not in metrics:
+        return False
+    candidate_hash = record_files_sha256(candidate_record_paths)
+    control_hash = record_files_sha256(control_record_paths)
+    return (
+        candidate_hash is not None
+        and control_hash is not None
+        and manifest.get("candidate_record_sha256") == candidate_hash
+        and manifest.get("current_control_record_sha256") == control_hash
+    )
+
+
+def evidence_cache_is_reusable(
+    metadata: dict[str, Any], expected_manifest: dict[str, Any], record_path: Path
+) -> bool:
+    """Verify a seat-level candidate or control cache before using its records."""
+    return (
+        cache_matches(metadata.get("cache_manifest", {}), expected_manifest)
+        and metadata.get("record_sha256") == record_files_sha256([record_path])
+        and bool(parse_game_jsonl(str(record_path)))
+    )
+
+
 def budget_cache_context(
     *,
     suite_path: str,
@@ -233,6 +283,8 @@ def budget_cache_context(
     seed_contract: str,
 ) -> dict[str, Any]:
     return {
+        "metric_schema_version": METRIC_SCHEMA_VERSION,
+        "arena_record_schema_version": ARENA_RECORD_SCHEMA_VERSION,
         "suite_path": suite_path,
         "suite_sha256": suite_sha,
         "suite_size": suite_size,
@@ -242,6 +294,7 @@ def budget_cache_context(
         "candidate_sha256": candidate_sha,
         "challenger_simulations": challenger_sims,
         "current_simulations": current_sims,
+        "budget_pair": f"{challenger_sims}:{current_sims}",
         "games_per_opening": games_per_opening,
         "total_games": total_games,
         "root_policy_mode": root_policy_mode,
@@ -250,7 +303,7 @@ def budget_cache_context(
         "c_puct": c_puct,
         "c_puct_schedule": c_puct_schedule,
         "tactical_root_bias": tactical_root_bias,
-        "seed": seed,
+        "base_seed": seed,
         "seed_contract": seed_contract,
     }
 
@@ -643,10 +696,20 @@ def main() -> int:
                         seed_contract=args.seed_contract,
                     )
                     metrics_path = budget_dir / "metrics.json"
+                    candidate_record_paths = [
+                        budget_dir / f"starts_{seat}" / "games.jsonl" for seat in (0, 1)
+                    ]
+                    control_record_paths = [
+                        budget_dir / f"current_control_starts_{seat}" / "games.jsonl"
+                        for seat in (0, 1)
+                    ]
                     if metrics_path.is_file():
                         cached_metrics = load_json(metrics_path)
-                        if cache_matches(
-                            cached_metrics.get("cache_context", {}), cache_context
+                        if cache_is_reusable(
+                            cached_metrics,
+                            cache_context,
+                            candidate_record_paths=candidate_record_paths,
+                            control_record_paths=control_record_paths,
                         ):
                             cand_budget_results[budget_label] = cached_metrics
                             ds = cached_metrics["ds"]
@@ -684,12 +747,8 @@ def main() -> int:
 
                         if seat_meta_path.is_file():
                             cached_seat = load_json(seat_meta_path)
-                            if (
-                                cache_matches(
-                                    cached_seat.get("cache_context", {}), seat_context
-                                )
-                                and Path(seat_json).is_file()
-                                and Path(seat_jsonl).is_file()
+                            if Path(seat_json).is_file() and evidence_cache_is_reusable(
+                                cached_seat, seat_context, Path(seat_jsonl)
                             ):
                                 game_entries = parse_game_jsonl(seat_jsonl)
                                 if game_entries:
@@ -736,9 +795,12 @@ def main() -> int:
                             write_json(
                                 seat_meta_path,
                                 {
-                                    "cache_context": seat_context,
+                                    "cache_manifest": seat_context,
                                     "arena_score": report.get("score"),
                                     "games": len(game_entries),
+                                    "record_sha256": record_files_sha256(
+                                        [Path(seat_jsonl)]
+                                    ),
                                     "elapsed_s": elapsed,
                                 },
                             )
@@ -758,35 +820,62 @@ def main() -> int:
                         control_json = str(control_dir / "arena.json")
                         control_jsonl = str(control_dir / "games.jsonl")
                         control_suite = control_dir / "opening_suite.jsonl"
+                        control_meta_path = control_dir / "metadata.json"
+                        control_context = seat_cache_context(
+                            cache_context, challenger_starts=seat
+                        )
                         with control_suite.open("w", encoding="utf-8") as handle:
                             for entry in suite:
                                 handle.write(
                                     json.dumps({"prefix_moves": entry["prefix_moves"]})
                                     + "\n"
                                 )
-                        run_arena(
-                            challenger=args.current,
-                            current=args.current,
-                            challenger_sims=chall_sims,
-                            current_sims=curr_sims,
-                            games=total_games,
-                            seed=arena_seed,
-                            workers=args.workers,
-                            out_json=control_json,
-                            out_jsonl=control_jsonl,
-                            opening_prefixes_jsonl=str(control_suite),
-                            challenger_starts=seat,
-                            games_per_opening=gpo,
-                            root_policy_mode=args.root_policy_mode,
-                            root_temperature=rt,
-                            normalize_values=bool(args.normalize_values),
-                            c_puct=effective_c_puct,
-                            tactical_root_bias=effective_tactical_root_bias,
-                            seed_contract=args.seed_contract,
-                            suite_sha256=suite_sha,
-                            seed_ledger_output=str(control_dir / "seed_ledger.jsonl"),
-                            timeout=args.timeout,
-                        )
+                        if not (
+                            control_meta_path.is_file()
+                            and Path(control_json).is_file()
+                            and Path(control_jsonl).is_file()
+                            and evidence_cache_is_reusable(
+                                load_json(control_meta_path),
+                                control_context,
+                                Path(control_jsonl),
+                            )
+                        ):
+                            control_report = run_arena(
+                                challenger=args.current,
+                                current=args.current,
+                                challenger_sims=chall_sims,
+                                current_sims=curr_sims,
+                                games=total_games,
+                                seed=arena_seed,
+                                workers=args.workers,
+                                out_json=control_json,
+                                out_jsonl=control_jsonl,
+                                opening_prefixes_jsonl=str(control_suite),
+                                challenger_starts=seat,
+                                games_per_opening=gpo,
+                                root_policy_mode=args.root_policy_mode,
+                                root_temperature=rt,
+                                normalize_values=bool(args.normalize_values),
+                                c_puct=effective_c_puct,
+                                tactical_root_bias=effective_tactical_root_bias,
+                                seed_contract=args.seed_contract,
+                                suite_sha256=suite_sha,
+                                seed_ledger_output=str(
+                                    control_dir / "seed_ledger.jsonl"
+                                ),
+                                timeout=args.timeout,
+                            )
+                            write_json(
+                                control_meta_path,
+                                {
+                                    "cache_manifest": control_context,
+                                    "arena_score": control_report.get("score"),
+                                    "games": len(parse_game_jsonl(control_jsonl)),
+                                    "record_sha256": record_files_sha256(
+                                        [Path(control_jsonl)]
+                                    ),
+                                },
+                            )
                         current_control_entries.extend(parse_game_jsonl(control_jsonl))
 
                     metrics = compute_seat_metrics(all_game_entries)
@@ -812,7 +901,15 @@ def main() -> int:
                     budget_result = {
                         **metrics,
                         **paired_metrics,
-                        "cache_context": cache_context,
+                        "cache_manifest": {
+                            **cache_context,
+                            "candidate_record_sha256": record_files_sha256(
+                                candidate_record_paths
+                            ),
+                            "current_control_record_sha256": record_files_sha256(
+                                control_record_paths
+                            ),
+                        },
                         "per_opening_metrics": per_opening,
                         "by_ply_metrics": {str(k): v for k, v in by_ply.items()},
                         "budget_label": budget_label,
