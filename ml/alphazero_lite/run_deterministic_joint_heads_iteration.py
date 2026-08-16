@@ -57,6 +57,7 @@ from ml.alphazero_lite.train import (  # noqa: E402
     input_size_for_encoding,
     legal_mask_matrix_for_encoded_states,
     load_checkpoint_into_model,
+    apply_trainable_scope,
 )
 
 MODEL_TYPE = "residual_v3"
@@ -183,8 +184,7 @@ def configure_determinism(device: torch.device, seed: int) -> dict[str, Any]:
 
 def freeze_joint_heads(model: PolicyValueNet) -> list[str]:
     """Freeze the complete trunk and return the only allowed trainable names."""
-    for name, parameter in model.named_parameters():
-        parameter.requires_grad = name in HEAD_NAMES
+    apply_trainable_scope(model, "heads_only")
     names = [
         name for name, parameter in model.named_parameters() if parameter.requires_grad
     ]
@@ -373,7 +373,10 @@ def _capture(model: PolicyValueNet, optimizer: torch.optim.Optimizer) -> dict[st
 
 
 def train_fixed_manifest(
-    manifest_path: Path, device: torch.device, label: str
+    manifest_path: Path,
+    device: torch.device,
+    label: str,
+    trainable_scope: str = "heads_only",
 ) -> dict[str, Any]:
     """Run precisely one saved batch plan, never deriving data membership/order."""
     manifest = verify_manifest(manifest_path)
@@ -397,7 +400,16 @@ def train_fixed_manifest(
         HIDDEN_SIZES, MODEL_TYPE, input_size_for_encoding(INPUT_ENCODING)
     )
     load_checkpoint_into_model(model, paths["initialization_checkpoint"])
-    trainable = freeze_joint_heads(model)
+    apply_trainable_scope(model, trainable_scope)
+    trainable = [
+        name for name, parameter in model.named_parameters() if parameter.requires_grad
+    ]
+    if trainable_scope == "heads_only" and set(trainable) != HEAD_NAMES:
+        raise RuntimeError("residual_v3 heads_only parameter set changed")
+    if trainable_scope == "joint_trunk" and len(trainable) != len(
+        list(model.named_parameters())
+    ):
+        raise RuntimeError("joint_trunk must leave no residual_v3 parameters frozen")
     model.to(device).train()
     optimizer = torch.optim.Adam(
         (p for p in model.parameters() if p.requires_grad), lr=PR155_LR
@@ -463,6 +475,12 @@ def train_fixed_manifest(
         "validation_logits": logits.cpu().numpy(),
         "validation_values": values.cpu().numpy(),
         "trainable_parameter_names": trainable,
+        "trainable_parameter_count": sum(
+            parameter.numel()
+            for parameter in model.parameters()
+            if parameter.requires_grad
+        ),
+        "trainable_scope": trainable_scope,
     }
 
 
