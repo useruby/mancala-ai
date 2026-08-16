@@ -38,6 +38,8 @@ SUPPORTED_MODEL_TYPES = [
 DEFAULT_TRAINABLE_SCOPE = "all"
 SUPPORTED_TRAINABLE_SCOPES = [
     DEFAULT_TRAINABLE_SCOPE,
+    "heads_only",
+    "joint_trunk",
     "policy_head",
     "last_block_policy",
 ]
@@ -1570,6 +1572,22 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
         raise ValueError(
             f"trainable_scope={scope} is only supported for residual_v3 or residual_v4_move_factorized models"
         )
+
+    if scope in {"heads_only", "joint_trunk"}:
+        prefixes = (
+            "input_layer.",
+            "residual_layers.",
+            "policy_hidden_layer.",
+            "policy_head.",
+            "value_hidden_layer.",
+            "value_head.",
+        )
+        allowed_prefixes = prefixes if scope == "joint_trunk" else prefixes[2:]
+        if model.move_projections is not None:
+            allowed_prefixes = (*allowed_prefixes, "move_projections.")
+        for name, parameter in model.named_parameters():
+            parameter.requires_grad = name.startswith(allowed_prefixes)
+        return
 
     if scope == "policy_head":
         assert model.policy_hidden_layer is not None

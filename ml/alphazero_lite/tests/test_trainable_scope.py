@@ -68,6 +68,36 @@ class TrainableScopeTest(unittest.TestCase):
             self.assertIn(f"residual_layers.{block_idx}.1.weight", frozen)
             self.assertIn(f"residual_layers.{block_idx}.1.bias", frozen)
 
+    def test_heads_only_scope_trains_both_specialized_heads(self):
+        apply_trainable_scope(self.model, "heads_only")
+        self.assertEqual(
+            self._trainable_param_names(),
+            {
+                "policy_hidden_layer.weight",
+                "policy_hidden_layer.bias",
+                "policy_head.weight",
+                "policy_head.bias",
+                "value_hidden_layer.weight",
+                "value_hidden_layer.bias",
+                "value_head.weight",
+                "value_head.bias",
+            },
+        )
+
+    def test_joint_trunk_scope_trains_every_residual_v3_parameter(self):
+        apply_trainable_scope(self.model, "joint_trunk")
+        self.assertEqual(
+            self._trainable_param_names(),
+            {name for name, _parameter in self.model.named_parameters()},
+        )
+        self.assertTrue(
+            all(
+                parameter.requires_grad
+                for name, parameter in self.model.named_parameters()
+                if name.startswith("residual_layers.")
+            )
+        )
+
     def test_last_block_policy_scope_trains_final_block_and_policy(self):
         apply_trainable_scope(self.model, "last_block_policy")
         trainable = self._trainable_param_names()
