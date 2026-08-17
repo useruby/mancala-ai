@@ -62,6 +62,16 @@ def _key(record: dict[str, Any]) -> tuple[int, int]:
         ) from exc
 
 
+def _opponent_identity(record: dict[str, Any]) -> tuple[Any, Any] | None:
+    """Return explicit opponent identity when arena provenance supplied it."""
+    keys = ("opponent_weights_sha256", "opponent_config_sha256")
+    if not any(key in record for key in keys):
+        return None
+    if not all(key in record for key in keys):
+        raise ValueError("arena record has incomplete opponent identity")
+    return tuple(record[key] for key in keys)
+
+
 def paired_opening_candidate_effect(
     candidate_records: Iterable[dict[str, Any]],
     current_control_records: Iterable[dict[str, Any]],
@@ -80,6 +90,15 @@ def paired_opening_candidate_effect(
         candidate_by_key[_key(record)].append(score_from_game(record))
     for record in current_control_records:
         control_by_key[_key(record)].append(score_from_game(record))
+    candidate_opponents = {_opponent_identity(record) for record in candidate_records}
+    control_opponents = {
+        _opponent_identity(record) for record in current_control_records
+    }
+    if None not in candidate_opponents | control_opponents:
+        if len(candidate_opponents) != 1 or candidate_opponents != control_opponents:
+            raise ValueError(
+                "candidate and current-control records must use the identical opponent identity"
+            )
     if set(candidate_by_key) != set(control_by_key):
         missing_candidate = sorted(set(control_by_key) - set(candidate_by_key))
         missing_control = sorted(set(candidate_by_key) - set(control_by_key))
@@ -131,4 +150,39 @@ def paired_opening_candidate_effect(
             ),
         },
         "per_opening_effect": dict(zip(openings, effects, strict=True)),
+    }
+
+
+def paired_effect_difference(
+    left: dict[str, Any],
+    right: dict[str, Any],
+    *,
+    bootstrap_samples: int = 10_000,
+    bootstrap_seed: int = 42,
+) -> dict[str, Any]:
+    """Subtract matched-current effects, clustered and bootstrapped by opening."""
+    left_effects = left["per_opening_effect"]
+    right_effects = right["per_opening_effect"]
+    if set(left_effects) != set(right_effects):
+        raise ValueError("treatment effects must cover identical openings")
+    openings = sorted(left_effects)
+    data = np.asarray(
+        [left_effects[key] - right_effects[key] for key in openings], dtype=float
+    )
+    if not len(data):
+        raise ValueError("at least one paired opening is required")
+    draws = data[
+        np.random.default_rng(bootstrap_seed).integers(
+            0, len(data), size=(bootstrap_samples, len(data))
+        )
+    ].mean(axis=1)
+    return {
+        "paired_candidate_effect": float(data.mean()),
+        "opening_bootstrap_ci": {
+            "lower_95": float(np.quantile(draws, 0.025)),
+            "upper_95": float(np.quantile(draws, 0.975)),
+            "samples": bootstrap_samples,
+            "unique_openings": len(openings),
+        },
+        "per_opening_effect": dict(zip(openings, data.tolist(), strict=True)),
     }

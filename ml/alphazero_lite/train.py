@@ -42,6 +42,7 @@ SUPPORTED_TRAINABLE_SCOPES = [
     "joint_trunk",
     "policy_head",
     "last_block_policy",
+    "policy_detached_trunk",
 ]
 DEFAULT_POLICY_TARGET_MODE = "default"
 SUPPORTED_POLICY_TARGET_MODES = [DEFAULT_POLICY_TARGET_MODE, "sharpened"]
@@ -849,7 +850,10 @@ class PolicyValueNet(nn.Module):
             self.policy_head = nn.Linear(policy_head_input_size, POLICY_SIZE)
         self.value_head = nn.Linear(value_head_input_size, 1)
 
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self, x: torch.Tensor, *, detach_policy_trunk: bool = False
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Return policy logits and value, optionally isolating policy from the trunk."""
         if self.model_type in MLP_MODEL_TYPES:
             h = x
             for layer in self.hidden_layers:
@@ -864,7 +868,9 @@ class PolicyValueNet(nn.Module):
         if self.model_type == "residual_v3":
             assert self.policy_hidden_layer is not None
             assert self.value_hidden_layer is not None
-            policy_features = torch.relu(self.policy_hidden_layer(h))
+            policy_features = torch.relu(
+                self.policy_hidden_layer(h.detach() if detach_policy_trunk else h)
+            )
             value_features = torch.relu(self.value_hidden_layer(h))
             policy_logits = self.policy_head(policy_features)
             value = torch.tanh(self.value_head(value_features))
@@ -872,7 +878,9 @@ class PolicyValueNet(nn.Module):
             assert self.policy_hidden_layer is not None
             assert self.value_hidden_layer is not None
             assert self.move_projections is not None
-            policy_features = torch.relu(self.policy_hidden_layer(h))
+            policy_features = torch.relu(
+                self.policy_hidden_layer(h.detach() if detach_policy_trunk else h)
+            )
             value_features = torch.relu(self.value_hidden_layer(h))
             policy_logits = torch.cat(
                 [proj(policy_features) for proj in self.move_projections], dim=1
@@ -1587,6 +1595,13 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
             allowed_prefixes = (*allowed_prefixes, "move_projections.")
         for name, parameter in model.named_parameters():
             parameter.requires_grad = name.startswith(allowed_prefixes)
+        return
+
+    if scope == "policy_detached_trunk":
+        # This scope is enforced by forward(detach_policy_trunk=True): every
+        # parameter remains trainable because the value path owns the trunk.
+        for parameter in model.parameters():
+            parameter.requires_grad = True
         return
 
     if scope == "policy_head":
