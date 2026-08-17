@@ -90,6 +90,36 @@ class TrainableScopeTest(unittest.TestCase):
             self._trainable_param_names(),
             {name for name, _parameter in self.model.named_parameters()},
         )
+
+    def test_policy_detached_trunk_keeps_value_path_trainable(self):
+        apply_trainable_scope(self.model, "policy_detached_trunk")
+        self.assertEqual(
+            self._trainable_param_names(),
+            {name for name, _parameter in self.model.named_parameters()},
+        )
+
+    def test_policy_detached_trunk_gradient_support_is_exact(self):
+        x = torch.randn(4, 27)
+        target_policy = torch.ones(4, 6) / 6.0
+        target_value = torch.randn(4, 1)
+        logits, value = self.model(x, detach_policy_trunk=True)
+        policy = -(target_policy * torch.log_softmax(logits, dim=1)).sum(dim=1).mean()
+        weighted_value = 0.6 * torch.square(value - target_value).mean()
+        policy_grads = torch.autograd.grad(
+            policy, tuple(self.model.parameters()), retain_graph=True, allow_unused=True
+        )
+        value_grads = torch.autograd.grad(
+            weighted_value, tuple(self.model.parameters()), allow_unused=True
+        )
+        for (name, _parameter), policy_grad, value_grad in zip(
+            self.model.named_parameters(), policy_grads, value_grads, strict=True
+        ):
+            self.assertEqual(
+                policy_grad is None,
+                name.startswith(("input_layer.", "residual_layers.", "value_")),
+                name,
+            )
+            self.assertEqual(value_grad is None, name.startswith("policy_"), name)
         self.assertTrue(
             all(
                 parameter.requires_grad

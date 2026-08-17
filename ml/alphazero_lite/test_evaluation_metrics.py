@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from ml.alphazero_lite.evaluation_metrics import (
+    paired_effect_difference,
     paired_opening_candidate_effect,
     seat_asymmetry_ds,
 )
@@ -87,3 +88,30 @@ def test_effect_is_invariant_to_record_order() -> None:
             list(reversed(games(candidate))), list(reversed(games(control)))
         )["paired_candidate_effect"]
     )
+
+
+def test_effect_rejects_mismatched_opponent_identity() -> None:
+    candidate = games({(0, 0): 0.5, (0, 1): 0.5})
+    control = games({(0, 0): 0.5, (0, 1): 0.5})
+    for record in candidate:
+        record.update(
+            opponent_weights_sha256="current", opponent_config_sha256="puct-a"
+        )
+    for record in control:
+        record.update(
+            opponent_weights_sha256="baseline", opponent_config_sha256="puct-a"
+        )
+    with pytest.raises(ValueError, match="identical opponent identity"):
+        paired_opening_candidate_effect(candidate, control)
+
+
+def test_effect_difference_uses_per_opening_matched_controls() -> None:
+    left = paired_opening_candidate_effect(
+        games({(0, 0): 0.8, (0, 1): 0.8}), games({(0, 0): 0.5, (0, 1): 0.5})
+    )
+    right = paired_opening_candidate_effect(
+        games({(0, 0): 0.6, (0, 1): 0.6}), games({(0, 0): 0.5, (0, 1): 0.5})
+    )
+    assert paired_effect_difference(left, right)[
+        "paired_candidate_effect"
+    ] == pytest.approx(0.2)

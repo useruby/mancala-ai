@@ -42,7 +42,10 @@ from ml.alphazero_lite.run_optimizer_aware_trunk_dynamics_audit import (  # noqa
     output_drift,
     puct_trajectory,
 )
-from ml.alphazero_lite.evaluation_metrics import paired_opening_candidate_effect  # noqa: E402
+from ml.alphazero_lite.evaluation_metrics import (  # noqa: E402
+    paired_effect_difference,
+    paired_opening_candidate_effect,
+)
 from ml.alphazero_lite.run_opening_suite_seat_benchmark import (  # noqa: E402
     parse_game_jsonl,
     run_arena,
@@ -594,30 +597,24 @@ def early_arena(
                 "protected_vs_current",
                 workers=workers,
             )
-            protected_baseline = _arena_records(
-                workdir / f"step_{step:04d}",
-                artifacts["value_protected_joint"][step],
-                artifacts["baseline_joint"][step],
-                context,
-                "protected_vs_baseline",
-                workers=workers,
+            baseline_effect = paired_opening_candidate_effect(
+                baseline_current,
+                current_control,
+                bootstrap_samples=10_000,
+                bootstrap_seed=42,
+            )
+            protected_effect = paired_opening_candidate_effect(
+                protected_current,
+                current_control,
+                bootstrap_samples=10_000,
+                bootstrap_seed=42,
             )
             metrics.setdefault(str(step), {})[context] = {
-                "baseline_minus_current": paired_opening_candidate_effect(
-                    baseline_current,
-                    current_control,
-                    bootstrap_samples=10_000,
-                    bootstrap_seed=42,
-                ),
-                "protected_minus_current": paired_opening_candidate_effect(
-                    protected_current,
-                    current_control,
-                    bootstrap_samples=10_000,
-                    bootstrap_seed=42,
-                ),
-                "protected_minus_baseline": paired_opening_candidate_effect(
-                    protected_baseline,
-                    baseline_current,
+                "baseline_minus_current": baseline_effect,
+                "protected_minus_current": protected_effect,
+                "protected_minus_baseline": paired_effect_difference(
+                    protected_effect,
+                    baseline_effect,
                     bootstrap_samples=10_000,
                     bootstrap_seed=42,
                 ),
