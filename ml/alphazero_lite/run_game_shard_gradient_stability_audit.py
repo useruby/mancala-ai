@@ -382,46 +382,60 @@ def state_direction_agreement(
     candidates: dict[str, dict[str, torch.Tensor]],
     probe: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    """Whether the four candidates change the same probe states in the same direction."""
+    """Agreement metrics using functional move semantics, not value-sign as "direction"."""
     names = list(candidates)
-    change = {name: [] for name in names}
-    direction = {name: [] for name in names}
+    move = {name: [] for name in names}
+    root_delta_sign = {name: [] for name in names}
     for row in probe:
         base = cached[("C", context, row["state_hash"])]
         for name in names:
             record = cached[(name, context, row["state_hash"])]
-            changed = int(record["move"] != base["move"])
-            change[name].append(changed)
-            direction[name].append(
+            move[name].append(int(record["move"]))
+            root_delta_sign[name].append(
                 int(np.sign(record["root_value"] - base["root_value"]))
-                if changed
-                else 0
             )
-    change_arr = np.asarray([change[name] for name in names], dtype=np.int64)
-    direction_arr = np.asarray([direction[name] for name in names], dtype=np.int64)
-    pairwise_rates = [
+    move_arr = np.asarray([move[name] for name in names], dtype=np.int64)
+    root_delta_arr = np.asarray(
+        [root_delta_sign[name] for name in names], dtype=np.int64
+    )
+    base_moves = np.asarray(
+        [int(cached[("C", context, row["state_hash"])]["move"]) for row in probe],
+        dtype=np.int64,
+    )
+    change_arr = np.asarray(move_arr != base_moves[None, :], dtype=np.int64)
+    # Same state change/no-change agreement across every candidate pair.
+    pairwise_change_rates = [
         float(np.mean(change_arr[i] == change_arr[j]))
         for i in range(len(names))
         for j in range(i + 1, len(names))
     ]
-    unanimous = float(np.mean(np.all(change_arr == change_arr[0], axis=0)))
-    any_changed = change_arr.sum(axis=0) >= 2
-    same_direction = [
-        int(
-            np.all(
-                direction_arr[change_arr[:, state_index] == 1, state_index]
-                == direction_arr[
-                    np.where(change_arr[:, state_index] == 1)[0][0], state_index
-                ]
-            )
-        )
-        for state_index in np.where(any_changed)[0]
+    # Absolute selected-move agreement across every candidate pair.
+    pairwise_move_rates = [
+        float(np.mean(move_arr[i] == move_arr[j]))
+        for i in range(len(names))
+        for j in range(i + 1, len(names))
     ]
+    # States where >=2 candidates change their selected move; among those,
+    # whether every changing candidate selects the same NEW move, and whether
+    # their root-value delta signs agree (reported separately, never as "move direction").
+    any_changed = change_arr.sum(axis=0) >= 2
+    same_new_move = []
+    same_root_sign = []
+    for state_index in np.where(any_changed)[0]:
+        changed_mask = change_arr[:, state_index] == 1
+        new_moves = move_arr[changed_mask, state_index]
+        same_new_move.append(int(np.all(new_moves == new_moves[0])))
+        root_signs = root_delta_arr[changed_mask, state_index]
+        same_root_sign.append(int(np.all(root_signs == root_signs[0])))
     return {
-        "unanimous_change_agreement_rate": unanimous,
-        "pairwise_change_agreement_rate_mean": float(np.mean(pairwise_rates)),
-        "same_direction_rate_among_multi_changed": (
-            float(np.mean(same_direction)) if same_direction else 0.0
+        "same_changed_state_rate": float(
+            np.mean(np.all(change_arr == change_arr[0], axis=0))
+        ),
+        "pairwise_change_agreement_rate_mean": float(np.mean(pairwise_change_rates)),
+        "pairwise_selected_move_agreement": float(np.mean(pairwise_move_rates)),
+        "same_new_move_rate": (float(np.mean(same_new_move)) if same_new_move else 0.0),
+        "root_value_delta_sign_agreement": (
+            float(np.mean(same_root_sign)) if same_root_sign else 0.0
         ),
         "states_changed_by_any_candidate": int(np.sum(change_arr.sum(axis=0) >= 1)),
         "states_changed_by_all_candidates": int(
