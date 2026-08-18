@@ -60,7 +60,8 @@ CANONICAL_ARENA_SUITE = Path(
 )
 CANONICAL_ARENA_SEED = 195
 CANONICAL_ARENA_OPENINGS = 128
-CANONICAL_ARENA_BOOTSTRAP_SAMPLES = 128
+CANONICAL_ARENA_BOOTSTRAP_SAMPLES = 10_000
+CANONICAL_ARENA_CACHE_SCHEMA = "azlite_policy_value_channel_arena_cache_v2"
 DEFAULT_PROBE_WORKERS = 24
 WORKDIR = Path("/tmp/azlite_policy_detached_trunk_v2")
 MANIFEST = Path("/tmp/azlite_shared_trunk_learning/training_manifest.json")
@@ -251,16 +252,13 @@ def _puct_task(task: dict[str, Any]) -> tuple[str, str, str, dict[str, Any]]:
             "visit": _visit_policy(stats),
             "value": float(result.get("search_root_value", result["value"])),
             "margin": visits[0] - visits[1] if len(visits) > 1 else visits[0],
-            "q": {
-                int(item["move"]): int(rank)
-                for rank, item in enumerate(
-                    sorted(
-                        stats,
-                        key=lambda item: (-float(item["q_value"]), int(item["move"])),
-                    ),
-                    1,
+            "q_ranking_move_ids": [
+                int(item["move"])
+                for item in sorted(
+                    stats,
+                    key=lambda item: (-float(item["q_value"]), int(item["move"])),
                 )
-            },
+            ],
         },
     )
 
@@ -329,7 +327,7 @@ def puct(
                 "child_q_ranking_changes": float(
                     np.mean(
                         [
-                            a["q"].get(b["move"], 0) != b["q"].get(b["move"], 0)
+                            a["q_ranking_move_ids"] != b["q_ranking_move_ids"]
                             for a, b in pairs
                         ]
                     )
@@ -488,6 +486,42 @@ def complete_arena_records(path: Path) -> list[dict[str, Any]] | None:
     return records
 
 
+def canonical_arena_cache_manifest(
+    *,
+    suite: dict[str, Any],
+    candidate_policy: str,
+    candidate_value: str,
+    current: Path,
+    context: str,
+) -> dict[str, Any]:
+    """Bind reusable canonical arena evidence to every outcome-affecting input."""
+    challenger_sims, current_sims = (int(value) for value in context.split(":"))
+    return {
+        "schema": CANONICAL_ARENA_CACHE_SCHEMA,
+        "suite_sha256": suite["sha256"],
+        "suite_size": CANONICAL_ARENA_OPENINGS,
+        "candidate_policy_weights_sha256": sha256(
+            Path(candidate_policy) / "weights.json"
+        ),
+        "candidate_value_weights_sha256": sha256(
+            Path(candidate_value) / "weights.json"
+        ),
+        "current_policy_weights_sha256": sha256(current / "weights.json"),
+        "current_value_weights_sha256": sha256(current / "weights.json"),
+        "challenger_simulations": challenger_sims,
+        "current_simulations": current_sims,
+        "c_puct": _context_c_puct(context),
+        "tactical_root_bias": 0.0,
+        "base_seed": CANONICAL_ARENA_SEED,
+        "seed_contract": SEED_CONTRACT_VERSION,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "normalize_values": False,
+        "games_per_opening": 1,
+        "forced_challenger_seats": [0, 1],
+    }
+
+
 def canonical_arena_matrix(
     *, workdir: Path, current: Path, step: int, workers: int, suite_path: Path
 ) -> dict[str, Any]:
@@ -516,6 +550,20 @@ def canonical_arena_matrix(
                 / context.replace(":", "_")
                 / label
             )
+            cache_path = evidence_dir / "cache_manifest.json"
+            cache_manifest = canonical_arena_cache_manifest(
+                suite=suite,
+                candidate_policy=policy_artifact,
+                candidate_value=value_artifact,
+                current=current,
+                context=context,
+            )
+            cached_manifest = (
+                json.loads(cache_path.read_text(encoding="utf-8"))
+                if cache_path.is_file()
+                else None
+            )
+            cache_valid = cached_manifest == cache_manifest
             for role, challenger_policy, challenger_value, records in (
                 ("candidate", policy_artifact, value_artifact, candidate_records),
                 (
@@ -529,7 +577,9 @@ def canonical_arena_matrix(
                     seat_dir = evidence_dir / role / f"starts_{seat}"
                     seat_dir.mkdir(parents=True, exist_ok=True)
                     records_path = seat_dir / "games.jsonl"
-                    arena_records = complete_arena_records(records_path)
+                    arena_records = (
+                        complete_arena_records(records_path) if cache_valid else None
+                    )
                     if arena_records is None:
                         run_arena(
                             challenger=current_artifact,
@@ -563,6 +613,10 @@ def canonical_arena_matrix(
                                 f"incomplete canonical arena evidence: {records_path}"
                             )
                     records.extend(arena_records)
+            cache_path.write_text(
+                json.dumps(cache_manifest, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
             effect = paired_opening_candidate_effect(
                 candidate_records,
                 control_records,
@@ -594,6 +648,7 @@ def canonical_arena_matrix(
             "root_policy_mode": "deterministic",
             "tactical_root_bias": 0.0,
             "opening_bootstrap_samples": CANONICAL_ARENA_BOOTSTRAP_SAMPLES,
+            "cache_schema": CANONICAL_ARENA_CACHE_SCHEMA,
         },
         "metrics": results,
     }
@@ -676,6 +731,10 @@ def main() -> int:
             "forced_move_causal_audit": audit,
             "canonical_arena": arena_result,
         }
+    result["classification"] = {
+        "label": "diagnostic_completed",
+        "interpretation": "Output-channel attribution is descriptive; no training or promotion decision is emitted.",
+    }
     SUMMARY.write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
@@ -702,6 +761,7 @@ def main() -> int:
     REPORT.write_text(
         "# AlphaZero-Lite Policy-Value Channel Attribution\n\n"
         "Generated from immutable evaluator-output composition only. No model was trained or modified."
+        + f"\n\n**Classification:** `{result['classification']['label']}`\n"
         + arena_report,
         encoding="utf-8",
     )
