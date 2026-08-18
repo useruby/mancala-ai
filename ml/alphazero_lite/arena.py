@@ -409,6 +409,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--challenger", required=True)
     parser.add_argument("--current", required=True)
+    parser.add_argument("--challenger-policy-artifact")
+    parser.add_argument("--challenger-value-artifact")
+    parser.add_argument("--current-policy-artifact")
+    parser.add_argument("--current-value-artifact")
     parser.add_argument("--games", type=int, default=60)
     parser.add_argument("--challenger-simulations", type=int, default=384)
     parser.add_argument("--current-simulations", type=int, default=256)
@@ -1589,6 +1593,10 @@ def run_arena_worker(
     games: int,
     challenger_path: str,
     current_path: str,
+    challenger_policy_artifact: str | None = None,
+    challenger_value_artifact: str | None = None,
+    current_policy_artifact: str | None = None,
+    current_value_artifact: str | None = None,
     challenger_blend_current: bool = False,
     challenger_value_alpha: float = 1.0,
     challenger_simulations: int,
@@ -1640,6 +1648,20 @@ def run_arena_worker(
         if challenger_blend_current
         else ArtifactEvaluator(Path(challenger_path))
     )
+    if current_policy_artifact or current_value_artifact:
+        current = ComposedArtifactEvaluator(
+            ArtifactEvaluator(Path(current_policy_artifact or current_path)),
+            ArtifactEvaluator(Path(current_value_artifact or current_path)),
+            policy_source="current",
+            value_source="candidate",
+        )
+    if challenger_policy_artifact or challenger_value_artifact:
+        challenger = ComposedArtifactEvaluator(
+            ArtifactEvaluator(Path(challenger_policy_artifact or challenger_path)),
+            ArtifactEvaluator(Path(challenger_value_artifact or challenger_path)),
+            policy_source="current",
+            value_source="candidate",
+        )
     challenger_artifact_hash = artifact_weights_hash(challenger_path)
     current_artifact_hash = artifact_weights_hash(current_path)
     if opening_cache is None and opening_cache_path:
@@ -2411,6 +2433,10 @@ def main() -> None:
                     games=count,
                     challenger_path=str(challenger_path),
                     current_path=str(current_path),
+                    challenger_policy_artifact=args.challenger_policy_artifact,
+                    challenger_value_artifact=args.challenger_value_artifact,
+                    current_policy_artifact=args.current_policy_artifact,
+                    current_value_artifact=args.current_value_artifact,
                     challenger_blend_current=bool(args.challenger_blend_current),
                     challenger_value_alpha=float(args.challenger_value_alpha),
                     challenger_simulations=args.challenger_simulations,

@@ -108,6 +108,10 @@ def run_arena(
     current_value_transform_json: str | None = None,
     challenger_blend_current: bool = False,
     challenger_value_alpha: float = 1.0,
+    challenger_policy_artifact: str | None = None,
+    challenger_value_artifact: str | None = None,
+    current_policy_artifact: str | None = None,
+    current_value_artifact: str | None = None,
     seed_contract: str = SEED_CONTRACT_VERSION,
     suite_sha256: str | None = None,
     seed_ledger_output: str | None = None,
@@ -183,6 +187,14 @@ def run_arena(
                 str(challenger_value_alpha),
             ]
         )
+    for flag, artifact in (
+        ("--challenger-policy-artifact", challenger_policy_artifact),
+        ("--challenger-value-artifact", challenger_value_artifact),
+        ("--current-policy-artifact", current_policy_artifact),
+        ("--current-value-artifact", current_value_artifact),
+    ):
+        if artifact is not None:
+            cmd.extend([flag, artifact])
 
     result = subprocess.run(
         cmd,

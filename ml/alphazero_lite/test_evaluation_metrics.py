@@ -115,3 +115,19 @@ def test_effect_difference_uses_per_opening_matched_controls() -> None:
     assert paired_effect_difference(left, right)[
         "paired_candidate_effect"
     ] == pytest.approx(0.2)
+
+
+def test_paired_effect_difference_preserves_joint_minus_detached_sign() -> None:
+    joint = paired_opening_candidate_effect(
+        games({(0, 0): 0.8, (0, 1): 0.8}), games({(0, 0): 0.5, (0, 1): 0.5})
+    )
+    detached = paired_opening_candidate_effect(
+        games({(0, 0): 0.6, (0, 1): 0.6}), games({(0, 0): 0.5, (0, 1): 0.5})
+    )
+
+    assert paired_effect_difference(joint, detached)[
+        "paired_candidate_effect"
+    ] == pytest.approx(0.2)
+    assert paired_effect_difference(detached, joint)[
+        "paired_candidate_effect"
+    ] == pytest.approx(-0.2)

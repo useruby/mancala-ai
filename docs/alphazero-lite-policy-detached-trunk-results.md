@@ -7,7 +7,7 @@
 
 ## Matched-Current Arena
 
-`policy_trunk_gradient_effect` is joint minus detached. Positive values favor detached.
+`policy_trunk_gradient_effect` is joint minus detached. Positive values favor joint; negative values favor detached.
 
 | Step | Context | Heads-current | Detached-current | Joint-current | Joint-detached 95% CI |
 | --- | --- | ---: | ---: | ---: | --- |
