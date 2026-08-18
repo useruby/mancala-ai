@@ -84,7 +84,7 @@ def test_puct_uses_process_local_treatment_evaluators_and_configured_workers(
                         "visit": [1.0],
                         "value": 0.0,
                         "margin": 1,
-                        "q": {0: 1},
+                        "q_ranking_move_ids": [0],
                     },
                 )
                 for task in tasks
@@ -186,6 +186,7 @@ def test_canonical_arena_matrix_uses_all_channel_artifacts_and_matched_controls(
     (detached / "weights.json").write_text("{}", encoding="utf-8")
     current = tmp_path / "current"
     current.mkdir()
+    (current / "weights.json").write_text("{}", encoding="utf-8")
     calls = []
 
     def fake_run_arena(**kwargs):
@@ -236,4 +237,4 @@ def test_canonical_arena_matrix_uses_all_channel_artifacts_and_matched_controls(
     for metrics in result["metrics"].values():
         for effect in metrics.values():
             assert effect["opening_bootstrap_ci"]["unique_openings"] == 128
-            assert effect["opening_bootstrap_ci"]["samples"] == 128
+            assert effect["opening_bootstrap_ci"]["samples"] == 10_000
