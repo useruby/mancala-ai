@@ -1,0 +1,378 @@
+{
+  "classification": {
+    "label": "replay_sampling_instability_confirmed",
+    "next_action": "test larger/multi-generation replay window"
+  },
+  "inputs": {
+    "current_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "replay_sha256": "7a3f16b145c144531d73982ac2658df312e7fc84bc57412331ad38e9146ea34a"
+  },
+  "phase_a": {
+    "shards": {
+      "S0": {
+        "game_count": 148,
+        "row_count": 5835,
+        "shard_sha256": "7ad2908e2e1902504d9909d321d0bbfbe4d38cfe6eefd972918f3dc193671fa3"
+      },
+      "S1": {
+        "game_count": 148,
+        "row_count": 5835,
+        "shard_sha256": "b95a9459e3b14dc282c9e5d27127c040cb9a75ec45ea934e5fea14b6333ce79d"
+      },
+      "S2": {
+        "game_count": 149,
+        "row_count": 5849,
+        "shard_sha256": "6453efea34baec757f4d0f1503c71fd2d0094b783c764888381619acdd1debf6"
+      },
+      "S3": {
+        "game_count": 149,
+        "row_count": 5847,
+        "shard_sha256": "0aa9398933addc7b6b381a714e2460b6f00c9bf8596c4f760e433b78d745efc9"
+      }
+    },
+    "state_overlap": {
+      "S0<->S1": 201,
+      "S0<->S2": 180,
+      "S0<->S3": 177,
+      "S1<->S2": 179,
+      "S1<->S3": 182,
+      "S2<->S3": 177
+    }
+  },
+  "phase_b": {
+    "pairwise_cosine_medians": {
+      "policy_private_head": {
+        "joint": {
+          "S0<->S1": 0.6564,
+          "S0<->S2": 0.6071,
+          "S0<->S3": 0.6787,
+          "S1<->S2": 0.6099,
+          "S1<->S3": 0.6057,
+          "S2<->S3": 0.6044
+        },
+        "policy": {
+          "S0<->S1": 0.6564,
+          "S0<->S2": 0.6071,
+          "S0<->S3": 0.6787,
+          "S1<->S2": 0.6099,
+          "S1<->S3": 0.6057,
+          "S2<->S3": 0.6044
+        },
+        "value": {
+          "S0<->S1": 0.0,
+          "S0<->S2": 0.0,
+          "S0<->S3": 0.0,
+          "S1<->S2": 0.0,
+          "S1<->S3": 0.0,
+          "S2<->S3": 0.0
+        }
+      },
+      "shared_trunk": {
+        "joint": {
+          "S0<->S1": 0.6421,
+          "S0<->S2": 0.5924,
+          "S0<->S3": 0.6085,
+          "S1<->S2": 0.6291,
+          "S1<->S3": 0.5718,
+          "S2<->S3": 0.6094
+        },
+        "policy": {
+          "S0<->S1": 0.639,
+          "S0<->S2": 0.6008,
+          "S0<->S3": 0.6126,
+          "S1<->S2": 0.6352,
+          "S1<->S3": 0.5761,
+          "S2<->S3": 0.6042
+        },
+        "value": {
+          "S0<->S1": 0.8015,
+          "S0<->S2": 0.7702,
+          "S0<->S3": 0.745,
+          "S1<->S2": 0.7266,
+          "S1<->S3": 0.7085,
+          "S2<->S3": 0.7121
+        }
+      },
+      "value_private_head": {
+        "joint": {
+          "S0<->S1": 0.8256,
+          "S0<->S2": 0.773,
+          "S0<->S3": 0.6696,
+          "S1<->S2": 0.753,
+          "S1<->S3": 0.6849,
+          "S2<->S3": 0.584
+        },
+        "policy": {
+          "S0<->S1": 0.0,
+          "S0<->S2": 0.0,
+          "S0<->S3": 0.0,
+          "S1<->S2": 0.0,
+          "S1<->S3": 0.0,
+          "S2<->S3": 0.0
+        },
+        "value": {
+          "S0<->S1": 0.8256,
+          "S0<->S2": 0.773,
+          "S0<->S3": 0.6696,
+          "S1<->S2": 0.753,
+          "S1<->S3": 0.6849,
+          "S2<->S3": 0.584
+        }
+      }
+    },
+    "policy_value_conflict_stability": {
+      "policy_private_head": {
+        "all_same_sign": false,
+        "conflict_sign": "mixed",
+        "median_range": 0.0,
+        "medians": {
+          "S0": 0.0,
+          "S1": 0.0,
+          "S2": 0.0,
+          "S3": 0.0
+        }
+      },
+      "shared_trunk": {
+        "all_same_sign": false,
+        "conflict_sign": "mixed",
+        "median_range": 0.0810970556922257,
+        "medians": {
+          "S0": -0.06263206712901592,
+          "S1": -0.031021904200315475,
+          "S2": -0.0036372101167216897,
+          "S3": 0.018464988563209772
+        }
+      },
+      "value_private_head": {
+        "all_same_sign": false,
+        "conflict_sign": "mixed",
+        "median_range": 0.0,
+        "medians": {
+          "S0": 0.0,
+          "S1": 0.0,
+          "S2": 0.0,
+          "S3": 0.0
+        }
+      }
+    }
+  },
+  "phase_c": {
+    "pairwise_cosine_medians": {
+      "policy_private_head": {
+        "joint": {
+          "S0<->S1": 0.4397,
+          "S0<->S2": 0.4182,
+          "S0<->S3": 0.4551,
+          "S1<->S2": 0.3779,
+          "S1<->S3": 0.4064,
+          "S2<->S3": 0.3986
+        },
+        "policy": {
+          "S0<->S1": 0.4397,
+          "S0<->S2": 0.4182,
+          "S0<->S3": 0.4551,
+          "S1<->S2": 0.3779,
+          "S1<->S3": 0.4064,
+          "S2<->S3": 0.3986
+        },
+        "value": {
+          "S0<->S1": 0.0,
+          "S0<->S2": 0.0,
+          "S0<->S3": 0.0,
+          "S1<->S2": 0.0,
+          "S1<->S3": 0.0,
+          "S2<->S3": 0.0
+        }
+      },
+      "shared_trunk": {
+        "joint": {
+          "S0<->S1": 0.4042,
+          "S0<->S2": 0.3618,
+          "S0<->S3": 0.3816,
+          "S1<->S2": 0.3701,
+          "S1<->S3": 0.3624,
+          "S2<->S3": 0.3795
+        },
+        "policy": {
+          "S0<->S1": 0.4024,
+          "S0<->S2": 0.3672,
+          "S0<->S3": 0.3817,
+          "S1<->S2": 0.3839,
+          "S1<->S3": 0.3635,
+          "S2<->S3": 0.3786
+        },
+        "value": {
+          "S0<->S1": 0.5562,
+          "S0<->S2": 0.4808,
+          "S0<->S3": 0.4551,
+          "S1<->S2": 0.468,
+          "S1<->S3": 0.4482,
+          "S2<->S3": 0.4276
+        }
+      },
+      "value_private_head": {
+        "joint": {
+          "S0<->S1": 0.615,
+          "S0<->S2": 0.5436,
+          "S0<->S3": 0.4874,
+          "S1<->S2": 0.5026,
+          "S1<->S3": 0.4573,
+          "S2<->S3": 0.4186
+        },
+        "policy": {
+          "S0<->S1": 0.0,
+          "S0<->S2": 0.0,
+          "S0<->S3": 0.0,
+          "S1<->S2": 0.0,
+          "S1<->S3": 0.0,
+          "S2<->S3": 0.0
+        },
+        "value": {
+          "S0<->S1": 0.6147,
+          "S0<->S2": 0.5434,
+          "S0<->S3": 0.4872,
+          "S1<->S2": 0.5024,
+          "S1<->S3": 0.457,
+          "S2<->S3": 0.4184
+        }
+      }
+    },
+    "policy_value_conflict_stability": {
+      "policy_private_head": {
+        "all_same_sign": false,
+        "conflict_sign": "mixed",
+        "median_range": 0.0,
+        "medians": {
+          "S0": 0.0,
+          "S1": 0.0,
+          "S2": 0.0,
+          "S3": 0.0
+        }
+      },
+      "shared_trunk": {
+        "all_same_sign": true,
+        "conflict_sign": "negative",
+        "median_range": 0.02470882050693035,
+        "medians": {
+          "S0": -0.03545144200325012,
+          "S1": -0.034433551132678986,
+          "S2": -0.03717019036412239,
+          "S3": -0.01246136985719204
+        }
+      },
+      "value_private_head": {
+        "all_same_sign": false,
+        "conflict_sign": "mixed",
+        "median_range": 0.0,
+        "medians": {
+          "S0": 0.0,
+          "S1": 0.0,
+          "S2": 0.0,
+          "S3": 0.0
+        }
+      }
+    }
+  },
+  "phase_f": {
+    "1200:1200": {
+      "pairwise_change_agreement_rate_mean": 0.9733072916666666,
+      "same_direction_rate_among_multi_changed": 0.75,
+      "states_changed_by_all_candidates": 2,
+      "states_changed_by_any_candidate": 14,
+      "unanimous_change_agreement_rate": 0.953125
+    },
+    "384:256": {
+      "pairwise_change_agreement_rate_mean": 0.978515625,
+      "same_direction_rate_among_multi_changed": 0.8333333333333334,
+      "states_changed_by_all_candidates": 2,
+      "states_changed_by_any_candidate": 12,
+      "unanimous_change_agreement_rate": 0.9609375
+    },
+    "768:768": {
+      "pairwise_change_agreement_rate_mean": 0.9791666666666666,
+      "same_direction_rate_among_multi_changed": 0.8,
+      "states_changed_by_all_candidates": 1,
+      "states_changed_by_any_candidate": 11,
+      "unanimous_change_agreement_rate": 0.9609375
+    }
+  },
+  "phase_g": {
+    "1200:1200": {
+      "joint_S0_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": 0.0,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": 0.009765625
+        },
+        "paired_candidate_effect": 0.00390625
+      },
+      "joint_S1_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": -0.076171875,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": -0.037109375
+        },
+        "paired_candidate_effect": -0.056640625
+      },
+      "joint_S2_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": 0.00390625,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": 0.0234375
+        },
+        "paired_candidate_effect": 0.013671875
+      },
+      "joint_S3_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": 0.0,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": 0.009765625
+        },
+        "paired_candidate_effect": 0.00390625
+      }
+    },
+    "384:256": {
+      "joint_S0_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": -0.068359375,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": -0.015625
+        },
+        "paired_candidate_effect": -0.041015625
+      },
+      "joint_S1_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": -0.123046875,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": -0.0546875
+        },
+        "paired_candidate_effect": -0.087890625
+      },
+      "joint_S2_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": -0.041015625,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": -0.00390625
+        },
+        "paired_candidate_effect": -0.0234375
+      },
+      "joint_S3_step1": {
+        "opening_bootstrap_ci": {
+          "lower_95": -0.041015625,
+          "samples": 10000,
+          "unique_openings": 128,
+          "upper_95": 0.001953125
+        },
+        "paired_candidate_effect": -0.01953125
+      }
+    }
+  },
+  "schema": "azlite_game_shard_gradient_stability_compact_v1"
+}
