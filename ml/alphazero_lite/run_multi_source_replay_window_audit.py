@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 # ruff: noqa: E402
-"""Audit whether a larger/multi-generation replay window stabilizes the joint-trunk update.
+"""Audit whether a larger multi-SOURCE replay window stabilizes the joint-trunk update.
 
-This is the follow-up to the ``replay_sampling_instability_confirmed``
-classification. It reuses existing incumbent-model self-play replays (no new
-self-play), leaves targets, architecture, LR, optimizer, loss weights, and
-c_puct unchanged, and re-applies the exact whole-game shard + gradient + Adam
-methodology from ``run_game_shard_gradient_stability_audit.py``.
+CORRECTION: this is NOT a multi-generation experiment. The three sources below
+are not distinct AlphaZero model generations produced by successive checkpoints.
 
-The only scientific variable is the replay window:
-  W1 = PR #191 single generation (baseline);
-  W2 = W1 + pilot opening-seeded generation;
-  W3 = W2 + pilot standard-start generation.
+- ``pr191`` is the PR #191 single-generation replay (the incumbent's self-play).
+- ``pilot_opening_seeded`` is an ALTERED-START-DISTRIBUTION corpus (games seeded
+  from a fixed opening corpus rather than the standard initial state), produced
+  by the SAME incumbent model, not a successor generation.
+- ``pilot_standard`` is a standard-start control corpus from the same model.
+
+A real multi-generation experiment would require replays produced by distinct
+model checkpoints/generations with verified artifact hashes. That is out of
+scope here. The window labels are therefore ``window_1``/``window_2``/
+``window_3`` (progressive multi-source unions), not generations.
 """
 
 from __future__ import annotations
@@ -60,8 +63,19 @@ SOURCES = (
         "/tmp/azlite_distribution_aligned_selfplay/pilot_standard_replay.jsonl",
     ),
 )
+SOURCE_NOTES = {
+    "pr191": "incumbent single-generation self-play replay",
+    "pilot_opening_seeded": (
+        "altered-start-distribution corpus (opening-seeded), same incumbent model "
+        "— not an independent generation"
+    ),
+    "pilot_standard": (
+        "standard-start control corpus, same incumbent model — not an independent "
+        "generation"
+    ),
+}
 CURRENT_HASH = "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
-BATCH_SEED_NAMESPACE = "azlite_multi_generation_window_batches_v1"
+BATCH_SEED_NAMESPACE = "azlite_multi_source_window_batches_v1"
 
 
 def load_source(name: str, path: Path) -> list[dict[str, Any]]:
@@ -171,7 +185,7 @@ def main() -> int:
     parser.add_argument(
         "--workdir",
         type=Path,
-        default=Path("/tmp/azlite_multi_generation_replay_window"),
+        default=Path("/tmp/azlite_multi_source_replay_window"),
     )
     parser.add_argument(
         "--current", type=Path, default=REPO_ROOT / "model-artifact/current"
@@ -180,13 +194,12 @@ def main() -> int:
         "--summary",
         type=Path,
         default=REPO_ROOT
-        / "docs/data/alphazero-lite-multi-generation-replay-window-summary.json",
+        / "docs/data/alphazero-lite-multi-source-replay-window-summary.json",
     )
     parser.add_argument(
         "--report",
         type=Path,
-        default=REPO_ROOT
-        / "docs/alphazero-lite-multi-generation-replay-window-results.md",
+        default=REPO_ROOT / "docs/alphazero-lite-multi-source-replay-window-results.md",
     )
     args = parser.parse_args()
 
@@ -202,6 +215,7 @@ def main() -> int:
             "path": str(path),
             "row_count": len(rows),
             "sha256": sha256_file(Path(path)),
+            "note": SOURCE_NOTES[name],
         }
         for (name, path), (_name, rows) in zip(SOURCES, sources, strict=True)
     }
@@ -209,13 +223,12 @@ def main() -> int:
     state, optimizer_state = fresh_state(manifest, device)
 
     windows: dict[str, Any] = {}
-    previous_rows: list[dict[str, Any]] = []
     for width in range(1, len(SOURCES) + 1):
-        previous_rows = [row for name, rows in sources[:width] for row in rows]
-        assignments = partition(previous_rows)
-        windows[f"W{width}"] = {
+        window_rows = [row for name, rows in sources[:width] for row in rows]
+        assignments = partition(window_rows)
+        windows[f"window_{width}"] = {
             "sources": [name for name, _ in sources[:width]],
-            "rows": previous_rows,
+            "rows": window_rows,
             "assignments": assignments,
         }
 
@@ -223,7 +236,7 @@ def main() -> int:
     # because shards differ, so compute each window independently.
     windows_result: dict[str, Any] = {}
     for width in range(1, len(SOURCES) + 1):
-        label = f"W{width}"
+        label = f"window_{width}"
         entry = windows[label]
         windows_result[label] = window_summary(
             entry["rows"],
@@ -236,7 +249,7 @@ def main() -> int:
         windows_result[label]["sources"] = entry["sources"]
 
     # Deterministic one-step candidates for the largest window (parity with D/E).
-    largest = windows[f"W{len(SOURCES)}"]
+    largest = windows[f"window_{len(SOURCES)}"]
     largest_assignments = largest["assignments"]
     first_batches = {
         name: _batch(
@@ -265,7 +278,7 @@ def main() -> int:
         raise RuntimeError("one-step lane is not deterministic")
 
     summary: dict[str, Any] = {
-        "schema": "azlite_multi_generation_replay_window_v1",
+        "schema": "azlite_multi_source_replay_window_v1",
         "guardrails": {
             "new_self_play": False,
             "target_change": False,
@@ -275,6 +288,13 @@ def main() -> int:
             "virtual_steps_chained": False,
             "promotion": False,
         },
+        "corpus_note": (
+            "These sources are NOT distinct AlphaZero model generations. "
+            "pilot_opening_seeded is an altered-start-distribution corpus and "
+            "pilot_standard is a standard-start control, both from the same "
+            "incumbent model. A real multi-generation experiment requires "
+            "replays from distinct checkpoints with verified artifact hashes."
+        ),
         "inputs": {
             "current_weights_sha256": CURRENT_HASH,
             "sources": source_summary,
@@ -287,8 +307,10 @@ def main() -> int:
     }
     summary["classification"] = {
         "primary_statistic": "median pairwise joint-trunk Adam-update cosine across shards",
-        "baseline_w1": windows_result["W1"]["median_joint_trunk_adam_cosine"],
-        "largest_window": windows_result[f"W{len(SOURCES)}"][
+        "baseline_window_1": windows_result["window_1"][
+            "median_joint_trunk_adam_cosine"
+        ],
+        "largest_window": windows_result[f"window_{len(SOURCES)}"][
             "median_joint_trunk_adam_cosine"
         ],
         "label": classify(windows_result),
@@ -317,7 +339,7 @@ def main() -> int:
 
 
 def classify(windows_result: dict[str, Any]) -> str:
-    largest_key = f"W{len(windows_result)}"
+    largest_key = f"window_{len(windows_result)}"
     largest = windows_result[largest_key]["median_joint_trunk_adam_cosine"]
     if largest >= 0.75:
         return "larger_window_stabilizes_update_direction"
@@ -328,7 +350,11 @@ def classify(windows_result: dict[str, Any]) -> str:
 
 def markdown(summary: dict[str, Any]) -> str:
     lines = [
-        "# AlphaZero-Lite Multi-Generation Replay Window Audit",
+        "# AlphaZero-Lite Multi-Source Replay Window Audit",
+        "",
+        "> This is NOT a multi-generation experiment. The additional sources are an "
+        "altered-start-distribution corpus and a standard-start control from the "
+        "same incumbent model, not distinct model generations.",
         "",
         f"**Classification:** `{summary['classification']['label']}`",
         "",
@@ -351,7 +377,7 @@ def markdown(summary: dict[str, Any]) -> str:
     )
     lines.append("")
     lines.append(
-        "Full evidence: `docs/data/alphazero-lite-multi-generation-replay-window-summary.json`."
+        "Full evidence: `docs/data/alphazero-lite-multi-source-replay-window-summary.json`."
     )
     lines.append("")
     return "\n".join(lines)
