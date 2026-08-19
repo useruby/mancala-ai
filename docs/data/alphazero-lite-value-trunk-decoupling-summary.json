@@ -1,0 +1,55 @@
+{
+  "classification": {
+    "evidence": {
+      "decoupled_q_ranking_change": 0.3642578125,
+      "decoupled_top1_change": 0.1103515625,
+      "decoupled_trunk_delta": 0.002002815483137965,
+      "heads_top1_change": 0.0341796875,
+      "joint_q_ranking_change": 0.3818359375,
+      "joint_top1_change": 0.123046875,
+      "joint_trunk_delta": 0.002054898999631405
+    },
+    "label": "value_trunk_decoupling_partial",
+    "next_action": "value-channel decoupling reduces harm only marginally because the policy channel dominates the trunk coupling; the shared trunk itself is the root cause \u2014 test a separate (dual) value representation or frozen-trunk (heads-only) distillation"
+  },
+  "deterministic_reproduction": true,
+  "guardrails": {
+    "loss_weight_change": false,
+    "lr_change": false,
+    "new_self_play": false,
+    "promotion": false,
+    "target_change": false
+  },
+  "inputs": {
+    "current_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "replay_sha256": "7a3f16b145c144531d73982ac2658df312e7fc84bc57412331ad38e9146ea34a"
+  },
+  "probe_metrics": {
+    "baseline_joint": {
+      "q_ranking_change_rate": 0.3818359375,
+      "states": 1024,
+      "top1_change_rate": 0.123046875
+    },
+    "heads_only": {
+      "q_ranking_change_rate": 0.20703125,
+      "states": 1024,
+      "top1_change_rate": 0.0341796875
+    },
+    "value_detached_trunk": {
+      "q_ranking_change_rate": 0.3642578125,
+      "states": 1024,
+      "top1_change_rate": 0.1103515625
+    }
+  },
+  "schema": "azlite_value_trunk_decoupling_v1",
+  "state_hashes": {
+    "baseline_joint": "9a15bd97cff79fa296367ed7399111e813bc00592e439f0323435bf53cc42b87",
+    "heads_only": "1c247125b34937a25ab16aac1774d1c5de6f766124df782788383f94387b824a",
+    "value_detached_trunk": "e817a22df54a3a6b1c34c33b1eae419133e9c6a647d1f1b06c6e1a24e0dd5ce5"
+  },
+  "trunk_deltas": {
+    "baseline_joint": 0.002054898999631405,
+    "heads_only": 0.0,
+    "value_detached_trunk": 0.002002815483137965
+  }
+}

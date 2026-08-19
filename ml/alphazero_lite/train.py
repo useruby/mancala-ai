@@ -851,9 +851,13 @@ class PolicyValueNet(nn.Module):
         self.value_head = nn.Linear(value_head_input_size, 1)
 
     def forward(
-        self, x: torch.Tensor, *, detach_policy_trunk: bool = False
+        self,
+        x: torch.Tensor,
+        *,
+        detach_policy_trunk: bool = False,
+        detach_value_trunk: bool = False,
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        """Return policy logits and value, optionally isolating policy from the trunk."""
+        """Return policy logits and value, optionally isolating a head from the trunk."""
         if self.model_type in MLP_MODEL_TYPES:
             h = x
             for layer in self.hidden_layers:
@@ -871,7 +875,9 @@ class PolicyValueNet(nn.Module):
             policy_features = torch.relu(
                 self.policy_hidden_layer(h.detach() if detach_policy_trunk else h)
             )
-            value_features = torch.relu(self.value_hidden_layer(h))
+            value_features = torch.relu(
+                self.value_hidden_layer(h.detach() if detach_value_trunk else h)
+            )
             policy_logits = self.policy_head(policy_features)
             value = torch.tanh(self.value_head(value_features))
         elif self.model_type == "residual_v4_move_factorized":
@@ -881,7 +887,9 @@ class PolicyValueNet(nn.Module):
             policy_features = torch.relu(
                 self.policy_hidden_layer(h.detach() if detach_policy_trunk else h)
             )
-            value_features = torch.relu(self.value_hidden_layer(h))
+            value_features = torch.relu(
+                self.value_hidden_layer(h.detach() if detach_value_trunk else h)
+            )
             policy_logits = torch.cat(
                 [proj(policy_features) for proj in self.move_projections], dim=1
             )
