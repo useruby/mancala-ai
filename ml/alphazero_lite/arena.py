@@ -65,6 +65,10 @@ if not ARENA_STUB_MODE:
             merge_root_prior_telemetry_summaries,
             summarize_root_prior_telemetry,
         )
+        from ml.alphazero_lite.policy_prior_localization import (
+            PRIOR_OVERRIDE_MODES,
+            build_prior_substitution_override,
+        )
         from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
         from ml.alphazero_lite.kalah_rules import KalahGame
         from ml.alphazero_lite.opening_cache import (
@@ -92,6 +96,10 @@ if not ARENA_STUB_MODE:
             build_root_prior_override,
             merge_root_prior_telemetry_summaries,
             summarize_root_prior_telemetry,
+        )
+        from policy_prior_localization import (
+            PRIOR_OVERRIDE_MODES,
+            build_prior_substitution_override,
         )
         from input_encodings import DEFAULT_INPUT_ENCODING
         from kalah_rules import KalahGame
@@ -466,6 +474,17 @@ def parse_args() -> argparse.Namespace:
         "--current-root-prior-transform",
         choices=sorted(ARENA_TRANSFORM_NAMES),
         default=None,
+    )
+    parser.add_argument(
+        "--challenger-prior-override-mode",
+        choices=sorted(PRIOR_OVERRIDE_MODES),
+        default=None,
+        help=(
+            "PR #200 policy-prior localization: substitute the incumbent "
+            "(--current) policy prior into the challenger search at the "
+            "prespecified tree-search depths. Only the challenger search is "
+            "affected; value outputs, c_puct, and simulations are unchanged."
+        ),
     )
     parser.add_argument("--challenger-value-transform-json", default=None)
     parser.add_argument("--current-value-transform-json", default=None)
@@ -933,6 +952,7 @@ def evaluate_artifact_position(
     ablation_mode: str = "full",
     root_prior_override=None,
     root_prior_transform: str | None = None,
+    prior_override=None,
     teacher: str | None = None,
 ) -> dict:
     game = KalahGame.from_state(state)
@@ -1051,6 +1071,7 @@ def evaluate_artifact_position(
         tactical_root_bias=float(search_options["tactical_root_bias"]),
         ablation_mode=str(normalized_mode["name"]),
         root_prior_override=root_prior_override,
+        prior_override=prior_override,
         **puct_kwargs,
     )
     visits, root = search.run(game)
@@ -1637,6 +1658,7 @@ def run_arena_worker(
     opening_index_override: int | None = None,
     opening_prefix_override: list[int] | None = None,
     opening_state_override: dict | None = None,
+    challenger_prior_override_mode: str | None = None,
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1664,6 +1686,11 @@ def run_arena_worker(
         )
     challenger_artifact_hash = artifact_weights_hash(challenger_path)
     current_artifact_hash = artifact_weights_hash(current_path)
+    challenger_prior_override = (
+        build_prior_substitution_override(challenger_prior_override_mode, current)
+        if challenger_prior_override_mode
+        else None
+    )
     if opening_cache is None and opening_cache_path:
         opening_cache = load_opening_cache_artifact(opening_cache_path)
 
@@ -1982,6 +2009,11 @@ def run_arena_worker(
                 )
                 if acting_value_transform is not None:
                     puct_kwargs["value_transform"] = acting_value_transform
+                if (
+                    challenger_prior_override is not None
+                    and acting_player == challenger_player
+                ):
+                    puct_kwargs["prior_override"] = challenger_prior_override
                 search = PUCT(
                     evaluator=evaluator,
                     simulations=sims,
@@ -2464,6 +2496,7 @@ def main() -> None:
                     root_prior_transform=args.root_prior_transform,
                     challenger_root_prior_transform=args.challenger_root_prior_transform,
                     current_root_prior_transform=args.current_root_prior_transform,
+                    challenger_prior_override_mode=args.challenger_prior_override_mode,
                     random_opening_plies=getattr(args, "opening_plies", None)
                     if getattr(args, "opening_plies", None) is not None
                     else args.random_opening_plies,

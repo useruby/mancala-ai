@@ -907,6 +907,7 @@ class PUCT:
         value_transform: dict | None = None,
         ablation_mode: str | None = None,
         root_prior_override: Callable[..., np.ndarray] | None = None,
+        prior_override: Callable[..., np.ndarray] | None = None,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -923,6 +924,7 @@ class PUCT:
         self.value_transform = normalize_value_transform_config(value_transform)
         self.ablation_mode = build_mode_config(ablation_mode or "full")
         self.root_prior_override = root_prior_override
+        self.prior_override = prior_override
         self._last_root: Node | None = None
         self._last_visit_snapshots: list[dict] = []
         self._last_root_prior_before: list[float] | None = None
@@ -982,6 +984,7 @@ class PUCT:
             dirichlet_alpha=dirichlet_alpha,
             dirichlet_epsilon=dirichlet_epsilon,
             is_root=True,
+            depth=0,
         )
 
         for simulation_index in range(1, self.simulations + 1):
@@ -1309,7 +1312,7 @@ class PUCT:
     def _same_state(self, left: KalahGame, right: KalahGame) -> bool:
         return left.to_state() == right.to_state()
 
-    def _search(self, node: Node) -> float:
+    def _search(self, node: Node, depth: int = 0) -> float:
         terminal = terminal_value(node.game)
         if terminal is not None:
             self._last_terminal_leaf_count += 1
@@ -1323,6 +1326,7 @@ class PUCT:
                 dirichlet_alpha=None,
                 dirichlet_epsilon=0.0,
                 is_root=False,
+                depth=depth,
             )
             return value
 
@@ -1331,7 +1335,7 @@ class PUCT:
 
         child = self._select_child(node)
 
-        value = self._search(child)
+        value = self._search(child, depth + 1)
         if child.game.current_player != node.game.current_player:
             value = -value
         child.visit_count += 1
@@ -1457,6 +1461,7 @@ class PUCT:
         dirichlet_alpha: float | None,
         dirichlet_epsilon: float,
         is_root: bool,
+        depth: int = 0,
     ) -> tuple[np.ndarray, float]:
         priors, value = self.evaluator.evaluate(node.game)
         raw_value = float(value)
@@ -1508,6 +1513,15 @@ class PUCT:
             )
             self._last_root_prior_after = [float(prior) for prior in masked.tolist()]
 
+        if self.prior_override is not None and legal_moves:
+            masked = self._apply_prior_override(
+                node.game, masked=masked, legal_moves=legal_moves, depth=depth
+            )
+            if is_root:
+                self._last_root_prior_after = [
+                    float(prior) for prior in masked.tolist()
+                ]
+
         for move in legal_moves:
             if move not in node.children:
                 child_game = node.game.clone()
@@ -1547,6 +1561,49 @@ class PUCT:
             raise ValueError("root_prior_override returned non-finite legal priors")
         if np.any(normalized[legal_moves] < 0.0):
             raise ValueError("root_prior_override returned negative legal priors")
+
+        total = float(np.sum(normalized[legal_moves]))
+        if total <= 0.0:
+            uniform = 1.0 / len(legal_moves)
+            normalized[legal_moves] = uniform
+            return normalized.astype(np.float32)
+
+        normalized[legal_moves] /= total
+        return normalized.astype(np.float32)
+
+    def _apply_prior_override(
+        self, game: KalahGame, *, masked: np.ndarray, legal_moves: list[int], depth: int
+    ) -> np.ndarray:
+        """Apply the per-depth prior override at every expanded node.
+
+        Mirrors :meth:`_apply_root_prior_override` but is invoked for every node
+        (including root) with the node's tree-search ``depth``. The override
+        callable returns a full prior vector; only the legal entries are kept
+        and renormalized. Value outputs are never touched.
+        """
+        if self.prior_override is None or not legal_moves:
+            return masked
+
+        overridden = np.asarray(
+            self.prior_override(
+                game=game.clone(),
+                legal_moves=list(legal_moves),
+                priors=np.asarray(masked, dtype=np.float32).copy(),
+                depth=int(depth),
+            ),
+            dtype=np.float32,
+        )
+        if overridden.shape != masked.shape:
+            raise ValueError(
+                "prior_override must return a prior vector with matching shape"
+            )
+
+        normalized = np.zeros_like(masked)
+        normalized[legal_moves] = overridden[legal_moves]
+        if np.any(~np.isfinite(normalized[legal_moves])):
+            raise ValueError("prior_override returned non-finite legal priors")
+        if np.any(normalized[legal_moves] < 0.0):
+            raise ValueError("prior_override returned negative legal priors")
 
         total = float(np.sum(normalized[legal_moves]))
         if total <= 0.0:
