@@ -482,8 +482,9 @@ def puct_trajectory(
     artifacts: dict[int, Path],
     workdir: Path,
     manifest_hash: str,
+    contexts: tuple[str, ...] = SEARCH_CONTEXTS,
 ) -> dict[str, Any]:
-    """Cache snapshot-versus-current PUCT drift for the three preregistered budgets."""
+    """Cache snapshot-versus-current PUCT drift for the preregistered budgets."""
     cache = workdir / "phase_f_puct_records.jsonl"
     records: dict[tuple[int, str, str], dict[str, Any]] = {}
     if cache.is_file():
@@ -498,7 +499,7 @@ def puct_trajectory(
     cache.parent.mkdir(parents=True, exist_ok=True)
     with cache.open("a", encoding="utf-8") as stream:
         for step in sorted(artifacts):
-            for context in SEARCH_CONTEXTS:
+            for context in contexts:
                 for probe_row in probe:
                     key = (step, context, probe_row["state_hash"])
                     if key in records:
@@ -512,7 +513,7 @@ def puct_trajectory(
                     records[key] = row
     summary: dict[str, Any] = {}
     for step in sorted(artifacts):
-        for context in SEARCH_CONTEXTS:
+        for context in contexts:
             pairs = [
                 (
                     records[(0, context, row["state_hash"])],
