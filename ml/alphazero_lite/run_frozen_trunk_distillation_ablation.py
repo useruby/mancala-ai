@@ -71,6 +71,12 @@ from ml.alphazero_lite.train import (  # noqa: E402
 
 NAMESPACE = "azlite_frozen_trunk_distillation_v1"
 TRAINABLE_LANES = ("all", "heads_only")
+LANE_TRAINABLE_SCOPES = {
+    "all": None,
+    "heads_only": "heads_only",
+    "policy_head": "policy_head",
+    "value_head": "value_head",
+}
 TRUNK_PREFIXES = ("input_layer.", "residual_layers.")
 POLICY_PREFIXES = ("policy_hidden_layer.", "policy_head.")
 VALUE_PREFIXES = ("value_hidden_layer.", "value_head.")
@@ -151,6 +157,15 @@ def group_delta(
     }
 
 
+def lane_trainable_scope(lane: str) -> str | None:
+    """Map a replay lane to the trainable scope freezing its excluded families."""
+    if lane not in LANE_TRAINABLE_SCOPES:
+        raise ValueError(
+            f"unknown replay lane: {lane}, must be one of {sorted(LANE_TRAINABLE_SCOPES)}"
+        )
+    return LANE_TRAINABLE_SCOPES[lane]
+
+
 def replay_lane(
     manifest: dict[str, Any],
     workdir: Path,
@@ -170,8 +185,9 @@ def replay_lane(
     ]
     model = _new_model(device)
     load_checkpoint_into_model(model, paths["initialization_checkpoint"])
-    if lane == "heads_only":
-        apply_trainable_scope(model, "heads_only")
+    scope = lane_trainable_scope(lane)
+    if scope is not None:
+        apply_trainable_scope(model, scope)
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(manifest["optimizer"]["lr"])
     )
@@ -230,10 +246,11 @@ def frozen_arena(
     current: Path,
     workdir: Path,
     workers: int,
+    lanes: tuple[str, ...] = TRAINABLE_LANES,
 ) -> dict[str, Any]:
     """Run the canonical matched-current arena for every lane/checkpoint."""
     metrics: dict[str, Any] = {}
-    for lane in TRAINABLE_LANES:
+    for lane in lanes:
         for step in sorted(artifacts[lane]):
             if step == 0:
                 continue

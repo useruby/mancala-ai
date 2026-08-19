@@ -35,6 +35,110 @@ class TrainableScopeTest(unittest.TestCase):
             name for name, param in self.model.named_parameters() if param.requires_grad
         }
 
+    def test_value_head_scope_only_trains_value_head_params(self):
+        apply_trainable_scope(self.model, "value_head")
+        self.assertEqual(
+            self._trainable_param_names(),
+            {
+                "value_hidden_layer.weight",
+                "value_hidden_layer.bias",
+                "value_head.weight",
+                "value_head.bias",
+            },
+        )
+
+    def test_value_head_scope_parameter_count_matches_expected(self):
+        apply_trainable_scope(self.model, "value_head")
+        total, trainable = _count_parameters(self.model)
+        expected_value_head = (
+            96 * max(96 // 2, 8) + max(96 // 2, 8) + max(96 // 2, 8) * 1 + 1
+        )
+        self.assertEqual(trainable, expected_value_head)
+        self.assertGreater(total, trainable)
+
+    def _state_bytes(self) -> dict[str, bytes]:
+        return {
+            name: parameter.detach().clone().numpy().tobytes()
+            for name, parameter in self.model.named_parameters()
+        }
+
+    def _optimizer_step(self, scope: str) -> dict[str, bool]:
+        apply_trainable_scope(self.model, scope)
+        before = self._state_bytes()
+        optimizer = torch.optim.Adam(
+            (p for p in self.model.parameters() if p.requires_grad), lr=0.001
+        )
+        x = torch.randn(8, 27)
+        p_target = torch.ones(8, 6) / 6.0
+        v_target = torch.randn(8, 1)
+        logits, value = self.model(x)
+        policy_loss = -(p_target * torch.log_softmax(logits, dim=1)).sum(dim=1).mean()
+        value_loss = torch.nn.functional.smooth_l1_loss(value, v_target)
+        (policy_loss + 0.6 * value_loss).backward()
+        optimizer.step()
+        after = self._state_bytes()
+        return {name: before[name] == after[name] for name in before}
+
+    def test_value_head_step_leaves_trunk_and_policy_bit_identical(self):
+        unchanged = self._optimizer_step("value_head")
+        for name, identical in unchanged.items():
+            if name.startswith(("value_hidden_layer.", "value_head.")):
+                self.assertFalse(identical, name)
+            else:
+                self.assertTrue(identical, name)
+
+    def test_policy_head_step_leaves_trunk_and_value_bit_identical(self):
+        unchanged = self._optimizer_step("policy_head")
+        for name, identical in unchanged.items():
+            if name.startswith(
+                ("policy_hidden_layer.", "policy_head.", "move_projections.")
+            ):
+                self.assertFalse(identical, name)
+            else:
+                self.assertTrue(identical, name)
+
+    def test_heads_only_step_leaves_trunk_bit_identical(self):
+        unchanged = self._optimizer_step("heads_only")
+        for name, identical in unchanged.items():
+            if name.startswith(("input_layer.", "residual_layers.")):
+                self.assertTrue(identical, name)
+            else:
+                self.assertFalse(identical, name)
+
+    def test_scope_rejects_mlp_model_for_value_head(self):
+        mlp = PolicyValueNet(
+            hidden_sizes=(64, 64),
+            model_type="mlp_v1",
+            input_size=15,
+        )
+        with self.assertRaises(ValueError):
+            apply_trainable_scope(mlp, "value_head")
+
+    def test_reapply_all_after_value_head_scope_restores(self):
+        apply_trainable_scope(self.model, "value_head")
+        total_vh, trainable_vh = _count_parameters(self.model)
+        self.assertLess(trainable_vh, total_vh)
+
+        apply_trainable_scope(self.model, "all")
+        total, trainable = _count_parameters(self.model)
+        self.assertEqual(total, trainable)
+        self.assertEqual(total, total_vh)
+
+    def test_value_head_infers_gradients(self):
+        apply_trainable_scope(self.model, "value_head")
+        optimizer = torch.optim.Adam(
+            (p for p in self.model.parameters() if p.requires_grad), lr=0.001
+        )
+        x = torch.randn(4, 27)
+        p_target = torch.ones(4, 6) / 6.0
+        v_target = torch.zeros(4, 1)
+        logits, value = self.model(x)
+        policy_loss = -(p_target * torch.log_softmax(logits, dim=1)).sum(dim=1).mean()
+        value_loss = torch.square(value - v_target).mean()
+        loss = policy_loss + 0.5 * value_loss
+        loss.backward()
+        optimizer.step()
+
     def test_all_scope_preserves_existing_behaviour(self):
         apply_trainable_scope(self.model, "all")
         total, trainable = _count_parameters(self.model)
@@ -261,6 +365,29 @@ class ResidualV4MoveFactorizedTest(unittest.TestCase):
             model_type="residual_v4_move_factorized",
             input_size=27,
         )
+
+    def test_value_head_scope_freezes_trunk_and_policy(self):
+        apply_trainable_scope(self.model, "value_head")
+        self.assertEqual(
+            {
+                name
+                for name, param in self.model.named_parameters()
+                if param.requires_grad
+            },
+            {
+                "value_hidden_layer.weight",
+                "value_hidden_layer.bias",
+                "value_head.weight",
+                "value_head.bias",
+            },
+        )
+
+    def test_value_head_scope_parameter_count(self):
+        apply_trainable_scope(self.model, "value_head")
+        total, trainable = _count_parameters(self.model)
+        expected = 96 * 48 + 48 + 48 * 1 + 1  # value_hidden: 4656, value_head: 49
+        self.assertEqual(trainable, expected)
+        self.assertGreater(total, trainable)
 
     def test_forward_pass_shapes(self):
         x = torch.randn(4, 27)

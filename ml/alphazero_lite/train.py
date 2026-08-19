@@ -41,6 +41,7 @@ SUPPORTED_TRAINABLE_SCOPES = [
     "heads_only",
     "joint_trunk",
     "policy_head",
+    "value_head",
     "last_block_policy",
     "policy_detached_trunk",
 ]
@@ -1623,6 +1624,14 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
         else:
             model.policy_head.weight.requires_grad = True
             model.policy_head.bias.requires_grad = True
+        return
+
+    if scope == "value_head":
+        assert model.value_hidden_layer is not None
+        model.value_hidden_layer.weight.requires_grad = True
+        model.value_hidden_layer.bias.requires_grad = True
+        model.value_head.weight.requires_grad = True
+        model.value_head.bias.requires_grad = True
         return
 
     if scope == "last_block_policy":
