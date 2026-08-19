@@ -115,6 +115,7 @@ def run_arena(
     seed_contract: str = SEED_CONTRACT_VERSION,
     suite_sha256: str | None = None,
     seed_ledger_output: str | None = None,
+    challenger_prior_override_mode: str | None = None,
     timeout: int = 7200,
 ) -> dict:
     python = _find_python()
@@ -195,6 +196,8 @@ def run_arena(
     ):
         if artifact is not None:
             cmd.extend([flag, artifact])
+    if challenger_prior_override_mode is not None:
+        cmd.extend(["--challenger-prior-override-mode", challenger_prior_override_mode])
 
     result = subprocess.run(
         cmd,
