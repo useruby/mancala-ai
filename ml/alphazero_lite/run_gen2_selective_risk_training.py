@@ -31,6 +31,8 @@ from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (  # noqa:
 )
 from ml.alphazero_lite.run_fresh_selfplay_anchor_iteration import (  # noqa: E402
     CHECKPOINT_STEPS,
+    PROBE_SIZE,
+    PUCT_CONTEXT,
     TRAINABLE_SCOPE,
     _batch,
     _cross_entropy,
@@ -44,6 +46,8 @@ from ml.alphazero_lite.run_fresh_selfplay_anchor_iteration import (  # noqa: E40
     incumbent_policy_batch,
     tensors_identical,
     trunk_parameters_identical,
+    puct_probe,
+    puct_trajectory,
 )
 from ml.alphazero_lite.run_frozen_trunk_head_isolation_ablation import (
     VALUE_STACK_PREFIXES,
@@ -58,6 +62,10 @@ from ml.alphazero_lite.run_gen2_selfplay_anchor_iteration import (  # noqa: E402
 )
 from ml.alphazero_lite.run_optimizer_aware_trunk_dynamics_audit import _new_model  # noqa: E402
 from ml.alphazero_lite.run_policy_detached_trunk_ablation import _arena_records  # noqa: E402
+from ml.alphazero_lite.run_gen2_tail_prior_override import probe_lane  # noqa: E402
+from ml.alphazero_lite.build_train_only_forensic_suite_from_selfplay import (  # noqa: E402
+    decode_state,
+)
 from ml.alphazero_lite.run_shared_trunk_delta_attribution import (  # noqa: E402
     model_outputs,
     stable_hash,
@@ -241,6 +249,90 @@ def train_lane(
     return saved
 
 
+def refreshed_top_fraction_mask(
+    rows: list[dict[str, Any]],
+    candidate: dict[str, torch.Tensor],
+    parent: dict[str, torch.Tensor],
+    count: int,
+) -> tuple[set[str], dict[str, Any]]:
+    """Deterministically select the current highest-drift unique replay states."""
+    unique = {state_hash(row): row for row in rows}
+    keys = sorted(unique)
+    x = np.asarray([unique[key]["state"] for key in keys], dtype=np.float32)
+    mask = legal_mask_matrix_for_encoded_states(x)
+    candidate_policy, _ = model_outputs(candidate, x, mask)
+    parent_policy, _ = model_outputs(parent, x, mask)
+    scores = legal_l1(candidate_policy, parent_policy).astype(np.float64)
+    # Stable state-hash tie breaking prevents platform-dependent mask membership.
+    order = np.lexsort((np.asarray(keys), -scores))
+    selected = {keys[index] for index in order[:count]}
+    return selected, {
+        "state_hashes_sha256": hashlib.sha256("".join(keys).encode()).hexdigest(),
+        "score_sha256": hashlib.sha256(scores.tobytes()).hexdigest(),
+        "mask_sha256": hashlib.sha256("".join(sorted(selected)).encode()).hexdigest(),
+        "protected_unique_states": len(selected),
+        "selection_threshold": float(scores[order[count - 1]]),
+    }
+
+
+def train_dynamic_refresh_lane(
+    manifest: dict[str, Any],
+    workdir: Path,
+    device: torch.device,
+    p1_path: Path,
+    initial_protected: set[str],
+    refresh_after_steps: tuple[int, ...],
+) -> tuple[dict[int, tuple[dict[str, torch.Tensor], dict[str, Any]]], dict[str, Any]]:
+    """Refresh a fixed-size output-risk mask after predeclared optimizer steps."""
+    paths = {name: Path(value) for name, value in manifest["artifact_paths"].items()}
+    rows = read_jsonl(Path(manifest["replay_path"]))
+    source = np.load(paths["train_source_indexes"])
+    plan = np.load(paths["batch_indexes"])
+    model, parent = _new_model(device), _new_model(device)
+    load_checkpoint_into_model(model, p1_path)
+    load_checkpoint_into_model(parent, p1_path)
+    apply_trainable_scope(model, TRAINABLE_SCOPE)
+    for parameter in parent.parameters():
+        parameter.requires_grad_(False)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5, weight_decay=0.0)
+    saved = {0: _save_snapshot(workdir / "snapshots/step_0000.pt", model, optimizer)}
+    protected = set(initial_protected)
+    refreshes: dict[str, Any] = {
+        "initial": {
+            "mask_sha256": hashlib.sha256(
+                "".join(sorted(protected)).encode()
+            ).hexdigest(),
+            "protected_unique_states": len(protected),
+            "source": "frozen_pr208_q75",
+        }
+    }
+    model.train()
+    for step, indexes in enumerate(plan, 1):
+        batch_rows = [rows[int(source[i])] for i in indexes if i >= 0]
+        batch = _batch(batch_rows, np.arange(len(batch_rows)), device)
+        parent_policy = incumbent_policy_batch(parent, batch)
+        flags = np.asarray([state_hash(row) in protected for row in batch_rows])
+        batch = {
+            **batch,
+            "p": statewise_targets(batch["p"], parent_policy, batch["mask"], flags),
+        }
+        policy, value = _losses(model, batch)
+        optimizer.zero_grad(set_to_none=True)
+        (policy + value).backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        optimizer.step()
+        if step in CHECKPOINT_STEPS:
+            saved[step] = _save_snapshot(
+                workdir / f"snapshots/step_{step:04d}.pt", model, optimizer
+            )
+        if step in refresh_after_steps:
+            protected, telemetry = refreshed_top_fraction_mask(
+                rows, model.state_dict(), parent.state_dict(), len(initial_protected)
+            )
+            refreshes[str(step)] = telemetry
+    return saved, refreshes
+
+
 def distribution_metrics(
     candidate: np.ndarray, p1: np.ndarray, mask: np.ndarray, selected: np.ndarray
 ) -> dict[str, Any]:
@@ -283,10 +375,43 @@ def distribution_metrics(
     return out
 
 
+def _stratified_drift(
+    rows: list[dict[str, Any]],
+    keys: list[str],
+    l1: np.ndarray,
+) -> dict[str, dict[str, float | int]]:
+    """Summarize frozen-state drift by replay-only covariates."""
+    unique = {state_hash(row): row for row in rows}
+    ply_by_hash: dict[str, int] = {}
+    game_ply: dict[int, int] = defaultdict(int)
+    for row in rows:
+        key = state_hash(row)
+        ply_by_hash.setdefault(key, game_ply[int(row["game_index"])])
+        game_ply[int(row["game_index"])] += 1
+    x = np.asarray([unique[key]["state"] for key in keys], dtype=np.float32)
+    legal_counts = legal_mask_matrix_for_encoded_states(x).sum(axis=1)
+    groups: dict[str, np.ndarray] = {
+        "player_0": np.asarray([int(unique[k].get("player", 0)) == 0 for k in keys]),
+        "player_1": np.asarray([int(unique[k].get("player", 0)) == 1 for k in keys]),
+    }
+    for count in sorted(set(int(v) for v in legal_counts)):
+        groups[f"legal_moves_{count}"] = legal_counts == count
+    for bucket in sorted(set(ply_by_hash[k] // 10 for k in keys)):
+        groups[f"ply_{bucket * 10}_{bucket * 10 + 9}"] = np.asarray(
+            [ply_by_hash[k] // 10 == bucket for k in keys]
+        )
+    return {
+        name: {"count": int(select.sum()), "mean_l1": float(l1[select].mean())}
+        for name, select in groups.items()
+        if select.any()
+    }
+
+
 def metrics(
     rows: list[dict[str, Any]],
     snapshots: dict[int, tuple[dict[str, torch.Tensor], dict[str, Any]]],
     p1: dict[str, torch.Tensor],
+    p2: dict[str, torch.Tensor],
     masks: dict[str, set[str]],
     lane: str,
     beta095_ce: float,
@@ -297,6 +422,7 @@ def metrics(
     mask = legal_mask_matrix_for_encoded_states(x)
     search = np.asarray([unique[k]["policy"] for k in keys], np.float64)
     parent, _ = model_outputs(p1, x, mask)
+    p2_policy, _ = model_outputs(p2, x, mask)
     protected = np.asarray([key in masks[lane] for key in keys])
     target = np.where(protected[:, None], parent, 0.05 * search + 0.95 * parent)
     target = legal_normalize(target, mask)
@@ -330,10 +456,47 @@ def metrics(
             if (~protected).any()
             else 0.0,
             "drift": distribution_metrics(candidate, parent, mask, protected),
+            "drift_by_replay_covariate": _stratified_drift(rows, keys, l1),
+            "protected_leakage": {
+                "initial_to_current": distribution_metrics(
+                    candidate, parent, mask, protected
+                )["protected"],
+                "ce_candidate_p1": float(
+                    np.mean(_cross_entropy(candidate[protected], parent[protected]))
+                )
+                if protected.any()
+                else 0.0,
+                # Positive alignment means indirect movement is toward P2, not P1.
+                "direction_cosine_vs_p2_minus_p1": float(
+                    np.dot(
+                        (candidate[protected] - parent[protected]).ravel(),
+                        (p2_policy[protected] - parent[protected]).ravel(),
+                    )
+                    / max(
+                        np.linalg.norm(
+                            (candidate[protected] - parent[protected]).ravel()
+                        )
+                        * np.linalg.norm(
+                            (p2_policy[protected] - parent[protected]).ravel()
+                        ),
+                        1e-12,
+                    )
+                )
+                if protected.any()
+                else 0.0,
+            },
             "risk_migration": {
                 "jaccard_current_top25_frozen_q75": len(top25 & masks["risk_q75"])
                 / len(top25 | masks["risk_q75"]),
                 "fraction_current_top25_originally_protected": len(top25 & masks[lane])
+                / len(top25),
+                "fraction_current_top25_originally_q75_protected": len(
+                    top25 & masks["risk_q75"]
+                )
+                / len(top25),
+                "fraction_current_top25_migrated_from_q75_unprotected": len(
+                    top25 - masks["risk_q75"]
+                )
                 / len(top25),
                 "current_q75": float(np.percentile(l1, 75)),
                 "current_q90": float(np.percentile(l1, 90)),
@@ -350,7 +513,10 @@ def metrics(
                         (l1[protected] >= Q90).sum()
                     ),
                     "originally_unprotected_newly_above_frozen_q90": int(
-                        (l1[~protected] >= Q90).sum()
+                        (
+                            l1[~np.asarray([key in masks["risk_q90"] for key in keys])]
+                            >= Q90
+                        ).sum()
                     ),
                 },
             },
@@ -426,6 +592,22 @@ def render(summary: dict[str, Any]) -> str:
             )
     lines += [
         "",
+        "## Protected-State Leakage (Step 46)",
+        "",
+        "| Lane | Protected L1 mean | Protected L1 p95 | Protected L1 p99 | CE(candidate, P1) | Direction vs P2-P1 |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for lane in LANES:
+        leakage = summary["metrics"][lane]["46"]["protected_leakage"]
+        protected = leakage["initial_to_current"] or {}
+        lines.append(
+            f"| {lane} | {protected.get('mean_l1', 0.0):.6f} | "
+            f"{protected.get('p95_l1', 0.0):.6f} | {protected.get('p99_l1', 0.0):.6f} | "
+            f"{leakage['ce_candidate_p1']:.6f} | "
+            f"{leakage['direction_cosine_vs_p2_minus_p1']:+.4f} |"
+        )
+    lines += [
+        "",
         "## Risk Migration (Step 46)",
         "",
         "| Lane | Current q75 | Top-25% Jaccard vs frozen q75 | Originally protected in current top-25% | New unprotected above frozen q75 |",
@@ -435,6 +617,33 @@ def render(summary: dict[str, Any]) -> str:
         m = summary["metrics"][lane]["46"]["risk_migration"]
         lines.append(
             f"| {lane} | {m['current_q75']:.6f} | {m['jaccard_current_top25_frozen_q75']:.4f} | {m['fraction_current_top25_originally_protected']:.4f} | {m['originally_unprotected_newly_above_frozen_q75']} |"
+        )
+    lines += [
+        "",
+        "## Deterministic Search Probes vs P1",
+        "",
+        "| Lane | Step | Move changes | Visit JS | Q-rank changes | Root-value delta |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for lane in LANES:
+        for step in (16, 46):
+            probe = summary["puct_vs_p1"][lane]["metrics"][str(step)][PUCT_CONTEXT]
+            lines.append(
+                f"| {lane} | {step} | {probe['selected_move_change_rate']:.4f} | "
+                f"{probe['visit_js']:.6f} | {probe['child_q_rank_change']:+.4f} | "
+                f"{probe['root_value_delta']:+.6f} |"
+            )
+    lines += [
+        "",
+        "## Frozen q75 Tail Override on risk_q75",
+        "",
+        "| Step | Expanded nodes | Replacement nodes | Replacement fraction |",
+        "| ---: | ---: | ---: | ---: |",
+    ]
+    for step, telemetry in summary["risk_q75_frozen_tail_override_probe"].items():
+        lines.append(
+            f"| {step} | {telemetry['total_expanded_nodes']} | "
+            f"{telemetry['overridden_node_count']} | {telemetry['override_fraction']:.4f} |"
         )
     lines += [
         "",
@@ -480,6 +689,7 @@ def main() -> None:
     )
     parser.add_argument("--arena-workers", type=int, default=24)
     parser.add_argument("--arena", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--render-only", action="store_true")
     parser.add_argument(
         "--out-summary",
         type=Path,
@@ -493,6 +703,10 @@ def main() -> None:
         / "docs/alphazero-lite-gen2-selective-risk-training-results.md",
     )
     args = parser.parse_args()
+    if args.render_only:
+        summary = json.loads(args.out_summary.read_text(encoding="utf-8"))
+        args.out_report.write_text(render(summary), encoding="utf-8")
+        return
     args.workdir.mkdir(parents=True, exist_ok=True)
     device = torch.device("cpu")
     configure_determinism(device, 43)
@@ -561,11 +775,63 @@ def main() -> None:
             )
         ),
     }
-    base_metrics = metrics(rows, snapshots["beta095"], p1_state, masks, "beta095", 0.0)
+    base_metrics = metrics(
+        rows, snapshots["beta095"], p1_state, p2_state, masks, "beta095", 0.0
+    )
     denominator_ce = base_metrics["46"]["ce_candidate_search"]
     all_metrics = {
-        lane: metrics(rows, snapshots[lane], p1_state, masks, lane, denominator_ce)
+        lane: metrics(
+            rows, snapshots[lane], p1_state, p2_state, masks, lane, denominator_ce
+        )
         for lane in LANES
+    }
+    print("[puct] running deterministic candidate-vs-P1 probes...", flush=True)
+    probe_hash = hashlib.sha256("".join(frozen["state_hashes"]).encode()).hexdigest()
+    search_probe = [
+        {
+            **row,
+            "state": decode_state(row["state"]),
+            "state_hash": state_hash(row),
+            "manifest_index": index,
+        }
+        for index, row in enumerate(rows[:PROBE_SIZE])
+    ]
+    puct = {
+        lane: puct_trajectory(
+            search_probe,
+            artifacts[lane],
+            args.workdir / lane,
+            probe_hash,
+            contexts=(PUCT_CONTEXT,),
+        )
+        for lane in LANES
+    }
+    per_depth_puct = {
+        lane: {
+            str(step): puct_probe(
+                search_probe,
+                artifacts[lane][step],
+                p1_artifact,
+                PUCT_CONTEXT,
+                modes=("incumbent_all",),
+            )
+            for step in (16, 46)
+        }
+        for lane in LANES
+    }
+    print("[tail-probe] checking frozen q75 substitution on risk_q75...", flush=True)
+    tail_override = {
+        str(step): probe_lane(
+            rows,
+            __import__(
+                "ml.alphazero_lite.arena", fromlist=["ArtifactEvaluator"]
+            ).ArtifactEvaluator(artifacts["risk_q75"][step]),
+            __import__(
+                "ml.alphazero_lite.arena", fromlist=["ArtifactEvaluator"]
+            ).ArtifactEvaluator(p1_artifact),
+            Q75,
+        )
+        for step in (16, 46)
     }
     arena: dict[str, Any] = {lane: {} for lane in LANES}
     if args.arena:
@@ -634,6 +900,9 @@ def main() -> None:
         "frozen_masks": frozen,
         "sanity": sanity,
         "metrics": all_metrics,
+        "puct_vs_p1": puct,
+        "per_depth_puct_vs_p1": per_depth_puct,
+        "risk_q75_frozen_tail_override_probe": tail_override,
         "arena": arena,
     }
     summary["classification"] = classify(summary)
