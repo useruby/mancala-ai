@@ -1,0 +1,3619 @@
+{
+  "schema": "azlite_gen2_tail_prior_override_v1",
+  "inputs": {
+    "p1_state_hash": "a86acb54b97c860289530fcb7ca64194724d43667580a52e2948359bfa3ebdf4",
+    "p2_state_hash": "336496d5fb33331240178c4b834b8faf9548e3915b45c9b5f7e4b7aad6626870",
+    "gen2_replay_sha256": "2cee30547f8bc5d7cad6f02f859ee5e8644386e9b59c8a054ef74548c72ce84b",
+    "trust_state_set_hash": "fef39b0bf5c3ecd3fa93c8cd7cbe688e96bc4ae2285448488ee2234608a20e9f",
+    "calibration": {
+      "unique_state_count": 23395,
+      "thresholds": {
+        "q50": 0.005621520384612166,
+        "q75": 0.008493570293918201,
+        "q90": 0.011032855853303441,
+        "q95": 0.01265852697543527,
+        "q99": 0.01606491355053237
+      },
+      "max": 0.02558439154313108,
+      "mean": 0.00583702627882133
+    },
+    "lane_thresholds": {
+      "candidate_all": null,
+      "tail_q99": 0.01606491355053237,
+      "tail_q95": 0.01265852697543527,
+      "tail_q90": 0.011032855853303441,
+      "tail_q75": 0.008493570293918201,
+      "incumbent_all": null
+    }
+  },
+  "sanity": {
+    "p1_hash_verified": true,
+    "p2_hash_verified": true,
+    "replay_hash_verified": true,
+    "trust_set_hash_verified": true,
+    "trunk_and_value_stacks_bit_identical": true,
+    "candidate_all_reproduces_pr204": true,
+    "incumbent_all_equivalent": true
+  },
+  "probe_telemetry": {
+    "tail_q99": {
+      "total_expanded_nodes": 77339,
+      "overridden_node_count": 624,
+      "override_fraction": 0.00806837430015904,
+      "override_fraction_by_depth": {
+        "0": {
+          "expanded_nodes": 256,
+          "overridden_nodes": 2,
+          "override_fraction": 0.0078125
+        },
+        "1": {
+          "expanded_nodes": 943,
+          "overridden_nodes": 7,
+          "override_fraction": 0.007423117709437964
+        },
+        "2": {
+          "expanded_nodes": 2969,
+          "overridden_nodes": 22,
+          "override_fraction": 0.00740990232401482
+        },
+        "3": {
+          "expanded_nodes": 6866,
+          "overridden_nodes": 45,
+          "override_fraction": 0.006554034372269152
+        },
+        "4": {
+          "expanded_nodes": 11106,
+          "overridden_nodes": 66,
+          "override_fraction": 0.005942733657482442
+        },
+        "5": {
+          "expanded_nodes": 13282,
+          "overridden_nodes": 93,
+          "override_fraction": 0.007001957536515585
+        },
+        "6": {
+          "expanded_nodes": 12681,
+          "overridden_nodes": 92,
+          "override_fraction": 0.0072549483479220885
+        },
+        "7": {
+          "expanded_nodes": 10390,
+          "overridden_nodes": 89,
+          "override_fraction": 0.008565928777670838
+        },
+        "8": {
+          "expanded_nodes": 7525,
+          "overridden_nodes": 71,
+          "override_fraction": 0.009435215946843854
+        },
+        "9": {
+          "expanded_nodes": 4938,
+          "overridden_nodes": 50,
+          "override_fraction": 0.01012555690562981
+        },
+        "10": {
+          "expanded_nodes": 3062,
+          "overridden_nodes": 36,
+          "override_fraction": 0.011757021554539516
+        },
+        "11": {
+          "expanded_nodes": 1755,
+          "overridden_nodes": 19,
+          "override_fraction": 0.010826210826210826
+        },
+        "12": {
+          "expanded_nodes": 875,
+          "overridden_nodes": 13,
+          "override_fraction": 0.014857142857142857
+        },
+        "13": {
+          "expanded_nodes": 385,
+          "overridden_nodes": 9,
+          "override_fraction": 0.023376623376623377
+        },
+        "14": {
+          "expanded_nodes": 176,
+          "overridden_nodes": 7,
+          "override_fraction": 0.03977272727272727
+        },
+        "15": {
+          "expanded_nodes": 72,
+          "overridden_nodes": 1,
+          "override_fraction": 0.013888888888888888
+        },
+        "16": {
+          "expanded_nodes": 31,
+          "overridden_nodes": 1,
+          "override_fraction": 0.03225806451612903
+        },
+        "17": {
+          "expanded_nodes": 16,
+          "overridden_nodes": 1,
+          "override_fraction": 0.0625
+        },
+        "18": {
+          "expanded_nodes": 8,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        },
+        "19": {
+          "expanded_nodes": 3,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        }
+      },
+      "override_fraction_by_player_to_move": {
+        "0": {
+          "expanded_nodes": 41542,
+          "overridden_nodes": 123,
+          "override_fraction": 0.0029608588897982765
+        },
+        "1": {
+          "expanded_nodes": 35797,
+          "overridden_nodes": 501,
+          "override_fraction": 0.013995586222309132
+        }
+      },
+      "mean_l1_overridden": 0.017910810909830988,
+      "mean_l1_non_overridden": 0.005528511023675129,
+      "policy_l1_mass_removed": 11.176346007734537,
+      "policy_l1_mass_removed_fraction": 0.02567527436799028,
+      "encountered_l1_percentiles": {
+        "p50": 0.005457684397697449,
+        "p75": 0.008231127634644508,
+        "p90": 0.010680459439754486,
+        "p95": 0.012239621952176094,
+        "p99": 0.015647971071302835
+      }
+    },
+    "tail_q95": {
+      "total_expanded_nodes": 77364,
+      "overridden_node_count": 3076,
+      "override_fraction": 0.03976009513468797,
+      "override_fraction_by_depth": {
+        "0": {
+          "expanded_nodes": 256,
+          "overridden_nodes": 7,
+          "override_fraction": 0.02734375
+        },
+        "1": {
+          "expanded_nodes": 943,
+          "overridden_nodes": 60,
+          "override_fraction": 0.06362672322375397
+        },
+        "2": {
+          "expanded_nodes": 2968,
+          "overridden_nodes": 143,
+          "override_fraction": 0.04818059299191375
+        },
+        "3": {
+          "expanded_nodes": 6868,
+          "overridden_nodes": 269,
+          "override_fraction": 0.03916715200931858
+        },
+        "4": {
+          "expanded_nodes": 11116,
+          "overridden_nodes": 414,
+          "override_fraction": 0.03724361281036344
+        },
+        "5": {
+          "expanded_nodes": 13307,
+          "overridden_nodes": 507,
+          "override_fraction": 0.03810024798977982
+        },
+        "6": {
+          "expanded_nodes": 12695,
+          "overridden_nodes": 471,
+          "override_fraction": 0.037101220953131155
+        },
+        "7": {
+          "expanded_nodes": 10380,
+          "overridden_nodes": 410,
+          "override_fraction": 0.0394990366088632
+        },
+        "8": {
+          "expanded_nodes": 7491,
+          "overridden_nodes": 315,
+          "override_fraction": 0.0420504605526632
+        },
+        "9": {
+          "expanded_nodes": 4938,
+          "overridden_nodes": 205,
+          "override_fraction": 0.04151478331308222
+        },
+        "10": {
+          "expanded_nodes": 3056,
+          "overridden_nodes": 124,
+          "override_fraction": 0.04057591623036649
+        },
+        "11": {
+          "expanded_nodes": 1762,
+          "overridden_nodes": 68,
+          "override_fraction": 0.03859250851305335
+        },
+        "12": {
+          "expanded_nodes": 889,
+          "overridden_nodes": 40,
+          "override_fraction": 0.04499437570303712
+        },
+        "13": {
+          "expanded_nodes": 386,
+          "overridden_nodes": 22,
+          "override_fraction": 0.05699481865284974
+        },
+        "14": {
+          "expanded_nodes": 178,
+          "overridden_nodes": 14,
+          "override_fraction": 0.07865168539325842
+        },
+        "15": {
+          "expanded_nodes": 73,
+          "overridden_nodes": 4,
+          "override_fraction": 0.0547945205479452
+        },
+        "16": {
+          "expanded_nodes": 31,
+          "overridden_nodes": 2,
+          "override_fraction": 0.06451612903225806
+        },
+        "17": {
+          "expanded_nodes": 16,
+          "overridden_nodes": 1,
+          "override_fraction": 0.0625
+        },
+        "18": {
+          "expanded_nodes": 8,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        },
+        "19": {
+          "expanded_nodes": 3,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        }
+      },
+      "override_fraction_by_player_to_move": {
+        "0": {
+          "expanded_nodes": 41550,
+          "overridden_nodes": 1086,
+          "override_fraction": 0.026137184115523467
+        },
+        "1": {
+          "expanded_nodes": 35814,
+          "overridden_nodes": 1990,
+          "override_fraction": 0.05556486290277545
+        }
+      },
+      "mean_l1_overridden": 0.014734248326115204,
+      "mean_l1_non_overridden": 0.005247128129152526,
+      "policy_l1_mass_removed": 45.322547851130366,
+      "policy_l1_mass_removed_fraction": 0.10416074328384675,
+      "encountered_l1_percentiles": {
+        "p50": 0.005453184247016907,
+        "p75": 0.008229944854974747,
+        "p90": 0.010675489902496338,
+        "p95": 0.012230310589075089,
+        "p99": 0.01564066670835018
+      }
+    },
+    "tail_q90": {
+      "total_expanded_nodes": 77372,
+      "overridden_node_count": 6618,
+      "override_fraction": 0.0855348187974978,
+      "override_fraction_by_depth": {
+        "0": {
+          "expanded_nodes": 256,
+          "overridden_nodes": 29,
+          "override_fraction": 0.11328125
+        },
+        "1": {
+          "expanded_nodes": 943,
+          "overridden_nodes": 109,
+          "override_fraction": 0.11558854718981973
+        },
+        "2": {
+          "expanded_nodes": 2968,
+          "overridden_nodes": 280,
+          "override_fraction": 0.09433962264150944
+        },
+        "3": {
+          "expanded_nodes": 6864,
+          "overridden_nodes": 631,
+          "override_fraction": 0.09192890442890443
+        },
+        "4": {
+          "expanded_nodes": 11117,
+          "overridden_nodes": 1029,
+          "override_fraction": 0.0925609427003688
+        },
+        "5": {
+          "expanded_nodes": 13331,
+          "overridden_nodes": 1182,
+          "override_fraction": 0.08866551646538144
+        },
+        "6": {
+          "expanded_nodes": 12707,
+          "overridden_nodes": 1041,
+          "override_fraction": 0.08192334933501219
+        },
+        "7": {
+          "expanded_nodes": 10383,
+          "overridden_nodes": 865,
+          "override_fraction": 0.08330925551382067
+        },
+        "8": {
+          "expanded_nodes": 7495,
+          "overridden_nodes": 602,
+          "override_fraction": 0.08032021347565044
+        },
+        "9": {
+          "expanded_nodes": 4938,
+          "overridden_nodes": 389,
+          "override_fraction": 0.07877683272579993
+        },
+        "10": {
+          "expanded_nodes": 3036,
+          "overridden_nodes": 213,
+          "override_fraction": 0.07015810276679842
+        },
+        "11": {
+          "expanded_nodes": 1757,
+          "overridden_nodes": 114,
+          "override_fraction": 0.06488332384746727
+        },
+        "12": {
+          "expanded_nodes": 889,
+          "overridden_nodes": 64,
+          "override_fraction": 0.0719910011248594
+        },
+        "13": {
+          "expanded_nodes": 384,
+          "overridden_nodes": 36,
+          "override_fraction": 0.09375
+        },
+        "14": {
+          "expanded_nodes": 174,
+          "overridden_nodes": 20,
+          "override_fraction": 0.11494252873563218
+        },
+        "15": {
+          "expanded_nodes": 72,
+          "overridden_nodes": 9,
+          "override_fraction": 0.125
+        },
+        "16": {
+          "expanded_nodes": 31,
+          "overridden_nodes": 4,
+          "override_fraction": 0.12903225806451613
+        },
+        "17": {
+          "expanded_nodes": 16,
+          "overridden_nodes": 1,
+          "override_fraction": 0.0625
+        },
+        "18": {
+          "expanded_nodes": 8,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        },
+        "19": {
+          "expanded_nodes": 3,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        }
+      },
+      "override_fraction_by_player_to_move": {
+        "0": {
+          "expanded_nodes": 41568,
+          "overridden_nodes": 2492,
+          "override_fraction": 0.05994996150885296
+        },
+        "1": {
+          "expanded_nodes": 35804,
+          "overridden_nodes": 4126,
+          "override_fraction": 0.11523852083566082
+        }
+      },
+      "mean_l1_overridden": 0.013149305476575423,
+      "mean_l1_non_overridden": 0.004920550399941369,
+      "policy_l1_mass_removed": 87.02210364397615,
+      "policy_l1_mass_removed_fraction": 0.19997232882734933,
+      "encountered_l1_percentiles": {
+        "p50": 0.005449414253234863,
+        "p75": 0.008230773033574224,
+        "p90": 0.010675832629203796,
+        "p95": 0.012222096882760524,
+        "p99": 0.01564066670835018
+      }
+    },
+    "tail_q75": {
+      "total_expanded_nodes": 77370,
+      "overridden_node_count": 17855,
+      "override_fraction": 0.23077420188703632,
+      "override_fraction_by_depth": {
+        "0": {
+          "expanded_nodes": 256,
+          "overridden_nodes": 63,
+          "override_fraction": 0.24609375
+        },
+        "1": {
+          "expanded_nodes": 943,
+          "overridden_nodes": 260,
+          "override_fraction": 0.2757158006362672
+        },
+        "2": {
+          "expanded_nodes": 2969,
+          "overridden_nodes": 796,
+          "override_fraction": 0.2681037386325362
+        },
+        "3": {
+          "expanded_nodes": 6846,
+          "overridden_nodes": 1815,
+          "override_fraction": 0.2651183172655565
+        },
+        "4": {
+          "expanded_nodes": 11121,
+          "overridden_nodes": 2982,
+          "override_fraction": 0.26814135419476665
+        },
+        "5": {
+          "expanded_nodes": 13365,
+          "overridden_nodes": 3377,
+          "override_fraction": 0.25267489711934155
+        },
+        "6": {
+          "expanded_nodes": 12708,
+          "overridden_nodes": 2808,
+          "override_fraction": 0.22096317280453256
+        },
+        "7": {
+          "expanded_nodes": 10353,
+          "overridden_nodes": 2235,
+          "override_fraction": 0.215879455230368
+        },
+        "8": {
+          "expanded_nodes": 7490,
+          "overridden_nodes": 1468,
+          "override_fraction": 0.1959946595460614
+        },
+        "9": {
+          "expanded_nodes": 4937,
+          "overridden_nodes": 968,
+          "override_fraction": 0.1960704881506988
+        },
+        "10": {
+          "expanded_nodes": 3065,
+          "overridden_nodes": 546,
+          "override_fraction": 0.17814029363784667
+        },
+        "11": {
+          "expanded_nodes": 1749,
+          "overridden_nodes": 283,
+          "override_fraction": 0.16180674671240708
+        },
+        "12": {
+          "expanded_nodes": 884,
+          "overridden_nodes": 136,
+          "override_fraction": 0.15384615384615385
+        },
+        "13": {
+          "expanded_nodes": 383,
+          "overridden_nodes": 69,
+          "override_fraction": 0.1801566579634465
+        },
+        "14": {
+          "expanded_nodes": 173,
+          "overridden_nodes": 30,
+          "override_fraction": 0.17341040462427745
+        },
+        "15": {
+          "expanded_nodes": 70,
+          "overridden_nodes": 14,
+          "override_fraction": 0.2
+        },
+        "16": {
+          "expanded_nodes": 30,
+          "overridden_nodes": 4,
+          "override_fraction": 0.13333333333333333
+        },
+        "17": {
+          "expanded_nodes": 16,
+          "overridden_nodes": 1,
+          "override_fraction": 0.0625
+        },
+        "18": {
+          "expanded_nodes": 8,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        },
+        "19": {
+          "expanded_nodes": 3,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        },
+        "20": {
+          "expanded_nodes": 1,
+          "overridden_nodes": 0,
+          "override_fraction": 0.0
+        }
+      },
+      "override_fraction_by_player_to_move": {
+        "0": {
+          "expanded_nodes": 41567,
+          "overridden_nodes": 7328,
+          "override_fraction": 0.17629369451728535
+        },
+        "1": {
+          "expanded_nodes": 35803,
+          "overridden_nodes": 10527,
+          "override_fraction": 0.29402564030947126
+        }
+      },
+      "mean_l1_overridden": 0.010930312662018977,
+      "mean_l1_non_overridden": 0.004036649900435226,
+      "policy_l1_mass_removed": 195.16073258034885,
+      "policy_l1_mass_removed_fraction": 0.4482311848871956,
+      "encountered_l1_percentiles": {
+        "p50": 0.0054571665823459625,
+        "p75": 0.008232485270127654,
+        "p90": 0.010680459439754486,
+        "p95": 0.012228671088814745,
+        "p99": 0.015626098681241225
+      }
+    },
+    "incumbent_all": {
+      "total_expanded_nodes": 77373,
+      "overridden_node_count": 77373,
+      "override_fraction": 1.0,
+      "override_fraction_by_depth": {
+        "0": {
+          "expanded_nodes": 256,
+          "overridden_nodes": 256,
+          "override_fraction": 1.0
+        },
+        "1": {
+          "expanded_nodes": 943,
+          "overridden_nodes": 943,
+          "override_fraction": 1.0
+        },
+        "2": {
+          "expanded_nodes": 2963,
+          "overridden_nodes": 2963,
+          "override_fraction": 1.0
+        },
+        "3": {
+          "expanded_nodes": 6845,
+          "overridden_nodes": 6845,
+          "override_fraction": 1.0
+        },
+        "4": {
+          "expanded_nodes": 11124,
+          "overridden_nodes": 11124,
+          "override_fraction": 1.0
+        },
+        "5": {
+          "expanded_nodes": 13327,
+          "overridden_nodes": 13327,
+          "override_fraction": 1.0
+        },
+        "6": {
+          "expanded_nodes": 12719,
+          "overridden_nodes": 12719,
+          "override_fraction": 1.0
+        },
+        "7": {
+          "expanded_nodes": 10394,
+          "overridden_nodes": 10394,
+          "override_fraction": 1.0
+        },
+        "8": {
+          "expanded_nodes": 7492,
+          "overridden_nodes": 7492,
+          "override_fraction": 1.0
+        },
+        "9": {
+          "expanded_nodes": 4947,
+          "overridden_nodes": 4947,
+          "override_fraction": 1.0
+        },
+        "10": {
+          "expanded_nodes": 3058,
+          "overridden_nodes": 3058,
+          "override_fraction": 1.0
+        },
+        "11": {
+          "expanded_nodes": 1743,
+          "overridden_nodes": 1743,
+          "override_fraction": 1.0
+        },
+        "12": {
+          "expanded_nodes": 888,
+          "overridden_nodes": 888,
+          "override_fraction": 1.0
+        },
+        "13": {
+          "expanded_nodes": 381,
+          "overridden_nodes": 381,
+          "override_fraction": 1.0
+        },
+        "14": {
+          "expanded_nodes": 169,
+          "overridden_nodes": 169,
+          "override_fraction": 1.0
+        },
+        "15": {
+          "expanded_nodes": 67,
+          "overridden_nodes": 67,
+          "override_fraction": 1.0
+        },
+        "16": {
+          "expanded_nodes": 30,
+          "overridden_nodes": 30,
+          "override_fraction": 1.0
+        },
+        "17": {
+          "expanded_nodes": 16,
+          "overridden_nodes": 16,
+          "override_fraction": 1.0
+        },
+        "18": {
+          "expanded_nodes": 7,
+          "overridden_nodes": 7,
+          "override_fraction": 1.0
+        },
+        "19": {
+          "expanded_nodes": 3,
+          "overridden_nodes": 3,
+          "override_fraction": 1.0
+        },
+        "20": {
+          "expanded_nodes": 1,
+          "overridden_nodes": 1,
+          "override_fraction": 1.0
+        }
+      },
+      "override_fraction_by_player_to_move": {
+        "0": {
+          "expanded_nodes": 41531,
+          "overridden_nodes": 41531,
+          "override_fraction": 1.0
+        },
+        "1": {
+          "expanded_nodes": 35842,
+          "overridden_nodes": 35842,
+          "override_fraction": 1.0
+        }
+      },
+      "mean_l1_overridden": 0.005628743295152818,
+      "mean_l1_non_overridden": 0.0,
+      "policy_l1_mass_removed": 435.512754975859,
+      "policy_l1_mass_removed_fraction": 1.0,
+      "encountered_l1_percentiles": {
+        "p50": 0.005460508167743683,
+        "p75": 0.00823262706398964,
+        "p90": 0.010680459439754486,
+        "p95": 0.012235473841428757,
+        "p99": 0.01564066670835018
+      }
+    }
+  },
+  "arena": {
+    "candidate_all": {
+      "paired_candidate_effect": -0.095703125,
+      "opening_bootstrap_ci": {
+        "lower_95": -0.126953125,
+        "upper_95": -0.064453125,
+        "samples": 10000,
+        "unique_openings": 128
+      },
+      "p0_effect": -0.19140625,
+      "p1_effect": 0.0,
+      "orientation_decomposition": {
+        "candidate_challenger_score": 0.72265625,
+        "current_control_challenger_score": 0.818359375
+      },
+      "per_opening_effect": {
+        "0": 0.0,
+        "1": -0.5,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 0.0,
+        "5": 0.0,
+        "6": 0.0,
+        "7": -0.5,
+        "8": -0.5,
+        "9": 0.0,
+        "10": 0.0,
+        "11": -0.5,
+        "12": 0.0,
+        "13": 0.0,
+        "14": 0.0,
+        "15": 0.0,
+        "16": 0.0,
+        "17": 0.0,
+        "18": -0.5,
+        "19": 0.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0,
+        "24": 0.0,
+        "25": 0.0,
+        "26": 0.0,
+        "27": 0.0,
+        "28": 0.0,
+        "29": -0.5,
+        "30": 0.0,
+        "31": 0.0,
+        "32": -0.5,
+        "33": -0.25,
+        "34": 0.0,
+        "35": 0.0,
+        "36": -0.25,
+        "37": -0.5,
+        "38": 0.0,
+        "39": 0.0,
+        "40": 0.0,
+        "41": -0.25,
+        "42": -0.25,
+        "43": -0.5,
+        "44": 0.0,
+        "45": 0.0,
+        "46": 0.0,
+        "47": 0.0,
+        "48": 0.0,
+        "49": -0.25,
+        "50": 0.0,
+        "51": 0.0,
+        "52": 0.0,
+        "53": 0.0,
+        "54": 0.0,
+        "55": 0.0,
+        "56": 0.0,
+        "57": 0.0,
+        "58": 0.0,
+        "59": 0.0,
+        "60": -0.25,
+        "61": 0.0,
+        "62": 0.0,
+        "63": 0.0,
+        "64": 0.0,
+        "65": 0.0,
+        "66": 0.0,
+        "67": 0.0,
+        "68": 0.0,
+        "69": 0.0,
+        "70": 0.0,
+        "71": -0.5,
+        "72": 0.0,
+        "73": 0.0,
+        "74": 0.0,
+        "75": 0.0,
+        "76": 0.0,
+        "77": 0.0,
+        "78": 0.0,
+        "79": 0.0,
+        "80": -0.5,
+        "81": 0.0,
+        "82": 0.0,
+        "83": 0.0,
+        "84": 0.0,
+        "85": 0.0,
+        "86": 0.0,
+        "87": -0.5,
+        "88": 0.0,
+        "89": 0.0,
+        "90": 0.0,
+        "91": 0.0,
+        "92": 0.0,
+        "93": 0.0,
+        "94": -0.5,
+        "95": -0.5,
+        "96": -0.5,
+        "97": 0.0,
+        "98": 0.0,
+        "99": 0.0,
+        "100": 0.0,
+        "101": -0.25,
+        "102": 0.0,
+        "103": -0.5,
+        "104": 0.0,
+        "105": 0.0,
+        "106": 0.0,
+        "107": 0.0,
+        "108": 0.0,
+        "109": 0.0,
+        "110": -0.25,
+        "111": 0.0,
+        "112": 0.0,
+        "113": 0.0,
+        "114": -0.25,
+        "115": 0.0,
+        "116": 0.0,
+        "117": -0.25,
+        "118": 0.0,
+        "119": 0.0,
+        "120": 0.0,
+        "121": 0.0,
+        "122": 0.0,
+        "123": -0.5,
+        "124": -0.5,
+        "125": 0.0,
+        "126": -0.25,
+        "127": -0.5
+      },
+      "win_draw_loss": {
+        "wins": 354,
+        "draws": 32,
+        "losses": 126
+      },
+      "telemetry": null,
+      "recovery_fraction": 0.0,
+      "p0_recovery_fraction": 0.0
+    },
+    "tail_q99": {
+      "paired_candidate_effect": -0.095703125,
+      "opening_bootstrap_ci": {
+        "lower_95": -0.126953125,
+        "upper_95": -0.064453125,
+        "samples": 10000,
+        "unique_openings": 128
+      },
+      "p0_effect": -0.19140625,
+      "p1_effect": 0.0,
+      "orientation_decomposition": {
+        "candidate_challenger_score": 0.72265625,
+        "current_control_challenger_score": 0.818359375
+      },
+      "per_opening_effect": {
+        "0": 0.0,
+        "1": -0.5,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 0.0,
+        "5": 0.0,
+        "6": 0.0,
+        "7": -0.5,
+        "8": -0.5,
+        "9": 0.0,
+        "10": 0.0,
+        "11": -0.5,
+        "12": 0.0,
+        "13": 0.0,
+        "14": 0.0,
+        "15": 0.0,
+        "16": 0.0,
+        "17": 0.0,
+        "18": -0.5,
+        "19": 0.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0,
+        "24": 0.0,
+        "25": 0.0,
+        "26": 0.0,
+        "27": 0.0,
+        "28": 0.0,
+        "29": -0.5,
+        "30": 0.0,
+        "31": 0.0,
+        "32": -0.5,
+        "33": -0.25,
+        "34": 0.0,
+        "35": 0.0,
+        "36": -0.25,
+        "37": -0.5,
+        "38": 0.0,
+        "39": 0.0,
+        "40": 0.0,
+        "41": -0.25,
+        "42": -0.25,
+        "43": -0.5,
+        "44": 0.0,
+        "45": 0.0,
+        "46": 0.0,
+        "47": 0.0,
+        "48": 0.0,
+        "49": -0.25,
+        "50": 0.0,
+        "51": 0.0,
+        "52": 0.0,
+        "53": 0.0,
+        "54": 0.0,
+        "55": 0.0,
+        "56": 0.0,
+        "57": 0.0,
+        "58": 0.0,
+        "59": 0.0,
+        "60": -0.25,
+        "61": 0.0,
+        "62": 0.0,
+        "63": 0.0,
+        "64": 0.0,
+        "65": 0.0,
+        "66": 0.0,
+        "67": 0.0,
+        "68": 0.0,
+        "69": 0.0,
+        "70": 0.0,
+        "71": -0.5,
+        "72": 0.0,
+        "73": 0.0,
+        "74": 0.0,
+        "75": 0.0,
+        "76": 0.0,
+        "77": 0.0,
+        "78": 0.0,
+        "79": 0.0,
+        "80": -0.5,
+        "81": 0.0,
+        "82": 0.0,
+        "83": 0.0,
+        "84": 0.0,
+        "85": 0.0,
+        "86": 0.0,
+        "87": -0.5,
+        "88": 0.0,
+        "89": 0.0,
+        "90": 0.0,
+        "91": 0.0,
+        "92": 0.0,
+        "93": 0.0,
+        "94": -0.5,
+        "95": -0.5,
+        "96": -0.5,
+        "97": 0.0,
+        "98": 0.0,
+        "99": 0.0,
+        "100": 0.0,
+        "101": -0.25,
+        "102": 0.0,
+        "103": -0.5,
+        "104": 0.0,
+        "105": 0.0,
+        "106": 0.0,
+        "107": 0.0,
+        "108": 0.0,
+        "109": 0.0,
+        "110": -0.25,
+        "111": 0.0,
+        "112": 0.0,
+        "113": 0.0,
+        "114": -0.25,
+        "115": 0.0,
+        "116": 0.0,
+        "117": -0.25,
+        "118": 0.0,
+        "119": 0.0,
+        "120": 0.0,
+        "121": 0.0,
+        "122": 0.0,
+        "123": -0.5,
+        "124": -0.5,
+        "125": 0.0,
+        "126": -0.25,
+        "127": -0.5
+      },
+      "win_draw_loss": {
+        "wins": 354,
+        "draws": 32,
+        "losses": 126
+      },
+      "telemetry": {
+        "total_expanded_nodes": 2638588,
+        "overridden_node_count": 14380,
+        "override_fraction": 0.005449884559468928,
+        "override_fraction_by_depth": {
+          "0": {
+            "expanded_nodes": 9094,
+            "overridden_nodes": 34,
+            "override_fraction": 0.003738728832197053
+          },
+          "1": {
+            "expanded_nodes": 34308,
+            "overridden_nodes": 158,
+            "override_fraction": 0.004605339862422758
+          },
+          "2": {
+            "expanded_nodes": 106974,
+            "overridden_nodes": 542,
+            "override_fraction": 0.005066651709761251
+          },
+          "3": {
+            "expanded_nodes": 252736,
+            "overridden_nodes": 860,
+            "override_fraction": 0.003402760192453786
+          },
+          "4": {
+            "expanded_nodes": 428390,
+            "overridden_nodes": 1404,
+            "override_fraction": 0.0032773874273442426
+          },
+          "5": {
+            "expanded_nodes": 508662,
+            "overridden_nodes": 2018,
+            "override_fraction": 0.0039672709972437496
+          },
+          "6": {
+            "expanded_nodes": 466716,
+            "overridden_nodes": 2216,
+            "override_fraction": 0.004748069489796793
+          },
+          "7": {
+            "expanded_nodes": 342378,
+            "overridden_nodes": 2010,
+            "override_fraction": 0.005870704309272208
+          },
+          "8": {
+            "expanded_nodes": 214374,
+            "overridden_nodes": 1570,
+            "override_fraction": 0.007323649323145531
+          },
+          "9": {
+            "expanded_nodes": 126874,
+            "overridden_nodes": 1302,
+            "override_fraction": 0.010262149849456942
+          },
+          "10": {
+            "expanded_nodes": 69386,
+            "overridden_nodes": 1062,
+            "override_fraction": 0.015305681261349551
+          },
+          "11": {
+            "expanded_nodes": 38866,
+            "overridden_nodes": 732,
+            "override_fraction": 0.018833942263160604
+          },
+          "12": {
+            "expanded_nodes": 20890,
+            "overridden_nodes": 316,
+            "override_fraction": 0.015126854954523695
+          },
+          "13": {
+            "expanded_nodes": 10188,
+            "overridden_nodes": 116,
+            "override_fraction": 0.011385944248135061
+          },
+          "14": {
+            "expanded_nodes": 4634,
+            "overridden_nodes": 24,
+            "override_fraction": 0.005179110919292188
+          },
+          "15": {
+            "expanded_nodes": 2318,
+            "overridden_nodes": 16,
+            "override_fraction": 0.006902502157031924
+          },
+          "16": {
+            "expanded_nodes": 1054,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "17": {
+            "expanded_nodes": 390,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "18": {
+            "expanded_nodes": 216,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "19": {
+            "expanded_nodes": 82,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "20": {
+            "expanded_nodes": 58,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          }
+        },
+        "override_fraction_by_player_to_move": {
+          "0": {
+            "expanded_nodes": 1243566,
+            "overridden_nodes": 2238,
+            "override_fraction": 0.0017996632265597483
+          },
+          "1": {
+            "expanded_nodes": 1395022,
+            "overridden_nodes": 12142,
+            "override_fraction": 0.008703805388015386
+          }
+        },
+        "mean_l1_overridden": 0.017762999234511224,
+        "mean_l1_non_overridden": 0.005512512547577902,
+        "policy_l1_mass_removed": 255.43192899227142,
+        "policy_l1_mass_removed_fraction": 0.0173510488276188,
+        "encountered_l1_percentiles": {
+          "p50": 0.005405999720096588,
+          "p75": 0.00802873820066452,
+          "p90": 0.01039404422044754,
+          "p95": 0.0118706114590168,
+          "p99": 0.014915809035301208
+        },
+        "by_candidate_seat": {
+          "0": {
+            "total_expanded_nodes": 1225024,
+            "overridden_node_count": 8226,
+            "override_fraction": 0.006714970482210961,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4520,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "1": {
+                "expanded_nodes": 16140,
+                "overridden_nodes": 94,
+                "override_fraction": 0.005824039653035936
+              },
+              "2": {
+                "expanded_nodes": 48404,
+                "overridden_nodes": 212,
+                "override_fraction": 0.004379803322039501
+              },
+              "3": {
+                "expanded_nodes": 123464,
+                "overridden_nodes": 516,
+                "override_fraction": 0.004179355925613944
+              },
+              "4": {
+                "expanded_nodes": 192840,
+                "overridden_nodes": 790,
+                "override_fraction": 0.0040966604438913085
+              },
+              "5": {
+                "expanded_nodes": 235936,
+                "overridden_nodes": 1054,
+                "override_fraction": 0.004467313169673132
+              },
+              "6": {
+                "expanded_nodes": 207488,
+                "overridden_nodes": 1144,
+                "override_fraction": 0.005513571869216533
+              },
+              "7": {
+                "expanded_nodes": 146296,
+                "overridden_nodes": 1010,
+                "override_fraction": 0.006903811450757368
+              },
+              "8": {
+                "expanded_nodes": 95290,
+                "overridden_nodes": 876,
+                "override_fraction": 0.009192989820547802
+              },
+              "9": {
+                "expanded_nodes": 62118,
+                "overridden_nodes": 816,
+                "override_fraction": 0.013136288998357963
+              },
+              "10": {
+                "expanded_nodes": 38604,
+                "overridden_nodes": 756,
+                "override_fraction": 0.019583462853590302
+              },
+              "11": {
+                "expanded_nodes": 24806,
+                "overridden_nodes": 542,
+                "override_fraction": 0.021849552527614287
+              },
+              "12": {
+                "expanded_nodes": 14986,
+                "overridden_nodes": 296,
+                "override_fraction": 0.019751768317095957
+              },
+              "13": {
+                "expanded_nodes": 8126,
+                "overridden_nodes": 80,
+                "override_fraction": 0.009844942160964805
+              },
+              "14": {
+                "expanded_nodes": 3536,
+                "overridden_nodes": 24,
+                "override_fraction": 0.006787330316742082
+              },
+              "15": {
+                "expanded_nodes": 1618,
+                "overridden_nodes": 16,
+                "override_fraction": 0.009888751545117428
+              },
+              "16": {
+                "expanded_nodes": 652,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "17": {
+                "expanded_nodes": 96,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 48,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 40,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 16,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 584686,
+                "overridden_nodes": 1420,
+                "override_fraction": 0.002428654012581112
+              },
+              "1": {
+                "expanded_nodes": 640338,
+                "overridden_nodes": 6806,
+                "override_fraction": 0.010628761685234986
+              }
+            },
+            "mean_l1_overridden": 0.017975472455897267,
+            "mean_l1_non_overridden": 0.00545226707743199,
+            "policy_l1_mass_removed": 147.86623642221093,
+            "policy_l1_mass_removed_fraction": 0.02180218884788049,
+            "encountered_l1_percentiles": {
+              "p50": 0.0052961260080337524,
+              "p75": 0.008056879043579102,
+              "p90": 0.010553091764450073,
+              "p95": 0.012008395977318287,
+              "p99": 0.015325233340263367
+            }
+          },
+          "1": {
+            "total_expanded_nodes": 1413564,
+            "overridden_node_count": 6154,
+            "override_fraction": 0.004353534753290265,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4574,
+                "overridden_nodes": 34,
+                "override_fraction": 0.007433318758198513
+              },
+              "1": {
+                "expanded_nodes": 18168,
+                "overridden_nodes": 64,
+                "override_fraction": 0.0035226772346983706
+              },
+              "2": {
+                "expanded_nodes": 58570,
+                "overridden_nodes": 330,
+                "override_fraction": 0.0056342837630186104
+              },
+              "3": {
+                "expanded_nodes": 129272,
+                "overridden_nodes": 344,
+                "override_fraction": 0.002661055758400891
+              },
+              "4": {
+                "expanded_nodes": 235550,
+                "overridden_nodes": 614,
+                "override_fraction": 0.0026066652515389513
+              },
+              "5": {
+                "expanded_nodes": 272726,
+                "overridden_nodes": 964,
+                "override_fraction": 0.003534683161854755
+              },
+              "6": {
+                "expanded_nodes": 259228,
+                "overridden_nodes": 1072,
+                "override_fraction": 0.004135355748607404
+              },
+              "7": {
+                "expanded_nodes": 196082,
+                "overridden_nodes": 1000,
+                "override_fraction": 0.005099907181689293
+              },
+              "8": {
+                "expanded_nodes": 119084,
+                "overridden_nodes": 694,
+                "override_fraction": 0.005827819018507944
+              },
+              "9": {
+                "expanded_nodes": 64756,
+                "overridden_nodes": 486,
+                "override_fraction": 0.007505096052875409
+              },
+              "10": {
+                "expanded_nodes": 30782,
+                "overridden_nodes": 306,
+                "override_fraction": 0.009940874537067117
+              },
+              "11": {
+                "expanded_nodes": 14060,
+                "overridden_nodes": 190,
+                "override_fraction": 0.013513513513513514
+              },
+              "12": {
+                "expanded_nodes": 5904,
+                "overridden_nodes": 20,
+                "override_fraction": 0.0033875338753387536
+              },
+              "13": {
+                "expanded_nodes": 2062,
+                "overridden_nodes": 36,
+                "override_fraction": 0.01745877788554801
+              },
+              "14": {
+                "expanded_nodes": 1098,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "15": {
+                "expanded_nodes": 700,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "16": {
+                "expanded_nodes": 402,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "17": {
+                "expanded_nodes": 294,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 168,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 658880,
+                "overridden_nodes": 818,
+                "override_fraction": 0.0012415007285089849
+              },
+              "1": {
+                "expanded_nodes": 754684,
+                "overridden_nodes": 5336,
+                "override_fraction": 0.00707050898124248
+              }
+            },
+            "mean_l1_overridden": 0.017478988067933132,
+            "mean_l1_non_overridden": 0.005564598697017372,
+            "policy_l1_mass_removed": 107.56569257006049,
+            "policy_l1_mass_removed_fraction": 0.013548617479185513,
+            "encountered_l1_percentiles": {
+              "p50": 0.005491092801094055,
+              "p75": 0.008001493290066719,
+              "p90": 0.010248318314552307,
+              "p95": 0.011683598160743713,
+              "p99": 0.014605228789150715
+            }
+          }
+        }
+      },
+      "recovery_fraction": 0.0,
+      "p0_recovery_fraction": 0.0
+    },
+    "tail_q95": {
+      "paired_candidate_effect": -0.041015625,
+      "opening_bootstrap_ci": {
+        "lower_95": -0.0625,
+        "upper_95": -0.02338867187500071,
+        "samples": 10000,
+        "unique_openings": 128
+      },
+      "p0_effect": -0.08203125,
+      "p1_effect": 0.0,
+      "orientation_decomposition": {
+        "candidate_challenger_score": 0.77734375,
+        "current_control_challenger_score": 0.818359375
+      },
+      "per_opening_effect": {
+        "0": 0.0,
+        "1": -0.5,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 0.0,
+        "5": 0.0,
+        "6": 0.0,
+        "7": 0.0,
+        "8": -0.5,
+        "9": 0.0,
+        "10": 0.0,
+        "11": 0.0,
+        "12": 0.0,
+        "13": 0.0,
+        "14": 0.0,
+        "15": 0.0,
+        "16": 0.0,
+        "17": 0.0,
+        "18": 0.0,
+        "19": 0.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0,
+        "24": 0.0,
+        "25": 0.0,
+        "26": 0.0,
+        "27": 0.0,
+        "28": 0.0,
+        "29": 0.0,
+        "30": 0.0,
+        "31": 0.0,
+        "32": 0.0,
+        "33": -0.25,
+        "34": 0.0,
+        "35": 0.0,
+        "36": -0.25,
+        "37": 0.0,
+        "38": 0.0,
+        "39": 0.0,
+        "40": 0.0,
+        "41": -0.25,
+        "42": -0.25,
+        "43": 0.0,
+        "44": 0.0,
+        "45": 0.0,
+        "46": 0.0,
+        "47": 0.0,
+        "48": 0.0,
+        "49": -0.25,
+        "50": 0.0,
+        "51": 0.0,
+        "52": 0.0,
+        "53": 0.0,
+        "54": 0.0,
+        "55": 0.0,
+        "56": 0.0,
+        "57": 0.0,
+        "58": 0.0,
+        "59": 0.0,
+        "60": -0.25,
+        "61": 0.0,
+        "62": 0.0,
+        "63": 0.0,
+        "64": 0.0,
+        "65": 0.0,
+        "66": 0.0,
+        "67": 0.0,
+        "68": 0.0,
+        "69": 0.0,
+        "70": 0.0,
+        "71": -0.5,
+        "72": 0.0,
+        "73": 0.0,
+        "74": 0.0,
+        "75": 0.0,
+        "76": 0.0,
+        "77": 0.0,
+        "78": 0.0,
+        "79": 0.0,
+        "80": -0.5,
+        "81": 0.0,
+        "82": 0.0,
+        "83": 0.0,
+        "84": 0.0,
+        "85": 0.0,
+        "86": 0.0,
+        "87": 0.0,
+        "88": 0.0,
+        "89": 0.0,
+        "90": 0.0,
+        "91": 0.0,
+        "92": 0.0,
+        "93": 0.0,
+        "94": 0.0,
+        "95": 0.0,
+        "96": 0.0,
+        "97": 0.0,
+        "98": 0.0,
+        "99": 0.0,
+        "100": 0.0,
+        "101": -0.25,
+        "102": 0.0,
+        "103": 0.0,
+        "104": 0.0,
+        "105": 0.0,
+        "106": 0.0,
+        "107": 0.0,
+        "108": 0.0,
+        "109": 0.0,
+        "110": -0.25,
+        "111": 0.0,
+        "112": 0.0,
+        "113": 0.0,
+        "114": -0.25,
+        "115": 0.0,
+        "116": 0.0,
+        "117": -0.25,
+        "118": 0.0,
+        "119": 0.0,
+        "120": 0.0,
+        "121": 0.0,
+        "122": 0.0,
+        "123": -0.5,
+        "124": 0.0,
+        "125": 0.0,
+        "126": -0.25,
+        "127": 0.0
+      },
+      "win_draw_loss": {
+        "wins": 382,
+        "draws": 32,
+        "losses": 98
+      },
+      "telemetry": {
+        "total_expanded_nodes": 2688530,
+        "overridden_node_count": 89184,
+        "override_fraction": 0.033172030812377025,
+        "override_fraction_by_depth": {
+          "0": {
+            "expanded_nodes": 9234,
+            "overridden_nodes": 262,
+            "override_fraction": 0.02837340264240849
+          },
+          "1": {
+            "expanded_nodes": 34784,
+            "overridden_nodes": 1352,
+            "override_fraction": 0.038868445262189515
+          },
+          "2": {
+            "expanded_nodes": 107988,
+            "overridden_nodes": 3192,
+            "override_fraction": 0.02955883987109679
+          },
+          "3": {
+            "expanded_nodes": 254656,
+            "overridden_nodes": 8078,
+            "override_fraction": 0.03172122392560945
+          },
+          "4": {
+            "expanded_nodes": 432522,
+            "overridden_nodes": 12600,
+            "override_fraction": 0.0291314661450747
+          },
+          "5": {
+            "expanded_nodes": 514420,
+            "overridden_nodes": 14080,
+            "override_fraction": 0.02737063100190506
+          },
+          "6": {
+            "expanded_nodes": 474672,
+            "overridden_nodes": 14860,
+            "override_fraction": 0.03130582802440422
+          },
+          "7": {
+            "expanded_nodes": 349764,
+            "overridden_nodes": 12458,
+            "override_fraction": 0.03561830262691415
+          },
+          "8": {
+            "expanded_nodes": 220968,
+            "overridden_nodes": 8310,
+            "override_fraction": 0.037607255349190835
+          },
+          "9": {
+            "expanded_nodes": 132342,
+            "overridden_nodes": 5866,
+            "override_fraction": 0.04432455305194118
+          },
+          "10": {
+            "expanded_nodes": 73678,
+            "overridden_nodes": 3388,
+            "override_fraction": 0.04598387578381606
+          },
+          "11": {
+            "expanded_nodes": 41292,
+            "overridden_nodes": 2600,
+            "override_fraction": 0.06296619199845006
+          },
+          "12": {
+            "expanded_nodes": 22354,
+            "overridden_nodes": 1154,
+            "override_fraction": 0.051623870448241925
+          },
+          "13": {
+            "expanded_nodes": 10604,
+            "overridden_nodes": 522,
+            "override_fraction": 0.04922670690305545
+          },
+          "14": {
+            "expanded_nodes": 4916,
+            "overridden_nodes": 308,
+            "override_fraction": 0.06265256305939788
+          },
+          "15": {
+            "expanded_nodes": 2460,
+            "overridden_nodes": 140,
+            "override_fraction": 0.056910569105691054
+          },
+          "16": {
+            "expanded_nodes": 1106,
+            "overridden_nodes": 14,
+            "override_fraction": 0.012658227848101266
+          },
+          "17": {
+            "expanded_nodes": 414,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "18": {
+            "expanded_nodes": 216,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "19": {
+            "expanded_nodes": 82,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "20": {
+            "expanded_nodes": 58,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          }
+        },
+        "override_fraction_by_player_to_move": {
+          "0": {
+            "expanded_nodes": 1271028,
+            "overridden_nodes": 23588,
+            "override_fraction": 0.018558206428182542
+          },
+          "1": {
+            "expanded_nodes": 1417502,
+            "overridden_nodes": 65596,
+            "override_fraction": 0.046275772450409244
+          }
+        },
+        "mean_l1_overridden": 0.014618384597809156,
+        "mean_l1_non_overridden": 0.005250557202950367,
+        "policy_l1_mass_removed": 1303.7260119710118,
+        "policy_l1_mass_removed_fraction": 0.0871955996863709,
+        "encountered_l1_percentiles": {
+          "p50": 0.0053626298904418945,
+          "p75": 0.008021309971809387,
+          "p90": 0.01041489839553833,
+          "p95": 0.011886483058333397,
+          "p99": 0.01502065546810627
+        },
+        "by_candidate_seat": {
+          "0": {
+            "total_expanded_nodes": 1275024,
+            "overridden_node_count": 46424,
+            "override_fraction": 0.036410295021897625,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4660,
+                "overridden_nodes": 108,
+                "override_fraction": 0.02317596566523605
+              },
+              "1": {
+                "expanded_nodes": 16616,
+                "overridden_nodes": 584,
+                "override_fraction": 0.03514684641309581
+              },
+              "2": {
+                "expanded_nodes": 49290,
+                "overridden_nodes": 1436,
+                "override_fraction": 0.029133698518969364
+              },
+              "3": {
+                "expanded_nodes": 125398,
+                "overridden_nodes": 4046,
+                "override_fraction": 0.03226526738863459
+              },
+              "4": {
+                "expanded_nodes": 197232,
+                "overridden_nodes": 6120,
+                "override_fraction": 0.03102944755414943
+              },
+              "5": {
+                "expanded_nodes": 241760,
+                "overridden_nodes": 7202,
+                "override_fraction": 0.02978987425545996
+              },
+              "6": {
+                "expanded_nodes": 215412,
+                "overridden_nodes": 6880,
+                "override_fraction": 0.031938796353035113
+              },
+              "7": {
+                "expanded_nodes": 154028,
+                "overridden_nodes": 5922,
+                "override_fraction": 0.03844755499000182
+              },
+              "8": {
+                "expanded_nodes": 101972,
+                "overridden_nodes": 4072,
+                "override_fraction": 0.039932530498568236
+              },
+              "9": {
+                "expanded_nodes": 67264,
+                "overridden_nodes": 3564,
+                "override_fraction": 0.05298525214081827
+              },
+              "10": {
+                "expanded_nodes": 42672,
+                "overridden_nodes": 2446,
+                "override_fraction": 0.057320959880014996
+              },
+              "11": {
+                "expanded_nodes": 27126,
+                "overridden_nodes": 2110,
+                "override_fraction": 0.0777851507778515
+              },
+              "12": {
+                "expanded_nodes": 16466,
+                "overridden_nodes": 1044,
+                "override_fraction": 0.0634033766549253
+              },
+              "13": {
+                "expanded_nodes": 8622,
+                "overridden_nodes": 486,
+                "override_fraction": 0.05636743215031315
+              },
+              "14": {
+                "expanded_nodes": 3818,
+                "overridden_nodes": 266,
+                "override_fraction": 0.06966998428496594
+              },
+              "15": {
+                "expanded_nodes": 1760,
+                "overridden_nodes": 124,
+                "override_fraction": 0.07045454545454545
+              },
+              "16": {
+                "expanded_nodes": 704,
+                "overridden_nodes": 14,
+                "override_fraction": 0.019886363636363636
+              },
+              "17": {
+                "expanded_nodes": 120,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 48,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 40,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 16,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 612038,
+                "overridden_nodes": 10332,
+                "override_fraction": 0.016881304755587072
+              },
+              "1": {
+                "expanded_nodes": 662986,
+                "overridden_nodes": 36092,
+                "override_fraction": 0.05443855526361039
+              }
+            },
+            "mean_l1_overridden": 0.014836930046060242,
+            "mean_l1_non_overridden": 0.00514682745343069,
+            "policy_l1_mass_removed": 688.7896404583007,
+            "policy_l1_mass_removed_fraction": 0.09822757812299476,
+            "encountered_l1_percentiles": {
+              "p50": 0.005211986601352692,
+              "p75": 0.008048377931118011,
+              "p90": 0.010571938008069992,
+              "p95": 0.012080628424882889,
+              "p99": 0.015474771149456501
+            }
+          },
+          "1": {
+            "total_expanded_nodes": 1413506,
+            "overridden_node_count": 42760,
+            "override_fraction": 0.030251021219577418,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4574,
+                "overridden_nodes": 154,
+                "override_fraction": 0.033668561434193264
+              },
+              "1": {
+                "expanded_nodes": 18168,
+                "overridden_nodes": 768,
+                "override_fraction": 0.04227212681638045
+              },
+              "2": {
+                "expanded_nodes": 58698,
+                "overridden_nodes": 1756,
+                "override_fraction": 0.0299158404034209
+              },
+              "3": {
+                "expanded_nodes": 129258,
+                "overridden_nodes": 4032,
+                "override_fraction": 0.03119342709928979
+              },
+              "4": {
+                "expanded_nodes": 235290,
+                "overridden_nodes": 6480,
+                "override_fraction": 0.02754048195843427
+              },
+              "5": {
+                "expanded_nodes": 272660,
+                "overridden_nodes": 6878,
+                "override_fraction": 0.02522555563705714
+              },
+              "6": {
+                "expanded_nodes": 259260,
+                "overridden_nodes": 7980,
+                "override_fraction": 0.03077991205739412
+              },
+              "7": {
+                "expanded_nodes": 195736,
+                "overridden_nodes": 6536,
+                "override_fraction": 0.033391915641476276
+              },
+              "8": {
+                "expanded_nodes": 118996,
+                "overridden_nodes": 4238,
+                "override_fraction": 0.0356146425089919
+              },
+              "9": {
+                "expanded_nodes": 65078,
+                "overridden_nodes": 2302,
+                "override_fraction": 0.035372937090875564
+              },
+              "10": {
+                "expanded_nodes": 31006,
+                "overridden_nodes": 942,
+                "override_fraction": 0.030381216538734438
+              },
+              "11": {
+                "expanded_nodes": 14166,
+                "overridden_nodes": 490,
+                "override_fraction": 0.03458986305237893
+              },
+              "12": {
+                "expanded_nodes": 5888,
+                "overridden_nodes": 110,
+                "override_fraction": 0.018682065217391304
+              },
+              "13": {
+                "expanded_nodes": 1982,
+                "overridden_nodes": 36,
+                "override_fraction": 0.018163471241170535
+              },
+              "14": {
+                "expanded_nodes": 1098,
+                "overridden_nodes": 42,
+                "override_fraction": 0.03825136612021858
+              },
+              "15": {
+                "expanded_nodes": 700,
+                "overridden_nodes": 16,
+                "override_fraction": 0.022857142857142857
+              },
+              "16": {
+                "expanded_nodes": 402,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "17": {
+                "expanded_nodes": 294,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 168,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 658990,
+                "overridden_nodes": 13256,
+                "override_fraction": 0.02011563149668432
+              },
+              "1": {
+                "expanded_nodes": 754516,
+                "overridden_nodes": 29504,
+                "override_fraction": 0.039103213185671344
+              }
+            },
+            "mean_l1_overridden": 0.014381112523683607,
+            "mean_l1_non_overridden": 0.005343530204702606,
+            "policy_l1_mass_removed": 614.936371512711,
+            "policy_l1_mass_removed_fraction": 0.07745220730000368,
+            "encountered_l1_percentiles": {
+              "p50": 0.0054917484521865845,
+              "p75": 0.00800115242600441,
+              "p90": 0.010243482887744904,
+              "p95": 0.01168147474527359,
+              "p99": 0.014571905136108398
+            }
+          }
+        }
+      },
+      "recovery_fraction": 0.5714285714285714,
+      "p0_recovery_fraction": 0.5714285714285714
+    },
+    "tail_q90": {
+      "paired_candidate_effect": -0.041015625,
+      "opening_bootstrap_ci": {
+        "lower_95": -0.0625,
+        "upper_95": -0.02338867187500071,
+        "samples": 10000,
+        "unique_openings": 128
+      },
+      "p0_effect": -0.08203125,
+      "p1_effect": 0.0,
+      "orientation_decomposition": {
+        "candidate_challenger_score": 0.77734375,
+        "current_control_challenger_score": 0.818359375
+      },
+      "per_opening_effect": {
+        "0": 0.0,
+        "1": -0.5,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 0.0,
+        "5": 0.0,
+        "6": 0.0,
+        "7": 0.0,
+        "8": -0.5,
+        "9": 0.0,
+        "10": 0.0,
+        "11": 0.0,
+        "12": 0.0,
+        "13": 0.0,
+        "14": 0.0,
+        "15": 0.0,
+        "16": 0.0,
+        "17": 0.0,
+        "18": 0.0,
+        "19": 0.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0,
+        "24": 0.0,
+        "25": 0.0,
+        "26": 0.0,
+        "27": 0.0,
+        "28": 0.0,
+        "29": 0.0,
+        "30": 0.0,
+        "31": 0.0,
+        "32": 0.0,
+        "33": -0.25,
+        "34": 0.0,
+        "35": 0.0,
+        "36": -0.25,
+        "37": 0.0,
+        "38": 0.0,
+        "39": 0.0,
+        "40": 0.0,
+        "41": -0.25,
+        "42": -0.25,
+        "43": 0.0,
+        "44": 0.0,
+        "45": 0.0,
+        "46": 0.0,
+        "47": 0.0,
+        "48": 0.0,
+        "49": -0.25,
+        "50": 0.0,
+        "51": 0.0,
+        "52": 0.0,
+        "53": 0.0,
+        "54": 0.0,
+        "55": 0.0,
+        "56": 0.0,
+        "57": 0.0,
+        "58": 0.0,
+        "59": 0.0,
+        "60": -0.25,
+        "61": 0.0,
+        "62": 0.0,
+        "63": 0.0,
+        "64": 0.0,
+        "65": 0.0,
+        "66": 0.0,
+        "67": 0.0,
+        "68": 0.0,
+        "69": 0.0,
+        "70": 0.0,
+        "71": -0.5,
+        "72": 0.0,
+        "73": 0.0,
+        "74": 0.0,
+        "75": 0.0,
+        "76": 0.0,
+        "77": 0.0,
+        "78": 0.0,
+        "79": 0.0,
+        "80": -0.5,
+        "81": 0.0,
+        "82": 0.0,
+        "83": 0.0,
+        "84": 0.0,
+        "85": 0.0,
+        "86": 0.0,
+        "87": 0.0,
+        "88": 0.0,
+        "89": 0.0,
+        "90": 0.0,
+        "91": 0.0,
+        "92": 0.0,
+        "93": 0.0,
+        "94": 0.0,
+        "95": 0.0,
+        "96": 0.0,
+        "97": 0.0,
+        "98": 0.0,
+        "99": 0.0,
+        "100": 0.0,
+        "101": -0.25,
+        "102": 0.0,
+        "103": 0.0,
+        "104": 0.0,
+        "105": 0.0,
+        "106": 0.0,
+        "107": 0.0,
+        "108": 0.0,
+        "109": 0.0,
+        "110": -0.25,
+        "111": 0.0,
+        "112": 0.0,
+        "113": 0.0,
+        "114": -0.25,
+        "115": 0.0,
+        "116": 0.0,
+        "117": -0.25,
+        "118": 0.0,
+        "119": 0.0,
+        "120": 0.0,
+        "121": 0.0,
+        "122": 0.0,
+        "123": -0.5,
+        "124": 0.0,
+        "125": 0.0,
+        "126": -0.25,
+        "127": 0.0
+      },
+      "win_draw_loss": {
+        "wins": 382,
+        "draws": 32,
+        "losses": 98
+      },
+      "telemetry": {
+        "total_expanded_nodes": 2684648,
+        "overridden_node_count": 203010,
+        "override_fraction": 0.07561885208042171,
+        "override_fraction_by_depth": {
+          "0": {
+            "expanded_nodes": 9226,
+            "overridden_nodes": 732,
+            "override_fraction": 0.07934099284630393
+          },
+          "1": {
+            "expanded_nodes": 34832,
+            "overridden_nodes": 2840,
+            "override_fraction": 0.08153422140560404
+          },
+          "2": {
+            "expanded_nodes": 107750,
+            "overridden_nodes": 7746,
+            "override_fraction": 0.07188863109048724
+          },
+          "3": {
+            "expanded_nodes": 254240,
+            "overridden_nodes": 19160,
+            "override_fraction": 0.07536186280679673
+          },
+          "4": {
+            "expanded_nodes": 432056,
+            "overridden_nodes": 33196,
+            "override_fraction": 0.07683263280685837
+          },
+          "5": {
+            "expanded_nodes": 513252,
+            "overridden_nodes": 37390,
+            "override_fraction": 0.07284920467918293
+          },
+          "6": {
+            "expanded_nodes": 473984,
+            "overridden_nodes": 35784,
+            "override_fraction": 0.07549621928166352
+          },
+          "7": {
+            "expanded_nodes": 348682,
+            "overridden_nodes": 26524,
+            "override_fraction": 0.07606931243941471
+          },
+          "8": {
+            "expanded_nodes": 220724,
+            "overridden_nodes": 16866,
+            "override_fraction": 0.07641217085591055
+          },
+          "9": {
+            "expanded_nodes": 131466,
+            "overridden_nodes": 10018,
+            "override_fraction": 0.07620221197876256
+          },
+          "10": {
+            "expanded_nodes": 73392,
+            "overridden_nodes": 5864,
+            "override_fraction": 0.07989971659036407
+          },
+          "11": {
+            "expanded_nodes": 42150,
+            "overridden_nodes": 3640,
+            "override_fraction": 0.0863582443653618
+          },
+          "12": {
+            "expanded_nodes": 22734,
+            "overridden_nodes": 1816,
+            "override_fraction": 0.07988035541479722
+          },
+          "13": {
+            "expanded_nodes": 10854,
+            "overridden_nodes": 814,
+            "override_fraction": 0.07499539340335361
+          },
+          "14": {
+            "expanded_nodes": 4958,
+            "overridden_nodes": 402,
+            "override_fraction": 0.08108108108108109
+          },
+          "15": {
+            "expanded_nodes": 2422,
+            "overridden_nodes": 196,
+            "override_fraction": 0.08092485549132948
+          },
+          "16": {
+            "expanded_nodes": 1142,
+            "overridden_nodes": 22,
+            "override_fraction": 0.01926444833625219
+          },
+          "17": {
+            "expanded_nodes": 428,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "18": {
+            "expanded_nodes": 216,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "19": {
+            "expanded_nodes": 82,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "20": {
+            "expanded_nodes": 58,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          }
+        },
+        "override_fraction_by_player_to_move": {
+          "0": {
+            "expanded_nodes": 1268852,
+            "overridden_nodes": 56170,
+            "override_fraction": 0.044268362267624595
+          },
+          "1": {
+            "expanded_nodes": 1415796,
+            "overridden_nodes": 146840,
+            "override_fraction": 0.10371550703632444
+          }
+        },
+        "mean_l1_overridden": 0.013023830980464723,
+        "mean_l1_non_overridden": 0.004959585623138157,
+        "policy_l1_mass_removed": 2643.9679273441434,
+        "policy_l1_mass_removed_fraction": 0.17683199327271565,
+        "encountered_l1_percentiles": {
+          "p50": 0.005369663238525391,
+          "p75": 0.008032651618123055,
+          "p90": 0.010417662560939789,
+          "p95": 0.011889740824699402,
+          "p99": 0.015050292015075684
+        },
+        "by_candidate_seat": {
+          "0": {
+            "total_expanded_nodes": 1274438,
+            "overridden_node_count": 105074,
+            "override_fraction": 0.08244732187834952,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4660,
+                "overridden_nodes": 202,
+                "override_fraction": 0.043347639484978544
+              },
+              "1": {
+                "expanded_nodes": 16616,
+                "overridden_nodes": 1558,
+                "override_fraction": 0.0937650457390467
+              },
+              "2": {
+                "expanded_nodes": 49268,
+                "overridden_nodes": 3320,
+                "override_fraction": 0.06738653892993424
+              },
+              "3": {
+                "expanded_nodes": 125316,
+                "overridden_nodes": 10456,
+                "override_fraction": 0.08343707108429889
+              },
+              "4": {
+                "expanded_nodes": 197074,
+                "overridden_nodes": 16540,
+                "override_fraction": 0.08392786465997544
+              },
+              "5": {
+                "expanded_nodes": 241420,
+                "overridden_nodes": 20036,
+                "override_fraction": 0.08299229558445861
+              },
+              "6": {
+                "expanded_nodes": 215800,
+                "overridden_nodes": 17226,
+                "override_fraction": 0.07982391102873031
+              },
+              "7": {
+                "expanded_nodes": 153360,
+                "overridden_nodes": 12550,
+                "override_fraction": 0.08183359415753783
+              },
+              "8": {
+                "expanded_nodes": 101442,
+                "overridden_nodes": 7796,
+                "override_fraction": 0.0768517970860196
+              },
+              "9": {
+                "expanded_nodes": 66930,
+                "overridden_nodes": 5854,
+                "override_fraction": 0.08746451516509786
+              },
+              "10": {
+                "expanded_nodes": 42596,
+                "overridden_nodes": 3816,
+                "override_fraction": 0.08958587660813222
+              },
+              "11": {
+                "expanded_nodes": 27950,
+                "overridden_nodes": 3034,
+                "override_fraction": 0.10855098389982111
+              },
+              "12": {
+                "expanded_nodes": 16742,
+                "overridden_nodes": 1502,
+                "override_fraction": 0.08971449050292678
+              },
+              "13": {
+                "expanded_nodes": 8688,
+                "overridden_nodes": 622,
+                "override_fraction": 0.07159300184162062
+              },
+              "14": {
+                "expanded_nodes": 3892,
+                "overridden_nodes": 360,
+                "override_fraction": 0.09249743062692703
+              },
+              "15": {
+                "expanded_nodes": 1714,
+                "overridden_nodes": 180,
+                "override_fraction": 0.10501750291715285
+              },
+              "16": {
+                "expanded_nodes": 732,
+                "overridden_nodes": 22,
+                "override_fraction": 0.030054644808743168
+              },
+              "17": {
+                "expanded_nodes": 134,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 48,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 40,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 16,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 611346,
+                "overridden_nodes": 25586,
+                "override_fraction": 0.041851913646282136
+              },
+              "1": {
+                "expanded_nodes": 663092,
+                "overridden_nodes": 79488,
+                "override_fraction": 0.11987476850874389
+              }
+            },
+            "mean_l1_overridden": 0.013143085184913321,
+            "mean_l1_non_overridden": 0.0048178477601868,
+            "policy_l1_mass_removed": 1380.9965327195823,
+            "policy_l1_mass_removed_fraction": 0.19686858145408187,
+            "encountered_l1_percentiles": {
+              "p50": 0.005213446915149689,
+              "p75": 0.008051082491874695,
+              "p90": 0.010579615831375122,
+              "p95": 0.012091998010873795,
+              "p99": 0.015589287504553795
+            }
+          },
+          "1": {
+            "total_expanded_nodes": 1410210,
+            "overridden_node_count": 97936,
+            "override_fraction": 0.06944781273711008,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4566,
+                "overridden_nodes": 530,
+                "override_fraction": 0.11607533946561542
+              },
+              "1": {
+                "expanded_nodes": 18216,
+                "overridden_nodes": 1282,
+                "override_fraction": 0.07037768994290733
+              },
+              "2": {
+                "expanded_nodes": 58482,
+                "overridden_nodes": 4426,
+                "override_fraction": 0.07568140624465648
+              },
+              "3": {
+                "expanded_nodes": 128924,
+                "overridden_nodes": 8704,
+                "override_fraction": 0.06751264310756724
+              },
+              "4": {
+                "expanded_nodes": 234982,
+                "overridden_nodes": 16656,
+                "override_fraction": 0.07088202500617069
+              },
+              "5": {
+                "expanded_nodes": 271832,
+                "overridden_nodes": 17354,
+                "override_fraction": 0.06384090173342359
+              },
+              "6": {
+                "expanded_nodes": 258184,
+                "overridden_nodes": 18558,
+                "override_fraction": 0.07187897003687292
+              },
+              "7": {
+                "expanded_nodes": 195322,
+                "overridden_nodes": 13974,
+                "override_fraction": 0.07154340012901772
+              },
+              "8": {
+                "expanded_nodes": 119282,
+                "overridden_nodes": 9070,
+                "override_fraction": 0.07603829580322262
+              },
+              "9": {
+                "expanded_nodes": 64536,
+                "overridden_nodes": 4164,
+                "override_fraction": 0.06452212718482707
+              },
+              "10": {
+                "expanded_nodes": 30796,
+                "overridden_nodes": 2048,
+                "override_fraction": 0.06650214313547213
+              },
+              "11": {
+                "expanded_nodes": 14200,
+                "overridden_nodes": 606,
+                "override_fraction": 0.04267605633802817
+              },
+              "12": {
+                "expanded_nodes": 5992,
+                "overridden_nodes": 314,
+                "override_fraction": 0.05240320427236315
+              },
+              "13": {
+                "expanded_nodes": 2166,
+                "overridden_nodes": 192,
+                "override_fraction": 0.0886426592797784
+              },
+              "14": {
+                "expanded_nodes": 1066,
+                "overridden_nodes": 42,
+                "override_fraction": 0.039399624765478425
+              },
+              "15": {
+                "expanded_nodes": 708,
+                "overridden_nodes": 16,
+                "override_fraction": 0.022598870056497175
+              },
+              "16": {
+                "expanded_nodes": 410,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "17": {
+                "expanded_nodes": 294,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 168,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 657506,
+                "overridden_nodes": 30584,
+                "override_fraction": 0.04651516488062466
+              },
+              "1": {
+                "expanded_nodes": 752704,
+                "overridden_nodes": 67352,
+                "override_fraction": 0.08948006121928408
+              }
+            },
+            "mean_l1_overridden": 0.012895885012912117,
+            "mean_l1_non_overridden": 0.005085887869751481,
+            "policy_l1_mass_removed": 1262.971394624561,
+            "policy_l1_mass_removed_fraction": 0.15912353133447615,
+            "encountered_l1_percentiles": {
+              "p50": 0.005501188337802887,
+              "p75": 0.008016161620616913,
+              "p90": 0.010248318314552307,
+              "p95": 0.011683598160743713,
+              "p99": 0.014548689126968384
+            }
+          }
+        }
+      },
+      "recovery_fraction": 0.5714285714285714,
+      "p0_recovery_fraction": 0.5714285714285714
+    },
+    "tail_q75": {
+      "paired_candidate_effect": -0.017578125,
+      "opening_bootstrap_ci": {
+        "lower_95": -0.029296875,
+        "upper_95": -0.0078125,
+        "samples": 10000,
+        "unique_openings": 128
+      },
+      "p0_effect": -0.03515625,
+      "p1_effect": 0.0,
+      "orientation_decomposition": {
+        "candidate_challenger_score": 0.80078125,
+        "current_control_challenger_score": 0.818359375
+      },
+      "per_opening_effect": {
+        "0": 0.0,
+        "1": -0.25,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 0.0,
+        "5": 0.0,
+        "6": 0.0,
+        "7": 0.0,
+        "8": -0.25,
+        "9": 0.0,
+        "10": 0.0,
+        "11": 0.0,
+        "12": 0.0,
+        "13": 0.0,
+        "14": 0.0,
+        "15": 0.0,
+        "16": 0.0,
+        "17": 0.0,
+        "18": 0.0,
+        "19": 0.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0,
+        "24": 0.0,
+        "25": 0.0,
+        "26": 0.0,
+        "27": 0.0,
+        "28": 0.0,
+        "29": 0.0,
+        "30": 0.0,
+        "31": 0.0,
+        "32": 0.0,
+        "33": 0.0,
+        "34": 0.0,
+        "35": 0.0,
+        "36": 0.0,
+        "37": 0.0,
+        "38": 0.0,
+        "39": 0.0,
+        "40": 0.0,
+        "41": -0.25,
+        "42": -0.25,
+        "43": 0.0,
+        "44": 0.0,
+        "45": 0.0,
+        "46": 0.0,
+        "47": 0.0,
+        "48": 0.0,
+        "49": 0.0,
+        "50": 0.0,
+        "51": 0.0,
+        "52": 0.0,
+        "53": 0.0,
+        "54": 0.0,
+        "55": 0.0,
+        "56": 0.0,
+        "57": 0.0,
+        "58": 0.0,
+        "59": 0.0,
+        "60": 0.0,
+        "61": 0.0,
+        "62": 0.0,
+        "63": 0.0,
+        "64": 0.0,
+        "65": 0.0,
+        "66": 0.0,
+        "67": 0.0,
+        "68": 0.0,
+        "69": 0.0,
+        "70": 0.0,
+        "71": -0.25,
+        "72": 0.0,
+        "73": 0.0,
+        "74": 0.0,
+        "75": 0.0,
+        "76": 0.0,
+        "77": 0.0,
+        "78": 0.0,
+        "79": 0.0,
+        "80": -0.25,
+        "81": 0.0,
+        "82": 0.0,
+        "83": 0.0,
+        "84": 0.0,
+        "85": 0.0,
+        "86": 0.0,
+        "87": 0.0,
+        "88": 0.0,
+        "89": 0.0,
+        "90": 0.0,
+        "91": 0.0,
+        "92": 0.0,
+        "93": 0.0,
+        "94": 0.0,
+        "95": 0.0,
+        "96": 0.0,
+        "97": 0.0,
+        "98": 0.0,
+        "99": 0.0,
+        "100": 0.0,
+        "101": 0.0,
+        "102": 0.0,
+        "103": 0.0,
+        "104": 0.0,
+        "105": 0.0,
+        "106": 0.0,
+        "107": 0.0,
+        "108": 0.0,
+        "109": 0.0,
+        "110": 0.0,
+        "111": 0.0,
+        "112": 0.0,
+        "113": 0.0,
+        "114": -0.25,
+        "115": 0.0,
+        "116": 0.0,
+        "117": -0.25,
+        "118": 0.0,
+        "119": 0.0,
+        "120": 0.0,
+        "121": 0.0,
+        "122": 0.0,
+        "123": -0.25,
+        "124": 0.0,
+        "125": 0.0,
+        "126": 0.0,
+        "127": 0.0
+      },
+      "win_draw_loss": {
+        "wins": 382,
+        "draws": 56,
+        "losses": 74
+      },
+      "telemetry": {
+        "total_expanded_nodes": 2676928,
+        "overridden_node_count": 565560,
+        "override_fraction": 0.21127202524685013,
+        "override_fraction_by_depth": {
+          "0": {
+            "expanded_nodes": 9184,
+            "overridden_nodes": 1636,
+            "override_fraction": 0.17813588850174217
+          },
+          "1": {
+            "expanded_nodes": 34798,
+            "overridden_nodes": 7272,
+            "override_fraction": 0.20897752744410597
+          },
+          "2": {
+            "expanded_nodes": 107844,
+            "overridden_nodes": 22032,
+            "override_fraction": 0.20429509291198397
+          },
+          "3": {
+            "expanded_nodes": 254502,
+            "overridden_nodes": 55528,
+            "override_fraction": 0.2181829612340964
+          },
+          "4": {
+            "expanded_nodes": 432154,
+            "overridden_nodes": 97260,
+            "override_fraction": 0.22505865964447858
+          },
+          "5": {
+            "expanded_nodes": 511652,
+            "overridden_nodes": 111194,
+            "override_fraction": 0.2173234933118604
+          },
+          "6": {
+            "expanded_nodes": 473370,
+            "overridden_nodes": 104566,
+            "override_fraction": 0.220896972769715
+          },
+          "7": {
+            "expanded_nodes": 347720,
+            "overridden_nodes": 71686,
+            "override_fraction": 0.206160128839296
+          },
+          "8": {
+            "expanded_nodes": 219022,
+            "overridden_nodes": 43926,
+            "override_fraction": 0.2005551953685018
+          },
+          "9": {
+            "expanded_nodes": 129948,
+            "overridden_nodes": 24388,
+            "override_fraction": 0.1876750700280112
+          },
+          "10": {
+            "expanded_nodes": 72882,
+            "overridden_nodes": 13070,
+            "override_fraction": 0.17933097335418896
+          },
+          "11": {
+            "expanded_nodes": 41962,
+            "overridden_nodes": 6664,
+            "override_fraction": 0.15881035222344025
+          },
+          "12": {
+            "expanded_nodes": 22628,
+            "overridden_nodes": 3752,
+            "override_fraction": 0.16581226798656531
+          },
+          "13": {
+            "expanded_nodes": 10456,
+            "overridden_nodes": 1658,
+            "override_fraction": 0.15856924254016833
+          },
+          "14": {
+            "expanded_nodes": 4772,
+            "overridden_nodes": 654,
+            "override_fraction": 0.13704945515507125
+          },
+          "15": {
+            "expanded_nodes": 2236,
+            "overridden_nodes": 242,
+            "override_fraction": 0.10822898032200358
+          },
+          "16": {
+            "expanded_nodes": 1052,
+            "overridden_nodes": 32,
+            "override_fraction": 0.030418250950570342
+          },
+          "17": {
+            "expanded_nodes": 390,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "18": {
+            "expanded_nodes": 216,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "19": {
+            "expanded_nodes": 82,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          },
+          "20": {
+            "expanded_nodes": 58,
+            "overridden_nodes": 0,
+            "override_fraction": 0.0
+          }
+        },
+        "override_fraction_by_player_to_move": {
+          "0": {
+            "expanded_nodes": 1263560,
+            "overridden_nodes": 193374,
+            "override_fraction": 0.15303903257463042
+          },
+          "1": {
+            "expanded_nodes": 1413368,
+            "overridden_nodes": 372186,
+            "override_fraction": 0.26333269183963415
+          }
+        },
+        "mean_l1_overridden": 0.010812554595681331,
+        "mean_l1_non_overridden": 0.004151415515246989,
+        "policy_l1_mass_removed": 6115.148377133533,
+        "policy_l1_mass_removed_fraction": 0.41095559368537704,
+        "encountered_l1_percentiles": {
+          "p50": 0.005355266388505697,
+          "p75": 0.008016079664230347,
+          "p90": 0.010394314303994179,
+          "p95": 0.011869154870510101,
+          "p99": 0.015044547617435455
+        },
+        "by_candidate_seat": {
+          "0": {
+            "total_expanded_nodes": 1264324,
+            "overridden_node_count": 269944,
+            "override_fraction": 0.21350856267855392,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4610,
+                "overridden_nodes": 560,
+                "override_fraction": 0.12147505422993492
+              },
+              "1": {
+                "expanded_nodes": 16630,
+                "overridden_nodes": 3184,
+                "override_fraction": 0.191461214672279
+              },
+              "2": {
+                "expanded_nodes": 49116,
+                "overridden_nodes": 9100,
+                "override_fraction": 0.18527567391481392
+              },
+              "3": {
+                "expanded_nodes": 125338,
+                "overridden_nodes": 28652,
+                "override_fraction": 0.22859787135585377
+              },
+              "4": {
+                "expanded_nodes": 196884,
+                "overridden_nodes": 45410,
+                "override_fraction": 0.23064342455456005
+              },
+              "5": {
+                "expanded_nodes": 239796,
+                "overridden_nodes": 54180,
+                "override_fraction": 0.22594205074313167
+              },
+              "6": {
+                "expanded_nodes": 213586,
+                "overridden_nodes": 48114,
+                "override_fraction": 0.2252675737173785
+              },
+              "7": {
+                "expanded_nodes": 151716,
+                "overridden_nodes": 31516,
+                "override_fraction": 0.2077302328033958
+              },
+              "8": {
+                "expanded_nodes": 99978,
+                "overridden_nodes": 20184,
+                "override_fraction": 0.20188441457120568
+              },
+              "9": {
+                "expanded_nodes": 65872,
+                "overridden_nodes": 12118,
+                "override_fraction": 0.18396283701724556
+              },
+              "10": {
+                "expanded_nodes": 42120,
+                "overridden_nodes": 7718,
+                "override_fraction": 0.1832383665716999
+              },
+              "11": {
+                "expanded_nodes": 27884,
+                "overridden_nodes": 4818,
+                "override_fraction": 0.1727872615119782
+              },
+              "12": {
+                "expanded_nodes": 16482,
+                "overridden_nodes": 2448,
+                "override_fraction": 0.14852566436112122
+              },
+              "13": {
+                "expanded_nodes": 8306,
+                "overridden_nodes": 1188,
+                "override_fraction": 0.14302913556465205
+              },
+              "14": {
+                "expanded_nodes": 3636,
+                "overridden_nodes": 520,
+                "override_fraction": 0.14301430143014301
+              },
+              "15": {
+                "expanded_nodes": 1520,
+                "overridden_nodes": 226,
+                "override_fraction": 0.14868421052631578
+              },
+              "16": {
+                "expanded_nodes": 650,
+                "overridden_nodes": 8,
+                "override_fraction": 0.012307692307692308
+              },
+              "17": {
+                "expanded_nodes": 96,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 48,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 40,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 16,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 606224,
+                "overridden_nodes": 94328,
+                "override_fraction": 0.1555992504420808
+              },
+              "1": {
+                "expanded_nodes": 658100,
+                "overridden_nodes": 175616,
+                "override_fraction": 0.2668530618447045
+              }
+            },
+            "mean_l1_overridden": 0.010962714815113858,
+            "mean_l1_non_overridden": 0.004007046718728373,
+            "policy_l1_mass_removed": 2959.3190880510956,
+            "policy_l1_mass_removed_fraction": 0.42617866251884,
+            "encountered_l1_percentiles": {
+              "p50": 0.005197764839977026,
+              "p75": 0.008036699146032333,
+              "p90": 0.010548382997512817,
+              "p95": 0.012021094560623169,
+              "p99": 0.01572975516319275
+            }
+          },
+          "1": {
+            "total_expanded_nodes": 1412604,
+            "overridden_node_count": 295616,
+            "override_fraction": 0.20927025549977205,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4574,
+                "overridden_nodes": 1076,
+                "override_fraction": 0.23524267599475296
+              },
+              "1": {
+                "expanded_nodes": 18168,
+                "overridden_nodes": 4088,
+                "override_fraction": 0.22501100836635843
+              },
+              "2": {
+                "expanded_nodes": 58728,
+                "overridden_nodes": 12932,
+                "override_fraction": 0.22020160741043454
+              },
+              "3": {
+                "expanded_nodes": 129164,
+                "overridden_nodes": 26876,
+                "override_fraction": 0.20807655383853085
+              },
+              "4": {
+                "expanded_nodes": 235270,
+                "overridden_nodes": 51850,
+                "override_fraction": 0.22038508947167085
+              },
+              "5": {
+                "expanded_nodes": 271856,
+                "overridden_nodes": 57014,
+                "override_fraction": 0.2097213230533812
+              },
+              "6": {
+                "expanded_nodes": 259784,
+                "overridden_nodes": 56452,
+                "override_fraction": 0.21730360607273735
+              },
+              "7": {
+                "expanded_nodes": 196004,
+                "overridden_nodes": 40170,
+                "override_fraction": 0.20494479704495827
+              },
+              "8": {
+                "expanded_nodes": 119044,
+                "overridden_nodes": 23742,
+                "override_fraction": 0.19943886294143343
+              },
+              "9": {
+                "expanded_nodes": 64076,
+                "overridden_nodes": 12270,
+                "override_fraction": 0.19149135401710468
+              },
+              "10": {
+                "expanded_nodes": 30762,
+                "overridden_nodes": 5352,
+                "override_fraction": 0.1739808855080944
+              },
+              "11": {
+                "expanded_nodes": 14078,
+                "overridden_nodes": 1846,
+                "override_fraction": 0.13112658048018183
+              },
+              "12": {
+                "expanded_nodes": 6146,
+                "overridden_nodes": 1304,
+                "override_fraction": 0.21217051740969736
+              },
+              "13": {
+                "expanded_nodes": 2150,
+                "overridden_nodes": 470,
+                "override_fraction": 0.2186046511627907
+              },
+              "14": {
+                "expanded_nodes": 1136,
+                "overridden_nodes": 134,
+                "override_fraction": 0.11795774647887323
+              },
+              "15": {
+                "expanded_nodes": 716,
+                "overridden_nodes": 16,
+                "override_fraction": 0.0223463687150838
+              },
+              "16": {
+                "expanded_nodes": 402,
+                "overridden_nodes": 24,
+                "override_fraction": 0.05970149253731343
+              },
+              "17": {
+                "expanded_nodes": 294,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "18": {
+                "expanded_nodes": 168,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "19": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              },
+              "20": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 0,
+                "override_fraction": 0.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "0": {
+                "expanded_nodes": 657336,
+                "overridden_nodes": 99046,
+                "override_fraction": 0.15067788771647986
+              },
+              "1": {
+                "expanded_nodes": 755268,
+                "overridden_nodes": 196570,
+                "override_fraction": 0.26026523035531757
+              }
+            },
+            "mean_l1_overridden": 0.010675434648606428,
+            "mean_l1_non_overridden": 0.00427993743659456,
+            "policy_l1_mass_removed": 3155.8292890824378,
+            "policy_l1_mass_removed_fraction": 0.39763648900098053,
+            "encountered_l1_percentiles": {
+              "p50": 0.0054921358823776245,
+              "p75": 0.008001863956451416,
+              "p90": 0.010245747864246368,
+              "p95": 0.01168147474527359,
+              "p99": 0.014571905136108398
+            }
+          }
+        }
+      },
+      "recovery_fraction": 0.8163265306122449,
+      "p0_recovery_fraction": 0.8163265306122449
+    },
+    "incumbent_all": {
+      "paired_candidate_effect": 0.0,
+      "opening_bootstrap_ci": {
+        "lower_95": 0.0,
+        "upper_95": 0.0,
+        "samples": 10000,
+        "unique_openings": 128
+      },
+      "p0_effect": 0.0,
+      "p1_effect": 0.0,
+      "orientation_decomposition": {
+        "candidate_challenger_score": 0.818359375,
+        "current_control_challenger_score": 0.818359375
+      },
+      "per_opening_effect": {
+        "0": 0.0,
+        "1": 0.0,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 0.0,
+        "5": 0.0,
+        "6": 0.0,
+        "7": 0.0,
+        "8": 0.0,
+        "9": 0.0,
+        "10": 0.0,
+        "11": 0.0,
+        "12": 0.0,
+        "13": 0.0,
+        "14": 0.0,
+        "15": 0.0,
+        "16": 0.0,
+        "17": 0.0,
+        "18": 0.0,
+        "19": 0.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0,
+        "24": 0.0,
+        "25": 0.0,
+        "26": 0.0,
+        "27": 0.0,
+        "28": 0.0,
+        "29": 0.0,
+        "30": 0.0,
+        "31": 0.0,
+        "32": 0.0,
+        "33": 0.0,
+        "34": 0.0,
+        "35": 0.0,
+        "36": 0.0,
+        "37": 0.0,
+        "38": 0.0,
+        "39": 0.0,
+        "40": 0.0,
+        "41": 0.0,
+        "42": 0.0,
+        "43": 0.0,
+        "44": 0.0,
+        "45": 0.0,
+        "46": 0.0,
+        "47": 0.0,
+        "48": 0.0,
+        "49": 0.0,
+        "50": 0.0,
+        "51": 0.0,
+        "52": 0.0,
+        "53": 0.0,
+        "54": 0.0,
+        "55": 0.0,
+        "56": 0.0,
+        "57": 0.0,
+        "58": 0.0,
+        "59": 0.0,
+        "60": 0.0,
+        "61": 0.0,
+        "62": 0.0,
+        "63": 0.0,
+        "64": 0.0,
+        "65": 0.0,
+        "66": 0.0,
+        "67": 0.0,
+        "68": 0.0,
+        "69": 0.0,
+        "70": 0.0,
+        "71": 0.0,
+        "72": 0.0,
+        "73": 0.0,
+        "74": 0.0,
+        "75": 0.0,
+        "76": 0.0,
+        "77": 0.0,
+        "78": 0.0,
+        "79": 0.0,
+        "80": 0.0,
+        "81": 0.0,
+        "82": 0.0,
+        "83": 0.0,
+        "84": 0.0,
+        "85": 0.0,
+        "86": 0.0,
+        "87": 0.0,
+        "88": 0.0,
+        "89": 0.0,
+        "90": 0.0,
+        "91": 0.0,
+        "92": 0.0,
+        "93": 0.0,
+        "94": 0.0,
+        "95": 0.0,
+        "96": 0.0,
+        "97": 0.0,
+        "98": 0.0,
+        "99": 0.0,
+        "100": 0.0,
+        "101": 0.0,
+        "102": 0.0,
+        "103": 0.0,
+        "104": 0.0,
+        "105": 0.0,
+        "106": 0.0,
+        "107": 0.0,
+        "108": 0.0,
+        "109": 0.0,
+        "110": 0.0,
+        "111": 0.0,
+        "112": 0.0,
+        "113": 0.0,
+        "114": 0.0,
+        "115": 0.0,
+        "116": 0.0,
+        "117": 0.0,
+        "118": 0.0,
+        "119": 0.0,
+        "120": 0.0,
+        "121": 0.0,
+        "122": 0.0,
+        "123": 0.0,
+        "124": 0.0,
+        "125": 0.0,
+        "126": 0.0,
+        "127": 0.0
+      },
+      "win_draw_loss": {
+        "wins": 400,
+        "draws": 38,
+        "losses": 74
+      },
+      "telemetry": {
+        "total_expanded_nodes": 2741956,
+        "overridden_node_count": 2741956,
+        "override_fraction": 1.0,
+        "override_fraction_by_depth": {
+          "0": {
+            "expanded_nodes": 9332,
+            "overridden_nodes": 9332,
+            "override_fraction": 1.0
+          },
+          "1": {
+            "expanded_nodes": 35468,
+            "overridden_nodes": 35468,
+            "override_fraction": 1.0
+          },
+          "2": {
+            "expanded_nodes": 109290,
+            "overridden_nodes": 109290,
+            "override_fraction": 1.0
+          },
+          "3": {
+            "expanded_nodes": 257702,
+            "overridden_nodes": 257702,
+            "override_fraction": 1.0
+          },
+          "4": {
+            "expanded_nodes": 437886,
+            "overridden_nodes": 437886,
+            "override_fraction": 1.0
+          },
+          "5": {
+            "expanded_nodes": 523068,
+            "overridden_nodes": 523068,
+            "override_fraction": 1.0
+          },
+          "6": {
+            "expanded_nodes": 486742,
+            "overridden_nodes": 486742,
+            "override_fraction": 1.0
+          },
+          "7": {
+            "expanded_nodes": 360012,
+            "overridden_nodes": 360012,
+            "override_fraction": 1.0
+          },
+          "8": {
+            "expanded_nodes": 227856,
+            "overridden_nodes": 227856,
+            "override_fraction": 1.0
+          },
+          "9": {
+            "expanded_nodes": 135048,
+            "overridden_nodes": 135048,
+            "override_fraction": 1.0
+          },
+          "10": {
+            "expanded_nodes": 74398,
+            "overridden_nodes": 74398,
+            "override_fraction": 1.0
+          },
+          "11": {
+            "expanded_nodes": 43014,
+            "overridden_nodes": 43014,
+            "override_fraction": 1.0
+          },
+          "12": {
+            "expanded_nodes": 23484,
+            "overridden_nodes": 23484,
+            "override_fraction": 1.0
+          },
+          "13": {
+            "expanded_nodes": 11016,
+            "overridden_nodes": 11016,
+            "override_fraction": 1.0
+          },
+          "14": {
+            "expanded_nodes": 4270,
+            "overridden_nodes": 4270,
+            "override_fraction": 1.0
+          },
+          "15": {
+            "expanded_nodes": 2032,
+            "overridden_nodes": 2032,
+            "override_fraction": 1.0
+          },
+          "16": {
+            "expanded_nodes": 792,
+            "overridden_nodes": 792,
+            "override_fraction": 1.0
+          },
+          "17": {
+            "expanded_nodes": 294,
+            "overridden_nodes": 294,
+            "override_fraction": 1.0
+          },
+          "18": {
+            "expanded_nodes": 168,
+            "overridden_nodes": 168,
+            "override_fraction": 1.0
+          },
+          "19": {
+            "expanded_nodes": 42,
+            "overridden_nodes": 42,
+            "override_fraction": 1.0
+          },
+          "20": {
+            "expanded_nodes": 42,
+            "overridden_nodes": 42,
+            "override_fraction": 1.0
+          }
+        },
+        "override_fraction_by_player_to_move": {
+          "-1": {
+            "expanded_nodes": 2741956,
+            "overridden_nodes": 2741956,
+            "override_fraction": 1.0
+          }
+        },
+        "mean_l1_overridden": 0.005573350801035411,
+        "mean_l1_non_overridden": 0.0,
+        "policy_l1_mass_removed": 15281.882669003851,
+        "policy_l1_mass_removed_fraction": 1.0,
+        "encountered_l1_percentiles": {
+          "p50": 0.005369354039430618,
+          "p75": 0.008037134073674679,
+          "p90": 0.010417286306619644,
+          "p95": 0.011888628825545311,
+          "p99": 0.015105873346328735
+        },
+        "by_candidate_seat": {
+          "0": {
+            "total_expanded_nodes": 1330292,
+            "overridden_node_count": 1330292,
+            "override_fraction": 1.0,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4750,
+                "overridden_nodes": 4750,
+                "override_fraction": 1.0
+              },
+              "1": {
+                "expanded_nodes": 17208,
+                "overridden_nodes": 17208,
+                "override_fraction": 1.0
+              },
+              "2": {
+                "expanded_nodes": 50788,
+                "overridden_nodes": 50788,
+                "override_fraction": 1.0
+              },
+              "3": {
+                "expanded_nodes": 128838,
+                "overridden_nodes": 128838,
+                "override_fraction": 1.0
+              },
+              "4": {
+                "expanded_nodes": 204302,
+                "overridden_nodes": 204302,
+                "override_fraction": 1.0
+              },
+              "5": {
+                "expanded_nodes": 251422,
+                "overridden_nodes": 251422,
+                "override_fraction": 1.0
+              },
+              "6": {
+                "expanded_nodes": 226610,
+                "overridden_nodes": 226610,
+                "override_fraction": 1.0
+              },
+              "7": {
+                "expanded_nodes": 163988,
+                "overridden_nodes": 163988,
+                "override_fraction": 1.0
+              },
+              "8": {
+                "expanded_nodes": 108338,
+                "overridden_nodes": 108338,
+                "override_fraction": 1.0
+              },
+              "9": {
+                "expanded_nodes": 70296,
+                "overridden_nodes": 70296,
+                "override_fraction": 1.0
+              },
+              "10": {
+                "expanded_nodes": 43776,
+                "overridden_nodes": 43776,
+                "override_fraction": 1.0
+              },
+              "11": {
+                "expanded_nodes": 29084,
+                "overridden_nodes": 29084,
+                "override_fraction": 1.0
+              },
+              "12": {
+                "expanded_nodes": 17232,
+                "overridden_nodes": 17232,
+                "override_fraction": 1.0
+              },
+              "13": {
+                "expanded_nodes": 8732,
+                "overridden_nodes": 8732,
+                "override_fraction": 1.0
+              },
+              "14": {
+                "expanded_nodes": 3226,
+                "overridden_nodes": 3226,
+                "override_fraction": 1.0
+              },
+              "15": {
+                "expanded_nodes": 1304,
+                "overridden_nodes": 1304,
+                "override_fraction": 1.0
+              },
+              "16": {
+                "expanded_nodes": 398,
+                "overridden_nodes": 398,
+                "override_fraction": 1.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "-1": {
+                "expanded_nodes": 1330292,
+                "overridden_nodes": 1330292,
+                "override_fraction": 1.0
+              }
+            },
+            "mean_l1_overridden": 0.005513916026513459,
+            "mean_l1_non_overridden": 0.0,
+            "policy_l1_mass_removed": 7335.118378742642,
+            "policy_l1_mass_removed_fraction": 1.0,
+            "encountered_l1_percentiles": {
+              "p50": 0.005220428109169006,
+              "p75": 0.008051291108131409,
+              "p90": 0.010553926229476929,
+              "p95": 0.012049145996570587,
+              "p99": 0.015769094228744507
+            }
+          },
+          "1": {
+            "total_expanded_nodes": 1411664,
+            "overridden_node_count": 1411664,
+            "override_fraction": 1.0,
+            "override_fraction_by_depth": {
+              "0": {
+                "expanded_nodes": 4582,
+                "overridden_nodes": 4582,
+                "override_fraction": 1.0
+              },
+              "1": {
+                "expanded_nodes": 18260,
+                "overridden_nodes": 18260,
+                "override_fraction": 1.0
+              },
+              "2": {
+                "expanded_nodes": 58502,
+                "overridden_nodes": 58502,
+                "override_fraction": 1.0
+              },
+              "3": {
+                "expanded_nodes": 128864,
+                "overridden_nodes": 128864,
+                "override_fraction": 1.0
+              },
+              "4": {
+                "expanded_nodes": 233584,
+                "overridden_nodes": 233584,
+                "override_fraction": 1.0
+              },
+              "5": {
+                "expanded_nodes": 271646,
+                "overridden_nodes": 271646,
+                "override_fraction": 1.0
+              },
+              "6": {
+                "expanded_nodes": 260132,
+                "overridden_nodes": 260132,
+                "override_fraction": 1.0
+              },
+              "7": {
+                "expanded_nodes": 196024,
+                "overridden_nodes": 196024,
+                "override_fraction": 1.0
+              },
+              "8": {
+                "expanded_nodes": 119518,
+                "overridden_nodes": 119518,
+                "override_fraction": 1.0
+              },
+              "9": {
+                "expanded_nodes": 64752,
+                "overridden_nodes": 64752,
+                "override_fraction": 1.0
+              },
+              "10": {
+                "expanded_nodes": 30622,
+                "overridden_nodes": 30622,
+                "override_fraction": 1.0
+              },
+              "11": {
+                "expanded_nodes": 13930,
+                "overridden_nodes": 13930,
+                "override_fraction": 1.0
+              },
+              "12": {
+                "expanded_nodes": 6252,
+                "overridden_nodes": 6252,
+                "override_fraction": 1.0
+              },
+              "13": {
+                "expanded_nodes": 2284,
+                "overridden_nodes": 2284,
+                "override_fraction": 1.0
+              },
+              "14": {
+                "expanded_nodes": 1044,
+                "overridden_nodes": 1044,
+                "override_fraction": 1.0
+              },
+              "15": {
+                "expanded_nodes": 728,
+                "overridden_nodes": 728,
+                "override_fraction": 1.0
+              },
+              "16": {
+                "expanded_nodes": 394,
+                "overridden_nodes": 394,
+                "override_fraction": 1.0
+              },
+              "17": {
+                "expanded_nodes": 294,
+                "overridden_nodes": 294,
+                "override_fraction": 1.0
+              },
+              "18": {
+                "expanded_nodes": 168,
+                "overridden_nodes": 168,
+                "override_fraction": 1.0
+              },
+              "19": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 42,
+                "override_fraction": 1.0
+              },
+              "20": {
+                "expanded_nodes": 42,
+                "overridden_nodes": 42,
+                "override_fraction": 1.0
+              }
+            },
+            "override_fraction_by_player_to_move": {
+              "-1": {
+                "expanded_nodes": 1411664,
+                "overridden_nodes": 1411664,
+                "override_fraction": 1.0
+              }
+            },
+            "mean_l1_overridden": 0.005629359599919817,
+            "mean_l1_non_overridden": 0.0,
+            "policy_l1_mass_removed": 7946.76429026121,
+            "policy_l1_mass_removed_fraction": 1.0,
+            "encountered_l1_percentiles": {
+              "p50": 0.005499586462974548,
+              "p75": 0.008019357919692993,
+              "p90": 0.0102660171687603,
+              "p95": 0.011714451014995575,
+              "p99": 0.014612064696848392
+            }
+          }
+        }
+      },
+      "recovery_fraction": 1.0,
+      "p0_recovery_fraction": 1.0
+    }
+  },
+  "classification": {
+    "label": "moderately_sparse_tail_causal",
+    "next_experiment": "train Gen-2 with a broader selective per-state output constraint"
+  }
+}

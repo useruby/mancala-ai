@@ -67,6 +67,7 @@ if not ARENA_STUB_MODE:
         )
         from ml.alphazero_lite.policy_prior_localization import (
             PRIOR_OVERRIDE_MODES,
+            build_tail_prior_substitution_override,
             build_prior_substitution_override,
         )
         from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
@@ -99,6 +100,7 @@ if not ARENA_STUB_MODE:
         )
         from policy_prior_localization import (
             PRIOR_OVERRIDE_MODES,
+            build_tail_prior_substitution_override,
             build_prior_substitution_override,
         )
         from input_encodings import DEFAULT_INPUT_ENCODING
@@ -1659,6 +1661,7 @@ def run_arena_worker(
     opening_prefix_override: list[int] | None = None,
     opening_state_override: dict | None = None,
     challenger_prior_override_mode: str | None = None,
+    challenger_prior_tail_threshold: float | None = None,
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1686,9 +1689,17 @@ def run_arena_worker(
         )
     challenger_artifact_hash = artifact_weights_hash(challenger_path)
     current_artifact_hash = artifact_weights_hash(current_path)
+    if challenger_prior_override_mode and challenger_prior_tail_threshold is not None:
+        raise ValueError(
+            "prior override mode and tail threshold cannot both be provided"
+        )
     challenger_prior_override = (
         build_prior_substitution_override(challenger_prior_override_mode, current)
         if challenger_prior_override_mode
+        else build_tail_prior_substitution_override(
+            current, threshold=challenger_prior_tail_threshold
+        )
+        if challenger_prior_tail_threshold is not None
         else None
     )
     if opening_cache is None and opening_cache_path:
@@ -2252,6 +2263,9 @@ def run_arena_worker(
                 current_root_prior_telemetry_entries
             ),
         },
+        "challenger_prior_override_telemetry": list(
+            getattr(challenger_prior_override, "telemetry_log", [])
+        ),
         "seed_contract": SEED_CONTRACT_VERSION,
         "suite_sha256": suite_sha256,
         "seed_identity_ledger": seed_identity_ledger,

@@ -167,6 +167,67 @@ class PriorSubstitutionOverride:
         return incumbent_masked
 
 
+class TailPriorSubstitutionOverride:
+    """Replace a candidate prior with P1 only when legal-policy L1 is in a tail.
+
+    The PUCT evaluator remains P2, so this callable changes only the expanded
+    node's prior.  ``threshold=None`` is the incumbent-all control.
+    """
+
+    def __init__(
+        self,
+        incumbent_evaluator: Any,
+        *,
+        threshold: float | None,
+        record_telemetry: bool = True,
+    ) -> None:
+        if threshold is not None and (not np.isfinite(threshold) or threshold < 0.0):
+            raise ValueError("threshold must be a finite non-negative L1 value")
+        self.incumbent_evaluator = incumbent_evaluator
+        self.threshold = threshold
+        self.record_telemetry = bool(record_telemetry)
+        self.last_telemetry: dict[str, Any] | None = None
+        self.telemetry_log: list[dict[str, Any]] = []
+
+    def __call__(
+        self,
+        *,
+        game,
+        legal_moves: list[int],
+        priors: np.ndarray,
+        depth: int = 0,
+    ) -> np.ndarray:
+        candidate = _legal_normalize(np.asarray(priors, dtype=np.float32), legal_moves)
+        incumbent_policy, _ = self.incumbent_evaluator.evaluate(game)
+        incumbent = _legal_normalize(
+            np.asarray(incumbent_policy, dtype=np.float32), legal_moves
+        )
+        l1 = float(np.sum(np.abs(candidate[legal_moves] - incumbent[legal_moves])))
+        substituted = bool(legal_moves) and (
+            self.threshold is None or l1 >= self.threshold
+        )
+        entry = {
+            "depth": int(depth),
+            "player_to_move": int(game.current_player),
+            "legal_move_count": int(len(legal_moves)),
+            "candidate_vs_parent_legal_l1": l1,
+            "substituted": substituted,
+        }
+        if self.record_telemetry:
+            self.telemetry_log.append(entry)
+        self.last_telemetry = entry
+        return incumbent if substituted else candidate
+
+
+def build_tail_prior_substitution_override(
+    incumbent_evaluator: Any, *, threshold: float | None, **kwargs: Any
+) -> TailPriorSubstitutionOverride:
+    """Build an all-depth calibrated-tail override (``None`` means all nodes)."""
+    return TailPriorSubstitutionOverride(
+        incumbent_evaluator, threshold=threshold, **kwargs
+    )
+
+
 def _js(left: np.ndarray, right: np.ndarray, legal_moves: list[int]) -> float:
     """Jensen-Shannon divergence (nats) restricted to legal moves."""
     p = np.clip(left[legal_moves].astype(np.float64), 1e-12, None)
