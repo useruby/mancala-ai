@@ -1,0 +1,844 @@
+{
+  "schema": "azlite_p1_policy_sensitivity_v1",
+  "guardrails": {
+    "promotion": false,
+    "runtime_mutation": false,
+    "architecture_change": false,
+    "value_target_change": false,
+    "search_change": false,
+    "diagnostic_only": true
+  },
+  "inputs": {
+    "p0_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "delta_analysis": {
+      "delta_01_l2_norm": 0.01873338328584813,
+      "delta_12_l2_norm": 0.017511389168783947,
+      "cosine_similarity": 0.9601980156828145,
+      "projection_12_on_01": 0.8975635033538271,
+      "residual_norm": 0.0048912846167807195,
+      "residual_fraction": 0.2793201938256271,
+      "per_layer": {
+        "policy_hidden_layer.weight": {
+          "d01_l2_norm": 0.018160094545083723,
+          "d12_l2_norm": 0.016979593857099688,
+          "cosine_similarity": 0.9599709235221559
+        },
+        "policy_hidden_layer.bias": {
+          "d01_l2_norm": 0.0016328304074122572,
+          "d12_l2_norm": 0.0015675794321518923,
+          "cosine_similarity": 0.9624441504145332
+        },
+        "policy_head.weight": {
+          "d01_l2_norm": 0.004286656581654215,
+          "d12_l2_norm": 0.003969820953173551,
+          "cosine_similarity": 0.964046157701243
+        },
+        "policy_head.bias": {
+          "d01_l2_norm": 0.000330235763818928,
+          "d12_l2_norm": 0.00035406128309208186,
+          "cosine_similarity": 0.9725256243725975
+        }
+      }
+    }
+  },
+  "critical_thresholds": {
+    "ray1_p0_to_p1_to_y": 1.0,
+    "ray2_p1_to_p2": 0.25,
+    "ray3_p1_to_y": 0.25,
+    "ray4_p0_to_x": 1.0
+  },
+  "ray_results": {
+    "ray1_p0_to_p1_to_y": {
+      "config": {
+        "base": "P0",
+        "opponent": "P0",
+        "delta": "delta_01",
+        "alphas": [
+          0.0,
+          0.25,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0
+        ]
+      },
+      "critical_alpha_threshold": 1.0,
+      "points": {
+        "0.00": {
+          "alpha": 0.0,
+          "state_hash": "d265537d6b637b8433b093ebb1f9d55fef25b38e259ed7e59f7a597b35bb6f02",
+          "diagnostics": {
+            "policy_l1_mean": 0.0,
+            "policy_l1_max": 0.0,
+            "policy_js_mean": 0.0,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.0,
+            "search_root_value_delta_mean": 0.0
+          },
+          "arena": {
+            "paired_candidate_effect": 0.0,
+            "opening_bootstrap_ci": {
+              "lower_95": 0.0,
+              "upper_95": 0.0,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": 0.0,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 402,
+              "draws": 32,
+              "losses": 78
+            },
+            "safe": true
+          }
+        },
+        "0.25": {
+          "alpha": 0.25,
+          "state_hash": "a6e5ad4215afa390c50ce98109672e030d863e880a66037ec31c3c688638fb6f",
+          "diagnostics": {
+            "policy_l1_mean": 0.0013048189929349974,
+            "policy_l1_max": 0.004231713712215424,
+            "policy_js_mean": 4.152221112500136e-07,
+            "policy_top1_flip_rate": 0.001953125,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 2.465122376720143e-05,
+            "search_root_value_delta_mean": 0.00018906535340571892
+          },
+          "arena": {
+            "paired_candidate_effect": -0.021484375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.03515625,
+              "upper_95": -0.009765625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.02734375,
+            "win_draw_loss": {
+              "wins": 388,
+              "draws": 38,
+              "losses": 86
+            },
+            "safe": false
+          }
+        },
+        "0.50": {
+          "alpha": 0.5,
+          "state_hash": "85169eda2c100a77694e11f5f7c344c0e1e98b44b949d433aea07eb76ed73a76",
+          "diagnostics": {
+            "policy_l1_mean": 0.0026106643840648758,
+            "policy_l1_max": 0.008463628590106964,
+            "policy_js_mean": 1.6616478230227376e-06,
+            "policy_top1_flip_rate": 0.0078125,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.00014361546079910085,
+            "search_root_value_delta_mean": 0.00037929567842335626
+          },
+          "arena": {
+            "paired_candidate_effect": -0.021484375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.03515625,
+              "upper_95": -0.009765625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.02734375,
+            "win_draw_loss": {
+              "wins": 388,
+              "draws": 38,
+              "losses": 86
+            },
+            "safe": false
+          }
+        },
+        "0.75": {
+          "alpha": 0.75,
+          "state_hash": "ed040d1c849605a24c7d844a162d7a4feba950dd8a1e7c10bfd607f9b147baad",
+          "diagnostics": {
+            "policy_l1_mean": 0.003917060509934345,
+            "policy_l1_max": 0.01269569993019104,
+            "policy_js_mean": 3.7400675466462258e-06,
+            "policy_top1_flip_rate": 0.009765625,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.00012442860274071427,
+            "search_root_value_delta_mean": 0.00021947018867862788
+          },
+          "arena": {
+            "paired_candidate_effect": -0.013671875,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.029296875,
+              "upper_95": 0.00390625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.01171875,
+            "win_draw_loss": {
+              "wins": 392,
+              "draws": 38,
+              "losses": 82
+            },
+            "safe": true
+          }
+        },
+        "1.00": {
+          "alpha": 1.0,
+          "state_hash": "a86acb54b97c860289530fcb7ca64194724d43667580a52e2948359bfa3ebdf4",
+          "diagnostics": {
+            "policy_l1_mean": 0.005223093136237367,
+            "policy_l1_max": 0.01692771166563034,
+            "policy_js_mean": 6.650131448618955e-06,
+            "policy_top1_flip_rate": 0.01171875,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 8.578366562938031e-05,
+            "search_root_value_delta_mean": 8.698345814295267e-05
+          },
+          "arena": {
+            "paired_candidate_effect": -0.013671875,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.029296875,
+              "upper_95": 0.00390625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.01171875,
+            "win_draw_loss": {
+              "wins": 392,
+              "draws": 38,
+              "losses": 82
+            },
+            "safe": true
+          }
+        },
+        "1.50": {
+          "alpha": 1.5,
+          "state_hash": "443a325de24e4df962348775eedf33eff628ff7186ccf26997226b05efc4c9c4",
+          "diagnostics": {
+            "policy_l1_mean": 0.007835067507585336,
+            "policy_l1_max": 0.0253908708691597,
+            "policy_js_mean": 1.496553129317911e-05,
+            "policy_top1_flip_rate": 0.01171875,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.00011964719528898285,
+            "search_root_value_delta_mean": -0.00015968950420604727
+          },
+          "arena": {
+            "paired_candidate_effect": -0.025390625,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.048828125,
+              "upper_95": -0.00390625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.0390625,
+            "p1_effect": -0.01171875,
+            "win_draw_loss": {
+              "wins": 382,
+              "draws": 46,
+              "losses": 84
+            },
+            "safe": false
+          }
+        },
+        "2.00": {
+          "alpha": 2.0,
+          "state_hash": "73b45f34a3dc522dab1ce8069c98a1a864c8c09da3eb85a8f144649fad89df88",
+          "diagnostics": {
+            "policy_l1_mean": 0.010449373153051056,
+            "policy_l1_max": 0.03385177254676819,
+            "policy_js_mean": 2.6611196761200726e-05,
+            "policy_top1_flip_rate": 0.013671875,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.00010388130093210495,
+            "search_root_value_delta_mean": -0.00042436191105821254
+          },
+          "arena": {
+            "paired_candidate_effect": -0.025390625,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.048828125,
+              "upper_95": -0.00390625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.0390625,
+            "p1_effect": -0.01171875,
+            "win_draw_loss": {
+              "wins": 382,
+              "draws": 46,
+              "losses": 84
+            },
+            "safe": false
+          }
+        }
+      }
+    },
+    "ray2_p1_to_p2": {
+      "config": {
+        "base": "P1",
+        "opponent": "P1",
+        "delta": "delta_12",
+        "alphas": [
+          0.0,
+          0.1,
+          0.25,
+          0.5,
+          0.75,
+          1.0
+        ]
+      },
+      "critical_alpha_threshold": 0.25,
+      "points": {
+        "0.00": {
+          "alpha": 0.0,
+          "state_hash": "a86acb54b97c860289530fcb7ca64194724d43667580a52e2948359bfa3ebdf4",
+          "diagnostics": {
+            "policy_l1_mean": 0.0,
+            "policy_l1_max": 0.0,
+            "policy_js_mean": 0.0,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.0,
+            "search_root_value_delta_mean": 0.0
+          },
+          "arena": {
+            "paired_candidate_effect": 0.0,
+            "opening_bootstrap_ci": {
+              "lower_95": 0.0,
+              "upper_95": 0.0,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": 0.0,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 400,
+              "draws": 38,
+              "losses": 74
+            },
+            "safe": true
+          }
+        },
+        "0.10": {
+          "alpha": 0.1,
+          "state_hash": "c30948a2f0e31a80166220d4bb959ef2bdd07d6bf508ac4e93a05743b55b3589",
+          "diagnostics": {
+            "policy_l1_mean": 0.0005831434546621495,
+            "policy_l1_max": 0.0019077211618423462,
+            "policy_js_mean": 8.186011535202834e-08,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 5.213607529753029e-06,
+            "search_root_value_delta_mean": 0.0001973268764838093
+          },
+          "arena": {
+            "paired_candidate_effect": 0.0,
+            "opening_bootstrap_ci": {
+              "lower_95": 0.0,
+              "upper_95": 0.0,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": 0.0,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 400,
+              "draws": 38,
+              "losses": 74
+            },
+            "safe": true
+          }
+        },
+        "0.25": {
+          "alpha": 0.25,
+          "state_hash": "2572531caccca74c0bbb8061efe0eb27d7080eb63f8e44550e7a03aa6f62b8b8",
+          "diagnostics": {
+            "policy_l1_mean": 0.0014578168917864787,
+            "policy_l1_max": 0.004769094288349152,
+            "policy_js_mean": 5.117952315670526e-07,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 1.1096993931957914e-05,
+            "search_root_value_delta_mean": -6.284110603852868e-05
+          },
+          "arena": {
+            "paired_candidate_effect": -0.009765625,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.01953125,
+              "upper_95": -0.001953125,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.01953125,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 390,
+              "draws": 48,
+              "losses": 74
+            },
+            "safe": true
+          }
+        },
+        "0.50": {
+          "alpha": 0.5,
+          "state_hash": "3688e323fda70ed00cdbc9dc7a8407a9e76e9f539be4027eb23c6e367f549b3f",
+          "diagnostics": {
+            "policy_l1_mean": 0.0029151774028832733,
+            "policy_l1_max": 0.009537607431411743,
+            "policy_js_mean": 2.046384380145231e-06,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 1.96846160474406e-05,
+            "search_root_value_delta_mean": -8.442405426952308e-05
+          },
+          "arena": {
+            "paired_candidate_effect": -0.02734375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.046875,
+              "upper_95": -0.01171875,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.0546875,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 382,
+              "draws": 46,
+              "losses": 84
+            },
+            "safe": false
+          }
+        },
+        "0.75": {
+          "alpha": 0.75,
+          "state_hash": "5e4252a754c3cd181a291740612c09bf7cce3f52c6532c7cc0671463b4d9dcc4",
+          "diagnostics": {
+            "policy_l1_mean": 0.004371533249468484,
+            "policy_l1_max": 0.014305263757705688,
+            "policy_js_mean": 4.603050543173359e-06,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 4.595728372035718e-05,
+            "search_root_value_delta_mean": -0.0001252844104217365
+          },
+          "arena": {
+            "paired_candidate_effect": -0.08203125,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.11328125,
+              "upper_95": -0.05078125,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.1640625,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 354,
+              "draws": 46,
+              "losses": 112
+            },
+            "safe": false
+          }
+        },
+        "1.00": {
+          "alpha": 1.0,
+          "state_hash": "336496d5fb33331240178c4b834b8faf9548e3915b45c9b5f7e4b7aad6626870",
+          "diagnostics": {
+            "policy_l1_mean": 0.00582791251144954,
+            "policy_l1_max": 0.01907218247652054,
+            "policy_js_mean": 8.184168525087014e-06,
+            "policy_top1_flip_rate": 0.005859375,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 8.898605602479075e-05,
+            "search_root_value_delta_mean": -0.0008010491800061934
+          },
+          "arena": {
+            "paired_candidate_effect": -0.095703125,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.126953125,
+              "upper_95": -0.064453125,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.19140625,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 354,
+              "draws": 32,
+              "losses": 126
+            },
+            "safe": false
+          }
+        }
+      }
+    },
+    "ray3_p1_to_y": {
+      "config": {
+        "base": "P1",
+        "opponent": "P1",
+        "delta": "delta_01",
+        "alphas": [
+          0.0,
+          0.1,
+          0.25,
+          0.5,
+          0.75,
+          1.0
+        ]
+      },
+      "critical_alpha_threshold": 0.25,
+      "points": {
+        "0.00": {
+          "alpha": 0.0,
+          "state_hash": "a86acb54b97c860289530fcb7ca64194724d43667580a52e2948359bfa3ebdf4",
+          "diagnostics": {
+            "policy_l1_mean": 0.0,
+            "policy_l1_max": 0.0,
+            "policy_js_mean": 0.0,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.0,
+            "search_root_value_delta_mean": 0.0
+          },
+          "arena": {
+            "paired_candidate_effect": 0.0,
+            "opening_bootstrap_ci": {
+              "lower_95": 0.0,
+              "upper_95": 0.0,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": 0.0,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 400,
+              "draws": 38,
+              "losses": 74
+            },
+            "safe": true
+          }
+        },
+        "0.10": {
+          "alpha": 0.1,
+          "state_hash": "f3995c541cbdb318e595c3c5ce71b42eef7bd3b3162bdcb0fa4812677951fc6b",
+          "diagnostics": {
+            "policy_l1_mean": 0.0005225939646607003,
+            "policy_l1_max": 0.0016924738883972168,
+            "policy_js_mean": 6.659963727347062e-08,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 1.9759839609721004e-06,
+            "search_root_value_delta_mean": 8.814478826479942e-05
+          },
+          "arena": {
+            "paired_candidate_effect": 0.0,
+            "opening_bootstrap_ci": {
+              "lower_95": 0.0,
+              "upper_95": 0.0,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": 0.0,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 400,
+              "draws": 38,
+              "losses": 74
+            },
+            "safe": true
+          }
+        },
+        "0.25": {
+          "alpha": 0.25,
+          "state_hash": "8c9b2073be46d39d9985f8cf1db9769d2a0e3aa50aed3f1b1f41b17ac2a254e8",
+          "diagnostics": {
+            "policy_l1_mean": 0.001306654903942217,
+            "policy_l1_max": 0.004231676459312439,
+            "policy_js_mean": 4.1656519383815224e-07,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 8.944234061192075e-06,
+            "search_root_value_delta_mean": -0.00017637533179974278
+          },
+          "arena": {
+            "paired_candidate_effect": -0.009765625,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.01953125,
+              "upper_95": -0.001953125,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.01953125,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 390,
+              "draws": 48,
+              "losses": 74
+            },
+            "safe": true
+          }
+        },
+        "0.50": {
+          "alpha": 0.5,
+          "state_hash": "443a325de24e4df962348775eedf33eff628ff7186ccf26997226b05efc4c9c4",
+          "diagnostics": {
+            "policy_l1_mean": 0.002613544232190179,
+            "policy_l1_max": 0.008463159203529358,
+            "policy_js_mean": 1.6658086448132366e-06,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 3.4025441596954466e-05,
+            "search_root_value_delta_mean": -0.00024667296234899994
+          },
+          "arena": {
+            "paired_candidate_effect": -0.02734375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.046875,
+              "upper_95": -0.01171875,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.0546875,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 382,
+              "draws": 46,
+              "losses": 84
+            },
+            "safe": false
+          }
+        },
+        "0.75": {
+          "alpha": 0.75,
+          "state_hash": "9b11f1a3f1a48de5958dca1fffd1bc44e23ac7eaee36d687c684861a1d4cfd15",
+          "diagnostics": {
+            "policy_l1_mean": 0.003920755917874885,
+            "policy_l1_max": 0.01269388198852539,
+            "policy_js_mean": 3.747722931057843e-06,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 4.2320669305065765e-05,
+            "search_root_value_delta_mean": -0.0002819270697311055
+          },
+          "arena": {
+            "paired_candidate_effect": -0.02734375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.046875,
+              "upper_95": -0.01171875,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.0546875,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 382,
+              "draws": 46,
+              "losses": 84
+            },
+            "safe": false
+          }
+        },
+        "1.00": {
+          "alpha": 1.0,
+          "state_hash": "73b45f34a3dc522dab1ce8069c98a1a864c8c09da3eb85a8f144649fad89df88",
+          "diagnostics": {
+            "policy_l1_mean": 0.005229160918247544,
+            "policy_l1_max": 0.016924060881137848,
+            "policy_js_mean": 6.665640170727042e-06,
+            "policy_top1_flip_rate": 0.001953125,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 6.350520651479307e-05,
+            "search_root_value_delta_mean": -0.0005113453692011654
+          },
+          "arena": {
+            "paired_candidate_effect": -0.02734375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.046875,
+              "upper_95": -0.01171875,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.0546875,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 382,
+              "draws": 46,
+              "losses": 84
+            },
+            "safe": false
+          }
+        }
+      }
+    },
+    "ray4_p0_to_x": {
+      "config": {
+        "base": "P0",
+        "opponent": "P0",
+        "delta": "delta_12",
+        "alphas": [
+          0.0,
+          0.25,
+          0.5,
+          0.75,
+          1.0
+        ]
+      },
+      "critical_alpha_threshold": 1.0,
+      "points": {
+        "0.00": {
+          "alpha": 0.0,
+          "state_hash": "d265537d6b637b8433b093ebb1f9d55fef25b38e259ed7e59f7a597b35bb6f02",
+          "diagnostics": {
+            "policy_l1_mean": 0.0,
+            "policy_l1_max": 0.0,
+            "policy_js_mean": 0.0,
+            "policy_top1_flip_rate": 0.0,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.0,
+            "search_root_value_delta_mean": 0.0
+          },
+          "arena": {
+            "paired_candidate_effect": 0.0,
+            "opening_bootstrap_ci": {
+              "lower_95": 0.0,
+              "upper_95": 0.0,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": 0.0,
+            "p1_effect": 0.0,
+            "win_draw_loss": {
+              "wins": 402,
+              "draws": 32,
+              "losses": 78
+            },
+            "safe": true
+          }
+        },
+        "0.25": {
+          "alpha": 0.25,
+          "state_hash": "df7dbf65b358081d1394dc46085580e338eb36268a831dac96c0acf3fc2b29be",
+          "diagnostics": {
+            "policy_l1_mean": 0.001460021085392782,
+            "policy_l1_max": 0.004770033061504364,
+            "policy_js_mean": 5.123103308146264e-07,
+            "policy_top1_flip_rate": 0.00390625,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.00013417209178286495,
+            "search_root_value_delta_mean": 0.0005033242633629704
+          },
+          "arena": {
+            "paired_candidate_effect": -0.021484375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.03515625,
+              "upper_95": -0.009765625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.02734375,
+            "win_draw_loss": {
+              "wins": 388,
+              "draws": 38,
+              "losses": 86
+            },
+            "safe": false
+          }
+        },
+        "0.50": {
+          "alpha": 0.5,
+          "state_hash": "aab925744794be454bee5b558d95bbf009b1184fd374da2ddcefab9d7956c8e8",
+          "diagnostics": {
+            "policy_l1_mean": 0.0029208535562474935,
+            "policy_l1_max": 0.009540237486362457,
+            "policy_js_mean": 2.0498965511702815e-06,
+            "policy_top1_flip_rate": 0.009765625,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.0001299811496899289,
+            "search_root_value_delta_mean": 0.00043598971340467617
+          },
+          "arena": {
+            "paired_candidate_effect": -0.021484375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.03515625,
+              "upper_95": -0.009765625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.02734375,
+            "win_draw_loss": {
+              "wins": 388,
+              "draws": 38,
+              "losses": 86
+            },
+            "safe": false
+          }
+        },
+        "0.75": {
+          "alpha": 0.75,
+          "state_hash": "ebd151bce2b750ca727eeb3e8ef0c33eaac83f1b9efd659a334ddd541b35f644",
+          "diagnostics": {
+            "policy_l1_mean": 0.004381408520657715,
+            "policy_l1_max": 0.014310583472251892,
+            "policy_js_mean": 4.612179987827244e-06,
+            "policy_top1_flip_rate": 0.009765625,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 8.697690860654808e-05,
+            "search_root_value_delta_mean": 0.0004684244826099373
+          },
+          "arena": {
+            "paired_candidate_effect": -0.021484375,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.03515625,
+              "upper_95": -0.009765625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.02734375,
+            "win_draw_loss": {
+              "wins": 388,
+              "draws": 38,
+              "losses": 86
+            },
+            "safe": false
+          }
+        },
+        "1.00": {
+          "alpha": 1.0,
+          "state_hash": "01856e9ac36b535321276ba8f67ed3d6ded276e6433fe48cb85f6129d3c7180b",
+          "diagnostics": {
+            "policy_l1_mean": 0.005839916432250902,
+            "policy_l1_max": 0.01908046007156372,
+            "policy_js_mean": 8.195917927415351e-06,
+            "policy_top1_flip_rate": 0.009765625,
+            "search_move_change_rate": 0.0,
+            "search_visit_js_mean": 0.00011654978725529196,
+            "search_root_value_delta_mean": 0.0007106123952039427
+          },
+          "arena": {
+            "paired_candidate_effect": -0.013671875,
+            "opening_bootstrap_ci": {
+              "lower_95": -0.029296875,
+              "upper_95": 0.00390625,
+              "samples": 10000,
+              "unique_openings": 128
+            },
+            "p0_effect": -0.015625,
+            "p1_effect": -0.01171875,
+            "win_draw_loss": {
+              "wins": 392,
+              "draws": 38,
+              "losses": 82
+            },
+            "safe": true
+          }
+        }
+      }
+    }
+  }
+}
