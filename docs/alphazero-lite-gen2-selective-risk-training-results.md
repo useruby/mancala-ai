@@ -30,6 +30,15 @@
 | matched_random25 | 16 | 1.034474 | 0.934221 | 0.937988 | 0.5277 | 0.001266 |
 | matched_random25 | 46 | 1.033785 | 0.934229 | 0.937969 | 0.8237 | 0.001974 |
 
+## Protected-State Leakage (Step 46)
+
+| Lane | Protected L1 mean | Protected L1 p95 | Protected L1 p99 | CE(candidate, P1) | Direction vs P2-P1 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| beta095 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | +0.0000 |
+| risk_q90 | 0.010083 | 0.013385 | 0.015902 | 1.028250 | +0.9816 |
+| risk_q75 | 0.006533 | 0.009923 | 0.011626 | 1.107262 | +0.9390 |
+| matched_random25 | 0.004708 | 0.010270 | 0.012739 | 0.936406 | +0.9851 |
+
 ## Risk Migration (Step 46)
 
 | Lane | Current q75 | Top-25% Jaccard vs frozen q75 | Originally protected in current top-25% | New unprotected above frozen q75 |
@@ -38,6 +47,26 @@
 | risk_q90 | 0.007357 | 0.6771 | 0.3705 | 1496 |
 | risk_q75 | 0.005812 | 0.4726 | 0.6418 | 91 |
 | matched_random25 | 0.006869 | 0.8128 | 0.2406 | 2299 |
+
+## Deterministic Search Probes vs P1
+
+| Lane | Step | Move changes | Visit JS | Q-rank changes | Root-value delta |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| beta095 | 16 | 0.0156 | 0.000248 | +0.0078 | +0.000240 |
+| beta095 | 46 | 0.0117 | 0.000298 | +0.0312 | +0.000035 |
+| risk_q90 | 16 | 0.0078 | 0.000274 | +0.0000 | +0.000154 |
+| risk_q90 | 46 | 0.0039 | 0.000270 | +0.0117 | -0.000027 |
+| risk_q75 | 16 | 0.0039 | 0.000283 | +0.0000 | +0.000151 |
+| risk_q75 | 46 | 0.0039 | 0.000221 | -0.0078 | +0.000118 |
+| matched_random25 | 16 | 0.0078 | 0.000341 | +0.0117 | +0.000250 |
+| matched_random25 | 46 | 0.0156 | 0.000244 | +0.0352 | +0.000002 |
+
+## Frozen q75 Tail Override on risk_q75
+
+| Step | Expanded nodes | Replacement nodes | Replacement fraction |
+| ---: | ---: | ---: | ---: |
+| 16 | 77364 | 95 | 0.0012 |
+| 46 | 77371 | 2451 | 0.0317 |
 
 ## Arena
 
