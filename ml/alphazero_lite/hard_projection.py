@@ -218,17 +218,47 @@ def project_policy_head_step(
     theta_p1: dict[str, torch.Tensor],
     trust_set: TrustStateSet,
     radius: float | None,
+    mode: str = "old_segment",
     max_bisection_steps: int = 30,
     tolerance: float = 1e-6,
 ) -> tuple[dict[str, torch.Tensor], dict[str, Any]]:
     """Project raw proposed policy-head parameters onto parent-relative trust sphere.
 
     Given previous feasible parameters theta_old and proposed unconstrained step theta_raw,
-    finds the maximum lambda in [0, 1] such that theta(lambda) = theta_old + lambda * (theta_raw - theta_old)
-    satisfies mean_legal_L1(theta(lambda), P1) <= radius.
+    ``old_segment`` preserves the PR #206 behavior, retracting from the current
+    feasible point. ``parent_ray`` retracts from P1, allowing successive
+    proposals to reach different points on the same output-space boundary.
+    ``tangent_retract`` removes the parameter-space radial component of an
+    outward proposal at the boundary, then applies the same parent retraction.
     """
+    if mode not in {"old_segment", "parent_ray", "tangent_retract"}:
+        raise ValueError(f"unsupported projection mode: {mode}")
+
     raw_diag = trust_set.full_diagnostics(theta_raw)
     raw_mean_l1 = raw_diag["mean_l1"]
+    proposal_theta = theta_raw
+    tangent_constraint_activated = False
+    tangent_raw_mean_l1: float | None = None
+
+    if mode == "tangent_retract" and radius is not None and not math.isinf(radius):
+        old_mean_l1 = trust_set.compute_mean_l1(theta_old)
+        if old_mean_l1 >= radius - tolerance:
+            radial = torch.cat(
+                [(theta_old[k] - theta_p1[k]).double().flatten() for k in POLICY_KEYS]
+            )
+            proposal = torch.cat(
+                [(theta_raw[k] - theta_old[k]).double().flatten() for k in POLICY_KEYS]
+            )
+            radial_norm_sq = torch.dot(radial, radial)
+            if radial_norm_sq > 0:
+                radial_scale = torch.dot(proposal, radial) / radial_norm_sq
+                proposal_theta = {
+                    k: theta_raw[k]
+                    - radial_scale.to(theta_raw[k].dtype) * (theta_old[k] - theta_p1[k])
+                    for k in POLICY_KEYS
+                }
+                tangent_constraint_activated = True
+                tangent_raw_mean_l1 = trust_set.compute_mean_l1(proposal_theta)
 
     param_delta_raw_vs_old = compute_parameter_delta_norm(theta_raw, theta_old)
 
@@ -238,14 +268,23 @@ def project_policy_head_step(
         acc_diag = raw_diag
         lambda_accepted = 1.0
         projection_activated = False
-    elif raw_mean_l1 <= radius:
+    elif trust_set.compute_mean_l1(proposal_theta) <= radius:
         # Feasible step without projection
-        accepted_theta = {k: v.clone() for k, v in theta_raw.items()}
-        acc_diag = raw_diag
+        accepted_theta = {k: v.clone() for k, v in proposal_theta.items()}
+        acc_diag = trust_set.full_diagnostics(accepted_theta)
         lambda_accepted = 1.0
         projection_activated = False
     else:
-        # Step violates trust region boundary - bisect along segment [theta_old, theta_raw]
+        origin = theta_old if mode == "old_segment" else theta_p1
+        if mode in {"parent_ray", "tangent_retract"}:
+            parent_mean_l1 = trust_set.compute_mean_l1(theta_p1)
+            if parent_mean_l1 > radius + tolerance:
+                raise RuntimeError(
+                    "Parent P1 is not feasible: "
+                    f"mean L1 {parent_mean_l1:.8f} > radius {radius:.8f} + tol {tolerance:.8f}"
+                )
+
+        # Bisect from the selected feasible origin to the constrained proposal.
         projection_activated = True
         low = 0.0
         high = 1.0
@@ -253,7 +292,7 @@ def project_policy_head_step(
         for _ in range(max_bisection_steps):
             mid = (low + high) / 2.0
             theta_mid = {
-                k: theta_old[k] + mid * (theta_raw[k] - theta_old[k])
+                k: origin[k] + mid * (proposal_theta[k] - origin[k])
                 for k in POLICY_KEYS
             }
             mid_mean_l1 = trust_set.compute_mean_l1(theta_mid)
@@ -264,7 +303,7 @@ def project_policy_head_step(
 
         lambda_accepted = low
         accepted_theta = {
-            k: theta_old[k] + lambda_accepted * (theta_raw[k] - theta_old[k])
+            k: origin[k] + lambda_accepted * (proposal_theta[k] - origin[k])
             for k in POLICY_KEYS
         }
         acc_diag = trust_set.full_diagnostics(accepted_theta)
@@ -303,6 +342,9 @@ def project_policy_head_step(
         "accepted_top1_change": acc_diag["top1_change"],
         "lambda_accepted": lambda_accepted,
         "projection_activated": projection_activated,
+        "projection_mode": mode,
+        "tangent_constraint_activated": tangent_constraint_activated,
+        "tangent_raw_mean_l1": tangent_raw_mean_l1,
         "param_delta_raw_vs_old": param_delta_raw_vs_old,
         "param_delta_acc_vs_old": param_delta_acc_vs_old,
         "param_delta_acc_vs_p1": param_delta_acc_vs_p1,

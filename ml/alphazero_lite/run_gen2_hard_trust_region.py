@@ -13,9 +13,9 @@ Lineage:
 
 Lanes:
 - unprojected: exact PR #204 reproduction (no output-space constraint)
-- l1_0010: mean legal L1 vs P1 <= 0.00100
-- l1_00125: mean legal L1 vs P1 <= 0.00125 (PRIMARY)
-- l1_0015: mean legal L1 vs P1 <= 0.00150
+- old_segment: exact PR #206 current-point segment projection
+- parent_ray: parent-centered retraction at mean legal L1 <= 0.00125
+- parent_ray_0010: parent-centered geometry check at mean legal L1 <= 0.00100
 """
 
 from __future__ import annotations
@@ -102,56 +102,61 @@ from ml.alphazero_lite.train import (  # noqa: E402
     load_checkpoint_into_model,
 )
 
-NAMESPACE = "azlite_hard_parent_trust_region_v1"
+NAMESPACE = "azlite_parent_ray_trust_region_v2"
 PR204_GEN2_REPLAY_HASH = (
     "2cee30547f8bc5d7cad6f02f859ee5e8644386e9b59c8a054ef74548c72ce84b"
 )
 PR204_UNPROJECTED_S46_STATE_HASH = (
     "336496d5fb33331240178c4b834b8faf9548e3915b45c9b5f7e4b7aad6626870"
 )
+PR206_P0_WEIGHTS_HASH = (
+    "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+)
+PR206_P1_WEIGHTS_HASH = (
+    "77969733ece5ced92d3a143a0fe9d82863ca3ec4faa477470ff5826ac22e4e12"
+)
+PR206_TRUST_SET_HASH = (
+    "fef39b0bf5c3ecd3fa93c8cd7cbe688e96bc4ae2285448488ee2234608a20e9f"
+)
 
 # Radius configurations for hard projection lanes
 RADIUS_LANES: list[tuple[str, float | None]] = [
     ("unprojected", None),
-    ("l1_0010", 0.00100),
-    ("l1_00125", 0.00125),
-    ("l1_0015", 0.00150),
+    ("old_segment", 0.00125),
+    ("parent_ray", 0.00125),
+    ("parent_ray_0010", 0.00100),
+    ("tangent_retract", 0.00125),
 ]
+LANE_MODES = {
+    "unprojected": "old_segment",
+    "old_segment": "old_segment",
+    "parent_ray": "parent_ray",
+    "parent_ray_0010": "parent_ray",
+    "tangent_retract": "tangent_retract",
+}
 
 CLASSIFICATIONS = [
-    "hard_projection_rescues_gen2",
-    "projection_safe_but_learning_collapsed",
-    "mean_l1_radius_not_sufficient",
-    "radius_boundary_confirmed",
-    "unprojected_reproduction_failure",
-    "projection_invariant_failure",
+    "parent_retraction_restores_learning",
+    "boundary_motion_safe_but_weak",
+    "mean_l1_ball_not_directionally_safe",
+    "parent_retraction_still_stalls",
+    "smaller_radius_only_safe",
+    "tangent_retraction_safe_but_weak",
+    "tangent_retraction_still_stalls",
+    "invariant_failure",
     "inconclusive",
 ]
 
 NEXT_EXPERIMENTS = {
-    "hard_projection_rescues_gen2": (
-        "proceed to a 3-generation lineage rollout using parent-relative "
-        "hard output-space projection at each generation"
-    ),
-    "projection_safe_but_learning_collapsed": (
-        "investigate adaptive step-size scaling or alternative projection "
-        "geometries to restore supervised target progress inside the safe zone"
-    ),
-    "mean_l1_radius_not_sufficient": (
-        "investigate tail-risk / per-state constraints using p95/p99/max "
-        "action-drift bounding rather than mean divergence"
-    ),
-    "radius_boundary_confirmed": (
-        "fine-grain the radius threshold between 0.00125 and 0.00150 and test "
-        "whether multi-step convergence within the safe radius produces incremental strength"
-    ),
-    "unprojected_reproduction_failure": (
-        "debug the PR #204 baseline reproduction environment before proceeding"
-    ),
-    "projection_invariant_failure": (
-        "fix projection invariant violations in the trainer or state caching"
-    ),
-    "inconclusive": ("expand arena sample size or evaluate additional test seeds"),
+    "parent_retraction_restores_learning": "roll parent-centered trust-region checks into the next Gen-2 lineage study",
+    "boundary_motion_safe_but_weak": "test a true tangent-space constrained update",
+    "mean_l1_ball_not_directionally_safe": "use state/action-tail or search-sensitivity constraints, not another optimizer tweak",
+    "parent_retraction_still_stalls": "test a true tangent-space constrained update",
+    "smaller_radius_only_safe": "test state/action-tail constraints at the conservative radius",
+    "tangent_retraction_safe_but_weak": "use state/action-tail or search-sensitivity constraints rather than another optimizer transformation",
+    "tangent_retraction_still_stalls": "investigate an output-Jacobian tangent approximation",
+    "invariant_failure": "repair the failed reproduction or trust-region invariant before further experiments",
+    "inconclusive": "inspect the recorded geometry and search diagnostics before a follow-up",
 }
 
 
@@ -162,6 +167,7 @@ def replay_lane_hard_projection(
     p1_checkpoint_path: Path,
     beta: float,
     radius: float | None,
+    projection_mode: str,
     trust_set: TrustStateSet,
     steps: list[int],
 ) -> tuple[
@@ -245,6 +251,7 @@ def replay_lane_hard_projection(
             theta_p1=theta_p1,
             trust_set=trust_set,
             radius=radius,
+            mode=projection_mode,
             max_bisection_steps=30,
             tolerance=1e-6,
         )
@@ -252,6 +259,46 @@ def replay_lane_hard_projection(
         if telemetry["projection_activated"]:
             cumulative_projected_steps += 1
 
+        accepted_policy = trust_set.evaluate_policy_head(accepted_theta)
+        previous_policy = trust_set.evaluate_policy_head(theta_old)
+        output_l1 = torch.sum(torch.abs(accepted_policy - previous_policy), dim=-1)
+        parent_vector = torch.cat(
+            [(accepted_theta[k] - theta_p1[k]).double().flatten() for k in POLICY_KEYS]
+        )
+        previous_parent_vector = torch.cat(
+            [(theta_old[k] - theta_p1[k]).double().flatten() for k in POLICY_KEYS]
+        )
+        previous_norm = torch.linalg.vector_norm(previous_parent_vector)
+        parent_norm = torch.linalg.vector_norm(parent_vector)
+        if previous_norm > 0 and parent_norm > 0:
+            cosine_parent_vectors = float(
+                torch.dot(parent_vector, previous_parent_vector)
+                / (parent_norm * previous_norm)
+            )
+            tangential = (
+                parent_vector
+                - (
+                    torch.dot(parent_vector, previous_parent_vector)
+                    / previous_norm.square()
+                )
+                * previous_parent_vector
+            )
+            tangential_motion = float(torch.linalg.vector_norm(tangential))
+        else:
+            cosine_parent_vectors = None
+            tangential_motion = 0.0
+        output_l1_np = output_l1.detach().cpu().numpy()
+        telemetry.update(
+            {
+                "accepted_step_norm": telemetry["param_delta_acc_vs_old"],
+                "cosine_parent_vectors": cosine_parent_vectors,
+                "tangential_parameter_motion": tangential_motion,
+                "output_step_mean_l1": float(np.mean(output_l1_np)),
+                "output_step_p95_l1": float(np.percentile(output_l1_np, 95)),
+                "output_step_p99_l1": float(np.percentile(output_l1_np, 99)),
+                "output_parent_mean_l1": telemetry["accepted_mean_l1"],
+            }
+        )
         telemetry["step"] = step
         telemetry["cumulative_projected_steps"] = cumulative_projected_steps
         telemetry["cumulative_projected_fraction"] = cumulative_projected_steps / step
@@ -343,6 +390,95 @@ def probe_target_metrics(
     return result
 
 
+def _cosine(left: np.ndarray, right: np.ndarray) -> float | None:
+    """Return cosine similarity, preserving undefined zero-vector comparisons."""
+    left_norm = float(np.linalg.norm(left))
+    right_norm = float(np.linalg.norm(right))
+    if left_norm == 0.0 or right_norm == 0.0:
+        return None
+    return float(np.dot(left, right) / (left_norm * right_norm))
+
+
+def parent_ray_directionality(
+    probe: list[dict[str, Any]],
+    probe_rows: list[dict[str, Any]],
+    lanes: dict[str, dict[int, tuple[dict[str, torch.Tensor], dict[str, Any]]]],
+    p0_state: dict[str, torch.Tensor],
+    p1_state: dict[str, torch.Tensor],
+) -> dict[str, Any]:
+    """Measure PR #205 parameter/output direction alignment and replay strata drift."""
+    x = np.asarray([row["state"] for row in probe_rows], dtype=np.float32)
+    mask = legal_mask_matrix_for_encoded_states(x)
+    p1_policy, _ = model_outputs(p1_state, x, mask)
+    unprojected_policy, _ = model_outputs(lanes["unprojected"][46][0], x, mask)
+    output_delta_204 = (unprojected_policy - p1_policy).reshape(-1)
+
+    def parameter_delta(
+        state: dict[str, torch.Tensor], base: dict[str, torch.Tensor]
+    ) -> np.ndarray:
+        return np.concatenate(
+            [
+                (state[key].double() - base[key].double())
+                .detach()
+                .cpu()
+                .numpy()
+                .reshape(-1)
+                for key in POLICY_KEYS
+            ]
+        )
+
+    delta_01 = parameter_delta(p1_state, p0_state)
+    delta_12 = parameter_delta(lanes["unprojected"][46][0], p1_state)
+    results: dict[str, Any] = {}
+    for step in CHECKPOINT_STEPS:
+        candidate_state = lanes["parent_ray"][step][0]
+        candidate_policy, _ = model_outputs(candidate_state, x, mask)
+        policy_l1 = np.sum(np.abs(candidate_policy - p1_policy), axis=1)
+        output_delta = (candidate_policy - p1_policy).reshape(-1)
+        by_side: dict[str, list[float]] = {}
+        by_ply: dict[str, list[float]] = {}
+        by_legal: dict[str, list[float]] = {}
+        for i, value in enumerate(policy_l1):
+            side = f"player_{probe[i]['player']}"
+            ply = int(probe_rows[i].get("move_index", 0))
+            ply_bucket = (
+                "0_9"
+                if ply < 10
+                else "10_19"
+                if ply < 20
+                else "20_29"
+                if ply < 30
+                else "30_plus"
+            )
+            legal = f"legal_{len(probe[i]['legal_moves'])}"
+            by_side.setdefault(side, []).append(float(value))
+            by_ply.setdefault(ply_bucket, []).append(float(value))
+            by_legal.setdefault(legal, []).append(float(value))
+
+        def summarize(values: dict[str, list[float]]) -> dict[str, dict[str, float]]:
+            return {
+                name: {
+                    "mean_l1": float(np.mean(group)),
+                    "p95_l1": float(np.percentile(group, 95)),
+                    "p99_l1": float(np.percentile(group, 99)),
+                }
+                for name, group in values.items()
+            }
+
+        candidate_delta = parameter_delta(candidate_state, p1_state)
+        results[str(step)] = {
+            "parameter_cosine_vs_delta_01": _cosine(candidate_delta, delta_01),
+            "parameter_cosine_vs_delta_12": _cosine(candidate_delta, delta_12),
+            "output_policy_delta_cosine_vs_pr204_unprojected": _cosine(
+                output_delta, output_delta_204
+            ),
+            "per_side_player_l1": summarize(by_side),
+            "per_game_ply_bucket_l1": summarize(by_ply),
+            "legal_move_count_bucket_l1": summarize(by_legal),
+        }
+    return results
+
+
 def paired_arena_opponent(
     artifacts: dict[str, dict[int, Path]],
     opponent: Path,
@@ -383,7 +519,7 @@ def paired_arena_opponent(
 
 
 def classify_hard_trust_region(summary: dict[str, Any]) -> dict[str, Any]:
-    """Evaluate prespecified classification criteria for hard trust region experiment."""
+    """Evaluate the prespecified parent-retraction classification criteria."""
     sanity = summary.get("sanity", {})
     if (
         not sanity.get("p1_reconstructed_and_verified")
@@ -393,8 +529,9 @@ def classify_hard_trust_region(summary: dict[str, Any]) -> dict[str, Any]:
         or not sanity.get("all_lanes_trunk_zero_change_vs_p0")
         or not sanity.get("all_lanes_value_stack_zero_change_vs_p0")
         or not sanity.get("all_projected_lanes_respect_radius")
+        or not sanity.get("unprojected_reproduced_pr204")
     ):
-        label = "projection_invariant_failure"
+        label = "invariant_failure"
         return {
             "label": label,
             "next_experiment": NEXT_EXPERIMENTS[label],
@@ -406,89 +543,81 @@ def classify_hard_trust_region(summary: dict[str, Any]) -> dict[str, Any]:
     telemetry = summary.get("projection_telemetry", {})
 
     vs_p1 = arena.get("vs_p1", {})
-    vs_p0 = arena.get("vs_p0", {})
 
-    # Check unprojected baseline reproduction
-    unproj_384 = vs_p1.get("unprojected", {}).get("46", {}).get(STAGE1_CONTEXT)
-    if unproj_384 is None or unproj_384["paired_candidate_effect"] > -0.05:
-        label = "unprojected_reproduction_failure"
+    def safe(lane: str, context: str) -> bool:
+        entry = vs_p1.get(lane, {}).get("46", {}).get(context)
+        return entry is not None and arena_safe(entry)
+
+    if "tangent_retract" in telemetry:
+        tangent_fit = (
+            probe.get("tangent_retract", {}).get("46", {}).get("fit_fraction") or 0.0
+        )
+        tangent_late = [
+            t["accepted_step_norm"]
+            for t in telemetry["tangent_retract"]
+            if t["step"] >= 30
+        ]
+        tangent_moves = bool(tangent_late and np.median(tangent_late) > 1e-8)
+        tangent_safe = safe("tangent_retract", STAGE1_CONTEXT)
+        label = (
+            "tangent_retraction_safe_but_weak"
+            if tangent_safe and tangent_moves and tangent_fit < 0.25
+            else "tangent_retraction_still_stalls"
+            if not tangent_moves
+            else "inconclusive"
+        )
         return {
             "label": label,
             "next_experiment": NEXT_EXPERIMENTS[label],
-            "evidence": {"unprojected_vs_p1_384": unproj_384},
+            "evidence": {
+                "tangent_retract_safe_384": tangent_safe,
+                "tangent_retract_fit_fraction": tangent_fit,
+                "tangent_retract_late_median_accepted_step_norm": float(
+                    np.median(tangent_late)
+                )
+                if tangent_late
+                else None,
+                "tangent_retract_moves": tangent_moves,
+            },
         }
 
-    # Evaluate projected lanes
-    projected_lanes = ["l1_0010", "l1_00125", "l1_0015"]
-    lane_safe_384: dict[str, bool] = {}
-    lane_safe_1200: dict[str, bool] = {}
-    lane_fit: dict[str, float] = {}
-    lane_frozen_learning: dict[str, bool] = {}
-
-    for lane in projected_lanes:
-        e384 = vs_p1.get(lane, {}).get("46", {}).get(STAGE1_CONTEXT)
-        lane_safe_384[lane] = e384 is not None and arena_safe(e384)
-
-        e1200 = vs_p1.get(lane, {}).get("46", {}).get(STAGE2_CONTEXT)
-        lane_safe_1200[lane] = e1200 is not None and arena_safe(e1200)
-
-        fit = probe.get(lane, {}).get("46", {}).get("fit_fraction", 0.0)
-        lane_fit[lane] = fit if fit is not None else 0.0
-
-        # Check if lambda collapsed to ~0 on later steps (steps 30..46)
-        lane_tel = telemetry.get(lane, [])
-        late_lambdas = [t["lambda_accepted"] for t in lane_tel if t["step"] >= 30]
-        mean_late_lambda = float(np.mean(late_lambdas)) if late_lambdas else 1.0
-        lane_frozen_learning[lane] = bool(mean_late_lambda < 0.01)
-
+    primary_fit = probe.get("parent_ray", {}).get("46", {}).get("fit_fraction") or 0.0
+    fallback_fit = (
+        probe.get("parent_ray_0010", {}).get("46", {}).get("fit_fraction") or 0.0
+    )
+    late = [t for t in telemetry.get("parent_ray", []) if t["step"] >= 30]
+    late_steps = [t["accepted_step_norm"] for t in late]
+    late_tangent = [t["tangential_parameter_motion"] for t in late]
+    parent_moves = bool(
+        late_steps and np.median(late_steps) > 1e-8 and np.median(late_tangent) > 1e-8
+    )
+    primary_safe_384 = safe("parent_ray", STAGE1_CONTEXT)
+    primary_safe_1200 = safe("parent_ray", STAGE2_CONTEXT)
+    fallback_safe_384 = safe("parent_ray_0010", STAGE1_CONTEXT)
     evidence = {
-        "unprojected_vs_p1_384_effect": unproj_384["paired_candidate_effect"],
-        "unprojected_vs_p1_384_safe": arena_safe(unproj_384),
-        "lane_safe_384": lane_safe_384,
-        "lane_safe_1200": lane_safe_1200,
-        "lane_fit_fraction": lane_fit,
-        "lane_frozen_learning": lane_frozen_learning,
+        "parent_ray_safe_384": primary_safe_384,
+        "parent_ray_safe_1200": primary_safe_1200,
+        "parent_ray_fit_fraction": primary_fit,
+        "parent_ray_late_median_accepted_step_norm": float(np.median(late_steps))
+        if late_steps
+        else None,
+        "parent_ray_late_median_tangential_motion": float(np.median(late_tangent))
+        if late_tangent
+        else None,
+        "parent_ray_moves_on_boundary": parent_moves,
+        "parent_ray_0010_safe_384": fallback_safe_384,
+        "parent_ray_0010_fit_fraction": fallback_fit,
     }
-
-    # Check primary lane l1_00125
-    primary_safe_384 = lane_safe_384.get("l1_00125", False)
-    primary_fit = lane_fit.get("l1_00125", 0.0)
-
-    # Check P0 benchmark for safe candidates
-    p0_benchmarks_safe = True
-    for lane in projected_lanes:
-        if lane_safe_384.get(lane, False) and lane_fit.get(lane, 0.0) >= 0.25:
-            e_p0_384 = vs_p0.get(lane, {}).get("46", {}).get(STAGE1_CONTEXT)
-            e_p0_1200 = vs_p0.get(lane, {}).get("46", {}).get(STAGE2_CONTEXT)
-            if e_p0_384 is not None and not arena_safe(e_p0_384):
-                p0_benchmarks_safe = False
-            if e_p0_1200 is not None and not arena_safe(e_p0_1200):
-                p0_benchmarks_safe = False
-
-    # Classification logic
-    if (
-        primary_safe_384
-        and primary_fit >= 0.25
-        and lane_safe_1200.get("l1_00125", False)
-        and p0_benchmarks_safe
-    ):
-        label = "hard_projection_rescues_gen2"
-    elif (
-        lane_safe_384.get("l1_0010", False)
-        and lane_safe_384.get("l1_00125", False)
-        and not lane_safe_384.get("l1_0015", True)
-    ):
-        label = "radius_boundary_confirmed"
-    elif any(lane_safe_384.values()) and all(
-        lane_fit[lane_name] < 0.25 or lane_frozen_learning[lane_name]
-        for lane_name, safe in lane_safe_384.items()
-        if safe
-    ):
-        label = "projection_safe_but_learning_collapsed"
-    elif not any(lane_safe_384.values()) and any(
-        lane_fit[lane_name] >= 0.25 for lane_name in projected_lanes
-    ):
-        label = "mean_l1_radius_not_sufficient"
+    if primary_safe_384 and primary_safe_1200 and primary_fit >= 0.25 and parent_moves:
+        label = "parent_retraction_restores_learning"
+    elif not primary_safe_384 and fallback_safe_384 and fallback_fit >= 0.25:
+        label = "smaller_radius_only_safe"
+    elif parent_moves and not primary_safe_384:
+        label = "mean_l1_ball_not_directionally_safe"
+    elif parent_moves and primary_safe_384 and primary_fit < 0.25:
+        label = "boundary_motion_safe_but_weak"
+    elif not parent_moves:
+        label = "parent_retraction_still_stalls"
     else:
         label = "inconclusive"
 
@@ -564,13 +693,13 @@ def render_markdown(summary: dict[str, Any]) -> str:
             f"{last['lambda_accepted']:.4f} | {pressure_str} |"
         )
 
-    # Detailed Step-by-Step Telemetry for Primary Lane (l1_00125)
-    prim_tel = telemetry.get("l1_00125", [])
+    # Detailed Step-by-Step Telemetry for Primary Parent-Ray Lane
+    prim_tel = telemetry.get("parent_ray", [])
     if prim_tel:
         lines.extend(
             [
                 "",
-                "### Primary Lane (l1_00125) Step-by-Step Boundary Telemetry",
+                "### Primary Lane (parent_ray) Step-by-Step Boundary Telemetry",
                 "",
                 "| Step | Raw Mean L1 | Accepted Mean L1 | Accepted Lambda | Projected? | Raw vs Pre-Step Delta | Acc vs Pre-Step Delta | Cumulative vs P1 Delta |",
                 "| ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |",
@@ -610,6 +739,22 @@ def render_markdown(summary: dict[str, Any]) -> str:
                 f"{entry['ce_candidate_p1']:.4f} | {entry['ce_candidate_mixed']:.4f} | "
                 f"{entry['search_target_ce_improvement_vs_p1']:+.4f} | {fit_str} |"
             )
+
+    lines.extend(
+        [
+            "",
+            "## Parent-Ray Directionality (PR #205 References)",
+            "",
+            "| Step | Parameter Cosine vs delta_01 | Parameter Cosine vs delta_12 | Output Cosine vs PR #204 Direction |",
+            "| ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for step, entry in (summary.get("parent_ray_directionality") or {}).items():
+        lines.append(
+            f"| {step} | {entry['parameter_cosine_vs_delta_01']!s} | "
+            f"{entry['parameter_cosine_vs_delta_12']!s} | "
+            f"{entry['output_policy_delta_cosine_vs_pr204_unprojected']!s} |"
+        )
 
     lines.extend(
         [
@@ -726,7 +871,7 @@ def render_markdown(summary: dict[str, Any]) -> str:
                 "| --- | ---: | ---: | ---: | ---: | ---: |",
             ]
         )
-        for lane in ["unprojected", "l1_00125"]:
+        for lane in ["unprojected", "parent_ray", "tangent_retract"]:
             for step in (16, 46):
                 tel = (
                     per_depth.get(lane, {})
@@ -925,6 +1070,18 @@ def main() -> None:
     )
 
     p0_weights_sha = sha256_file(args.current / "weights.json")
+    if p0_weights_sha != PR206_P0_WEIGHTS_HASH:
+        raise RuntimeError(
+            "P0 weights hash does not match the PR #206 reproduction input"
+        )
+    if p1_weights_sha != PR206_P1_WEIGHTS_HASH:
+        raise RuntimeError(
+            "P1 weights hash does not match the PR #206 reproduction input"
+        )
+    if args.lr != 1e-5 or args.grad_clip != 1.0 or args.batch_size != 512:
+        raise RuntimeError(
+            "LR, gradient clip, and batch size must match PR #206 exactly"
+        )
     p0_npz = args.workdir / "p0_incumbent.npz"
     materialize_weights_json_checkpoint(
         weights_path=args.current / "weights.json",
@@ -979,6 +1136,10 @@ def main() -> None:
     p1_model = _new_model(device)
     load_checkpoint_into_model(p1_model, p1_ckpt_npz)
     trust_set = TrustStateSet.from_replay_rows(gen2_rows, p1_model, device)
+    if trust_set.state_set_hash != PR206_TRUST_SET_HASH:
+        raise RuntimeError(
+            "trust-state set hash does not match the PR #206 reproduction input"
+        )
     print(
         f"[trust_set] trust set ready: {trust_set.unique_state_count} unique states, hash: {trust_set.state_set_hash}",
         flush=True,
@@ -1009,6 +1170,7 @@ def main() -> None:
             p1_checkpoint_path=p1_ckpt_npz,
             beta=0.95,
             radius=radius,
+            projection_mode=LANE_MODES[lane],
             trust_set=trust_set,
             steps=steps,
         )
@@ -1125,6 +1287,9 @@ def main() -> None:
         probe_metrics[lane] = probe_target_metrics(
             probe_rows, lanes[lane], p1_state, p0_state, 0.95, beta000_s46_search_ce
         )
+    directionality = parent_ray_directionality(
+        probe, probe_rows, lanes, p0_state, p1_state
+    )
 
     # Drift vs P1 and vs P0
     drift_vs_p1 = {
@@ -1154,11 +1319,11 @@ def main() -> None:
             "[puct] running PUCT search probe trajectories for primary lane vs P0...",
             flush=True,
         )
-        artifacts_p0 = {0: args.current, 46: artifacts["l1_00125"][46]}
-        puct_vs_p0["l1_00125"] = puct_trajectory(
+        artifacts_p0 = {0: args.current, 46: artifacts["parent_ray"][46]}
+        puct_vs_p0["parent_ray"] = puct_trajectory(
             probe[:PROBE_SIZE],
             artifacts_p0,
-            args.workdir / "l1_00125_vs_p0_puct",
+            args.workdir / "parent_ray_vs_p0_puct",
             probe_hash,
             contexts=(PUCT_CONTEXT,),
         )
@@ -1167,7 +1332,7 @@ def main() -> None:
     per_depth_p1: dict[str, Any] = {}
     if args.per_depth_probe:
         print("[per_depth] running per-depth MCTS tree probes vs P1...", flush=True)
-        for lane in ["unprojected", "l1_00125"]:
+        for lane in ["unprojected", "parent_ray"]:
             per_depth_p1[lane] = {}
             for step in (16, 46):
                 cand_path = artifacts[lane][step]
@@ -1192,12 +1357,15 @@ def main() -> None:
         print("[arena] running candidate evaluation vs P1 @ 384:256...", flush=True)
         vs_p1_384_targets = [
             ("unprojected", 46, STAGE1_CONTEXT),
-            ("l1_0010", 16, STAGE1_CONTEXT),
-            ("l1_0010", 46, STAGE1_CONTEXT),
-            ("l1_00125", 16, STAGE1_CONTEXT),
-            ("l1_00125", 46, STAGE1_CONTEXT),
-            ("l1_0015", 16, STAGE1_CONTEXT),
-            ("l1_0015", 46, STAGE1_CONTEXT),
+            ("old_segment", 46, STAGE1_CONTEXT),
+            ("parent_ray", 4, STAGE1_CONTEXT),
+            ("parent_ray", 16, STAGE1_CONTEXT),
+            ("parent_ray", 46, STAGE1_CONTEXT),
+            ("parent_ray_0010", 16, STAGE1_CONTEXT),
+            ("parent_ray_0010", 46, STAGE1_CONTEXT),
+            ("tangent_retract", 4, STAGE1_CONTEXT),
+            ("tangent_retract", 16, STAGE1_CONTEXT),
+            ("tangent_retract", 46, STAGE1_CONTEXT),
         ]
         vs_p1_384 = paired_arena_opponent(
             artifacts,
@@ -1219,7 +1387,7 @@ def main() -> None:
             flush=True,
         )
         qualifying_lanes: list[str] = []
-        for lane in ["l1_0010", "l1_00125", "l1_0015"]:
+        for lane in ["parent_ray", "parent_ray_0010", "tangent_retract"]:
             e384 = (
                 arena_results["vs_p1"].get(lane, {}).get("46", {}).get(STAGE1_CONTEXT)
             )
@@ -1318,6 +1486,7 @@ def main() -> None:
         "sanity": sanity,
         "projection_telemetry": telemetry_by_lane,
         "probe_target_metrics": probe_metrics,
+        "parent_ray_directionality": directionality,
         "drift_vs_p1": drift_vs_p1,
         "drift_vs_p0": drift_vs_p0,
         "puct_vs_p1": puct_vs_p1,

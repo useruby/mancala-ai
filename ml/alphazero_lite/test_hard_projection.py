@@ -138,6 +138,74 @@ def test_boundary_clipping() -> None:
     assert abs(telemetry["accepted_mean_l1"] - radius) < 1e-4
 
 
+def test_parent_ray_retracts_to_a_new_boundary_point() -> None:
+    """Parent-ray retraction moves when the old segment is pinned at the boundary."""
+    device = torch.device("cpu")
+    model = _new_model(device)
+    trust_set = _build_synthetic_trust_set(model, device)
+    theta_p1 = {k: model.state_dict()[k].clone() for k in POLICY_KEYS}
+
+    torch.manual_seed(123)
+    direction_a = {k: torch.randn_like(theta_p1[k]) for k in POLICY_KEYS}
+    far_a = {k: theta_p1[k] + 0.05 * direction_a[k] for k in POLICY_KEYS}
+    radius = trust_set.compute_mean_l1(far_a) * 0.2
+    theta_old, old_telemetry = project_policy_head_step(
+        model, theta_p1, far_a, theta_p1, trust_set, radius, mode="parent_ray"
+    )
+    assert old_telemetry["accepted_mean_l1"] <= radius + 1e-6
+
+    direction_b = {k: torch.randn_like(theta_p1[k]) for k in POLICY_KEYS}
+    theta_raw = {k: theta_old[k] + 0.05 * direction_b[k] for k in POLICY_KEYS}
+    accepted, telemetry = project_policy_head_step(
+        model,
+        theta_old,
+        theta_raw,
+        theta_p1,
+        trust_set,
+        radius,
+        mode="parent_ray",
+    )
+
+    assert telemetry["projection_activated"]
+    assert telemetry["accepted_mean_l1"] <= radius + 1e-6
+    assert telemetry["param_delta_acc_vs_old"] > 1e-5
+    assert any(not torch.equal(accepted[k], theta_old[k]) for k in POLICY_KEYS)
+
+
+def test_tangent_retract_removes_boundary_radial_component() -> None:
+    """A boundary proposal is made parameter-orthogonal to its P1 radial vector."""
+    device = torch.device("cpu")
+    model = _new_model(device)
+    trust_set = _build_synthetic_trust_set(model, device)
+    theta_p1 = {k: model.state_dict()[k].clone() for k in POLICY_KEYS}
+    torch.manual_seed(456)
+    direction = {k: torch.randn_like(theta_p1[k]) for k in POLICY_KEYS}
+    far = {k: theta_p1[k] + 0.05 * direction[k] for k in POLICY_KEYS}
+    radius = trust_set.compute_mean_l1(far) * 0.2
+    theta_old, _ = project_policy_head_step(
+        model, theta_p1, far, theta_p1, trust_set, radius, mode="parent_ray"
+    )
+    theta_raw = {k: theta_old[k] + 0.01 * direction[k] for k in POLICY_KEYS}
+    accepted, telemetry = project_policy_head_step(
+        model,
+        theta_old,
+        theta_raw,
+        theta_p1,
+        trust_set,
+        radius,
+        mode="tangent_retract",
+    )
+    radial = torch.cat(
+        [(theta_old[k] - theta_p1[k]).double().flatten() for k in POLICY_KEYS]
+    )
+    accepted_step = torch.cat(
+        [(accepted[k] - theta_old[k]).double().flatten() for k in POLICY_KEYS]
+    )
+    assert telemetry["tangent_constraint_activated"]
+    assert telemetry["accepted_mean_l1"] <= radius + 1e-6
+    assert abs(float(torch.dot(radial, accepted_step))) < 1e-5
+
+
 def test_cumulative_parent_relative_constraint() -> None:
     """Cumulative drift vs frozen P1 remains strictly bounded across multiple sequential steps."""
     device = torch.device("cpu")

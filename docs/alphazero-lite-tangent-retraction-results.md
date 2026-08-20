@@ -1,8 +1,8 @@
 # AlphaZero-Lite Hard Parent-Relative Trust Region Results (PR #204 Gen-2 Update)
 
-**Primary Classification:** `boundary_motion_safe_but_weak`
+**Primary Classification:** `tangent_retraction_safe_but_weak`
 
-**Recommended Next Action:** `test a true tangent-space constrained update`
+**Recommended Next Action:** `use state/action-tail or search-sensitivity constraints rather than another optimizer transformation`
 
 ## Core Guardrails & Invariants
 
@@ -31,6 +31,7 @@
 | old_segment | 0.00125 | 46/47 | 97.9% | 0.001598 | 0.001250 | 0.0000 | Active (lambda < 0.20) |
 | parent_ray | 0.00125 | 46/47 | 97.9% | 0.001688 | 0.001250 | 0.7405 | Moderate |
 | parent_ray_0010 | 0.00100 | 46/47 | 97.9% | 0.001461 | 0.001000 | 0.6846 | Moderate |
+| tangent_retract | 0.00125 | 35/47 | 74.5% | 0.001688 | 0.001250 | 0.9930 | Low/None |
 
 ### Primary Lane (parent_ray) Step-by-Step Boundary Telemetry
 
@@ -70,6 +71,10 @@
 | parent_ray_0010 | 4 | 1.0506 | 0.9303 | 0.9363 | +0.0002 | 0.0439 |
 | parent_ray_0010 | 16 | 1.0505 | 0.9303 | 0.9363 | +0.0002 | 0.0469 |
 | parent_ray_0010 | 46 | 1.0505 | 0.9303 | 0.9363 | +0.0003 | 0.0521 |
+| tangent_retract | 1 | 1.0507 | 0.9303 | 0.9363 | +0.0001 | 0.0190 |
+| tangent_retract | 4 | 1.0505 | 0.9303 | 0.9363 | +0.0003 | 0.0571 |
+| tangent_retract | 16 | 1.0505 | 0.9303 | 0.9363 | +0.0003 | 0.0597 |
+| tangent_retract | 46 | 1.0504 | 0.9303 | 0.9363 | +0.0003 | 0.0658 |
 
 ## Parent-Ray Directionality (PR #205 References)
 
@@ -100,6 +105,10 @@
 | parent_ray_0010 | 4 | 0.000998 | 0.002941 | 0.001036 | 0.001730 | 0.001884 | 0.002234 | 0.000000 | 0.0000 |
 | parent_ray_0010 | 16 | 0.001011 | 0.002909 | 0.001045 | 0.001767 | 0.001975 | 0.002434 | 0.000000 | 0.0020 |
 | parent_ray_0010 | 46 | 0.001003 | 0.003051 | 0.001088 | 0.001764 | 0.001956 | 0.002554 | 0.000000 | 0.0020 |
+| tangent_retract | 1 | 0.000775 | 0.002003 | 0.000815 | 0.001289 | 0.001415 | 0.001714 | 0.000000 | 0.0000 |
+| tangent_retract | 4 | 0.001250 | 0.003657 | 0.001325 | 0.002162 | 0.002387 | 0.002815 | 0.000000 | 0.0020 |
+| tangent_retract | 16 | 0.001263 | 0.003705 | 0.001289 | 0.002200 | 0.002456 | 0.003091 | 0.000000 | 0.0020 |
+| tangent_retract | 46 | 0.001254 | 0.003870 | 0.001357 | 0.002212 | 0.002448 | 0.003218 | 0.000000 | 0.0020 |
 
 ## Cumulative Policy Drift vs P0 (Original Incumbent)
 
@@ -121,6 +130,10 @@
 | parent_ray_0010 | 4 | 0.006238 | 0.024013 | 0.006283 | 0.011472 | 0.012738 | 0.016301 | 0.000009 | 0.0059 |
 | parent_ray_0010 | 16 | 0.006333 | 0.023305 | 0.006301 | 0.011770 | 0.013199 | 0.016217 | 0.000010 | 0.0078 |
 | parent_ray_0010 | 46 | 0.006309 | 0.023490 | 0.006194 | 0.011669 | 0.013001 | 0.016338 | 0.000010 | 0.0078 |
+| tangent_retract | 1 | 0.005871 | 0.023007 | 0.005866 | 0.010906 | 0.012251 | 0.015584 | 0.000008 | 0.0059 |
+| tangent_retract | 4 | 0.006450 | 0.024729 | 0.006559 | 0.011818 | 0.013041 | 0.016866 | 0.000010 | 0.0078 |
+| tangent_retract | 16 | 0.006551 | 0.023873 | 0.006490 | 0.012291 | 0.013605 | 0.016839 | 0.000010 | 0.0078 |
+| tangent_retract | 46 | 0.006520 | 0.024116 | 0.006475 | 0.011970 | 0.013457 | 0.016983 | 0.000010 | 0.0078 |
 
 ## Parameter Drift (Relative L2 Drift vs P1 and vs P0)
 
@@ -142,6 +155,10 @@
 | parent_ray_0010 | 4 | 0.000000 | 0.000105 | 0.000000 | 0.000000 | 0.001793 | 0.000000 |
 | parent_ray_0010 | 16 | 0.000000 | 0.000122 | 0.000000 | 0.000000 | 0.001828 | 0.000000 |
 | parent_ray_0010 | 46 | 0.000000 | 0.000114 | 0.000000 | 0.000000 | 0.001817 | 0.000000 |
+| tangent_retract | 1 | 0.000000 | 0.000084 | 0.000000 | 0.000000 | 0.001768 | 0.000000 |
+| tangent_retract | 4 | 0.000000 | 0.000132 | 0.000000 | 0.000000 | 0.001811 | 0.000000 |
+| tangent_retract | 16 | 0.000000 | 0.000157 | 0.000000 | 0.000000 | 0.001859 | 0.000000 |
+| tangent_retract | 46 | 0.000000 | 0.000146 | 0.000000 | 0.000000 | 0.001843 | 0.000000 |
 
 ## Search Diagnostics (384:256 context, candidate vs P1)
 
@@ -155,6 +172,8 @@
 | parent_ray | 46 | 0.0156 | 0.0001 | +0.0352 | +0.0001 |
 | parent_ray_0010 | 16 | 0.0078 | 0.0001 | +0.0273 | +0.0001 |
 | parent_ray_0010 | 46 | 0.0078 | 0.0001 | +0.0273 | +0.0001 |
+| tangent_retract | 16 | 0.0156 | 0.0001 | +0.0430 | -0.0000 |
+| tangent_retract | 46 | 0.0156 | 0.0001 | +0.0391 | +0.0001 |
 
 ## Per-Depth Policy L1/JS on Expanded Probe States (384:256, candidate vs P1)
 
@@ -194,25 +213,24 @@
 | parent_ray | 46 | 384:256 | -0.0176 | [-0.0293, -0.0078] | -0.0195 | -0.0156 | 382/56/74 | True |
 | parent_ray_0010 | 16 | 384:256 | -0.0098 | [-0.0195, -0.0020] | -0.0195 | +0.0000 | 390/48/74 | True |
 | parent_ray_0010 | 46 | 384:256 | -0.0176 | [-0.0293, -0.0078] | -0.0195 | -0.0156 | 382/56/74 | True |
+| tangent_retract | 4 | 384:256 | -0.0176 | [-0.0293, -0.0078] | -0.0195 | -0.0156 | 382/56/74 | True |
+| tangent_retract | 16 | 384:256 | -0.0215 | [-0.0352, -0.0098] | -0.0195 | -0.0234 | 378/60/74 | False |
+| tangent_retract | 46 | 384:256 | -0.0176 | [-0.0293, -0.0078] | -0.0195 | -0.0156 | 382/56/74 | True |
 
 ## Classification Evidence
 
 | Signal | Value |
 | --- | ---: |
-| parent_ray_safe_384 | True |
-| parent_ray_safe_1200 | False |
-| parent_ray_fit_fraction | +0.0664 |
-| parent_ray_late_median_accepted_step_norm | +0.0001 |
-| parent_ray_late_median_tangential_motion | +0.0001 |
-| parent_ray_moves_on_boundary | True |
-| parent_ray_0010_safe_384 | True |
-| parent_ray_0010_fit_fraction | +0.0521 |
+| tangent_retract_safe_384 | True |
+| tangent_retract_fit_fraction | +0.0658 |
+| tangent_retract_late_median_accepted_step_norm | +0.0001 |
+| tangent_retract_moves | True |
 
 ## Reproduction Command
 
 ```bash
 .venv/bin/python ml/alphazero_lite/run_gen2_hard_trust_region.py \
-  --workdir /tmp/azlite_parent_ray_trust_region \
+  --workdir /tmp/azlite_tangent_retract \
   --seed 43 \
   --arena-workers 24
 ```
