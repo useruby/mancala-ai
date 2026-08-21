@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import random
 
 import numpy as np
@@ -68,3 +69,10 @@ def test_selection_trace_is_behavior_neutral_and_matches_live_selection() -> Non
                 decision["children"], key=lambda entry: entry["selection_score"]
             )
             assert winner["move"] == decision["chosen_move"]
+            for child in decision["children"]:
+                assert child["u_component"] == (
+                    1.25
+                    * child["prior"]
+                    * math.sqrt(decision["parent_visit_count"])
+                    / (1 + child["visit_count"])
+                )

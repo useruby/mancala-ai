@@ -1406,7 +1406,15 @@ class PUCT:
                     "state_hash": self._state_hash(node.game),
                     "player_to_move": int(node.game.current_player),
                     "legal_moves": sorted(int(move) for move in node.children),
-                    "parent_visit_count": int(node.visit_count),
+                    # This is the visit total used by _selection_entries, not
+                    # node.visit_count: a newly expanded node has inclusive
+                    # visits before any child has been selected.
+                    "parent_visit_count": int(
+                        max(
+                            1,
+                            sum(child.visit_count for child in node.children.values()),
+                        )
+                    ),
                     "chosen_move": int(selected_move),
                     "children": sorted(entries, key=lambda entry: int(entry["move"])),
                 }
