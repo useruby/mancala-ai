@@ -27,12 +27,18 @@ from ml.alphazero_lite.kalah_rules import KalahGame
 
 POLICY_SIZE = 6
 MLP_MODEL_TYPES = {"mlp_v1", "mlp_deep"}
-RESIDUAL_MODEL_TYPES = {"residual_v2", "residual_v3", "residual_v4_move_factorized"}
+RESIDUAL_MODEL_TYPES = {
+    "residual_v2",
+    "residual_v3",
+    "residual_v3_parent_additive_policy_adapter",
+    "residual_v4_move_factorized",
+}
 SUPPORTED_MODEL_TYPES = [
     "mlp_v1",
     "mlp_deep",
     "residual_v2",
     "residual_v3",
+    "residual_v3_parent_additive_policy_adapter",
     "residual_v4_move_factorized",
 ]
 DEFAULT_TRAINABLE_SCOPE = "all"
@@ -41,6 +47,9 @@ SUPPORTED_TRAINABLE_SCOPES = [
     "heads_only",
     "joint_trunk",
     "policy_head",
+    "policy_hidden_only",
+    "policy_readout_only",
+    "policy_adapter_only",
     "value_head",
     "last_block_policy",
     "policy_detached_trunk",
@@ -799,6 +808,7 @@ class PolicyValueNet(nn.Module):
         self.move_projections: nn.ModuleList | None = None
         self.input_layer: nn.Linear | None = None
         self.policy_hidden_layer: nn.Linear | None = None
+        self.policy_adapter: nn.Linear | None = None
         self.value_hidden_layer: nn.Linear | None = None
         policy_head_input_size: int | None = None
         value_head_input_size: int | None = None
@@ -826,9 +836,16 @@ class PolicyValueNet(nn.Module):
                 )
                 for _ in range(residual_block_count)
             )
-            if model_type == "residual_v3":
+            if model_type in {
+                "residual_v3",
+                "residual_v3_parent_additive_policy_adapter",
+            }:
                 self.policy_hidden_layer = nn.Linear(trunk_size, trunk_size)
                 self.value_hidden_layer = nn.Linear(trunk_size, max(trunk_size // 2, 8))
+                if model_type == "residual_v3_parent_additive_policy_adapter":
+                    self.policy_adapter = nn.Linear(trunk_size, POLICY_SIZE)
+                    nn.init.zeros_(self.policy_adapter.weight)
+                    nn.init.zeros_(self.policy_adapter.bias)
                 policy_head_input_size = trunk_size
                 value_head_input_size = max(trunk_size // 2, 8)
             elif model_type == "residual_v4_move_factorized":
@@ -870,7 +887,10 @@ class PolicyValueNet(nn.Module):
                 residual = h
                 h = torch.relu(first_layer(h))
                 h = torch.relu(second_layer(h) + residual)
-        if self.model_type == "residual_v3":
+        if self.model_type in {
+            "residual_v3",
+            "residual_v3_parent_additive_policy_adapter",
+        }:
             assert self.policy_hidden_layer is not None
             assert self.value_hidden_layer is not None
             policy_features = torch.relu(
@@ -880,6 +900,8 @@ class PolicyValueNet(nn.Module):
                 self.value_hidden_layer(h.detach() if detach_value_trunk else h)
             )
             policy_logits = self.policy_head(policy_features)
+            if self.policy_adapter is not None:
+                policy_logits = policy_logits + self.policy_adapter(h.detach())
             value = torch.tanh(self.value_head(value_features))
         elif self.model_type == "residual_v4_move_factorized":
             assert self.policy_hidden_layer is not None
@@ -1340,6 +1362,13 @@ def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.n
         checkpoint["b_policy_hidden"] = (
             state["policy_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
         )
+    if "policy_adapter.weight" in state:
+        checkpoint["w_policy_adapter"] = (
+            state["policy_adapter.weight"].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint["b_policy_adapter"] = (
+            state["policy_adapter.bias"].detach().cpu().numpy().astype(np.float32)
+        )
     if "value_hidden_layer.weight" in state:
         checkpoint["w_value_hidden"] = (
             state["value_hidden_layer.weight"]
@@ -1473,6 +1502,13 @@ def load_checkpoint_into_model(
             state_dict["value_hidden_layer.bias"] = torch.from_numpy(
                 checkpoint["b_value_hidden"].copy()
             )
+        if "policy_adapter.weight" in state_dict and "w_policy_adapter" in checkpoint:
+            state_dict["policy_adapter.weight"] = torch.from_numpy(
+                checkpoint["w_policy_adapter"].T.copy()
+            )
+            state_dict["policy_adapter.bias"] = torch.from_numpy(
+                checkpoint["b_policy_adapter"].copy()
+            )
 
         if is_v4_target and not is_v4_source:
             if "w_policy" in checkpoint:
@@ -1555,6 +1591,7 @@ def load_checkpoint_into_model(
 def _is_residual_with_selective_heads(model: PolicyValueNet) -> bool:
     return getattr(model, "model_type", "") in {
         "residual_v3",
+        "residual_v3_parent_additive_policy_adapter",
         "residual_v4_move_factorized",
     }
 
@@ -1621,6 +1658,30 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
             for proj in model.move_projections:
                 proj.weight.requires_grad = True
                 proj.bias.requires_grad = True
+        else:
+            model.policy_head.weight.requires_grad = True
+            model.policy_head.bias.requires_grad = True
+        return
+
+    if scope == "policy_adapter_only":
+        if model.model_type != "residual_v3_parent_additive_policy_adapter":
+            raise ValueError(
+                "trainable_scope=policy_adapter_only requires residual_v3_parent_additive_policy_adapter"
+            )
+        assert model.policy_adapter is not None
+        model.policy_adapter.weight.requires_grad = True
+        model.policy_adapter.bias.requires_grad = True
+        return
+
+    if scope in {"policy_hidden_only", "policy_readout_only"}:
+        if model.model_type != "residual_v3":
+            raise ValueError(
+                f"trainable_scope={scope} is only supported for residual_v3 models"
+            )
+        assert model.policy_hidden_layer is not None
+        if scope == "policy_hidden_only":
+            model.policy_hidden_layer.weight.requires_grad = True
+            model.policy_hidden_layer.bias.requires_grad = True
         else:
             model.policy_head.weight.requires_grad = True
             model.policy_head.bias.requires_grad = True

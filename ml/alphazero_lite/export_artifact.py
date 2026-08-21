@@ -28,9 +28,15 @@ SUPPORTED_MODEL_TYPES = [
     "mlp_deep",
     "residual_v2",
     "residual_v3",
+    "residual_v3_parent_additive_policy_adapter",
     "residual_v4_move_factorized",
 ]
-RESIDUAL_MODEL_TYPES = {"residual_v2", "residual_v3", "residual_v4_move_factorized"}
+RESIDUAL_MODEL_TYPES = {
+    "residual_v2",
+    "residual_v3",
+    "residual_v3_parent_additive_policy_adapter",
+    "residual_v4_move_factorized",
+}
 
 
 def feature_order_for(input_encoding: str) -> list[str]:
@@ -101,6 +107,23 @@ def validate_residual_v3_checkpoint(npz: np.lib.npyio.NpzFile) -> None:
             "residual_v3 checkpoint w_value must have shape "
             f"({value_hidden_size}, {int(npz['b_value'].shape[0])}), got {npz['w_value'].shape}"
         )
+
+
+def validate_parent_additive_policy_adapter_checkpoint(
+    npz: np.lib.npyio.NpzFile,
+) -> None:
+    validate_residual_v3_checkpoint(npz)
+    required_keys = ["w_policy_adapter", "b_policy_adapter"]
+    missing_keys = [key for key in required_keys if key not in npz]
+    if missing_keys:
+        raise ValueError(
+            f"policy adapter checkpoint is missing: {', '.join(missing_keys)}"
+        )
+    trunk_size = int(npz["w_input"].shape[1])
+    if npz["w_policy_adapter"].shape != (trunk_size, 6):
+        raise ValueError("policy adapter weight must have shape (trunk_size, 6)")
+    if npz["b_policy_adapter"].shape != (6,):
+        raise ValueError("policy adapter bias must have shape (6,)")
 
 
 def validate_residual_v2_checkpoint(npz: np.lib.npyio.NpzFile) -> None:
@@ -183,19 +206,31 @@ def main() -> None:
             validate_residual_v2_checkpoint(npz)
         if args.model_type == "residual_v3":
             validate_residual_v3_checkpoint(npz)
+        elif args.model_type == "residual_v3_parent_additive_policy_adapter":
+            validate_parent_additive_policy_adapter_checkpoint(npz)
             architecture_payload["hidden_layer_count"] += 2
         if args.model_type == "residual_v4_move_factorized":
             architecture_payload["hidden_layer_count"] += 2
             architecture_payload["move_factorized"] = True
         if (
-            args.model_type in {"residual_v3", "residual_v4_move_factorized"}
+            args.model_type
+            in {
+                "residual_v3",
+                "residual_v3_parent_additive_policy_adapter",
+                "residual_v4_move_factorized",
+            }
             and "w_policy_hidden" in npz
         ):
             architecture_payload["policy_hidden_size"] = int(
                 npz["w_policy_hidden"].shape[1]
             )
         if (
-            args.model_type in {"residual_v3", "residual_v4_move_factorized"}
+            args.model_type
+            in {
+                "residual_v3",
+                "residual_v3_parent_additive_policy_adapter",
+                "residual_v4_move_factorized",
+            }
             and "w_value_hidden" in npz
         ):
             architecture_payload["value_hidden_size"] = int(
