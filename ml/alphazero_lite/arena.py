@@ -701,7 +701,11 @@ class ArtifactEvaluator:
         self.b_policy_hidden = None
         self.w_value_hidden = None
         self.b_value_hidden = None
-        if self.model_type in ("residual_v3", "residual_v4_move_factorized"):
+        if self.model_type in (
+            "residual_v3",
+            "residual_v3_parent_additive_policy_adapter",
+            "residual_v4_move_factorized",
+        ):
             required_keys = [
                 "w_policy_hidden",
                 "b_policy_hidden",
@@ -726,6 +730,16 @@ class ArtifactEvaluator:
             self.b_value_hidden = np.asarray(
                 weights["b_value_hidden"], dtype=np.float32
             )
+        self.w_policy_adapter = (
+            np.asarray(weights["w_policy_adapter"], dtype=np.float32)
+            if "w_policy_adapter" in weights
+            else None
+        )
+        self.b_policy_adapter = (
+            np.asarray(weights["b_policy_adapter"], dtype=np.float32)
+            if "b_policy_adapter" in weights
+            else None
+        )
 
     def _extract_residual_blocks(
         self, weights: dict
@@ -806,7 +820,11 @@ class ArtifactEvaluator:
 
         policy_hidden = hidden
         value_hidden = hidden
-        if self.model_type in ("residual_v3", "residual_v4_move_factorized"):
+        if self.model_type in (
+            "residual_v3",
+            "residual_v3_parent_additive_policy_adapter",
+            "residual_v4_move_factorized",
+        ):
             assert self.w_policy_hidden is not None
             assert self.b_policy_hidden is not None
             assert self.w_value_hidden is not None
@@ -831,6 +849,8 @@ class ArtifactEvaluator:
             logits = np.array(move_logits, dtype=np.float32)
         else:
             logits = (policy_hidden @ self.w_policy) + self.b_policy
+        if self.w_policy_adapter is not None and self.b_policy_adapter is not None:
+            logits = logits + (hidden @ self.w_policy_adapter) + self.b_policy_adapter
         logits = logits - np.max(logits)
         exp_values = np.exp(logits)
         priors = exp_values / np.sum(exp_values)
