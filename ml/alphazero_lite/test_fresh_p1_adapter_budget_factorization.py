@@ -10,7 +10,13 @@ from ml.alphazero_lite.run_fresh_p1_adapter_budget_factorization import (
 
 
 def _effects() -> dict[str, dict]:
-    values = {"384:256": 0.0, "384:384": 0.5, "1200:256": -1.0, "384:1200": -2.0, "1200:1200": -4.0}
+    values = {
+        "384:256": 0.0,
+        "384:384": 0.5,
+        "1200:256": -1.0,
+        "384:1200": -2.0,
+        "1200:1200": -4.0,
+    }
     return {
         context: {"per_opening_effect": {index: value for index in range(128)}}
         for context, value in values.items()
@@ -41,7 +47,9 @@ def test_paired_contrast_rejects_unmatched_openings() -> None:
     effects[CONTEXTS[1]]["per_opening_effect"] = {0: 0.5}
 
     try:
-        paired_contrast(effects, {"384:256": 1.0, "384:384": -1.0}, np.zeros((2, 2), dtype=int))
+        paired_contrast(
+            effects, {"384:256": 1.0, "384:384": -1.0}, np.zeros((2, 2), dtype=int)
+        )
     except ValueError as error:
         assert "same openings" in str(error)
     else:
