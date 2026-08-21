@@ -908,6 +908,8 @@ class PUCT:
         ablation_mode: str | None = None,
         root_prior_override: Callable[..., np.ndarray] | None = None,
         prior_override: Callable[..., np.ndarray] | None = None,
+        selection_trace: list[dict[str, Any]] | None = None,
+        trace_checkpoints: set[int] | None = None,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -925,6 +927,15 @@ class PUCT:
         self.ablation_mode = build_mode_config(ablation_mode or "full")
         self.root_prior_override = root_prior_override
         self.prior_override = prior_override
+        # Diagnostics are opt-in. Keeping this reference None avoids all trace
+        # construction work in normal searches.
+        self.selection_trace = selection_trace
+        self.trace_checkpoints = (
+            None
+            if trace_checkpoints is None
+            else {int(value) for value in trace_checkpoints}
+        )
+        self._last_trace_root_snapshots: list[dict] = []
         self._last_root: Node | None = None
         self._last_visit_snapshots: list[dict] = []
         self._last_root_prior_before: list[float] | None = None
@@ -977,6 +988,9 @@ class PUCT:
         self._last_nonterminal_leaf_count = 0
         self._last_backed_up_value_min = None
         self._last_backed_up_value_max = None
+        self._last_trace_root_snapshots = []
+        if self.selection_trace is not None:
+            self.selection_trace.clear()
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -988,7 +1002,12 @@ class PUCT:
         )
 
         for simulation_index in range(1, self.simulations + 1):
-            value = self._search(root)
+            trace_record = (
+                {"simulation_index": int(simulation_index), "selection_path": []}
+                if self.selection_trace is not None
+                else None
+            )
+            value = self._search(root, trace_record=trace_record)
             if (
                 self._last_backed_up_value_min is None
                 or value < self._last_backed_up_value_min
@@ -1001,17 +1020,36 @@ class PUCT:
                 self._last_backed_up_value_max = float(value)
             root.visit_count += 1
             root.value_sum += value
+            if trace_record is not None:
+                trace_record["backed_up_value"] = float(value)
+                trace_record["root_visit_count_after"] = int(root.visit_count)
+                self.selection_trace.append(trace_record)
             if simulation_index in visit_snapshot_checkpoints:
                 self._last_visit_snapshots.append(
                     self._build_root_visit_snapshot(
                         root, simulation_index=simulation_index
                     )
                 )
+            if self.selection_trace is not None and self.trace_checkpoints is not None:
+                if simulation_index in self.trace_checkpoints:
+                    self._last_trace_root_snapshots.append(
+                        self._build_root_visit_snapshot(
+                            root, simulation_index=simulation_index
+                        )
+                    )
 
         visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
         for move, child in root.children.items():
             visits[move] = child.visit_count
         self._last_root = root
+        if self.selection_trace is not None:
+            for trace_record in self.selection_trace:
+                trace_record["final_root_visits"] = [
+                    int(visits[move]) for move in range(PITS_PER_PLAYER)
+                ]
+                trace_record["final_selected_root_move"] = int(
+                    self.select_root_move(root, sorted(root.children))
+                )
         return visits, root
 
     def root_summary(self) -> dict:
@@ -1035,6 +1073,7 @@ class PUCT:
             "value_transform": self._value_transform_summary_for(self._last_root.game),
             "selection_breakdown": selection_breakdown,
             "visit_snapshots": list(self._last_visit_snapshots),
+            "trace_root_snapshots": list(self._last_trace_root_snapshots),
             "root_q_value": float(self._last_root.q_value),
             "root_evaluation_raw_value": self._last_root_raw_evaluation_value,
             "root_evaluation_transformed_value": self._last_root_transformed_evaluation_value,
@@ -1312,10 +1351,23 @@ class PUCT:
     def _same_state(self, left: KalahGame, right: KalahGame) -> bool:
         return left.to_state() == right.to_state()
 
-    def _search(self, node: Node, depth: int = 0) -> float:
+    def _search(
+        self,
+        node: Node,
+        depth: int = 0,
+        trace_record: dict[str, Any] | None = None,
+    ) -> float:
         terminal = terminal_value(node.game)
         if terminal is not None:
             self._last_terminal_leaf_count += 1
+            if trace_record is not None:
+                trace_record.update(
+                    {
+                        "selected_leaf_state_hash": self._state_hash(node.game),
+                        "leaf_evaluator_value": float(terminal),
+                        "terminal_leaf": True,
+                    }
+                )
             return terminal
 
         if not node.expanded:
@@ -1328,14 +1380,39 @@ class PUCT:
                 is_root=False,
                 depth=depth,
             )
+            if trace_record is not None:
+                trace_record.update(
+                    {
+                        "selected_leaf_state_hash": self._state_hash(node.game),
+                        "leaf_evaluator_value": float(value),
+                        "terminal_leaf": False,
+                    }
+                )
             return value
 
         if not node.children:
             return 0.0
 
-        child = self._select_child(node)
+        if trace_record is None:
+            child = self._select_child(node)
+        else:
+            entries, selected_move, child, _value_trust = self._selection_entries(
+                node, sort_moves=False
+            )
+            assert child is not None
+            trace_record["selection_path"].append(
+                {
+                    "tree_depth": int(depth),
+                    "state_hash": self._state_hash(node.game),
+                    "player_to_move": int(node.game.current_player),
+                    "legal_moves": sorted(int(move) for move in node.children),
+                    "parent_visit_count": int(node.visit_count),
+                    "chosen_move": int(selected_move),
+                    "children": sorted(entries, key=lambda entry: int(entry["move"])),
+                }
+            )
 
-        value = self._search(child, depth + 1)
+        value = self._search(child, depth + 1, trace_record)
         if child.game.current_player != node.game.current_player:
             value = -value
         child.visit_count += 1
@@ -1343,32 +1420,17 @@ class PUCT:
         return value
 
     def _select_child(self, node: Node) -> Node:
-        total_visits = max(
-            1, sum(child.visit_count for child in node.children.values())
+        _entries, _move, best_child, _value_trust = self._selection_entries(
+            node, sort_moves=False
         )
-        items = list(node.children.items())
-        raw_q_values = [self._child_q_value(node, child) for _move, child in items]
-        selection_q_values = (
-            self._normalize_child_values(raw_q_values)
-            if self.normalize_values
-            else raw_q_values
-        )
-        value_trust_multiplier = self._effective_value_trust_multiplier_for(node.game)
-
-        best_child = None
-        best_score = -float("inf")
-        for (_move, child), selection_q_value in zip(items, selection_q_values):
-            selection_score = float(selection_q_value * value_trust_multiplier) + float(
-                self.c_puct
-                * child.prior
-                * math.sqrt(total_visits)
-                / (1 + child.visit_count)
-            )
-            if selection_score > best_score:
-                best_score = selection_score
-                best_child = child
         assert best_child is not None
         return best_child
+
+    def _state_hash(self, game: KalahGame) -> str:
+        state = json.dumps(
+            game.to_state(), sort_keys=True, separators=(",", ":"), ensure_ascii=True
+        )
+        return hashlib.sha256(state.encode("utf-8")).hexdigest()
 
     def _selection_entries(
         self, node: Node, *, sort_moves: bool
