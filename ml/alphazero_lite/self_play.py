@@ -909,6 +909,9 @@ class PUCT:
         root_prior_override: Callable[..., np.ndarray] | None = None,
         prior_override: Callable[..., np.ndarray] | None = None,
         backup_override: Callable[[int, float, dict[str, Any]], float] | None = None,
+        selection_q_override: Callable[[int, str, int, float, int], float | None]
+        | None = None,
+        pre_simulation_hook: Callable[[int, Node], None] | None = None,
         selection_trace: list[dict[str, Any]] | None = None,
         trace_checkpoints: set[int] | None = None,
     ):
@@ -929,6 +932,9 @@ class PUCT:
         self.root_prior_override = root_prior_override
         self.prior_override = prior_override
         self.backup_override = backup_override
+        self.selection_q_override = selection_q_override
+        self.pre_simulation_hook = pre_simulation_hook
+        self._active_simulation_index: int | None = None
         # Diagnostics are opt-in. Keeping this reference None avoids all trace
         # construction work in normal searches.
         self.selection_trace = selection_trace
@@ -1004,6 +1010,10 @@ class PUCT:
         )
 
         for simulation_index in range(1, self.simulations + 1):
+            self._active_simulation_index = simulation_index
+            if self.pre_simulation_hook is not None:
+                # The observer sees exactly the tree evidence available before t.
+                self.pre_simulation_hook(simulation_index, root)
             trace_record = (
                 {"simulation_index": int(simulation_index), "selection_path": []}
                 if self.selection_trace is not None
@@ -1074,6 +1084,7 @@ class PUCT:
         for move, child in root.children.items():
             visits[move] = child.visit_count
         self._last_root = root
+        self._active_simulation_index = None
         if self.selection_trace is not None:
             for trace_record in self.selection_trace:
                 trace_record["final_root_visits"] = [
@@ -1500,6 +1511,29 @@ class PUCT:
             sorted(node.children.items()) if sort_moves else list(node.children.items())
         )
         raw_q_values = [self._child_q_value(node, child) for _move, child in items]
+        override_applied = [False] * len(items)
+        if (
+            self.selection_q_override is not None
+            and self._active_simulation_index is not None
+        ):
+            state_hash = self._state_hash(node.game)
+            for index, ((move, child), raw_q_value) in enumerate(
+                zip(items, raw_q_values, strict=True)
+            ):
+                # FPU remains local to this tree: references never supply a Q
+                # for an unvisited candidate edge.
+                if child.visit_count == 0:
+                    continue
+                overridden = self.selection_q_override(
+                    self._active_simulation_index,
+                    state_hash,
+                    int(move),
+                    float(raw_q_value),
+                    int(child.visit_count),
+                )
+                if overridden is not None:
+                    raw_q_values[index] = float(overridden)
+                    override_applied[index] = True
         selection_q_values = (
             self._normalize_child_values(raw_q_values)
             if self.normalize_values
@@ -1512,8 +1546,8 @@ class PUCT:
         best_child = None
         best_score = -float("inf")
 
-        for (move, child), raw_q_value, selection_q_value in zip(
-            items, raw_q_values, selection_q_values
+        for (move, child), raw_q_value, selection_q_value, was_overridden in zip(
+            items, raw_q_values, selection_q_values, override_applied, strict=True
         ):
             used_fpu = child.visit_count == 0
             q_component = float(selection_q_value * value_trust_multiplier)
@@ -1530,7 +1564,11 @@ class PUCT:
                     "prior": float(child.prior),
                     "visit_count": int(child.visit_count),
                     "q_value": float(child.q_value) if child.visit_count else 0.0,
+                    "stored_q_value": float(child.q_value)
+                    if child.visit_count
+                    else 0.0,
                     "selection_q_value": float(selection_q_value),
+                    "selection_q_overridden": bool(was_overridden),
                     "q_component": q_component,
                     "u_component": u_component,
                     "selection_score": float(selection_score),
