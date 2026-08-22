@@ -119,6 +119,7 @@ def _snapshot(node: Node) -> dict[str, Any]:
         int(move): {
             "visit_count": int(child.visit_count),
             "q_value": float(child.q_value),
+            "prior": float(child.prior),
         }
         for move, child in node.children.items()
     }
@@ -126,24 +127,28 @@ def _snapshot(node: Node) -> dict[str, Any]:
         "player_to_move": int(node.game.current_player),
         "children": children,
         "signature": tuple(
-            (move, row["visit_count"], row["q_value"])
+            (move, row["visit_count"], row["q_value"], row["prior"])
             for move, row in sorted(children.items())
         ),
     }
 
 
 def _reference_snapshots(
-    eligible_hashes: set[str], telemetry: Counter[str]
+    telemetry: Counter[str],
 ) -> tuple[dict[int, dict[str, dict[str, Any]]], Any]:
-    """Capture only preflight-visible states; reject ambiguous repeated state hashes."""
+    """Capture P1 tree evidence immediately before each simulation.
+
+    State hashes identify the complete Kalah state, including player to move. A
+    transposed hash is usable only when every live instance has identical child
+    statistics and priors; otherwise it remains explicitly ambiguous.
+    """
     snapshots: dict[int, dict[str, dict[str, Any]]] = {}
 
     def hook(simulation: int, root: Node) -> None:
         candidates: dict[str, list[dict[str, Any]]] = {}
         for node in _walk(root):
             state_hash = _game_hash(node.game)
-            if state_hash in eligible_hashes:
-                candidates.setdefault(state_hash, []).append(_snapshot(node))
+            candidates.setdefault(state_hash, []).append(_snapshot(node))
         rows: dict[str, dict[str, Any]] = {}
         for state_hash, copies in candidates.items():
             telemetry["candidate_nodes"] += len(copies)
@@ -151,8 +156,9 @@ def _reference_snapshots(
                 telemetry["duplicate_state_hashes"] += 1
             if len({row["signature"] for row in copies}) != 1:
                 telemetry["non_equivalent_duplicate_state_hashes"] += 1
+                rows[state_hash] = {"ambiguous": True}
                 continue
-            rows[state_hash] = copies[0]
+            rows[state_hash] = {"ambiguous": False, "snapshot": copies[0]}
             telemetry["reference_snapshots"] += 1
         snapshots[simulation] = rows
 
@@ -162,6 +168,7 @@ def _reference_snapshots(
 def _q_override(
     references: dict[int, dict[str, dict[str, Any]]],
     telemetry: Counter[str],
+    uses: list[tuple[str, int, float, float]],
     *,
     start: int,
     end: int,
@@ -175,7 +182,11 @@ def _q_override(
         if root_hash is not None and state_hash != root_hash:
             return None
         telemetry["eligible_selection_edges"] += 1
-        reference = references.get(simulation, {}).get(state_hash)
+        reference_row = references.get(simulation, {}).get(state_hash)
+        if reference_row is not None and reference_row["ambiguous"]:
+            telemetry["ambiguous_state_skips"] += 1
+            return None
+        reference = None if reference_row is None else reference_row["snapshot"]
         if reference is None:
             telemetry["missing_reference"] += 1
             return None
@@ -190,7 +201,9 @@ def _q_override(
             telemetry["p1_unvisited_skips"] += 1
             return None
         telemetry["applied_selection_q"] += 1
-        return float(child["q_value"])
+        reference_q = float(child["q_value"])
+        uses.append((state_hash, int(move), float(raw_q), reference_q))
+        return reference_q
 
     return override
 
@@ -204,6 +217,12 @@ def _trajectory_metric(
             np.asarray(reference["visit_distribution"]),
             np.asarray(observed["visit_distribution"]),
         ),
+        "root_visit_l1": float(
+            np.abs(
+                np.asarray(reference["visit_distribution"])
+                - np.asarray(observed["visit_distribution"])
+            ).sum()
+        ),
         "root_q_l1": float(
             sum(
                 abs(reference["q_value"].get(a, 0.0) - observed["q_value"].get(a, 0.0))
@@ -212,6 +231,9 @@ def _trajectory_metric(
         ),
         "root_move_disagreement": reference["deterministic_move"]
         != observed["deterministic_move"],
+        "q_rank_disagreement": reference["q_ranking"] != observed["q_ranking"],
+        "visit_leader_disagreement": reference["visit_leader"]
+        != observed["visit_leader"],
     }
 
 
@@ -260,16 +282,116 @@ def _lane_invariants(
     }
 
 
+def _coverage(
+    trace: list[dict[str, Any]],
+    references: dict[int, dict[str, dict[str, Any]]],
+    telemetry: Counter[str],
+    *,
+    start: int,
+    end: int,
+    root_hash: str | None,
+    uses: list[tuple[str, int, float, float]],
+    p1_move: int,
+    a16_move: int,
+) -> dict[str, Any]:
+    by_depth: dict[str, Counter[str]] = {}
+    selected_sync = 0
+    runner_up_sync = 0
+    for record in trace:
+        simulation = int(record["simulation_index"])
+        if not start <= simulation <= end:
+            continue
+        for node in record["selection_path"]:
+            state_hash = node["state_hash"]
+            if root_hash is not None and state_hash != root_hash:
+                continue
+            depth = str(node["tree_depth"])
+            counts = by_depth.setdefault(depth, Counter())
+            counts["total_selection_decisions"] += 1
+            reference = references.get(simulation, {}).get(state_hash)
+            if reference is not None and not reference["ambiguous"]:
+                counts["matched_node_decisions"] += 1
+            children = node["children"]
+            counts["eligible_action_comparisons"] += len(children)
+            counts["synchronized_action_q_count"] += sum(
+                child["selection_q_overridden"] for child in children
+            )
+            counts["a16_unvisited_skips"] += sum(
+                child["visit_count"] == 0 for child in children
+            )
+            ranked = sorted(
+                children,
+                key=lambda child: (-child["selection_score"], child["move"]),
+            )
+            if ranked:
+                selected_sync += int(ranked[0]["selection_q_overridden"])
+            if len(ranked) > 1:
+                runner_up_sync += int(ranked[1]["selection_q_overridden"])
+    aggregate = sum(by_depth.values(), Counter())
+    root_uses = [item for item in uses if item[0] == root_hash]
+    return {
+        "total_selection_decisions_after_d": int(
+            aggregate["total_selection_decisions"]
+        ),
+        "matched_node_decisions": int(aggregate["matched_node_decisions"]),
+        "matched_node_fraction": float(
+            aggregate["matched_node_decisions"] / aggregate["total_selection_decisions"]
+        )
+        if aggregate["total_selection_decisions"]
+        else 0.0,
+        "eligible_action_comparisons": int(aggregate["eligible_action_comparisons"]),
+        "synchronized_action_q_count": int(aggregate["synchronized_action_q_count"]),
+        "synchronized_fraction": float(
+            aggregate["synchronized_action_q_count"]
+            / aggregate["eligible_action_comparisons"]
+        )
+        if aggregate["eligible_action_comparisons"]
+        else 0.0,
+        "ambiguous_state_skips": int(telemetry["ambiguous_state_skips"]),
+        "a16_unvisited_skips": int(aggregate["a16_unvisited_skips"]),
+        "p1_unvisited_skips": int(telemetry["p1_unvisited_skips"]),
+        "selected_action_q_synchronized": int(selected_sync),
+        "runner_up_action_q_synchronized": int(runner_up_sync),
+        "by_depth": {
+            depth: {
+                **dict(counts),
+                "node_match_fraction": float(
+                    counts["matched_node_decisions"]
+                    / counts["total_selection_decisions"]
+                ),
+                "q_sync_fraction": float(
+                    counts["synchronized_action_q_count"]
+                    / counts["eligible_action_comparisons"]
+                )
+                if counts["eligible_action_comparisons"]
+                else 0.0,
+            }
+            for depth, counts in sorted(by_depth.items(), key=lambda item: int(item[0]))
+        },
+        "reference_value_directionality": {
+            "synchronized_uses": len(uses),
+            "mean_abs_delta_q": float(
+                np.mean([abs(ref - raw) for _, _, raw, ref in uses])
+            )
+            if uses
+            else 0.0,
+            "raises_p1_root_branch": sum(
+                move == p1_move and ref > raw for _hash, move, raw, ref in root_uses
+            ),
+            "lowers_a16_root_branch": sum(
+                move == a16_move and ref < raw for _hash, move, raw, ref in root_uses
+            ),
+        },
+    }
+
+
 def _audit(task: tuple[dict[str, Any], dict[str, Any]]) -> dict[str, Any]:
     state, metadata = task
     assert _P1 is not None and _A16 is not None
     seed = _seed(metadata["state_hash"])
     full, full_summary = _search(_A16, state, seed)
-    eligible = {
-        node["state_hash"] for record in full for node in record["selection_path"]
-    }
     capture_telemetry: Counter[str] = Counter()
-    references, hook = _reference_snapshots(eligible, capture_telemetry)
+    references, hook = _reference_snapshots(capture_telemetry)
     p1, p1_summary = _search(_P1, state, seed, pre_simulation_hook=hook)
     divergence = first_divergence(full, p1)
     if divergence is None or "invariant_failure" in divergence:
@@ -286,19 +408,30 @@ def _audit(task: tuple[dict[str, Any], dict[str, Any]]) -> dict[str, Any]:
     }
     for name, (only_root, end) in lane_specs.items():
         telemetry: Counter[str] = Counter()
+        uses: list[tuple[str, int, float, float]] = []
         trace, summary = _search(
             _A16,
             state,
             seed,
             selection_q_override=_q_override(
-                references, telemetry, start=d + 1, end=end, root_hash=only_root
+                references, telemetry, uses, start=d + 1, end=end, root_hash=only_root
             ),
         )
         lanes[name] = {
             "summary": summary,
             "final_move": summary["selected_move"],
             "invariants": _lane_invariants(full, trace, d),
-            "coverage_telemetry": dict(telemetry),
+            "coverage_telemetry": _coverage(
+                trace,
+                references,
+                telemetry,
+                start=d + 1,
+                end=end,
+                root_hash=only_root,
+                uses=uses,
+                p1_move=p1_summary["selected_move"],
+                a16_move=full_summary["selected_move"],
+            ),
             "trajectories_requested": _trajectories(p1, full, trace, d),
         }
     return {
@@ -307,7 +440,9 @@ def _audit(task: tuple[dict[str, Any], dict[str, Any]]) -> dict[str, Any]:
         "p1_final_move": p1_summary["selected_move"],
         "full_a16_final_move": full_summary["selected_move"],
         "first_divergence": divergence,
-        "preflight_full_a16_state_hash_count": len(eligible),
+        "preflight_full_a16_state_hash_count": len(
+            {node["state_hash"] for record in full for node in record["selection_path"]}
+        ),
         "reference_capture_telemetry": dict(capture_telemetry),
         "reference_cache_sha": hashlib.sha256(
             json.dumps(references, sort_keys=True, separators=(",", ":")).encode()
@@ -332,7 +467,10 @@ def _bootstrap(values: list[bool]) -> dict[str, float | int]:
 
 
 def _classification(
-    invariants: dict[str, bool], primary: dict[str, Any], controls: dict[str, int]
+    invariants: dict[str, bool],
+    primary: dict[str, Any],
+    controls: dict[str, int],
+    coverage: dict[str, Any],
 ) -> tuple[str, str]:
     if not all(invariants.values()):
         return (
@@ -344,17 +482,24 @@ def _classification(
             "matched_q_creates_new_instability",
             "Audit snapshot equivalence and restrict the intervention to matched post-divergence nodes.",
         )
-    if primary["root_qsync"]["rescue_rate"]["estimate"] >= 0.7:
+    if coverage["all_qsync_rest"]["synchronized_fraction"] < 0.7:
+        return (
+            "q_reference_coverage_insufficient",
+            "Improve matched-tree instrumentation rather than changing ML/search behavior.",
+        )
+    root_rescue = primary["root_qsync"]["rescue_rate"]["estimate"]
+    all_rescue = primary["all_qsync_rest"]["rescue_rate"]["estimate"]
+    if root_rescue >= 0.7 and all_rescue - root_rescue <= 0.1:
         return (
             "root_q_feedback_dominant",
             "Test root-Q confidence/shrinkage rather than modifying the value network.",
         )
-    if primary["all_qsync_rest"]["rescue_rate"]["estimate"] >= 0.7:
+    if all_rescue >= 0.7:
         return (
             "matched_q_feedback_causal",
             "Localize which matched nodes/actions contribute most, then test a conservative search-time Q-confidence mechanism.",
         )
-    if primary["all_qsync_rest"]["rescue_rate"]["estimate"] < 0.3:
+    if all_rescue < 0.3:
         return (
             "matched_q_not_sufficient",
             "Instrument matched-tree coverage more deeply before changing ML/search behavior.",
@@ -363,6 +508,43 @@ def _classification(
         "distributed_matched_q_feedback",
         "Localize which matched nodes/actions contribute most, then test a conservative search-time Q-confidence mechanism.",
     )
+
+
+def _aggregate_coverage(records: list[dict[str, Any]], lane: str) -> dict[str, Any]:
+    keys = (
+        "total_selection_decisions_after_d",
+        "matched_node_decisions",
+        "eligible_action_comparisons",
+        "synchronized_action_q_count",
+        "ambiguous_state_skips",
+        "a16_unvisited_skips",
+        "p1_unvisited_skips",
+        "selected_action_q_synchronized",
+        "runner_up_action_q_synchronized",
+    )
+    totals = Counter(
+        {
+            key: sum(
+                int(row["lanes"][lane]["coverage_telemetry"][key]) for row in records
+            )
+            for key in keys
+        }
+    )
+    return {
+        **dict(totals),
+        "matched_node_fraction": float(
+            totals["matched_node_decisions"]
+            / totals["total_selection_decisions_after_d"]
+        )
+        if totals["total_selection_decisions_after_d"]
+        else 0.0,
+        "synchronized_fraction": float(
+            totals["synchronized_action_q_count"]
+            / totals["eligible_action_comparisons"]
+        )
+        if totals["eligible_action_comparisons"]
+        else 0.0,
+    }
 
 
 def _serialized(record: dict[str, Any]) -> dict[str, Any]:
@@ -582,7 +764,6 @@ def main() -> None:
             if lane != "full"
         ),
     }
-    classification, follow_up = _classification(invariants, primary, negative)
     coverage = {
         "reference_capture": dict(
             sum(
@@ -591,19 +772,10 @@ def main() -> None:
             )
         ),
         **{
-            lane: dict(
-                sum(
-                    (
-                        Counter(row["lanes"][lane]["coverage_telemetry"])
-                        for row in records
-                    ),
-                    Counter(),
-                )
-            )
-            for lane in LANES
-            if lane != "full"
+            lane: _aggregate_coverage(records, lane) for lane in LANES if lane != "full"
         },
     }
+    classification, follow_up = _classification(invariants, primary, negative, coverage)
     summary = {
         "schema": "azlite_matched_q_feedback_v1",
         "guardrails": {
