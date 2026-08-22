@@ -908,6 +908,7 @@ class PUCT:
         ablation_mode: str | None = None,
         root_prior_override: Callable[..., np.ndarray] | None = None,
         prior_override: Callable[..., np.ndarray] | None = None,
+        backup_override: Callable[[int, float, dict[str, Any]], float] | None = None,
         selection_trace: list[dict[str, Any]] | None = None,
         trace_checkpoints: set[int] | None = None,
     ):
@@ -927,6 +928,7 @@ class PUCT:
         self.ablation_mode = build_mode_config(ablation_mode or "full")
         self.root_prior_override = root_prior_override
         self.prior_override = prior_override
+        self.backup_override = backup_override
         # Diagnostics are opt-in. Keeping this reference None avoids all trace
         # construction work in normal searches.
         self.selection_trace = selection_trace
@@ -1007,7 +1009,28 @@ class PUCT:
                 if self.selection_trace is not None
                 else None
             )
-            value = self._search(root, trace_record=trace_record)
+            selected_edges = [] if self.backup_override is not None else None
+            raw_value = self._search(
+                root, trace_record=trace_record, selected_edges=selected_edges
+            )
+            value = raw_value
+            if self.backup_override is not None:
+                hook_record = (
+                    trace_record
+                    if trace_record is not None
+                    else {"simulation_index": int(simulation_index)}
+                )
+                value = float(
+                    self.backup_override(
+                        simulation_index, float(raw_value), hook_record
+                    )
+                )
+                delta_root = value - raw_value
+                self._apply_backup_delta(
+                    selected_edges,
+                    root_player=root.game.current_player,
+                    delta_root=delta_root,
+                )
             if (
                 self._last_backed_up_value_min is None
                 or value < self._last_backed_up_value_min
@@ -1022,6 +1045,15 @@ class PUCT:
             root.value_sum += value
             if trace_record is not None:
                 trace_record["backed_up_value"] = float(value)
+                if self.backup_override is not None:
+                    trace_record.update(
+                        {
+                            "raw_backed_up_value": float(raw_value),
+                            "applied_backed_up_value": float(value),
+                            "backup_override_delta": float(value - raw_value),
+                            "backup_override_active": True,
+                        }
+                    )
                 trace_record["root_visit_count_after"] = int(root.visit_count)
                 self.selection_trace.append(trace_record)
             if simulation_index in visit_snapshot_checkpoints:
@@ -1356,6 +1388,7 @@ class PUCT:
         node: Node,
         depth: int = 0,
         trace_record: dict[str, Any] | None = None,
+        selected_edges: list[tuple[Node, Node]] | None = None,
     ) -> float:
         terminal = terminal_value(node.game)
         if terminal is not None:
@@ -1422,12 +1455,27 @@ class PUCT:
                 }
             )
 
-        value = self._search(child, depth + 1, trace_record)
+        if selected_edges is not None:
+            selected_edges.append((node, child))
+        value = self._search(child, depth + 1, trace_record, selected_edges)
         if child.game.current_player != node.game.current_player:
             value = -value
         child.visit_count += 1
         child.value_sum += value
         return value
+
+    @staticmethod
+    def _apply_backup_delta(
+        selected_edges: list[tuple[Node, Node]], *, root_player: int, delta_root: float
+    ) -> None:
+        """Correct already-committed selected-child values after a root override."""
+        # Recursive backup has already committed raw values. Kalah extra turns
+        # require player identity rather than tree-depth parity for the sign.
+        for parent, child in selected_edges:
+            perspective_sign = (
+                1.0 if parent.game.current_player == root_player else -1.0
+            )
+            child.value_sum += perspective_sign * delta_root
 
     def _select_child(self, node: Node) -> Node:
         _entries, _move, best_child, _value_trust = self._selection_entries(
