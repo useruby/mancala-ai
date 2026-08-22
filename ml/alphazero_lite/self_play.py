@@ -888,6 +888,26 @@ class Node:
         return self.children.get(action)
 
 
+def root_q_confidence_override(
+    root_state_hash: str, alpha: float
+) -> Callable[[int, str, int, float, int], float | None]:
+    """Shrink visited root-child Q only, retaining the search's FPU behavior."""
+    confidence = float(alpha)
+    if not 0.0 <= confidence <= 1.0:
+        raise ValueError("root Q confidence alpha must be in [0, 1]")
+
+    def override(
+        _simulation: int, state_hash: str, _move: int, raw_q: float, visits: int
+    ) -> float | None:
+        if state_hash != root_state_hash or visits <= 0:
+            return None
+        if confidence == 1.0:
+            return None
+        return confidence * raw_q
+
+    return override
+
+
 class PUCT:
     def __init__(
         self,
@@ -914,6 +934,8 @@ class PUCT:
         pre_simulation_hook: Callable[[int, Node], None] | None = None,
         selection_trace: list[dict[str, Any]] | None = None,
         trace_checkpoints: set[int] | None = None,
+        root_snapshot_checkpoints: set[int] | None = None,
+        record_root_trajectory: bool = False,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -943,7 +965,15 @@ class PUCT:
             if trace_checkpoints is None
             else {int(value) for value in trace_checkpoints}
         )
+        self.root_snapshot_checkpoints = (
+            set()
+            if root_snapshot_checkpoints is None
+            else {int(value) for value in root_snapshot_checkpoints}
+        )
+        self.record_root_trajectory = bool(record_root_trajectory)
         self._last_trace_root_snapshots: list[dict] = []
+        self._last_root_snapshots: list[dict] = []
+        self._last_root_trajectory: list[dict] = []
         self._last_root: Node | None = None
         self._last_visit_snapshots: list[dict] = []
         self._last_root_prior_before: list[float] | None = None
@@ -997,6 +1027,8 @@ class PUCT:
         self._last_backed_up_value_min = None
         self._last_backed_up_value_max = None
         self._last_trace_root_snapshots = []
+        self._last_root_snapshots = []
+        self._last_root_trajectory = []
         if self.selection_trace is not None:
             self.selection_trace.clear()
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
@@ -1072,6 +1104,33 @@ class PUCT:
                         root, simulation_index=simulation_index
                     )
                 )
+            if simulation_index in self.root_snapshot_checkpoints:
+                self._last_root_snapshots.append(
+                    self._build_root_visit_snapshot(
+                        root, simulation_index=simulation_index
+                    )
+                )
+            if self.record_root_trajectory:
+                legal_moves = sorted(root.children)
+                self._last_root_trajectory.append(
+                    {
+                        "simulation": int(simulation_index),
+                        "visit_leader": int(
+                            max(
+                                legal_moves,
+                                key=lambda move: (
+                                    root.children[move].visit_count,
+                                    root.children[move].q_value,
+                                    root.children[move].prior,
+                                    -move,
+                                ),
+                            )
+                        ),
+                        "deterministic_move": int(
+                            self.select_root_move(root, legal_moves)
+                        ),
+                    }
+                )
             if self.selection_trace is not None and self.trace_checkpoints is not None:
                 if simulation_index in self.trace_checkpoints:
                     self._last_trace_root_snapshots.append(
@@ -1117,6 +1176,8 @@ class PUCT:
             "selection_breakdown": selection_breakdown,
             "visit_snapshots": list(self._last_visit_snapshots),
             "trace_root_snapshots": list(self._last_trace_root_snapshots),
+            "root_snapshots": list(self._last_root_snapshots),
+            "root_trajectory": list(self._last_root_trajectory),
             "root_q_value": float(self._last_root.q_value),
             "root_evaluation_raw_value": self._last_root_raw_evaluation_value,
             "root_evaluation_transformed_value": self._last_root_transformed_evaluation_value,
