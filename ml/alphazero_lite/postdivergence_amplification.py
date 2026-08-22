@@ -116,8 +116,15 @@ def _run(values: list[bool]) -> dict[str, Any]:
     if current:
         runs.append(current)
     first = next((index + 1 for index, value in enumerate(values) if value), None)
+    final_persistent_start = None
+    if values and values[-1]:
+        final_persistent_start = len(values)
+        while final_persistent_start > 0 and values[final_persistent_start - 1]:
+            final_persistent_start -= 1
+        final_persistent_start += 1
     return {
         "first_relative_simulation": first,
+        "first_final_persistent_relative_simulation": final_persistent_start,
         "disappears_again": bool(
             first is not None and any(not value for value in values[first:])
         ),
