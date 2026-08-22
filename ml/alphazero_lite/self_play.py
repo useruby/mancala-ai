@@ -1359,6 +1359,8 @@ class PUCT:
     ) -> float:
         terminal = terminal_value(node.game)
         if terminal is not None:
+            if not self.ablation_mode["use_value"]:
+                terminal = neutral_value()
             self._last_terminal_leaf_count += 1
             if trace_record is not None:
                 trace_record.update(

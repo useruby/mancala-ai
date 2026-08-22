@@ -2798,6 +2798,19 @@ class SelfPlayScriptTest(unittest.TestCase):
         np.testing.assert_allclose(evaluator_priors, priors, atol=1e-7)
         self.assertEqual(0.0, value)
 
+    def test_puct_policy_only_mode_neutralizes_terminal_backup(self):
+        search = self_play.PUCT(
+            evaluator=mock.Mock(),
+            simulations=1,
+            c_puct=1.25,
+            rng=random.Random(7),
+            ablation_mode="policy_only",
+        )
+        node = self_play.Node(game=mock.Mock())
+
+        with mock.patch.object(self_play, "terminal_value", return_value=0.75):
+            self.assertEqual(0.0, search._search(node))
+
     def test_puct_full_mode_preserves_evaluator_priors_and_value(self):
         game = self._checkpoint_evaluator_test_game()
         node = self_play.Node(game=game)
