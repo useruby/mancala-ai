@@ -290,29 +290,49 @@
 ```json
 {
   "all_qsync_32": {
-    "applied_selection_q": 27254,
-    "eligible_selection_edges": 28100,
-    "missing_reference": 770,
-    "missing_reference_action": 1,
-    "p1_unvisited_skips": 75
+    "a16_unvisited_skips": 14683,
+    "ambiguous_state_skips": 770,
+    "eligible_action_comparisons": 42783,
+    "matched_node_decisions": 10801,
+    "matched_node_fraction": 0.9515461192846445,
+    "p1_unvisited_skips": 75,
+    "runner_up_action_q_synchronized": 6904,
+    "selected_action_q_synchronized": 8611,
+    "synchronized_action_q_count": 27254,
+    "synchronized_fraction": 0.6370287263632751,
+    "total_selection_decisions_after_d": 11351
   },
   "all_qsync_rest": {
-    "applied_selection_q": 1771853,
-    "eligible_selection_edges": 1929056,
-    "missing_reference": 154141,
-    "missing_reference_action": 136,
-    "p1_unvisited_skips": 2926
+    "a16_unvisited_skips": 495254,
+    "ambiguous_state_skips": 137145,
+    "eligible_action_comparisons": 2422866,
+    "matched_node_decisions": 591002,
+    "matched_node_fraction": 0.8902536385793347,
+    "p1_unvisited_skips": 3142,
+    "runner_up_action_q_synchronized": 450103,
+    "selected_action_q_synchronized": 524352,
+    "synchronized_action_q_count": 1787095,
+    "synchronized_fraction": 0.7375954757712561,
+    "total_selection_decisions_after_d": 663858
   },
   "reference_capture": {
-    "candidate_nodes": 38424787,
-    "duplicate_state_hashes": 3407298,
-    "non_equivalent_duplicate_state_hashes": 2774452,
-    "reference_snapshots": 31574100
+    "candidate_nodes": 176678258,
+    "duplicate_state_hashes": 8930347,
+    "non_equivalent_duplicate_state_hashes": 3756654,
+    "reference_snapshots": 162001074
   },
   "root_qsync": {
-    "applied_selection_q": 397966,
-    "eligible_selection_edges": 397990,
-    "p1_unvisited_skips": 24
+    "a16_unvisited_skips": 6965,
+    "ambiguous_state_skips": 0,
+    "eligible_action_comparisons": 403574,
+    "matched_node_decisions": 92640,
+    "matched_node_fraction": 1.0,
+    "p1_unvisited_skips": 24,
+    "runner_up_action_q_synchronized": 91562,
+    "selected_action_q_synchronized": 92574,
+    "synchronized_action_q_count": 396585,
+    "synchronized_fraction": 0.9826822342370916,
+    "total_selection_decisions_after_d": 92640
   }
 }
 ```

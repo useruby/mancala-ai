@@ -52,11 +52,17 @@ def test_selection_q_override_absent_and_identity_are_exact_noops() -> None:
 
     assert np.array_equal(identity_visits, visits)
     assert identity_root.value_sum == root.value_sum
-    assert [row["selection_path"] for row in identity_trace] == [
-        row["selection_path"] for row in trace
-    ] or all(
-        [entry["selection_score"] for entry in identity_node["children"]]
+    assert identity_root.visit_count == root.visit_count
+    assert [row["backed_up_value"] for row in identity_trace] == [
+        row["backed_up_value"] for row in trace
+    ]
+    assert all(
+        identity_node["chosen_move"] == baseline_node["chosen_move"]
+        and identity_node["state_hash"] == baseline_node["state_hash"]
+        and [entry["selection_score"] for entry in identity_node["children"]]
         == [entry["selection_score"] for entry in baseline_node["children"]]
+        and [entry["stored_q_value"] for entry in identity_node["children"]]
+        == [entry["stored_q_value"] for entry in baseline_node["children"]]
         for identity_row, baseline_row in zip(identity_trace, trace, strict=True)
         for identity_node, baseline_node in zip(
             identity_row["selection_path"], baseline_row["selection_path"], strict=True
@@ -94,6 +100,29 @@ def test_pre_simulation_observer_never_sees_current_simulation_evidence() -> Non
     )
 
     assert observed == [(simulation, simulation - 1) for simulation in range(1, 13)]
+
+
+def test_unvisited_candidate_never_calls_override_or_receives_reference_q() -> None:
+    parent = Node(_game(), visit_count=1)
+    visited = Node(_game(), prior=0.5, visit_count=1, value_sum=0.25)
+    unvisited = Node(_game(), prior=0.5)
+    parent.children = {0: visited, 1: unvisited}
+    calls: list[int] = []
+    search = PUCT(
+        FixedEvaluator(),
+        1,
+        1.25,
+        random.Random(1),
+        selection_q_override=lambda _t, _state, move, _q, _visits: (
+            calls.append(move) or 0.9
+        ),
+    )
+    search._active_simulation_index = 1
+    entries, _move, _child, _trust = search._selection_entries(parent, sort_moves=True)
+
+    assert calls == [0]
+    assert entries[1]["selection_q_value"] == 0.0
+    assert entries[1]["used_fpu"] is True
 
 
 def test_override_does_not_mutate_statistics_outside_normal_backup() -> None:
