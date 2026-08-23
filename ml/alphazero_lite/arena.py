@@ -91,6 +91,7 @@ if not ARENA_STUB_MODE:
             value_from_classic_mcts_root,
             visits_from_classic_mcts_root,
         )
+        from ml.alphazero_lite.shadow_root_q import run_shadow_root_q_search
     except ModuleNotFoundError:
         from root_prior_transforms import (
             ARENA_TRANSFORM_NAMES,
@@ -489,6 +490,10 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--challenger-value-transform-json", default=None)
+    parser.add_argument(
+        "--challenger-shadow-artifact",
+        help="Evaluation-only lagged-parent evaluator for challenger root-Q shadow search.",
+    )
     parser.add_argument("--current-value-transform-json", default=None)
     parser.add_argument(
         "--challenger-search-options-json",
@@ -1642,6 +1647,7 @@ def run_arena_worker(
     current_value_artifact: str | None = None,
     challenger_blend_current: bool = False,
     challenger_value_alpha: float = 1.0,
+    challenger_shadow_artifact: str | None = None,
     challenger_simulations: int,
     current_simulations: int,
     seed: int,
@@ -1692,6 +1698,11 @@ def run_arena_worker(
         )
         if challenger_blend_current
         else ArtifactEvaluator(Path(challenger_path))
+    )
+    challenger_shadow = (
+        None
+        if challenger_shadow_artifact is None
+        else ArtifactEvaluator(Path(challenger_shadow_artifact))
     )
     if current_policy_artifact or current_value_artifact:
         current = ComposedArtifactEvaluator(
@@ -1828,6 +1839,7 @@ def run_arena_worker(
     challenger_root_prior_telemetry_entries: list[dict] = []
     current_root_prior_telemetry_entries: list[dict] = []
     game_entries: list[dict] = []
+    shadow_move_telemetry: list[dict] = []
     trajectory_hashes: list[str] = []
     opening_prefix_plies_applied: list[int] = []
     effective_opening_seed: int | None = None
@@ -2045,32 +2057,64 @@ def run_arena_worker(
                     and acting_player == challenger_player
                 ):
                     puct_kwargs["prior_override"] = challenger_prior_override
-                search = PUCT(
-                    evaluator=evaluator,
-                    simulations=sims,
-                    c_puct=effective_c_puct,
-                    rng=random.Random(derived_search_seed),
-                    root=reusable_roots[acting_player],
-                    fpu_mode=str(acting_search_options["fpu_mode"]),
-                    reuse_subtree=bool(acting_search_options["reuse_subtree"]),
-                    normalize_values=bool(acting_search_options["normalize_values"]),
-                    root_policy_mode=str(acting_search_options["root_policy_mode"]),
-                    tactical_root_bias=float(
-                        acting_search_options["tactical_root_bias"]
-                    ),
-                    root_temperature=float(
-                        acting_search_options.get("root_temperature", 0.0)
-                    ),
-                    root_prior_override=(
-                        challenger_root_prior_override
-                        if acting_player == challenger_player
-                        else current_root_prior_override
-                    ),
-                    **puct_kwargs,
-                )
-                started = time.perf_counter()
-                visits, root = search.run(game)
-                search_duration_ms = (time.perf_counter() - started) * 1000.0
+                if acting_player == challenger_player and challenger_shadow is not None:
+                    started = time.perf_counter()
+                    visits, root, shadow_telemetry = run_shadow_root_q_search(
+                        game,
+                        main_evaluator=evaluator,
+                        shadow_evaluator=challenger_shadow,
+                        simulations=sims,
+                        c_puct=effective_c_puct,
+                        seed=derived_search_seed,
+                        fpu_mode=str(acting_search_options["fpu_mode"]),
+                        reuse_subtree=False,
+                        normalize_values=bool(
+                            acting_search_options["normalize_values"]
+                        ),
+                        root_policy_mode=str(acting_search_options["root_policy_mode"]),
+                        tactical_root_bias=float(
+                            acting_search_options["tactical_root_bias"]
+                        ),
+                        root_temperature=float(
+                            acting_search_options.get("root_temperature", 0.0)
+                        ),
+                    )
+                    search_duration_ms = (time.perf_counter() - started) * 1000.0
+                    shadow_telemetry["phase"] = phase_bucket_for_game(game)
+                    shadow_telemetry["legal_move_count"] = len(legal_moves)
+                    shadow_telemetry["seat"] = int(challenger_player)
+                    shadow_move_telemetry.append(shadow_telemetry)
+                    move = int(shadow_telemetry["main_summary"]["selected_move"])
+                    search = None
+                else:
+                    search = PUCT(
+                        evaluator=evaluator,
+                        simulations=sims,
+                        c_puct=effective_c_puct,
+                        rng=random.Random(derived_search_seed),
+                        root=reusable_roots[acting_player],
+                        fpu_mode=str(acting_search_options["fpu_mode"]),
+                        reuse_subtree=bool(acting_search_options["reuse_subtree"]),
+                        normalize_values=bool(
+                            acting_search_options["normalize_values"]
+                        ),
+                        root_policy_mode=str(acting_search_options["root_policy_mode"]),
+                        tactical_root_bias=float(
+                            acting_search_options["tactical_root_bias"]
+                        ),
+                        root_temperature=float(
+                            acting_search_options.get("root_temperature", 0.0)
+                        ),
+                        root_prior_override=(
+                            challenger_root_prior_override
+                            if acting_player == challenger_player
+                            else current_root_prior_override
+                        ),
+                        **puct_kwargs,
+                    )
+                    started = time.perf_counter()
+                    visits, root = search.run(game)
+                    search_duration_ms = (time.perf_counter() - started) * 1000.0
                 total_duration_ms = search_duration_ms + lookup_duration_ms
                 move_durations_ms.append(total_duration_ms)
 
@@ -2080,7 +2124,11 @@ def run_arena_worker(
                     )
                     opening_cache_miss_latency_ms.append(total_duration_ms)
 
-                if hasattr(search, "select_root_move") and root is not None:
+                if (
+                    search is not None
+                    and hasattr(search, "select_root_move")
+                    and root is not None
+                ):
                     root_summary = (
                         search.root_summary()
                         if hasattr(search, "root_summary")
@@ -2275,6 +2323,7 @@ def run_arena_worker(
         "random_opening_plies": int(random_opening_plies),
         "opening_prefix_plies_applied": opening_prefix_plies_applied,
         "game_entries": game_entries,
+        "shadow_move_telemetry": shadow_move_telemetry,
         "root_prior_telemetry": {
             "challenger": summarize_root_prior_telemetry(
                 challenger_root_prior_telemetry_entries
@@ -2505,6 +2554,7 @@ def main() -> None:
                     current_value_artifact=args.current_value_artifact,
                     challenger_blend_current=bool(args.challenger_blend_current),
                     challenger_value_alpha=float(args.challenger_value_alpha),
+                    challenger_shadow_artifact=args.challenger_shadow_artifact,
                     challenger_simulations=args.challenger_simulations,
                     current_simulations=args.current_simulations,
                     seed=args.seed,
