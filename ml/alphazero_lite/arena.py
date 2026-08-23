@@ -494,6 +494,12 @@ def parse_args() -> argparse.Namespace:
         "--challenger-shadow-artifact",
         help="Evaluation-only lagged-parent evaluator for challenger root-Q shadow search.",
     )
+    parser.add_argument(
+        "--challenger-shadow-q-weight",
+        type=float,
+        default=1.0,
+        help="Fixed root-Q blend weight: 0 keeps challenger Q and 1 uses shadow Q.",
+    )
     parser.add_argument("--current-value-transform-json", default=None)
     parser.add_argument(
         "--challenger-search-options-json",
@@ -1648,6 +1654,7 @@ def run_arena_worker(
     challenger_blend_current: bool = False,
     challenger_value_alpha: float = 1.0,
     challenger_shadow_artifact: str | None = None,
+    challenger_shadow_q_weight: float = 1.0,
     challenger_simulations: int,
     current_simulations: int,
     seed: int,
@@ -2078,6 +2085,7 @@ def run_arena_worker(
                         root_temperature=float(
                             acting_search_options.get("root_temperature", 0.0)
                         ),
+                        shadow_q_weight=challenger_shadow_q_weight,
                     )
                     search_duration_ms = (time.perf_counter() - started) * 1000.0
                     shadow_telemetry["phase"] = phase_bucket_for_game(game)
@@ -2555,6 +2563,7 @@ def main() -> None:
                     challenger_blend_current=bool(args.challenger_blend_current),
                     challenger_value_alpha=float(args.challenger_value_alpha),
                     challenger_shadow_artifact=args.challenger_shadow_artifact,
+                    challenger_shadow_q_weight=float(args.challenger_shadow_q_weight),
                     challenger_simulations=args.challenger_simulations,
                     current_simulations=args.current_simulations,
                     seed=args.seed,

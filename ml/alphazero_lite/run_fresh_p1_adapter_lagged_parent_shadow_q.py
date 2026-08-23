@@ -56,7 +56,10 @@ def ordinary(
 
 
 def frozen_contract(
-    p1: ArtifactEvaluator, a16: ArtifactEvaluator, replay: Path
+    p1: ArtifactEvaluator,
+    a16: ArtifactEvaluator,
+    replay: Path,
+    shadow_q_weight: float = 1.0,
 ) -> dict[str, Any]:
     frozen, prior, manifest = (
         json.loads(path.read_text()) for path in (FROZEN, PR222, MANIFEST)
@@ -86,6 +89,7 @@ def frozen_contract(
             c_puct=1.25,
             seed=seed,
             root_policy_mode="deterministic",
+            shadow_q_weight=shadow_q_weight,
         )
         self_base = ordinary(game, p1, 1200, seed)
         self_visits, self_root, self_shadow = run_shadow_root_q_search(
@@ -96,6 +100,7 @@ def frozen_contract(
             c_puct=1.25,
             seed=seed,
             root_policy_mode="deterministic",
+            shadow_q_weight=shadow_q_weight,
         )
         self_summary = self_shadow["main_summary"]
         self_identity = (
@@ -137,6 +142,7 @@ def arena_records(
     context: str,
     role: str,
     workers: int,
+    shadow_q_weight: float = 1.0,
 ) -> list[dict]:
     challenger_sims, current_sims = map(int, context.split(":"))
     records: list[dict] = []
@@ -150,6 +156,7 @@ def arena_records(
             "challenger_path": str(challenger),
             "current_path": str(current),
             "challenger_shadow_artifact": None if shadow is None else str(shadow),
+            "challenger_shadow_q_weight": shadow_q_weight,
             "challenger_simulations": challenger_sims,
             "current_simulations": current_sims,
             "seed": 42,
@@ -218,6 +225,7 @@ def main() -> None:
         / "docs/alphazero-lite-fresh-p1-adapter-lagged-parent-shadow-q-results.md",
     )
     parser.add_argument("--frozen-only", action="store_true")
+    parser.add_argument("--shadow-q-weight", type=float, default=1.0)
     parser.add_argument("--workers", type=int, default=24)
     args = parser.parse_args()
     p1_path = args.p1_workdir / "beta_095/snapshot_artifacts/step_0046/artifact"
@@ -229,7 +237,12 @@ def main() -> None:
         "canonical_suite": sha256_file(ARENA_SUITE),
     }
     p1, a16 = ArtifactEvaluator(p1_path), ArtifactEvaluator(a16_path)
-    frozen = frozen_contract(p1, a16, args.adapter_workdir / "fresh_p1_self_play.jsonl")
+    frozen = frozen_contract(
+        p1,
+        a16,
+        args.adapter_workdir / "fresh_p1_self_play.jsonl",
+        args.shadow_q_weight,
+    )
     invariants = {
         "artifact_hashes": hashes["p0"] == P0_SHA
         and hashes["p1"] == P1_SHA

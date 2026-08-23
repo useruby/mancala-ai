@@ -167,7 +167,10 @@ def _ordinary(
 
 
 def _frozen_contract(
-    p1: ArtifactEvaluator, a16: ArtifactEvaluator, replay: Path
+    p1: ArtifactEvaluator,
+    a16: ArtifactEvaluator,
+    replay: Path,
+    shadow_q_weight: float = 1.0,
 ) -> dict[str, Any]:
     frozen = json.loads(FROZEN.read_text())
     manifest = {
@@ -193,6 +196,7 @@ def _frozen_contract(
             c_puct=1.25,
             seed=seed,
             root_policy_mode="deterministic",
+            shadow_q_weight=shadow_q_weight,
         )
         self_visits, _root, self_shadow = run_shadow_root_q_search(
             game,
@@ -202,6 +206,7 @@ def _frozen_contract(
             c_puct=1.25,
             seed=seed,
             root_policy_mode="deterministic",
+            shadow_q_weight=shadow_q_weight,
         )
         records.append(
             {
@@ -231,7 +236,9 @@ def _init_worker(p1_path: str, a16_path: str) -> None:
     _P1, _A16 = ArtifactEvaluator(Path(p1_path)), ArtifactEvaluator(Path(a16_path))
 
 
-def _root_record(item: dict[str, Any], budget: int) -> dict[str, Any]:
+def _root_record(
+    item: dict[str, Any], budget: int, shadow_q_weight: float = 1.0
+) -> dict[str, Any]:
     if _P1 is None or _A16 is None:
         raise RuntimeError("worker evaluators were not initialized")
     game = KalahGame.from_state(item["state"])
@@ -251,6 +258,7 @@ def _root_record(item: dict[str, Any], budget: int) -> dict[str, Any]:
         root_policy_mode="deterministic",
         tactical_root_bias=0.0,
         root_temperature=0.0,
+        shadow_q_weight=shadow_q_weight,
     )
     legal = game.possible_moves()
     p1_prior, _ = _P1.evaluate(game)
@@ -352,13 +360,19 @@ def _states_from_manifest(replay: Path, limit: int) -> list[dict[str, Any]]:
 
 
 def _canonical_games(
-    context: str, challenger: Path, current: Path, shadow: Path, workers: int
+    context: str,
+    challenger: Path,
+    current: Path,
+    shadow: Path,
+    workers: int,
+    shadow_q_weight: float = 1.0,
 ) -> tuple[list[dict], list[dict]]:
     challenger_sims, current_sims = map(int, context.split(":"))
     kwargs = dict(
         challenger_path=str(challenger),
         current_path=str(current),
         challenger_shadow_artifact=str(shadow),
+        challenger_shadow_q_weight=shadow_q_weight,
         challenger_simulations=challenger_sims,
         current_simulations=current_sims,
         seed=42,
@@ -659,6 +673,7 @@ def main() -> None:
     parser.add_argument("--adapter-workdir", type=Path, default=A16_WORKDIR)
     parser.add_argument("--replay-limit", type=int, default=4096)
     parser.add_argument("--workers", type=int, default=24)
+    parser.add_argument("--shadow-q-weight", type=float, default=1.0)
     parser.add_argument("--skip-canonical-trajectories", action="store_true")
     parser.add_argument(
         "--out-summary",
@@ -686,6 +701,7 @@ def main() -> None:
         ArtifactEvaluator(p1_path),
         ArtifactEvaluator(a16_path),
         args.adapter_workdir / "fresh_p1_self_play.jsonl",
+        args.shadow_q_weight,
     )
     invariants = {
         "artifact_hashes": hashes["p0"] == P0_SHA
@@ -710,6 +726,7 @@ def main() -> None:
                     _root_record,
                     replay_states,
                     [budget] * len(replay_states),
+                    [args.shadow_q_weight] * len(replay_states),
                     chunksize=1,
                 )
             )
@@ -741,7 +758,12 @@ def main() -> None:
         trajectories = {}
         for context in CONTEXTS:
             treatment, control = _canonical_games(
-                context, a16_path, p1_path, p1_path, args.workers
+                context,
+                a16_path,
+                p1_path,
+                p1_path,
+                args.workers,
+                args.shadow_q_weight,
             )
             trajectories[context] = _trajectory_summary(treatment, control)
             budget = CONTEXTS[context]
@@ -756,6 +778,7 @@ def main() -> None:
                         _root_record,
                         canonical_states,
                         [budget] * len(canonical_states),
+                        [args.shadow_q_weight] * len(canonical_states),
                         chunksize=1,
                     )
                 )
