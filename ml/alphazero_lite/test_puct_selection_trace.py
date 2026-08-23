@@ -76,3 +76,21 @@ def test_selection_trace_is_behavior_neutral_and_matches_live_selection() -> Non
                     * math.sqrt(decision["parent_visit_count"])
                     / (1 + child["visit_count"])
                 )
+
+
+def test_root_backup_history_is_behavior_neutral_and_matches_child_statistics() -> None:
+    baseline = PUCT(FixedEvaluator(), 48, 1.25, random.Random(11))
+    baseline_visits, baseline_root = baseline.run(_game())
+    history: list[dict[str, int | float]] = []
+    instrumented = PUCT(
+        FixedEvaluator(), 48, 1.25, random.Random(11), root_backup_history=history
+    )
+    visits, root = instrumented.run(_game())
+
+    assert np.array_equal(visits, baseline_visits)
+    assert root.value_sum == baseline_root.value_sum
+    assert [row["simulation"] for row in history] == list(range(1, 49))
+    for move, child in root.children.items():
+        samples = [row["root_value"] for row in history if row["action"] == move]
+        assert len(samples) == child.visit_count
+        assert math.isclose(sum(samples), child.value_sum, abs_tol=1e-12)

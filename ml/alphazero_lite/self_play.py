@@ -936,6 +936,7 @@ class PUCT:
         trace_checkpoints: set[int] | None = None,
         root_snapshot_checkpoints: set[int] | None = None,
         record_root_trajectory: bool = False,
+        root_backup_history: list[dict[str, int | float]] | None = None,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -971,6 +972,9 @@ class PUCT:
             else {int(value) for value in root_snapshot_checkpoints}
         )
         self.record_root_trajectory = bool(record_root_trajectory)
+        # Root-only backup telemetry is intentionally opt-in: it records the
+        # already selected edge and committed root-perspective backup value.
+        self.root_backup_history = root_backup_history
         self._last_trace_root_snapshots: list[dict] = []
         self._last_root_snapshots: list[dict] = []
         self._last_root_trajectory: list[dict] = []
@@ -1031,6 +1035,8 @@ class PUCT:
         self._last_root_trajectory = []
         if self.selection_trace is not None:
             self.selection_trace.clear()
+        if self.root_backup_history is not None:
+            self.root_backup_history.clear()
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -1051,7 +1057,12 @@ class PUCT:
                 if self.selection_trace is not None
                 else None
             )
-            selected_edges = [] if self.backup_override is not None else None
+            selected_edges = (
+                []
+                if self.backup_override is not None
+                or self.root_backup_history is not None
+                else None
+            )
             raw_value = self._search(
                 root, trace_record=trace_record, selected_edges=selected_edges
             )
@@ -1085,6 +1096,19 @@ class PUCT:
                 self._last_backed_up_value_max = float(value)
             root.visit_count += 1
             root.value_sum += value
+            if self.root_backup_history is not None:
+                assert selected_edges
+                root_child = selected_edges[0][1]
+                root_action = next(
+                    move for move, child in root.children.items() if child is root_child
+                )
+                self.root_backup_history.append(
+                    {
+                        "simulation": int(simulation_index),
+                        "action": int(root_action),
+                        "root_value": float(value),
+                    }
+                )
             if trace_record is not None:
                 trace_record["backed_up_value"] = float(value)
                 if self.backup_override is not None:
@@ -1178,6 +1202,9 @@ class PUCT:
             "trace_root_snapshots": list(self._last_trace_root_snapshots),
             "root_snapshots": list(self._last_root_snapshots),
             "root_trajectory": list(self._last_root_trajectory),
+            "root_backup_history": []
+            if self.root_backup_history is None
+            else list(self.root_backup_history),
             "root_q_value": float(self._last_root.q_value),
             "root_evaluation_raw_value": self._last_root_raw_evaluation_value,
             "root_evaluation_transformed_value": self._last_root_transformed_evaluation_value,
