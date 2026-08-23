@@ -1,0 +1,673 @@
+{
+  "canonical_trajectories": {
+    "1200:1200": {
+      "differing_moves_per_game": {
+        "count": 512,
+        "mean": 0.37109375,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p95": 0.0,
+        "p99": 19.0
+      },
+      "final_outcome_agreement_rate": 1.0,
+      "first_divergence_ply": {
+        "count": 10,
+        "mean": 20.0,
+        "p50": 20.0,
+        "p90": 20.0,
+        "p95": 20.0,
+        "p99": 20.0
+      },
+      "games": 512,
+      "identical_complete_trajectory_rate": 0.98046875,
+      "reconvergence": "not assessed after divergence; full state reconstruction is deliberately limited to shared pre-move states"
+    },
+    "384:256": {
+      "differing_moves_per_game": {
+        "count": 512,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p95": 0.0,
+        "p99": 0.0
+      },
+      "final_outcome_agreement_rate": 1.0,
+      "first_divergence_ply": {
+        "count": 0,
+        "mean": null,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null
+      },
+      "games": 512,
+      "identical_complete_trajectory_rate": 1.0,
+      "reconvergence": "not assessed after divergence; full state reconstruction is deliberately limited to shared pre-move states"
+    }
+  },
+  "classification": "candidate_policy_survival_budget_dependent",
+  "frozen_40": {
+    "rescue_decomposition": {
+      "equal_a16": 1,
+      "equal_p1": 39
+    },
+    "rescued_roots": 39,
+    "unrescued_root": [
+      {
+        "a16_move": 5,
+        "no_future_information": true,
+        "p1_move": 3,
+        "primary": true,
+        "self_identity": true,
+        "shadow_move": 5,
+        "state_hash": "362958a9d30519f98e27a71256c89f1acba0a61e3d93e609adb59609bff61674"
+      }
+    ]
+  },
+  "guardrails": {
+    "c_puct": 1.25,
+    "fpu_mode": "zero",
+    "main_shadow_simulations_equal": true,
+    "promotion": false,
+    "root_noise": false,
+    "root_selection": "deterministic",
+    "self_play": false,
+    "training": false
+  },
+  "hashes": {
+    "a16": "74e160734554dba9ecf4ecf3ac13b3e44526c4f6e7e5e52d9fe8bde0054eb789",
+    "canonical_suite": "ff21c42946ed32f525c5ab95b71c4d90a4cfe2ccc351406dd29cae52da4b1837",
+    "p0": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "p1": "77969733ece5ced92d3a143a0fe9d82863ca3ec4faa477470ff5826ac22e4e12",
+    "pr229_merge_commit": "056d6e9c3c1ae9dd65ae19ab255d2386e5008b9e"
+  },
+  "invariants": {
+    "artifact_hashes": true,
+    "frozen_rescue": true,
+    "no_future_information": true,
+    "self_shadow_identity": true
+  },
+  "populations": {
+    "canonical_treatment": {
+      "1200": {
+        "aggregate": {
+          "candidate_survival_rate": {
+            "count": 34,
+            "lower_95": 0.0,
+            "rate": 0.0,
+            "upper_95": 0.0
+          },
+          "no_future_information": true,
+          "offline_p1_prior_changes_selected_move_rate": {
+            "count": 10196,
+            "lower_95": 0.27265594350725775,
+            "rate": 0.28128677912907024,
+            "upper_95": 0.2900156924284033
+          },
+          "roots": 10196,
+          "shadow_parent_difference_rate": {
+            "count": 10196,
+            "lower_95": 0.00039231071008238524,
+            "rate": 0.000980776775205963,
+            "upper_95": 0.0016673205178501373
+          },
+          "three_way_move_agreement": {
+            "all_agree": 10152,
+            "parent_preserved": 34,
+            "third_way": 10
+          },
+          "visit_distribution": {
+            "a16_p1_js": {
+              "count": 10196,
+              "mean": 8.54404281548518e-05,
+              "p50": 9.880050147511178e-07,
+              "p90": 0.00011221877264596444,
+              "p95": 0.00028890487410633244,
+              "p99": 0.001504899246927008
+            },
+            "a16_p1_l1": {
+              "count": 10196,
+              "mean": 0.007827252517327054,
+              "p50": 0.0016666666666666843,
+              "p90": 0.020000000000000004,
+              "p95": 0.035000000000000045,
+              "p99": 0.07666666666666665
+            },
+            "shadow_a16_js": {
+              "count": 10196,
+              "mean": 8.440836028070885e-05,
+              "p50": 2.077121432954445e-06,
+              "p90": 9.835737685087855e-05,
+              "p95": 0.0002495854565564108,
+              "p99": 0.001474334387620331
+            },
+            "shadow_a16_l1": {
+              "count": 10196,
+              "mean": 0.008025369425918655,
+              "p50": 0.0016666666666666913,
+              "p90": 0.020000000000000004,
+              "p95": 0.036666666666666695,
+              "p99": 0.07666666666666666
+            },
+            "shadow_p1_js": {
+              "count": 10196,
+              "mean": 3.688844024046659e-06,
+              "p50": 5.986181290490683e-07,
+              "p90": 4.1783598008041404e-06,
+              "p95": 7.280418368322514e-06,
+              "p99": 3.2540517568333525e-05
+            },
+            "shadow_p1_l1": {
+              "count": 10196,
+              "mean": 0.0013305871583627555,
+              "p50": 0.0016666666666666496,
+              "p90": 0.003333333333333334,
+              "p95": 0.0033333333333333704,
+              "p99": 0.005000000000000032
+            }
+          }
+        },
+        "candidate_specific_splits": {
+          "legal_3": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "legal_5": {
+            "parent_preserved": 14,
+            "roots": 14
+          },
+          "legal_6": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "phase_00-04": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "phase_05-09": {
+            "parent_preserved": 14,
+            "roots": 14
+          },
+          "phase_10-19": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "player_0": {
+            "parent_preserved": 20,
+            "roots": 20
+          },
+          "player_1": {
+            "parent_preserved": 14,
+            "roots": 14
+          },
+          "policy_l1_quartile_2": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "policy_l1_quartile_3": {
+            "parent_preserved": 14,
+            "roots": 14
+          },
+          "policy_l1_quartile_4": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "prior_top1_agree": {
+            "parent_preserved": 34,
+            "roots": 34
+          }
+        }
+      },
+      "384": {
+        "aggregate": {
+          "candidate_survival_rate": {
+            "count": 50,
+            "lower_95": 0.0,
+            "rate": 0.0,
+            "upper_95": 0.0
+          },
+          "no_future_information": true,
+          "offline_p1_prior_changes_selected_move_rate": {
+            "count": 9332,
+            "lower_95": 0.26264466352336047,
+            "rate": 0.2715387912558937,
+            "upper_95": 0.28075439348478354
+          },
+          "roots": 9332,
+          "shadow_parent_difference_rate": {
+            "count": 9332,
+            "lower_95": 0.0,
+            "rate": 0.0,
+            "upper_95": 0.0
+          },
+          "three_way_move_agreement": {
+            "all_agree": 9282,
+            "parent_preserved": 50
+          },
+          "visit_distribution": {
+            "a16_p1_js": {
+              "count": 9332,
+              "mean": 0.0003550467533293825,
+              "p50": 0.0,
+              "p90": 0.00011480492219886397,
+              "p95": 0.0002628295793778686,
+              "p99": 0.0014483777924458629
+            },
+            "a16_p1_l1": {
+              "count": 9332,
+              "mean": 0.009782647521074439,
+              "p50": 0.0,
+              "p90": 0.020833333333333398,
+              "p95": 0.031250000000000014,
+              "p99": 0.09895833333333329
+            },
+            "shadow_a16_js": {
+              "count": 9332,
+              "mean": 0.00035921817406756853,
+              "p50": 4.136104754014886e-06,
+              "p90": 0.00012792389345042806,
+              "p95": 0.00023728552815359709,
+              "p99": 0.0013212244783650413
+            },
+            "shadow_a16_l1": {
+              "count": 9332,
+              "mean": 0.01018337441063009,
+              "p50": 0.005208333333333287,
+              "p90": 0.02604166666666663,
+              "p95": 0.031250000000000014,
+              "p99": 0.09375000000000003
+            },
+            "shadow_p1_js": {
+              "count": 9332,
+              "mean": 8.677859294332033e-06,
+              "p50": 0.0,
+              "p90": 2.433421779061384e-05,
+              "p95": 3.9801696845175104e-05,
+              "p99": 0.00011480492219886397
+            },
+            "shadow_p1_l1": {
+              "count": 9332,
+              "mean": 0.0019121035147878268,
+              "p50": 0.0,
+              "p90": 0.0052083333333333565,
+              "p95": 0.005208333333333405,
+              "p99": 0.015625
+            }
+          }
+        },
+        "candidate_specific_splits": {
+          "legal_4": {
+            "parent_preserved": 8,
+            "roots": 8
+          },
+          "legal_5": {
+            "parent_preserved": 28,
+            "roots": 28
+          },
+          "legal_6": {
+            "parent_preserved": 14,
+            "roots": 14
+          },
+          "phase_00-04": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "phase_05-09": {
+            "parent_preserved": 4,
+            "roots": 4
+          },
+          "phase_10-19": {
+            "parent_preserved": 28,
+            "roots": 28
+          },
+          "phase_20-39": {
+            "parent_preserved": 8,
+            "roots": 8
+          },
+          "player_0": {
+            "parent_preserved": 38,
+            "roots": 38
+          },
+          "player_1": {
+            "parent_preserved": 12,
+            "roots": 12
+          },
+          "policy_l1_quartile_1": {
+            "parent_preserved": 8,
+            "roots": 8
+          },
+          "policy_l1_quartile_2": {
+            "parent_preserved": 14,
+            "roots": 14
+          },
+          "policy_l1_quartile_4": {
+            "parent_preserved": 28,
+            "roots": 28
+          },
+          "prior_top1_agree": {
+            "parent_preserved": 50,
+            "roots": 50
+          }
+        }
+      }
+    },
+    "replay": {
+      "1200": {
+        "aggregate": {
+          "candidate_survival_rate": {
+            "count": 40,
+            "lower_95": 0.0,
+            "rate": 0.025,
+            "upper_95": 0.075
+          },
+          "no_future_information": true,
+          "offline_p1_prior_changes_selected_move_rate": {
+            "count": 4096,
+            "lower_95": 0.2705078125,
+            "rate": 0.283935546875,
+            "upper_95": 0.2978515625
+          },
+          "roots": 4096,
+          "shadow_parent_difference_rate": {
+            "count": 4096,
+            "lower_95": 0.0,
+            "rate": 0.000244140625,
+            "upper_95": 0.000732421875
+          },
+          "three_way_move_agreement": {
+            "all_agree": 4056,
+            "candidate_survives": 1,
+            "parent_preserved": 39
+          },
+          "visit_distribution": {
+            "a16_p1_js": {
+              "count": 4096,
+              "mean": 0.0004952425558850833,
+              "p50": 1.5423111305910782e-06,
+              "p90": 9.971452051980848e-05,
+              "p95": 0.0002958106881000342,
+              "p99": 0.0033744944747548856
+            },
+            "a16_p1_l1": {
+              "count": 4096,
+              "mean": 0.011030680338541668,
+              "p50": 0.0016666666666666913,
+              "p90": 0.020000000000000018,
+              "p95": 0.03666666666666665,
+              "p99": 0.12850000000000064
+            },
+            "shadow_a16_js": {
+              "count": 4096,
+              "mean": 0.0004966413585017767,
+              "p50": 3.1247287043136528e-06,
+              "p90": 0.00010279496537367755,
+              "p95": 0.00029483657310922304,
+              "p99": 0.003372625967019042
+            },
+            "shadow_a16_l1": {
+              "count": 4096,
+              "mean": 0.01122802734375,
+              "p50": 0.0016666666666667052,
+              "p90": 0.020000000000000052,
+              "p95": 0.03666666666666665,
+              "p99": 0.128416666666667
+            },
+            "shadow_p1_js": {
+              "count": 4096,
+              "mean": 3.0453855244976108e-06,
+              "p50": 5.652471663034482e-07,
+              "p90": 6.813657456708816e-06,
+              "p95": 1.398316269748796e-05,
+              "p99": 4.20407579930632e-05
+            },
+            "shadow_p1_l1": {
+              "count": 4096,
+              "mean": 0.0013940429687499996,
+              "p50": 0.0016666666666666496,
+              "p90": 0.003333333333333355,
+              "p95": 0.0033333333333333826,
+              "p99": 0.005000000000000041
+            }
+          }
+        },
+        "candidate_specific_splits": {
+          "legal_2": {
+            "parent_preserved": 3,
+            "roots": 3
+          },
+          "legal_3": {
+            "parent_preserved": 9,
+            "roots": 9
+          },
+          "legal_4": {
+            "parent_preserved": 9,
+            "roots": 9
+          },
+          "legal_5": {
+            "parent_preserved": 9,
+            "roots": 9
+          },
+          "legal_6": {
+            "candidate_survives": 1,
+            "parent_preserved": 9,
+            "roots": 10
+          },
+          "phase_00-04": {
+            "parent_preserved": 1,
+            "roots": 1
+          },
+          "phase_05-09": {
+            "parent_preserved": 3,
+            "roots": 3
+          },
+          "phase_10-19": {
+            "candidate_survives": 1,
+            "parent_preserved": 19,
+            "roots": 20
+          },
+          "phase_20-39": {
+            "parent_preserved": 14,
+            "roots": 14
+          },
+          "phase_40+": {
+            "parent_preserved": 2,
+            "roots": 2
+          },
+          "player_0": {
+            "candidate_survives": 1,
+            "parent_preserved": 19,
+            "roots": 20
+          },
+          "player_1": {
+            "parent_preserved": 20,
+            "roots": 20
+          },
+          "policy_l1_quartile_1": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "policy_l1_quartile_2": {
+            "candidate_survives": 1,
+            "parent_preserved": 9,
+            "roots": 10
+          },
+          "policy_l1_quartile_3": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "policy_l1_quartile_4": {
+            "parent_preserved": 10,
+            "roots": 10
+          },
+          "prior_top1_agree": {
+            "candidate_survives": 1,
+            "parent_preserved": 39,
+            "roots": 40
+          }
+        }
+      },
+      "384": {
+        "aggregate": {
+          "candidate_survival_rate": {
+            "count": 26,
+            "lower_95": 0.038461538461538464,
+            "rate": 0.15384615384615385,
+            "upper_95": 0.3076923076923077
+          },
+          "no_future_information": true,
+          "offline_p1_prior_changes_selected_move_rate": {
+            "count": 4096,
+            "lower_95": 0.284661865234375,
+            "rate": 0.29833984375,
+            "upper_95": 0.312255859375
+          },
+          "roots": 4096,
+          "shadow_parent_difference_rate": {
+            "count": 4096,
+            "lower_95": 0.0012145996093750003,
+            "rate": 0.00244140625,
+            "upper_95": 0.004150390625
+          },
+          "three_way_move_agreement": {
+            "all_agree": 4064,
+            "candidate_survives": 4,
+            "parent_preserved": 22,
+            "third_way": 6
+          },
+          "visit_distribution": {
+            "a16_p1_js": {
+              "count": 4096,
+              "mean": 0.00020785560575017166,
+              "p50": 0.0,
+              "p90": 0.00010697509050719477,
+              "p95": 0.0002875420623192044,
+              "p99": 0.001748599287033336
+            },
+            "a16_p1_l1": {
+              "count": 4096,
+              "mean": 0.008331298828125,
+              "p50": 0.0,
+              "p90": 0.020833333333333315,
+              "p95": 0.03645833333333329,
+              "p99": 0.08359375000000101
+            },
+            "shadow_a16_js": {
+              "count": 4096,
+              "mean": 0.00021294402665484772,
+              "p50": 3.5385067590521803e-06,
+              "p90": 0.00012426531879198156,
+              "p95": 0.00028909373327578756,
+              "p99": 0.0017599073576115916
+            },
+            "shadow_a16_l1": {
+              "count": 4096,
+              "mean": 0.008909861246744791,
+              "p50": 0.005208333333333287,
+              "p90": 0.02083333333333333,
+              "p95": 0.03645833333333329,
+              "p99": 0.08854166666666666
+            },
+            "shadow_p1_js": {
+              "count": 4096,
+              "mean": 8.864055040481008e-06,
+              "p50": 0.0,
+              "p90": 1.9611662101259072e-05,
+              "p95": 3.922250699679941e-05,
+              "p99": 0.00014085503020374947
+            },
+            "shadow_p1_l1": {
+              "count": 4096,
+              "mean": 0.002040863037109374,
+              "p50": 0.0,
+              "p90": 0.00520833333333337,
+              "p95": 0.0052083333333334085,
+              "p99": 0.010416666666666699
+            }
+          }
+        },
+        "candidate_specific_splits": {
+          "legal_3": {
+            "parent_preserved": 4,
+            "roots": 4
+          },
+          "legal_4": {
+            "candidate_survives": 3,
+            "parent_preserved": 5,
+            "roots": 8
+          },
+          "legal_5": {
+            "candidate_survives": 1,
+            "parent_preserved": 5,
+            "roots": 6
+          },
+          "legal_6": {
+            "parent_preserved": 8,
+            "roots": 8
+          },
+          "phase_00-04": {
+            "candidate_survives": 1,
+            "parent_preserved": 1,
+            "roots": 2
+          },
+          "phase_05-09": {
+            "parent_preserved": 2,
+            "roots": 2
+          },
+          "phase_10-19": {
+            "candidate_survives": 1,
+            "parent_preserved": 11,
+            "roots": 12
+          },
+          "phase_20-39": {
+            "candidate_survives": 2,
+            "parent_preserved": 8,
+            "roots": 10
+          },
+          "player_0": {
+            "candidate_survives": 2,
+            "parent_preserved": 10,
+            "roots": 12
+          },
+          "player_1": {
+            "candidate_survives": 2,
+            "parent_preserved": 12,
+            "roots": 14
+          },
+          "policy_l1_quartile_1": {
+            "candidate_survives": 1,
+            "parent_preserved": 6,
+            "roots": 7
+          },
+          "policy_l1_quartile_2": {
+            "candidate_survives": 1,
+            "parent_preserved": 5,
+            "roots": 6
+          },
+          "policy_l1_quartile_3": {
+            "candidate_survives": 1,
+            "parent_preserved": 5,
+            "roots": 6
+          },
+          "policy_l1_quartile_4": {
+            "candidate_survives": 1,
+            "parent_preserved": 6,
+            "roots": 7
+          },
+          "prior_top1_agree": {
+            "candidate_survives": 4,
+            "parent_preserved": 22,
+            "roots": 26
+          }
+        }
+      }
+    }
+  },
+  "recommended_follow_up": "Test a prespecified partial parent-Q usage rule at both budgets, with candidate-policy collapse at 1200 as the explicit failure mode.",
+  "replay_transitions": {
+    "candidate_survives_384_to_parent_preserved_1200": 0,
+    "paired_roots": 4096,
+    "parent_preserved_384_to_candidate_survives_1200": 0,
+    "shadow_differs_parent_384_to_equals_parent_1200": 10
+  },
+  "schema": "azlite_lagged_parent_shadow_q_policy_utilization_v1"
+}
