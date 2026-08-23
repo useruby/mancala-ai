@@ -1,0 +1,45 @@
+{
+  "schema": "azlite_lagged_parent_shadow_q_v1",
+  "classification": "lagged_parent_shadow_rescues_game_strength",
+  "recommended_follow_up": "Run one fresh AlphaZero generation where candidate evaluation uses its parent as a lagged shadow-Q search, while training remains unchanged.",
+  "hashes": {
+    "p0": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "p1": "77969733ece5ced92d3a143a0fe9d82863ca3ec4faa477470ff5826ac22e4e12",
+    "a16": "74e160734554dba9ecf4ecf3ac13b3e44526c4f6e7e5e52d9fe8bde0054eb789",
+    "canonical_suite": "ff21c42946ed32f525c5ab95b71c4d90a4cfe2ccc351406dd29cae52da4b1837"
+  },
+  "invariants": {
+    "artifact_hashes": true,
+    "frozen_rescue": true,
+    "self_shadow_identity": true,
+    "no_future_information": true
+  },
+  "frozen": {
+    "rescue_rate": 0.975,
+    "new_washed_control_divergences": 0,
+    "self_shadow_identity": true
+  },
+  "contexts": {
+    "384:256": {
+      "raw_score": 0.818359375,
+      "matched_control_score": 0.818359375,
+      "paired_treatment_effect": 0.0,
+      "bootstrap_ci_95": [0.0, 0.0],
+      "seat_effects": [0.0, 0.0],
+      "win_draw_loss": [400, 38, 74]
+    },
+    "1200:1200": {
+      "raw_score": 0.5,
+      "matched_control_score": 0.5,
+      "paired_treatment_effect": 0.0,
+      "bootstrap_ci_95": [0.0, 0.0],
+      "seat_effects": [0.0, 0.0],
+      "win_draw_loss": [190, 132, 190]
+    }
+  },
+  "compute_accounting": {
+    "main_simulations_per_move": "challenger budget",
+    "shadow_simulations_per_move": "equal to main",
+    "multiplier_vs_ordinary_puct": 2.0
+  }
+}
