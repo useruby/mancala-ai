@@ -1,0 +1,22 @@
+{
+  "schema": "azlite_partial_shadow_q_v1",
+  "classification": "partial_shadow_loses_game_safety",
+  "selected_lambda": 0.75,
+  "selection_rule": "smallest lambda with rescue_rate >= 0.70 and new_divergence_rate <= 0.10",
+  "frozen_40": {
+    "lambda_000": {"rescued": 0, "controls_new_divergences": 0},
+    "lambda_025": {"rescued": 20, "controls_new_divergences": 0},
+    "lambda_050": {"rescued": 27, "controls_new_divergences": 0},
+    "lambda_075": {"rescued": 30, "controls_new_divergences": 0},
+    "lambda_100": {"rescued": 39, "controls_new_divergences": 0}
+  },
+  "replay_selected_lambda": {
+    "384": {"all_agree": 4067, "candidate_retained": 9, "parent_preserved": 17, "third_way": 3, "candidate_retention_rate": 0.34615384615384615},
+    "1200": {"all_agree": 4054, "candidate_retained": 10, "parent_preserved": 30, "third_way": 2, "candidate_retention_rate": 0.25}
+  },
+  "canonical_arena": {
+    "384:256": {"effect": -0.009765625, "lower_95": -0.01953125, "upper_95": -0.001953125},
+    "1200:1200": {"effect": -0.01953125, "lower_95": -0.0390625, "upper_95": -0.00390625}
+  },
+  "recommended_follow_up": "Investigate stabilization in training or search-target generation rather than inference-time partial shadow-Q."
+}

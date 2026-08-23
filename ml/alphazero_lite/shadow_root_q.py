@@ -42,6 +42,9 @@ def run_shadow_root_q_search(
     root_policy_mode: str = "deterministic",
     tactical_root_bias: float = 0.0,
     root_temperature: float = 0.0,
+    shadow_q_weight: float = 1.0,
+    record_selection_q_direction: bool = False,
+    record_selection_trace: bool = False,
 ) -> tuple[np.ndarray, Node, dict[str, Any]]:
     """Run a parent shadow then a main root-only, pre-simulation-Q search.
 
@@ -49,6 +52,9 @@ def run_shadow_root_q_search(
     reference available to main simulation ``t``. Thus it contains only shadow
     outcomes 1 through t-1; no main information can reach the shadow tree.
     """
+    if not 0.0 <= shadow_q_weight <= 1.0:
+        raise ValueError("shadow_q_weight must be in [0.0, 1.0]")
+
     snapshots: dict[int, dict[int, dict[str, float | int]]] = {}
     root_hash = _state_hash(game)
 
@@ -72,7 +78,7 @@ def run_shadow_root_q_search(
         **common,
     )
     shadow.run(game, dirichlet_alpha=None, dirichlet_epsilon=0.0)
-    uses: list[tuple[int, int, float, float]] = []
+    uses: list[dict[str, float | int]] = []
     skips: Counter[str] = Counter()
 
     def override(
@@ -87,11 +93,20 @@ def run_shadow_root_q_search(
         if reference is None or int(reference["visits"]) <= 0:
             skips["shadow_unvisited"] += 1
             return None
-        shadow_q = float(reference["q_value"])
-        uses.append((simulation, move, raw_q, shadow_q))
-        return shadow_q
+        parent_q = float(reference["q_value"])
+        blended_q = (1.0 - shadow_q_weight) * raw_q + shadow_q_weight * parent_q
+        uses.append(
+            {
+                "simulation": simulation,
+                "move": move,
+                "candidate_q": raw_q,
+                "parent_q": parent_q,
+                "blended_q": blended_q,
+            }
+        )
+        return blended_q
 
-    trace: list[dict[str, Any]] = []
+    trace: list[dict[str, Any]] | None = [] if record_selection_trace else None
     main = PUCT(
         evaluator=main_evaluator,
         rng=random.Random(seed),
@@ -111,15 +126,21 @@ def run_shadow_root_q_search(
         {
             "shadow_summary": shadow_summary,
             "main_summary": main_summary,
+            "shadow_q_weight": shadow_q_weight,
             "shadow_pre_simulation_snapshots": len(snapshots),
             "no_future_information": all(
-                simulation in snapshots for simulation, *_ in uses
+                int(use["simulation"]) in snapshots for use in uses
             ),
             "selection_q_uses": len(uses),
+            "selection_q_direction_telemetry": uses
+            if record_selection_q_direction
+            else [],
+            "selection_trace": trace if trace is not None else [],
             "selection_q_skips": dict(skips),
             "selected_child_q_synchronized": any(
-                move == selected and raw_q == shadow_q_value
-                for _simulation, move, raw_q, shadow_q_value in uses
+                int(use["move"]) == selected
+                and float(use["candidate_q"]) == float(use["parent_q"])
+                for use in uses
             ),
             "shadow_main_root_q_l1": float(
                 sum(abs(shadow_q.get(a, 0.0) - main_q.get(a, 0.0)) for a in actions)
