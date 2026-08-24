@@ -9,7 +9,6 @@ self-play nor permits shadow-Q outside the frozen target-cache construction.
 from __future__ import annotations
 
 import argparse
-import concurrent.futures
 import copy
 import hashlib
 import json
@@ -28,6 +27,7 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.arena import ArtifactEvaluator, canonical_game_state_hash
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (
+    configure_determinism,
     read_jsonl,
     sha256_file,
     write_fixed_npz,
@@ -36,8 +36,9 @@ from ml.alphazero_lite.run_fresh_p1_adapter_budget_factorization import (
     A16_STATE_SHA,
     P1_CHECKPOINT_SHA,
     REPLAY_SHA,
-    state_hash,
     _suite,
+    arena_records,
+    state_hash,
 )
 from ml.alphazero_lite.run_fresh_p1_adapter_margin_sensitivity import (
     HELD_OUT_HASHES,
@@ -56,6 +57,7 @@ from ml.alphazero_lite.run_fresh_p1_parent_additive_policy_adapter import (
     new_model,
     output,
 )
+from ml.alphazero_lite.evaluation_metrics import paired_opening_candidate_effect
 from ml.alphazero_lite.run_fresh_selfplay_anchor_iteration import (
     _cross_entropy,
     mixed_policy_target,
@@ -72,13 +74,58 @@ from ml.alphazero_lite.train import (
 
 SIMULATIONS = 1200
 SEED = 231
-WEIGHT = 0.25
+TARGET_WEIGHTED_RATIO = 0.50
+MAX_CONFIGURED_WEIGHT = 0.25
+TARGET_CACHE_SHA = "526a1e06fda3f96575c886b3d52a1e2a06a75a572c51203b0b7e61806090cecb"
+SELECTOR_MANIFEST_SHA = (
+    "2bf821c1debc78538961467657ff3c5757b50ccbcd37094dcf932edda5c4b4b3"
+)
 STEPS = (1, 4, 16)
 LANES = ("baseline_continue", "shadow_sensitive", "parent_sensitive", "shadow_random25")
 P1_WORKDIR = Path("/tmp/azlite_fresh_selfplay_anchor")
 A16_WORKDIR = Path("/tmp/azlite_fresh_p1_parent_adapter")
 _P1: ArtifactEvaluator | None = None
 _A16: ArtifactEvaluator | None = None
+
+
+def calibrated_weight(max_raw_ratio: float) -> float:
+    """Freeze the protocol's single global auxiliary coefficient."""
+    if not np.isfinite(max_raw_ratio) or max_raw_ratio <= 0.0:
+        raise RuntimeError("invalid maximum raw auxiliary gradient ratio")
+    return min(MAX_CONFIGURED_WEIGHT, TARGET_WEIGHTED_RATIO / max_raw_ratio)
+
+
+def _gradient_vector(model: torch.nn.Module) -> torch.Tensor:
+    """Return only the adapter gradient in the stable contract ordering."""
+    values = []
+    parameters = dict(model.named_parameters())
+    for key in ADAPTER_KEYS:
+        gradient = parameters[key].grad
+        if gradient is None:
+            raise RuntimeError(f"missing adapter gradient for {key}")
+        values.append(gradient.detach().reshape(-1))
+    result = torch.cat(values)
+    if not torch.isfinite(result).all():
+        raise RuntimeError("non-finite adapter gradient")
+    return result
+
+
+def _gradient_pair(primary: torch.Tensor, auxiliary: torch.Tensor) -> dict[str, float]:
+    primary_norm = float(torch.linalg.vector_norm(primary).cpu())
+    auxiliary_norm = float(torch.linalg.vector_norm(auxiliary).cpu())
+    if primary_norm <= 1e-12:
+        raise RuntimeError("primary adapter gradient norm is too small")
+    if not np.isfinite(primary_norm) or not np.isfinite(auxiliary_norm):
+        raise RuntimeError("non-finite adapter gradient norm")
+    return {
+        "primary_norm": primary_norm,
+        "auxiliary_norm": auxiliary_norm,
+        "raw_ratio": auxiliary_norm / primary_norm,
+        "gradient_cosine": float(torch.dot(primary, auxiliary).cpu())
+        / (primary_norm * auxiliary_norm)
+        if auxiliary_norm > 0.0
+        else 0.0,
+    }
 
 
 def _seed(state_hash_value: str) -> int:
@@ -392,6 +439,126 @@ def _model_metrics(
     }
 
 
+def _losses_for_step(
+    model: torch.nn.Module,
+    parent_state: dict[str, torch.Tensor],
+    rows: list[dict[str, Any]],
+    source: np.ndarray,
+    indexes: np.ndarray,
+    anchors: np.ndarray | None,
+    target: np.ndarray | None,
+    anchor_order: np.ndarray,
+    step: int,
+    device: torch.device,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    selected = [rows[int(source[i])] for i in indexes if i >= 0]
+    x = torch.tensor(
+        np.asarray([row["state"] for row in selected], dtype=np.float32), device=device
+    )
+    p = torch.tensor(
+        np.asarray([row["policy"] for row in selected], dtype=np.float32), device=device
+    )
+    v = torch.tensor(
+        np.asarray([row["value"] for row in selected], dtype=np.float32).reshape(-1, 1),
+        device=device,
+    )
+    mask = torch.tensor(
+        legal_mask_matrix_for_encoded_states(x.detach().cpu().numpy()), device=device
+    )
+    parent = new_model(device)
+    parent.load_state_dict(parent_state)
+    parent.eval()
+    with torch.no_grad():
+        parent_logits, _ = parent(x)
+        parent_policy = torch.softmax(parent_logits.masked_fill(mask <= 0, -1e9), dim=1)
+    policy, value = model(x)
+    primary = (
+        compute_policy_cross_entropy(
+            policy.masked_fill(mask <= 0, -1e9),
+            mixed_policy_target(p, parent_policy, mask, BETA),
+        ).mean()
+        + 0.6
+        * compute_value_loss_vector(
+            value, v, value_loss="huber", huber_delta=1.0
+        ).mean()
+    )
+    auxiliary = torch.zeros((), device=device)
+    if target is not None:
+        assert anchors is not None
+        position = ((step - 1) * len(indexes) + np.arange(len(indexes))) % len(
+            anchor_order
+        )
+        a = anchor_order[position]
+        ax = torch.tensor(
+            np.asarray([rows[int(anchors[i])]["state"] for i in a], dtype=np.float32),
+            device=device,
+        )
+        am = torch.tensor(
+            legal_mask_matrix_for_encoded_states(ax.detach().cpu().numpy()),
+            device=device,
+        )
+        at = torch.tensor(target[a], dtype=torch.float32, device=device)
+        logits, _ = model(ax)
+        auxiliary = compute_policy_cross_entropy(
+            logits.masked_fill(am <= 0, -1e9), at
+        ).mean()
+    return primary, auxiliary
+
+
+def _anchor_order(name: str, anchors: np.ndarray | None) -> np.ndarray:
+    if anchors is None:
+        return np.asarray([], dtype=np.int64)
+    return np.asarray(
+        sorted(
+            range(len(anchors)),
+            key=lambda i: hashlib.sha256(
+                f"{SEED}:{name}:{anchors[i]}".encode()
+            ).hexdigest(),
+        ),
+        dtype=np.int64,
+    )
+
+
+def _measure_gradient(
+    name: str,
+    snapshot: dict[str, Any],
+    parent_state: dict[str, torch.Tensor],
+    rows: list[dict[str, Any]],
+    source: np.ndarray,
+    indexes: np.ndarray,
+    anchors: np.ndarray,
+    target: np.ndarray,
+    step: int,
+    device: torch.device,
+) -> tuple[dict[str, float], torch.Tensor, torch.Tensor]:
+    model = new_model(device)
+    model.load_state_dict(snapshot["model"])
+    apply_trainable_scope(model, "policy_adapter_only")
+    primary, auxiliary = _losses_for_step(
+        model,
+        parent_state,
+        rows,
+        source,
+        indexes,
+        anchors,
+        target,
+        _anchor_order(name, anchors),
+        step,
+        device,
+    )
+    model.zero_grad(set_to_none=True)
+    primary.backward(retain_graph=True)
+    primary_gradient = _gradient_vector(model).clone()
+    model.zero_grad(set_to_none=True)
+    auxiliary.backward()
+    auxiliary_gradient = _gradient_vector(model).clone()
+    return (
+        _gradient_pair(primary_gradient, auxiliary_gradient),
+        primary_gradient,
+        auxiliary_gradient,
+    )
+
+
 def _train_lane(
     name: str,
     snapshot: dict[str, Any],
@@ -402,7 +569,8 @@ def _train_lane(
     anchors: np.ndarray | None,
     target: np.ndarray | None,
     device: torch.device,
-) -> tuple[dict[int, dict[str, torch.Tensor]], dict[str, float]]:
+    weight: float,
+) -> tuple[dict[int, dict[str, torch.Tensor]], list[dict[str, float]]]:
     model = new_model(device)
     model.load_state_dict(snapshot["model"])
     apply_trainable_scope(model, "policy_adapter_only")
@@ -410,119 +578,43 @@ def _train_lane(
         (p for p in model.parameters() if p.requires_grad), lr=1e-5, weight_decay=0.0
     )
     optimizer.load_state_dict(copy.deepcopy(snapshot["optimizer"]))
-    anchor_order = np.asarray(
-        []
-        if anchors is None
-        else sorted(
-            range(len(anchors)),
-            key=lambda i: hashlib.sha256(
-                f"{SEED}:{name}:{anchors[i]}".encode()
-            ).hexdigest(),
-        ),
-        dtype=np.int64,
-    )
+    anchor_order = _anchor_order(name, anchors)
     captures: dict[int, dict[str, torch.Tensor]] = {}
-    gradient: dict[str, float] = {}
+    telemetry: list[dict[str, float]] = []
     for step, indexes in enumerate(plan[16:32], 1):
-        selected = [rows[int(source[i])] for i in indexes if i >= 0]
-        x = torch.tensor(
-            np.asarray([row["state"] for row in selected], dtype=np.float32),
-            device=device,
+        primary, auxiliary = _losses_for_step(
+            model,
+            parent_state,
+            rows,
+            source,
+            indexes,
+            anchors,
+            target,
+            anchor_order,
+            step,
+            device,
         )
-        p = torch.tensor(
-            np.asarray([row["policy"] for row in selected], dtype=np.float32),
-            device=device,
-        )
-        v = torch.tensor(
-            np.asarray([row["value"] for row in selected], dtype=np.float32).reshape(
-                -1, 1
-            ),
-            device=device,
-        )
-        mask = torch.tensor(
-            legal_mask_matrix_for_encoded_states(x.detach().cpu().numpy()),
-            device=device,
-        )
-        parent = new_model(device)
-        parent.load_state_dict(parent_state)
-        parent.eval()
-        with torch.no_grad():
-            parent_logits, _ = parent(x)
-            parent_policy = torch.softmax(
-                parent_logits.masked_fill(mask <= 0, -1e9), dim=1
-            )
-        policy, value = model(x)
-        primary = (
-            compute_policy_cross_entropy(
-                policy.masked_fill(mask <= 0, -1e9),
-                mixed_policy_target(p, parent_policy, mask, BETA),
-            ).mean()
-            + 0.6
-            * compute_value_loss_vector(
-                value, v, value_loss="huber", huber_delta=1.0
-            ).mean()
-        )
-        auxiliary = torch.zeros((), device=device)
-        if target is not None:
-            assert anchors is not None
-            position = ((step - 1) * len(indexes) + np.arange(len(indexes))) % len(
-                anchor_order
-            )
-            a = anchor_order[position]
-            ax = torch.tensor(
-                np.asarray(
-                    [rows[int(anchors[i])]["state"] for i in a], dtype=np.float32
-                ),
-                device=device,
-            )
-            am = torch.tensor(
-                legal_mask_matrix_for_encoded_states(ax.detach().cpu().numpy()),
-                device=device,
-            )
-            at = torch.tensor(target[a], dtype=torch.float32, device=device)
-            logits, _ = model(ax)
-            auxiliary = compute_policy_cross_entropy(
-                logits.masked_fill(am <= 0, -1e9), at
-            ).mean()
-        if step == 1:
-            optimizer.zero_grad(set_to_none=True)
-            primary.backward(retain_graph=True)
-            primary_norm = float(
-                torch.sqrt(
-                    sum(
-                        torch.sum(p.grad**2)
-                        for p in model.parameters()
-                        if p.grad is not None
-                    )
-                )
-            )
-            if target is None:
-                auxiliary_norm = 0.0
-            else:
-                optimizer.zero_grad(set_to_none=True)
-                auxiliary.backward(retain_graph=True)
-                auxiliary_norm = float(
-                    torch.sqrt(
-                        sum(
-                            torch.sum(p.grad**2)
-                            for p in model.parameters()
-                            if p.grad is not None
-                        )
-                    )
-                )
-            gradient = {
-                "primary": primary_norm,
-                "auxiliary": auxiliary_norm,
-                "auxiliary_to_primary": auxiliary_norm / max(primary_norm, 1e-20),
-            }
-            if target is not None and gradient["auxiliary_to_primary"] > 10.0:
-                raise RuntimeError(
-                    "invalid auxiliary gradient scale: "
-                    f"primary={primary_norm:.9g} auxiliary={auxiliary_norm:.9g} "
-                    f"ratio={gradient['auxiliary_to_primary']:.6f}x"
-                )
         optimizer.zero_grad(set_to_none=True)
-        (primary + WEIGHT * auxiliary).backward()
+        primary.backward(retain_graph=True)
+        primary_gradient = _gradient_vector(model).clone()
+        if target is None:
+            detail = {
+                "primary_norm": float(torch.linalg.vector_norm(primary_gradient)),
+                "auxiliary_norm": 0.0,
+                "raw_ratio": 0.0,
+                "gradient_cosine": 0.0,
+            }
+        else:
+            optimizer.zero_grad(set_to_none=True)
+            auxiliary.backward(retain_graph=True)
+            detail = _gradient_pair(primary_gradient, _gradient_vector(model))
+        detail["step"] = float(step)
+        detail["weighted_ratio"] = weight * detail["raw_ratio"]
+        if detail["weighted_ratio"] > 2.0:
+            raise RuntimeError("runtime auxiliary gradient scale failure")
+        telemetry.append(detail)
+        optimizer.zero_grad(set_to_none=True)
+        (primary + weight * auxiliary).backward()
         torch.nn.utils.clip_grad_norm_(
             (p for p in model.parameters() if p.requires_grad), 1.0
         )
@@ -532,7 +624,167 @@ def _train_lane(
                 key: value.detach().cpu().clone()
                 for key, value in model.state_dict().items()
             }
-    return captures, gradient
+    return captures, telemetry
+
+
+def _frozen_diagnostic(
+    candidate: Path, parent: Path, rows: list[dict[str, Any]]
+) -> dict[str, float]:
+    """Use ordinary PUCT only on the preregistered 40 amplified and 40 control roots."""
+    amplified, controls = _frozen_hashes()
+    manifest = {
+        row["state_hash"]: row for row in json.loads(MANIFEST.read_text())["rows"]
+    }
+    candidate_eval, parent_eval = (
+        ArtifactEvaluator(candidate),
+        ArtifactEvaluator(parent),
+    )
+
+    def move(state_hash_value: str, evaluator: ArtifactEvaluator) -> int:
+        meta = manifest[state_hash_value]
+        state = decode_kalah_v3_base_state(
+            list(rows[int(meta["replay_index"])]["state"])
+        )
+        _, summary = _ordinary(
+            KalahGame.from_state(state), evaluator, _seed(state_hash_value)
+        )
+        return int(summary["selected_move"])
+
+    rescue = [
+        move(key, candidate_eval) == move(key, parent_eval) for key in sorted(amplified)
+    ]
+    divergence = [
+        move(key, candidate_eval) != move(key, parent_eval) for key in sorted(controls)
+    ]
+    return {
+        "rescue_rate": float(np.mean(rescue)),
+        "new_divergence_rate": float(np.mean(divergence)),
+    }
+
+
+def _arena(
+    candidate: Path,
+    opponent: Path,
+    context: str,
+    workdir: Path,
+    role: str,
+    workers: int,
+    suite_hash: str,
+) -> dict[str, Any]:
+    control = arena_records(
+        workdir=workdir,
+        challenger=opponent,
+        current=opponent,
+        context=context,
+        role=f"{role}_p1_control",
+        workers=workers,
+        suite_hash=suite_hash,
+    )
+    treatment = arena_records(
+        workdir=workdir,
+        challenger=candidate,
+        current=opponent,
+        context=context,
+        role=role,
+        workers=workers,
+        suite_hash=suite_hash,
+    )
+    effect = paired_opening_candidate_effect(
+        treatment, control, bootstrap_samples=10_000, bootstrap_seed=42
+    )
+    ci = effect["opening_bootstrap_ci"]
+    return {
+        "paired_candidate_effect": effect["paired_candidate_effect"],
+        "opening_bootstrap_ci": ci,
+        "seat_a_effect": effect["p0_effect"],
+        "seat_b_effect": effect["p1_effect"],
+        "win_draw_loss": {
+            "wins": sum(row["winner"] == "challenger" for row in treatment),
+            "draws": sum(row["winner"] == "draw" for row in treatment),
+            "losses": sum(row["winner"] == "current" for row in treatment),
+        },
+        "safe": ci["upper_95"] >= 0.0 or ci["lower_95"] >= -0.03,
+    }
+
+
+def _report(summary: dict[str, Any]) -> str:
+    calibration_rows = [
+        "| Lane | Batch | Primary norm | Auxiliary norm | Raw ratio | Cosine |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for lane, values in summary["calibration"]["lanes"].items():
+        for row in values:
+            calibration_rows.append(
+                f"| {lane} | {int(row['batch'])} | {row['primary_norm']:.9g} | {row['auxiliary_norm']:.9g} | {row['raw_ratio']:.6f} | {row['gradient_cosine']:.6f} |"
+            )
+    metric_rows = [
+        "| Lane | Step | CE(search) | CE(P1) | CE(beta095) | Fit | L1 | JS | Top-1 | Adapter norm | Movement |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for lane, details in summary["lanes"].items():
+        for step, metric in details["metrics"].items():
+            metric_rows.append(
+                f"| {lane} | {step} | {metric['ce_search']:.6f} | {metric['ce_p1_policy']:.6f} | {metric['ce_beta095']:.6f} | {metric['fit_fraction']:.4f} | {metric['legal_policy_l1_vs_p1']:.6f} | {metric['js_vs_p1']:.2e} | {metric['top1_disagreement']:.4f} | {metric['adapter_parameter_norm']:.6f} | {metric['movement_from_a16']:.6f} |"
+            )
+    return "\n".join(
+        [
+            "# Shadow-Target Policy Distillation",
+            "",
+            f"**Classification:** `{summary['classification']}`",
+            "",
+            f"**Recommended follow-up:** {summary['recommended_follow_up']}",
+            "",
+            "## Calibration",
+            "",
+            *calibration_rows,
+            "",
+            "```json",
+            json.dumps(summary["calibration"]["decision"], indent=2, sort_keys=True),
+            "```",
+            "",
+            "## Gradient Geometry",
+            "",
+            summary["calibration"]["geometry_interpretation"],
+            "",
+            "```json",
+            json.dumps(
+                {
+                    "per_lane_cosine": summary["calibration"]["cosine_summary"],
+                    "shadow_sensitive_vs_parent_sensitive": summary["calibration"][
+                        "shadow_sensitive_vs_parent_sensitive_cosine"
+                    ],
+                },
+                indent=2,
+                sort_keys=True,
+            ),
+            "```",
+            "",
+            "## Checkpoint Metrics",
+            "",
+            *metric_rows,
+            "",
+            "Anchor CE and cached ordinary-search anchor metrics are in the JSON summary for every checkpoint.",
+            "",
+            "## Evaluation",
+            "",
+            "```json",
+            json.dumps(
+                {
+                    key: summary[key]
+                    for key in (
+                        "frozen_diagnostics",
+                        "arena_matrix",
+                        "p0_gate",
+                        "invariants",
+                    )
+                },
+                indent=2,
+                sort_keys=True,
+            ),
+            "```",
+            "",
+        ]
+    )
 
 
 def main() -> None:
@@ -571,21 +823,32 @@ def main() -> None:
     rows = read_jsonl(replay)
     population, exclusions = _population(rows)
     cache_path = args.workdir / "target_cache.npz"
-    if cache_path.is_file():
-        loaded = np.load(cache_path, allow_pickle=False)
-        cache = {key: loaded[key] for key in loaded.files}
-        if cache["ordinary_a16"].shape[0] != len(population):
-            raise RuntimeError("target cache population size mismatch")
-        cache_hash = sha256_file(cache_path)
-    else:
-        with concurrent.futures.ProcessPoolExecutor(
-            max_workers=args.workers,
-            initializer=_init_worker,
-            initargs=(str(p1_artifact), str(a16_artifact)),
-        ) as pool:
-            records = list(pool.map(_cache_record, population, chunksize=1))
-        cache, cache_hash = _save_cache(args.workdir, population, records)
-    sensitive, random_set, selector = _selector(args.workdir, population, cache)
+    if not cache_path.is_file():
+        raise RuntimeError(
+            "missing immutable PR #232 target cache; regeneration is prohibited"
+        )
+    loaded = np.load(cache_path, allow_pickle=False)
+    cache = {key: loaded[key] for key in loaded.files}
+    cache_hash = sha256_file(cache_path)
+    selector_path = args.workdir / "selector_manifest.json"
+    selector_hash = sha256_file(selector_path) if selector_path.is_file() else None
+    if (
+        cache_hash != TARGET_CACHE_SHA
+        or selector_hash != SELECTOR_MANIFEST_SHA
+        or cache["ordinary_a16"].shape[0] != len(population)
+    ):
+        raise RuntimeError("immutable PR #232 target cache or selector mismatch")
+    selector_manifest = json.loads(selector_path.read_text())
+    sensitive = np.asarray(selector_manifest["sensitive_indexes"], dtype=np.int64)
+    random_set = np.asarray(selector_manifest["random_indexes"], dtype=np.int64)
+    if len(sensitive) != 1003 or len(random_set) != 1003:
+        raise RuntimeError("immutable selector count mismatch")
+    selector = {
+        "selector_sha256": selector_hash,
+        "population_count": len(population),
+        "sensitive_count": len(sensitive),
+        "random_count": len(random_set),
+    }
     target_identity = {
         "l1": _summary(
             np.abs(
@@ -619,6 +882,7 @@ def main() -> None:
         np.load(A16_WORKDIR / "batch_indexes.npy"),
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    configure_determinism(device, SEED)
     sensitive_replay = np.asarray(
         [population[i]["replay_index"] for i in sensitive], dtype=np.int64
     )
@@ -640,6 +904,86 @@ def main() -> None:
             cache["shadow_a16"][random_set] / SIMULATIONS,
         ),
     }
+    calibration_lanes = {
+        name: [] for name in ("shadow_sensitive", "parent_sensitive", "shadow_random25")
+    }
+    geometry_pairs = []
+    for batch in range(1, 5):
+        measured = {}
+        for lane in calibration_lanes:
+            anchors, target = targets[lane]
+            assert anchors is not None and target is not None
+            metric, primary_gradient, auxiliary_gradient = _measure_gradient(
+                lane,
+                snapshot,
+                parent_state,
+                rows,
+                source,
+                plan[16 + batch - 1],
+                anchors,
+                target,
+                batch,
+                device,
+            )
+            calibration_lanes[lane].append({"batch": batch, **metric})
+            measured[lane] = (primary_gradient, auxiliary_gradient)
+        shadow, parent = (
+            measured["shadow_sensitive"][1],
+            measured["parent_sensitive"][1],
+        )
+        geometry_pairs.append(
+            float(torch.dot(shadow, parent).cpu())
+            / float(
+                torch.linalg.vector_norm(shadow).cpu()
+                * torch.linalg.vector_norm(parent).cpu()
+            )
+        )
+    max_raw_ratio = max(
+        row["raw_ratio"] for values in calibration_lanes.values() for row in values
+    )
+    weight = calibrated_weight(max_raw_ratio)
+    for values in calibration_lanes.values():
+        for row in values:
+            row["weighted_ratio"] = weight * row["raw_ratio"]
+            if row["weighted_ratio"] > 0.500001:
+                raise RuntimeError("calibration weighted-ratio invariant failure")
+    cosine_summary = {
+        lane: {
+            "median": float(np.median([row["gradient_cosine"] for row in values])),
+            "min": float(np.min([row["gradient_cosine"] for row in values])),
+            "max": float(np.max([row["gradient_cosine"] for row in values])),
+        }
+        for lane, values in calibration_lanes.items()
+    }
+    delta = (
+        cosine_summary["shadow_sensitive"]["median"]
+        - cosine_summary["parent_sensitive"]["median"]
+    )
+    relation = (
+        "more aligned"
+        if delta > 0.01
+        else "less aligned"
+        if delta < -0.01
+        else "effectively the same"
+    )
+    calibration = {
+        "batches": [1, 2, 3, 4],
+        "lanes": calibration_lanes,
+        "cosine_summary": cosine_summary,
+        "shadow_sensitive_vs_parent_sensitive_cosine": geometry_pairs,
+        "geometry_interpretation": f"Shadow-sensitive auxiliary gradients are {relation} with the primary objective than the parent anchor by median cosine ({delta:+.6f}); shadow-vs-parent auxiliary cosine is {float(np.median(geometry_pairs)):.6f} median.",
+        "decision": {
+            "target_weighted_ratio": TARGET_WEIGHTED_RATIO,
+            "max_configured_weight": MAX_CONFIGURED_WEIGHT,
+            "max_raw_ratio": max_raw_ratio,
+            "behavior_loss_weight": weight,
+            "acceptance_max_weighted_ratio": max(
+                row["weighted_ratio"]
+                for values in calibration_lanes.values()
+                for row in values
+            ),
+        },
+    }
     lanes: dict[str, Any] = {}
     inherited = {
         key: value
@@ -648,7 +992,7 @@ def main() -> None:
     }
     for lane in LANES:
         anchor_indexes, anchor_target = targets[lane]
-        states, gradients = _train_lane(
+        states, telemetry = _train_lane(
             lane,
             snapshot,
             parent_state,
@@ -658,6 +1002,7 @@ def main() -> None:
             anchor_indexes,
             anchor_target,
             device,
+            weight,
         )
         lane_metrics = {}
         artifacts = {}
@@ -678,19 +1023,111 @@ def main() -> None:
                 )
             )
         lanes[lane] = {
-            "first_batch_gradient_norms": gradients,
+            "gradient_telemetry": telemetry,
             "metrics": lane_metrics,
             "artifacts": artifacts,
         }
+    suite, suite_hash = _suite()
+    frozen_diagnostics: dict[str, Any] = {}
+    arena_matrix: dict[str, Any] = {}
+    p0_gate: dict[str, Any] = {}
+    p0_artifact = REPO_ROOT / "model-artifact/current"
+    if not args.skip_arenas:
+        for lane, details in lanes.items():
+            for step, metric in details["metrics"].items():
+                if metric["fit_fraction"] < 0.25:
+                    continue
+                artifact = Path(details["artifacts"][step])
+                key = f"{lane}:{step}"
+                frozen_diagnostics[key] = _frozen_diagnostic(
+                    artifact, p1_artifact, rows
+                )
+                contexts = {
+                    context: _arena(
+                        artifact,
+                        p1_artifact,
+                        context,
+                        args.workdir / "evaluation" / key,
+                        "candidate_vs_p1",
+                        args.workers,
+                        suite_hash,
+                    )
+                    for context in ("384:256", "1200:1200")
+                }
+                arena_matrix[key] = contexts
+                if all(value["safe"] for value in contexts.values()):
+                    p0_gate[key] = {
+                        context: _arena(
+                            artifact,
+                            p0_artifact,
+                            context,
+                            args.workdir / "evaluation" / key,
+                            "candidate_vs_p0",
+                            args.workers,
+                            suite_hash,
+                        )
+                        for context in ("384:256", "1200:1200")
+                    }
+    invariants = {
+        "artifact_hashes": True,
+        "target_cache_hash": cache_hash == TARGET_CACHE_SHA,
+        "selector_manifest_hash": selector_hash == SELECTOR_MANIFEST_SHA,
+        "inherited_parameters_byte_identical": all(
+            metric["inherited_parameters_byte_identical"]
+            for lane in lanes.values()
+            for metric in lane["metrics"].values()
+        ),
+        "calibration_acceptance": calibration["decision"][
+            "acceptance_max_weighted_ratio"
+        ]
+        <= 0.500001,
+    }
+    meaningful = [
+        key
+        for key, details in lanes.items()
+        for step, metric in details["metrics"].items()
+        if metric["fit_fraction"] >= 0.25
+    ]
+    safe = [
+        key
+        for key, contexts in arena_matrix.items()
+        if all(context["safe"] for context in contexts.values())
+    ]
+    runtime_failure = any(
+        row["weighted_ratio"] > 2.0
+        for lane in lanes.values()
+        for row in lane["gradient_telemetry"]
+    )
+    classification = (
+        "invariant_failure"
+        if not all(invariants.values())
+        else "runtime_gradient_scale_failure"
+        if runtime_failure
+        else "calibrated_distillation_still_unsafe"
+        if meaningful and arena_matrix and not safe
+        else "inconclusive"
+    )
+    follow_up = {
+        "invariant_failure": "Repair the immutable artifact or parameter invariant before interpreting this experiment.",
+        "runtime_gradient_scale_failure": "Use a constrained or proximal update rather than a static loss coefficient.",
+        "calibrated_distillation_still_unsafe": "Test online or iteratively refreshed search-target generation rather than a static cache.",
+        "inconclusive": "Retain this frozen calibrated protocol; no training or selector change is justified by these results.",
+    }[classification]
     summary = {
         "schema": "azlite_shadow_target_distillation_v1",
-        "hashes": hashes | {"target_cache": cache_hash},
+        "hashes": hashes
+        | {
+            "target_cache": cache_hash,
+            "selector_manifest": selector_hash,
+            "canonical_suite": suite_hash,
+            "p0_artifact": sha256_file(p0_artifact / "weights.json"),
+        },
         "exclusions": exclusions,
         "selector": selector,
         "target_identity": target_identity,
         "guardrails": {
             "self_play_generated": False,
-            "behavior_loss_weight": WEIGHT,
+            "behavior_loss_weight": weight,
             "beta": BETA,
             "trainable": list(ADAPTER_KEYS),
             "search": {
@@ -703,17 +1140,25 @@ def main() -> None:
             },
         },
         "lanes": lanes,
-        "classification": "inconclusive",
-        "recommended_follow_up": "Classify after the preregistered ordinary-PUCT held-out and arena gates.",
+        "calibration": calibration,
+        "invariants": invariants,
+        "frozen_diagnostics": frozen_diagnostics,
+        "arena_matrix": arena_matrix,
+        "p0_gate": p0_gate,
+        "classification": classification,
+        "recommended_follow_up": follow_up,
     }
     (args.workdir / "summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n"
     )
-    print(
-        "target caches and four training lanes complete; ordinary arena gates are intentionally pending"
-        if args.skip_arenas
-        else "training complete; run ordinary arena gates"
-    )
+    (
+        REPO_ROOT
+        / "docs/data/alphazero-lite-fresh-p1-shadow-target-distillation-summary.json"
+    ).write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+    (
+        REPO_ROOT / "docs/alphazero-lite-fresh-p1-shadow-target-distillation-results.md"
+    ).write_text(_report(summary))
+    print(classification)
 
 
 if __name__ == "__main__":
