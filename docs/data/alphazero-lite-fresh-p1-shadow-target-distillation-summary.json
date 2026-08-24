@@ -1,0 +1,52 @@
+{
+  "schema": "azlite_shadow_target_distillation_v1",
+  "classification": "invariant_failure",
+  "recommended_follow_up": "Repair the preregistered auxiliary-gradient scale contract before considering another distillation run.",
+  "stop_reason": "The first shadow-sensitive auxiliary CE gradient norm was 18.990581 times the primary beta=.95 loss gradient norm, exceeding the fixed 10x maximum.",
+  "artifacts": {
+    "p1_checkpoint_sha256": "e4a9c95302c17b63405107d26b4cd4f90755d2b21980846ac6e9f0baabf7efe9",
+    "a16_step16_state_sha256": "0b322e0996a4902cb8737ff32a429bfd45803ee4a55d713e2960ea9e9faf5068",
+    "fresh_p1_replay_sha256": "892827d8ee67a66e6324a2aaec7011df1a21625fc3f6bcd87cab39ce655d2a88",
+    "target_cache_sha256": "526a1e06fda3f96575c886b3d52a1e2a06a75a572c51203b0b7e61806090cecb",
+    "selector_manifest_sha256": "2bf821c1debc78538961467657ff3c5757b50ccbcd37094dcf932edda5c4b4b3"
+  },
+  "population": {
+    "manifest_roots": 4096,
+    "eligible_fresh_p1_roots": 4015,
+    "excluded_frozen_amplified": 40,
+    "excluded_washed_controls": 40,
+    "excluded_pr220_held_out": 0,
+    "selector_count": 1003
+  },
+  "contract": {
+    "self_play_generated": false,
+    "behavior_loss_weight": 0.25,
+    "beta": 0.95,
+    "target_search": {
+      "simulations": 1200,
+      "c_puct": 1.25,
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "root_noise": false,
+      "shadow_q_weight": 1.0
+    },
+    "trainable_parameters": [
+      "policy_adapter.weight",
+      "policy_adapter.bias"
+    ],
+    "arena_or_frozen_states_used_for_training": false
+  },
+  "first_batch_gradient_norms": {
+    "primary": 0.00797855947,
+    "auxiliary": 0.151517481,
+    "auxiliary_to_primary": 18.990581,
+    "valid": false
+  },
+  "not_run_after_stop": [
+    "four-lane checkpoints",
+    "inherited-parameter post-training checks",
+    "ordinary-PUCT frozen diagnostics",
+    "canonical P1 arenas",
+    "cumulative P0 gate"
+  ]
+}
