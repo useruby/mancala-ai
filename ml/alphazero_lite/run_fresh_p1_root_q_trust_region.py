@@ -9,9 +9,11 @@ and changes only the accepted length of the original beta=.95 Adam proposal.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import random
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -38,6 +40,7 @@ from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (
     configure_determinism,
     read_jsonl,
     sha256_file,
+    write_fixed_npz,
 )
 from ml.alphazero_lite.run_fresh_p1_parent_additive_policy_adapter import (
     ADAPTER_KEYS,
@@ -50,14 +53,83 @@ from ml.alphazero_lite import run_fresh_p1_shadow_target_distillation as pr233
 from ml.alphazero_lite.run_fresh_selfplay_anchor_iteration import _cross_entropy
 from ml.alphazero_lite.self_play import PUCT
 from ml.alphazero_lite.train import (
+    PolicyValueNet,
     apply_trainable_scope,
+    checkpoint_from_state_dict,
+    input_size_for_encoding,
     legal_mask_matrix_for_encoded_states,
 )
+
+ADAPTER_OUTPUT = output
 
 SEED = 235
 SIMULATIONS = 1200
 STEPS = (1, 4, 16)
 WORKDIR = Path("/tmp/azlite_root_q_trust_region")
+POLICY_HEAD_WORKDIR = Path("/tmp/azlite_policy_head_parent_q_regret")
+POLICY_HEAD_KEYS = (
+    "policy_hidden_layer.weight",
+    "policy_hidden_layer.bias",
+    "policy_head.weight",
+    "policy_head.bias",
+)
+GUARD_WORKERS = 1
+
+
+def _policy_head_model(device: torch.device) -> PolicyValueNet:
+    return PolicyValueNet(
+        (96, 3), "residual_v3", input_size_for_encoding("kalah_v3")
+    ).to(device)
+
+
+def _policy_head_output(
+    state: dict[str, torch.Tensor], x: np.ndarray, mask: np.ndarray
+) -> np.ndarray:
+    model = _policy_head_model(torch.device("cpu"))
+    model.load_state_dict(
+        {key: value for key, value in state.items() if key in model.state_dict()}
+    )
+    model.eval()
+    with torch.no_grad():
+        logits, _ = model(torch.from_numpy(x))
+    logits = logits.numpy().astype(np.float64)
+    logits[~mask.astype(bool)] = -1e9
+    logits -= logits.max(axis=1, keepdims=True)
+    policy = np.exp(logits)
+    return policy / policy.sum(axis=1, keepdims=True)
+
+
+def _policy_head_export(
+    state: dict[str, torch.Tensor], out_dir: Path, version: str
+) -> Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint = out_dir / "checkpoint.npz"
+    write_fixed_npz(checkpoint, checkpoint_from_state_dict(state))
+    result = subprocess.run(
+        [
+            str(REPO_ROOT / ".venv/bin/python"),
+            str(REPO_ROOT / "ml/alphazero_lite/export_artifact.py"),
+            "--checkpoint",
+            str(checkpoint),
+            "--out-dir",
+            str(out_dir / "artifact"),
+            "--version",
+            version,
+            "--model-type",
+            "residual_v3",
+            "--input-encoding",
+            "kalah_v3",
+            "--rules-version",
+            "kalah_v3",
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode:
+        raise RuntimeError(result.stderr[-2000:])
+    return out_dir / "artifact"
 
 
 def _seed(state_hash: str) -> int:
@@ -198,14 +270,23 @@ def _guard_searches(
             raise RuntimeError(
                 "parent-Q statistic requires pre-simulation P1 reference"
             )
-        regret = float(
-            np.mean(
-                [
-                    _parent_q_regret(item, evaluator, reference, SIMULATIONS)
-                    for item, reference in zip(items, parent_q_reference, strict=True)
-                ]
+
+        def parent_q_error(pair: tuple[dict[str, Any], list[dict]]) -> float:
+            return _parent_q_regret(pair[0], evaluator, pair[1], SIMULATIONS)
+
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(GUARD_WORKERS, len(items))
+        ) as pool:
+            regret = float(
+                np.mean(
+                    list(
+                        pool.map(
+                            parent_q_error,
+                            zip(items, parent_q_reference, strict=True),
+                        )
+                    )
+                )
             )
-        )
         return regret, {"parent_q_regret_auc": regret}
     diagnostics = [
         root_q_diagnostics(
@@ -240,15 +321,16 @@ def _metrics(
     target = np.asarray([row["policy"] for row in rows], dtype=np.float64)
     baseline = float(np.mean(_cross_entropy(reference, target)))
     current = float(np.mean(_cross_entropy(candidate, target)))
-    pure_ce = float(np.mean(_cross_entropy(output(pure, x, mask), target)))
-    adapter = torch.cat(
-        [(state[key] - parent[key]).reshape(-1) for key in ADAPTER_KEYS]
+    pure_ce = float(np.mean(_cross_entropy(ADAPTER_OUTPUT(pure, x, mask), target)))
+    trainable = (
+        POLICY_HEAD_KEYS if "policy_adapter.weight" not in state else ADAPTER_KEYS
     )
+    adapter = torch.cat([(state[key] - parent[key]).reshape(-1) for key in trainable])
     return {
         "ce_search": current,
         "fit_fraction": float((baseline - current) / (baseline - pure_ce)),
         "policy_l1_vs_p1": float(np.abs(candidate - reference).sum(axis=1).mean()),
-        "adapter_norm": float(torch.linalg.vector_norm(adapter)),
+        "trainable_parameter_delta_norm": float(torch.linalg.vector_norm(adapter)),
     }
 
 
@@ -287,17 +369,22 @@ def _train_baseline(
     source: np.ndarray,
     plan: np.ndarray,
     device: torch.device,
+    trainable_scope: str = "policy_adapter_only",
+    steps: int = 16,
+    checkpoints: tuple[int, ...] = STEPS,
 ) -> dict[int, dict[str, torch.Tensor]]:
     model = new_model(device)
-    model.load_state_dict(parent_state)
-    apply_trainable_scope(model, "policy_adapter_only")
+    model.load_state_dict(
+        {key: value for key, value in parent_state.items() if key in model.state_dict()}
+    )
+    apply_trainable_scope(model, trainable_scope)
     optimizer = torch.optim.Adam(
         (parameter for parameter in model.parameters() if parameter.requires_grad),
         lr=1e-5,
         weight_decay=0.0,
     )
     captures = {}
-    for step, indexes in enumerate(plan[:16], 1):
+    for step, indexes in enumerate(plan[:steps], 1):
         optimizer.zero_grad(set_to_none=True)
         _loss(model, parent_state, rows, source, indexes, device).backward()
         torch.nn.utils.clip_grad_norm_(
@@ -305,7 +392,7 @@ def _train_baseline(
             1.0,
         )
         optimizer.step()
-        if step in STEPS:
+        if step in checkpoints:
             captures[step] = _state(model)
     return captures
 
@@ -357,6 +444,7 @@ def _classification(
     arena: dict[str, Any],
     frozen: dict[str, Any],
     constraint_key: str,
+    policy_head: bool = False,
 ) -> tuple[str, str]:
     activity = constrained["constraint_activity"]
     metric = constrained["metrics"]["16"]
@@ -372,6 +460,11 @@ def _classification(
             "Repair Adam proposal parity before interpreting this result.",
         )
     if activity["fraction_lambda_0"] > 0.5 or metric["fit_fraction"] < 0.25:
+        if policy_head:
+            return (
+                "policy_head_constraint_still_stalls",
+                "Add a separate action-Q/search-consistency head rather than weakening the validated constraint.",
+            )
         return (
             "root_q_constraint_stalls",
             "Add a separate root action-value/Q head or increase representational degrees of freedom rather than weakening the constraint.",
@@ -410,6 +503,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workdir", type=Path, default=WORKDIR)
     parser.add_argument("--workers", type=int, default=24)
+    parser.add_argument(
+        "--policy-head",
+        action="store_true",
+        help="Use ordinary residual_v3 with only the inherited policy stack trainable.",
+    )
+    parser.add_argument("--steps", type=int, default=16)
     parser.add_argument("--skip-arenas", action="store_true")
     parser.add_argument(
         "--statistic",
@@ -423,16 +522,30 @@ def main() -> None:
         help="Fixed preregistered parent-Q regret budget; required for that statistic.",
     )
     args = parser.parse_args()
+    if args.steps < 1 or args.steps > 46:
+        raise ValueError("steps must be in [1, 46]")
     if args.statistic == "parent_q_regret" and (
         args.parent_q_regret_budget is None or args.parent_q_regret_budget < 0
     ):
         raise ValueError("parent_q_regret requires a non-negative fixed budget")
+    if args.policy_head and args.workdir == WORKDIR:
+        args.workdir = POLICY_HEAD_WORKDIR
     constraint_key = {
         "q_direction": "q_direction_error",
         "per_action_q_rank": "per_action_q_rank_disagreement",
         "parent_q_regret": "parent_q_regret_auc",
     }[args.statistic]
     args.workdir.mkdir(parents=True, exist_ok=True)
+    global new_model, output, export, ADAPTER_KEYS, GUARD_WORKERS
+    if args.workers < 1:
+        raise ValueError("workers must be positive")
+    GUARD_WORKERS = args.workers
+    trainable_keys = ADAPTER_KEYS
+    if args.policy_head:
+        new_model = _policy_head_model
+        output = _policy_head_output
+        export = _policy_head_export
+        trainable_keys = POLICY_HEAD_KEYS
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     configure_determinism(device, SEED)
     replay = pr233.A16_WORKDIR / "fresh_p1_self_play.jsonl"
@@ -462,6 +575,14 @@ def main() -> None:
     parent_model = new_model(device)
     pr233.load_checkpoint_into_model(parent_model, p1_checkpoint)
     parent_state = _state(parent_model)
+    loss_parent_state = parent_state
+    if args.policy_head:
+        # The fixed beta=.95 loss helper constructs the historical adapter
+        # parent only to obtain P1 policy probabilities.
+        loss_parent_state = parent_state | {
+            "policy_adapter.weight": torch.zeros((6, 96)),
+            "policy_adapter.bias": torch.zeros(6),
+        }
     p1 = ArtifactEvaluator(p1_artifact)
     references = {}
     for name, items in (("primary", primary), ("secondary", secondary)):
@@ -531,13 +652,23 @@ def main() -> None:
         np.load(pr233.A16_WORKDIR / "train_source_indexes.npy"),
         np.load(pr233.A16_WORKDIR / "batch_indexes.npy"),
     )
-    baseline = _train_baseline(parent_state, rows, source, plan, device)
+    checkpoints = tuple(step for step in (1, 4, 16, 46) if step <= args.steps)
+    baseline = _train_baseline(
+        loss_parent_state,
+        rows,
+        source,
+        plan,
+        device,
+        "policy_head" if args.policy_head else "policy_adapter_only",
+        args.steps,
+        checkpoints,
+    )
     expected_a16 = torch.load(
         pr233.A16_WORKDIR / "beta095/snapshots/step_0016.pt",
         map_location="cpu",
         weights_only=False,
     )["model"]
-    baseline_parity = all(
+    baseline_parity = args.policy_head or all(
         torch.equal(baseline[16][key], expected_a16[key]) for key in baseline[16]
     )
     pure = torch.load(
@@ -547,16 +678,18 @@ def main() -> None:
     )["model"]
     model = new_model(device)
     model.load_state_dict(parent_state)
-    apply_trainable_scope(model, "policy_adapter_only")
+    apply_trainable_scope(
+        model, "policy_head" if args.policy_head else "policy_adapter_only"
+    )
     parameters = [
         parameter for parameter in model.parameters() if parameter.requires_grad
     ]
     optimizer = torch.optim.Adam(parameters, lr=1e-5, weight_decay=0.0)
     captures, telemetry = {}, []
-    for step, indexes in enumerate(plan[:16], 1):
+    for step, indexes in enumerate(plan[: args.steps], 1):
         before_metrics = _metrics(_state(model), parent_state, rows, pure)
         optimizer.zero_grad(set_to_none=True)
-        loss = _loss(model, parent_state, rows, source, indexes, device)
+        loss = _loss(model, loss_parent_state, rows, source, indexes, device)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(parameters, 1.0)
         delta = adam_proposal_and_restore(parameters, optimizer)
@@ -607,18 +740,22 @@ def main() -> None:
                 "accepted_constraint_error": trial_errors[scale],
                 "primary_ce_before": float(loss.detach()),
                 "primary_ce_after": float(
-                    _loss(model, parent_state, rows, source, indexes, device).detach()
+                    _loss(
+                        model, loss_parent_state, rows, source, indexes, device
+                    ).detach()
                 ),
                 "fit_fraction_before": before_metrics["fit_fraction"],
                 "fit_fraction_after": after_metrics["fit_fraction"],
                 "policy_l1_vs_p1": after_metrics["policy_l1_vs_p1"],
-                "adapter_norm": after_metrics["adapter_norm"],
+                "trainable_parameter_delta_norm": after_metrics[
+                    "trainable_parameter_delta_norm"
+                ],
                 "secondary_trial_diagnostics": {
                     str(key): value for key, value in trial_secondary.items()
                 },
             }
         )
-        if step in STEPS:
+        if step in checkpoints:
             captures[step] = after_state
     constrained_metrics = {
         str(step): _metrics(state, parent_state, rows, pure)
@@ -762,7 +899,7 @@ def main() -> None:
                 torch.equal(state[key], parent_state[key])
                 for state in captures.values()
                 for key in state
-                if key not in ADAPTER_KEYS
+                if key not in trainable_keys
             ),
         },
     }
@@ -799,7 +936,7 @@ def main() -> None:
                 }
     final_arena = arena.get("16", {})
     classification, follow_up = _classification(
-        constrained, final_arena, frozen, constraint_key
+        constrained, final_arena, frozen, constraint_key, args.policy_head
     )
     summary = {
         "schema": "azlite_root_q_trust_region_v1",
@@ -820,7 +957,7 @@ def main() -> None:
             "self_play_generated": False,
             "beta": BETA,
             "learning_rate": 1e-5,
-            "trainable": list(ADAPTER_KEYS),
+            "trainable": list(trainable_keys),
             "search": {
                 "simulations": SIMULATIONS,
                 "c_puct": 1.25,
@@ -845,7 +982,9 @@ def main() -> None:
     }
     _write_json(args.workdir / "summary.json", summary)
     stem = (
-        "parent-q-regret-fixed-budget-trust-region"
+        "policy-head-parent-q-regret-trust-region"
+        if args.policy_head
+        else "parent-q-regret-fixed-budget-trust-region"
         if args.statistic == "parent_q_regret"
         else "root-q-rank-trust-region"
         if args.statistic == "per_action_q_rank"
