@@ -30,6 +30,7 @@ from ml.alphazero_lite.root_q_trust_region import (
     adam_proposal_and_restore,
     apply_delta,
     choose_lambda,
+    parent_q_counterfactual,
     root_q_diagnostics,
     select_guard_indexes,
 )
@@ -105,6 +106,70 @@ def _root_record(
     }
 
 
+def _root_trace(
+    item: dict[str, Any], evaluator: ArtifactEvaluator, simulations: int
+) -> tuple[list[dict], list[dict]]:
+    """Return ordinary root-only trace and pre-simulation root-Q snapshots."""
+    trace: list[dict] = []
+    snapshots: list[dict] = []
+
+    def capture(simulation: int, root) -> None:
+        snapshots.append(
+            {
+                "simulation": simulation,
+                "children": {
+                    int(move): {
+                        "visits": int(child.visit_count),
+                        "q_value": float(child.q_value),
+                    }
+                    for move, child in root.children.items()
+                },
+            }
+        )
+
+    search = PUCT(
+        evaluator,
+        simulations,
+        1.25,
+        random.Random(_seed(item["state_hash"])),
+        fpu_mode="zero",
+        reuse_subtree=False,
+        normalize_values=False,
+        root_policy_mode="deterministic",
+        tactical_root_bias=0.0,
+        root_temperature=0.0,
+        pre_simulation_hook=capture,
+        selection_trace=trace,
+    )
+    search.run(
+        KalahGame.from_state(item["state"]), dirichlet_alpha=None, dirichlet_epsilon=0.0
+    )
+    return trace, snapshots
+
+
+def _parent_q_regret(
+    item: dict[str, Any],
+    evaluator: ArtifactEvaluator,
+    reference: list[dict],
+    simulations: int,
+) -> float:
+    """Mean root regret under the frozen pre-simulation P1 Q intervention."""
+    trace, _snapshots = _root_trace(item, evaluator, simulations)
+    if len(trace) != simulations or len(reference) < simulations:
+        raise RuntimeError("parent-Q trace/reference simulation count mismatch")
+    regrets = []
+    for row, parent in zip(trace, reference[:simulations], strict=True):
+        root = row["selection_path"][0]
+        if int(row["simulation_index"]) != int(parent["simulation"]):
+            raise RuntimeError("parent-Q reference uses future simulation evidence")
+        regrets.append(
+            parent_q_counterfactual(
+                root["children"], parent["children"], root["chosen_move"]
+            )["selection_regret"]
+        )
+    return float(np.mean(regrets))
+
+
 def _write_json(path: Path, payload: dict) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
@@ -125,8 +190,23 @@ def _guard_searches(
     workdir: Path,
     label: str,
     constraint_key: str,
+    parent_q_reference: list[list[dict]] | None = None,
 ) -> tuple[float, dict[str, float]]:
     evaluator = _candidate_evaluator(state, workdir, label)
+    if constraint_key == "parent_q_regret_auc":
+        if parent_q_reference is None:
+            raise RuntimeError(
+                "parent-Q statistic requires pre-simulation P1 reference"
+            )
+        regret = float(
+            np.mean(
+                [
+                    _parent_q_regret(item, evaluator, reference, SIMULATIONS)
+                    for item, reference in zip(items, parent_q_reference, strict=True)
+                ]
+            )
+        )
+        return regret, {"parent_q_regret_auc": regret}
     diagnostics = [
         root_q_diagnostics(
             _root_record(item, evaluator, SIMULATIONS)["summary"], record["summary"]
@@ -281,9 +361,11 @@ def _classification(
     activity = constrained["constraint_activity"]
     metric = constrained["metrics"]["16"]
     safe = bool(arena) and all(value["safe"] for value in arena.values())
-    if (
-        not constrained["invariants"]["adam_lambda_one_parity"]
-        or not constrained["invariants"]["constrained_matches_baseline_when_lambda_one"]
+    if not constrained["invariants"]["adam_lambda_one_parity"] or (
+        activity["fraction_lambda_1"] == 1.0
+        and not constrained["invariants"][
+            "constrained_matches_baseline_when_lambda_one"
+        ]
     ):
         return (
             "optimizer_line_search_invariant_failure",
@@ -331,13 +413,24 @@ def main() -> None:
     parser.add_argument("--skip-arenas", action="store_true")
     parser.add_argument(
         "--statistic",
-        choices=("q_direction", "per_action_q_rank"),
+        choices=("q_direction", "per_action_q_rank", "parent_q_regret"),
         default="q_direction",
     )
+    parser.add_argument(
+        "--parent-q-regret-budget",
+        type=float,
+        default=None,
+        help="Fixed preregistered parent-Q regret budget; required for that statistic.",
+    )
     args = parser.parse_args()
+    if args.statistic == "parent_q_regret" and (
+        args.parent_q_regret_budget is None or args.parent_q_regret_budget < 0
+    ):
+        raise ValueError("parent_q_regret requires a non-negative fixed budget")
     constraint_key = {
         "q_direction": "q_direction_error",
         "per_action_q_rank": "per_action_q_rank_disagreement",
+        "parent_q_regret": "parent_q_regret_auc",
     }[args.statistic]
     args.workdir.mkdir(parents=True, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -383,16 +476,39 @@ def main() -> None:
     reference_cache_sha = _write_json(
         args.workdir / "p1_root_q_reference_cache.json", reference_cache
     )
-    self_errors = [
-        root_q_diagnostics(low["summary"], high["summary"])[constraint_key]
-        for low, high in zip(
-            references["primary"]["384"], references["primary"]["1200"], strict=True
-        )
+    parent_q_references = [_root_trace(item, p1, SIMULATIONS)[1] for item in primary]
+    secondary_parent_q_references = [
+        _root_trace(item, p1, SIMULATIONS)[1] for item in secondary
     ]
-    epsilon_q = float(np.mean(self_errors))
+    if args.statistic == "parent_q_regret":
+        # The fixed P1 384 trace is an exact prefix of P1 1200, so this
+        # calibration is intentionally the no-regret ordinary-P1 baseline.
+        self_errors = [
+            _parent_q_regret(item, p1, reference, 384)
+            for item, reference in zip(primary, parent_q_references, strict=True)
+        ]
+    else:
+        self_errors = [
+            root_q_diagnostics(low["summary"], high["summary"])[constraint_key]
+            for low, high in zip(
+                references["primary"]["384"], references["primary"]["1200"], strict=True
+            )
+        ]
+    empirical_calibration = float(np.mean(self_errors))
+    epsilon_q = (
+        float(args.parent_q_regret_budget)
+        if args.statistic == "parent_q_regret"
+        else empirical_calibration
+    )
     calibration = {
         "constraint_key": constraint_key,
         "epsilon_constraint": epsilon_q,
+        "empirical_p1_384_vs_1200_regret": empirical_calibration
+        if args.statistic == "parent_q_regret"
+        else None,
+        "budget_protocol": "fixed_preregistered_absolute"
+        if args.statistic == "parent_q_regret"
+        else "mean_p1_384_vs_1200",
         "median": float(np.median(self_errors)),
         "p90": float(np.percentile(self_errors, 90)),
         "max": float(np.max(self_errors)),
@@ -459,6 +575,7 @@ def main() -> None:
                 args.workdir,
                 f"{args.statistic}_step_{step:02d}_lambda_{scale}",
                 constraint_key,
+                parent_q_references if args.statistic == "parent_q_regret" else None,
             )
             _, secondary_diagnostics = _guard_searches(
                 trial_state,
@@ -467,6 +584,9 @@ def main() -> None:
                 args.workdir,
                 f"{args.statistic}_step_{step:02d}_secondary_{scale}",
                 constraint_key,
+                secondary_parent_q_references
+                if args.statistic == "parent_q_regret"
+                else None,
             )
             trial_errors[scale], trial_secondary[scale] = error, secondary_diagnostics
             model.load_state_dict(current)
@@ -588,6 +708,7 @@ def main() -> None:
             args.workdir,
             f"{args.statistic}_generalization_primary",
             constraint_key,
+            parent_q_references if args.statistic == "parent_q_regret" else None,
         )[1],
         "secondary": _guard_searches(
             captures[16],
@@ -596,6 +717,9 @@ def main() -> None:
             args.workdir,
             f"{args.statistic}_generalization_secondary",
             constraint_key,
+            secondary_parent_q_references
+            if args.statistic == "parent_q_regret"
+            else None,
         )[1],
         "amplified": frozen["amplified"]["q_diagnostics"],
         "washed": frozen["washed"]["q_diagnostics"],
@@ -721,7 +845,9 @@ def main() -> None:
     }
     _write_json(args.workdir / "summary.json", summary)
     stem = (
-        "root-q-rank-trust-region"
+        "parent-q-regret-fixed-budget-trust-region"
+        if args.statistic == "parent_q_regret"
+        else "root-q-rank-trust-region"
         if args.statistic == "per_action_q_rank"
         else "root-q-trust-region"
     )
@@ -729,7 +855,9 @@ def main() -> None:
         REPO_ROOT / f"docs/data/alphazero-lite-fresh-p1-{stem}-summary.json", summary
     )
     title = (
-        "Per-Action Q-Rank Trust Region"
+        "Parent-Q Selection-Regret Trust Region"
+        if args.statistic == "parent_q_regret"
+        else "Per-Action Q-Rank Trust Region"
         if args.statistic == "per_action_q_rank"
         else "Root-Q Direction Trust Region"
     )

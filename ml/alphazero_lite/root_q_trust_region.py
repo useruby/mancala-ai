@@ -13,6 +13,58 @@ import torch
 LAMBDAS = (1.0, 0.5, 0.25, 0.125, 0.0)
 
 
+def parent_q_counterfactual(
+    children: list[dict], reference: dict[int, dict[str, float | int]], actual_move: int
+) -> dict:
+    """Score a root decision with eligible pre-simulation parent Q values.
+
+    ``children`` is a PUCT selection trace row.  The tie rule deliberately
+    matches PUCT's ascending legal-action insertion order.
+    """
+    rows = []
+    for child in sorted(children, key=lambda entry: int(entry["move"])):
+        move = int(child["move"])
+        candidate_visits = int(child["visit_count"])
+        parent = reference.get(move)
+        synchronized = (
+            candidate_visits > 0 and parent is not None and int(parent["visits"]) > 0
+        )
+        counterfactual_q = float(child["q_value"])
+        if synchronized:
+            assert parent is not None
+            counterfactual_q = float(parent["q_value"])
+        score = counterfactual_q + float(child["u_component"])
+        rows.append(
+            {
+                "move": move,
+                "counterfactual_q": counterfactual_q,
+                "counterfactual_score": score,
+                "synchronized": synchronized,
+            }
+        )
+    if not rows:
+        raise ValueError("counterfactual selection requires children")
+    winner = max(
+        rows, key=lambda row: (float(row["counterfactual_score"]), -int(row["move"]))
+    )
+    actual = next(row for row in rows if int(row["move"]) == int(actual_move))
+    regret = max(
+        0.0,
+        float(winner["counterfactual_score"]) - float(actual["counterfactual_score"]),
+    )
+    return {
+        "cf_move": int(winner["move"]),
+        "selection_flip": int(int(actual_move) != int(winner["move"])),
+        "selection_regret": regret,
+        "actual_vs_cf_score_margin": float(actual["counterfactual_score"])
+        - float(winner["counterfactual_score"]),
+        "synchronized_actions": sum(bool(row["synchronized"]) for row in rows),
+        "actual_has_p1_q": bool(actual["synchronized"]),
+        "cf_winner_has_p1_q": bool(winner["synchronized"]),
+        "rows": rows,
+    }
+
+
 def q_direction_error(left: np.ndarray, right: np.ndarray) -> float:
     """Centered Q-direction error with deterministic degenerate behavior."""
     left_centered = np.asarray(left, dtype=np.float64) - np.mean(left)
