@@ -62,6 +62,7 @@ def _search(
     snapshots: bool = False,
     override: Any = None,
     hook: Any = None,
+    root_backup_history: list[dict[str, int | float]] | None = None,
 ) -> tuple[dict, list[dict], list[dict]]:
     trace_rows: list[dict] = []
     reference_rows: list[dict] = []
@@ -96,6 +97,7 @@ def _search(
         selection_trace=trace_rows if trace else None,
         pre_simulation_hook=capture if snapshots or hook is not None else None,
         selection_q_override=override,
+        root_backup_history=root_backup_history,
     )
     search.run(
         KalahGame.from_state(item["state"]), dirichlet_alpha=None, dirichlet_epsilon=0.0
