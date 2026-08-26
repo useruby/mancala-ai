@@ -1,0 +1,226 @@
+{
+  "classification": "static_action_q_not_learnable",
+  "exclusions": {
+    "canonical_opening": 1,
+    "canonical_suite_sha256": "ff21c42946ed32f525c5ab95b71c4d90a4cfe2ccc351406dd29cae52da4b1837",
+    "duplicate": 0,
+    "eligible_roots": 4015,
+    "frozen_amplified": 40,
+    "held_out": 0,
+    "manifest_roots": 4096,
+    "not_fresh_replay": 0,
+    "washed_controls": 40
+  },
+  "features": {
+    "a16_empirical_q": true,
+    "a16_parent_visit_count": "normalized",
+    "a16_prior": true,
+    "a16_u_component": true,
+    "a16_visit_count": "log1p_normalized",
+    "action_one_hot": true
+  },
+  "guardrails": {
+    "arena_run": false,
+    "c_puct": 1.25,
+    "fpu_mode": "zero",
+    "live_search_skipped": true,
+    "p1_runtime": false,
+    "policy_value_trunk_frozen": true,
+    "root_noise": false,
+    "simulations": 1200
+  },
+  "hashes": {
+    "a16_weights": "74e160734554dba9ecf4ecf3ac13b3e44526c4f6e7e5e52d9fe8bde0054eb789",
+    "aligned_root_context_cache": "8cfa271f6aabcd0f812312e5243c8889c6e0c697b6aa4c1e52a53932e8377aa9",
+    "p1_weights": "77969733ece5ced92d3a143a0fe9d82863ca3ec4faa477470ff5826ac22e4e12",
+    "probe_checkpoint": "ad742fe3a58873d374691dec3b5c752e04d7fedf090f624092969a77c04aba36",
+    "replay": "892827d8ee67a66e6324a2aaec7011df1a21625fc3f6bcd87cab39ce655d2a88",
+    "split_manifest": "e6e9dfd9ccefea4d3ce792dbbdb583525e84c5a6bbf0f922c4328408c52ad0f3"
+  },
+  "optimization": {
+    "batch_size": 256,
+    "best_validation_delta_q_mse": 6.315349310170859e-05,
+    "lr": 0.001,
+    "seed": 238,
+    "steps": 2000,
+    "train_edge_rows": 13974092,
+    "validation_edge_rows": 3491394,
+    "validation_history": [
+      {
+        "step": 50,
+        "validation_delta_q_mse": 0.000250055716605857
+      },
+      {
+        "step": 100,
+        "validation_delta_q_mse": 0.00015880326100159436
+      },
+      {
+        "step": 150,
+        "validation_delta_q_mse": 0.00013179356756154448
+      },
+      {
+        "step": 200,
+        "validation_delta_q_mse": 0.00011444962729001418
+      },
+      {
+        "step": 250,
+        "validation_delta_q_mse": 0.00011336030001984909
+      },
+      {
+        "step": 300,
+        "validation_delta_q_mse": 9.78045936790295e-05
+      },
+      {
+        "step": 350,
+        "validation_delta_q_mse": 9.655804751673713e-05
+      },
+      {
+        "step": 400,
+        "validation_delta_q_mse": 8.777995390119031e-05
+      },
+      {
+        "step": 450,
+        "validation_delta_q_mse": 8.394219184992835e-05
+      },
+      {
+        "step": 500,
+        "validation_delta_q_mse": 8.1570353358984e-05
+      },
+      {
+        "step": 550,
+        "validation_delta_q_mse": 8.004173287190497e-05
+      },
+      {
+        "step": 600,
+        "validation_delta_q_mse": 7.663096766918898e-05
+      },
+      {
+        "step": 650,
+        "validation_delta_q_mse": 7.527571870014071e-05
+      },
+      {
+        "step": 700,
+        "validation_delta_q_mse": 8.027245348785073e-05
+      },
+      {
+        "step": 750,
+        "validation_delta_q_mse": 7.619649113621563e-05
+      },
+      {
+        "step": 800,
+        "validation_delta_q_mse": 7.484645902877674e-05
+      },
+      {
+        "step": 850,
+        "validation_delta_q_mse": 7.26458165445365e-05
+      },
+      {
+        "step": 900,
+        "validation_delta_q_mse": 6.939687591511756e-05
+      },
+      {
+        "step": 950,
+        "validation_delta_q_mse": 7.036202441668138e-05
+      },
+      {
+        "step": 1000,
+        "validation_delta_q_mse": 6.806958845118061e-05
+      },
+      {
+        "step": 1050,
+        "validation_delta_q_mse": 7.019026816124097e-05
+      },
+      {
+        "step": 1100,
+        "validation_delta_q_mse": 7.412028935505077e-05
+      },
+      {
+        "step": 1150,
+        "validation_delta_q_mse": 7.010307308519259e-05
+      },
+      {
+        "step": 1200,
+        "validation_delta_q_mse": 6.763685814803466e-05
+      },
+      {
+        "step": 1250,
+        "validation_delta_q_mse": 7.201803236966953e-05
+      },
+      {
+        "step": 1300,
+        "validation_delta_q_mse": 7.047387771308422e-05
+      },
+      {
+        "step": 1350,
+        "validation_delta_q_mse": 6.671308074146509e-05
+      },
+      {
+        "step": 1400,
+        "validation_delta_q_mse": 6.499952723970637e-05
+      },
+      {
+        "step": 1450,
+        "validation_delta_q_mse": 6.493581895483658e-05
+      },
+      {
+        "step": 1500,
+        "validation_delta_q_mse": 7.413967250613496e-05
+      },
+      {
+        "step": 1550,
+        "validation_delta_q_mse": 6.471227970905602e-05
+      },
+      {
+        "step": 1600,
+        "validation_delta_q_mse": 7.594871567562222e-05
+      },
+      {
+        "step": 1650,
+        "validation_delta_q_mse": 7.087565609253943e-05
+      },
+      {
+        "step": 1700,
+        "validation_delta_q_mse": 6.551318801939487e-05
+      },
+      {
+        "step": 1750,
+        "validation_delta_q_mse": 6.650843715760857e-05
+      },
+      {
+        "step": 1800,
+        "validation_delta_q_mse": 6.315349310170859e-05
+      },
+      {
+        "step": 1850,
+        "validation_delta_q_mse": 6.824603769928217e-05
+      },
+      {
+        "step": 1900,
+        "validation_delta_q_mse": 6.458204734371975e-05
+      },
+      {
+        "step": 1950,
+        "validation_delta_q_mse": 6.396434037014842e-05
+      },
+      {
+        "step": 2000,
+        "validation_delta_q_mse": 6.36581753497012e-05
+      }
+    ],
+    "weight_decay": 0
+  },
+  "recommended_follow_up": "test a search-conditioned Q correction model with a richer root trajectory representation.",
+  "schema": "azlite_context_action_q_probe_v1",
+  "validation_selection_consequence": {
+    "gate_passed": false,
+    "learned_context_probe": {
+      "exact_flip_action_recall": 0.17837827639985912,
+      "exact_flip_detection_rate": 0.31264778387080544,
+      "exact_parent_flip_count": 159016,
+      "exact_parent_score_regret_captured": 0.10154943234635898,
+      "false_flip_rate": 0.12675245841329183,
+      "nonflip_preservation_rate": 0.8732475415867081,
+      "overall_exact_parent_action_agreement": 0.7585782482357825
+    }
+  }
+}
