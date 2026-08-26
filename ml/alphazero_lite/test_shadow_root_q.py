@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import random
+from pathlib import Path
 
 import numpy as np
 
 from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.self_play import Evaluator, PUCT
+from ml.alphazero_lite.self_play import Evaluator, PUCT, run_self_play_worker
 from ml.alphazero_lite.shadow_root_q import run_shadow_root_q_search
 
 
@@ -160,3 +161,33 @@ def test_shadow_q_override_is_root_only_and_leaves_fpu_unchanged() -> None:
             for child in node["children"]:
                 if child["used_fpu"]:
                     assert not child["selection_q_overridden"]
+
+
+def test_zero_weight_self_play_is_byte_identical_to_ordinary(tmp_path: Path) -> None:
+    common = {
+        "worker_id": 0,
+        "start_index": 0,
+        "games": 2,
+        "seed": 44,
+        "seed_pool": [44],
+        "checkpoint": None,
+        "input_encoding": "kalah_v3",
+        "simulations": 12,
+        "c_puct": 1.25,
+        "temperature_threshold": 10,
+        "temperature": 1.0,
+        "temperature_late": 0.1,
+        "dirichlet_alpha": 0.3,
+        "dirichlet_epsilon": 0.3,
+        "max_moves": 200,
+    }
+    ordinary = tmp_path / "ordinary.jsonl"
+    zero_weight = tmp_path / "zero_weight.jsonl"
+    run_self_play_worker(**common, shard_path=str(ordinary))
+    run_self_play_worker(
+        **common,
+        shard_path=str(zero_weight),
+        shadow_checkpoint="unused-at-zero-weight.npz",
+        shadow_q_weight=0.0,
+    )
+    assert zero_weight.read_bytes() == ordinary.read_bytes()

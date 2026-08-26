@@ -2302,6 +2302,17 @@ def parse_args() -> argparse.Namespace:
         "--checkpoint", default=None, help="Optional model checkpoint .npz"
     )
     parser.add_argument(
+        "--shadow-checkpoint",
+        default=None,
+        help="Optional fixed parent checkpoint for root-only shadow-Q self-play",
+    )
+    parser.add_argument(
+        "--shadow-q-weight",
+        type=float,
+        default=0.0,
+        help="Root selection blend weight for --shadow-checkpoint",
+    )
+    parser.add_argument(
         "--opponent-pool-config",
         default=None,
         help="Optional JSON config for opponent checkpoint pool",
@@ -2484,6 +2495,8 @@ def run_self_play_worker(
     opening_cache_path: str | None = None,
     start_state_mode: str = STANDARD_START_STATE_MODE,
     start_state_pool_path: str | None = None,
+    shadow_checkpoint: str | None = None,
+    shadow_q_weight: float = 0.0,
 ) -> dict:
     shard = Path(shard_path)
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
@@ -2504,8 +2517,11 @@ def run_self_play_worker(
         )
     if start_state_mode == PRESET_POOL_START_STATE_MODE and not start_state_pool_path:
         raise ValueError("preset_pool start_state_mode requires start_state_pool_path")
+    if not 0.0 <= shadow_q_weight <= 1.0:
+        raise ValueError("shadow_q_weight must be in [0, 1]")
 
     evaluator: Evaluator | None = None
+    shadow_evaluator: Evaluator | None = None
     opponent_evaluator_cache: dict[str, Evaluator] = {}
     opponent_checkpoints: list[str] = []
     loaded_start_state_pool: list[dict[str, Any]] | None = None
@@ -2519,6 +2535,12 @@ def run_self_play_worker(
             )
         else:
             evaluator = HeuristicEvaluator()
+        if shadow_checkpoint is not None and shadow_q_weight > 0.0:
+            shadow_evaluator = build_checkpoint_evaluator(
+                Path(shadow_checkpoint),
+                input_encoding=input_encoding,
+                cache_size=evaluator_cache_size,
+            )
 
     effective_reuse_subtree = bool(reuse_subtree or tree_reuse_enabled)
     normalized_search_options = build_search_options(
@@ -2769,13 +2791,54 @@ def run_self_play_worker(
                     sampling_dirichlet_epsilon = (
                         float(dirichlet_epsilon) if sampling_noise_enabled else 0.0
                     )
-                    visits, puct_root = search.run(
-                        game,
-                        dirichlet_alpha=dirichlet_alpha
-                        if sampling_noise_enabled
-                        else None,
-                        dirichlet_epsilon=sampling_dirichlet_epsilon,
+                    main_dirichlet_alpha = (
+                        dirichlet_alpha if sampling_noise_enabled else None
                     )
+                    # The shadow tree must not consume the gameplay RNG: doing so
+                    # would alter candidate Dirichlet noise and action sampling.
+                    shadow_seed = search_seed_for_classic_mcts(
+                        game_seed, global_index, ply
+                    )
+                    shadow_main_summary: dict | None = None
+                    if shadow_evaluator is None:
+                        visits, puct_root = search.run(
+                            game,
+                            dirichlet_alpha=main_dirichlet_alpha,
+                            dirichlet_epsilon=sampling_dirichlet_epsilon,
+                        )
+                    else:
+                        # Import here to avoid a module cycle: shadow_root_q imports PUCT.
+                        from ml.alphazero_lite.shadow_root_q import (
+                            run_shadow_root_q_search,
+                        )
+
+                        visits, puct_root, _shadow_telemetry = run_shadow_root_q_search(
+                            game,
+                            main_evaluator=selected_evaluator,
+                            shadow_evaluator=shadow_evaluator,
+                            simulations=effective_simulations,
+                            c_puct=c_puct,
+                            seed=shadow_seed,
+                            fpu_mode=str(normalized_search_options["fpu_mode"]),
+                            reuse_subtree=bool(
+                                normalized_search_options["reuse_subtree"]
+                            ),
+                            normalize_values=bool(
+                                normalized_search_options["normalize_values"]
+                            ),
+                            root_policy_mode=str(
+                                normalized_search_options["root_policy_mode"]
+                            ),
+                            tactical_root_bias=float(
+                                normalized_search_options["tactical_root_bias"]
+                            ),
+                            shadow_q_weight=shadow_q_weight,
+                            main_rng=rng,
+                            main_root=reusable_root,
+                            main_dirichlet_alpha=main_dirichlet_alpha,
+                            main_dirichlet_epsilon=sampling_dirichlet_epsilon,
+                        )
+                        shadow_main_summary = _shadow_telemetry["main_summary"]
                     gameplay_policy = policy_from_visits(
                         visits, legal_moves=legal_moves, temperature=temp
                     )
@@ -2784,7 +2847,11 @@ def run_self_play_worker(
                         write_root_target_telemetry
                         or "value_trust_schedule" in normalized_search_options
                     ):
-                        root_summary = search.root_summary()
+                        root_summary = (
+                            shadow_main_summary
+                            if shadow_main_summary is not None
+                            else search.root_summary()
+                        )
                     target_visits = visits
                     target_root_summary = root_summary
                     target_dirichlet_epsilon = sampling_dirichlet_epsilon
@@ -2807,17 +2874,53 @@ def run_self_play_worker(
                             ),
                             **puct_kwargs,
                         )
-                        target_visits, _ = target_search.run(
-                            game,
-                            dirichlet_alpha=None,
-                            dirichlet_epsilon=0.0,
-                        )
+                        shadow_target_summary: dict | None = None
+                        if shadow_evaluator is None:
+                            target_visits, _ = target_search.run(
+                                game,
+                                dirichlet_alpha=None,
+                                dirichlet_epsilon=0.0,
+                            )
+                        else:
+                            from ml.alphazero_lite.shadow_root_q import (
+                                run_shadow_root_q_search,
+                            )
+
+                            target_visits, _target_root, _target_shadow_telemetry = (
+                                run_shadow_root_q_search(
+                                    game,
+                                    main_evaluator=selected_evaluator,
+                                    shadow_evaluator=shadow_evaluator,
+                                    simulations=effective_simulations,
+                                    c_puct=c_puct,
+                                    seed=shadow_seed,
+                                    fpu_mode=str(normalized_search_options["fpu_mode"]),
+                                    reuse_subtree=False,
+                                    normalize_values=bool(
+                                        normalized_search_options["normalize_values"]
+                                    ),
+                                    root_policy_mode=str(
+                                        normalized_search_options["root_policy_mode"]
+                                    ),
+                                    tactical_root_bias=float(
+                                        normalized_search_options["tactical_root_bias"]
+                                    ),
+                                    shadow_q_weight=shadow_q_weight,
+                                )
+                            )
+                            shadow_target_summary = _target_shadow_telemetry[
+                                "main_summary"
+                            ]
                         target_dirichlet_epsilon = 0.0
                         if hasattr(target_search, "root_summary") and (
                             write_root_target_telemetry
                             or "value_trust_schedule" in normalized_search_options
                         ):
-                            target_root_summary = target_search.root_summary()
+                            target_root_summary = (
+                                shadow_target_summary
+                                if shadow_target_summary is not None
+                                else target_search.root_summary()
+                            )
                     stored_policy_target = build_policy_target(
                         target_visits,
                         legal_moves=legal_moves,
@@ -2996,7 +3099,9 @@ def run_self_play_worker(
         "worker_id": worker_id,
         "rows_written": rows_written,
         "shard_path": str(shard),
-        **cache_metrics_for([evaluator, *opponent_evaluator_cache.values()]),
+        **cache_metrics_for(
+            [evaluator, shadow_evaluator, *opponent_evaluator_cache.values()]
+        ),
     }
 
 
@@ -3083,6 +3188,8 @@ def main() -> None:
                     "opening_cache_path": args.opening_cache,
                     "start_state_mode": args.start_state_mode,
                     "start_state_pool_path": args.start_state_pool,
+                    "shadow_checkpoint": args.shadow_checkpoint,
+                    "shadow_q_weight": args.shadow_q_weight,
                 }
                 if "value_trust_schedule" in search_options:
                     worker_kwargs["value_trust_schedule"] = search_options[
