@@ -43,6 +43,10 @@ def run_shadow_root_q_search(
     tactical_root_bias: float = 0.0,
     root_temperature: float = 0.0,
     shadow_q_weight: float = 1.0,
+    main_rng: random.Random | None = None,
+    main_root: Node | None = None,
+    main_dirichlet_alpha: float | None = None,
+    main_dirichlet_epsilon: float = 0.0,
     record_selection_q_direction: bool = False,
     record_selection_trace: bool = False,
 ) -> tuple[np.ndarray, Node, dict[str, Any]]:
@@ -109,12 +113,17 @@ def run_shadow_root_q_search(
     trace: list[dict[str, Any]] | None = [] if record_selection_trace else None
     main = PUCT(
         evaluator=main_evaluator,
-        rng=random.Random(seed),
+        rng=main_rng if main_rng is not None else random.Random(seed),
+        root=main_root,
         selection_q_override=override,
         selection_trace=trace,
         **common,
     )
-    visits, root = main.run(game, dirichlet_alpha=None, dirichlet_epsilon=0.0)
+    visits, root = main.run(
+        game,
+        dirichlet_alpha=main_dirichlet_alpha,
+        dirichlet_epsilon=main_dirichlet_epsilon,
+    )
     shadow_summary, main_summary = shadow.root_summary(), main.root_summary()
     shadow_q = {row["move"]: row["q_value"] for row in shadow_summary["child_stats"]}
     main_q = {row["move"]: row["q_value"] for row in main_summary["child_stats"]}
