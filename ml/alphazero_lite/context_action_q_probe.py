@@ -12,9 +12,9 @@ CONTEXT_SIZE = 11  # Action one-hot plus A16 root/action selection statistics.
 class ContextActionQProbe(nn.Module):
     """Predict a visited A16 root edge's P1-Q correction from pre-search evidence."""
 
-    def __init__(self, trunk_size: int):
+    def __init__(self, trunk_size: int, context_size: int = CONTEXT_SIZE):
         super().__init__()
-        self.hidden = nn.Linear(trunk_size + CONTEXT_SIZE, trunk_size)
+        self.hidden = nn.Linear(trunk_size + context_size, trunk_size)
         self.head = nn.Linear(trunk_size, 1)
 
     def forward(
