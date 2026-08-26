@@ -868,6 +868,22 @@ class PolicyValueNet(nn.Module):
             self.policy_head = nn.Linear(policy_head_input_size, POLICY_SIZE)
         self.value_head = nn.Linear(value_head_input_size, 1)
 
+    def trunk_features(self, x: torch.Tensor) -> torch.Tensor:
+        """Return the final shared trunk feature used by both output heads."""
+        if self.model_type in MLP_MODEL_TYPES:
+            h = x
+            for layer in self.hidden_layers:
+                h = torch.relu(layer(h))
+            return h
+
+        assert self.input_layer is not None
+        h = torch.relu(self.input_layer(x))
+        for first_layer, second_layer in self.residual_layers:
+            residual = h
+            h = torch.relu(first_layer(h))
+            h = torch.relu(second_layer(h) + residual)
+        return h
+
     def forward(
         self,
         x: torch.Tensor,
@@ -876,17 +892,7 @@ class PolicyValueNet(nn.Module):
         detach_value_trunk: bool = False,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Return policy logits and value, optionally isolating a head from the trunk."""
-        if self.model_type in MLP_MODEL_TYPES:
-            h = x
-            for layer in self.hidden_layers:
-                h = torch.relu(layer(h))
-        else:
-            assert self.input_layer is not None
-            h = torch.relu(self.input_layer(x))
-            for first_layer, second_layer in self.residual_layers:
-                residual = h
-                h = torch.relu(first_layer(h))
-                h = torch.relu(second_layer(h) + residual)
+        h = self.trunk_features(x)
         if self.model_type in {
             "residual_v3",
             "residual_v3_parent_additive_policy_adapter",
