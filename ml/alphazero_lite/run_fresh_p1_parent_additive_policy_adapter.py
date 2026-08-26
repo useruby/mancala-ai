@@ -202,7 +202,9 @@ def main() -> None:
     parser.add_argument(
         "--p1-workdir", type=Path, default=Path("/tmp/azlite_fresh_selfplay_anchor")
     )
+    parser.add_argument("--replay", type=Path)
     parser.add_argument("--workers", type=int, default=24)
+    parser.add_argument("--skip-arenas", action="store_true")
     parser.add_argument(
         "--out-summary",
         type=Path,
@@ -217,7 +219,7 @@ def main() -> None:
         args.p1_workdir / "beta_095/snapshot_artifacts/step_0046/checkpoint.npz"
     )
     p1_artifact = args.p1_workdir / "beta_095/snapshot_artifacts/step_0046/artifact"
-    replay = args.workdir / "fresh_p1_self_play.jsonl"
+    replay = args.replay or args.workdir / "fresh_p1_self_play.jsonl"
     if (
         sha256_file(p0 / "weights.json") != P0_EXPECTED_HASH
         or sha256_file(p1_checkpoint) != P1_EXPECTED_NPZ_HASH
@@ -321,7 +323,7 @@ def main() -> None:
         if metrics[str(step)]["fit_fraction"] >= FIT_THRESHOLD
     ]
     arena_matrix: dict[str, Any] = {}
-    for step in eligible:
+    for step in eligible if not args.skip_arenas else []:
         arena_matrix[str(step)] = {"candidate_vs_p1": {}}
         for context in CONTEXTS:
             arena_matrix[str(step)]["candidate_vs_p1"][context] = arena(

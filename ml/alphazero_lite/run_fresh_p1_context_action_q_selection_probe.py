@@ -36,13 +36,16 @@ from ml.alphazero_lite.train import (
 SEED = 238
 SIMULATIONS = 1200
 TEMPORAL_CONTEXT_SIZE = CONTEXT_SIZE + 4
+PARENT_POLICY_CONTEXT_SIZE = CONTEXT_SIZE + 12
 WORKDIR = Path("/tmp/azlite_context_action_q_selection_probe")
 SOURCE_WORKDIR = Path("/tmp/azlite_context_action_q_probe")
+REPLAY_WORKDIR = Path("/tmp/azlite_fresh_p1_checkpoint_selection")
 CACHE_SHA = "8cfa271f6aabcd0f812312e5243c8889c6e0c697b6aa4c1e52a53932e8377aa9"
 SPLIT_SHA = "e6e9dfd9ccefea4d3ce792dbbdb583525e84c5a6bbf0f922c4328408c52ad0f3"
 P1_SHA = "77969733ece5ced92d3a143a0fe9d82863ca3ec4faa477470ff5826ac22e4e12"
 A16_SHA = "74e160734554dba9ecf4ecf3ac13b3e44526c4f6e7e5e52d9fe8bde0054eb789"
 REPLAY_SHA = "892827d8ee67a66e6324a2aaec7011df1a21625fc3f6bcd87cab39ce655d2a88"
+CANONICAL_SUITE_SHA = "ff21c42946ed32f525c5ab95b71c4d90a4cfe2ccc351406dd29cae52da4b1837"
 
 
 def _rows(path: Path) -> Iterator[dict[str, Any]]:
@@ -53,6 +56,8 @@ def _rows(path: Path) -> Iterator[dict[str, Any]]:
 
 def _source_artifacts() -> tuple[Path, Path, Path, Path]:
     replay = pr233.A16_WORKDIR / "fresh_p1_self_play.jsonl"
+    if not replay.is_file():
+        replay = REPLAY_WORKDIR / "fresh_p1_self_play.jsonl"
     p1 = pr233.P1_WORKDIR / "beta_095/snapshot_artifacts/step_0046/artifact"
     a16 = pr233.A16_WORKDIR / "artifacts/step_0016/artifact"
     cache = SOURCE_WORKDIR / "aligned_root_context_cache.jsonl"
@@ -67,6 +72,20 @@ def _source_artifacts() -> tuple[Path, Path, Path, Path]:
         if not path.is_file() or sha256_file(path) != digest:
             raise RuntimeError(f"immutable PR #237 {name} mismatch")
     return replay, p1, a16, cache
+
+
+def _population(replay: Path) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Recover the frozen root population when its reporting-only suite is absent."""
+    try:
+        return pr233._population(pr233.read_jsonl(replay))
+    except FileNotFoundError:
+        # _suite only contributes its SHA to exclusions; roots come from MANIFEST.
+        original_suite = pr233._suite
+        pr233._suite = lambda: ([], CANONICAL_SUITE_SHA)
+        try:
+            return pr233._population(pr233.read_jsonl(replay))
+        finally:
+            pr233._suite = original_suite
 
 
 def _decision_arrays(cache: Path, workdir: Path) -> dict[str, np.ndarray]:
@@ -141,17 +160,66 @@ def _features(
         return model.trunk_features(torch.from_numpy(x).to(device)).cpu().numpy()
 
 
+def _policy_logits(
+    model: PolicyValueNet, population: list[dict[str, Any]], device: torch.device
+) -> tuple[np.ndarray, np.ndarray]:
+    """Get both A16 policy branches; no P1 evaluator is used for features."""
+    x = np.asarray(
+        [encode_state(row["state"], input_encoding="kalah_v3") for row in population],
+        np.float32,
+    )
+    base, adapter, combined = [], [], []
+    model.eval()
+    with torch.no_grad():
+        for start in range(0, len(x), 8192):
+            current = torch.from_numpy(x[start : start + 8192]).to(device)
+            current_base, _adapter, current_combined = model.policy_logits_components(
+                current
+            )
+            base.append(current_base.cpu().numpy())
+            adapter.append(_adapter.cpu().numpy())
+            combined.append(current_combined.cpu().numpy())
+    base_array, adapter_array, combined_array = map(
+        np.concatenate, (base, adapter, combined)
+    )
+    if not np.array_equal(combined_array, base_array + adapter_array):
+        raise RuntimeError("additive policy component invariant failed")
+    return base_array, combined_array
+
+
+def _legal_priors(logits: np.ndarray, legal: np.ndarray) -> np.ndarray:
+    """Match the artifact evaluator's legal-mask then softmax convention."""
+    masked = np.where(legal, logits, -1e9)
+    shifted = masked - masked.max(axis=1, keepdims=True)
+    weights = np.exp(shifted) * legal
+    priors = weights / weights.sum(axis=1, keepdims=True)
+    if not np.all(priors[~legal] == 0) or not np.allclose(priors.sum(axis=1), 1.0):
+        raise RuntimeError("legal prior normalization invariant failed")
+    return priors.astype(np.float32)
+
+
 def _model_inputs(
     arrays: dict[str, np.ndarray],
     indexes: np.ndarray,
     features: np.ndarray,
     *,
     temporal: bool = False,
+    policy_logits: tuple[np.ndarray, np.ndarray] | None = None,
+    policy_ablation: str = "full",
 ) -> tuple[np.ndarray, np.ndarray]:
     batch = len(indexes)
     actions = np.broadcast_to(np.arange(6), (batch, 6))
     context = np.zeros(
-        (batch, 6, TEMPORAL_CONTEXT_SIZE if temporal else CONTEXT_SIZE), np.float32
+        (
+            batch,
+            6,
+            PARENT_POLICY_CONTEXT_SIZE
+            if policy_logits is not None
+            else TEMPORAL_CONTEXT_SIZE
+            if temporal
+            else CONTEXT_SIZE,
+        ),
+        np.float32,
     )
     context[np.arange(batch)[:, None], actions, actions] = 1.0
     context[:, :, 6] = arrays["a16_q"][indexes]
@@ -168,6 +236,19 @@ def _model_inputs(
         context[:, :, 14] = (
             arrays["a16_visits"][indexes] - previous_visits
         ) / SIMULATIONS
+    if policy_logits is not None:
+        base_logits, candidate_logits = policy_logits
+        legal = arrays["legal"][indexes]
+        parent_prior = _legal_priors(base_logits[arrays["state_index"][indexes]], legal)
+        candidate_prior = _legal_priors(
+            candidate_logits[arrays["state_index"][indexes]], legal
+        )
+        if policy_ablation == "no_shift":
+            parent_prior = candidate_prior
+        elif policy_ablation == "no_candidate":
+            candidate_prior = parent_prior
+        context[:, :, 11:17] = candidate_prior[:, None, :]
+        context[:, :, 17:23] = parent_prior[:, None, :]
     return np.repeat(
         features[arrays["state_index"][indexes]], 6, axis=0
     ), context.reshape(-1, context.shape[-1])
@@ -181,13 +262,22 @@ def _scores(
     device: torch.device,
     *,
     temporal: bool = False,
+    policy_logits: tuple[np.ndarray, np.ndarray] | None = None,
+    policy_ablation: str = "full",
 ) -> tuple[np.ndarray, np.ndarray]:
     values, corrections = [], []
     probe.eval()
     with torch.no_grad():
         for start in range(0, len(indexes), 8192):
             current = indexes[start : start + 8192]
-            h, context = _model_inputs(arrays, current, features, temporal=temporal)
+            h, context = _model_inputs(
+                arrays,
+                current,
+                features,
+                temporal=temporal,
+                policy_logits=policy_logits,
+                policy_ablation=policy_ablation,
+            )
             delta = (
                 probe(
                     torch.from_numpy(h).to(device), torch.from_numpy(context).to(device)
@@ -211,12 +301,19 @@ def _selection_ce(
     device: torch.device,
     *,
     temporal: bool = False,
+    policy_logits: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> float:
     total = 0.0
     with torch.no_grad():
         for start in range(0, len(indexes), 8192):
             current = indexes[start : start + 8192]
-            h, context = _model_inputs(arrays, current, features, temporal=temporal)
+            h, context = _model_inputs(
+                arrays,
+                current,
+                features,
+                temporal=temporal,
+                policy_logits=policy_logits,
+            )
             delta = probe(
                 torch.from_numpy(h).to(device), torch.from_numpy(context).to(device)
             ).reshape(-1, 6)
@@ -320,6 +417,41 @@ def _strata(
                 regret[positions][chosen[positions] == exact[positions]].sum()
                 / regret[positions].sum()
             ),
+        }
+    return result
+
+
+def _policy_drift_strata(
+    arrays: dict[str, np.ndarray],
+    indexes: np.ndarray,
+    scores: np.ndarray,
+    policy_logits: tuple[np.ndarray, np.ndarray],
+) -> dict[str, Any]:
+    base_logits, candidate_logits = policy_logits
+    legal = arrays["legal"][indexes]
+    states = arrays["state_index"][indexes]
+    drift = np.abs(
+        _legal_priors(candidate_logits[states], legal)
+        - _legal_priors(base_logits[states], legal)
+    ).sum(axis=1)
+    order = np.argsort(drift, kind="stable")
+    result = {}
+    for number, positions in enumerate(np.array_split(order, 4), 1):
+        metrics = _metrics(arrays, indexes[positions], scores[positions])
+        result[f"q{number}"] = {
+            "policy_l1_range": [
+                float(drift[positions].min()),
+                float(drift[positions].max()),
+            ],
+            "exact_parent_flip_rate": float(
+                np.mean(
+                    arrays["exact_move"][indexes[positions]]
+                    != arrays["actual_move"][indexes[positions]]
+                )
+            ),
+            "flip_action_recall": metrics["exact_flip_action_recall"],
+            "regret_capture": metrics["exact_parent_score_regret_captured"],
+            "nonflip_preservation": metrics["nonflip_preservation_rate"],
         }
     return result
 
@@ -439,12 +571,14 @@ def _offline_frozen(
     groups: dict[str, list[dict[str, Any]]],
     probe: ContextActionQProbe,
     trunk: PolicyValueNet,
+    candidate: PolicyValueNet | None,
     p1_path: Path,
     a16_path: Path,
     workdir: Path,
     device: torch.device,
     *,
     temporal: bool = False,
+    embedded_parent_policy: bool = False,
 ) -> dict[str, Any]:
     """Score frozen roots only after validation checkpoint selection is complete."""
     results = {}
@@ -454,8 +588,19 @@ def _offline_frozen(
         mse._make_cache(items, a16, p1, cache)
         arrays = _decision_arrays(cache, workdir / f"frozen_{name}")
         features = _features(trunk, items, device)
+        policy_logits = (
+            _policy_logits(candidate, items, device) if embedded_parent_policy else None
+        )
         indexes = np.arange(len(arrays["state_index"]))
-        scores, _ = _scores(probe, arrays, indexes, features, device, temporal=temporal)
+        scores, _ = _scores(
+            probe,
+            arrays,
+            indexes,
+            features,
+            device,
+            temporal=temporal,
+            policy_logits=policy_logits,
+        )
         results[name] = _metrics(arrays, indexes, scores)
     return results
 
@@ -582,12 +727,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workdir", type=Path, default=WORKDIR)
     parser.add_argument("--temporal", action="store_true")
+    parser.add_argument("--embedded-parent-policy", action="store_true")
     args = parser.parse_args()
     args.workdir.mkdir(parents=True, exist_ok=True)
     replay, p1_path, a16_path, cache = _source_artifacts()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    configure_determinism(device, SEED)
-    population, exclusions = pr233._population(pr233.read_jsonl(replay))
+    if args.temporal and args.embedded_parent_policy:
+        raise RuntimeError("temporal features are excluded from this experiment")
+    seed = 239 if args.embedded_parent_policy else SEED
+    configure_determinism(device, seed)
+    population, exclusions = _population(replay)
     split = json.loads((SOURCE_WORKDIR / "split_manifest.json").read_text())
     index_by_hash = {row["state_hash"]: index for index, row in enumerate(population)}
     train = np.asarray([index_by_hash[key] for key in split["train_hashes"]], np.uint16)
@@ -611,15 +760,74 @@ def main() -> None:
     ).to(device)
     load_checkpoint_into_model(trunk, checkpoint)
     trunk.eval()
+    candidate = None
+    policy_logits = None
+    policy_invariants: dict[str, bool] = {}
+    if args.embedded_parent_policy:
+        candidate = PolicyValueNet(
+            (trunk_size, 3),
+            "residual_v3_parent_additive_policy_adapter",
+            input_size_for_encoding("kalah_v3"),
+        ).to(device)
+        load_checkpoint_into_model(candidate, a16_path.parent / "checkpoint.npz")
+        candidate.eval()
+        base_logits, combined_logits = _policy_logits(candidate, population, device)
+        encoded = torch.from_numpy(
+            np.asarray(
+                [
+                    encode_state(row["state"], input_encoding="kalah_v3")
+                    for row in population
+                ],
+                np.float32,
+            )
+        ).to(device)
+        with torch.no_grad():
+            p1_logits, p1_value = trunk(encoded)
+            a16_logits, a16_value = candidate(encoded)
+        policy_invariants = {
+            "combined_logits_equal_a16_forward": bool(
+                np.array_equal(combined_logits, a16_logits.cpu().numpy())
+            ),
+            "base_logits_equal_p1_forward": bool(
+                np.allclose(base_logits, p1_logits.cpu().numpy(), rtol=0, atol=1e-6)
+            ),
+            "adapter_logits_equal_combined_minus_base": bool(
+                np.array_equal(
+                    combined_logits - base_logits,
+                    (a16_logits - p1_logits).cpu().numpy(),
+                )
+            ),
+            "value_output_unchanged": bool(
+                np.array_equal(
+                    a16_value.cpu().numpy(),
+                    candidate(encoded)[1].detach().cpu().numpy(),
+                )
+            ),
+        }
+        if not all(policy_invariants.values()):
+            raise RuntimeError("embedded parent policy invariant failed")
+        policy_logits = base_logits, combined_logits
     features = _features(trunk, population, device)
-    context_size = TEMPORAL_CONTEXT_SIZE if args.temporal else CONTEXT_SIZE
+    context_size = (
+        PARENT_POLICY_CONTEXT_SIZE
+        if args.embedded_parent_policy
+        else TEMPORAL_CONTEXT_SIZE
+        if args.temporal
+        else CONTEXT_SIZE
+    )
     probe = ContextActionQProbe(trunk_size, context_size).to(device)
     optimizer = torch.optim.Adam(probe.parameters(), lr=1e-3, weight_decay=0.0)
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed)
     best, best_state, history = float("inf"), None, []
     for step in range(1, 2001):
         sampled = train_indexes[rng.integers(0, len(train_indexes), 256)]
-        h, context = _model_inputs(arrays, sampled, features, temporal=args.temporal)
+        h, context = _model_inputs(
+            arrays,
+            sampled,
+            features,
+            temporal=args.temporal,
+            policy_logits=policy_logits,
+        )
         delta = probe(
             torch.from_numpy(h).to(device), torch.from_numpy(context).to(device)
         ).reshape(-1, 6)
@@ -643,6 +851,7 @@ def main() -> None:
                 features,
                 device,
                 temporal=args.temporal,
+                policy_logits=policy_logits,
             )
             history.append({"step": step, "validation_selection_ce": validation_ce})
             if validation_ce < best:
@@ -663,21 +872,55 @@ def main() -> None:
         checkpoint_path,
     )
     scores, corrections = _scores(
-        probe, arrays, validation_indexes, features, device, temporal=args.temporal
+        probe,
+        arrays,
+        validation_indexes,
+        features,
+        device,
+        temporal=args.temporal,
+        policy_logits=policy_logits,
     )
     ce_metrics = _metrics(arrays, validation_indexes, scores)
-    mse_probe = ContextActionQProbe(trunk_size).to(device)
-    mse_probe.load_state_dict(
-        torch.load(
-            SOURCE_WORKDIR / "context_action_q_probe.pt",
-            map_location=device,
-            weights_only=True,
-        )["state_dict"]
-    )
-    mse_scores, _unused = _scores(
-        mse_probe, arrays, validation_indexes, features, device
-    )
-    mse_metrics = _metrics(arrays, validation_indexes, mse_scores)
+    policy_ablations = {}
+    drift_strata = {}
+    if policy_logits is not None:
+        for name in ("full", "no_shift", "no_candidate"):
+            ablated_scores, _unused = _scores(
+                probe,
+                arrays,
+                validation_indexes,
+                features,
+                device,
+                policy_logits=policy_logits,
+                policy_ablation=name,
+            )
+            policy_ablations[name] = _metrics(
+                arrays, validation_indexes, ablated_scores
+            )
+        drift_strata = _policy_drift_strata(
+            arrays, validation_indexes, scores, policy_logits
+        )
+    mse_checkpoint = SOURCE_WORKDIR / "context_action_q_probe.pt"
+    if mse_checkpoint.is_file():
+        mse_probe = ContextActionQProbe(trunk_size).to(device)
+        mse_probe.load_state_dict(
+            torch.load(mse_checkpoint, map_location=device, weights_only=True)[
+                "state_dict"
+            ]
+        )
+        mse_scores, _unused = _scores(
+            mse_probe, arrays, validation_indexes, features, device
+        )
+        mse_metrics = _metrics(arrays, validation_indexes, mse_scores)
+    else:
+        # Historical PR #237 metrics are immutable; never retrain its baseline
+        # solely because its diagnostic checkpoint was cleaned from /tmp.
+        mse_metrics = json.loads(
+            (
+                REPO_ROOT
+                / "docs/data/alphazero-lite-fresh-p1-context-action-q-selection-probe-summary.json"
+            ).read_text()
+        )["historical_mse_context_probe"]
     gate = bool(
         ce_metrics["exact_flip_action_recall"] is not None
         and ce_metrics["exact_flip_action_recall"] >= 0.70
@@ -698,11 +941,13 @@ def main() -> None:
         frozen_groups,
         probe,
         trunk,
+        candidate,
         p1_path,
         a16_path,
         args.workdir,
         device,
         temporal=args.temporal,
+        embedded_parent_policy=args.embedded_parent_policy,
     )
     live = (
         _live_frozen(
@@ -718,10 +963,52 @@ def main() -> None:
         else None
     )
     classification, follow_up = _classification(gate, live, mse_metrics, ce_metrics)
+    if args.embedded_parent_policy:
+        improved = (
+            ce_metrics["exact_flip_action_recall"] > 0.35334473608089245
+            and ce_metrics["exact_parent_score_regret_captured"] > 0.23206011950969696
+            and ce_metrics["exact_flip_action_recall"] > 0.345081936287148
+            and ce_metrics["exact_parent_score_regret_captured"] > 0.21622265875339508
+        )
+        ablation_hurts = bool(
+            policy_ablations["no_shift"]["exact_flip_action_recall"]
+            < ce_metrics["exact_flip_action_recall"]
+            and policy_ablations["no_shift"]["exact_parent_score_regret_captured"]
+            < ce_metrics["exact_parent_score_regret_captured"]
+        )
+        if gate and live is not None:
+            classification = (
+                "embedded_parent_policy_context_recovers_q_correction"
+                if live["rescue_rate"] >= 0.70
+                and live["new_divergence_rate"] <= 0.10
+                and ablation_hurts
+                else "offline_good_live_unstable"
+            )
+        elif improved:
+            classification = "parent_policy_context_improves_but_insufficient"
+        elif not ablation_hurts:
+            classification = "parent_policy_context_not_informative"
+        else:
+            classification = "inconclusive"
+        follow_up = {
+            "embedded_parent_policy_context_recovers_q_correction": (
+                "run a canonical arena with the self-contained correction probe before production integration."
+            ),
+            "parent_policy_context_improves_but_insufficient": (
+                "add recent root backup history on top of this feature set, keeping selection CE unchanged."
+            ),
+            "parent_policy_context_not_informative": (
+                "test a fixed-length recent root backup/selection trajectory representation."
+            ),
+            "offline_good_live_unstable": "generate on-policy corrected-search data.",
+            "inconclusive": "audit the frozen evidence before another representation change.",
+        }[classification]
     if args.temporal:
         follow_up = "test a longer root-trajectory representation with recent backup history while keeping the same selection loss."
     summary = {
-        "schema": "azlite_context_action_q_temporal_selection_probe_v1"
+        "schema": "azlite_context_action_q_embedded_parent_policy_selection_probe_v1"
+        if args.embedded_parent_policy
+        else "azlite_context_action_q_temporal_selection_probe_v1"
         if args.temporal
         else "azlite_context_action_q_selection_probe_v1",
         "classification": classification,
@@ -735,7 +1022,8 @@ def main() -> None:
             "probe_checkpoint": sha256_file(checkpoint_path),
         },
         "exclusions": exclusions,
-        "features_unchanged": not args.temporal,
+        "features_unchanged": not args.temporal and not args.embedded_parent_policy,
+        "embedded_parent_policy_features": args.embedded_parent_policy,
         "temporal_features": [
             "previous_a16_q",
             "previous_log_normalized_visit_count",
@@ -745,7 +1033,7 @@ def main() -> None:
         if args.temporal
         else [],
         "optimization": {
-            "seed": SEED,
+            "seed": seed,
             "lr": 1e-3,
             "weight_decay": 0.0,
             "steps": 2000,
@@ -761,9 +1049,22 @@ def main() -> None:
             "unvisited_fpu_preserved": True,
             "puct_move_tie_order": True,
             "pre_simulation_p1_evidence_only": True,
+            **policy_invariants,
         },
         "validation_selection_consequence": ce_metrics,
         "historical_mse_context_probe": mse_metrics,
+        "historical_pr238_instantaneous_selection_ce": json.loads(
+            (
+                REPO_ROOT
+                / "docs/data/alphazero-lite-fresh-p1-context-action-q-selection-probe-summary.json"
+            ).read_text()
+        )["validation_selection_consequence"],
+        "historical_pr238_temporal_selection_ce": json.loads(
+            (
+                REPO_ROOT
+                / "docs/data/alphazero-lite-fresh-p1-context-action-q-temporal-selection-probe-summary.json"
+            ).read_text()
+        )["validation_selection_consequence"],
         "selection_ce_minus_historical_mse": {
             key: float(ce_metrics[key]) - float(mse_metrics[key])
             for key in (
@@ -776,6 +1077,8 @@ def main() -> None:
         "regret_quartiles_exact_parent_flips": _strata(
             arrays, validation_indexes, scores
         ),
+        "parent_policy_feature_ablations": policy_ablations,
+        "policy_drift_quartiles": drift_strata,
         "simulation_windows": window,
         "correction_magnitude": _scale(corrections, arrays, validation_indexes),
         "validation_gate_passed": gate,
@@ -791,7 +1094,13 @@ def main() -> None:
         },
     }
     text = json.dumps(summary, indent=2, sort_keys=True) + "\n"
-    suffix = "-temporal" if args.temporal else ""
+    suffix = (
+        "-embedded-parent-policy"
+        if args.embedded_parent_policy
+        else "-temporal"
+        if args.temporal
+        else ""
+    )
     output = (
         REPO_ROOT
         / f"docs/data/alphazero-lite-fresh-p1-context-action-q{suffix}-selection-probe-summary.json"
@@ -802,7 +1111,9 @@ def main() -> None:
     )
     output.write_text(text)
     title = (
-        "Temporal Selection-Aligned Context Action-Q Probe"
+        "Embedded-Parent-Policy Selection-Aligned Context Action-Q Probe"
+        if args.embedded_parent_policy
+        else "Temporal Selection-Aligned Context Action-Q Probe"
         if args.temporal
         else "Selection-Aligned Context Action-Q Probe"
     )

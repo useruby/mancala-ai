@@ -32,3 +32,16 @@ def test_adapter_scope_trains_only_residual_logits() -> None:
         "policy_adapter.weight",
         "policy_adapter.bias",
     }
+
+
+def test_policy_logit_components_match_additive_forward_path() -> None:
+    torch.manual_seed(11)
+    model = PolicyValueNet((16, 2), "residual_v3_parent_additive_policy_adapter", 18)
+    x = torch.randn(4, 18)
+
+    ordinary_logits, ordinary_value = model(x)
+    base_logits, adapter_logits, combined_logits = model.policy_logits_components(x)
+
+    assert torch.equal(combined_logits, ordinary_logits)
+    assert torch.equal(adapter_logits, combined_logits - base_logits)
+    assert torch.equal(ordinary_value, model(x)[1])

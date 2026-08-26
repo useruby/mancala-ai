@@ -884,6 +884,24 @@ class PolicyValueNet(nn.Module):
             h = torch.relu(second_layer(h) + residual)
         return h
 
+    def policy_logits_components(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Return the inherited, adapter, and combined logits for diagnostics.
+
+        This is intentionally limited to the additive-adapter architecture so
+        callers cannot mistake an ordinary policy head for a decomposed one.
+        """
+        if self.model_type != "residual_v3_parent_additive_policy_adapter":
+            raise ValueError("policy components require the additive-adapter model")
+        assert self.policy_hidden_layer is not None
+        assert self.policy_adapter is not None
+        h = self.trunk_features(x)
+        policy_features = torch.relu(self.policy_hidden_layer(h))
+        base_policy_logits = self.policy_head(policy_features)
+        adapter_logits = self.policy_adapter(h.detach())
+        return base_policy_logits, adapter_logits, base_policy_logits + adapter_logits
+
     def forward(
         self,
         x: torch.Tensor,
