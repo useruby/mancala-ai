@@ -157,9 +157,10 @@ def reconstruct_clean1200(index: int) -> tuple[int, list[float]]:
     )
 
 
-def parallel_targets(
+def parallel_target_pair(
     rows: list[dict[str, Any]], checkpoint: Path, workers: int
-) -> tuple[list[list[float]], list[list[float]], dict[int, list[float]]]:
+) -> tuple[list[list[float]], list[list[float]]]:
+    """Reconstruct the fixed 384-simulation noisy and denoised target views."""
     global _TARGET_ROWS
     _TARGET_ROWS = rows
     with concurrent.futures.ProcessPoolExecutor(
@@ -171,6 +172,21 @@ def parallel_targets(
         pairs = list(
             executor.map(reconstruct_target_pair, range(len(rows)), chunksize=16)
         )
+    return [pair[0] for pair in pairs], [pair[1] for pair in pairs]
+
+
+def parallel_targets(
+    rows: list[dict[str, Any]], checkpoint: Path, workers: int
+) -> tuple[list[list[float]], list[list[float]], dict[int, list[float]]]:
+    fresh_noisy, fresh_denoised = parallel_target_pair(rows, checkpoint, workers)
+    global _TARGET_ROWS
+    _TARGET_ROWS = rows
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=workers,
+        mp_context=multiprocessing.get_context("fork"),
+        initializer=initialize_target_worker,
+        initargs=(str(checkpoint),),
+    ) as executor:
         probe_indexes = [
             index
             for _state_hash, index in sorted(
@@ -180,7 +196,7 @@ def parallel_targets(
             )[:256]
         ]
         clean = dict(executor.map(reconstruct_clean1200, probe_indexes, chunksize=4))
-    return [pair[0] for pair in pairs], [pair[1] for pair in pairs], clean
+    return fresh_noisy, fresh_denoised, clean
 
 
 def policy_stats(

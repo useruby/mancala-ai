@@ -169,7 +169,10 @@ def train_lane(
     optimizer = torch.optim.Adam(
         (p for p in model.parameters() if p.requires_grad), lr=1e-5
     )
-    optimizer.load_state_dict(initial["optimizer"])
+    # ``load_state_dict`` retains tensor references from the supplied state on
+    # this optimizer path. Each experimental lane must receive an independent
+    # copy of the frozen A16 Adam moments.
+    optimizer.load_state_dict(copy.deepcopy(initial["optimizer"]))
     parent = new_model(device)
     parent.load_state_dict(parent_state)
     for parameter in parent.parameters():
