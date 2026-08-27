@@ -1,0 +1,19 @@
+{
+  "schema": "pr242_target_entropy_factorization_v1",
+  "classification": "target_factorization_not_reproducible",
+  "source_replay_sha256": "6671e248af4a4c82e1155c798cb7490cd66cd80dc10b203c97d89dced94527f2",
+  "eligible_rows": 27350,
+  "canonical_suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+  "batch_plan_sha256": "39c0663ff682a30d01e0dfc05d40448f4b22a6051aa3d2fe2464a0d50cc57789",
+  "top1_disagreement_rows_checked": 1118,
+  "step16_arena_effects": {
+    "fresh_denoised": {"384:256": -0.01953125, "1200:1200": -0.01953125},
+    "denoised_order_noisy_entropy": {"384:256": -0.01953125, "1200:1200": -0.01953125},
+    "noisy_order_denoised_entropy": {"384:256": -0.01953125, "1200:1200": -0.01953125},
+    "fresh_noisy": {"384:256": -0.01953125, "1200:1200": -0.01953125}
+  },
+  "paired_effect_differences": {
+    "denoised_order_noisy_entropy_minus_fresh_denoised": {"384:256": 0.0, "1200:1200": 0.0},
+    "noisy_order_denoised_entropy_minus_fresh_noisy": {"384:256": 0.0, "1200:1200": 0.0}
+  }
+}
