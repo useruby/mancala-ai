@@ -30,7 +30,6 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.evaluation_metrics import paired_opening_candidate_effect
 from ml.alphazero_lite.arena import canonical_game_state_hash
 from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite import run_fresh_p1_onpolicy_shadow_replay as shadow_replay
 from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (
     read_jsonl,
     sha256_file,
@@ -421,7 +420,6 @@ def main() -> None:
         read_jsonl(args.replay), *exclusion_hashes(args.canonical_suite)
     )
     initial = torch.load(A16_SNAPSHOT, map_location="cpu", weights_only=False)
-    shadow_replay.INITIAL_OPTIMIZER = initial["optimizer"]
     p1_model = new_model(torch.device("cpu"))
     load_checkpoint_into_model(p1_model, P1_CHECKPOINT)
     parent = {
@@ -501,7 +499,9 @@ def main() -> None:
         lanes[name] = snapshots
         artifacts[name] = {}
         training[name] = {
-            "lane_metrics": metrics(rows, snapshots, parent, initial["model"]),
+            "lane_metrics": metrics(
+                rows, snapshots, parent, initial["model"], initial["optimizer"]
+            ),
             "cross_target_ce": {},
         }
         for step, state in snapshots.items():

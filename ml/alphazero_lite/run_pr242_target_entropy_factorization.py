@@ -402,7 +402,6 @@ def main() -> None:
             [{**row, "policy": values[index]} for index, row in enumerate(rows)],
         )
     initial = torch.load(A16_SNAPSHOT, map_location="cpu", weights_only=False)
-    shadow_replay.INITIAL_OPTIMIZER = initial["optimizer"]
     p1_model = new_model(torch.device("cpu"))
     load_checkpoint_into_model(p1_model, P1_CHECKPOINT)
     parent = {
@@ -417,7 +416,9 @@ def main() -> None:
         ]
         snapshots, optimizers = train_lane(view, initial, parent, torch.device("cpu"))
         training[name] = {
-            "lane_metrics": metrics(view, snapshots, parent, initial["model"]),
+            "lane_metrics": metrics(
+                view, snapshots, parent, initial["model"], initial["optimizer"]
+            ),
             "cross_target_ce": {},
         }
         artifacts[name] = None
