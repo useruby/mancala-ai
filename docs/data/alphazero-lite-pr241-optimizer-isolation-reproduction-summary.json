@@ -1,0 +1,39 @@
+{
+  "schema": "pr241_optimizer_isolation_reproduction_v1",
+  "classification": "ordinary_reused_target_gain_reproduces",
+  "recommended_follow_up": "isolate reused gameplay-tree policy targets versus fresh-tree targets",
+  "initial_optimizer_sha256": "61d5719e75aae87d7c2ca7ed2c5b01871ac2ea1675a34c4a6c918c783894e8c7",
+  "invariants": {
+    "lane_order_invariant": true,
+    "repeated_ordinary": true,
+    "repeated_shadow075": true,
+    "pristine_optimizer_unchanged": true
+  },
+  "replay": {
+    "ordinary_onpolicy": {"sha256": "6671e248af4a4c82e1155c798cb7490cd66cd80dc10b203c97d89dced94527f2", "eligible_rows": 27350},
+    "shadow075_onpolicy": {"sha256": "066e52a52dfcd73186a5a98470abbc6412341c770170a76e5bd1763735bbd039", "eligible_rows": 27597},
+    "shadow100_onpolicy": {"sha256": "38dd9e8910cd5a8a2f7eb977ddc5ab3f102f323563804902d32c92f4e49f1684", "eligible_rows": 26425}
+  },
+  "frozen_artifacts": {
+    "a16_snapshot_sha256": "f38a3a9db15a095870c0294150fe81e4719cf77102c4b3de316fcae5e1b9c3ff",
+    "p1_checkpoint_sha256": "e4a9c95302c17b63405107d26b4cd4f90755d2b21980846ac6e9f0baabf7efe9",
+    "canonical_suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+  },
+  "step16_frozen_40_40": {
+    "ordinary_onpolicy": {"rescue_rate": 0.275, "new_divergence_rate": 0.0},
+    "shadow075_onpolicy": {"rescue_rate": 0.325, "new_divergence_rate": 0.0},
+    "shadow100_onpolicy": {"rescue_rate": 0.3, "new_divergence_rate": 0.0}
+  },
+  "step16_arena_effect": {
+    "ordinary_onpolicy": {"384:256": -0.01953125, "1200:1200": 0.041015625},
+    "shadow075_onpolicy": {"384:256": -0.01953125, "1200:1200": -0.01953125},
+    "shadow100_onpolicy": {"384:256": -0.01953125, "1200:1200": -0.01953125}
+  },
+  "historical_checkpoint_comparison": {
+    "ordinary_onpolicy": {"1": [true, true, 0.0], "4": [true, true, 0.0], "16": [true, true, 0.0]},
+    "shadow075_onpolicy": {"1": [false, false, 0.000007487717], "4": [false, false, 0.000025645924], "16": [false, false, 0.000062892475]},
+    "shadow100_onpolicy": {"1": [false, false, 0.000006874361], "4": [false, false, 0.000024257679], "16": [false, false, 0.000056065415]}
+  },
+  "replay_science": {"ordinary_state_jaccard": 1.0, "shadow075_state_jaccard": 0.0787, "shadow100_state_jaccard": 0.0577},
+  "p0_gate_eligible": false
+}

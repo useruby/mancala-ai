@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import sys
 from collections import Counter
@@ -65,6 +66,66 @@ P1_CHECKPOINT = Path(
 )
 A16_WEIGHTS_SHA = "74e160734554dba9ecf4ecf3ac13b3e44526c4f6e7e5e52d9fe8bde0054eb789"
 P1_CHECKPOINT_SHA = "e4a9c95302c17b63405107d26b4cd4f90755d2b21980846ac6e9f0baabf7efe9"
+
+
+def optimizer_state_sha256(state: dict[str, Any]) -> str:
+    """Hash an optimizer state without depending on Python object identity."""
+    digest = hashlib.sha256()
+
+    def update(value: Any) -> None:
+        if isinstance(value, torch.Tensor):
+            tensor = value.detach().cpu().contiguous()
+            digest.update(b"tensor\0")
+            digest.update(str(tensor.dtype).encode("ascii"))
+            digest.update(json.dumps(list(tensor.shape)).encode("ascii"))
+            digest.update(tensor.reshape(-1).view(torch.uint8).numpy().tobytes())
+        elif isinstance(value, dict):
+            digest.update(b"dict\0")
+            for key in sorted(
+                value, key=lambda item: (type(item).__name__, repr(item))
+            ):
+                update(key)
+                update(value[key])
+        elif isinstance(value, (list, tuple)):
+            digest.update(b"sequence\0")
+            for item in value:
+                update(item)
+        elif value is None:
+            digest.update(b"none\0")
+        else:
+            digest.update(
+                f"{type(value).__name__}:{json.dumps(value, sort_keys=True)}\0".encode(
+                    "ascii"
+                )
+            )
+
+    update(state)
+    return digest.hexdigest()
+
+
+def immutable_initial_state(
+    snapshot: dict[str, Any],
+) -> tuple[dict[str, torch.Tensor], dict[str, Any]]:
+    """Detach the A16 snapshot from ``torch.load`` storage before any lane starts."""
+    return (
+        {
+            name: value.detach().cpu().clone()
+            for name, value in snapshot["model"].items()
+        },
+        copy.deepcopy(snapshot["optimizer"]),
+    )
+
+
+def load_isolated_optimizer(
+    model: torch.nn.Module, optimizer_state: dict[str, Any]
+) -> torch.optim.Adam:
+    """Create Adam from a private copy; Adam otherwise retains state tensor references."""
+    optimizer = torch.optim.Adam(
+        (parameter for parameter in model.parameters() if parameter.requires_grad),
+        lr=1e-5,
+    )
+    optimizer.load_state_dict(copy.deepcopy(optimizer_state))
+    return optimizer
 
 
 def canonical_arena_hashes(suite_path: Path) -> set[str]:
@@ -166,13 +227,8 @@ def train_lane(
     model = new_model(device)
     model.load_state_dict(initial["model"])
     apply_trainable_scope(model, "policy_adapter_only")
-    optimizer = torch.optim.Adam(
-        (p for p in model.parameters() if p.requires_grad), lr=1e-5
-    )
-    # ``load_state_dict`` retains tensor references from the supplied state on
-    # this optimizer path. Each experimental lane must receive an independent
-    # copy of the frozen A16 Adam moments.
-    optimizer.load_state_dict(copy.deepcopy(initial["optimizer"]))
+    optimizer_before = optimizer_state_sha256(initial["optimizer"])
+    optimizer = load_isolated_optimizer(model, initial["optimizer"])
     parent = new_model(device)
     parent.load_state_dict(parent_state)
     for parameter in parent.parameters():
@@ -197,6 +253,8 @@ def train_lane(
                 for name, value in model.state_dict().items()
             }
             optimizer_states[step] = copy.deepcopy(optimizer.state_dict())
+    if optimizer_state_sha256(initial["optimizer"]) != optimizer_before:
+        raise RuntimeError("invariant_failure: train_lane mutated its input optimizer")
     return snapshots, optimizer_states
 
 
@@ -205,15 +263,22 @@ def metrics(
     snapshots: dict[int, dict[str, torch.Tensor]],
     parent: dict[str, torch.Tensor],
     initial: dict[str, torch.Tensor],
+    initial_optimizer: dict[str, Any],
 ) -> dict[str, Any]:
     search = np.asarray([row["policy"] for row in rows], dtype=np.float64)
     parent_policy = policy(parent, rows)
+    optimizer_before = optimizer_state_sha256(initial_optimizer)
     pure, _unused = train_lane(
         rows,
-        {"model": initial, "optimizer": INITIAL_OPTIMIZER},
+        {
+            "model": copy.deepcopy(initial),
+            "optimizer": copy.deepcopy(initial_optimizer),
+        },
         parent,
         torch.device("cpu"),
     )
+    if optimizer_state_sha256(initial_optimizer) != optimizer_before:
+        raise RuntimeError("invariant_failure: metrics mutated its input optimizer")
     pure_ce = float(np.mean(_cross_entropy(policy(pure[16], rows), search)))
     parent_ce = float(np.mean(_cross_entropy(parent_policy, search)))
     result = {}
@@ -254,9 +319,6 @@ def metrics(
     return result
 
 
-INITIAL_OPTIMIZER: dict[str, Any]
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -273,8 +335,6 @@ def main() -> None:
     if sha256_file(P1_CHECKPOINT) != P1_CHECKPOINT_SHA:
         raise RuntimeError("P1 checkpoint hash mismatch")
     initial = torch.load(A16_SNAPSHOT, map_location="cpu", weights_only=False)
-    global INITIAL_OPTIMIZER
-    INITIAL_OPTIMIZER = initial["optimizer"]
     p1 = new_model(torch.device("cpu"))
     load_checkpoint_into_model(p1, P1_CHECKPOINT)
     parent = {
@@ -308,7 +368,9 @@ def main() -> None:
         result["lanes"][lane] = {
             "replay_sha256": sha256_file(source),
             "exclusions": exclusions,
-            "metrics": metrics(rows, snapshots, parent, initial["model"]),
+            "metrics": metrics(
+                rows, snapshots, parent, initial["model"], initial["optimizer"]
+            ),
         }
     if args.evaluate:
         from ml.alphazero_lite import (
