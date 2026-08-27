@@ -15,9 +15,15 @@
 
 | Comparison | Mean L1 | P50 / P90 / P99 L1 | Mean JS | Top-1 disagreement | Entropy delta |
 | --- | ---: | --- | ---: | ---: | ---: |
+| original noisy vs fresh noisy | 0.3004 | 0.0077 / 1.0588 / 1.9996 | 0.06834 | 0.1654 | +0.0216 |
 | fresh noisy vs fresh denoised | 0.0759 | 0.0000 / 0.3177 / 0.6849 | 0.00819 | 0.0409 | -0.0356 |
+| original noisy vs fresh denoised | 0.2901 | 0.0076 / 1.0192 / 1.9996 | 0.06606 | 0.1538 | -0.0140 |
 
-The fresh noisy/denoised difference is isolated to roots where PR #241 enabled root noise: mean L1 0.3061, mean JS 0.0330, and top-1 disagreement 0.1648. Roots without action-sampling noise are identical. The fixed 256-root clean-1200 probe put fresh denoised slightly closer than fresh noisy (mean L1 0.3384 vs 0.3508; mean JS 0.0873 vs 0.0896), but both were farther than the original noisy targets.
+The primary fresh-noisy/fresh-denoised difference is isolated to roots where PR #241 enabled root noise: mean L1 0.3061, mean JS 0.0330, and top-1 disagreement 0.1648. Roots without action-sampling noise are identical. It is concentrated in opening rows (mean L1 0.1538); midgame and late rows are effectively identical. The effect grows with legal-move count, from 0.0008 L1 for two legal moves to 0.1819 for six.
+
+The secondary original-noisy/fresh-noisy comparison is large even without root noise (mean L1 0.2783, JS 0.0767, top-1 0.1413), identifying fresh-tree reconstruction rather than Dirichlet noise as the source of that component. With root noise enabled, original-vs-fresh-noisy L1 is 0.3675, fresh-noisy-vs-denoised is 0.3061, and original-vs-denoised is 0.3259. Across all three comparisons, opening, midgame, late, and every legal-move-count stratum were computed from the fixed eligible-row order.
+
+The fixed 256-root clean-1200 probe put fresh denoised slightly closer than fresh noisy (mean L1 0.3384 vs 0.3508; mean JS 0.0873 vs 0.0896), but both were farther than the original noisy targets (L1 0.1276; JS 0.0217). Thus denoising moves the reconstructed 384 target slightly toward clean1200, but fresh-tree reconstruction is the dominant target-distribution difference in this probe.
 
 ## Step-16 Training
 
