@@ -1,0 +1,15 @@
+{
+  "schema": "pr241_policy_target_noise_isolation_v1",
+  "classification": "inconclusive",
+  "source_replay_sha256": "6671e248af4a4c82e1155c798cb7490cd66cd80dc10b203c97d89dced94527f2",
+  "source_rows": 27642,
+  "eligible_rows": 27350,
+  "canonical_suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+  "pr241_reproduction": {"1": true, "4": true, "16": true},
+  "p0_gate_eligible": false,
+  "step16_arena": {
+    "original_noisy": {"384:256": -0.01953125, "1200:1200": 0.041015625},
+    "fresh_noisy": {"384:256": -0.01953125, "1200:1200": 0.041015625},
+    "fresh_denoised": {"384:256": -0.01953125, "1200:1200": -0.01953125}
+  }
+}
