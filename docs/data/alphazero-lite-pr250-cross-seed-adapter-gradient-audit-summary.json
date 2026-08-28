@@ -1,0 +1,21 @@
+{
+  "schema": "alphazero_lite_pr250_cross_seed_adapter_gradient_audit_v1",
+  "analysis_only": true,
+  "a16_snapshot_sha256": "f38a3a9db15a095870c0294150fe81e4719cf77102c4b3de316fcae5e1b9c3ff",
+  "beta": 0.95,
+  "cross_seed_cosines": {
+    "positive_adapter_delta": 0.9531300663948059,
+    "negative_adapter_delta": 0.9337388277053833,
+    "positive_full_batch_gradient": 0.9722885489463806,
+    "negative_full_batch_gradient": 0.9624277353286743
+  },
+  "within_seed_delta_cosines": {"seed45": 0.993834376335144, "seed46": 0.9924865961074829},
+  "within_seed_gradient_cosines": {"seed45": 0.9937304258346558, "seed46": 0.9931209683418274},
+  "lane_metrics": {
+    "seed45_fixed768_positive": {"eligible_rows": 27858, "adapter_delta_norm": 0.002248442033305764, "full_batch_gradient_norm": 0.005134028382599354},
+    "seed45_fixed1024_negative": {"eligible_rows": 27858, "adapter_delta_norm": 0.002188802231103182, "full_batch_gradient_norm": 0.004990631714463234},
+    "seed46_fresh1024_positive": {"eligible_rows": 28217, "adapter_delta_norm": 0.0022308125626295805, "full_batch_gradient_norm": 0.004667672794312239},
+    "seed46_fresh768_negative": {"eligible_rows": 28217, "adapter_delta_norm": 0.0022578176576644182, "full_batch_gradient_norm": 0.004919227212667465}
+  },
+  "interpretation": "The successful lanes are more aligned across replay seeds than the matched negative lanes, but all directions are highly aligned. This supports a shared direction with a small discriminative component, not a distinct orthogonal mechanism."
+}
