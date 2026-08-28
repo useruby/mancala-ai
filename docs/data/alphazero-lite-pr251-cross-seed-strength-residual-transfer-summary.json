@@ -1,0 +1,23 @@
+{
+  "schema": "alphazero_lite_pr251_cross_seed_strength_residual_transfer_v1",
+  "classification": "strength_residual_not_transferable",
+  "primary_suites": {
+    "D": {"seed": 4042, "sha256": "e9d931031e75d39d188699d0b77ecc91d429c6998d06aada5f04e34b0384b1e2", "consumed": true},
+    "E": {"seed": 5042, "sha256": "3e78f5425370bb17ed2280e850a5f93b62cb86d94a0222263d481fcf866def37", "consumed": true},
+    "F": {"seed": 6042, "sha256": "8cba0ea407dde34696877d5ee2fe7110cd5610b2392f446df1bc02c1900d7c0e", "consumed": true}
+  },
+  "invariants": {"candidate_hashes_verified": true, "same_seed_reconstruction_max_abs_error": 1.8189894035458565e-12, "non_adapter_tensors_unchanged": true, "suite_overlap_free": true},
+  "residual_geometry": {"r45_norm": 0.0002534610975999385, "r46_norm": 0.0002764354576356709, "cosine": -0.7576044201850891, "dot_product": -5.308203299136949e-08, "norm_ratio_r45_over_r46": 0.9168906807899475, "full_positive_delta_norm_fraction": {"r45": 0.11272743344306946, "r46": 0.12391693890094757}},
+  "pooled_effects": {
+    "seed45_positive_minus_negative": {"effect": 0.043619791666666664, "ci95": [0.034505208333333336, 0.053385416666666664], "hierarchical_ci95": [0.02734375, 0.060546875], "positive_suites": 3},
+    "seed46_positive_minus_negative": {"effect": 0.043619791666666664, "ci95": [0.034505208333333336, 0.053385416666666664], "hierarchical_ci95": [0.02734375, 0.060546875], "positive_suites": 3},
+    "seed45_cross_rescue_minus_negative": {"effect": 0.0, "ci95": [0.0, 0.0], "positive_suites": 0},
+    "seed46_cross_rescue_minus_negative": {"effect": 0.0, "ci95": [0.0, 0.0], "positive_suites": 0},
+    "seed45_positive_minus_cross_remove": {"effect": 0.043619791666666664, "ci95": [0.034505208333333336, 0.053385416666666664], "positive_suites": 3},
+    "seed46_positive_minus_cross_remove": {"effect": 0.043619791666666664, "ci95": [0.034505208333333336, 0.053385416666666664], "positive_suites": 3},
+    "seed45_cross_rescue_minus_scrambled": {"effect": 0.0, "ci95": [0.0, 0.0]},
+    "seed46_cross_rescue_minus_scrambled": {"effect": 0.0, "ci95": [0.0, 0.0]}
+  },
+  "gradient_difference_cosines": {"r45_negative_dg45": 0.8191491365432739, "r46_negative_dg46": 0.6488625407218933, "r45_negative_dg46": -0.7440654039382935, "r46_negative_dg45": -0.7628791928291321, "dg45_dg46": -0.8911459445953369},
+  "recommended_next_experiment": "perform state/action-level target-difference attribution rather than parameter transplants"
+}
