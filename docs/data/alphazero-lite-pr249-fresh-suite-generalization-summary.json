@@ -1,0 +1,25 @@
+{
+  "schema": "alphazero_lite_pr249_fresh_suite_generalization_v1",
+  "classification": "canonical_strength_signal_generalizes",
+  "recommended_next_experiment": "compare the two successful adapter parameter deltas and full-batch training gradients to identify a common update direction independent of target budget",
+  "evaluation_context": {
+    "budget": "1200:1200",
+    "ordinary_puct": true,
+    "c_puct": 1.25,
+    "seat_swapping": true,
+    "arena_seed": 42,
+    "workers": 24,
+    "fresh_openings": 384
+  },
+  "candidate_manifest": {
+    "seed45_fixed768_positive": {"full_model_sha256": "47177e32cb8f9aba51210f42bee78e65d603a61ac9cda7909ca1ab96f95d0d2f", "adapter_sha256": "c1dd4dfbc0a90a13f7a62313e4b04b2911a115b84352fcbd3c22125e3c371f33", "optimizer_sha256": "b5873d09d7e89ec13a11b2033fa009f79584d130917c3f6bb541b8f95438362f", "source_replay_sha256": "245a452f80970485dd9d07dad560e35f04bbccc16f6147e36c98598b7426f106", "source_batch_plan_sha256": "a4e859f1340078e21c9ad2b4e0c04bac5c69c7463d8b8b859f83f79f915382fe", "historical_effect": 0.041015625},
+    "seed45_fixed1024_negative": {"full_model_sha256": "af860b80d33b28bd16b7259db8a265f320c209bc392285b2b83c92c0be123e17", "adapter_sha256": "586017cc268c4cc05a723ababe07604a26ce19477ecaebacc79e7ee78418d617", "optimizer_sha256": "516a0f944e16fdded9d08c0e9479b489c6a08359c5128e20c70af61eee78f970", "source_replay_sha256": "245a452f80970485dd9d07dad560e35f04bbccc16f6147e36c98598b7426f106", "source_batch_plan_sha256": "a4e859f1340078e21c9ad2b4e0c04bac5c69c7463d8b8b859f83f79f915382fe", "historical_effect": -0.01953125},
+    "seed46_fresh1024_positive": {"full_model_sha256": "82e375a1a78f4d24d3002eafe031cc0a174f004ba4efd7ae5e1507578c954107", "adapter_sha256": "fb88e1f4bcb5a0a4416898417910f6a00ef2d8e18d9a38508f1d722f9004703e", "optimizer_sha256": "661285ca4f921395c7cf73daff450bf81c993cd99efa5373d65d08d0a1cf26cb", "source_replay_sha256": "007a72d5c07c15f353ef244cab627198cb7be6b73c43b7a03ea2feb767b1fbb4", "source_batch_plan_sha256": "671ac065c7b82c4a04b9201a4cb60b0e0d2ee4c73c390566c800704252a2e748", "historical_effect": 0.041015625},
+    "seed46_fresh768_negative": {"full_model_sha256": "39c97170f1e045b2d7506d5fa4ae8a8b5f4bc087f6033b952de683b50d89115c", "adapter_sha256": "e987a2bc2ebac789811e1310b78594c421e69ee631a1f7385c80160ebc82aad7", "optimizer_sha256": "6b243a789458f0ca203ff4eb3e4b463d34c12a2da0d97409600154326f7942a5", "source_replay_sha256": "83afa719a260083902540419b72b30b6a96d7bc63015be2482af442ab7d4baa9", "source_batch_plan_sha256": "671ac065c7b82c4a04b9201a4cb60b0e0d2ee4c73c390566c800704252a2e748", "historical_effect": -0.01953125}
+  },
+  "fresh_suites": {"A": {"seed": 1042, "sha256": "c8277e659c7a4e137140d83c187781f40e6b25c4b1dff5ec4da3f2e09fdcc6ab", "consumed": true}, "B": {"seed": 2042, "sha256": "1f4c17eb7df21af75bc29c3274b3951899ae5fb2522f762d5270d58ddf93b37e", "consumed": true}, "C": {"seed": 3042, "sha256": "b56783a2a2bbf63168cfb642f2b878badc80ace0279a9bbb7778757a4e4ba90d", "consumed": true}},
+  "overlap_report": {"within_suite_duplicates": 0, "cross_suite_duplicates": 0, "canonical_duplicates": 0, "seed45_replay_state_duplicates": 0, "seed46_replay_state_duplicates": 0},
+  "canonical_invariant": {"suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04", "effects": {"seed45_fixed768_positive": 0.041015625, "seed45_fixed1024_negative": -0.01953125, "seed46_fresh1024_positive": 0.041015625, "seed46_fresh768_negative": -0.01953125}},
+  "contrasts": {"seed45_fixed768_minus_fixed1024": {"suite_effects": [0.02734375, 0.037109375, 0.03515625], "pooled_effect": 0.033203125, "pooled_ci95": [0.024739583333333332, 0.041666666666666664], "hierarchical_ci95": [0.017578125, 0.05078125], "positive_suites": 3}, "seed46_fresh1024_minus_fresh768": {"suite_effects": [0.02734375, 0.037109375, 0.03515625], "pooled_effect": 0.033203125, "pooled_ci95": [0.024739583333333332, 0.041666666666666664], "hierarchical_ci95": [0.017578125, 0.05078125], "positive_suites": 3}},
+  "canonical_record_audit": {"positive_models": "outcome_identical_but_trajectory_different", "negative_models": "outcome_identical_but_trajectory_different"}
+}
