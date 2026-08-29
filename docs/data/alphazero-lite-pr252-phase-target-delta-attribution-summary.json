@@ -1,0 +1,18 @@
+{
+  "schema": "alphazero_lite_pr252_phase_target_delta_attribution_v1",
+  "classification": "target_delta_semantics_align_without_phase_sufficiency",
+  "full_result": "/tmp/azlite_pr252_phase_target_delta_attribution/summary.json",
+  "primary_controls": {
+    "seed45_positive_minus_negative": {"effect": 0.04296875, "ci95": [0.033854166666666664, 0.052734375], "positive_suites": 3},
+    "seed46_positive_minus_negative": {"effect": 0.04296875, "ci95": [0.033854166666666664, 0.052734375], "positive_suites": 3}
+  },
+  "gradient_reconstruction": {
+    "seed45": {"cosine": 0.9999999999987961, "relative_l2_error": 1.6293670270616449e-06},
+    "seed46": {"cosine": 0.9999999999970086, "relative_l2_error": 2.749937237807373e-06}
+  },
+  "consumed_suites": {
+    "G": {"seed": 7042, "sha256": "ec331fc5672d0af95083443620ede6aac68755280ba375a9727bdd781918b216"},
+    "H": {"seed": 8042, "sha256": "24e4ae8cb9ab336959f243c1dedd903201497d94e04fbc99ddaeed8894c58682"},
+    "I": {"seed": 9042, "sha256": "5c8265a4c387c1a2f40ddc492da0435db548b98e02692582ccbf4b119f621b8e"}
+  }
+}
