@@ -27,6 +27,7 @@ if __package__ in (None, ""):
     sys.path.append(str(REPO_ROOT))
 
 from ml.alphazero_lite import build_opening_suite as suites
+from ml.alphazero_lite import consumed_suite_registry as consumed_registry
 from ml.alphazero_lite import run_fresh_p1_onpolicy_shadow_replay as replay
 from ml.alphazero_lite import run_pr241_optimizer_isolation_reproduction as contract
 from ml.alphazero_lite import run_pr241_policy_target_noise_isolation as isolation
@@ -35,7 +36,6 @@ from ml.alphazero_lite import run_pr249_fresh_suite_generalization as pr249
 from ml.alphazero_lite import run_pr250_cross_seed_adapter_gradient_audit as pr250
 from ml.alphazero_lite import run_pr251_cross_seed_strength_residual_transfer as pr251
 from ml.alphazero_lite import run_pr252_phase_target_delta_attribution as pr252
-from ml.alphazero_lite import run_pr253_semantic_receiver_target_surgery as pr253
 from ml.alphazero_lite.evaluation_metrics import (
     paired_effect_difference,
     paired_opening_candidate_effect,
@@ -46,6 +46,7 @@ from ml.alphazero_lite.run_deterministic_joint_heads_iteration import (
     sha256_file,
 )
 from ml.alphazero_lite.run_fresh_p1_parent_additive_policy_adapter import (
+    ADAPTER_KEYS,
     export,
     new_model,
 )
@@ -67,13 +68,8 @@ from ml.alphazero_lite.train import load_checkpoint_into_model
 
 GAMES, WORKERS, SEED, BASE, MAX_MOVES = 700, 24, 47, 384, 200
 LANES = ("reused", "fresh768", "fresh1024")
-SUITE_SEEDS = {"M": 13042, "N": 14042, "O": 15042}
-J_TO_L_SUITE_PATHS = {
-    label: Path(
-        f"/tmp/azlite_pr253_semantic_receiver_target_surgery/suites/suite_{label}.jsonl"
-    )
-    for label in ("J", "K", "L")
-}
+SUITE_SEEDS = {"P": 16042, "Q": 17042, "R": 18042}
+SOURCE_WORKDIR = Path("/tmp/azlite_pr254_third_seed_budget_replay")
 TARGET = Path("/tmp/azlite_fresh_p1_parent_adapter/artifacts/step_0016/checkpoint.npz")
 A16_SHA = "f38a3a9db15a095870c0294150fe81e4719cf77102c4b3de316fcae5e1b9c3ff"
 ADAM_SHA = "61d5719e75aae87d7c2ca7ed2c5b01871ac2ea1675a34c4a6c918c783894e8c7"
@@ -310,15 +306,14 @@ def batch_plan_sha(rows: list[dict[str, Any]]) -> str:
     ).hexdigest()
 
 
-def consumed_opening_exclusions() -> tuple[set[str], dict[str, set[str]]]:
-    paths = {
-        "canonical": pr249.CANONICAL_SUITE,
-        **pr253.CONSUMED_SUITE_PATHS,
-        **J_TO_L_SUITE_PATHS,
-    }
+def consumed_opening_exclusions(
+    registry: dict[str, consumed_registry.ConsumedSuite],
+) -> tuple[set[str], dict[str, set[str]]]:
+    """Use the same authoritative registry as opening-suite sealing."""
+    consumed_registry.validate(registry)
     groups = {
         "consumed_evaluation_openings": set().union(
-            *(replay.canonical_arena_hashes(path) for path in paths.values())
+            *(replay.canonical_arena_hashes(spec.path) for spec in registry.values())
         )
     }
     return groups["consumed_evaluation_openings"], groups
@@ -412,15 +407,63 @@ def train_lanes(
     return result, artifacts, states
 
 
-def seal_suites(
-    workdir: Path, seed47_rows: list[dict[str, Any]]
-) -> tuple[dict[str, Path], dict[str, Any]]:
-    old_paths = {"canonical": pr249.CANONICAL_SUITE, **pr253.CONSUMED_SUITE_PATHS}
-    old = {name: suites.load_suite_jsonl(str(path)) for name, path in old_paths.items()}
-    used = set().union(*(pr249.suite_keys(entries) for entries in old.values()))
-    old_prefixes = set().union(
-        *(pr251.prefix_keys(entries) for entries in old.values())
+def recover_candidates(
+    rows: dict[str, list[dict[str, Any]]],
+    a16: dict[str, torch.Tensor],
+    adam: dict[str, Any],
+    parent: dict[str, torch.Tensor],
+) -> tuple[
+    dict[str, Any], dict[str, Path], dict[str, dict[int, dict[str, torch.Tensor]]]
+]:
+    """Freeze the completed PR254 step-16 checkpoints before suite selection."""
+    initial = replay.optimizer_state_sha256(adam)
+    report, artifacts, states = {}, {}, {}
+    for lane in LANES:
+        checkpoint = SOURCE_WORKDIR / "train" / lane / "step_0016.pt"
+        artifact = SOURCE_WORKDIR / "train" / lane / "step_0016" / "artifact"
+        if not checkpoint.is_file() or not artifact.is_dir():
+            fail(f"missing completed PR254 candidate: {lane}")
+        saved = torch.load(checkpoint, map_location="cpu", weights_only=False)
+        if set(saved) != {"model", "optimizer"}:
+            fail(f"invalid completed PR254 candidate: {lane}")
+        state = {
+            key: value.detach().cpu().clone() for key, value in saved["model"].items()
+        }
+        adapter = hashlib.sha256(
+            json.dumps(
+                {key: state[key].numpy().tolist() for key in ADAPTER_KEYS},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        report[lane] = {
+            "step16_full_model_sha256": pr252.model_sha(state),
+            "adapter_sha256": adapter,
+            "optimizer_sha256": replay.optimizer_state_sha256(saved["optimizer"]),
+            "checkpoint_file_sha256": sha256_file(checkpoint),
+            "artifact_weights_sha256": sha256_file(artifact / "weights.json"),
+        }
+        artifacts[lane], states[lane] = artifact, {16: state}
+    repeated = contract.repeated_lane_check(
+        "fresh768", rows["fresh768"], a16, adam, parent
     )
+    if replay.optimizer_state_sha256(adam) != initial:
+        fail("optimizer contamination while freezing candidates")
+    report["optimizer_invariants"] = {
+        "initial_sha256": initial,
+        "repeated_fresh768": repeated,
+    }
+    return report, artifacts, states
+
+
+def seal_suites(
+    workdir: Path,
+    seed47_rows: list[dict[str, Any]],
+    registry: dict[str, consumed_registry.ConsumedSuite],
+) -> tuple[dict[str, Path], dict[str, Any]]:
+    consumed_registry.validate(registry)
+    used = consumed_registry.final_keys(registry)
+    old_prefixes = consumed_registry.prefix_keys(registry)
     replay_states = set().union(
         *pr249.replay_states().values(), {tuple(row["state"]) for row in seed47_rows}
     )
@@ -432,24 +475,27 @@ def seal_suites(
     ]
     paths = {}
     manifest = {
-        "consumed": {name: sha256_file(path) for name, path in old_paths.items()},
+        "consumed": consumed_registry.manifest(registry),
         "suites": {},
         "replay_state_exclusions": {"seed45": True, "seed46": True, "seed47": True},
     }
     prefixes = set()
     for label, seed in SUITE_SEEDS.items():
-        selected = suites.select_diverse(
-            [
-                entry
-                for entry in universe
-                if suites.canonical_key(entry["state"]) not in used
-            ],
-            128,
-            seed,
-        )
+        available = [
+            entry
+            for entry in universe
+            if suites.canonical_key(entry["state"]) not in used
+            and not (pr251.prefix_keys([entry]) & (old_prefixes | prefixes))
+        ]
+        selected = suites.select_diverse(available, 128, seed)
         keys = pr249.suite_keys(selected)
         current = pr251.prefix_keys(selected)
-        if len(keys) != 128 or keys & used or current & (old_prefixes | prefixes):
+        if (
+            len(selected) != 128
+            or len(keys) != 128
+            or keys & used
+            or current & (old_prefixes | prefixes)
+        ):
             fail(f"suite overlap {label}")
         path = workdir / "suites" / f"suite_{label}.jsonl"
         suites.write_suite_jsonl(selected, str(path))
@@ -465,9 +511,102 @@ def seal_suites(
     return paths, manifest
 
 
-def evaluate(
-    artifacts: dict[str, Path], paths: dict[str, Path], workdir: Path
+def preflight_suites(
+    paths: dict[str, Path],
+    registry: dict[str, consumed_registry.ConsumedSuite],
+    seed47_rows: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    """Audit every final and prefix exclusion before an arena subprocess exists."""
+    old = consumed_registry.entries(registry)
+    old_keys = {label: pr249.suite_keys(rows) for label, rows in old.items()}
+    old_prefixes = {label: pr251.prefix_keys(rows) for label, rows in old.items()}
+    replay_states = {
+        **pr249.replay_states(),
+        "seed47": {tuple(row["state"]) for row in seed47_rows},
+    }
+    selected_keys, selected_prefixes, report = (
+        {},
+        {},
+        {"suites": {}, "overlap_matrix": {}},
+    )
+    for label, path in paths.items():
+        rows = suites.load_suite_jsonl(str(path))
+        keys, prefixes = pr249.suite_keys(rows), pr251.prefix_keys(rows)
+        encoded = {
+            tuple(encode_state(row["state"], input_encoding="kalah_v3")) for row in rows
+        }
+        report["suites"][label] = {
+            "openings": len(rows),
+            "unique_opening_keys": len(keys),
+            "consumed_final_overlaps": {
+                name: len(keys & values) for name, values in old_keys.items()
+            },
+            "consumed_prefix_overlaps": {
+                name: len(prefixes & values) for name, values in old_prefixes.items()
+            },
+            "replay_state_overlaps": {
+                name: len(encoded & values) for name, values in replay_states.items()
+            },
+        }
+        selected_keys[label], selected_prefixes[label] = keys, prefixes
+    all_labels = [*registry, *paths]
+    for left in all_labels:
+        left_keys = old_keys[left] if left in old_keys else selected_keys[left]
+        left_prefixes = (
+            old_prefixes[left] if left in old_prefixes else selected_prefixes[left]
+        )
+        report["overlap_matrix"][left] = {}
+        for right in all_labels:
+            right_keys = old_keys[right] if right in old_keys else selected_keys[right]
+            right_prefixes = (
+                old_prefixes[right]
+                if right in old_prefixes
+                else selected_prefixes[right]
+            )
+            report["overlap_matrix"][left][right] = {
+                "final": len(left_keys & right_keys),
+                "prefix": len(left_prefixes & right_prefixes),
+            }
+    failed = any(
+        item["openings"] != 128
+        or item["unique_opening_keys"] != 128
+        or any(item["consumed_final_overlaps"].values())
+        or any(item["consumed_prefix_overlaps"].values())
+        or any(item["replay_state_overlaps"].values())
+        for item in report["suites"].values()
+    ) or any(
+        report["overlap_matrix"][left][right][kind]
+        for left in paths
+        for right in paths
+        if left != right
+        for kind in ("final", "prefix")
+    )
+    if failed:
+        fail("P/Q/R preflight overlap")
+    report["passed"] = True
+    return report
+
+
+def write_report(path: Path, value: dict[str, Any]) -> str:
+    path.write_text(
+        json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return sha256_file(path)
+
+
+def evaluate(
+    artifacts: dict[str, Path],
+    paths: dict[str, Path],
+    workdir: Path,
+    frozen_manifest: Path,
+) -> dict[str, Any]:
+    if (
+        not frozen_manifest.is_file()
+        or not json.loads(frozen_manifest.read_text(encoding="utf-8"))[
+            "preflight_audit"
+        ]["passed"]
+    ):
+        fail("arena attempted before frozen preflight manifest")
     result = {}
     for label, suite in paths.items():
         control = isolation.arena_records(
@@ -542,8 +681,10 @@ def analyze(evaluation: dict[str, Any]) -> dict[str, Any]:
                 "effect": float(values.mean()),
                 "lower_95": float(np.quantile(draws, 0.025)),
                 "upper_95": float(np.quantile(draws, 0.975)),
-                "same_sign_suites": sum(
-                    np.sign(v) == np.sign(values.mean()) for v in per_suite.values()
+                "same_sign_suites": int(
+                    sum(
+                        np.sign(v) == np.sign(values.mean()) for v in per_suite.values()
+                    )
                 ),
             },
             "hierarchical_suite_opening_ci": {
@@ -641,7 +782,7 @@ def main() -> None:
     parser.add_argument(
         "--workdir",
         type=Path,
-        default=Path("/tmp/azlite_pr254_third_seed_budget_replay"),
+        default=Path("/tmp/azlite_pr254_third_seed_budget_repair"),
     )
     parser.add_argument("--freeze-suites-only", action="store_true")
     parser.add_argument(
@@ -662,18 +803,24 @@ def main() -> None:
     ):
         fail("frozen artifact or worker mismatch")
     args.workdir.mkdir(parents=True, exist_ok=True)
-    if args.freeze_suites_only:
-        fail("seed47 replay is required before replay-disjoint suites can be frozen")
-    if args.resume_generated:
-        generated = {
-            lane: read_jsonl(args.workdir / "generated" / f"{lane}.jsonl")
-            for lane in LANES
-        }
+    local_paths = {lane: args.workdir / "generated" / f"{lane}.jsonl" for lane in LANES}
+    source_paths = {
+        lane: SOURCE_WORKDIR / "generated" / f"{lane}.jsonl" for lane in LANES
+    }
+    if args.resume_generated and all(path.is_file() for path in local_paths.values()):
+        generated = {lane: read_jsonl(path) for lane, path in local_paths.items()}
         telemetry = read_jsonl(args.workdir / "generated" / "telemetry.jsonl")
+        generated_file_paths = local_paths
+    elif all(path.is_file() for path in source_paths.values()):
+        generated = {lane: read_jsonl(path) for lane, path in source_paths.items()}
+        telemetry = read_jsonl(SOURCE_WORKDIR / "generated" / "telemetry.jsonl")
+        generated_file_paths = source_paths
     else:
         generated, telemetry = generate(args.workdir, args.workers)
+        generated_file_paths = local_paths
+    registry = consumed_registry.load(args.workdir)
     blocked, groups = replay.exclusion_hashes(pr249.CANONICAL_SUITE)
-    consumed, consumed_groups = consumed_opening_exclusions()
+    consumed, consumed_groups = consumed_opening_exclusions(registry)
     blocked |= consumed
     groups = {**groups, **consumed_groups}
     eligible, exclusions = {}, {}
@@ -689,33 +836,65 @@ def main() -> None:
     isolation.assert_views(eligible["reused"], eligible)
     keys = {(r["game_index"], r["move_index"]) for r in eligible["reused"]}
     telemetry = [r for r in telemetry if (r["game_index"], r["move_index"]) in keys]
-    paths, suite_manifest = seal_suites(args.workdir, eligible["reused"])
-    (args.workdir / "frozen_manifest.json").write_text(
-        json.dumps(
-            {
-                "suite_manifest": suite_manifest,
-                "artifacts": {
-                    "a16": A16_SHA,
-                    "adam": ADAM_SHA,
-                    "p1": P1_SHA,
-                    "evaluator": TARGET_SHA,
-                },
-            },
-            indent=2,
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
     p1 = new_model(torch.device("cpu"))
     load_checkpoint_into_model(p1, replay.P1_CHECKPOINT)
     parent = {k: v.detach().cpu().clone() for k, v in p1.state_dict().items()}
-    training, artifacts, states = train_lanes(eligible, a16, adam, parent, args.workdir)
-    evaluation = evaluate(artifacts, paths, args.workdir)
+    training, artifacts, states = recover_candidates(eligible, a16, adam, parent)
+    paths, suite_manifest = seal_suites(args.workdir, eligible["reused"], registry)
+    preflight = preflight_suites(paths, registry, eligible["reused"])
+    registry_sha = write_report(
+        args.workdir / "suite_registry.json",
+        {
+            "consumed": consumed_registry.manifest(registry),
+            "newly_consumed": suite_manifest["suites"],
+        },
+    )
+    preflight_sha = write_report(args.workdir / "preflight_audit.json", preflight)
+    replay_manifest = {
+        "replay_sha256": {
+            lane: sha256_file(generated_file_paths[lane]) for lane in LANES
+        },
+        "state_outcome_sha256": hashes,
+        "eligible_rows": len(eligible["reused"]),
+        "exclusion_counts": exclusions["reused"],
+        "batch_plan_sha256": {
+            lane: batch_plan_sha(rows) for lane, rows in eligible.items()
+        },
+    }
+    frozen_path = args.workdir / "frozen_manifest.json"
+    write_report(
+        frozen_path,
+        {
+            "schema": "alphazero_lite_pr254_third_seed_budget_repair_v1",
+            "ordering": [
+                "replay",
+                "candidates",
+                "registry",
+                "PQR",
+                "preflight",
+                "manifest",
+                "arena",
+            ],
+            "replay": replay_manifest,
+            "candidates": training,
+            "suite_manifest": suite_manifest,
+            "suite_registry_sha256": registry_sha,
+            "preflight_audit": {"passed": preflight["passed"], "sha256": preflight_sha},
+            "artifacts": {
+                "a16": A16_SHA,
+                "adam": ADAM_SHA,
+                "p1": P1_SHA,
+                "evaluator": TARGET_SHA,
+            },
+        },
+    )
+    if args.freeze_suites_only:
+        return
+    evaluation = evaluate(artifacts, paths, args.workdir, frozen_path)
     analysis = analyze(evaluation)
     classification, strong = classify(analysis)
     result = {
-        "schema": "alphazero_lite_pr254_third_seed_budget_replay_v1",
+        "schema": "alphazero_lite_pr254_third_seed_budget_repair_v1",
         "classification": classification,
         "frozen_artifacts": {
             "a16_snapshot_sha256": A16_SHA,
@@ -728,17 +907,11 @@ def main() -> None:
             "workers": WORKERS,
             "seed": SEED,
             "lanes": {"reused": 384, "fresh768": 768, "fresh1024": 1024},
-            "replay_sha256": {
-                lane: sha256_file(args.workdir / "generated" / f"{lane}.jsonl")
-                for lane in LANES
-            },
-            "state_outcome_sha256": hashes,
-            "batch_plan_sha256": {
-                lane: batch_plan_sha(rows) for lane, rows in eligible.items()
-            },
+            **replay_manifest,
         },
         "exclusions": exclusions["reused"],
         "suite_manifest": suite_manifest,
+        "preflight_audit": preflight,
         "target_geometry": geometry(eligible["reused"], telemetry),
         "training": training,
         "frozen_40_40": {
