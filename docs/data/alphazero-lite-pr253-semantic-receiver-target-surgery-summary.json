@@ -1,0 +1,18 @@
+{
+  "schema": "alphazero_lite_pr253_semantic_receiver_target_surgery_v1",
+  "classification": "semantic_causality_is_seed_specific",
+  "full_result": "/tmp/azlite_pr253_semantic_receiver_target_surgery/summary.json",
+  "primary_controls": {
+    "seed45_positive_minus_negative": {"effect": 0.044921875, "ci95": [0.035807291666666664, 0.0546875], "positive_suites": 3},
+    "seed46_positive_minus_negative": {"effect": 0.044921875, "ci95": [0.035807291666666664, 0.0546875], "positive_suites": 3}
+  },
+  "receiver_mass_fraction": {
+    "seed45": {"ordinary": 0.6982739073999638, "tactical": 0.3017260926000363},
+    "seed46": {"ordinary": 0.5865395193814368, "tactical": 0.41346048061856316}
+  },
+  "consumed_suites": {
+    "J": {"seed": 10042, "sha256": "7c0b097e18949a2d0ac5657116c565f3b9c0bb942ae69c9741dcd328915bf98b"},
+    "K": {"seed": 11042, "sha256": "64725ca85c6657eeefbbc329bc8a03f762bbbb7b615ff4fefeb4356fa158e1fd"},
+    "L": {"seed": 12042, "sha256": "147ff9d503975641da2ad366e1df93aa07a296190f850ed0514ecbf903b43ac0"}
+  }
+}
