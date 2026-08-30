@@ -125,6 +125,24 @@ _SPECS = (
         "0e066bbd3e6288efe4a7ba7bc26c29b27358bf8d85d686801a0a0521c8a4425b",
         "consumed_invalid_due_to_overlap",
     ),
+    ConsumedSuite(
+        "P",
+        _ROOT / "azlite_pr254_third_seed_budget_repair/suites/suite_P.jsonl",
+        16042,
+        "25f8de0e48421e6b112b1bd16425d2f9d645a235694dcd2757d9ae0e9a68e8b6",
+    ),
+    ConsumedSuite(
+        "Q",
+        _ROOT / "azlite_pr254_third_seed_budget_repair/suites/suite_Q.jsonl",
+        17042,
+        "5ba80e5857c9f52f533c6a3e3b1548a77daebbe45d806d2c76c6b9b425767ef5",
+    ),
+    ConsumedSuite(
+        "R",
+        _ROOT / "azlite_pr254_third_seed_budget_repair/suites/suite_R.jsonl",
+        18042,
+        "56766034b7027cccce8492a4cb80ca23f2edec409f2d07b9cd39cb55bfdd106b",
+    ),
 )
 
 
