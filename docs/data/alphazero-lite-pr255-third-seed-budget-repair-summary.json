@@ -1,0 +1,51 @@
+{
+  "schema": "alphazero_lite_pr255_third_seed_budget_repair_results_v1",
+  "classification": "third_seed_no_budget_split",
+  "full_result": "/tmp/azlite_pr254_third_seed_budget_repair/summary.json",
+  "frozen_files": {
+    "suite_registry_sha256": "6a2ee79b3449dc3718a9e0f98a8f1a6307af7b503da73d8714352713187dc70f",
+    "preflight_audit_sha256": "fb36f36daea817252286aeb0efcedc0e3029581db57c0ca716ca5660a85ae87f",
+    "frozen_manifest_sha256": "6da0b9f0fa0845c14c6cfbf785dcd72f344ba22464f921dc70dc9dacb991718f"
+  },
+  "preflight_audit_passed": true,
+  "runtime_artifacts": {
+    "a16_snapshot_sha256": "f38a3a9db15a095870c0294150fe81e4719cf77102c4b3de316fcae5e1b9c3ff",
+    "initial_adam_sha256": "61d5719e75aae87d7c2ca7ed2c5b01871ac2ea1675a34c4a6c918c783894e8c7",
+    "p1_checkpoint_sha256": "e4a9c95302c17b63405107d26b4cd4f90755d2b21980846ac6e9f0baabf7efe9",
+    "target_evaluator_sha256": "8eaa5765786468df9fade11727449af2263a5d0d6da0fa2138040ef2b8629d34"
+  },
+  "suites": {
+    "P": {"seed": 16042, "openings": 128, "sha256": "25f8de0e48421e6b112b1bd16425d2f9d645a235694dcd2757d9ae0e9a68e8b6"},
+    "Q": {"seed": 17042, "openings": 128, "sha256": "5ba80e5857c9f52f533c6a3e3b1548a77daebbe45d806d2c76c6b9b425767ef5"},
+    "R": {"seed": 18042, "openings": 128, "sha256": "56766034b7027cccce8492a4cb80ca23f2edec409f2d07b9cd39cb55bfdd106b"}
+  },
+  "candidates": {
+    "reused": {"full_model_sha256": "6c3b49660cb5a42c1b861742ac88bc944f81b657b9954fb5b5041d9cd25de657", "adapter_sha256": "eea48a24e8092567e8993e11d37b43a4446388bb361d0aabe4c4e4c9a4995a81", "optimizer_sha256": "00a62a73d77b157d3af4f1404da767ba88987d4b9a87bfb22091dd6bdb1d2fcf", "artifact_weights_sha256": "2bedbed64e34770d053c55a81322a9a8b5999866c59122156378d916bfb29ee8"},
+    "fresh768": {"full_model_sha256": "c0fc52cfd0c998536457a7cd31a4cf73ec5bbbf80574659d50261d35b18ac582", "adapter_sha256": "306c5f40f2e7be2ca58846d5bebd99c94ab46ee791d81e0d282fc91b6ba94e16", "optimizer_sha256": "bb110e549a15fe3711c4cea7e04572bc15fe8026e04718725a1096debc4c2391", "artifact_weights_sha256": "2de3cf04b1bad6ca22200d1c84e2e5af8540ac9ae7a42598d937abf782af65be"},
+    "fresh1024": {"full_model_sha256": "d8dbed923f24f761e992e00c04258578cf844aa909610c0f395b88e168551ea1", "adapter_sha256": "cdb8a12cf6a704932575901c2638cb68d840cb680f61026045bfc94053c8640a", "optimizer_sha256": "8718a5464d6887afe0ee3d329fa9cb78259b4de93f631ec494b69972cc660a19", "artifact_weights_sha256": "51640adfd348f876b89306c59b455c18985ba0b661ba369017c4b6f3cf0e763f"}
+  },
+  "arena": {"contract": "ordinary PUCT 1200:1200; matched P1-vs-P1 control on each of P/Q/R", "provenance": "frozen_manifest written before all retained arena records"},
+  "primary_contrast": {
+    "fresh768_minus_fresh1024": {
+      "P": 0.0,
+      "Q": 0.0,
+      "R": 0.0,
+      "pooled_effect": 0.0,
+      "pooled_opening_bootstrap_ci95": [0.0, 0.0],
+      "hierarchical_suite_opening_ci95": [0.0, 0.0],
+      "same_sign_suites": 3
+    }
+  },
+  "secondary_contrasts": {
+    "reused_minus_fresh768": {"per_suite": {"P": -0.037109375, "Q": -0.056640625, "R": -0.044921875}, "pooled_effect": -0.046223958333333336, "pooled_opening_bootstrap_ci95": [-0.056640625, -0.037109375], "hierarchical_suite_opening_ci95": [-0.0703125, -0.025390625], "same_sign_suites": 3},
+    "reused_minus_fresh1024": {"per_suite": {"P": -0.037109375, "Q": -0.056640625, "R": -0.044921875}, "pooled_effect": -0.046223958333333336, "pooled_opening_bootstrap_ci95": [-0.056640625, -0.037109375], "hierarchical_suite_opening_ci95": [-0.0703125, -0.025390625], "same_sign_suites": 3}
+  },
+  "absolute": {
+    "reused": {"P": {"effect": -0.01953125, "ci95": [-0.0390625, -0.00390625], "p0": -0.0390625, "p1": 0.0, "wdl": [200, 92, 220]}, "Q": {"effect": -0.03125, "ci95": [-0.0546875, -0.01171875], "p0": -0.0625, "p1": 0.0, "wdl": [180, 120, 212]}, "R": {"effect": -0.0234375, "ci95": [-0.04296875, -0.0078125], "p0": -0.046875, "p1": 0.0, "wdl": [194, 100, 218]}},
+    "fresh768": {"P": {"effect": 0.017578125, "ci95": [-0.005859375, 0.041015625], "p0": -0.0390625, "p1": 0.07421875, "wdl": [238, 54, 220]}, "Q": {"effect": 0.025390625, "ci95": [-0.005859375, 0.0546875], "p0": -0.0625, "p1": 0.11328125, "wdl": [238, 62, 212]}, "R": {"effect": 0.021484375, "ci95": [-0.00390625, 0.046875], "p0": -0.046875, "p1": 0.08984375, "wdl": [240, 54, 218]}},
+    "fresh1024": {"P": {"effect": 0.017578125, "ci95": [-0.005859375, 0.041015625], "p0": -0.0390625, "p1": 0.07421875, "wdl": [238, 54, 220]}, "Q": {"effect": 0.025390625, "ci95": [-0.005859375, 0.0546875], "p0": -0.0625, "p1": 0.11328125, "wdl": [238, 62, 212]}, "R": {"effect": 0.021484375, "ci95": [-0.00390625, 0.046875], "p0": -0.046875, "p1": 0.08984375, "wdl": [240, 54, 218]}}
+  },
+  "attribution": {"performed": false, "reason": "third_seed_no_budget_split"},
+  "three_seed_table": {"seed45": "768 strong, 1024 weak", "seed46": "1024 strong, 768 weak", "seed47": "third_seed_no_budget_split"},
+  "recommended_follow_up": "multi-replay-seed comparison and close the single-seed target-budget mechanism branch"
+}
