@@ -143,6 +143,42 @@ _SPECS = (
         18042,
         "56766034b7027cccce8492a4cb80ca23f2edec409f2d07b9cd39cb55bfdd106b",
     ),
+    ConsumedSuite(
+        "S",
+        _ROOT / "azlite_pr256_fresh768_replay_replication/suites/suite_S.jsonl",
+        19042,
+        "59224ca54c9102363cc00e50d424497485e13372909e59e0454a2ce2ae31f619",
+    ),
+    ConsumedSuite(
+        "T",
+        _ROOT / "azlite_pr256_fresh768_replay_replication/suites/suite_T.jsonl",
+        20042,
+        "e73cb13277168cf0d449f942525d16dd032cdd8e396393f598ac35af612526dd",
+    ),
+    ConsumedSuite(
+        "U",
+        _ROOT / "azlite_pr256_fresh768_replay_replication/suites/suite_U.jsonl",
+        21042,
+        "efcab1d3aecff06c223245a1b03f5679c2038168de6b4c46ffa557385dcf349a",
+    ),
+    ConsumedSuite(
+        "V",
+        _ROOT / "azlite_pr258_two_replay_aggregation/suites/suite_V.jsonl",
+        22042,
+        "b08ef373f8a958b7279afa3dde481e582a465451cc520160b737f5b4b90195e2",
+    ),
+    ConsumedSuite(
+        "W",
+        _ROOT / "azlite_pr258_two_replay_aggregation/suites/suite_W.jsonl",
+        23042,
+        "f6c016c67e51f5e829ee70e93be5614dbbef312cd1db9f95908b3363520d5712",
+    ),
+    ConsumedSuite(
+        "X",
+        _ROOT / "azlite_pr258_two_replay_aggregation/suites/suite_X.jsonl",
+        24042,
+        "00a93262cbbf2ca9dc0b97b5275337c80badb1aae338f25854d98628527184a0",
+    ),
 )
 
 
@@ -182,7 +218,7 @@ def _reconstruct(labels: tuple[str, ...], output: Path) -> dict[str, Path]:
 
 
 def load(workdir: Path) -> dict[str, ConsumedSuite]:
-    """Load the authoritative canonical-through-O registry, validating every SHA."""
+    """Load the authoritative canonical-through-X registry, validating every SHA."""
     if len({spec.label for spec in _SPECS}) != len(_SPECS):
         fail("duplicate consumed-suite label")
     missing_jkl = any(

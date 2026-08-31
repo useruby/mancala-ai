@@ -1,4 +1,4 @@
-"""Regression coverage for the canonical-through-R consumed-suite contract."""
+"""Regression coverage for the canonical-through-X consumed-suite contract."""
 
 from pathlib import Path
 
@@ -11,7 +11,7 @@ from ml.alphazero_lite import run_pr254_third_seed_budget_replay as pr254
 
 def test_registry_is_unique_deterministic_and_order_independent(tmp_path: Path) -> None:
     consumed = registry.load(tmp_path)
-    assert list(consumed) == ["canonical", *"ABCDEFGHIJKLMNOPQR"]
+    assert list(consumed) == ["canonical", *"ABCDEFGHIJKLMNOPQRSTUVWX"]
     assert len(consumed) == len(set(consumed))
     reversed_registry = dict(reversed(list(consumed.items())))
     assert registry.final_keys(consumed) == registry.final_keys(reversed_registry)
