@@ -179,6 +179,24 @@ _SPECS = (
         24042,
         "00a93262cbbf2ca9dc0b97b5275337c80badb1aae338f25854d98628527184a0",
     ),
+    ConsumedSuite(
+        "Y",
+        _ROOT / "azlite_pr259_two_replay_second_epoch/suites/suite_Y.jsonl",
+        25042,
+        "f6247d0e59b78af776270f80ecd6a00fc84c8fbcb69a462cbf07d5ecee49a6a9",
+    ),
+    ConsumedSuite(
+        "Z",
+        _ROOT / "azlite_pr259_two_replay_second_epoch/suites/suite_Z.jsonl",
+        26042,
+        "2b004a0e1a52f9a2776d1dfc459181d1bf89b45c591ac0f9a4fd39245ee2e996",
+    ),
+    ConsumedSuite(
+        "AA",
+        _ROOT / "azlite_pr259_two_replay_second_epoch/suites/suite_AA.jsonl",
+        27042,
+        "629e997fadca2f220cab61684ca6bc77116154e42c7371ebaf91b83b09093375",
+    ),
 )
 
 
@@ -218,7 +236,7 @@ def _reconstruct(labels: tuple[str, ...], output: Path) -> dict[str, Path]:
 
 
 def load(workdir: Path) -> dict[str, ConsumedSuite]:
-    """Load the authoritative canonical-through-X registry, validating every SHA."""
+    """Load the authoritative canonical-through-AA registry, validating every SHA."""
     if len({spec.label for spec in _SPECS}) != len(_SPECS):
         fail("duplicate consumed-suite label")
     missing_jkl = any(
