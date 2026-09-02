@@ -440,7 +440,7 @@ def _diagnostic_row(
         result = arena.evaluate_artifact_position(
             evaluator=evaluator,
             state=state,
-            simulations=int(context),
+            simulations=int(context.split(":", maxsplit=1)[0]),
             seed=seed,
             c_puct=1.25,
             search_options=build_eval_search_options(
