@@ -36,9 +36,19 @@ def test_policy_sublayer_scopes_train_exactly_one_residual_v3_family(
     assert trainable == expected
 
 
+def test_policy_readout_scope_supports_additive_adapter_model() -> None:
+    model = PolicyValueNet((96, 2), "residual_v3_parent_additive_policy_adapter", 15)
+
+    apply_trainable_scope(model, "policy_readout_only")
+
+    assert {
+        name for name, parameter in model.named_parameters() if parameter.requires_grad
+    } == {"policy_head.weight", "policy_head.bias"}
+
+
 @pytest.mark.parametrize("scope", ["policy_hidden_only", "policy_readout_only"])
 def test_policy_sublayer_scopes_reject_factorized_readout_semantics(scope: str) -> None:
-    with pytest.raises(ValueError, match="only supported for residual_v3"):
+    with pytest.raises(ValueError, match="not supported"):
         apply_trainable_scope(_model("residual_v4_move_factorized"), scope)
 
 
