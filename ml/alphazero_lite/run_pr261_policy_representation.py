@@ -54,6 +54,10 @@ KEYS = {
     "trunk_adapter": ("policy_adapter.weight", "policy_adapter.bias"),
     "policy_readout": ("policy_head.weight", "policy_head.bias"),
 }
+PARAMETER_COUNTS = {
+    "trunk_adapter": 582,
+    "policy_readout": 582,
+}
 SUITE_SEEDS = {"AE": 31042, "AF": 32042, "AG": 33042}
 
 
@@ -70,8 +74,8 @@ def state_copy(model: torch.nn.Module) -> dict[str, torch.Tensor]:
 def parameters(model: torch.nn.Module, lane: str) -> list[torch.nn.Parameter]:
     named = dict(model.named_parameters())
     result = [named[key] for key in KEYS[lane]]
-    if sum(parameter.numel() for parameter in result) != 582:
-        fail(f"{lane} trainable parameter count is not 582")
+    if sum(parameter.numel() for parameter in result) != PARAMETER_COUNTS[lane]:
+        fail(f"{lane} trainable parameter count is not {PARAMETER_COUNTS[lane]}")
     if {name for name, parameter in named.items() if parameter.requires_grad} != set(
         KEYS[lane]
     ):
@@ -225,7 +229,9 @@ def comparison(
     }
 
 
-def analyze(raw: dict[str, Any], labels: tuple[str, ...]) -> dict[str, Any]:
+def analyze(
+    raw: dict[str, Any], labels: tuple[str, ...], challenger: str = "policy_readout"
+) -> dict[str, Any]:
     per_seed, nested = {}, []
     for seed in SEEDS:
         suites, readout_strength, adapter_strength = {}, [], []
@@ -233,7 +239,7 @@ def analyze(raw: dict[str, Any], labels: tuple[str, ...]) -> dict[str, Any]:
         for label in labels:
             values = raw[label]
             diff = paired_effect_difference(
-                values[f"seed{seed}_policy_readout"]["effect"],
+                values[f"seed{seed}_{challenger}"]["effect"],
                 values[f"seed{seed}_trunk_adapter"]["effect"],
             )
             vector = np.asarray(
@@ -244,9 +250,7 @@ def analyze(raw: dict[str, Any], labels: tuple[str, ...]) -> dict[str, Any]:
             )
             suites[label], samples = float(vector.mean()), [*samples, vector]
             readout_strength.append(
-                values[f"seed{seed}_policy_readout"]["effect"][
-                    "paired_candidate_effect"
-                ]
+                values[f"seed{seed}_{challenger}"]["effect"]["paired_candidate_effect"]
             )
             adapter_strength.append(
                 values[f"seed{seed}_trunk_adapter"]["effect"]["paired_candidate_effect"]
@@ -273,7 +277,7 @@ def analyze(raw: dict[str, Any], labels: tuple[str, ...]) -> dict[str, Any]:
                 )
                 for q in (0.025, 0.975)
             ],
-            "policy_readout_absolute_adjusted_p1_strength": float(
+            f"{challenger}_absolute_adjusted_p1_strength": float(
                 np.mean(readout_strength)
             ),
             "trunk_adapter_absolute_adjusted_p1_strength": float(

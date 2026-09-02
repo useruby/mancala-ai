@@ -1698,9 +1698,10 @@ def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
         return
 
     if scope in {"policy_hidden_only", "policy_readout_only"}:
-        supported_model_types = {"residual_v3"}
-        if scope == "policy_readout_only":
-            supported_model_types.add("residual_v3_parent_additive_policy_adapter")
+        supported_model_types = {
+            "residual_v3",
+            "residual_v3_parent_additive_policy_adapter",
+        }
         if model.model_type not in supported_model_types:
             raise ValueError(
                 f"trainable_scope={scope} is not supported for {model.model_type}"

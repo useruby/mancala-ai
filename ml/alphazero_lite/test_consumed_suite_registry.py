@@ -21,6 +21,9 @@ def test_registry_is_unique_deterministic_and_order_independent(tmp_path: Path) 
         "AE",
         "AF",
         "AG",
+        "AH",
+        "AI",
+        "AJ",
     ]
     assert len(consumed) == len(set(consumed))
     reversed_registry = dict(reversed(list(consumed.items())))
