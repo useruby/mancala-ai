@@ -40,6 +40,20 @@ SOURCE = Path("/tmp/azlite_pr261_policy_representation")
 SEEDS, STEPS = tuple(range(53, 63)), (1, 4, 16)
 KEYS = ("policy_hidden_layer.weight", "policy_hidden_layer.bias")
 SUITE_SEEDS = {"AH": 34042, "AI": 35042, "AJ": 36042}
+EXPECTED_CANDIDATE_SHA = (
+    "48c828b98bc8d906d71fb9c7209be3df0889a33096fe14eccddce45ab18a854b"
+)
+EXPECTED_SUITE_MANIFEST_SHA = (
+    "ad077c90dc36deafec19512320e6ddfe9077cba33701c5171615b7f35a68ca9e"
+)
+EXPECTED_PREFLIGHT_SHA = (
+    "6d761626b5b9a17a4efaa6b1f41f806cf4254aabe4ebdc12ce785d216e140747"
+)
+EXPECTED_SUITE_SHA = {
+    "AH": "c16148b43cb652f2dc28ca4b8e94c67f66da471f3cc36d318e73ce3258483784",
+    "AI": "1c1de16cc5c4f16696858b054c07747575301e27ff9308f270dfdc4cfd13579b",
+    "AJ": "95b3c2dc333a5411562b1a1aeeccb0e093a1af9f7e6f4aa4b61362301416798d",
+}
 
 
 def fail(message: str) -> None:
@@ -176,14 +190,298 @@ def classify(primary: dict[str, Any], learned: int, shallow: dict[str, Any]) -> 
     return "policy_hidden_fit_not_strength"
 
 
+def recommended_next_experiment(classification: str) -> str:
+    recommendations = {
+        "policy_hidden_capacity_improves_strength": (
+            "Test a zero-initialized additive nonlinear adapter over frozen "
+            "policy_hidden features, preserving inherited P1 tensors."
+        ),
+        "policy_hidden_capacity_high_budget_with_shallow_harm": (
+            "Test the same additive nonlinear adapter concept with a "
+            "preregistered shallow-search safety guard."
+        ),
+        "policy_hidden_capacity_seed_sensitive": (
+            "Do not add more head capacity; move to a prospective "
+            "multi-generation AlphaZero iteration."
+        ),
+        "policy_hidden_fit_not_strength": (
+            "Close isolated supervised-head fitting; run a true joint "
+            "policy/value/trunk AlphaZero generation/replacement cycle."
+        ),
+        "policy_hidden_degrades_strength": (
+            "Keep inherited policy tensors frozen; retain additive adapter "
+            "architecture and move to prospective iterative AlphaZero training "
+            "rather than further unfreezing."
+        ),
+    }
+    return recommendations.get(
+        classification, "No follow-up until the invariant failure is resolved."
+    )
+
+
+def evaluate_only(workdir: Path, workers: int, started: float) -> dict[str, Any]:
+    """Complete the frozen experiment without retraining or resealing inputs."""
+    frozen_path, manifest_path = (
+        workdir / "frozen_candidates.json",
+        workdir / "frozen_manifest.json",
+    )
+    if not frozen_path.is_file() or not manifest_path.is_file():
+        fail("evaluate-only requires frozen_candidates.json and frozen_manifest.json")
+    frozen = json.loads(frozen_path.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if frozen["candidate_model_sha256"] != EXPECTED_CANDIDATE_SHA:
+        fail("frozen candidate aggregate SHA mismatch")
+    if manifest["candidate_model_sha256"] != EXPECTED_CANDIDATE_SHA:
+        fail("frozen manifest candidate aggregate SHA mismatch")
+    if manifest["suite_manifest_sha256"] != EXPECTED_SUITE_MANIFEST_SHA:
+        fail("frozen suite manifest identity mismatch")
+    if manifest["preflight_sha256"] != EXPECTED_PREFLIGHT_SHA:
+        fail("frozen preflight identity mismatch")
+    if (
+        pr258.canonical_sha(manifest["suite_manifest"])
+        != manifest["suite_manifest_sha256"]
+    ):
+        fail("frozen suite manifest hash mismatch")
+    if pr258.canonical_sha(manifest["preflight"]) != manifest["preflight_sha256"]:
+        fail("frozen preflight hash mismatch")
+
+    registry = registry_module.load(workdir)
+    expected_registry = [
+        "canonical",
+        *"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "AA",
+        "AB",
+        "AC",
+        "AD",
+        "AE",
+        "AF",
+        "AG",
+        "AH",
+        "AI",
+        "AJ",
+    ]
+    if list(registry) != expected_registry:
+        fail("registry is not authoritative through AJ")
+    replays, _plans, _source_candidates = pr260.load_source(registry)
+
+    candidates, identities = {}, {}
+    source = json.loads((SOURCE / "frozen_candidates.json").read_text(encoding="utf-8"))
+    for seed in SEEDS:
+        for lane, root, expected in (
+            (
+                "trunk_adapter",
+                SOURCE / "train" / f"seed{seed}",
+                source["training"][str(seed)]["lanes"]["trunk_adapter"]["metrics"][
+                    "16"
+                ]["model_sha256"],
+            ),
+            (
+                "policy_hidden",
+                workdir / "train" / f"seed{seed}",
+                frozen["training"][str(seed)]["metrics"]["16"]["model_sha256"],
+            ),
+        ):
+            checkpoint = root / f"{lane}_step16.pt"
+            artifact = root / lane / "artifact"
+            if not checkpoint.is_file() or not (artifact / "model.npz").is_file():
+                fail(f"missing frozen {lane} candidate for seed {seed}")
+            state = torch.load(checkpoint, map_location="cpu", weights_only=False)[
+                "model"
+            ]
+            model_sha = pr258.contract.state_sha256(state)
+            if model_sha != expected:
+                fail(f"frozen {lane} model SHA mismatch for seed {seed}")
+            name = f"seed{seed}_{lane}"
+            candidates[name] = artifact
+            identities[name] = {
+                "model_state_sha256": model_sha,
+                "artifact_path": str(artifact),
+                "artifact_model_npz_sha256": sha256_file(artifact / "model.npz"),
+            }
+    if (
+        pr258.canonical_sha(
+            {
+                name: identity["model_state_sha256"]
+                for name, identity in identities.items()
+            }
+        )
+        != EXPECTED_CANDIDATE_SHA
+    ):
+        fail("audited candidate aggregate SHA mismatch")
+
+    suite_paths = {
+        label: workdir / "suites" / f"suite_{label}.jsonl" for label in SUITE_SEEDS
+    }
+    suite_audit, suite_keys, suite_prefixes = {}, {}, {}
+    replay_states = set().union(
+        *(set(tuple(row["state"]) for row in rows) for rows in replays.values())
+    )
+    for label, path in suite_paths.items():
+        if not path.is_file() or sha256_file(path) != EXPECTED_SUITE_SHA[label]:
+            fail(f"frozen {label} suite SHA mismatch")
+        rows = pr258.suites.load_suite_jsonl(str(path))
+        keys = pr258.pr249.suite_keys(rows)
+        prefixes = pr258.pr251.prefix_keys(rows)
+        suite_keys[label], suite_prefixes[label] = keys, prefixes
+        suite_audit[label] = {
+            "sha256": sha256_file(path),
+            "openings": len(rows),
+            "final_overlap_registry": len(
+                keys
+                & registry_module.final_keys(
+                    {
+                        key: value
+                        for key, value in registry.items()
+                        if key not in SUITE_SEEDS
+                    }
+                )
+            ),
+            "prefix_overlap_registry": len(
+                prefixes
+                & registry_module.prefix_keys(
+                    {
+                        key: value
+                        for key, value in registry.items()
+                        if key not in SUITE_SEEDS
+                    }
+                )
+            ),
+            "replay_state_overlap": sum(
+                tuple(pr258.encode_state(row["state"], input_encoding="kalah_v3"))
+                in replay_states
+                for row in rows
+            ),
+        }
+        if suite_audit[label]["openings"] != 128 or any(
+            suite_audit[label][key]
+            for key in (
+                "final_overlap_registry",
+                "prefix_overlap_registry",
+                "replay_state_overlap",
+            )
+        ):
+            fail(f"frozen {label} suite preflight mismatch")
+    for left in SUITE_SEEDS:
+        for right in SUITE_SEEDS:
+            if left < right:
+                final_overlap = len(suite_keys[left] & suite_keys[right])
+                prefix_overlap = len(suite_prefixes[left] & suite_prefixes[right])
+                if final_overlap or prefix_overlap:
+                    fail(f"frozen suite mutual overlap: {left}/{right}")
+                suite_audit[left][f"final_overlap_{right}"] = final_overlap
+                suite_audit[left][f"prefix_overlap_{right}"] = prefix_overlap
+    if not manifest["preflight"].get("passed"):
+        fail("frozen preflight was not successful")
+
+    probe_path = workdir / "search_probe.json"
+    if probe_path.is_file():
+        probe_results = json.loads(probe_path.read_text(encoding="utf-8"))
+    else:
+        probe = [row for seed in SEEDS for row in replays[seed]][:256]
+        probe_results = {
+            str(seed): {
+                context: pr260.search_diagnostics(
+                    candidates[f"seed{seed}_trunk_adapter"],
+                    candidates[f"seed{seed}_policy_hidden"],
+                    probe,
+                    context,
+                    workers,
+                )
+                | {"first_divergence_simulation": "not_available"}
+                for context in ("384:256", "1200:1200")
+            }
+            for seed in SEEDS
+        }
+        probe_path.write_text(
+            json.dumps(probe_results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    contract = {
+        "contexts": ["1200:1200", "384:256"],
+        "c_puct": 1.25,
+        "fpu_mode": "zero",
+        "normalize_values": False,
+        "deterministic": True,
+        "seat_swap": True,
+        "arena_seed": 42,
+        "matched_p1_vs_p1_control_per_suite": True,
+    }
+
+    def evaluate_context(context: str) -> dict[str, Any]:
+        results = {}
+        for label, path in suite_paths.items():
+            path = workdir / "evaluation_cache" / context / f"{label}.json"
+            if path.is_file():
+                results[label] = json.loads(path.read_text(encoding="utf-8"))
+                continue
+            value = pr260.evaluate(
+                candidates, {label: suite_paths[label]}, workdir, context, workers
+            )[label]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
+            results[label] = value
+        return results
+
+    primary_path = workdir / "primary_1200_analysis.json"
+    if primary_path.is_file():
+        primary = json.loads(primary_path.read_text(encoding="utf-8"))
+    else:
+        primary = pr261.analyze(
+            evaluate_context("1200:1200"), tuple(SUITE_SEEDS), "policy_hidden"
+        )
+        primary_path.write_text(
+            json.dumps(primary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    shallow = pr261.analyze(
+        evaluate_context("384:256"), tuple(SUITE_SEEDS), "policy_hidden"
+    )
+    learned = sum(
+        values["heldout_beta095_ce"]["16"] < values["heldout_beta095_ce"]["initial"]
+        for values in frozen["training"].values()
+    )
+    classification = classify(primary, learned, shallow)
+    result = {
+        "schema": "alphazero_lite_pr262_policy_hidden_capacity_evaluation_v1",
+        "frozen_artifact_identities": identities,
+        "frozen_candidate_aggregate_sha256": EXPECTED_CANDIDATE_SHA,
+        "frozen_suite_audit": suite_audit,
+        "frozen_manifest_hashes": {
+            "suite_manifest_sha256": manifest["suite_manifest_sha256"],
+            "preflight_sha256": manifest["preflight_sha256"],
+        },
+        "evaluation_contract": contract,
+        "search_probe": probe_results,
+        "primary_arena": primary,
+        "shallow_arena": shallow,
+        "heldout_beta095_ce_improved_seeds": learned,
+        "classification": classification,
+        "recommended_next_experiment": recommended_next_experiment(classification),
+        "wall_clock_seconds": time.monotonic() - started,
+    }
+    (workdir / "summary.json").write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    (
+        REPO_ROOT / "docs/data/alphazero-lite-pr262-policy-hidden-capacity-summary.json"
+    ).write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--workdir", type=Path, default=Path("/tmp/azlite_pr262_policy_hidden_capacity")
     )
     parser.add_argument("--freeze-only", action="store_true")
+    parser.add_argument("--evaluate-only", action="store_true")
     parser.add_argument("--workers", type=int, default=24)
     args, started = parser.parse_args(), time.monotonic()
+    if args.freeze_only and args.evaluate_only:
+        parser.error("--freeze-only and --evaluate-only cannot be combined")
+    if args.evaluate_only:
+        print(evaluate_only(args.workdir, args.workers, started)["classification"])
+        return
     registry = registry_module.load(args.workdir)
     expected_registry = [
         "canonical",

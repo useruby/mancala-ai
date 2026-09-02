@@ -1,6 +1,6 @@
 # PR #262 Policy Hidden Capacity Results
 
-**Status:** candidate and suite freeze complete; arena classification pending.
+**Status:** complete. Classification: `policy_hidden_degrades_strength`.
 
 ## Frozen Contract
 
@@ -53,8 +53,72 @@
   `1c1de16cc5c4f16696858b054c07747575301e27ff9308f270dfdc4cfd13579b`, and
   `95b3c2dc333a5411562b1a1aeeccb0e093a1af9f7e6f4aa4b61362301416798d`.
 
-## Pending Evaluation
+## Evaluation Contract
 
-The sealed candidates must next receive the preregistered ordinary `1200:1200`
-and secondary `384:256` arenas plus the frozen 256-state search probe. No
-strength classification is made until those sealed evaluations complete.
+- The candidate audit passed for all 20 fixed artifacts: ten
+  `seedXX_trunk_adapter` and ten `seedXX_policy_hidden` state SHA-256 values
+  reproduced the frozen aggregate
+  `48c828b98bc8d906d71fb9c7209be3df0889a33096fe14eccddce45ab18a854b`.
+  Exported artifact paths and SHA-256 values are in
+  `docs/data/alphazero-lite-pr262-policy-hidden-capacity-summary.json`.
+- AH/AI/AJ exactly matched their sealed SHA-256 values. Each had 128 openings
+  and zero consumed-suite, prefix, replay-state, and mutual overlap. The frozen
+  suite-manifest and preflight hashes remained respectively
+  `ad077c90dc36deafec19512320e6ddfe9077cba33701c5171615b7f35a68ca9e` and
+  `6d761626b5b9a17a4efaa6b1f41f806cf4254aabe4ebdc12ce785d216e140747`.
+- Both arenas used the preregistered ordinary deterministic contract: `c_puct`
+  `1.25`, FPU zero, `normalize_values=false`, seat swap, arena seed 42, and a
+  matched P1-vs-P1 control per suite. No candidates or suites were changed.
+
+## Search Probe
+
+The fixed 256 replay states were probed for every seed at `384:256` and
+`1200:1200` before arenas. All per-seed selected-move disagreement, visit-policy
+JS, root-value shift, selected-child Q-rank change, and unavailable first-
+divergence fields are recorded in the machine-readable summary. The probe was
+diagnostic only and was not used for selection or classification.
+
+## Primary Arena: 1200:1200
+
+| Replay seed | AH delta | AI delta | AJ delta | Pooled delta | Opening CI95 |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 53 | -.003906 | -.007812 | -.001953 | -.004557 | [-.008464, -.001953] |
+| 54 | -.003906 | -.007812 | -.001953 | -.004557 | [-.008464, -.001953] |
+| 55 | -.003906 | -.007812 | -.001953 | -.004557 | [-.008464, -.001953] |
+| 56 | -.007812 | -.013672 | -.009766 | -.010417 | [-.015625, -.005859] |
+| 57 | -.046875 | -.048828 | -.042969 | -.046224 | [-.056641, -.038395] |
+| 58 | -.003906 | -.007812 | -.001953 | -.004557 | [-.008464, -.001953] |
+| 59 | -.046875 | -.048828 | -.042969 | -.046224 | [-.056641, -.038395] |
+| 60 | -.003906 | -.007812 | -.001953 | -.004557 | [-.008464, -.001953] |
+| 61 | -.046875 | -.048828 | -.042969 | -.046224 | [-.056641, -.038395] |
+| 62 | -.046875 | -.048828 | -.042969 | -.046224 | [-.056641, -.038395] |
+
+- Hidden and adapter absolute P1 effects per replay seed are recorded in the
+  summary JSON alongside the tabled deltas.
+- Mean delta: `-.021810`; median: `-.007487`; SD: `.021088`; range:
+  `[-.046224, -.004557]`; positive seeds: `0/10`.
+- Hierarchical replay-seed, suite, opening bootstrap CI95:
+  `[-.035547, -.009180]`.
+- Held-out beta-.95 CE still improved in `10/10` seeds. It did not translate to
+  strength: the primary mean was below `-.02` and four replay seeds were below
+  `-.02`.
+
+## Secondary Arena: 384:256
+
+- Mean delta: `-.048242`; median: `-.062500`; SD: `.042666`; range:
+  `[-.078776, +.062500]`; positive seeds: `1/10`.
+- Hierarchical CI95: `[-.070703, -.018750]`. Nine seeds were below `-.02`, so
+  the preregistered shallow-harm condition also triggered.
+
+## Classification
+
+`policy_hidden_degrades_strength`
+
+The larger policy-hidden update space improved the held-out supervised metric
+but degraded game strength relative to the frozen PR #261 trunk adapter. No
+candidate is promoted.
+
+## Recommended Next Experiment
+
+Keep inherited policy tensors frozen; retain additive adapter architecture and
+move to prospective iterative AlphaZero training rather than further unfreezing.
