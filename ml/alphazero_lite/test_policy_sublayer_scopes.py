@@ -36,14 +36,31 @@ def test_policy_sublayer_scopes_train_exactly_one_residual_v3_family(
     assert trainable == expected
 
 
-def test_policy_readout_scope_supports_additive_adapter_model() -> None:
+@pytest.mark.parametrize(
+    ("scope", "expected"),
+    [
+        (
+            "policy_hidden_only",
+            {"policy_hidden_layer.weight", "policy_hidden_layer.bias"},
+        ),
+        ("policy_readout_only", {"policy_head.weight", "policy_head.bias"}),
+    ],
+)
+def test_policy_sublayer_scopes_support_additive_adapter_model(
+    scope: str, expected: set[str]
+) -> None:
     model = PolicyValueNet((96, 2), "residual_v3_parent_additive_policy_adapter", 15)
 
-    apply_trainable_scope(model, "policy_readout_only")
+    apply_trainable_scope(model, scope)
 
     assert {
         name for name, parameter in model.named_parameters() if parameter.requires_grad
-    } == {"policy_head.weight", "policy_head.bias"}
+    } == expected
+    assert all(
+        not parameter.requires_grad
+        for name, parameter in model.named_parameters()
+        if name not in expected
+    )
 
 
 @pytest.mark.parametrize("scope", ["policy_hidden_only", "policy_readout_only"])

@@ -233,6 +233,24 @@ _SPECS = (
         33042,
         "d16a01beaae8af6959523e715c5272e6e6c51fbe21a52d0ff86ef096f780fcb2",
     ),
+    ConsumedSuite(
+        "AH",
+        _ROOT / "azlite_pr262_policy_hidden_capacity/suites/suite_AH.jsonl",
+        34042,
+        "c16148b43cb652f2dc28ca4b8e94c67f66da471f3cc36d318e73ce3258483784",
+    ),
+    ConsumedSuite(
+        "AI",
+        _ROOT / "azlite_pr262_policy_hidden_capacity/suites/suite_AI.jsonl",
+        35042,
+        "1c1de16cc5c4f16696858b054c07747575301e27ff9308f270dfdc4cfd13579b",
+    ),
+    ConsumedSuite(
+        "AJ",
+        _ROOT / "azlite_pr262_policy_hidden_capacity/suites/suite_AJ.jsonl",
+        36042,
+        "95b3c2dc333a5411562b1a1aeeccb0e093a1af9f7e6f4aa4b61362301416798d",
+    ),
 )
 
 
