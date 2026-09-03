@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest import mock
 
 import numpy as np
+import torch
 
 from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite import self_play
@@ -19,6 +20,11 @@ from ml.alphazero_lite.input_encodings import (
     KALAH_V3_EXTRA_FEATURE_ORDER,
 )
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.train import (
+    checkpoint_from_model,
+    input_size_for_encoding,
+    PolicyValueNet,
+)
 
 
 VALUE_TARGET_PARITY_FIXTURE = (
@@ -972,6 +978,144 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         np.testing.assert_allclose(expected_policy, policy, rtol=1e-6, atol=1e-6)
         self.assertAlmostEqual(expected_value, value)
+
+    def test_checkpoint_evaluator_matches_additive_adapter_torch_model(self):
+        torch.manual_seed(264)
+        model = PolicyValueNet(
+            (96, 3),
+            "residual_v3_parent_additive_policy_adapter",
+            input_size_for_encoding("kalah_v3"),
+        ).eval()
+        assert model.policy_adapter is not None
+        with torch.no_grad():
+            model.policy_adapter.weight.copy_(
+                torch.arange(576, dtype=torch.float32).reshape(6, 96) / 10000
+            )
+            model.policy_adapter.bias.copy_(torch.arange(6, dtype=torch.float32) / 100)
+        games = [
+            self._checkpoint_evaluator_test_game(current_player=0),
+            self._checkpoint_evaluator_test_game(current_player=1),
+            KalahGame.from_state(
+                {
+                    "player_pits": [0, 1, 2, 3, 4, 5],
+                    "opponent_pits": [5, 4, 3, 2, 1, 0],
+                    "player_store": 10,
+                    "opponent_store": 8,
+                    "current_player": 0,
+                }
+            ),
+        ]
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint_from_model(model))
+            evaluator = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v3"
+            )
+            for game in games:
+                x = torch.tensor(
+                    [self_play.encode_state(game.to_state(), input_encoding="kalah_v3")]
+                )
+                with torch.no_grad():
+                    logits, value = model(x)
+                policy, exported_value = evaluator.evaluate(game)
+                np.testing.assert_allclose(
+                    policy,
+                    torch.softmax(logits, dim=1).numpy()[0],
+                    rtol=1e-6,
+                    atol=1e-6,
+                )
+                self.assertAlmostEqual(exported_value, value.item(), places=6)
+
+    def test_additive_adapter_changes_only_policy_by_expected_term(self):
+        torch.manual_seed(265)
+        model = PolicyValueNet(
+            (96, 3),
+            "residual_v3_parent_additive_policy_adapter",
+            input_size_for_encoding("kalah_v3"),
+        ).eval()
+        assert model.policy_adapter is not None
+        game = self._checkpoint_evaluator_test_game()
+        x = torch.tensor(
+            [self_play.encode_state(game.to_state(), input_encoding="kalah_v3")]
+        )
+        with torch.no_grad():
+            base, adapter, combined = model.policy_logits_components(x)
+            _base_logits, base_value = model(x)
+            model.policy_adapter.weight.fill_(0.01)
+            model.policy_adapter.bias.copy_(torch.arange(6, dtype=torch.float32) / 10)
+            expected_adapter = model.policy_adapter(model.trunk_features(x).detach())
+            changed_base, changed_adapter, changed_logits = (
+                model.policy_logits_components(x)
+            )
+            _changed_policy, changed_value = model(x)
+        np.testing.assert_allclose(base.numpy(), changed_base.numpy(), atol=1e-7)
+        np.testing.assert_allclose(
+            (changed_logits - changed_base).numpy(), expected_adapter.numpy(), atol=1e-7
+        )
+        self.assertFalse(np.allclose(adapter.numpy(), changed_adapter.numpy()))
+        self.assertAlmostEqual(base_value.item(), changed_value.item(), places=7)
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint_from_model(model))
+            policy, value = self_play.CheckpointEvaluator(
+                checkpoint_path, input_encoding="kalah_v3"
+            ).evaluate(game)
+        np.testing.assert_allclose(
+            policy, torch.softmax(changed_logits, dim=1).numpy()[0], atol=1e-6
+        )
+        self.assertAlmostEqual(value, changed_value.item(), places=6)
+
+    def test_checkpoint_evaluator_rejects_partial_additive_adapter(self):
+        checkpoint = {
+            "w_input": np.zeros((15, 2), dtype=np.float32),
+            "b_input": np.zeros(2, dtype=np.float32),
+            "w_residual_1_1": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_1": np.zeros(2, dtype=np.float32),
+            "w_residual_1_2": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_2": np.zeros(2, dtype=np.float32),
+            "w_policy": np.zeros((2, 6), dtype=np.float32),
+            "b_policy": np.zeros(6, dtype=np.float32),
+            "w_value": np.zeros((2, 1), dtype=np.float32),
+            "b_value": np.zeros(1, dtype=np.float32),
+            "w_policy_adapter": np.zeros((2, 6), dtype=np.float32),
+        }
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint)
+            with self.assertRaisesRegex(ValueError, "missing additive policy adapter"):
+                self_play.CheckpointEvaluator(
+                    checkpoint_path, input_encoding="kalah_v1"
+                )
+
+    def test_checkpoint_evaluator_rejects_invalid_additive_adapter_shapes(self):
+        checkpoint = {
+            "w_input": np.zeros((15, 2), dtype=np.float32),
+            "b_input": np.zeros(2, dtype=np.float32),
+            "w_residual_1_1": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_1": np.zeros(2, dtype=np.float32),
+            "w_residual_1_2": np.zeros((2, 2), dtype=np.float32),
+            "b_residual_1_2": np.zeros(2, dtype=np.float32),
+            "w_policy": np.zeros((2, 6), dtype=np.float32),
+            "b_policy": np.zeros(6, dtype=np.float32),
+            "w_value": np.zeros((2, 1), dtype=np.float32),
+            "b_value": np.zeros(1, dtype=np.float32),
+            "w_policy_adapter": np.zeros((3, 6), dtype=np.float32),
+            "b_policy_adapter": np.zeros(6, dtype=np.float32),
+        }
+        with tempfile.TemporaryDirectory(prefix="azlite-self-play-") as tmp:
+            checkpoint_path = Path(tmp) / "checkpoint.npz"
+            np.savez(checkpoint_path, **checkpoint)
+            with self.assertRaisesRegex(ValueError, "adapter has invalid shape"):
+                self_play.CheckpointEvaluator(
+                    checkpoint_path, input_encoding="kalah_v1"
+                )
+            checkpoint["w_policy_adapter"] = np.zeros((2, 6), dtype=np.float32)
+            checkpoint["b_policy_adapter"] = np.zeros(5, dtype=np.float32)
+            np.savez(checkpoint_path, **checkpoint)
+            with self.assertRaisesRegex(ValueError, "adapter bias has invalid shape"):
+                self_play.CheckpointEvaluator(
+                    checkpoint_path, input_encoding="kalah_v1"
+                )
 
     def test_checkpoint_evaluator_rejects_partial_residual_v3_specialized_heads(self):
         checkpoint = {
