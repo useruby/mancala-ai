@@ -699,6 +699,8 @@ class CheckpointEvaluator(Evaluator):
         self.b_policy_hidden = None
         self.w_value_hidden = None
         self.b_value_hidden = None
+        self.w_policy_adapter = None
+        self.b_policy_adapter = None
         self.uses_specialized_heads = False
         specialized_head_keys = [
             "w_policy_hidden",
@@ -724,6 +726,26 @@ class CheckpointEvaluator(Evaluator):
             self.b_value_hidden = npz["b_value_hidden"]
             self.uses_specialized_heads = True
             self._validate_specialized_head_shapes()
+        adapter_keys = ("w_policy_adapter", "b_policy_adapter")
+        present_adapter_keys = [key for key in adapter_keys if key in npz]
+        if present_adapter_keys:
+            if len(present_adapter_keys) != len(adapter_keys):
+                raise ValueError(
+                    "checkpoint is missing additive policy adapter weights"
+                )
+            self.w_policy_adapter = npz["w_policy_adapter"]
+            self.b_policy_adapter = npz["b_policy_adapter"]
+            trunk_size = (
+                self.w_input.shape[1]
+                if self.w_input is not None
+                else self.hidden_layers[-1][0].shape[1]
+            )
+            if self.w_policy_adapter.shape != (trunk_size, PITS_PER_PLAYER):
+                raise ValueError("checkpoint additive policy adapter has invalid shape")
+            if self.b_policy_adapter.shape != (PITS_PER_PLAYER,):
+                raise ValueError(
+                    "checkpoint additive policy adapter bias has invalid shape"
+                )
         self.input_encoding = input_encoding
         self.checkpoint_identity = self._checkpoint_identity_for(checkpoint_path)
         self.cache = EvalCache(cache_size) if cache_size > 0 else None
@@ -859,6 +881,10 @@ class CheckpointEvaluator(Evaluator):
             )
 
         policy_logits = (policy_hidden @ self.w_policy) + self.b_policy
+        if self.w_policy_adapter is not None and self.b_policy_adapter is not None:
+            policy_logits = (
+                policy_logits + (hidden @ self.w_policy_adapter) + self.b_policy_adapter
+            )
         value_logit = float(
             ((value_hidden @ self.w_value) + self.b_value).reshape(-1)[0]
         )
