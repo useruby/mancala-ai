@@ -5,13 +5,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
+from statistics import fmean
 from pathlib import Path
 from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 LEDGER_PATH = "docs/data/alphazero-lite-a16-lineage-closeout.json"
+PR268_SUMMARY_PATH = "docs/data/alphazero-lite-pr268-gumbel-root-preflight-summary.json"
 FROZEN_HASHES = {
     "head_sha": "91823644a205af601234287e66773d6fae0bb25e",
     "merge_commit": "d09d6b03101e07a3723835ea3ce26bdf89a70d26",
@@ -29,6 +32,12 @@ CLASSIFICATIONS = {
     "residual-v4-classic-mcts-strength": "architecture_only_not_strength",
     "exact-tablebase-direct-patch": "exact_tablebase_control_regression_intrinsic",
     "tablebase-value-overlay-1600": "tablebase_value_overlay_not_competitive_as_single_phase_bootstrap",
+    "PR #268": "gumbel_root_regresses_subsets",
+}
+PR268_FROZEN_IDENTITIES = {
+    "head_sha": "85e6ec8d95fe96e35185cef342a76f72f1c1958a",
+    "merge_commit": "2a9434d3fb5b9aa01a76355e975b07c5d3c28006",
+    "summary_blob": "0c489710d4861d647b2c643c5e6ca0d86849fa36",
 }
 EXPECTED_SUITES = {
     "canonical": (
@@ -69,7 +78,86 @@ def registry_suites(repo_root: Path) -> dict[str, tuple[int | None, str]]:
     return result
 
 
-def validate(repo_root: Path = REPO_ROOT, ledger_path: Path | None = None) -> None:
+def pr268_evidence(summary: dict[str, Any]) -> dict[str, Any]:
+    """Derive the ledger fields from the committed PR #268 result rows."""
+    rows = summary.get("results", [])
+    if len(summary.get("corpus", [])) != 128 or len(rows) != 384:
+        fail("PR #268 corpus or result count mismatch")
+    return {
+        "frozen_model": summary.get("frozen_model"),
+        "evaluation": {
+            "search_budget": {
+                "neural_evaluations": summary.get("preregistration", {}).get(
+                    "evaluation_budget"
+                )
+            },
+            "reference_budget": {
+                "continuation_simulations": summary.get("preregistration", {}).get(
+                    "continuation_simulations"
+                )
+            },
+            "seeds": summary.get("preregistration", {}).get("seeds"),
+        },
+        "corpus_result_counts": {
+            "states": len(summary["corpus"]),
+            "paired_result_rows": len(rows),
+        },
+        "primary_metrics": {
+            "paired_regret_difference": {
+                "mean": summary.get("paired_hierarchical_bootstrap", {}).get("mean"),
+                "ci95": [
+                    summary.get("paired_hierarchical_bootstrap", {}).get("lower_95"),
+                    summary.get("paired_hierarchical_bootstrap", {}).get("upper_95"),
+                ],
+            },
+            "ordinary_puct": {
+                "mean_regret": fmean(row["puct"]["regret"] for row in rows),
+                "exact_best_agreement": fmean(
+                    row["puct"]["exact_best_action"] for row in rows
+                ),
+                "catastrophic_miss_rate": fmean(
+                    row["puct"]["catastrophic_miss"] for row in rows
+                ),
+            },
+            "gumbel": {
+                "mean_regret": fmean(row["gumbel"]["regret"] for row in rows),
+                "exact_best_agreement": fmean(
+                    row["gumbel"]["exact_best_action"] for row in rows
+                ),
+                "catastrophic_miss_rate": fmean(
+                    row["gumbel"]["catastrophic_miss"] for row in rows
+                ),
+            },
+        },
+        "invariant_status": summary.get("invariants"),
+        "padding_call_totals": {
+            "ordinary_puct": sum(row["puct"]["budget_padding_calls"] for row in rows),
+            "gumbel": sum(row["gumbel"]["budget_padding_calls"] for row in rows),
+        },
+        "diagnostic_only_suite_status": summary.get("guardrails"),
+    }
+
+
+def evidence_matches(actual: Any, expected: Any) -> bool:
+    """Allow only the final-bit reduction-order drift from NumPy's mean."""
+    if isinstance(actual, float) and isinstance(expected, float):
+        return math.isclose(actual, expected, rel_tol=0.0, abs_tol=1e-15)
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        return actual.keys() == expected.keys() and all(
+            evidence_matches(actual[key], expected[key]) for key in actual
+        )
+    if isinstance(actual, list) and isinstance(expected, list):
+        return len(actual) == len(expected) and all(
+            evidence_matches(left, right) for left, right in zip(actual, expected)
+        )
+    return actual == expected
+
+
+def validate(
+    repo_root: Path = REPO_ROOT,
+    ledger_path: Path | None = None,
+    summary_path: Path | None = None,
+) -> None:
     """Reject changes that reopen A16 or disconnect the ledger from its evidence."""
     ledger_file = ledger_path or repo_root / LEDGER_PATH
     with ledger_file.open() as handle:
@@ -78,6 +166,13 @@ def validate(repo_root: Path = REPO_ROOT, ledger_path: Path | None = None) -> No
         fail("final classification altered")
     if ledger.get("frozen_pr266") != FROZEN_HASHES:
         fail("frozen PR #266 hashes mismatch")
+
+    summary_file = summary_path or repo_root / PR268_SUMMARY_PATH
+    with summary_file.open() as handle:
+        pr268_summary: dict[str, Any] = json.load(handle)
+    if pr268_summary.get("classification") != CLASSIFICATIONS["PR #268"]:
+        fail("PR #268 source summary classification mismatch")
+    evidence = pr268_evidence(pr268_summary)
 
     experiments = ledger.get("experiments", [])
     identities = [experiment.get("identity") for experiment in experiments]
@@ -102,6 +197,31 @@ def validate(repo_root: Path = REPO_ROOT, ledger_path: Path | None = None) -> No
             "promoted",
         }:
             fail(f"A16 descendant is {experiment['lifecycle']}: {identity}")
+        if identity == "PR #268":
+            frozen = experiment.get("frozen_identities", {})
+            if {
+                key: frozen.get(key) for key in PR268_FROZEN_IDENTITIES
+            } != PR268_FROZEN_IDENTITIES:
+                fail("PR #268 frozen hashes mismatch")
+            if frozen.get("model") != evidence["frozen_model"]:
+                fail("PR #268 source-summary frozen model mismatch")
+            for field in (
+                "evaluation",
+                "corpus_result_counts",
+                "primary_metrics",
+                "invariant_status",
+                "padding_call_totals",
+                "diagnostic_only_suite_status",
+            ):
+                if not evidence_matches(experiment.get(field), evidence[field]):
+                    fail(f"PR #268 source-summary {field} mismatch")
+            if experiment.get("source_summary") != PR268_SUMMARY_PATH:
+                fail("PR #268 source summary path altered")
+            if (
+                experiment.get("disposition") != "rejected"
+                or experiment.get("lifecycle") != "rejected"
+            ):
+                fail("PR #268 must remain rejected")
 
     exhausted = set(ledger.get("exhausted_branches", []))
     eligibility = ledger.get("branch_eligibility", {})
@@ -109,6 +229,12 @@ def validate(repo_root: Path = REPO_ROOT, ledger_path: Path | None = None) -> No
         fail("exhausted branch set mismatch")
     if any(eligibility.values()):
         fail("exhausted branch marked eligible for continuation")
+    if eligibility.get("gumbel_root_sequential_halving_v1") is not False:
+        fail("PR #268 branch eligibility altered")
+    if ledger.get("generation3_execution_status") != "paused_no_qualified_capability":
+        fail("Generation-3 execution status altered")
+    if ledger.get("qualified_generation3_candidate") is not None:
+        fail("qualified Generation-3 candidate altered")
 
     registered = registry_suites(repo_root)
     if {label: registered.get(label) for label in EXPECTED_SUITES} != EXPECTED_SUITES:
