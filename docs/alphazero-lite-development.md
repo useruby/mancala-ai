@@ -7,8 +7,11 @@ plan, design, and implementation documents that lived in `docs/plans/` and
 
 ## A16 Status
 
-Incremental A16 training is closed. The authoritative evidence and Generation-3
+A16 incremental fitting is closed. The authoritative evidence and Generation-3
 entry criteria are in [the A16 lineage closeout](alphazero-lite-a16-lineage-closeout.md).
+Gumbel root allocation was rejected at equal neural-evaluation budget.
+Model/search experimentation is paused pending a genuinely independent source
+of stronger supervision or a separately justified interface mechanism.
 
 ---
 

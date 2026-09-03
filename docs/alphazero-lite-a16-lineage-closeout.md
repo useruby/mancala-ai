@@ -43,6 +43,19 @@ The control-EP2, promoted-current PUCT iteration, residual-v4, direct exact
 tablebase patch, and tablebase value-overlay records are retained in the ledger
 to preserve their negative evidence. None is an A16 continuation candidate.
 
+## Generation-3 Interface Attempt
+
+Gumbel sequential halving was tested against ordinary PUCT at an equal
+384-neural-evaluation budget. Its mean action regret was `0.1212069556` versus
+`0.0404250990` for ordinary PUCT, approximately tripling reference action
+regret. It also reduced exact-best agreement from `0.5078125` to
+`0.3567708333` and increased catastrophic misses from `0.03125` to
+`0.1458333333` broadly across preregistered subsets.
+
+The interface is rejected without tuning or arena evaluation. No Generation-3
+capability currently satisfies the entry criteria; execution is paused with
+status `paused_no_qualified_capability`.
+
 ## Generation-3 Entry Criteria
 
 No new training experiment may consume suites or compute until its written

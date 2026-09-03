@@ -121,6 +121,40 @@
       "lifecycle": "published",
       "source_document": "docs/alphazero-lite-tablebase-value-overlay-1600-results.md",
       "consumed_suites": {"status": "not_registry_labeled", "labels": []}
+    },
+    {
+      "identity": "PR #268",
+      "hypothesis": "Gumbel sequential halving at the root improves action selection over ordinary PUCT at equal neural-evaluation budget.",
+      "frozen_identities": {
+        "head_sha": "85e6ec8d95fe96e35185cef342a76f72f1c1958a",
+        "merge_commit": "2a9434d3fb5b9aa01a76355e975b07c5d3c28006",
+        "summary_blob": "0c489710d4861d647b2c643c5e6ca0d86849fa36",
+        "model": {
+          "artifact": "8eaa5765786468df9fade11727449af2263a5d0d6da0fa2138040ef2b8629d34",
+          "weights": "74e160734554dba9ecf4ecf3ac13b3e44526c4f6e7e5e52d9fe8bde0054eb789",
+          "snapshot": "f38a3a9db15a095870c0294150fe81e4719cf77102c4b3de316fcae5e1b9c3ff"
+        }
+      },
+      "evaluation": {
+        "search_budget": {"neural_evaluations": 384},
+        "reference_budget": {"continuation_simulations": 2400},
+        "seeds": [267101, 267102, 267103]
+      },
+      "corpus_result_counts": {"states": 128, "paired_result_rows": 384},
+      "primary_metrics": {
+        "paired_regret_difference": {"mean": 0.08078185655042201, "ci95": [0.044857911426341254, 0.11984561240471639]},
+        "ordinary_puct": {"mean_regret": 0.0404250990045933, "exact_best_agreement": 0.5078125, "catastrophic_miss_rate": 0.03125},
+        "gumbel": {"mean_regret": 0.12120695555501537, "exact_best_agreement": 0.3567708333333333, "catastrophic_miss_rate": 0.14583333333333334}
+      },
+      "invariant_status": {"a16_unchanged": true, "budget_ok": true, "perspective_and_legal_selection_ok": true, "repeated_small_subset_deterministic": true},
+      "padding_call_totals": {"ordinary_puct": 4593, "gumbel": 5117},
+      "diagnostic_only_suite_status": {"diagnostic_only": true, "not_training_eligible": true, "arena_run": false, "replay_created": false, "consumed_suite_registry_modified": false},
+      "published_classification": "gumbel_root_regresses_subsets",
+      "disposition": "rejected",
+      "lifecycle": "rejected",
+      "source_document": "docs/alphazero-lite-pr268-gumbel-root-preflight-results.md",
+      "source_summary": "docs/data/alphazero-lite-pr268-gumbel-root-preflight-summary.json",
+      "consumed_suites": {"status": "not_registry_labeled", "labels": []}
     }
   ],
   "exhausted_branches": [
@@ -132,7 +166,8 @@
     "another_a16_puct_selfplay_iteration",
     "residual_v4_move_factorized_continuation",
     "tablebase_overlays",
-    "direct_exact_position_patch_variants"
+    "direct_exact_position_patch_variants",
+    "gumbel_root_sequential_halving_v1"
   ],
   "branch_eligibility": {
     "more_epochs_or_optimizer_steps": false,
@@ -143,6 +178,9 @@
     "another_a16_puct_selfplay_iteration": false,
     "residual_v4_move_factorized_continuation": false,
     "tablebase_overlays": false,
-    "direct_exact_position_patch_variants": false
-  }
+    "direct_exact_position_patch_variants": false,
+    "gumbel_root_sequential_halving_v1": false
+  },
+  "generation3_execution_status": "paused_no_qualified_capability",
+  "qualified_generation3_candidate": null
 }
