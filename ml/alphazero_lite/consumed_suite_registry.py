@@ -251,6 +251,24 @@ _SPECS = (
         36042,
         "95b3c2dc333a5411562b1a1aeeccb0e093a1af9f7e6f4aa4b61362301416798d",
     ),
+    ConsumedSuite(
+        "AK",
+        _ROOT / "azlite_pr264_joint_alphazero_iteration/suites/suite_AK.jsonl",
+        37042,
+        "c7df7293b641cac5b28a18424ab6489707dc1be15e65796392fea19258d6c57c",
+    ),
+    ConsumedSuite(
+        "AL",
+        _ROOT / "azlite_pr264_joint_alphazero_iteration/suites/suite_AL.jsonl",
+        38042,
+        "15e450006cf9299831d57147db2fe4ab9e9ec5182d8eff5cc921d17ad7c6267d",
+    ),
+    ConsumedSuite(
+        "AM",
+        _ROOT / "azlite_pr264_joint_alphazero_iteration/suites/suite_AM.jsonl",
+        39042,
+        "228bb3bda7be11675d8845fbb55b6e88badbde9b4c2f6b04a9e83d5df69b0bc2",
+    ),
 )
 
 
