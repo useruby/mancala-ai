@@ -5,6 +5,11 @@ development effort (Feb 28 -- Mar 14, 2026). It replaces the ~80 individual
 plan, design, and implementation documents that lived in `docs/plans/` and
 `docs/superpowers/`.
 
+## A16 Status
+
+Incremental A16 training is closed. The authoritative evidence and Generation-3
+entry criteria are in [the A16 lineage closeout](alphazero-lite-a16-lineage-closeout.md).
+
 ---
 
 ## 1. Project Overview
