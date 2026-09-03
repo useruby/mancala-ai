@@ -178,17 +178,118 @@ def build_plans(
     return result
 
 
-def validate_pure_targets(rows: list[dict[str, Any]], seed: int) -> None:
+def validate_pure_targets(
+    rows: list[dict[str, Any]], seed: int
+) -> tuple[list[dict[str, Any]], dict[str, int | float]]:
+    """Keep only completed games whose stored targets are raw pure-AZ targets."""
+    by_game: dict[int, list[dict[str, Any]]] = {}
     for row in rows:
+        by_game.setdefault(int(row["game_index"]), []).append(row)
+    completed = {
+        game_index
+        for game_index, game_rows in by_game.items()
+        if all(row.get("game_completed") is True for row in game_rows)
+    }
+    completion_ratio = len(completed) / max(len(by_game), 1)
+    if completion_ratio < 0.9:
+        fail(f"seed {seed} completed-game ratio is below 90%")
+    eligible = [row for row in rows if int(row["game_index"]) in completed]
+    for row in eligible:
+        policy = np.asarray(row.get("policy"), dtype=np.float64)
+        legal = legal_mask_matrix_for_encoded_states(
+            np.asarray([row["state"]], dtype=np.float32)
+        )[0]
+        expected_value = (
+            0.0
+            if row.get("winner") is None
+            else (1.0 if int(row["winner"]) == int(row["player"]) else -1.0)
+        )
         if (
-            row.get("policy_target_mode") != "default"
+            row.get("value_target_mode") != "default"
+            or row.get("policy_target_mode") != "default"
             or row.get("policy_target_noise_mode") != "noisy"
+            or int(row.get("simulations", -1)) != SIMULATIONS
         ):
-            fail(f"seed {seed} is not raw noisy visit-count pure-AZ data")
-        if row["policy"] != row.get("target", row["policy"]):
-            fail(f"seed {seed} policy target differs from raw visit target")
-        if float(row["value"]) != float(row.get("final_outcome", row["value"])):
-            fail(f"seed {seed} value target is not terminal outcome")
+            fail(f"seed {seed} has non-default pure-AZ target metadata")
+        if (
+            policy.shape != (6,)
+            or not np.isfinite(policy).all()
+            or (policy < 0).any()
+            or not np.isclose(policy.sum(), 1.0, atol=1e-6)
+            or np.any(policy[~legal.astype(bool)] != 0.0)
+        ):
+            fail(f"seed {seed} has an invalid policy target")
+        if not np.isclose(float(row["value"]), expected_value, atol=1e-7):
+            fail(f"seed {seed} value target is not its terminal outcome")
+    return eligible, {
+        "games_total": len(by_game),
+        "games_completed": len(completed),
+        "games_excluded_incomplete": len(by_game) - len(completed),
+        "completed_game_ratio": completion_ratio,
+        "rows_total": len(rows),
+        "rows_eligible": len(eligible),
+        "rows_excluded_incomplete": len(rows) - len(eligible),
+    }
+
+
+def pure_az_telemetry(
+    model: torch.nn.Module,
+    initial: dict[str, torch.Tensor],
+    rows: list[dict[str, Any]],
+    gradient_norm: float,
+    clipped: int,
+    steps: int,
+) -> dict[str, Any]:
+    """Report held-out pure-AZ fit without inventing a parent-policy metric."""
+    probability, values = pr264.policy_probs(model.cpu(), rows)
+    a16 = new_model(torch.device("cpu"))
+    a16.load_state_dict(initial)
+    a16_probability, _ = pr264.policy_probs(a16, rows)
+    target = np.asarray([row["policy"] for row in rows], dtype=np.float64)
+    value_target = np.asarray([row["value"] for row in rows], dtype=np.float64)
+    error = values - value_target
+    delta: dict[str, list[torch.Tensor]] = {
+        key: []
+        for key in (
+            "total",
+            "input_trunk",
+            "policy_hidden_readout",
+            "adapter",
+            "value_hidden_readout",
+        )
+    }
+    for name, parameter in model.state_dict().items():
+        vector = (parameter.cpu() - initial[name]).reshape(-1)
+        delta["total"].append(vector)
+        delta[pr264.family(name)].append(vector)
+    return {
+        "policy_ce_own_target": float(
+            np.mean(pr258._cross_entropy(probability, target))
+        ),
+        "policy_ce_raw_a16_mcts_target": float(
+            np.mean(pr258._cross_entropy(probability, target))
+        ),
+        "legal_policy_l1_vs_a16": float(
+            np.abs(probability - a16_probability).sum(1).mean()
+        ),
+        "legal_policy_js_vs_a16": float(pr264.js(probability, a16_probability).mean()),
+        "top1_disagreement_vs_a16": float(
+            np.mean(np.argmax(probability, 1) != np.argmax(a16_probability, 1))
+        ),
+        "value_huber": float(
+            np.mean(np.where(np.abs(error) < 1, 0.5 * error**2, np.abs(error) - 0.5))
+        ),
+        "value_mae": float(np.abs(error).mean()),
+        "value_sign_accuracy": float(np.mean(np.sign(values) == np.sign(value_target))),
+        "prediction_mean": float(values.mean()),
+        "prediction_std": float(values.std()),
+        "parameter_deltas": {
+            key: float(torch.linalg.vector_norm(torch.cat(value)))
+            for key, value in delta.items()
+        },
+        "gradient_norm": gradient_norm,
+        "clipping_frequency": clipped / max(steps, 1),
+    }
 
 
 def tensor_data(
@@ -272,11 +373,10 @@ def train_lane(
                     model, optimizer, clipped, step, grad
                 )
     validation = [rows[i] for i in plan["source_indexes"]["validation"]]
-    heldout = pr264.telemetry(
+    heldout = pure_az_telemetry(
         model,
         initial,
         validation,
-        np.asarray([row["policy"] for row in validation]),
         grad,
         clipped,
         len(lane_plan["batches"]),
@@ -418,11 +518,34 @@ def classify(primary: dict[str, Any], paired: dict[str, Any]) -> str:
         return "unique_scale_beats_incumbent_and_repetition"
     if screen(repeat) and not contrast_passes:
         return "optimizer_exposure_is_sufficient"
+    if screen(unique):
+        return "replacement_without_unique_data_evidence"
     if unique["pooled"]["mean"] > 0:
         return "unique_scale_improves_but_not_replacement"
     if unique["pooled"]["mean"] < 0 and repeat["pooled"]["mean"] < 0:
         return "scale_degrades_strength"
     return "scale_does_not_rescue_high_budget_strength"
+
+
+def decision_for(classification: str) -> str:
+    return {
+        "unique_scale_beats_incumbent_and_repetition": (
+            "Recommend a separately frozen consolidation candidate as the next PR."
+        ),
+        "optimizer_exposure_is_sufficient": (
+            "Additional optimization, not unique-data scale, explains the result; do not promote."
+        ),
+        "replacement_without_unique_data_evidence": (
+            "Record replacement evidence but no causal unique-data conclusion; do not promote."
+        ),
+        "unique_scale_improves_but_not_replacement": "Do not promote.",
+        "scale_does_not_rescue_high_budget_strength": (
+            "Close incremental A16 fitting; do not propose more epochs, target mixing, or isolated scopes."
+        ),
+        "scale_degrades_strength": (
+            "Close incremental A16 fitting; do not propose more epochs, target mixing, or isolated scopes."
+        ),
+    }[classification]
 
 
 def write_report(path: Path, summary: dict[str, Any]) -> None:
@@ -437,6 +560,12 @@ def write_report(path: Path, summary: dict[str, Any]) -> None:
         "- Pure raw noisy visit-count targets, terminal-outcome values, and full 73,741-parameter Adam updates.",
         "- `repeat20_matched` and `unique100_once` have identical presentation, step, and batch-size sequences.",
         "",
+        "## Frozen Evidence",
+        "",
+        f"- Candidate aggregate SHA-256: `{summary['candidate_aggregate_sha256']}`.",
+        f"- Suite manifest SHA-256: `{summary['suite_manifest_sha256']}`; preflight SHA-256: `{summary['preflight_sha256']}`.",
+        f"- A16 hashes: `{json.dumps(summary['a16_hashes'], sort_keys=True)}`.",
+        "",
         "## Results",
         "",
     ]
@@ -444,23 +573,94 @@ def write_report(path: Path, summary: dict[str, Any]) -> None:
         ("Primary 1200:1200", summary["primary_1200"]),
         ("Secondary 384:384", summary["secondary_384"]),
     ):
-        lines += [f"### {title}", "", "| Lane | Mean | CI95 |", "| --- | ---: | --- |"]
+        lines += [
+            f"### {title}",
+            "",
+            "| Lane | Mean | Median | SD | Range | Positive seeds | Hierarchical CI95 |",
+            "| --- | ---: | ---: | ---: | --- | ---: | --- |",
+        ]
         for lane in LANES:
             pooled = result[lane]["pooled"]
             lines.append(
-                f"| {lane} | {pooled['mean']:+.6f} | [{pooled['hierarchical_ci95'][0]:+.6f}, {pooled['hierarchical_ci95'][1]:+.6f}] |"
+                f"| {lane} | {pooled['mean']:+.6f} | {pooled['median']:+.6f} | {pooled['sd']:.6f} | [{pooled['min']:+.6f}, {pooled['max']:+.6f}] | {pooled['positive_seed_count']}/5 | [{pooled['hierarchical_ci95'][0]:+.6f}, {pooled['hierarchical_ci95'][1]:+.6f}] |"
             )
         contrast_result = result["unique_minus_repeat"]["pooled"]
         lines += [
             f"\nPaired unique-minus-repeat: {contrast_result['mean']:+.6f}; CI95 [{contrast_result['hierarchical_ci95'][0]:+.6f}, {contrast_result['hierarchical_ci95'][1]:+.6f}].",
             "",
+            "Per-seed effects (AN/AO/AP):",
+        ]
+        for seed in SEEDS:
+            unique = result["unique100_once"]["per_seed"][str(seed)]
+            repeat = result["repeat20_matched"]["per_seed"][str(seed)]
+            paired = result["unique_minus_repeat"]["per_seed"][str(seed)]
+            lines.append(
+                f"- Seed {seed}: unique {unique['effect']:+.6f} (AN/AO/AP {unique['suite_effects']}), repeat {repeat['effect']:+.6f} (AN/AO/AP {repeat['suite_effects']}), contrast {paired['effect']:+.6f} (AN/AO/AP {paired['suite_effects']})."
+            )
+        lines += [
+            "",
+            "Replay completion, exclusions, unique exposure, presentations, and optimizer steps are preserved in the compact JSON summary.",
+            "",
         ]
     lines += [
         "## Next Action",
         "",
-        "No candidate is promoted. If neither lane improves the primary result, stop incremental A16 fitting rather than adding epochs or isolated scopes.",
+        decision_for(summary["classification"]),
     ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def compact_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    """Exclude full replay orders while retaining all frozen evidence and effects."""
+    return {
+        "schema": "azlite_pr265_unique_data_scale_summary_v1",
+        "classification": summary["classification"],
+        "decision": decision_for(summary["classification"]),
+        "a16_hashes": summary["a16_hashes"],
+        "candidate_aggregate_sha256": summary["candidate_aggregate_sha256"],
+        "suite_manifest_sha256": summary["suite_manifest_sha256"],
+        "preflight_sha256": summary["preflight_sha256"],
+        "frozen_suites": summary["suite_manifest"]["newly_consumed"],
+        "preflight": {
+            key: summary["preflight"][key] for key in (*SUITE_SEEDS, "passed")
+        },
+        "seeds": {
+            seed: {
+                "raw_replay_sha256": info["raw_replay_sha256"],
+                "filtered_replay_sha256": info["filtered_replay_sha256"],
+                "exclusions": info["exclusions"],
+                "completion": info["completion"],
+                "plan_sha256": info["plan"]["plan_sha256"],
+                "lanes": {
+                    lane: {
+                        key: info["lanes"][lane][key]
+                        for key in (
+                            "artifact_model_sha256",
+                            "model_state_sha256",
+                            "total_parameter_count",
+                            "trainable_parameter_count",
+                            "unique_games",
+                            "unique_states",
+                            "presentations",
+                            "optimizer_steps",
+                        )
+                    }
+                    | {
+                        "ordering_sha256": info["plan"]["lanes"][lane][
+                            "ordering_sha256"
+                        ],
+                        "batch_plan_sha256": info["plan"]["lanes"][lane][
+                            "batch_plan_sha256"
+                        ],
+                    }
+                    for lane in LANES
+                },
+            }
+            for seed, info in summary["seeds"].items()
+        },
+        "primary_1200": summary["primary_1200"],
+        "secondary_384": summary["secondary_384"],
+    }
 
 
 def main() -> None:
@@ -510,8 +710,12 @@ def main() -> None:
                     pr264.GAMES = previous_games
             if set(int(row["game_index"]) for row in raw) != set(range(GAMES)):
                 fail(f"seed {seed} does not contain exactly {GAMES} games")
-            rows, exclusions = pr264.eligible_rows(raw, registry)
-            validate_pure_targets(rows, seed)
+            completed_rows, completion = validate_pure_targets(raw, seed)
+            rows, exclusions = pr264.eligible_rows(completed_rows, registry)
+            if len({canonical_sha(row["state"]) for row in rows}) < 5_000:
+                fail(
+                    f"seed {seed} has fewer than 5,000 verified unique eligible states"
+                )
             directory.mkdir(parents=True, exist_ok=True)
             replay_path = directory / "replay.jsonl"
             replay_path.write_text(
@@ -537,6 +741,7 @@ def main() -> None:
                 "raw_replay_sha256": sha256_file(generated),
                 "filtered_replay_sha256": sha256_file(replay_path),
                 "exclusions": exclusions,
+                "completion": completion,
                 "plan": plan,
                 "lanes": lanes,
             }
@@ -609,6 +814,13 @@ def main() -> None:
     }
     write_json(args.workdir / "summary.json", summary)
     write_report(args.workdir / "report.md", summary)
+    write_json(
+        REPO_ROOT / "docs/data/alphazero-lite-pr265-unique-data-scale-summary.json",
+        compact_summary(summary),
+    )
+    write_report(
+        REPO_ROOT / "docs/alphazero-lite-pr265-unique-data-scale-results.md", summary
+    )
     print(summary["classification"])
 
 
