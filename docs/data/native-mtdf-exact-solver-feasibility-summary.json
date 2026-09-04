@@ -1,0 +1,30 @@
+{
+  "schema": "native_mtdf_exact_solver_feasibility_summary_v1",
+  "classification": "native_reference_incompatible",
+  "upstream": {
+    "repository": "https://github.com/girving/kalah",
+    "commit": "0a0c00702908f4ba865f2a1baa548ac0e3724950",
+    "license": "BSD-3-Clause-like; upstream SPDX identifier absent"
+  },
+  "build": {
+    "compiler": "gcc",
+    "flags": "-O3 -funroll-loops -Winline -Wall -std=gnu11 -fgnu89-inline",
+    "endgame_threshold": 8,
+    "endgame_sha256": "43affb05cbd3f3069807b22c40325292b2e1ca3c9225d80f4ecd70d872196cd7"
+  },
+  "correctness": {
+    "passed": false,
+    "failure": "native tiny-position action value disagrees with independent brute-force oracle with tablebase disabled",
+    "oracle_action_values": {"1": -4, "2": 0},
+    "native_action_values": {"1": 0, "2": 2}
+  },
+  "benchmark": {
+    "run": false,
+    "reason": "mandatory correctness gate failed before fixed-corpus execution"
+  },
+  "guardrails": {
+    "no_training": true,
+    "no_production_integration": true,
+    "no_labels_generated": true
+  }
+}
