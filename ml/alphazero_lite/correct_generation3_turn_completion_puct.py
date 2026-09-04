@@ -35,6 +35,7 @@ SUMMARY_PATH = (
 )
 REPORT_PATH = ROOT / "docs/alphazero-lite-generation3-turn-completion-puct-results.md"
 PR274_COMMIT = "569cfebbc270b23bc2f7cf87996d0b0d5bd897a1"
+PR275_CLASSIFICATION = "turn_completion_no_search_gain"
 PR274_ARTIFACTS = {
     "docs/alphazero-lite-generation3-implicit-minimax-puct-results.md": "97056d75001711d9e2e94464b4782b567021abfa68f2158f9004cc026f5e8db9",
     "docs/data/alphazero-lite-generation3-implicit-minimax-puct-full.json": "fcca76448ab599b1b120f0e956fad6253c904c493a63802974a77893105fcfe9",
@@ -50,6 +51,11 @@ def condition(name: str, observed: object, threshold: object, passed: bool) -> d
         "threshold": threshold,
         "passed": passed,
     }
+
+
+def historical_previous_classification(_: dict) -> str:
+    """Return PR #275's immutable pre-correction classification."""
+    return PR275_CLASSIFICATION
 
 
 def stored_rows_are_consistent(payload: dict) -> bool:
@@ -332,9 +338,7 @@ def corrected_payload(payload: dict) -> dict:
         invariants_ok=invariants_ok,
         budget_ok=budget_ok,
     )
-    original_classification = payload.get("correction", {}).get(
-        "previous_classification", payload["classification"]
-    )
+    original_classification = historical_previous_classification(payload)
     return payload | {
         "schema_version": "turn_completion_puct_v2_correction",
         "classification": classification,

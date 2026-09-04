@@ -1,0 +1,24 @@
+{
+  "classification": "canonical_tablebase_feasible",
+  "generated_tablebases_committed": false,
+  "implementation": "isolated C++17 kalah_v1_tablebase",
+  "correctness": {
+    "cycle_audit_through_active_stones": 8,
+    "cycle_audit_cycles": 0,
+    "exact_oracle_actions_through_8": 604656,
+    "exact_oracle_states_through_8": 251940,
+    "rank_unrank_states_through_8": 251940
+  },
+  "determinism": {
+    "eight_sha256": "dd9952c7c71e1d06cb99ea5c8403c3129695c2b2371ded9460f87279127493fa",
+    "twelve_sha256": "b842609f119b3eaf01937a0312853a2f6fe3f27371429793bc05e8b89686b71a"
+  },
+  "performance": {
+    "eight_wall_seconds": 0.07787191704846919,
+    "twelve_wall_seconds": 2.96,
+    "fourteen_wall_seconds": 12.432,
+    "fourteen_states": 19315400,
+    "fourteen_warm_lookup_positions_per_second": 626907
+  },
+  "stop_conditions_triggered": []
+}

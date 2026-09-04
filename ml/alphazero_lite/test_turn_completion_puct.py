@@ -5,7 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from ml.alphazero_lite.correct_generation3_turn_completion_puct import PR274_ARTIFACTS
+from ml.alphazero_lite.correct_generation3_turn_completion_puct import (
+    PR274_ARTIFACTS,
+    historical_previous_classification,
+)
 from ml.alphazero_lite.gumbel_root_search import run_puct_root_search
 from ml.alphazero_lite.kalah_rules import KalahGame, move_consequence_for_state
 from ml.alphazero_lite.arena import sha256_file
@@ -152,6 +155,19 @@ def test_candidate_is_deterministic_legal_and_never_exceeds_budget():
 def test_qualifying_eight_state_slice_regresses_subsets():
     assert classification({"phase": {"late": metric(8, 0.020001)}}) == (
         "turn_completion_regresses_subsets"
+    )
+
+
+def test_repeated_correction_preserves_pr275_historical_classification():
+    corrected = {
+        "classification": "turn_completion_regresses_subsets",
+        "correction": {
+            "previous_classification": "turn_completion_regresses_subsets",
+        },
+    }
+    assert (
+        historical_previous_classification(corrected)
+        == "turn_completion_no_search_gain"
     )
 
 

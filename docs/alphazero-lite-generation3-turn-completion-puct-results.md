@@ -1,6 +1,6 @@
 # Generation-3 Turn-Completion PUCT Results
 
-**Previous classification:** `turn_completion_invariant_failure`
+**Previous classification:** `turn_completion_no_search_gain`
 
 **Corrected classification:** `turn_completion_regresses_subsets`
 
@@ -91,7 +91,7 @@ The original PR #275 run did not capture policy priors or exploration values; th
       "docs/data/alphazero-lite-generation3-implicit-minimax-puct-summary.json": "f2f05005777be9b0ca44a7c64a7f9403bcb3edc7ca61d573ba4f572fcf20c644"
     },
     "pr274_merge_commit": "569cfebbc270b23bc2f7cf87996d0b0d5bd897a1",
-    "previous_classification": "turn_completion_invariant_failure",
+    "previous_classification": "turn_completion_no_search_gain",
     "reason": "The original runner omitted complete sliced metrics and the preregistered regresses_subsets branch. The stored 64-state root-extra-turn group has a catastrophic-miss-rate delta of 0.0625, exceeding the strict 0.02 maximum."
   },
   "deterministic_repeat": {
