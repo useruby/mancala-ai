@@ -13,127 +13,41 @@
 using Pits = std::array<uint8_t, 12>;
 constexpr int8_t kUnknown = -128;
 constexpr uint64_t kMaxTier = 20;
-struct Header { char magic[5] = {'K','V','T','B','1'}; uint8_t schema = 1; char rules[8] = {'k','a','l','a','h','_','v','1'}; uint8_t tier = 0; uint8_t value_bytes = 1; int8_t unknown = kUnknown; uint8_t endian = 1; uint64_t states = 0; uint64_t checksum = 0; };
-uint64_t fnv1a(const std::vector<int8_t>& bytes) { uint64_t h=1469598103934665603ULL; for(int8_t b:bytes) { h^=static_cast<uint8_t>(b); h*=1099511628211ULL; } return h; }
+constexpr uint16_t kSchema = 1;
+constexpr uint32_t kGeneratorRevision = 2;
 
-uint64_t choose(unsigned n, unsigned k) {
-  if (k > n) return 0;
-  k = std::min(k, n - k);
-  __uint128_t value = 1;
-  for (unsigned i = 1; i <= k; ++i) value = value * (n - k + i) / i;
-  if (value > std::numeric_limits<uint64_t>::max()) std::exit(2);
-  return static_cast<uint64_t>(value);
-}
-uint64_t count(unsigned stones) { return choose(stones + 11, 11); }
-uint64_t rank(const Pits& pits) {
-  uint64_t result = 0; unsigned remaining = 0;
-  for (uint8_t pit : pits) remaining += pit;
-  for (unsigned i = 0; i < 11; ++i) {
-    for (unsigned v = 0; v < pits[i]; ++v) result += choose(remaining - v + 10 - i, 10 - i);
-    remaining -= pits[i];
+// A small self-contained SHA-256 avoids platform and C++ ABI dependencies.
+struct Sha256 {
+  std::array<uint32_t, 8> state{0x6a09e667U,0xbb67ae85U,0x3c6ef372U,0xa54ff53aU,0x510e527fU,0x9b05688cU,0x1f83d9abU,0x5be0cd19U};
+  std::array<uint8_t, 64> block{}; uint64_t bits = 0; size_t used = 0;
+  static uint32_t rotr(uint32_t x, unsigned n) { return (x >> n) | (x << (32 - n)); }
+  void transform() { static constexpr uint32_t k[] = {0x428a2f98U,0x71374491U,0xb5c0fbcfU,0xe9b5dba5U,0x3956c25bU,0x59f111f1U,0x923f82a4U,0xab1c5ed5U,0xd807aa98U,0x12835b01U,0x243185beU,0x550c7dc3U,0x72be5d74U,0x80deb1feU,0x9bdc06a7U,0xc19bf174U,0xe49b69c1U,0xefbe4786U,0x0fc19dc6U,0x240ca1ccU,0x2de92c6fU,0x4a7484aaU,0x5cb0a9dcU,0x76f988daU,0x983e5152U,0xa831c66dU,0xb00327c8U,0xbf597fc7U,0xc6e00bf3U,0xd5a79147U,0x06ca6351U,0x14292967U,0x27b70a85U,0x2e1b2138U,0x4d2c6dfcU,0x53380d13U,0x650a7354U,0x766a0abbU,0x81c2c92eU,0x92722c85U,0xa2bfe8a1U,0xa81a664bU,0xc24b8b70U,0xc76c51a3U,0xd192e819U,0xd6990624U,0xf40e3585U,0x106aa070U,0x19a4c116U,0x1e376c08U,0x2748774cU,0x34b0bcb5U,0x391c0cb3U,0x4ed8aa4aU,0x5b9cca4fU,0x682e6ff3U,0x748f82eeU,0x78a5636fU,0x84c87814U,0x8cc70208U,0x90befffaU,0xa4506cebU,0xbef9a3f7U,0xc67178f2U}; uint32_t w[64];
+    for (int i=0;i<16;++i) w[i]=(uint32_t(block[4*i])<<24)|(uint32_t(block[4*i+1])<<16)|(uint32_t(block[4*i+2])<<8)|block[4*i+3];
+    for (int i=16;i<64;++i) w[i]=(rotr(w[i-15],7)^rotr(w[i-15],18)^(w[i-15]>>3))+w[i-16]+(rotr(w[i-2],17)^rotr(w[i-2],19)^(w[i-2]>>10))+w[i-7];
+    uint32_t a=state[0],b=state[1],c=state[2],d=state[3],e=state[4],f=state[5],g=state[6],h=state[7];
+    for(int i=0;i<64;++i) { uint32_t s1=rotr(e,6)^rotr(e,11)^rotr(e,25), ch=(e&f)^((~e)&g), t1=h+s1+ch+k[i]+w[i], s0=rotr(a,2)^rotr(a,13)^rotr(a,22), maj=(a&b)^(a&c)^(b&c), t2=s0+maj; h=g;g=f;f=e;e=d+t1;d=c;c=b;b=a;a=t1+t2; }
+    state[0]+=a;state[1]+=b;state[2]+=c;state[3]+=d;state[4]+=e;state[5]+=f;state[6]+=g;state[7]+=h;
   }
-  return result;
-}
-Pits unrank(unsigned stones, uint64_t index) {
-  Pits pits{}; unsigned remaining = stones;
-  for (unsigned i = 0; i < 11; ++i) {
-    for (unsigned v = 0; v <= remaining; ++v) {
-      uint64_t block = choose(remaining - v + 10 - i, 10 - i);
-      if (index < block) { pits[i] = v; remaining -= v; break; }
-      index -= block;
-    }
-  }
-  pits[11] = remaining;
-  return pits;
-}
-int sum(const Pits& pits, int begin, int end) { int r = 0; for (int i=begin;i<end;++i) r += pits[i]; return r; }
-struct Transition { Pits pits; int player; int delta; bool extra; int capture; bool terminal; int sweep; };
-Transition play(Pits pits, int player, int move) {
-  int absolute = player * 6 + move, seeds = pits[absolute], index = absolute, owner = player;
-  pits[absolute] = 0; bool raw_extra = false; int delta = 0;
-  for (int n = 0; n < seeds; ++n) {
-    int next = (index + 1) % 12, next_owner = next / 6;
-    if (owner != next_owner) { bool own_store = owner == player; owner = next_owner; if (own_store) { delta += player == 0 ? 1 : -1; raw_extra = true; continue; } }
-    raw_extra = false; index = next; ++pits[index];
-  }
-  int capture = 0;
-  if (!raw_extra) {
-    if (index / 6 == player && pits[index] == 1 && pits[11-index] > 0) {
-      capture = pits[index] + pits[11-index]; pits[index] = pits[11-index] = 0;
-      delta += player == 0 ? capture : -capture;
-    }
-    player = 1 - player;
-  }
-  bool terminal = sum(pits, player*6, player*6+6) == 0;
-  int sweep = 0;
-  if (terminal) {
-    int opposite = 1-player, swept = sum(pits, opposite*6, opposite*6+6);
-    sweep = opposite == 0 ? swept : -swept;
-    delta += sweep; pits.fill(0);
-  }
-  return {pits, player, delta, raw_extra && !terminal, capture, terminal, sweep};
-}
-
-struct Tables {
-  std::vector<std::vector<int8_t>> values;
-  std::vector<std::vector<uint8_t>> marks;
-  uint64_t edges = 0, same_edges = 0, lower_edges = 0, cycles = 0;
-  explicit Tables(unsigned top) : values(top+1), marks(top+1) {
-    for (unsigned t=0;t<=top;++t) { values[t].assign(2*count(t), kUnknown); marks[t].assign(2*count(t), 0); }
-  }
-  int8_t solve(const Pits& pits, int player) {
-    unsigned t = sum(pits,0,12); uint64_t key = 2*rank(pits)+player;
-    if (values[t][key] != kUnknown) return values[t][key];
-    if (marks[t][key] == 1) { ++cycles; return kUnknown; }
-    marks[t][key] = 1;
-    int begin=player*6, best=player==0 ? -127 : 127; bool legal=false;
-    for(int move=0;move<6;++move) if(pits[begin+move]) {
-      legal=true; ++edges; Transition tr=play(pits,player,move); unsigned child_t=sum(tr.pits,0,12);
-      if(child_t==t) ++same_edges; else ++lower_edges;
-      int value=tr.delta;
-      if(!tr.terminal) { int8_t child=solve(tr.pits,tr.player); if(child==kUnknown) return kUnknown; value+=child; }
-      best=player==0?std::max(best,value):std::min(best,value);
-    }
-    if(!legal) best=sum(pits,0,6)-sum(pits,6,12);
-    marks[t][key] = 2; values[t][key]=static_cast<int8_t>(best); return values[t][key];
-  }
+  void update(const std::vector<int8_t>& bytes) { for (int8_t v : bytes) { block[used++]=static_cast<uint8_t>(v); bits+=8; if(used==64){transform();used=0;} } }
+  std::array<uint8_t,32> finish() { block[used++]=0x80; if(used>56){while(used<64)block[used++]=0;transform();used=0;} while(used<56)block[used++]=0; for(int i=7;i>=0;--i)block[used++]=uint8_t(bits>>(8*i)); transform(); std::array<uint8_t,32> out{}; for(int i=0;i<8;++i)for(int j=0;j<4;++j)out[4*i+j]=uint8_t(state[i]>>(24-8*j)); return out; }
 };
 
-std::vector<int> numbers(const std::string& line, const std::string& name) {
-  size_t p=line.find("\""+name+"\""); if(p==std::string::npos) return {};
-  p=line.find('[',p); size_t q=line.find(']',p); std::vector<int> out; int n=0; bool in=false;
-  for(size_t i=p+1;i<q;++i) { if(std::isdigit(line[i])) { n=n*10+line[i]-'0'; in=true; } else if(in) {out.push_back(n);n=0;in=false;} } if(in) out.push_back(n); return out;
-}
-int number(const std::string& line, const std::string& name) { auto p=line.find("\""+name+"\""); if(p==std::string::npos) return -1; p=line.find(':',p); return std::atoi(line.c_str()+p+1); }
-void emit_transition(const Pits& pits,int player,int move) {
-  Transition t=play(pits,player,move); std::cout<<"{\"pits\":[";
-  for(int i=0;i<12;++i) std::cout<<(i?",":"")<<int(t.pits[i]);
-  std::cout<<"],\"player\":"<<t.player<<",\"delta\":"<<t.delta<<",\"extra\":"<<(t.extra?"true":"false")<<",\"capture\":"<<t.capture<<",\"terminal\":"<<(t.terminal?"true":"false")<<",\"sweep\":"<<t.sweep<<"}\n";
-}
-int main(int argc,char** argv) {
-  if(argc==4 && std::string(argv[1])=="generate") {
-    unsigned top=std::strtoul(argv[2],nullptr,10); if(top>kMaxTier) return 2; Tables tables(top);
-    for(unsigned t=0;t<=top;++t) for(uint64_t r=0;r<count(t);++r) for(int p=0;p<2;++p) if(tables.solve(unrank(t,r),p)==kUnknown) { std::cerr<<"cycle\n"; return 3; }
-    std::vector<int8_t> payload; uint64_t cumulative=0; for(unsigned t=0;t<=top;++t) { cumulative+=2*count(t); payload.insert(payload.end(),tables.values[t].begin(),tables.values[t].end()); }
-    Header header; header.tier=top; header.states=cumulative; header.checksum=fnv1a(payload);
-    std::ofstream output(argv[3],std::ios::binary); if(!output) return 4;
-    output.write(reinterpret_cast<const char*>(&header),sizeof(header)); output.write(reinterpret_cast<const char*>(payload.data()),payload.size());
-    if(!output) return 4;
-    std::cout<<"{\"classification\":\"ok\",\"max_tier\":"<<top<<",\"states\":"<<cumulative<<",\"edges\":"<<tables.edges<<",\"same_tier_edges\":"<<tables.same_edges<<",\"lower_tier_edges\":"<<tables.lower_edges<<",\"cycles\":"<<tables.cycles<<",\"checksum\":\""<<header.checksum<<"\"}\n"; return 0;
-  }
-  if(argc==3 && std::string(argv[1])=="probe") {
-    std::ifstream input(argv[2],std::ios::binary); Header header; input.read(reinterpret_cast<char*>(&header),sizeof(header));
-    if(!input || std::string(header.magic,5)!="KVTB1" || header.schema!=1 || std::string(header.rules,8)!="kalah_v1") return 5;
-    std::vector<int8_t> payload(header.states); input.read(reinterpret_cast<char*>(payload.data()),payload.size()); if(!input || fnv1a(payload)!=header.checksum) return 5;
-    std::vector<uint64_t> offsets(header.tier+1); uint64_t offset=0; for(unsigned t=0;t<=header.tier;++t) { offsets[t]=offset; offset+=2*count(t); }
-    std::string line; while(std::getline(std::cin,line)) { auto pitsv=numbers(line,"pits"); int player=number(line,"player"); if(pitsv.size()!=12||player<0||player>1){std::cout<<"{\"error\":\"invalid request\"}\n";continue;} Pits pits{};int stones=0;for(int i=0;i<12;++i){pits[i]=pitsv[i];stones+=pitsv[i];} if(stones>header.tier){std::cout<<"{\"error\":\"tier unavailable\"}\n";continue;} int value=payload[offsets[stones]+2*rank(pits)+player]; std::cout<<"{\"value\":"<<value<<",\"actions\":{";bool first=true;for(int m=0;m<6;++m)if(pits[player*6+m]){Transition tr=play(pits,player,m);int v=tr.delta+(tr.terminal?0:payload[offsets[sum(tr.pits,0,12)]+2*rank(tr.pits)+tr.player]);std::cout<<(first?"":",")<<"\""<<m<<"\":"<<v;first=false;}std::cout<<"}}\n"; }
-    return 0;
-  }
-  std::string line; while(std::getline(std::cin,line)) {
-    auto pitsv=numbers(line,"pits"); int player=number(line,"player"), move=number(line,"move");
-    if(pitsv.size()!=12 || player<0 || player>1 || move<0 || move>5) { std::cout<<"{\"error\":\"invalid request\"}\n"; continue; }
-    Pits pits{}; for(int i=0;i<12;++i) {if(pitsv[i]>255){std::cout<<"{\"error\":\"pit overflow\"}\n";goto next;} pits[i]=pitsv[i];}
-    if(!pits[player*6+move]) std::cout<<"{\"error\":\"illegal move\"}\n"; else emit_transition(pits,player,move);
-    next: ;
-  }
-}
+uint64_t choose(unsigned n, unsigned k) { if(k>n)return 0;k=std::min(k,n-k);__uint128_t v=1;for(unsigned i=1;i<=k;++i)v=v*(n-k+i)/i;if(v>std::numeric_limits<uint64_t>::max())std::exit(2);return static_cast<uint64_t>(v); }
+uint64_t count(unsigned stones) { return choose(stones+11,11); }
+uint64_t rank(const Pits& pits) { uint64_t result=0;unsigned remaining=0;for(uint8_t pit:pits)remaining+=pit;for(unsigned i=0;i<11;++i){for(unsigned v=0;v<pits[i];++v)result+=choose(remaining-v+10-i,10-i);remaining-=pits[i];}return result; }
+Pits unrank(unsigned stones,uint64_t index) { Pits pits{};unsigned remaining=stones;for(unsigned i=0;i<11;++i)for(unsigned v=0;v<=remaining;++v){uint64_t block=choose(remaining-v+10-i,10-i);if(index<block){pits[i]=v;remaining-=v;break;}index-=block;}pits[11]=remaining;return pits; }
+int sum(const Pits& pits,int begin,int end) { int r=0;for(int i=begin;i<end;++i)r+=pits[i];return r; }
+struct Transition { Pits pits;int player;int delta;bool extra;int capture;bool terminal;int sweep; };
+Transition play(Pits pits,int player,int move) { int absolute=player*6+move,seeds=pits[absolute],index=absolute,owner=player;pits[absolute]=0;bool raw_extra=false;int delta=0;for(int n=0;n<seeds;++n){int next=(index+1)%12,next_owner=next/6;if(owner!=next_owner){bool own_store=owner==player;owner=next_owner;if(own_store){delta+=player==0?1:-1;raw_extra=true;continue;}}raw_extra=false;index=next;++pits[index];}int capture=0;if(!raw_extra){if(index/6==player&&pits[index]==1&&pits[11-index]>0){capture=pits[index]+pits[11-index];pits[index]=pits[11-index]=0;delta+=player==0?capture:-capture;}player=1-player;}bool terminal=sum(pits,player*6,player*6+6)==0;int sweep=0;if(terminal){int opposite=1-player,swept=sum(pits,opposite*6,opposite*6+6);sweep=opposite==0?swept:-swept;delta+=sweep;pits.fill(0);}return {pits,player,delta,raw_extra&&!terminal,capture,terminal,sweep}; }
+
+struct Tables { std::vector<std::vector<int8_t>> values;std::vector<std::vector<uint8_t>> marks;uint64_t edges=0,same_edges=0,lower_edges=0,cycles=0;explicit Tables(unsigned top):values(top+1),marks(top+1){for(unsigned t=0;t<=top;++t){values[t].assign(2*count(t),kUnknown);marks[t].assign(2*count(t),0);}}int8_t solve(const Pits& pits,int player){unsigned t=sum(pits,0,12);uint64_t key=2*rank(pits)+player;if(values[t][key]!=kUnknown)return values[t][key];if(marks[t][key]==1){++cycles;return kUnknown;}marks[t][key]=1;int begin=player*6,best=player==0?-127:127;bool legal=false;for(int move=0;move<6;++move)if(pits[begin+move]){legal=true;++edges;Transition tr=play(pits,player,move);unsigned child_t=sum(tr.pits,0,12);if(child_t==t)++same_edges;else ++lower_edges;int value=tr.delta;if(!tr.terminal){int8_t child=solve(tr.pits,tr.player);if(child==kUnknown)return kUnknown;value+=child;}best=player==0?std::max(best,value):std::min(best,value);}if(!legal)best=sum(pits,0,6)-sum(pits,6,12);marks[t][key]=2;values[t][key]=static_cast<int8_t>(best);return values[t][key];} };
+
+void put16(std::vector<uint8_t>& out,uint16_t v){out.push_back(uint8_t(v));out.push_back(uint8_t(v>>8));} void put32(std::vector<uint8_t>& out,uint32_t v){for(int i=0;i<4;++i)out.push_back(uint8_t(v>>(8*i)));} void put64(std::vector<uint8_t>& out,uint64_t v){for(int i=0;i<8;++i)out.push_back(uint8_t(v>>(8*i)));}
+bool get16(const std::vector<uint8_t>& in,size_t& p,uint16_t& v){if(p+2>in.size())return false;v=uint16_t(in[p])|(uint16_t(in[p+1])<<8);p+=2;return true;} bool get32(const std::vector<uint8_t>& in,size_t& p,uint32_t& v){if(p+4>in.size())return false;v=0;for(int i=0;i<4;++i)v|=uint32_t(in[p++])<<(8*i);return true;} bool get64(const std::vector<uint8_t>& in,size_t& p,uint64_t& v){if(p+8>in.size())return false;v=0;for(int i=0;i<8;++i)v|=uint64_t(in[p++])<<(8*i);return true;}
+struct File { unsigned tier=0;std::vector<int8_t> payload;std::vector<uint64_t> offsets; };
+bool write_file(const std::string& path,unsigned tier,const std::vector<int8_t>& payload){std::vector<uint8_t> h={'K','V','T','B','1'};put16(h,kSchema);h.insert(h.end(),{'k','a','l','a','h','_','v','1'});h.push_back(1);h.push_back(1);h.push_back(static_cast<uint8_t>(kUnknown));h.push_back(static_cast<uint8_t>(tier));put32(h,kGeneratorRevision);h.push_back(static_cast<uint8_t>(kMaxTier));uint64_t states=payload.size(), header_size=5+2+8+1+1+1+1+4+1+8+8+8+(tier+1)*16+32;put64(h,states);put64(h,states);put64(h,header_size+states);uint64_t offset=0;for(unsigned t=0;t<=tier;++t){put64(h,2*count(t));put64(h,offset);offset+=2*count(t);}Sha256 sha;sha.update(payload);auto digest=sha.finish();h.insert(h.end(),digest.begin(),digest.end());if(h.size()!=header_size)return false;std::ofstream out(path,std::ios::binary);out.write(reinterpret_cast<const char*>(h.data()),static_cast<std::streamsize>(h.size()));out.write(reinterpret_cast<const char*>(payload.data()),static_cast<std::streamsize>(payload.size()));return bool(out);}
+bool read_file(const std::string& path,File& file){std::ifstream input(path,std::ios::binary);if(!input)return false;std::vector<uint8_t> data((std::istreambuf_iterator<char>(input)),{});size_t p=0;if(data.size()<5||std::string(reinterpret_cast<char*>(data.data()),5)!="KVTB1")return false;p=5;uint16_t schema;if(!get16(data,p,schema)||schema!=kSchema||p+8>data.size()||std::string(reinterpret_cast<char*>(data.data()+p),8)!="kalah_v1")return false;p+=8;if(p+4>data.size()||data[p++]!=1||data[p++]!=1||static_cast<int8_t>(data[p++])!=kUnknown)return false;file.tier=data[p++];uint32_t revision;if(!get32(data,p,revision)||revision!=kGeneratorRevision||p>=data.size()||data[p++]!=kMaxTier)return false;uint64_t states,payload_bytes,total;if(!get64(data,p,states)||!get64(data,p,payload_bytes)||!get64(data,p,total)||payload_bytes!=states||total!=data.size()||file.tier>kMaxTier)return false;file.offsets.resize(file.tier+1);uint64_t expected=0;for(unsigned t=0;t<=file.tier;++t){uint64_t tier_states,offset;if(!get64(data,p,tier_states)||!get64(data,p,offset)||tier_states!=2*count(t)||offset!=expected)return false;file.offsets[t]=offset;expected+=tier_states;}if(expected!=states||p+32+payload_bytes!=data.size())return false;std::array<uint8_t,32> digest{};std::copy_n(data.begin()+static_cast<long>(p),32,digest.begin());p+=32;file.payload.resize(payload_bytes);for(uint64_t i=0;i<payload_bytes;++i)file.payload[i]=static_cast<int8_t>(data[p+i]);Sha256 sha;sha.update(file.payload);return sha.finish()==digest;}
+
+std::vector<int> numbers(const std::string& line,const std::string& name){size_t p=line.find("\""+name+"\"");if(p==std::string::npos)return{};p=line.find('[',p);size_t q=line.find(']',p);std::vector<int> out;int n=0;bool in=false;for(size_t i=p+1;i<q;++i){if(std::isdigit(static_cast<unsigned char>(line[i]))){n=n*10+line[i]-'0';in=true;}else if(in){out.push_back(n);n=0;in=false;}}if(in)out.push_back(n);return out;}int number(const std::string& line,const std::string& name){auto p=line.find("\""+name+"\"");if(p==std::string::npos)return-1;p=line.find(':',p);return std::atoi(line.c_str()+p+1);}
+void emit_transition(const Pits& pits,int player,int move){Transition t=play(pits,player,move);std::cout<<"{\"pits\":[";for(int i=0;i<12;++i)std::cout<<(i?",":"")<<int(t.pits[i]);std::cout<<"],\"player\":"<<t.player<<",\"delta\":"<<t.delta<<",\"extra\":"<<(t.extra?"true":"false")<<",\"capture\":"<<t.capture<<",\"terminal\":"<<(t.terminal?"true":"false")<<",\"sweep\":"<<t.sweep<<"}\n";}
+int main(int argc,char** argv){if(argc==2&&std::string(argv[1])=="format-selftest"){std::vector<int8_t> p={1,-2,3};std::string f="/tmp/kalah_v1_format_selftest.kvtb";File parsed;if(!write_file(f,0,p)||!read_file(f,parsed)||parsed.payload!=p){return 6;}std::ofstream out(f,std::ios::app|std::ios::binary);out.put(0);out.close();return read_file(f,parsed)?6:0;}if(argc==4&&std::string(argv[1])=="generate"){unsigned top=std::strtoul(argv[2],nullptr,10);if(top>kMaxTier)return 2;Tables tables(top);for(unsigned t=0;t<=top;++t)for(uint64_t r=0;r<count(t);++r)for(int p=0;p<2;++p)if(tables.solve(unrank(t,r),p)==kUnknown){std::cerr<<"cycle\n";return 3;}std::vector<int8_t> payload;for(unsigned t=0;t<=top;++t)payload.insert(payload.end(),tables.values[t].begin(),tables.values[t].end());if(!write_file(argv[3],top,payload))return 4;Sha256 sha;sha.update(payload);auto d=sha.finish();std::cout<<"{\"classification\":\"ok\",\"max_tier\":"<<top<<",\"states\":"<<payload.size()<<",\"edges\":"<<tables.edges<<",\"same_tier_edges\":"<<tables.same_edges<<",\"lower_tier_edges\":"<<tables.lower_edges<<",\"cycles\":"<<tables.cycles<<",\"payload_sha256\":\"";for(uint8_t b:d)std::cout<<"0123456789abcdef"[b>>4]<<"0123456789abcdef"[b&15];std::cout<<"\"}\n";return 0;}if(argc==3&&std::string(argv[1])=="probe"){File file;if(!read_file(argv[2],file))return 5;std::string line;while(std::getline(std::cin,line)){auto pv=numbers(line,"pits");int player=number(line,"player");if(pv.size()!=12||player<0||player>1){std::cout<<"{\"error\":\"invalid request\"}\n";continue;}Pits pits{};int stones=0;for(int i=0;i<12;++i){if(pv[i]>255){std::cout<<"{\"error\":\"pit overflow\"}\n";goto next_probe;}pits[i]=pv[i];stones+=pv[i];}if(stones>int(file.tier)){std::cout<<"{\"error\":\"tier unavailable\"}\n";goto next_probe;}std::cout<<"{\"value\":"<<int(file.payload[file.offsets[stones]+2*rank(pits)+player])<<",\"actions\":{";{bool first=true;for(int m=0;m<6;++m)if(pits[player*6+m]){Transition tr=play(pits,player,m);int v=tr.delta+(tr.terminal?0:file.payload[file.offsets[sum(tr.pits,0,12)]+2*rank(tr.pits)+tr.player]);std::cout<<(first?"":",")<<"\""<<m<<"\":"<<v;first=false;}}std::cout<<"}}\n";next_probe:;}return 0;}std::string line;while(std::getline(std::cin,line)){auto pv=numbers(line,"pits");int player=number(line,"player"),move=number(line,"move");if(pv.size()!=12||player<0||player>1||move<0||move>5){std::cout<<"{\"error\":\"invalid request\"}\n";continue;}Pits pits{};for(int i=0;i<12;++i){if(pv[i]>255){std::cout<<"{\"error\":\"pit overflow\"}\n";goto next_transition;}pits[i]=pv[i];}if(!pits[player*6+move])std::cout<<"{\"error\":\"illegal move\"}\n";else emit_transition(pits,player,move);next_transition:;} }

@@ -1,8 +1,8 @@
 # Kalah V1 Native Tablebase Preflight Results
 
-**Classification:** `canonical_tablebase_feasible`
+**Classification:** `canonical_tablebase_validation_incomplete`
 
-The isolated C++17 prototype uses canonical `kalah_v1` transitions and a store-independent signed-margin payload. It neither reads nor writes the Geoffrey Irving format and does not modify production search or artifacts.
+The isolated C++17 prototype uses canonical `kalah_v1` transitions and a store-independent signed-margin payload. It neither reads nor writes the Geoffrey Irving format and does not modify production search or artifacts. Previous results used an ABI-dependent header and did not execute the required validation harness; they are not feasibility evidence.
 
 | Maximum tier | Cumulative states | Wall time | SHA-256 |
 | --- | ---: | ---: | --- |
@@ -17,7 +17,17 @@ The cited compatibility position returned `{1: -4, 2: 0}`. The cited one-sided p
 
 Each generated payload consumes one byte per indexed state plus a 40-byte header, below the two-byte gate. Repeated fresh 8- and 12-stone generations were byte-identical at the listed hashes. A 100,000-query warm probe measured 626,907 positions/second.
 
-## Projection
+## Validation Status
+
+The committed runner now provides portable-file rejection, exhaustive rank/unrank through 10, exhaustive transition and value gates through 8, store-offset invariance, deterministic 9-12-stone oracle samples, cited-position checks, and fresh-file determinism gates. The expensive gates must be run and recorded before any classification can advance.
+
+```bash
+python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 12 --full-validation --output /tmp/kalah-v1-results.json
+```
+
+No scalability gate or 18-stone projection is currently accepted. Do not generate an 18-stone teacher, integrate lookup into production search, or start training from this experiment.
+
+## Historical Projection
 
 | Tier | Cumulative states | One-byte payload | Conservative generation estimate |
 | --- | ---: | ---: | ---: |
@@ -25,7 +35,7 @@ Each generated payload consumes one byte per indexed state plus a 40-byte header
 | 18 | 172,986,450 | 165.0 MiB | 223 s |
 | 20 | 451,585,680 | 430.8 MiB | 582 s |
 
-The conservative estimate uses the slower measured 14-stone per-state cost with a 2x safety factor. It is below the eight-hour, 16-GiB, and 4-GiB 18-stone gates. A separate PR should implement and independently validate the 18-stone teacher tablebase; this preflight does not generate it, train a model, or integrate lookup.
+This historical wall-time-only estimate is invalid for feasibility classification because it lacks the required correctness, memory, disk, latency, and throughput evidence. No follow-up teacher-tablebase PR is recommended.
 
 ## Reproduction
 
