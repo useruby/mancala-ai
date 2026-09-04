@@ -1,0 +1,11 @@
+# Generation-3 Implicit-Minimax PUCT Plan
+
+Preregistered before execution. This diagnostic-only experiment compares ordinary deterministic PUCT with a separate implicit-minimax PUCT adapter at exactly 384 neural evaluations per root. The frozen `model-artifact/current` A16 artifact is read-only at SHA-256 `8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a`.
+
+The candidate retains frozen priors, ordinary averaged neural Q backup, PUCT exploration, zero FPU, deterministic ties, and visit-count root selection. It adds fixed heuristic minimax M for selection only: `(1 - 0.25) * Q + 0.25 * M + U`. Heuristic values are the existing fixed PR #270 mechanism-control evaluator in [-1, 1]. Parent perspective is determined by player identity, so genuine extra turns retain sign and player changes invert it. Terminal M is exact utility.
+
+The fresh 64-state corpus uses seed `274001`, PUCT seeds `274101`, `274102`, `274103`, canonical deduplication and canonical-hash sort. It is stratified by phase, player, legal-action count, capture availability, and genuine extra-turn availability; all rows are diagnostic-only and training-ineligible. No registered suite is read. Each action reference forces that action then runs ClassicMCTS for 2,400 simulations with tablebase and exact solve disabled, seeded from `274001:{state_hash}:{action}`.
+
+Metrics include action regret from the root perspective, agreement, catastrophic regret >= 0.25, legality, neural and heuristic calls, runtime, visits, Q/M/prior/U/blend telemetry, and consequence metadata. A 10,000-sample paired hierarchical bootstrap samples states then one seed, for candidate regret minus baseline regret. First 12 states are repeated with all non-runtime telemetry identical.
+
+Qualification requires all listed invariants and budgets, positive baseline mean regret, candidate regret <= 75% baseline, bootstrap upper bound < 0, no best-agreement or overall catastrophic regression, no qualifying slice catastrophic increase > .02, and candidate p95 runtime <= 1.25 baseline. Classification priority is invariant failure, budget failure, subset regression, then no gain. No training, self-play, replay, arena, artifact/ledger/production-PUCT changes, tablebase, solver, or follow-up variant is allowed.
