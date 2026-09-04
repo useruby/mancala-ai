@@ -239,6 +239,12 @@ def test_deterministic_comparison_ignores_runtime_only():
     )["equal_excluding_runtime"]
 
 
+def test_deterministic_comparison_normalizes_stored_json_mapping_keys():
+    assert compare_deterministic_result({"visits": {"2": 4}}, {"visits": {2: 4}})[
+        "equal_excluding_runtime"
+    ]
+
+
 def test_deterministic_comparison_rejects_behavior_or_telemetry_mismatch():
     comparison = compare_deterministic_result(
         {"selected_move": 2, "visits": {2: 4}, "runtime_seconds": 1.0},

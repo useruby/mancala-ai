@@ -332,6 +332,9 @@ def corrected_payload(payload: dict) -> dict:
         invariants_ok=invariants_ok,
         budget_ok=budget_ok,
     )
+    original_classification = payload.get("correction", {}).get(
+        "previous_classification", payload["classification"]
+    )
     return payload | {
         "schema_version": "turn_completion_puct_v2_correction",
         "classification": classification,
@@ -340,7 +343,7 @@ def corrected_payload(payload: dict) -> dict:
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
         ).strip(),
         "correction": {
-            "previous_classification": payload["classification"],
+            "previous_classification": original_classification,
             "corrected_classification": classification,
             "reason": "The original runner omitted complete sliced metrics and the preregistered regresses_subsets branch. The stored 64-state root-extra-turn group has a catastrophic-miss-rate delta of 0.0625, exceeding the strict 0.02 maximum.",
             "no_search_or_reference_result_changed": True,

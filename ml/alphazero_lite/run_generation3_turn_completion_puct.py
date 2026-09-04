@@ -382,7 +382,9 @@ def non_runtime_fields(result: dict) -> dict:
 
 def compare_deterministic_result(original: dict, repeated: dict) -> dict:
     """Report every non-runtime field mismatch without masking telemetry drift."""
-    expected, actual = non_runtime_fields(original), non_runtime_fields(repeated)
+    # JSON object keys are strings after loading the original stored record.
+    expected = json.loads(json.dumps(non_runtime_fields(original), sort_keys=True))
+    actual = json.loads(json.dumps(non_runtime_fields(repeated), sort_keys=True))
     mismatches = {
         key: {"original": expected.get(key), "repeat": actual.get(key)}
         for key in sorted(expected.keys() | actual.keys())
