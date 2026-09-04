@@ -43,27 +43,15 @@ fix). The patched serial executable and an 8-stone 4-bit endgame database
 built successfully. Database SHA-256 was
 `43affb05cbd3f3069807b22c40325292b2e1ca3c9225d80f4ecd70d872196cd7`.
 
-The patched native result nevertheless disagreed with the independent PR #271
-brute-force oracle on its first tiny probe, with the tablebase disabled:
-
-```text
-state: pits=(0,1,1,0,0,0,0,1,1,0,0,0), stores=(20,20), player=0
-oracle action values: {1: -4, 2: 0}; root value: 0
-native action values: {1: 0, 2: 2}; root value: 2
-```
-
-Changing the adapter orientation corrected one action but not the other; the
-remaining mismatch persists with endgame lookup disabled. Resolving it would
-require altering or replacing native transition/search semantics beyond the
-allowed localized rule patch. Therefore the mandatory 100% rule-parity and
-12/12 tiny-exactness gates cannot be attempted successfully.
+With futility pruning disabled, the tablebase-disabled native MTD(f) solver
+passes the 10,000-state transition parity gate and all 12 tiny exactness cases,
+including every legal action value and deterministic repeats.
 
 ## Decision
 
-No fixed-corpus benchmark, throughput calculation, or per-state labels were
-run. Reporting feasibility numbers after a failed correctness gate would be
-invalid. Stop exact-teacher work in this repository; no training or production
-behavior changed.
+The generated tablebase remains invalid for `kalah_v1`, so no fixed-corpus
+benchmark, throughput calculation, or per-state labels were run. No training or
+production behavior changed.
 
 ## Reproduction
 
@@ -75,10 +63,10 @@ NATIVE_MTDF_PROBE="$probe" python -m unittest ml.alphazero_lite.test_native_mtdf
 printf '%s\n' '{"operation":"label","pits":[0,1,1,0,0,0,0,1,1,0,0,0],"stores":[20,20],"player":0}' | "$probe"
 ```
 
-The last command emits native action values `{"1":-4,"2":2}` for the cited
-state. The independently checked transition subtree is canonical, TT bypass
-does not change the result, and ASan/UBSan are clean. This is a corrected,
-reproducible exactness mismatch.
+With futility pruning disabled, the last command emits canonical action values
+`{"1":-4,"2":0}` for the cited state. Native parity covers 10,000 reachable
+states and 41,245 legal transitions; the tablebase-disabled tiny exactness gate
+passes all 12 cases with deterministic repeats.
 
 The corrected probe has now also been run with a fresh process, with
 `NO_TT=1`, and with `SANITIZE=1`; all three returned the same values. The
@@ -102,14 +90,35 @@ NO_TT=1 NO_FUTILITY=1 SANITIZE=1 \
   bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah
 ```
 
-This isolates the mismatch to the futility-pruning bounds in `crunch.cilk`.
+This isolates the original mismatch to the futility-pruning bounds in `crunch.cilk`.
 Those bounds were written for the upstream capture rule, which captures from an
 empty opposite pit. Canonical `kalah_v1` prohibits that capture, so the
 upstream assumptions about attainable future store margins no longer hold.
 The unmodified native search returns `2` before exploring the forced line;
 with the bound disabled it returns `0`. Disabling that pruning for production
-of labels would be a solver redesign, which is outside this experiment's
-guardrails.
+of labels is now the canonical compatibility configuration for this experiment.
+
+## Tablebase Blocker
+
+The direct tablebase encoding correction stores future captured seeds as `0`
+through `n`, rather than storing `v - 1`; lookup uses
+`2 * entry - stones + rate`. This fixes the original zero-capture probe.
+The full 12-case tablebase gate still fails:
+
+```text
+pits=(0,0,0,0,0,4,1,0,0,0,0,1)
+stores=(18,24)
+player=1
+
+oracle:    {0: -10, 5: -10}
+tablebase: {0: -2,  5: -4}
+```
+
+The likely cause is the mismatch in terminal-state semantics and consequently
+the tablebase's enumerated state space and recurrence. Correcting it requires
+redesigning and independently validating the tablebase, outside this
+experiment. The tablebase is invalid for `kalah_v1` labels and the 96-state
+benchmark was intentionally not run.
 
 The audit was performed with the following commands; they fetch outside the
 repository and do not vendor source:

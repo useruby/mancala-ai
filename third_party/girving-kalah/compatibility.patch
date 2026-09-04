@@ -51,6 +51,20 @@ diff --git a/rules.c b/rules.c
        (*ep)++;
        sp[LPIT-1-s] = 0;
        *p = 0;
+@@ -90,5 +90,5 @@ int move(position *ps, int i) {
+   p = sp;
+-  if (!(*p || EMPTY_PIT_CHECK)) { 
++  if ((i ? ps->s : 1-ps->s) == 0 && !(*p || EMPTY_PIT_CHECK)) {
+     ep = sp + LPIT;
+     i = *ep;
+     p = sp + PITS + 1;
+@@ -105,5 +105,5 @@ int move(position *ps, int i) {
+   p = sp + PITS+1;
+-  if (!(*p || EMPTY_PIT_CHECK)) { 
++  if ((i ? ps->s : 1-ps->s) == 1 && !(*p || EMPTY_PIT_CHECK)) {
+     ep = sp + PITS;
+     p = sp;
+     i = *ep;
 diff --git a/hash.cilk b/hash.cilk
 --- a/hash.cilk
 +++ b/hash.cilk
@@ -77,3 +91,39 @@ diff --git a/crunch.cilk b/crunch.cilk
 @@ -111,1 +112,2 @@ static int peek(c_res *s, int d, int a) {
 +#endif
    /* transposition table */ 
+diff --git a/endgame.h b/endgame.h
+--- a/endgame.h
++++ b/endgame.h
+@@ -90,7 +90,7 @@ extern inline int eg_getd(size_t i) {
+ extern inline int eg_lookup(int t, position *p, int *q) { 
+   int r = eg_getd(eg_index(t,p));
+   *q = (r == 15 && eg.bits < 5) ? EG_LO : EG_EXACT; 
+-  return (++r << 1) - t + rate(*p);
++  return (r << 1) - t + rate(*p);
+   }
+ 
+ extern inline void eg_setd_4_explicit(struct endgame *e, size_t i, int v) {
+diff --git a/generator.c b/generator.c
+--- a/generator.c
++++ b/generator.c
+@@ -113,5 +113,5 @@ int crunch(int n, size_t l, position *p) {
+   int i,s,v,r,e,cn;
+   size_t k;
+   position t;
+-  v = 1;
++  v = 0;
+   p->a[LPIT] = p->a[PITS] = 0;
+@@ -130,11 +130,11 @@ int crunch(int n, size_t l, position *p) {
+           r = e ? r + s : n - s;
+           }
+         else
+-          r = e ? r + s + 1 : n - s - 1;
++          r = e ? r + s : n - s;
+         }
+       if (v < r)
+         v = r;
+       }
+-  eg_setd(l,v-1);
++  eg_setd(l,v);
+   crunched++;
+   return v;

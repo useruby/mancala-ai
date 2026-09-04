@@ -7,9 +7,8 @@ if git -C "$dir" diff --quiet; then
   git -C "$dir" apply --ignore-space-change "$root/third_party/girving-kalah/compatibility.patch"
 fi
 cp "$root/third_party/girving-kalah/native_probe.c" "$root/third_party/girving-kalah/native_hash_tests.c" "$dir"
-flags='-O3 -funroll-loops -Winline -Wall -std=gnu11 -fgnu89-inline'
+flags='-O3 -funroll-loops -Winline -Wall -std=gnu11 -fgnu89-inline -DDISABLE_FUTILITY -DCANONICAL_TABLEBASE'
 if [[ ${SANITIZE:-0} == 1 ]]; then flags='-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -std=gnu11 -fgnu89-inline'; fi
 if [[ ${NO_TT:-0} == 1 ]]; then flags="$flags -DDISABLE_TT"; fi
-if [[ ${NO_FUTILITY:-0} == 1 ]]; then flags="$flags -DDISABLE_FUTILITY"; fi
 gcc $flags -DNOCILK -x c -c -o "$dir/crunch-s.o" "$dir/crunch.cilk"; gcc $flags -DNOCILK -x c -c -o "$dir/hash-s.o" "$dir/hash.cilk"; gcc $flags -c -o "$dir/rules.o" "$dir/rules.c"; gcc $flags -c -o "$dir/endgame.o" "$dir/endgame.c"
 gcc $flags -DNOCILK -o "$dir/native_probe" "$dir/native_probe.c" "$dir/crunch-s.o" "$dir/hash-s.o" "$dir/rules.o" "$dir/endgame.o"; gcc $flags -DNOCILK -o "$dir/native_hash_tests" "$dir/native_hash_tests.c"; "$dir/native_hash_tests"; printf '%s\n' "$dir/native_probe"

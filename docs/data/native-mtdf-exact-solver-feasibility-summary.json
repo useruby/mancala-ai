@@ -15,15 +15,24 @@
   },
   "correctness": {
     "passed": false,
-    "failure": "canonical capture rule invalidates upstream futility-pruning bounds; corrected native search returns an incorrect exact value with TT disabled and no endgame database",
+    "failure": "direct tablebase encoding fixes the zero-capture case, but the generated tablebase still disagrees with the oracle on independent tiny positions",
     "oracle_action_values": {"1": -4, "2": 0},
-    "native_action_values": {"1": -4, "2": 2},
-    "native_root_value": 2,
+    "native_action_values": {"1": -4, "2": 0},
+    "native_root_value": 0,
     "oracle_root_value": 0,
     "transition_subtree_matches": true,
-    "tt_bypassed_mismatch_persists": true,
+    "transition_parity_10000_states": true,
+    "tiny_exactness_12_of_12": true,
     "asan_ubsan_clean": true,
-    "futility_bypassed_action_values": {"1": -4, "2": 0}
+    "futility_disabled_by_default": true,
+    "direct_tablebase_encoding_cited_action_values": {"1": -4, "2": 0},
+    "tablebase_remaining_failure": {
+      "pits": [0, 0, 0, 0, 0, 4, 1, 0, 0, 0, 0, 1],
+      "stores": [18, 24],
+      "player": 1,
+      "oracle_action_values": {"0": -10, "5": -10},
+      "tablebase_action_values": {"0": -2, "5": -4}
+    }
   },
   "benchmark": {
     "run": false,

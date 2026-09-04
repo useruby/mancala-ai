@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import random
 import subprocess
 from typing import Any
 
@@ -51,35 +52,58 @@ def payload(
 
 
 def transition_report(executable: Path, sample_count: int = 10_000) -> dict[str, Any]:
-    # The existing independent parity generator supplies golden and reachable states.
+    # Keep the independently implemented Python parity gate, then exercise the
+    # native process for the same deterministic reachable-state construction.
     baseline = run_rules_parity(sample_count, DEFAULT_SEED)
     probe = NativeProbe(executable)
     checked = 0
+    states = 0
     try:
-        for state in _tiny_reachable_states(DEFAULT_SEED):
-            for action in state.legal_moves():
-                got = probe.request(payload(state, "apply", action))
-                child = state.play(action)
-                expected = {
-                    "pits": list(child.pits),
-                    "stores": list(child.stores),
-                    "player": child.current_player,
-                    "terminal": child.is_terminal(),
-                    "final_margin": child.settled_margin(),
-                }
-                if any(got[key] != value for key, value in expected.items()):
-                    raise AssertionError(
-                        {
-                            "state": state,
-                            "action": action,
-                            "got": got,
-                            "expected": expected,
-                        }
-                    )
+        fixture = json.loads(
+            Path("test/fixtures/ai/kalah_rule_vectors.json").read_text(encoding="utf-8")
+        )
+        for vector in fixture["vectors"]:
+            state = ExactState.from_game_state(vector["initial_state"])
+            for step in vector["steps"]:
+                _assert_native_transition(probe, state, int(step["relative_move"]))
                 checked += 1
+                state = state.play(int(step["relative_move"]))
+
+        rng = random.Random(DEFAULT_SEED)
+        while states < sample_count:
+            state = ExactState((4,) * 12, (0, 0), 0)
+            while not state.is_terminal() and states < sample_count:
+                for action in state.legal_moves():
+                    _assert_native_transition(probe, state, action)
+                    checked += 1
+                state = state.play(rng.choice(state.legal_moves()))
+                states += 1
     finally:
         probe.close()
-    return baseline | {"native_transitions_checked": checked}
+    return baseline | {
+        "native_reachable_states": states,
+        "native_transitions_checked": checked,
+    }
+
+
+def _assert_native_transition(
+    probe: NativeProbe, state: ExactState, action: int
+) -> None:
+    got = probe.request(payload(state, "apply", action))
+    child = state.play(action)
+    expected = {
+        "pits": list(child.pits),
+        "stores": list(child.stores),
+        "player": child.current_player,
+        "extra_turn": child.current_player == state.current_player
+        and not child.is_terminal(),
+        "terminal": child.is_terminal(),
+        "final_margin": child.settled_margin(),
+    }
+    if any(got[key] != value for key, value in expected.items()):
+        raise AssertionError(
+            {"state": state, "action": action, "got": got, "expected": expected}
+        )
 
 
 def tiny_exactness_report(executable: Path) -> dict[str, Any]:
