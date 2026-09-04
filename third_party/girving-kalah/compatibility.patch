@@ -12,19 +12,24 @@ diff --git a/Makefile b/Makefile
 diff --git a/mix.h b/mix.h
 --- a/mix.h
 +++ b/mix.h
-@@ -47,10 +47,9 @@ static inline long packpits(char *a) {
-   #define PIT_COMBINE *++a | *++a | *++a
-   #elif PITS == 5
-   #define PIT_COMBINE *++a | *++a | *++a | *++a
+@@ -49,3 +49,2 @@ static inline long packpits(char *a) {
    #elif PITS == 6
 -  #define PIT_COMBINE *++a | *++a | *++a | *++a | *++a
    #endif
- 
--  if ((*a | PIT_COMBINE) & ~31) 
+@@ -53,3 +52,9 @@ static inline long packpits(char *a) {
++#if PITS == 6
 +  if ((a[0] | a[1] | a[2] | a[3] | a[4] | a[5]) & ~31)
++    return HASHOVERFLOW;
++  return (long)a[0] | ((long)a[1] << 5) | ((long)a[2] << 10)
++      | ((long)a[3] << 15) | ((long)a[4] << 20) | ((long)a[5] << 25);
++#else
+   if ((*a | PIT_COMBINE) & ~31) 
      return HASHOVERFLOW;
    a -= PITS-1;
- 
+@@ -70,2 +76,3 @@ static inline long packpits(char *a) {
+   ;
++#endif
+   }
 diff --git a/rules.c b/rules.c
 --- a/rules.c
 +++ b/rules.c
@@ -46,3 +51,29 @@ diff --git a/rules.c b/rules.c
        (*ep)++;
        sp[LPIT-1-s] = 0;
        *p = 0;
+diff --git a/hash.cilk b/hash.cilk
+--- a/hash.cilk
++++ b/hash.cilk
+@@ -78,2 +78,7 @@ extern void setstale() {
+ void ha_lookup(datumaccess *da, position *p) {
++#ifdef DISABLE_TT
++  da->ko = 1;
++  da->t = DV_INVALID;
++  return;
++#endif
+   ub4 k;
+@@ -129,2 +134,5 @@ void ha_lookup(datumaccess *da, position *p) {
+ void da_seta(datumaccess *da, int d, int m, int r, int t) {
++#ifdef DISABLE_TT
++  return;
++#endif
+   if (da->ko) return;
+diff --git a/crunch.cilk b/crunch.cilk
+--- a/crunch.cilk
++++ b/crunch.cilk
+@@ -99,1 +99,2 @@ static int peek(c_res *s, int d, int a) {
++#ifndef DISABLE_FUTILITY
+   /* futility pruning */
+@@ -111,1 +112,2 @@ static int peek(c_res *s, int d, int a) {
++#endif
+   /* transposition table */ 

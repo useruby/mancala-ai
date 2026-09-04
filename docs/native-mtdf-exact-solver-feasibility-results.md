@@ -2,6 +2,14 @@
 
 **Classification:** `native_reference_incompatible`
 
+**PR #272 classification:** superseded.
+
+The prior `native_reference_incompatible` conclusion was invalid: its indexed
+hash check retained a pointer rewind and its native adapter was not committed.
+This document is retained as historical context only. The reproducible probe,
+build command, and native regression tests are now under
+`third_party/girving-kalah/` and `script/ai/setup_native_mtdf.sh`.
+
 This was an isolated solver-feasibility audit. It did not train a model,
 generate labels, alter production inference, or reopen the previous ML
 lineage.
@@ -58,6 +66,50 @@ invalid. Stop exact-teacher work in this repository; no training or production
 behavior changed.
 
 ## Reproduction
+
+Build the pinned native source and execute its hash tests:
+
+```bash
+probe=$(bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah)
+NATIVE_MTDF_PROBE="$probe" python -m unittest ml.alphazero_lite.test_native_mtdf_probe -v
+printf '%s\n' '{"operation":"label","pits":[0,1,1,0,0,0,0,1,1,0,0,0],"stores":[20,20],"player":0}' | "$probe"
+```
+
+The last command emits native action values `{"1":-4,"2":2}` for the cited
+state. The independently checked transition subtree is canonical, TT bypass
+does not change the result, and ASan/UBSan are clean. This is a corrected,
+reproducible exactness mismatch.
+
+The corrected probe has now also been run with a fresh process, with
+`NO_TT=1`, and with `SANITIZE=1`; all three returned the same values. The
+sanitized execution emitted no AddressSanitizer or UndefinedBehaviorSanitizer
+diagnostic. Raw inputs and outputs are recorded in
+`docs/data/native-mtdf-cited-mismatch.json`.
+
+```bash
+NO_TT=1 bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah
+SANITIZE=1 bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah
+```
+
+## Root Cause Diagnostic
+
+The diagnostic build below bypasses both the TT and upstream futility pruning.
+It returns the canonical child value `0` and root action values
+`{"1":-4,"2":0}` under ASan and UBSan:
+
+```bash
+NO_TT=1 NO_FUTILITY=1 SANITIZE=1 \
+  bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah
+```
+
+This isolates the mismatch to the futility-pruning bounds in `crunch.cilk`.
+Those bounds were written for the upstream capture rule, which captures from an
+empty opposite pit. Canonical `kalah_v1` prohibits that capture, so the
+upstream assumptions about attainable future store margins no longer hold.
+The unmodified native search returns `2` before exploring the forced line;
+with the bound disabled it returns `0`. Disabling that pruning for production
+of labels would be a solver redesign, which is outside this experiment's
+guardrails.
 
 The audit was performed with the following commands; they fetch outside the
 repository and do not vendor source:

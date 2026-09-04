@@ -1,0 +1,31 @@
+{
+  "schema": "native_mtdf_cited_mismatch_v1",
+  "input": {
+    "operation": "label",
+    "pits": [0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+    "stores": [20, 20],
+    "player": 0
+  },
+  "oracle": {
+    "action_values": {"1": -4, "2": 0},
+    "root_value": 0
+  },
+  "native_fresh_tt": {
+    "action_values": {"1": -4, "2": 2},
+    "root_value": 2
+  },
+  "native_tt_bypassed": {
+    "action_values": {"1": -4, "2": 2},
+    "root_value": 2
+  },
+  "native_tt_and_futility_bypassed": {
+    "action_values": {"1": -4, "2": 0},
+    "root_value": 0,
+    "build_environment": "NO_TT=1 NO_FUTILITY=1 SANITIZE=1"
+  },
+  "sanitizers": "ASan and UBSan completed without a diagnostic on this probe",
+  "transition_parity": {
+    "action_1": "matches canonical child",
+    "action_2": "matches canonical child"
+  }
+}
