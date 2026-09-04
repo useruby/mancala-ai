@@ -4,14 +4,14 @@
       "catastrophic_miss_rate": 0.265625,
       "exact_best_agreement": 0.546875,
       "mean_regret": 0.28186197916666667,
-      "p95_runtime_seconds": 0.11368163633160293,
+      "p95_runtime_seconds": 0.11238721270347014,
       "top_two_agreement": 0.828125
     },
     "candidate": {
       "catastrophic_miss_rate": 0.234375,
       "exact_best_agreement": 0.609375,
       "mean_regret": 0.24072265625,
-      "p95_runtime_seconds": 0.08219485895242541,
+      "p95_runtime_seconds": 0.08186826563905925,
       "top_two_agreement": 0.84375
     },
     "paired_hierarchical_bootstrap": {
@@ -2644,7 +2644,7 @@
       }
     ]
   },
-  "elapsed_seconds": 45.5294129899703,
+  "elapsed_seconds": 45.480253121000715,
   "environment": {
     "cpu_count": 32,
     "platform": "linux",
@@ -2656,7 +2656,7 @@
     "version": "azlite-balanced-w8s4-policy-head-e1",
     "weights_json_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
   },
-  "git_commit": "7958c0a79245d218b830ecc040fe8a48f7d0b795",
+  "git_commit": "ecfeb2c5dd5524b46ad56b4626a4245a5c335e5c",
   "invariants": {
     "artifact_unchanged": true,
     "budget_ok": true,
