@@ -291,7 +291,15 @@ def corrected_payload(payload: dict) -> dict:
     )
     stored_rows_ok = stored_rows_are_consistent(payload)
     deterministic_repeat = repeat_rows(payload["results"])
-    aggregate_metrics = aggregate(payload["results"])
+    aggregate_metrics = {
+        "full": aggregate(payload["results"]),
+        "root_extra_turn": aggregate(
+            [row for row in payload["results"] if row["extra_turn_available"]]
+        ),
+        "no_root_extra_turn": aggregate(
+            [row for row in payload["results"] if not row["extra_turn_available"]]
+        ),
+    }
     all_slices = sliced_metrics(payload["results"])
     gates = gate_matrix(
         payload,
