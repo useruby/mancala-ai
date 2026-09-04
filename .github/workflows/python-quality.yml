@@ -31,3 +31,8 @@ jobs:
 
       - name: Validate forensic reference artifact
         run: python -m ml.alphazero_lite.validate_forensic_reference_artifact
+
+      - name: Build and test native MTD(f) compatibility probe
+        run: |
+          probe=$(bash script/ai/setup_native_mtdf.sh "$RUNNER_TEMP/girving-kalah")
+          NATIVE_MTDF_PROBE="$probe" python -m unittest ml.alphazero_lite.test_native_mtdf_probe -v
