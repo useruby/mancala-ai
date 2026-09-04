@@ -13,6 +13,7 @@ import statistics
 import subprocess
 import sys
 import time
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -261,6 +262,139 @@ def aggregate(rows: list[dict]) -> dict:
     }
 
 
+def comparison_metrics(rows: list[dict]) -> dict:
+    """Summarize stored paired lanes without including runtime measurements."""
+    baseline = [item for row in rows for item in row["baseline"].values()]
+    candidate = [item for row in rows for item in row["candidate"].values()]
+    baseline_regret = float(statistics.fmean(item["regret"] for item in baseline))
+    candidate_regret = float(statistics.fmean(item["regret"] for item in candidate))
+    baseline_misses = float(
+        statistics.fmean(item["catastrophic_miss"] for item in baseline)
+    )
+    candidate_misses = float(
+        statistics.fmean(item["catastrophic_miss"] for item in candidate)
+    )
+    return {
+        "n_distinct_states": len({row["state_hash"] for row in rows}),
+        "n_state_seed_pairs": len(baseline),
+        "baseline_mean_regret": baseline_regret,
+        "candidate_mean_regret": candidate_regret,
+        "regret_delta": candidate_regret - baseline_regret,
+        "baseline_best_reference_action_agreement": float(
+            statistics.fmean(
+                item["best_reference_action_agreement"] for item in baseline
+            )
+        ),
+        "candidate_best_reference_action_agreement": float(
+            statistics.fmean(
+                item["best_reference_action_agreement"] for item in candidate
+            )
+        ),
+        "baseline_catastrophic_miss_rate": baseline_misses,
+        "candidate_catastrophic_miss_rate": candidate_misses,
+        "catastrophic_miss_rate_delta": candidate_misses - baseline_misses,
+    }
+
+
+def sliced_metrics(rows: list[dict]) -> dict:
+    """Calculate all preregistered metrics from the stored state-seed rows."""
+    output = {
+        "aggregate_groups": {
+            "full": comparison_metrics(rows),
+            "root_extra_turn": comparison_metrics(
+                [row for row in rows if row["extra_turn_available"]]
+            ),
+            "no_root_extra_turn": comparison_metrics(
+                [row for row in rows if not row["extra_turn_available"]]
+            ),
+        }
+    }
+    for field in SLICES:
+        groups: dict[str, list[dict]] = defaultdict(list)
+        for row in rows:
+            groups[str(row[field])].append(row)
+        output[field] = {
+            label: comparison_metrics(group) for label, group in sorted(groups.items())
+        }
+    return output
+
+
+def has_subset_regression(metrics: dict) -> bool:
+    """Apply the preregistered strict catastrophic-miss subset rule."""
+    return any(
+        metric["n_distinct_states"] >= 8
+        and metric["catastrophic_miss_rate_delta"] > 0.02
+        for groups in metrics.values()
+        for metric in groups.values()
+    )
+
+
+def candidate_qualifies(metrics: dict) -> bool:
+    """Evaluate the unchanged aggregate qualification thresholds."""
+    primary, full = metrics["root_extra_turn"], metrics["full"]
+    return (
+        primary["baseline"]["mean_regret"] > 0
+        and primary["candidate"]["mean_regret"]
+        <= 0.75 * primary["baseline"]["mean_regret"]
+        and primary["paired_hierarchical_bootstrap"]["upper_95"] < 0
+        and primary["candidate"]["best_reference_action_agreement"]
+        >= primary["baseline"]["best_reference_action_agreement"]
+        and primary["candidate"]["catastrophic_miss_rate"]
+        <= primary["baseline"]["catastrophic_miss_rate"]
+        and full["candidate"]["mean_regret"] <= 0.9 * full["baseline"]["mean_regret"]
+        and full["paired_hierarchical_bootstrap"]["upper_95"] < 0
+        and full["candidate"]["best_reference_action_agreement"]
+        >= full["baseline"]["best_reference_action_agreement"]
+        and full["candidate"]["catastrophic_miss_rate"]
+        <= full["baseline"]["catastrophic_miss_rate"]
+        and full["candidate"]["p95_runtime_seconds"]
+        <= 1.25 * full["baseline"]["p95_runtime_seconds"]
+    )
+
+
+def classify(
+    aggregate_metrics: dict,
+    all_sliced_metrics: dict,
+    *,
+    invariants_ok: bool,
+    budget_ok: bool,
+) -> str:
+    """Classify in the preregistered priority order."""
+    if not invariants_ok:
+        return "turn_completion_invariant_failure"
+    if not budget_ok:
+        return "turn_completion_budget_contract_failed"
+    if has_subset_regression(all_sliced_metrics):
+        return "turn_completion_regresses_subsets"
+    if candidate_qualifies(aggregate_metrics):
+        return "turn_completion_puct_qualified"
+    return "turn_completion_no_search_gain"
+
+
+def non_runtime_fields(result: dict) -> dict:
+    """Keep every stored field except runtime measurements for exact replay checks."""
+    return {
+        key: value
+        for key, value in result.items()
+        if key != "runtime_seconds" and not key.endswith("_runtime_seconds")
+    }
+
+
+def compare_deterministic_result(original: dict, repeated: dict) -> dict:
+    """Report every non-runtime field mismatch without masking telemetry drift."""
+    expected, actual = non_runtime_fields(original), non_runtime_fields(repeated)
+    mismatches = {
+        key: {"original": expected.get(key), "repeat": actual.get(key)}
+        for key in sorted(expected.keys() | actual.keys())
+        if expected.get(key) != actual.get(key)
+    }
+    return {
+        "equal_excluding_runtime": not mismatches,
+        "compared_fields": sorted(expected.keys() | actual.keys()),
+        "mismatches": mismatches,
+    }
+
+
 def main() -> None:
     started_wall, started = time.time(), time.perf_counter()
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True):
@@ -340,33 +474,9 @@ def main() -> None:
         for row in rows
         for item in row["candidate"].values()
     )
-    primary, full = metrics["root_extra_turn"], metrics["full"]
-    candidate_qualified = (
-        primary["baseline"]["mean_regret"] > 0
-        and primary["candidate"]["mean_regret"]
-        <= 0.75 * primary["baseline"]["mean_regret"]
-        and primary["paired_hierarchical_bootstrap"]["upper_95"] < 0
-        and primary["candidate"]["best_reference_action_agreement"]
-        >= primary["baseline"]["best_reference_action_agreement"]
-        and primary["candidate"]["catastrophic_miss_rate"]
-        <= primary["baseline"]["catastrophic_miss_rate"]
-        and full["candidate"]["mean_regret"] <= 0.9 * full["baseline"]["mean_regret"]
-        and full["paired_hierarchical_bootstrap"]["upper_95"] < 0
-        and full["candidate"]["best_reference_action_agreement"]
-        >= full["baseline"]["best_reference_action_agreement"]
-        and full["candidate"]["catastrophic_miss_rate"]
-        <= full["baseline"]["catastrophic_miss_rate"]
-        and full["candidate"]["p95_runtime_seconds"]
-        <= 1.25 * full["baseline"]["p95_runtime_seconds"]
-    )
-    classification = (
-        "turn_completion_invariant_failure"
-        if not invariants_ok
-        else "turn_completion_budget_contract_failed"
-        if not budget_ok
-        else "turn_completion_puct_qualified"
-        if candidate_qualified
-        else "turn_completion_no_search_gain"
+    slices = sliced_metrics(rows)
+    classification = classify(
+        metrics, slices, invariants_ok=invariants_ok, budget_ok=budget_ok
     )
     after_weight, after_registry = (
         sha256_file(ROOT / "model-artifact/current/weights.json"),
@@ -403,6 +513,7 @@ def main() -> None:
         "corpus": corpus,
         "results": rows,
         "aggregate_metrics": metrics,
+        "sliced_metrics": slices,
         "invariants": {
             "budget_ok": budget_ok,
             "invariants_ok": invariants_ok,

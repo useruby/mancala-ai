@@ -12,14 +12,14 @@ The candidate improved mean regret and catastrophic misses but does not qualify 
       "exact_best_agreement": 0.546875,
       "top_two_agreement": 0.828125,
       "catastrophic_miss_rate": 0.265625,
-      "p95_runtime_seconds": 0.11368163633160293
+      "p95_runtime_seconds": 0.11238721270347014
     },
     "candidate": {
       "mean_regret": 0.24072265625,
       "exact_best_agreement": 0.609375,
       "top_two_agreement": 0.84375,
       "catastrophic_miss_rate": 0.234375,
-      "p95_runtime_seconds": 0.08219485895242541
+      "p95_runtime_seconds": 0.08186826563905925
     },
     "paired_hierarchical_bootstrap": {
       "mean": -0.041139322916666665,
@@ -228,7 +228,7 @@ The candidate improved mean regret and catastrophic misses but does not qualify 
     "registered_evaluation_suites_loaded": false,
     "registered_evaluation_suites_consumed": false
   },
-  "elapsed_seconds": 45.5294129899703
+  "elapsed_seconds": 45.480253121000715
 }
 ```
 
