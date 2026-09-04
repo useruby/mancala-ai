@@ -1,0 +1,48 @@
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -4,6 +4,6 @@
+ CC = gcc
+ CILK = cilk
+-CFLAGS = -O3 -funroll-loops -Winline -Wall -fnested-functions
++CFLAGS = -O3 -funroll-loops -Winline -Wall -std=gnu11 -fgnu89-inline
+ CILKFLAGS = $(CFLAGS) #-cilk-profile -cilk-critical-path
+ 
+ ELIDE = -DNOCILK -x c
+diff --git a/mix.h b/mix.h
+--- a/mix.h
++++ b/mix.h
+@@ -47,10 +47,9 @@ static inline long packpits(char *a) {
+   #define PIT_COMBINE *++a | *++a | *++a
+   #elif PITS == 5
+   #define PIT_COMBINE *++a | *++a | *++a | *++a
+   #elif PITS == 6
+-  #define PIT_COMBINE *++a | *++a | *++a | *++a | *++a
+   #endif
+ 
+-  if ((*a | PIT_COMBINE) & ~31) 
++  if ((a[0] | a[1] | a[2] | a[3] | a[4] | a[5]) & ~31)
+     return HASHOVERFLOW;
+   a -= PITS-1;
+ 
+diff --git a/rules.c b/rules.c
+--- a/rules.c
++++ b/rules.c
+@@ -41,7 +41,7 @@ int move(position *ps, int i) {
+     s = p - sp;
+     ep--;
+-    if (s>PITS && *p==1 && s<LPIT) {
++    if (s>PITS && *p==1 && s<LPIT && sp[LPIT-1-s]) {
+       *ep += sp[LPIT-1-s];
+       (*ep)++;
+       sp[LPIT-1-s] = 0;
+       *p = 0;
+@@ -63,7 +63,7 @@ int move(position *ps, int i) {
+     s = p - sp;
+     ep = sp + PITS;
+-    if (s<PITS && *p==1) {
++    if (s<PITS && *p==1 && sp[LPIT-1-s]) {
+       *ep += sp[LPIT-1-s];
+       (*ep)++;
+       sp[LPIT-1-s] = 0;
+       *p = 0;
