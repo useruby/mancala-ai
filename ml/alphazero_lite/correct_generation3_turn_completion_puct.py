@@ -296,10 +296,7 @@ def corrected_payload(payload: dict) -> dict:
     gates = gate_matrix(
         payload,
         aggregate_metrics,
-        all_slices["aggregate_groups"]
-        | {
-            key: value for key, value in all_slices.items() if key != "aggregate_groups"
-        },
+        all_slices,
         artifact_ok=artifact_ok,
         registry_ok=registry_ok,
         repeat_ok=deterministic_repeat["determinism_passed"],
