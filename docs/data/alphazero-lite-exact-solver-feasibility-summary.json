@@ -1,0 +1,38 @@
+{
+  "schema": "exact_kalah_solver_feasibility_summary_v1",
+  "classification": "exact_teacher_not_feasible",
+  "seed": 271,
+  "rules_parity": {
+    "passed": true,
+    "golden_vectors": 5,
+    "reachable_states": 10000,
+    "legal_moves_checked": 41245,
+    "events_observed": {
+      "extra_turns": 5777,
+      "captures": 3524,
+      "terminal_sweeps": 485
+    }
+  },
+  "exactness_validation": {
+    "passed": true,
+    "tiny_positions": 12,
+    "executions": 72
+  },
+  "feasibility": {
+    "states": 96,
+    "time_limit_seconds_per_state": 30,
+    "17_24_stones": {"solved": 0, "total": 32, "rate": 0.0},
+    "25_32_stones": {"solved": 0, "total": 32, "rate": 0.0},
+    "33_40_stones": {"solved": 0, "total": 32, "rate": 0.0},
+    "projected_exact_labels_24_cpu_hours": 0,
+    "qualification_passed": false
+  },
+  "guardrails": {
+    "no_neural_evaluator": true,
+    "no_heuristic_leaf_cutoff": true,
+    "no_puct": true,
+    "no_training": true,
+    "no_production_integration": true,
+    "training_eligible": false
+  }
+}
