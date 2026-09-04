@@ -1,0 +1,4077 @@
+{
+  "aggregate_metrics": {
+    "full": {
+      "baseline": {
+        "best_reference_action_agreement": 0.5520833333333334,
+        "catastrophic_miss_rate": 0.2916666666666667,
+        "mean_regret": 0.30383680555555553,
+        "p95_runtime_seconds": 0.11141255949041788,
+        "top_two_agreement": 0.7395833333333334
+      },
+      "candidate": {
+        "best_reference_action_agreement": 0.5,
+        "catastrophic_miss_rate": 0.3020833333333333,
+        "mean_regret": 0.367421875,
+        "p95_runtime_seconds": 0.10957587597658838,
+        "top_two_agreement": 0.7291666666666666
+      },
+      "paired_hierarchical_bootstrap": {
+        "lower_95": -0.013805338541666665,
+        "mean": 0.06358506944444445,
+        "samples": 10000,
+        "seed": 275001,
+        "upper_95": 0.1507700737847222
+      }
+    },
+    "no_root_extra_turn": {
+      "baseline": {
+        "best_reference_action_agreement": 0.4375,
+        "catastrophic_miss_rate": 0.1875,
+        "mean_regret": 0.11838541666666667,
+        "p95_runtime_seconds": 0.10123615697375499,
+        "top_two_agreement": 0.65625
+      },
+      "candidate": {
+        "best_reference_action_agreement": 0.46875,
+        "catastrophic_miss_rate": 0.09375,
+        "mean_regret": 0.09007812500000001,
+        "p95_runtime_seconds": 0.09207897368469276,
+        "top_two_agreement": 0.6875
+      },
+      "paired_hierarchical_bootstrap": {
+        "lower_95": -0.06815104166666669,
+        "mean": -0.028307291666666668,
+        "samples": 10000,
+        "seed": 275001,
+        "upper_95": 0.0015625000000000014
+      }
+    },
+    "root_extra_turn": {
+      "baseline": {
+        "best_reference_action_agreement": 0.609375,
+        "catastrophic_miss_rate": 0.34375,
+        "mean_regret": 0.3965625,
+        "p95_runtime_seconds": 0.12058594552800059,
+        "top_two_agreement": 0.78125
+      },
+      "candidate": {
+        "best_reference_action_agreement": 0.515625,
+        "catastrophic_miss_rate": 0.40625,
+        "mean_regret": 0.50609375,
+        "p95_runtime_seconds": 0.11862532019731588,
+        "top_two_agreement": 0.75
+      },
+      "paired_hierarchical_bootstrap": {
+        "lower_95": -0.005961914062499997,
+        "mean": 0.10953125000000001,
+        "samples": 10000,
+        "seed": 275001,
+        "upper_95": 0.2358743489583333
+      }
+    }
+  },
+  "artifact_sha256_after": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "artifact_sha256_before": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "classification": "turn_completion_no_search_gain",
+  "clean_worktree_at_start": true,
+  "consumed_suite_registry_sha256_after": "e31520e96086a12c7f1b962c48085fbfd4cecf0244d3141ef3c1239ddc79f5d9",
+  "consumed_suite_registry_sha256_before": "e31520e96086a12c7f1b962c48085fbfd4cecf0244d3141ef3c1239ddc79f5d9",
+  "corpus": [
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 20,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          0,
+          11,
+          4,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          1,
+          3,
+          1,
+          1,
+          1
+        ],
+        "player_store": 15
+      },
+      "state_hash": "00466c8aaea553479bec867e9cb5933fd47e6795c6b3efdb8f01dc8359f34d4f"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 13,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          0,
+          6,
+          2,
+          1,
+          0
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          8,
+          1,
+          2,
+          7,
+          0,
+          1
+        ],
+        "player_store": 7
+      },
+      "state_hash": "02a2e5bd71369ee9662cb0c72011911d2efad06dda0528e748d898fc2037964f"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 34,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 22,
+        "player_pits": [
+          0,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "player_store": 20
+      },
+      "state_hash": "03ac96fab82163a05ddeeb2c94cc6159435d2246f824a7f9bb8d58d6a5744d61"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 18,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          0,
+          7,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          2,
+          4,
+          10,
+          0,
+          3
+        ],
+        "player_store": 9
+      },
+      "state_hash": "03e9bb23bcb54c7832a24fb6c003e7d3e5e53c8a50295bd5e48f25c8f05be412"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 10,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          5,
+          0,
+          1,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          9,
+          0,
+          2,
+          9,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0a9741a26f1ee13db85bf41b72cd1e18d8c2994b6e5ed01053f9bb96cedd79db"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 32,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          0,
+          3,
+          3,
+          17,
+          1,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_hash": "0dec331efba28fa1494a3840f0adc65e9110a5139b942b7686b7752382def5a5"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 3,
+      "legal_actions": [
+        0,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          9,
+          0,
+          2,
+          6,
+          6
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "player_store": 11
+      },
+      "state_hash": "0dfba1d48533815b0a5a6551e90a9297596686fd66e8d5d27cef8b139cdb52c3"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          7,
+          0,
+          1,
+          2,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          2,
+          7,
+          0,
+          1,
+          8,
+          1
+        ],
+        "player_store": 5
+      },
+      "state_hash": "0e45468e53ff6a99901e2ddb3368da70dfc3389c74a5b781e562d44088972bbb"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 13,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          0,
+          0,
+          2,
+          4,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          10,
+          0,
+          4,
+          1,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0e8a03465340d4053459e79d8376e87e7e2852998b9b7d4a9e665dbc86f9db29"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          4,
+          9,
+          8,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          4,
+          1,
+          0,
+          3,
+          3
+        ],
+        "player_store": 6
+      },
+      "state_hash": "157e832a2bc44a9eb14345ef4d292c40b5b11bca7452c70b3d0854927661128b"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 8,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          8,
+          0,
+          7,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          6,
+          5,
+          1,
+          1,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_hash": "15a084feacbf2dabc0d9dc37d368a731227ae72da749f9aacba0fb525b930c9b"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 25,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          1,
+          2,
+          1,
+          2
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          1,
+          1,
+          2,
+          1,
+          0,
+          2
+        ],
+        "player_store": 18
+      },
+      "state_hash": "15efb5b6e7a4b214d5ce1bdf14cadce0e59cf3b33e58d77858148557e95861b2"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 12,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          3,
+          0,
+          8,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          1,
+          1,
+          9,
+          3,
+          2
+        ],
+        "player_store": 11
+      },
+      "state_hash": "1a11f926ccafe6c8184c771d19754573190cf55c3bec591d680dbccd887e4523"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 32,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          3,
+          1,
+          8,
+          3
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          3,
+          0,
+          1,
+          0,
+          1,
+          10
+        ],
+        "player_store": 7
+      },
+      "state_hash": "1b03a84acc8b85e77c94a6546af9cfbdadbd2a79a2d564143c78e3c4c718b3e7"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 43,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          4,
+          0,
+          5,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          0,
+          0,
+          1,
+          0,
+          2,
+          0
+        ],
+        "player_store": 17
+      },
+      "state_hash": "1c628ce8f3a8fbc176bc09561420ed0af9cf4dfc41d00e5141277b8b43229d0a"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 27,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          2,
+          0,
+          3,
+          0,
+          5
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          7,
+          1,
+          2,
+          1,
+          2,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_hash": "1eb7ae53e50b4e331c7dab4ebb8803cfcb637156e4c8734ae6e8182e7ff138d6"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 22,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          4,
+          1,
+          3,
+          12,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          0,
+          3,
+          6,
+          4,
+          1
+        ],
+        "player_store": 7
+      },
+      "state_hash": "20e48560d529b2f02e4639c2d55a4069a10f1bb9f2d74143718e7a6776db55b8"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 32,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          1,
+          4,
+          4
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          8,
+          0,
+          2,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "2a1c1b296f4e84a1142efc4f5f95edd007ff243aedb00a6b390187c486411a69"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 26,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          2,
+          3,
+          4,
+          2
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          2,
+          1,
+          1,
+          2,
+          1,
+          2
+        ],
+        "player_store": 17
+      },
+      "state_hash": "2e8ea863efa69d1471618bcdc05e51d6cc1c85f3b96cb9336470da5b45df3b2d"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 2,
+      "legal_actions": [
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 43,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          3,
+          4,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "player_store": 20
+      },
+      "state_hash": "2fc66b457004b14c2076a40abf2c68385f309ca83ba83536d43c63983a85cc11"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 47,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          4
+        ],
+        "opponent_store": 20,
+        "player_pits": [
+          0,
+          1,
+          0,
+          2,
+          0,
+          1
+        ],
+        "player_store": 20
+      },
+      "state_hash": "3127cf0abe70cff153bc564dca55494b36991521529d163e8a70238f3329e3df"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 2,
+      "legal_actions": [
+        0,
+        3
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 28,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          5,
+          3
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          0,
+          0,
+          2,
+          0,
+          0
+        ],
+        "player_store": 25
+      },
+      "state_hash": "326e1c84d510124cbd9888daefd35553e2ee7bf24f68b699cfadce9efb69bef4"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 33,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          1,
+          0,
+          9,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          2,
+          2,
+          2,
+          1,
+          1,
+          0
+        ],
+        "player_store": 17
+      },
+      "state_hash": "334fd4663b7efec8b880e8aa6267e34da8994034cc9ed504908c3076d2d47efc"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 19,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          0,
+          1,
+          5
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          4,
+          5,
+          10,
+          2,
+          2
+        ],
+        "player_store": 9
+      },
+      "state_hash": "35883b28ba63720263e60bbba3db664c1005dedc01a07ad95aaf2a7f2626d9c8"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 17,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          8,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          2,
+          2,
+          1,
+          5,
+          0,
+          5
+        ],
+        "player_store": 5
+      },
+      "state_hash": "36b584c855b8f0cb5c58c3ac1434b38ca87be0ad3b1386d2e166715c1564dd39"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 9,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          6,
+          0,
+          7,
+          2,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          2,
+          6,
+          0,
+          0,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_hash": "36c72c4b7455a7902907ffa0b0b9b8cce94b3922e91722503303828cd949a492"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 2,
+      "legal_actions": [
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 36,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          3,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 20,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "player_store": 22
+      },
+      "state_hash": "3908f8cb55a2fa854f4206845416ff560aab7186167841c360bb84985d3578b6"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 32,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          5,
+          1,
+          6,
+          2
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          2,
+          1,
+          4,
+          2,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "3918b658b0779c569e006ba37233b79632178240bb583e598d135ecd5218278b"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 16,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          1,
+          2,
+          3,
+          5
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          3,
+          11,
+          3,
+          1,
+          4,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_hash": "3a4f60271561947f240febff7b13630f9fdddf3b3012b987389ad26de8d4a844"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 19,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          6,
+          3,
+          2,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          2,
+          4,
+          0,
+          12
+        ],
+        "player_store": 7
+      },
+      "state_hash": "413a5bc03be718d434f65d3bbb5cdf956895330a6f4ef9f6524e6e4d8825c4a5"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 17,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          10,
+          3,
+          0,
+          6
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          4,
+          1,
+          1,
+          0,
+          2
+        ],
+        "player_store": 7
+      },
+      "state_hash": "4325030ee5231e247bb053fbdcfd71a2f0ec3f11a0eb1bfc51419a893b5a70a5"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 10,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          8,
+          1,
+          6,
+          0,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          0,
+          7,
+          2,
+          2,
+          3
+        ],
+        "player_store": 11
+      },
+      "state_hash": "46ed472e7634fa99bc90f68e4b35dc6ce22e43e8bdab62fbf5b7c77eeaa795c0"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 40,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          0,
+          0,
+          4,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          1,
+          0,
+          1,
+          3,
+          2
+        ],
+        "player_store": 22
+      },
+      "state_hash": "490630b5ad4897dd5fb2c616e29ec57e4a709085c4837326e628f27bfe8d453e"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 20,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          5,
+          1,
+          3,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          1,
+          10,
+          2,
+          0,
+          4
+        ],
+        "player_store": 7
+      },
+      "state_hash": "4a434e0da7f9640dedee1e8db24c30b4c4d2cb74c59bb34073853e61d626793a"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 12,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          0,
+          9,
+          4,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          0,
+          3,
+          0,
+          4,
+          9
+        ],
+        "player_store": 4
+      },
+      "state_hash": "4a7d2504c921093127455dc6c2885c9162844475f18220be17df2f74daa06d22"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 13,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          6,
+          0,
+          1,
+          2,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          0,
+          7,
+          0,
+          1,
+          11
+        ],
+        "player_store": 12
+      },
+      "state_hash": "4b02a82cf807d09142a98d3faf04bc16fa405a1afe4c168028dfb9b7b72c6ded"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          0,
+          2,
+          0,
+          2,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          1,
+          0,
+          7,
+          11,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "4cca9c798800ff797a82bbd73e26cbe460435392c1a15a7e1c64cbdbf1fc1681"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 12,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          1,
+          7,
+          1,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          0,
+          3,
+          7,
+          1,
+          4,
+          10
+        ],
+        "player_store": 4
+      },
+      "state_hash": "4ef4530f971c438a420b4ae190071fb730d6cdf7e282bd86308b4c41f373d262"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 43,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          1,
+          3,
+          0,
+          2
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          0,
+          0,
+          3,
+          1,
+          5,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "4fd231f69fa855a9ea768392811ffb6490719f2951641cae945eb76b07df4946"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 19,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          6,
+          4,
+          2,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          1,
+          11,
+          0,
+          0,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_hash": "52f6b80213d0062984c895b365db9476f8cad1b8893254cec88aa9153eb2e501"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 13,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          4,
+          2,
+          4,
+          2,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          4,
+          10,
+          8,
+          2,
+          0,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "533f5e5811127f82bca3b8dbdd6784f74d97c82f9c3bb169f769c0eeee0a8b8a"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 35,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          2,
+          0,
+          2,
+          2,
+          4
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          2,
+          4,
+          2,
+          0,
+          5,
+          0
+        ],
+        "player_store": 12
+      },
+      "state_hash": "54246dcd7ad565b10df4780c151af088306d76865ba3c150faaea7e4e3b489e3"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 21,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          3,
+          1,
+          8,
+          6,
+          0,
+          6
+        ],
+        "player_store": 13
+      },
+      "state_hash": "5680ba0157d2e86596de40f7994e362e1ab23493699d30c0829fcef85afe2029"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 22,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          3,
+          2,
+          2,
+          6
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          3,
+          0,
+          0,
+          1,
+          0,
+          2
+        ],
+        "player_store": 11
+      },
+      "state_hash": "5f890f169747b901f0293fc9e0b9f917ce095fa405e31d91fed26a5a7eca38b1"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 20,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          6,
+          5,
+          0,
+          3
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          3,
+          3,
+          1,
+          2,
+          0,
+          2
+        ],
+        "player_store": 6
+      },
+      "state_hash": "61a2de5c0e6d8c324b27c2e890fa872342c60a0d4e623ce6c2dd0128d4fbe2e3"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 29,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          2,
+          0,
+          2,
+          8
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          1,
+          1,
+          0,
+          4,
+          0,
+          1
+        ],
+        "player_store": 9
+      },
+      "state_hash": "6549f33a94ee510deb3f7ddb44c48e619c1e2d2e14df244e97ce21053cbb2f8c"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 16,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          1,
+          0,
+          10,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          9,
+          3,
+          4,
+          2,
+          2
+        ],
+        "player_store": 8
+      },
+      "state_hash": "67093d2b2f1c2e3b2ca2a81317a407a9b58039076b5971f47f1e05986875d573"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 3,
+      "legal_actions": [
+        0,
+        1,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 30,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          0,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          3,
+          2,
+          13,
+          0,
+          4
+        ],
+        "player_store": 9
+      },
+      "state_hash": "6947729858ef22c532f61a0bea09fb720e6d8e54dd393ab171d8b61297090e1b"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 44,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          0,
+          1,
+          3,
+          4
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          1,
+          0,
+          1,
+          1,
+          2,
+          2
+        ],
+        "player_store": 11
+      },
+      "state_hash": "6e951c6d3bc477c05af385b2364df0150539522f5cadcd030dfff4f85eb87a42"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 23,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          2,
+          0,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          1,
+          1,
+          7,
+          1,
+          0,
+          1
+        ],
+        "player_store": 22
+      },
+      "state_hash": "6ecc0381046f0d7d964baaa405994d12a9fe112a4658d17322fbd71db23aeaff"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 32,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          1,
+          3,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          1,
+          5,
+          1,
+          0,
+          1,
+          0
+        ],
+        "player_store": 18
+      },
+      "state_hash": "70cbd4e79064652474e9e271b58fa3412adf0bbd3ea086575636e1f47b44444c"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 9,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          7,
+          2,
+          3,
+          0,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          2,
+          7,
+          7,
+          2,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_hash": "7486700289b9a6d723c4b2da4e9a58d7346e2147043cc2739c7d229d11a336c6"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 14,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          7,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          2,
+          11,
+          9,
+          0,
+          8
+        ],
+        "player_store": 1
+      },
+      "state_hash": "76f6fe9d4c86196bf58e84ae2e9702d901b4488688ab0f9068a5f6543cad9c5d"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 37,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          8,
+          0,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          1,
+          0,
+          2,
+          0,
+          7
+        ],
+        "player_store": 14
+      },
+      "state_hash": "773202fb45108f0ad3f12ce29af87c01046483d5f7d3e06be35762f6aee49793"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 31,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          2,
+          1,
+          0,
+          5
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          2,
+          4,
+          6,
+          1,
+          0,
+          3
+        ],
+        "player_store": 13
+      },
+      "state_hash": "78454f75948c3a449742b45476ecaad590bd71f5aa6b62d1e8014d0bb2079c26"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 3,
+      "legal_actions": [
+        0,
+        1,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 32,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          0,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_hash": "78e29489d7bc2132becf325da46b0fcbccadfc6182a4ed33d6fce77e0748f40b"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 3,
+      "legal_actions": [
+        0,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 33,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          0,
+          0,
+          4,
+          2
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          0,
+          0,
+          3,
+          6
+        ],
+        "player_store": 19
+      },
+      "state_hash": "80984e91b50208cc66d183a244bbf681744209410ffe056c5abfbc1d6b9b8b3c"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 41,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          1,
+          4,
+          1,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          2,
+          4,
+          1,
+          0,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_hash": "8619a6230b616993a3d454b88b9a9df53ce53753adcce7f53b19d039d66e189b"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 25,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          5,
+          0,
+          0,
+          4,
+          4
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          10,
+          1,
+          4,
+          1,
+          0
+        ],
+        "player_store": 10
+      },
+      "state_hash": "8ceee1201582f709dc8d44dc64cf04a7458aff18cf51d9e98c0006fc72a609ba"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 16,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          9,
+          0,
+          0,
+          10,
+          2
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          1,
+          5,
+          1,
+          0,
+          3
+        ],
+        "player_store": 5
+      },
+      "state_hash": "930fd26b320d810e342bdd2010b129947796d5718b79352bfc33f0fc5be49d54"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 15,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          10,
+          1,
+          3,
+          0
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          2,
+          3,
+          1,
+          4,
+          3,
+          2
+        ],
+        "player_store": 12
+      },
+      "state_hash": "9a106b8f95216fd4fb51f4d6cc8302a65a3c5c5d1e6b10f371d80be69343509f"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 9,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          6,
+          0,
+          7,
+          2,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          1,
+          0,
+          9,
+          1,
+          8,
+          7
+        ],
+        "player_store": 1
+      },
+      "state_hash": "a0cf28ffa93dff1e79190efd15475fee1d005ed0452790e291c223c5a1e1dd74"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 25,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          5,
+          0,
+          2,
+          5
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          3,
+          2,
+          2,
+          0,
+          1
+        ],
+        "player_store": 10
+      },
+      "state_hash": "a7b22f2ed213e39abb47f7a1499af4dd9d346bab0efc6234b15c7abdb86518e2"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        2,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 19,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          4,
+          3,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          4,
+          1,
+          0,
+          0,
+          9
+        ],
+        "player_store": 11
+      },
+      "state_hash": "aabbd8eaa94c96d19597b586230385c596bf2b038e53d46e4ceda181c038750c"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 8,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          8,
+          6,
+          1,
+          7,
+          2
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          1,
+          0,
+          6,
+          2,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_hash": "aaf931dfb505971bed9a6cc01af2d234abbd2b6685e119d462be4724017ac0dc"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        0,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 35,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          4,
+          3,
+          0,
+          7,
+          3
+        ],
+        "player_store": 16
+      },
+      "state_hash": "ac08bfe1f3a3e2cbdb5100720a2b7d4af42a79faa98fb3fe5fbf69f642363083"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 18,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          8,
+          4,
+          5,
+          2
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          7,
+          1,
+          1,
+          5,
+          0,
+          1
+        ],
+        "player_store": 8
+      },
+      "state_hash": "ae60182e5a66127499efdc7260062cb45fd4d91b33754585428122598b260881"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 12,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          8,
+          3,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          1,
+          4,
+          1,
+          4,
+          9
+        ],
+        "player_store": 5
+      },
+      "state_hash": "b60d1092a6da350111d55a70158610035acd9a60ae341f261f7f06f9aff294b4"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 18,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          2,
+          11,
+          6,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          2,
+          0,
+          2,
+          0,
+          5,
+          4
+        ],
+        "player_store": 6
+      },
+      "state_hash": "baf382abdefb43fd088d2034a50baaf108c7c52629f237db53b527b002ec2d18"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          0,
+          9,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          1,
+          8,
+          8,
+          1,
+          9
+        ],
+        "player_store": 2
+      },
+      "state_hash": "bb29a2921ed78c5f0d723958c37025eef658a394039061050d71aaaacbc55a8d"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 20,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          6,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          4,
+          1,
+          1,
+          1,
+          2,
+          6
+        ],
+        "player_store": 14
+      },
+      "state_hash": "bc85c10da4b1cc55bfd8bda6d4b723b18d6a0340c7ba714813df768873950623"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 8,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          2,
+          6,
+          1,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          7,
+          0,
+          7,
+          1,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "c0797a8104e3de0bfdffef5a38bb9f4fac285d0cc58a46cb60280bb89682a985"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 3,
+      "legal_actions": [
+        0,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 41,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          1,
+          0,
+          11,
+          0,
+          2
+        ],
+        "player_store": 18
+      },
+      "state_hash": "c77f1544d3a095ad3ba07a86c1b471b7edb2ddfcf5d28c9a18071394d9cc26a0"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          0,
+          7,
+          1,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          3,
+          1,
+          8,
+          0,
+          10,
+          9
+        ],
+        "player_store": 2
+      },
+      "state_hash": "c91736c1fa77d6425429f4e27e334f0dd73c113f505b314cff06e71dddc37f2e"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 9,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          0,
+          7,
+          2,
+          8,
+          3
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          5,
+          0,
+          0,
+          1,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "cd4d718630593f7c88d29a53cf87cbfe457f53ede622b125547d912942d75a42"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 32,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          1,
+          5,
+          0,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          0,
+          2,
+          8,
+          3,
+          1
+        ],
+        "player_store": 15
+      },
+      "state_hash": "cdf819c27a6c533db68dac66c2c6c981b6dcb1d10872b64f3374b9bc0a102502"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 35,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          0,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 27,
+        "player_pits": [
+          0,
+          1,
+          0,
+          4,
+          2,
+          2
+        ],
+        "player_store": 6
+      },
+      "state_hash": "d089e4c4d91f2032bbbefaa51d482e41e13d1eeb5a8e144ad86075dd03a9d369"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 13,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          10,
+          4,
+          0,
+          2,
+          6,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          5,
+          2,
+          0,
+          2,
+          4,
+          1
+        ],
+        "player_store": 5
+      },
+      "state_hash": "d150e831fee7ff4520603dc14433ca024a37d37bd49f1c53dcb32909c600f49b"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        2,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 24,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          0,
+          1,
+          11,
+          0,
+          2,
+          0
+        ],
+        "player_store": 17
+      },
+      "state_hash": "d3b791f59e413838d6cfe19799c850f282fcf768021d1ba80cf3e57ac89294cf"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 33,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 24,
+        "player_pits": [
+          2,
+          0,
+          2,
+          0,
+          3,
+          0
+        ],
+        "player_store": 11
+      },
+      "state_hash": "d4bd5f6cb751002fea55f238cde09b8f7fcf4a7702617f97439e34446920cc4b"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 8,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          0,
+          3,
+          1,
+          0,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          0,
+          7,
+          7,
+          7,
+          1
+        ],
+        "player_store": 2
+      },
+      "state_hash": "d4e12f5fe8845b7b031855b5f405c9e7e9b25ff2638c2d695ed56b591279d137"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        2,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 26,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          2,
+          0,
+          15,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          2,
+          2,
+          0,
+          5,
+          0
+        ],
+        "player_store": 7
+      },
+      "state_hash": "d9ab4ef364bb5277cbf5d3006d7572342940e619f1533a02300b290eccf6fab0"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 12,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          1,
+          10,
+          3,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          3,
+          1,
+          1,
+          8,
+          3,
+          1
+        ],
+        "player_store": 5
+      },
+      "state_hash": "decac8a6b311011da33b4e8648e0084a85a3c3fa71948048f44c3c1cd9b0cbe7"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          9,
+          7,
+          0,
+          6,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          2,
+          0,
+          1,
+          8,
+          3
+        ],
+        "player_store": 3
+      },
+      "state_hash": "e0a2b88a2920ba5c79d483c0055fb53e44365099239695ce3b55cab98163ca12"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 4,
+      "legal_actions": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 17,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          9,
+          2,
+          0,
+          4,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          1,
+          1,
+          0,
+          11,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_hash": "e247b2fd496af74f194667baf28ce736978dd4ec69752a470312a0c9aa3b2e11"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 46,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          2,
+          1,
+          0,
+          2,
+          1,
+          1
+        ],
+        "player_store": 19
+      },
+      "state_hash": "e5455f6ba633cc1ff78cf12953c5a735a3d364cfd6d83da9888170e2e616bf95"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        2,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 22,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          10,
+          0,
+          2,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 20,
+        "player_pits": [
+          0,
+          3,
+          1,
+          0,
+          0,
+          1
+        ],
+        "player_store": 10
+      },
+      "state_hash": "e5edad8446bad88ae6b690c0528fa5637188d58557de58cebd981ef3862218b4"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 2,
+      "legal_actions": [
+        1,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 22,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          9,
+          0,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 24,
+        "player_pits": [
+          0,
+          2,
+          0,
+          0,
+          2,
+          0
+        ],
+        "player_store": 9
+      },
+      "state_hash": "e6ba61dc00cb6baf337111b30e5d3811d827b7ab252970658fd8dc8e13f5acd0"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 2,
+      "legal_actions": [
+        2,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 0,
+      "prefix_ply": 24,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          1,
+          1,
+          0,
+          6
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          2
+        ],
+        "player_store": 26
+      },
+      "state_hash": "e6dd6bf09deab906d84bd96b258306b4c8c8894a545900b232b560f587d8a255"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 11,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          1,
+          5,
+          8,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          4,
+          8,
+          1,
+          7,
+          0,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "ecfeab5cb5f7759d5fe0cf6faf03e5ab37cfa0e774feca2f6bc1790c2379af62"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 23,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          0,
+          0,
+          1,
+          1
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          0,
+          1,
+          12,
+          1
+        ],
+        "player_store": 20
+      },
+      "state_hash": "ee21742005efcc8bfc7adb6b8b69a06df0d4c25adfbd099b3d8ad45fdbdd2f1b"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 6,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 10,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          1,
+          9,
+          2,
+          9,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          2,
+          1,
+          3,
+          1,
+          2
+        ],
+        "player_store": 4
+      },
+      "state_hash": "f0de37491d8bfc92c462ca4719fa7c093106ff064d1234b47a461e10aa5c46c2"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 14,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          4,
+          0,
+          7,
+          0,
+          9
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          3,
+          1,
+          4,
+          0,
+          5
+        ],
+        "player_store": 6
+      },
+      "state_hash": "f0f57dfad0297052b2a316981b046eb95d5fffdde22cf69523a929505faffd6d"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 1,
+      "prefix_ply": 8,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          1,
+          3,
+          8,
+          1,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          7,
+          3,
+          0,
+          8,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "f39654e1a2d6a706b7942eaaa6f9b84a82cd353c27bb2eecf47a1466bf2294ad"
+    },
+    {
+      "capture_available": false,
+      "diagnostic_only": true,
+      "extra_turn_available": true,
+      "legal_action_count": 3,
+      "legal_actions": [
+        1,
+        2,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "late",
+      "player": 1,
+      "prefix_ply": 28,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          1,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 18,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "player_store": 23
+      },
+      "state_hash": "f5f95cd01650e0f5be25f8de233f7fac73b35ebacc9ccebaefe3e414609d55e8"
+    },
+    {
+      "capture_available": true,
+      "diagnostic_only": true,
+      "extra_turn_available": false,
+      "legal_action_count": 5,
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "not_training_eligible": true,
+      "phase": "midgame",
+      "player": 0,
+      "prefix_ply": 21,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          1,
+          9,
+          4,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          0,
+          3,
+          2,
+          3,
+          7
+        ],
+        "player_store": 8
+      },
+      "state_hash": "fac50bcc80928a5f664c832eea14660612af0b0fd4a983265bf3bf0ec5c089d9"
+    }
+  ],
+  "corpus_overlap_audit": [
+    {
+      "identity_hash": "f8ddff542900e813fdfebafd03a66c2c20376679594256fa9b631eec08b6ab8b",
+      "overlap_count": 0,
+      "row_count": 64,
+      "source": "pr270_alpha_beta"
+    },
+    {
+      "identity_hash": "10be8aecb8e6da9278e3687b41b894b698ccea8d7e950ce20511aa441ec26405",
+      "overlap_count": 0,
+      "row_count": 64,
+      "source": "pr274_implicit_minimax"
+    },
+    {
+      "identity_hash": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_canonical"
+    },
+    {
+      "identity_hash": "c8277e659c7a4e137140d83c187781f40e6b25c4b1dff5ec4da3f2e09fdcc6ab",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_A"
+    },
+    {
+      "identity_hash": "1f4c17eb7df21af75bc29c3274b3951899ae5fb2522f762d5270d58ddf93b37e",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_B"
+    },
+    {
+      "identity_hash": "b56783a2a2bbf63168cfb642f2b878badc80ace0279a9bbb7778757a4e4ba90d",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_C"
+    },
+    {
+      "identity_hash": "e9d931031e75d39d188699d0b77ecc91d429c6998d06aada5f04e34b0384b1e2",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_D"
+    },
+    {
+      "identity_hash": "3e78f5425370bb17ed2280e850a5f93b62cb86d94a0222263d481fcf866def37",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_E"
+    },
+    {
+      "identity_hash": "8cba0ea407dde34696877d5ee2fe7110cd5610b2392f446df1bc02c1900d7c0e",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_F"
+    },
+    {
+      "identity_hash": "ec331fc5672d0af95083443620ede6aac68755280ba375a9727bdd781918b216",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_G"
+    },
+    {
+      "identity_hash": "24e4ae8cb9ab336959f243c1dedd903201497d94e04fbc99ddaeed8894c58682",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_H"
+    },
+    {
+      "identity_hash": "5c8265a4c387c1a2f40ddc492da0435db548b98e02692582ccbf4b119f621b8e",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_I"
+    },
+    {
+      "identity_hash": "7c0b097e18949a2d0ac5657116c565f3b9c0bb942ae69c9741dcd328915bf98b",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_J"
+    },
+    {
+      "identity_hash": "64725ca85c6657eeefbbc329bc8a03f762bbbb7b615ff4fefeb4356fa158e1fd",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_K"
+    },
+    {
+      "identity_hash": "147ff9d503975641da2ad366e1df93aa07a296190f850ed0514ecbf903b43ac0",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_L"
+    },
+    {
+      "identity_hash": "2d5552eaa68c2e5ad8397fb8a0c3eb1e9831a8a668991457dd9afe0c2b2960aa",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_M"
+    },
+    {
+      "identity_hash": "5c37f39a1ea50478e3bbb17f5c0c02cb55068d8a9180c324e39b30cb83fc464e",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_N"
+    },
+    {
+      "identity_hash": "0e066bbd3e6288efe4a7ba7bc26c29b27358bf8d85d686801a0a0521c8a4425b",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_O"
+    },
+    {
+      "identity_hash": "25f8de0e48421e6b112b1bd16425d2f9d645a235694dcd2757d9ae0e9a68e8b6",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_P"
+    },
+    {
+      "identity_hash": "5ba80e5857c9f52f533c6a3e3b1548a77daebbe45d806d2c76c6b9b425767ef5",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_Q"
+    },
+    {
+      "identity_hash": "56766034b7027cccce8492a4cb80ca23f2edec409f2d07b9cd39cb55bfdd106b",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_R"
+    },
+    {
+      "identity_hash": "59224ca54c9102363cc00e50d424497485e13372909e59e0454a2ce2ae31f619",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_S"
+    },
+    {
+      "identity_hash": "e73cb13277168cf0d449f942525d16dd032cdd8e396393f598ac35af612526dd",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_T"
+    },
+    {
+      "identity_hash": "efcab1d3aecff06c223245a1b03f5679c2038168de6b4c46ffa557385dcf349a",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_U"
+    },
+    {
+      "identity_hash": "b08ef373f8a958b7279afa3dde481e582a465451cc520160b737f5b4b90195e2",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_V"
+    },
+    {
+      "identity_hash": "f6c016c67e51f5e829ee70e93be5614dbbef312cd1db9f95908b3363520d5712",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_W"
+    },
+    {
+      "identity_hash": "00a93262cbbf2ca9dc0b97b5275337c80badb1aae338f25854d98628527184a0",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_X"
+    },
+    {
+      "identity_hash": "f6247d0e59b78af776270f80ecd6a00fc84c8fbcb69a462cbf07d5ecee49a6a9",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_Y"
+    },
+    {
+      "identity_hash": "2b004a0e1a52f9a2776d1dfc459181d1bf89b45c591ac0f9a4fd39245ee2e996",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_Z"
+    },
+    {
+      "identity_hash": "629e997fadca2f220cab61684ca6bc77116154e42c7371ebaf91b83b09093375",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AA"
+    },
+    {
+      "identity_hash": "527cc607a3dddbfcaf0203783b58f6b38b9df2fcea2ebc6cbb112d54d7727641",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AB"
+    },
+    {
+      "identity_hash": "93786884529f4d75a22a82e5a87074db1f42b5bcb43aaecc42a0abcc28370bcf",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AC"
+    },
+    {
+      "identity_hash": "28b631f74992e81f3227ac3355de6d3cca1ee9724199742039e8331389f98d87",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AD"
+    },
+    {
+      "identity_hash": "21012b3a1eb54f1209de34468390a5f0e4ca123fe1b1b6676f6d3def404e2f05",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AE"
+    },
+    {
+      "identity_hash": "f5b09723b807ea820c9338f5ae9c07bcbb82fceeaeaa8db2ae7bb509329eeddd",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AF"
+    },
+    {
+      "identity_hash": "d16a01beaae8af6959523e715c5272e6e6c51fbe21a52d0ff86ef096f780fcb2",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AG"
+    },
+    {
+      "identity_hash": "c16148b43cb652f2dc28ca4b8e94c67f66da471f3cc36d318e73ce3258483784",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AH"
+    },
+    {
+      "identity_hash": "1c1de16cc5c4f16696858b054c07747575301e27ff9308f270dfdc4cfd13579b",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AI"
+    },
+    {
+      "identity_hash": "95b3c2dc333a5411562b1a1aeeccb0e093a1af9f7e6f4aa4b61362301416798d",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AJ"
+    },
+    {
+      "identity_hash": "c7df7293b641cac5b28a18424ab6489707dc1be15e65796392fea19258d6c57c",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AK"
+    },
+    {
+      "identity_hash": "15e450006cf9299831d57147db2fe4ab9e9ec5182d8eff5cc921d17ad7c6267d",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AL"
+    },
+    {
+      "identity_hash": "228bb3bda7be11675d8845fbb55b6e88badbde9b4c2f6b04a9e83d5df69b0bc2",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AM"
+    },
+    {
+      "identity_hash": "5d31671aa6b5b86beb066b74848ce9fffcf05630a7d735ac845ae0f380dd0f0f",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AN"
+    },
+    {
+      "identity_hash": "dec338722f5a8b5442cb6163e19dfa39ee1dae9c9d94b3a1088eeb2f27c6fc00",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AO"
+    },
+    {
+      "identity_hash": "a91361b16ffb885080bc6d2e8ff7d8be35aa8213abcda28542dc0e63453bfba6",
+      "overlap_count": 0,
+      "row_count": 128,
+      "source": "consumed_suite_AP"
+    },
+    {
+      "identity_hash": "bc40da3aa127f9f469d0c5d779ec3252c2e7d03726fec05b763d0cf22e56fe56",
+      "overlap_count": 0,
+      "row_count": 64,
+      "source": "registered_generation3_alphazero-lite-generation3-implicit-minimax-puct-summary.json"
+    }
+  ],
+  "corpus_sha256": "ea69818c7f368680c715182891dde27c0713b8c9f5eb69d016aaf9c0fcd495bd",
+  "elapsed_seconds": 75.81282289500814,
+  "environment": {
+    "cpu_count": 32,
+    "platform": "Linux-7.1.9-arch1-2-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
+  },
+  "experiment_code_commit": "23dfe83024415f29246d770baa2b7b6d7bb1efbf",
+  "invariants": {
+    "artifact_unchanged": true,
+    "budget_ok": true,
+    "invariants_ok": true,
+    "registry_unchanged": true
+  },
+  "preregistration": {
+    "bootstrap_seed": 275001,
+    "corpus_seed": 275001,
+    "neural_budget": 384,
+    "plan": "docs/alphazero-lite-generation3-turn-completion-puct-plan.md",
+    "plan_sha256": "69b1a2da57d9d4ee408af759ae4ff74cd4348ef76590a789a7a773f1e7639c8e",
+    "puct_seeds": [
+      275101,
+      275102,
+      275103
+    ]
+  },
+  "results": "see full result",
+  "schema_version": "turn_completion_puct_v1",
+  "started_unix_seconds": 1788545940.3130279
+}
