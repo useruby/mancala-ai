@@ -4055,7 +4055,7 @@
       "docs/data/alphazero-lite-generation3-implicit-minimax-puct-summary.json": "f2f05005777be9b0ca44a7c64a7f9403bcb3edc7ca61d573ba4f572fcf20c644"
     },
     "pr274_merge_commit": "569cfebbc270b23bc2f7cf87996d0b0d5bd897a1",
-    "previous_classification": "turn_completion_invariant_failure",
+    "previous_classification": "turn_completion_no_search_gain",
     "reason": "The original runner omitted complete sliced metrics and the preregistered regresses_subsets branch. The stored 64-state root-extra-turn group has a catastrophic-miss-rate delta of 0.0625, exceeding the strict 0.02 maximum."
   },
   "corrective_implementation_commit": "1d3cc78706687125e138c3e33264026ca00fe330",
