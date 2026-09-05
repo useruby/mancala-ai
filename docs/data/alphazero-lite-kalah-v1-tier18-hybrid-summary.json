@@ -1,11 +1,11 @@
 {
   "schema": "kalah_v1_tier18_hybrid_summary_v1",
-  "classification": "native_hybrid_exact_teacher_incorrect",
+  "classification": "native_hybrid_exact_teacher_validation_incomplete",
   "training_eligible": false,
   "tablebase_artifact": "docs/data/alphazero-lite-kalah-v1-tier18-experiment.json",
   "hybrid_correctness": {
-    "passed": false,
-    "first_failure": {
+    "passed": null,
+    "corrected_gate": {
       "gate": "cited_tiny_position",
       "state": {
         "pits": [0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
@@ -14,11 +14,31 @@
       },
       "action": 2,
       "expected_value": 0,
-      "native_hybrid_value": 3
+      "native_hybrid_value": 0,
+      "action_values": {"1": -4, "2": 0}
+    },
+    "completed_gates": {
+      "tiny_exactness": true,
+      "transition_parity_10000": true,
+      "portable_malformed_fixtures": 19,
+      "direct_adapter_parity_tiers_0_18_both_players": true,
+      "asan_ubsan": true,
+      "no_tt_bounded": true
     }
   },
   "feasibility_benchmark": {
-    "run": false,
-    "reason": "Performance testing is forbidden until hybrid correctness gates pass."
+    "run": true,
+    "artifact": "docs/data/alphazero-lite-kalah-v1-tier18-hybrid-feasibility.json",
+    "mode": "frozen_python_exact_solver_preflight",
+    "seed": 271,
+    "states": 96,
+    "time_limit_seconds": 30,
+    "qualification": false,
+    "bucket_coverage": {
+      "17-24": {"solved": 0, "total": 32, "rate": 0.0},
+      "25-32": {"solved": 0, "total": 32, "rate": 0.0},
+      "33-40": {"solved": 0, "total": 32, "rate": 0.0}
+    },
+    "reason": "The frozen runner is Python-only and does not exercise the native hybrid adapter."
   }
 }

@@ -1,0 +1,3503 @@
+{
+  "complete": true,
+  "corpus": [
+    {
+      "action_final_margins": {},
+      "cache_hits": 2552249,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-00",
+      "node_count": 6112724,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.005848039058037,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          0,
+          8
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          0,
+          2,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2120248,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-01",
+      "node_count": 5612759,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00698462803848,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          2,
+          1,
+          9
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          2,
+          0,
+          2,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1969212,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-02",
+      "node_count": 5386867,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.0023705069907,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          2,
+          1,
+          9
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          1,
+          3,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2400487,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-03",
+      "node_count": 5583266,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.002468982012942,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          0,
+          2,
+          10
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          1,
+          3,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2203024,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-04",
+      "node_count": 5292243,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.010094875004143,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          0,
+          2,
+          10
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          0,
+          4,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2010648,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-05",
+      "node_count": 5207094,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.009348822990432,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          4,
+          1,
+          1
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1898248,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-06",
+      "node_count": 5098752,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.007486338028684,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          5,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          2
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1945446,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-07",
+      "node_count": 5370844,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.007752262987196,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          6,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          2
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2079630,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-08",
+      "node_count": 5607926,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.005181204061955,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          6,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1960776,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-09",
+      "node_count": 5540053,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.003265736042522,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          7,
+          7,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1932524,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-10",
+      "node_count": 5529872,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000104451086372,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          8,
+          8,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2157865,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-11",
+      "node_count": 5624642,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.007376670953818,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          8,
+          8,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2278564,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-12",
+      "node_count": 5706484,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.010494772926904,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          3,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          0,
+          3,
+          7
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2314581,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-13",
+      "node_count": 5593125,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.01113921497017,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          4,
+          5,
+          1,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          0,
+          3,
+          7
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2202746,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-14",
+      "node_count": 5605364,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.004315397003666,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          5,
+          6,
+          2,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          0,
+          3,
+          0
+        ],
+        "player_store": 14
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2540703,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-15",
+      "node_count": 5817882,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.009437702945434,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          5,
+          6,
+          2,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          3,
+          0,
+          0,
+          0,
+          3,
+          0
+        ],
+        "player_store": 14
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1926531,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-16",
+      "node_count": 5492157,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000096805975772,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          8,
+          0,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          1,
+          9,
+          1,
+          0,
+          2
+        ],
+        "player_store": 17
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2128642,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-17",
+      "node_count": 5670655,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.013162850984372,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          10,
+          2,
+          1,
+          2
+        ],
+        "player_store": 17
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1989855,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-18",
+      "node_count": 5539921,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000107042957097,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          1,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          3
+        ],
+        "player_store": 18
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1903585,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-19",
+      "node_count": 5458491,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000153706991114,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          2,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          3
+        ],
+        "player_store": 18
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1944975,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-20",
+      "node_count": 5519287,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.001816803007387,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1919041,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-21",
+      "node_count": 5470418,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.002992942929268,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          3,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1919096,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-22",
+      "node_count": 5477490,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.002216621069238,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          3,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          3,
+          1,
+          4,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2198074,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-23",
+      "node_count": 5648660,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.012234654976055,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          3,
+          1,
+          4,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1983015,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-24",
+      "node_count": 5544402,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.004978092969395,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          2,
+          5,
+          3,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1876187,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-25",
+      "node_count": 5469326,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000386475003324,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          3,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          2,
+          5,
+          3,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1980232,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-26",
+      "node_count": 5503534,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.003726504044607,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          3,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          0,
+          6,
+          4,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2191034,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-27",
+      "node_count": 5602151,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000375578994863,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          3,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          2,
+          1,
+          0,
+          6,
+          4,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 19,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2347185,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-28",
+      "node_count": 5746960,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.007398777990602,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          3,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          2,
+          1,
+          0,
+          6,
+          0,
+          1
+        ],
+        "player_store": 20
+      },
+      "stones_remaining": 18,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1902331,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-29",
+      "node_count": 5388567,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000932463095523,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          0,
+          1,
+          12
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          0,
+          2,
+          5,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1923280,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-30",
+      "node_count": 5452890,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000632551964372,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          0,
+          0,
+          12
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          2,
+          5,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1897358,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-17-24-31",
+      "node_count": 5366551,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000133514986373,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          12
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          2,
+          5,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2207481,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-00",
+      "node_count": 5595416,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00205448793713,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          9,
+          0,
+          3,
+          10,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 32,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1926506,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-01",
+      "node_count": 5425411,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.005555813084356,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          9,
+          0,
+          0,
+          11,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 31,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1953070,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-02",
+      "node_count": 5436473,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.006266313954256,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          9,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1945949,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-03",
+      "node_count": 5411493,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000034764991142,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          10,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1903564,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-04",
+      "node_count": 5366484,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00003207603004,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          0,
+          1,
+          1,
+          3
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          10,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1918509,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-05",
+      "node_count": 5405790,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00002111995127,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          0,
+          1,
+          0,
+          4
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          10,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1896374,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-06",
+      "node_count": 5359368,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000025226036087,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          1,
+          4
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          12,
+          1
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 28,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1825289,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-07",
+      "node_count": 5285879,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.010244076955132,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          5
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          12,
+          1
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 28,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1806816,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-08",
+      "node_count": 5277511,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00403881201055,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          5
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          12,
+          0
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1862916,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-09",
+      "node_count": 5299419,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.01255459501408,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          5
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          0,
+          2,
+          12,
+          0
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2237038,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-10",
+      "node_count": 5467344,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.008629062911496,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          0,
+          1,
+          6
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          0,
+          2,
+          12,
+          0
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2555897,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-11",
+      "node_count": 5714842,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.01513342000544,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          5,
+          2,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          1,
+          1,
+          3,
+          0,
+          1
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 26,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2336874,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-12",
+      "node_count": 5439001,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00537839496974,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          1,
+          1,
+          3,
+          0,
+          1
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 26,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2339803,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-13",
+      "node_count": 5532198,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.011338823940605,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          1,
+          1,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2134795,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-14",
+      "node_count": 5315918,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00978478102479,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          0,
+          2,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1855696,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-15",
+      "node_count": 5315838,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000029625021853,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          3,
+          5,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          4,
+          5,
+          6,
+          0,
+          2
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 32,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1927459,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-16",
+      "node_count": 5325136,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00002909905743,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          3,
+          0,
+          2,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          4,
+          5,
+          6,
+          0,
+          2
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 31,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1900468,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-17",
+      "node_count": 5367305,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00003044505138,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          4,
+          1,
+          2,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          4,
+          5,
+          0,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1948629,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-18",
+      "node_count": 5415443,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00003136997111,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          4,
+          0,
+          3,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          4,
+          5,
+          0,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1953993,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-19",
+      "node_count": 5423372,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00003260502126,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          4,
+          0,
+          3,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1902351,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-20",
+      "node_count": 5399321,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00003368104808,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          4,
+          0,
+          0,
+          2,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1928137,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-21",
+      "node_count": 5407363,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00002391904127,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          1,
+          3,
+          4
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1879498,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-22",
+      "node_count": 5359027,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.002342547057196,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          1,
+          3,
+          4
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          0,
+          4
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1876552,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-23",
+      "node_count": 5361809,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000094786984846,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          1,
+          3,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          1,
+          0,
+          4
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 28,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1874811,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-24",
+      "node_count": 5339330,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00010740000289,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          1,
+          2,
+          1,
+          3,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          1,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1891767,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-25",
+      "node_count": 5383996,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.0000992360292,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          1,
+          2,
+          0,
+          4,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          1,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1885023,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-26",
+      "node_count": 5319649,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000254609971307,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          4,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1838255,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-27",
+      "node_count": 5306281,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000128765008412,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          3,
+          13,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          0,
+          4,
+          3,
+          0,
+          4
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1880725,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-28",
+      "node_count": 5345702,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000028435955755,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          3,
+          13,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          1,
+          0,
+          4,
+          3,
+          0,
+          4
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1870001,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-29",
+      "node_count": 5310841,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000631709001027,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          2,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          5,
+          4,
+          1,
+          5
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 26,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1978061,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-30",
+      "node_count": 5368060,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.007125645992346,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          2,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          5,
+          2,
+          6
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1945092,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-25-32-31",
+      "node_count": 5268273,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.005289088003337,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          3,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          5,
+          2,
+          6
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2020983,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-00",
+      "node_count": 5473257,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00635198794771,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          8,
+          8,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          6,
+          1,
+          1,
+          8,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2074621,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-01",
+      "node_count": 5527719,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.013340112986043,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          8,
+          8,
+          0
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          0,
+          6,
+          1,
+          1,
+          8,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1953921,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-02",
+      "node_count": 5502681,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000438252929598,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          0,
+          9,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          7,
+          2,
+          2,
+          9,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2476393,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-03",
+      "node_count": 5666473,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.017958018928766,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          0,
+          9,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          8,
+          2,
+          2,
+          9,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1920143,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-04",
+      "node_count": 5362431,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000100408913568,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          3,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          9,
+          3,
+          3,
+          10,
+          2
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1915624,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-05",
+      "node_count": 5290118,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000039793900214,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          2,
+          3,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          9,
+          3,
+          3,
+          10,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1886305,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-06",
+      "node_count": 5417093,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000122384983115,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          8,
+          0,
+          2,
+          0,
+          8,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          6,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1876685,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-07",
+      "node_count": 5255713,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.001352446968667,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          0,
+          2,
+          0,
+          8,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          0,
+          1,
+          2,
+          2,
+          2
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1904386,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-08",
+      "node_count": 5346529,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000092032016255,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          2,
+          0,
+          8,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          1,
+          2,
+          3,
+          3,
+          3
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1940040,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-09",
+      "node_count": 5371186,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00010465993546,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          10,
+          0,
+          2,
+          0,
+          8,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          2,
+          3,
+          4,
+          4,
+          4
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1908618,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-10",
+      "node_count": 5320809,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000028598937206,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          3,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          1,
+          3,
+          4,
+          5,
+          4,
+          4
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2120643,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-11",
+      "node_count": 5593892,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00772980193142,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          4,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          1,
+          3,
+          4,
+          5,
+          4,
+          0
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 35,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2073516,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-12",
+      "node_count": 5478932,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.01522960490547,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          4,
+          1,
+          9,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          3,
+          4,
+          5,
+          4,
+          0
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1915549,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-13",
+      "node_count": 5322953,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000038325903006,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          4,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          4,
+          5,
+          6,
+          5,
+          1
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 33,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2303397,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-14",
+      "node_count": 5533971,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.001383413095027,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          5,
+          0,
+          0,
+          6,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          0,
+          1,
+          6,
+          0,
+          8
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 2071842,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-15",
+      "node_count": 5495819,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.009387366008013,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          6,
+          1,
+          1,
+          7,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          6,
+          0,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1889685,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-16",
+      "node_count": 5300897,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000030246097594,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          8,
+          6,
+          1,
+          0,
+          8,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          6,
+          0,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1917671,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-17",
+      "node_count": 5398281,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00009604601655,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          7,
+          2,
+          0,
+          8,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1900468,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-18",
+      "node_count": 5317591,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00003423297312,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          7,
+          0,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1822394,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-19",
+      "node_count": 5204387,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00011744792573,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          7,
+          0,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1887413,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-20",
+      "node_count": 5419150,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00012164900545,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          2,
+          10,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1815457,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-21",
+      "node_count": 5281403,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000131052918732,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          2,
+          10,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          0,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1896070,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-22",
+      "node_count": 5369281,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000032761017792,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          0,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1797183,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-23",
+      "node_count": 5260133,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.00587984896265,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          0,
+          0,
+          2
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1875237,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-24",
+      "node_count": 5260315,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000029308954254,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          0,
+          1,
+          0,
+          0,
+          2
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1845119,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-25",
+      "node_count": 5216264,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000113288057037,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          10,
+          1,
+          1,
+          0,
+          0,
+          2
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 35,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1853092,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-26",
+      "node_count": 5228739,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000059267971665,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          10,
+          1,
+          2,
+          1,
+          11,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          2,
+          2,
+          1,
+          1,
+          3
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1956291,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-27",
+      "node_count": 5316356,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000032500945963,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          10,
+          1,
+          0,
+          2,
+          12,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          2,
+          2,
+          1,
+          1,
+          3
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1908518,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-28",
+      "node_count": 5331563,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000030798953958,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          10,
+          1,
+          0,
+          2,
+          12,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          2,
+          2,
+          1,
+          0,
+          4
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1901151,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-29",
+      "node_count": 5307198,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000028624897823,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          1,
+          3,
+          13,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          3,
+          3,
+          2,
+          0,
+          4
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 33,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1939360,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-30",
+      "node_count": 5347333,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.000161988078617,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          9,
+          8,
+          8,
+          2
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          2,
+          7,
+          1,
+          0,
+          2
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {},
+      "cache_hits": 1875733,
+      "cache_used": true,
+      "exact": false,
+      "final_margin": null,
+      "id": "exact-preflight-33-40-31",
+      "node_count": 5323148,
+      "optimal_actions": [],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": false,
+      "runtime_seconds": 30.0000993530266,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          9,
+          8,
+          8,
+          2
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          2,
+          7,
+          0,
+          1,
+          2
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    }
+  ],
+  "exactness_validation": {
+    "executions": 72,
+    "passed": true,
+    "tiny_positions": 12
+  },
+  "qualification": {
+    "bucket_coverage": {
+      "17-24": {
+        "rate": 0.0,
+        "solved": 0,
+        "total": 32
+      },
+      "25-32": {
+        "rate": 0.0,
+        "solved": 0,
+        "total": 32
+      },
+      "33-40": {
+        "rate": 0.0,
+        "solved": 0,
+        "total": 32
+      }
+    },
+    "dataset_scale_target": 50000,
+    "mean_exact_runtime_seconds": 0.0,
+    "passed": false,
+    "projected_exact_labels_24_cpu_hours": 0,
+    "reproducible_optimal_action_sets": true
+  },
+  "rules_parity": {
+    "events_observed": {
+      "captures": 3524,
+      "extra_turns": 5777,
+      "terminal_sweeps": 485
+    },
+    "golden_vectors": 5,
+    "legal_moves_checked": 41245,
+    "passed": true,
+    "reachable_states": 10000
+  },
+  "schema": "exact_kalah_solver_feasibility_v1",
+  "seed": 271
+}
