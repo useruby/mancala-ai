@@ -91,6 +91,17 @@ int lookup_benchmark(const std::string& path, uint64_t query_count, uint64_t see
     uint64_t index = next_random(random_state) % count(tier);
     queries.push_back({unrank(tier, index), static_cast<int>(next_random(random_state) & 1)});
   }
+  // The corpus hash covers the exact binary records looked up below: 12 pit
+  // counts followed by the current-player byte for each deterministic query.
+  Sha256 corpus_sha;
+  for (const LookupQuery& query : queries) {
+    std::vector<int8_t> record;
+    record.reserve(13);
+    for (uint8_t pit : query.pits) record.push_back(static_cast<int8_t>(pit));
+    record.push_back(static_cast<int8_t>(query.player));
+    corpus_sha.update(record);
+  }
+  auto corpus_digest = corpus_sha.finish();
 
   volatile int64_t checksum = 0;
   auto cold_start = std::chrono::steady_clock::now();
@@ -126,6 +137,9 @@ int lookup_benchmark(const std::string& path, uint64_t query_count, uint64_t see
             << ",\"warm_median_lookup_ns\":" << median_ns
             << ",\"warm_p95_lookup_ns\":" << p95_ns
             << ",\"rss_kib\":" << usage.ru_maxrss
+            << ",\"corpus_sha256\":\"";
+  for (uint8_t byte : corpus_digest) std::cout << "0123456789abcdef"[byte >> 4] << "0123456789abcdef"[byte & 15];
+  std::cout << "\""
             << ",\"checksum\":" << checksum << "}\n";
   return 0;
 }
