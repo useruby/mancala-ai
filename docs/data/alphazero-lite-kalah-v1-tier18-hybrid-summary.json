@@ -1,0 +1,24 @@
+{
+  "schema": "kalah_v1_tier18_hybrid_summary_v1",
+  "classification": "native_hybrid_exact_teacher_incorrect",
+  "training_eligible": false,
+  "tablebase_artifact": "docs/data/alphazero-lite-kalah-v1-tier18-experiment.json",
+  "hybrid_correctness": {
+    "passed": false,
+    "first_failure": {
+      "gate": "cited_tiny_position",
+      "state": {
+        "pits": [0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+        "stores": [20, 20],
+        "player": 0
+      },
+      "action": 2,
+      "expected_value": 0,
+      "native_hybrid_value": 3
+    }
+  },
+  "feasibility_benchmark": {
+    "run": false,
+    "reason": "Performance testing is forbidden until hybrid correctness gates pass."
+  }
+}

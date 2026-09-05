@@ -97,6 +97,7 @@ def generate(
     timeout_seconds: int = GENERATOR_TIMEOUT_SECONDS,
 ) -> dict:
     started = time.perf_counter()
+    child_usage_before = resource.getrusage(resource.RUSAGE_CHILDREN)
     process = subprocess.Popen(
         [binary, "generate", str(tier), output],
         stdout=subprocess.PIPE,
@@ -136,6 +137,12 @@ def generate(
     result = json.loads(stdout)
     result.update(
         wall_seconds=time.perf_counter() - started,
+        cpu_seconds=(
+            resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime
+            + resource.getrusage(resource.RUSAGE_CHILDREN).ru_stime
+            - child_usage_before.ru_utime
+            - child_usage_before.ru_stime
+        ),
         peak_rss_kib=peak_rss_kib,
         output_bytes=output.stat().st_size,
         sha256=hashlib.sha256(output.read_bytes()).hexdigest(),
@@ -410,6 +417,7 @@ def portable_format_gate(binary: Path, tablebase: Path, directory: Path) -> dict
             ).returncode
             != 0
         )
+        path.unlink()
     assert all(rejected.values()), "native reader accepted malformed portable fixture"
     return {"fixtures": rejected, "fixture_count": len(fixtures), "passed": True}
 
@@ -433,9 +441,10 @@ def lookup_benchmark_gate(binary: Path, tablebase: Path) -> dict:
         text=True,
     )
     benchmark = json.loads(completed.stdout)
-    benchmark["corpus_sha256"] = hashlib.sha256(
-        f"kalah_v1_lookup_v1:{SAMPLE_SEED}:{benchmark['checksum']}".encode()
-    ).hexdigest()
+    if "corpus_sha256" not in benchmark:
+        raise AssertionError(
+            "native benchmark did not hash its serialized query corpus"
+        )
     benchmark["thresholds"] = {
         "warm_lookup_count": 100000,
         "warm_median_lookup_ns": 1_000_000,
@@ -482,7 +491,11 @@ def projection_gate(scalability: dict) -> dict:
 
 def _error_details(error: Exception) -> dict[str, str]:
     message = str(error).strip() or error.__class__.__name__
-    return {"type": error.__class__.__name__, "message": message}
+    details = {"type": error.__class__.__name__, "message": message}
+    if isinstance(error, subprocess.CalledProcessError):
+        details["stdout"] = str(error.stdout or "").strip()
+        details["stderr"] = str(error.stderr or "").strip()
+    return details
 
 
 def run_gate(
@@ -492,6 +505,13 @@ def run_gate(
         data = function(*args, **kwargs)
     except Exception as error:
         gates[name] = {"status": "failed", "error": _error_details(error)}
+        return None
+    if isinstance(data, dict) and data.get("passed") is False:
+        gates[name] = {
+            "status": "failed",
+            "data": data,
+            "error": {"type": "GateFailed", "message": "gate returned passed=false"},
+        }
         return None
     gates[name] = {
         "status": "passed",
@@ -524,17 +544,21 @@ def classify(gates: dict[str, dict], full_validation: bool) -> tuple[str, bool, 
             False,
             f"correctness gate failed: {sorted(failed & correctness)[0]}",
         )
-    if "generation" in failed and "cycle" in str(gates["generation"]):
+    generation_error = gates.get("generation", {}).get("error", {})
+    generation_text = " ".join(
+        str(generation_error.get(name, "")) for name in ("message", "stdout", "stderr")
+    ).lower()
+    if "generation" in failed and "cycle" in generation_text:
         return (
             "canonical_tablebase_recurrence_blocked",
             False,
             "native recurrence cycle",
         )
-    if failed & {"generation", "scalability"}:
+    if failed & {"generation", "scalability", "projection_18"}:
         return (
             "canonical_tablebase_budget_exceeded",
             False,
-            f"resource gate failed: {sorted(failed & {'generation', 'scalability'})[0]}",
+            f"resource gate failed: {sorted(failed & {'generation', 'scalability', 'projection_18'})[0]}",
         )
     full_gates = {
         "transition_parity",
@@ -667,24 +691,6 @@ def main() -> int:
                         directory,
                     )
                     run_gate(gates, "cited_positions", cited_gate, binary, tablebase)
-                if args.run_scalability:
-                    scalability = run_gate(
-                        gates,
-                        "scalability",
-                        scalability_gate,
-                        binary,
-                        directory,
-                        **generator_limits,
-                    )
-                    if scalability is not None:
-                        run_gate(
-                            gates,
-                            "lookup_benchmark",
-                            lookup_benchmark_gate,
-                            binary,
-                            directory / "scalability-14.kvtb",
-                        )
-                        run_gate(gates, "projection_18", projection_gate, scalability)
                 if args.full_validation and args.tier < 12:
                     gates["full_validation_configuration"] = {
                         "status": "failed",
@@ -730,6 +736,41 @@ def main() -> int:
                         directory,
                         **generator_limits,
                     )
+                correctness_failed = any(
+                    gates.get(name, {}).get("status") == "failed"
+                    for name in (
+                        "rank_unrank",
+                        "portable_format",
+                        "cited_positions",
+                        "transition_parity",
+                        "root_action_oracle",
+                        "store_offset_invariance",
+                        "sample_oracle",
+                        "determinism_8",
+                        "determinism_12",
+                    )
+                )
+                if args.run_scalability and not correctness_failed:
+                    scalability = run_gate(
+                        gates,
+                        "scalability",
+                        scalability_gate,
+                        binary,
+                        directory,
+                        **generator_limits,
+                    )
+                    if scalability is not None:
+                        run_gate(
+                            gates,
+                            "lookup_benchmark",
+                            lookup_benchmark_gate,
+                            binary,
+                            directory / "scalability-14.kvtb",
+                        )
+                        run_gate(gates, "projection_18", projection_gate, scalability)
+                elif args.run_scalability:
+                    for name in ("scalability", "lookup_benchmark", "projection_18"):
+                        skip_gate(gates, name, "correctness gate failed")
         except Exception as error:
             gates["runner"] = {"status": "failed", "error": _error_details(error)}
     if args.full_validation:

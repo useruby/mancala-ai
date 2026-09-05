@@ -85,7 +85,26 @@ diff --git a/hash.cilk b/hash.cilk
 diff --git a/crunch.cilk b/crunch.cilk
 --- a/crunch.cilk
 +++ b/crunch.cilk
-@@ -99,1 +99,2 @@ static int peek(c_res *s, int d, int a) {
+@@ -1,7 +1,8 @@
+ // Kalah minimax search code
+ // Geoffrey Irving
+ // 1sep0
+ 
+ #include "crunch.cilkh"
++#include "canonical_kvtb.h"
+ 
+ int stones = 0; 
+@@ -85,3 +86,9 @@ static int peek(c_res *s, int d, int a) {
+  k = stones - s->p.a[LPIT] - s->p.a[PITS];
+  
++  if (canonical_tablebase_known(k)) {
++    STAT(stat.eg_lookups++);
++    s->rd = 200;
++    return canonical_tablebase_value(&s->p);
++    }
++
+  /* endgame database */
+@@ -99,1 +106,2 @@ static int peek(c_res *s, int d, int a) {
 +#ifndef DISABLE_FUTILITY
    /* futility pruning */
 @@ -111,1 +112,2 @@ static int peek(c_res *s, int d, int a) {

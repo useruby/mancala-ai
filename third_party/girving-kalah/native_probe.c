@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "canonical_kvtb.h"
 #include "crunch.cilkh"
 
 static const char *at(const char *s, const char *key) { const char *p = strstr(s, key); return p ? strchr(p, ':') : 0; }
@@ -13,4 +14,4 @@ static void board(position p, int x) { int i,margin=p.a[6]-p.a[13]; for(i=0;i<6;
 static void apply(const char *s) { position p;int a,x,extra;readp(s,&p);if(!integer(s,"\"action\"",&a)||a<0||a>=6||!bin(p,a))exit(2);extra=(a+bin(p,a))%13==6;x=move(&p,a);if(p.w>=0&&!extra)p.s=1-p.s;printf("{\"operation\":\"apply\",");board(p,extra);puts("}"); }
 static void solveone(const char *s) { position p;readp(s,&p);printf("{\"operation\":\"solve\",");board(p,0);printf(",\"exact_value\":%d}\n",value(p)); }
 static void label(const char *s) { position p,c;int a,x,v,best,first=1;readp(s,&p);best=p.s?10000:-10000;printf("{\"operation\":\"label\",");board(p,0);printf(",\"action_values\":{");for(a=0;a<6;a++)if(bin(p,a)){c=p;x=move(&c,a);v=c.w>=0?c.a[6]-c.a[13]:value(c);if((!p.s&&v>best)||(p.s&&v<best))best=v;printf("%s\"%d\":%d",first?"":",",a,v);first=0;}printf("},\"exact_value\":%d,\"optimal_actions\":[",best);first=1;for(a=0;a<6;a++)if(bin(p,a)){c=p;x=move(&c,a);v=c.w>=0?c.a[6]-c.a[13]:value(c);if(v==best){printf("%s%d",first?"":",",a);first=0;}}printf("],\"action_margins\":{");first=1;for(a=0;a<6;a++)if(bin(p,a)){c=p;x=move(&c,a);v=c.w>=0?c.a[6]-c.a[13]:value(c);printf("%s\"%d\":%d",first?"":",",a,p.s ? v-best : best-v);first=0;}puts("}}"); }
-int main(void) { char s[4096],*endgame=getenv("NATIVE_MTDF_ENDGAME");init_hash(16,0);if(endgame)init_endgame(8,endgame);while(fgets(s,sizeof(s),stdin)){if(strstr(s,"apply"))apply(s);else if(strstr(s,"solve"))solveone(s);else if(strstr(s,"label"))label(s);else return 2;fflush(stdout);}if(endgame)close_endgame();close_hash();return 0; }
+int main(void) { char s[4096],*tablebase=getenv("NATIVE_CANONICAL_KVTB");init_hash(16,0);if(tablebase&&!canonical_tablebase_load(tablebase))return 3;while(fgets(s,sizeof(s),stdin)){if(strstr(s,"apply"))apply(s);else if(strstr(s,"solve"))solveone(s);else if(strstr(s,"label"))label(s);else return 2;fflush(stdout);}canonical_tablebase_close();close_hash();return 0; }

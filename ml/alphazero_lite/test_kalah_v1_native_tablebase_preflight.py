@@ -8,9 +8,11 @@ import unittest
 
 from ml.alphazero_lite.run_kalah_v1_native_tablebase_preflight import (
     ROOT,
+    classify,
     cumulative_count,
     portable_format_gate,
     rank,
+    run_gate,
     transition_gate,
     unrank,
 )
@@ -108,6 +110,33 @@ class KalahV1NativeTablebasePreflightTest(unittest.TestCase):
         result = transition_gate(binary, 3)
         self.assertTrue(result["passed"])
         self.assertGreater(result["legal_actions"], 0)
+
+    def test_projection_returning_false_is_a_budget_failure(self) -> None:
+        classification, complete, reason = classify(
+            {"projection_18": {"status": "failed", "error": {}}}, True
+        )
+        self.assertEqual("canonical_tablebase_budget_exceeded", classification)
+        self.assertFalse(complete)
+        self.assertIn("projection_18", reason)
+
+    def test_gate_returning_false_is_recorded_as_failed(self) -> None:
+        gates: dict[str, dict] = {}
+        self.assertIsNone(run_gate(gates, "projection_18", lambda: {"passed": False}))
+        self.assertEqual("failed", gates["projection_18"]["status"])
+
+    def test_generator_cycle_stderr_is_classified(self) -> None:
+        classification, complete, reason = classify(
+            {
+                "generation": {
+                    "status": "failed",
+                    "error": {"message": "command failed", "stderr": "cycle"},
+                }
+            },
+            False,
+        )
+        self.assertEqual("canonical_tablebase_recurrence_blocked", classification)
+        self.assertFalse(complete)
+        self.assertEqual("native recurrence cycle", reason)
 
 
 if __name__ == "__main__":
