@@ -1,0 +1,46 @@
+{
+  "audit_pairs": 1200,
+  "audit_seed": 777,
+  "audit_size_requested": 1200,
+  "mcts_policy_target_mode": "default",
+  "mcts_policy_temperature": 1.0,
+  "mcts_simulations": 1200,
+  "metrics": {
+    "by_bucket": {
+      "17-24": {
+        "mcts_top_in_exact_set_rate": 0.6438356164383562,
+        "mean_abs_value_disagreement": 0.5022060502283106,
+        "n": 292
+      },
+      "25-32": {
+        "mcts_top_in_exact_set_rate": 0.5096153846153846,
+        "mean_abs_value_disagreement": 0.5448557692307692,
+        "n": 208
+      },
+      "33-40": {
+        "mcts_top_in_exact_set_rate": 0.5,
+        "mean_abs_value_disagreement": 0.6020761494252874,
+        "n": 116
+      },
+      "8-16": {
+        "mcts_top_in_exact_set_rate": 0.7585616438356164,
+        "mean_abs_value_disagreement": 0.3416124429223744,
+        "n": 584
+      }
+    },
+    "exact_multi_optimum_n": 511,
+    "exact_multi_optimum_rate": 0.42583333333333334,
+    "exact_single_optimum_mcts_top1_agreement": 0.5471698113207547,
+    "exact_single_optimum_n": 689,
+    "max_abs_value_disagreement": 1.9133333333333333,
+    "mcts_top_in_exact_optimal_set": 795,
+    "mcts_top_in_exact_optimal_set_rate": 0.6625,
+    "mean_abs_value_disagreement": 0.44109722222222225,
+    "mean_mcts_top_visit_share_when_correct": 0.5013794549266247,
+    "mean_mcts_top_visit_share_when_incorrect": 0.519880658436214,
+    "n": 1200
+  },
+  "pairs_sha256": "bba1495749a1650e4d128eadad0d03c00e895d80e6b0c449d6ff16bd1a94873a",
+  "schema": "native_hybrid_exact_mcts_audit_v1",
+  "source_states_sha256": "f5d6bb3256bf31ae3fe8089cdd8e1ebd602e731f46f874251a1b9374bc5f49cb"
+}
