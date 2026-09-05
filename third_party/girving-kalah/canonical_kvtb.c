@@ -15,6 +15,8 @@ static unsigned char *payload;
 static uint64_t offsets[KVTB_MAX_TIER + 1];
 static int top = -1;
 static long long hits;
+static long long request_lookups, request_hits, tier_hits[KVTB_MAX_TIER + 1];
+static int first_hit_depth, min_hit_tier, max_hit_tier;
 
 static uint64_t get64(const unsigned char *p) { uint64_t v=0; int i; for(i=0;i<8;i++) v|=(uint64_t)p[i]<<(8*i); return v; }
 static uint32_t get32(const unsigned char *p) { uint32_t v=0; int i; for(i=0;i<4;i++) v|=(uint32_t)p[i]<<(8*i); return v; }
@@ -22,7 +24,8 @@ static uint64_t choose(unsigned n,unsigned k) { uint64_t v=1; unsigned i; if(k>n
 static uint64_t count(unsigned tier) { return choose(tier+11,11); }
 static uint64_t rank_pits(const position *p) { uint64_t r=0; unsigned remaining=0,i,v,x; for(i=0;i<6;i++)remaining+=(unsigned char)p->a[i]+(unsigned char)p->a[i+7]; for(i=0;i<11;i++){x=i<6?(unsigned char)p->a[i]:(unsigned char)p->a[i+1]; for(v=0;v<x;v++)r+=choose(remaining-v+10-i,10-i);remaining-=x;} return r; }
 
-void canonical_tablebase_close(void) { free(payload); payload=0; memset(offsets,0,sizeof(offsets)); top=-1; hits=0; }
+void canonical_tablebase_reset_request_metrics(void) { request_lookups=request_hits=0; memset(tier_hits,0,sizeof(tier_hits)); first_hit_depth=-1; min_hit_tier=KVTB_MAX_TIER+1; max_hit_tier=-1; }
+void canonical_tablebase_close(void) { free(payload); payload=0; memset(offsets,0,sizeof(offsets)); top=-1; hits=0; canonical_tablebase_reset_request_metrics(); }
 
 int canonical_tablebase_load(const char *path) {
   FILE *f=0; unsigned char h[416],digest[32]; uint64_t states,bytes,total,expected=0,header; long length; int i;
@@ -42,7 +45,7 @@ int canonical_tablebase_load(const char *path) {
   if(!(payload=malloc((size_t)bytes))) goto fail;
   if(fread(payload,1,(size_t)bytes,f)!=(size_t)bytes || fgetc(f)!=EOF) goto fail;
   { unsigned char actual[SHA256_DIGEST_LENGTH]; size_t n; if(!SHA256(payload,(size_t)bytes,actual) || memcmp(actual,digest,32)){fprintf(stderr,"canonical tablebase load failed: payload checksum\n");goto fail;} for(n=0;n<(size_t)bytes;n++)if((int8_t)payload[n]==KVTB_UNKNOWN){fprintf(stderr,"canonical tablebase load failed: unknown payload entry\n");goto fail;} }
-  fclose(f); hits=0; return 1;
+  fclose(f); hits=0; canonical_tablebase_reset_request_metrics(); return 1;
 fail:
   fprintf(stderr,"canonical tablebase load failed: invalid KVTB1 file\n");
   if(f) fclose(f);
@@ -51,6 +54,13 @@ fail:
 }
 
 int canonical_tablebase_known(int active_stones) { return payload && active_stones>=0 && active_stones<=top; }
+void canonical_tablebase_record_lookup(int active_stones, int depth) { request_lookups++; if(!canonical_tablebase_known(active_stones))return; request_hits++; tier_hits[active_stones]++; if(first_hit_depth<0)first_hit_depth=depth; if(active_stones<min_hit_tier)min_hit_tier=active_stones; if(active_stones>max_hit_tier)max_hit_tier=active_stones; }
+long long canonical_tablebase_request_lookups(void) { return request_lookups; }
+long long canonical_tablebase_request_hits(void) { return request_hits; }
+int canonical_tablebase_first_hit_depth(void) { return first_hit_depth; }
+int canonical_tablebase_min_hit_tier(void) { return min_hit_tier>KVTB_MAX_TIER ? -1:min_hit_tier; }
+int canonical_tablebase_max_hit_tier(void) { return max_hit_tier; }
+long long canonical_tablebase_tier_hits(int tier) { return tier>=0 && tier<=KVTB_MAX_TIER?tier_hits[tier]:0; }
 int canonical_tablebase_diagnostics(const position *p, canonical_tablebase_info *info) {
   int active=0,i; uint64_t rank,index;
   if(!p || !info) return 0;
@@ -61,5 +71,5 @@ int canonical_tablebase_diagnostics(const position *p, canonical_tablebase_info 
   info->active_stones=active; info->rank=rank; info->offset=offsets[active]; info->raw_value=(int8_t)payload[index]; info->store_margin=(int)p->a[6]-(int)p->a[13]; info->upstream_value=p->s ? -(info->store_margin+info->raw_value) : info->store_margin+info->raw_value; info->player_zero_value=p->s ? -info->upstream_value : info->upstream_value;
   return 1;
 }
-int canonical_tablebase_value(const position *p) { canonical_tablebase_info info; if(!canonical_tablebase_diagnostics(p,&info)) return 0; hits++; return info.upstream_value; }
+int canonical_tablebase_value(const position *p) { canonical_tablebase_info info; if(!canonical_tablebase_diagnostics(p,&info)) return 0; canonical_tablebase_record_lookup(info.active_stones,-1); hits++; return info.upstream_value; }
 long long canonical_tablebase_hits(void) { return hits; }

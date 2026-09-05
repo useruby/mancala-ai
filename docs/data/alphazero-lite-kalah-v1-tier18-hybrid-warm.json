@@ -1,0 +1,7252 @@
+{
+  "complete": true,
+  "corpus": [
+    {
+      "action_final_margins": {
+        "1": -4,
+        "2": 4,
+        "3": -2,
+        "5": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-17-24-00",
+      "metrics": {
+        "cpu_time_seconds": 0.00024,
+        "cumulative_cache": {
+          "tablebase_hits": 330,
+          "tt_hits": 141,
+          "tt_probes": 1507
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 512,
+        "maximum_search_depth": 12,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 11,
+        "previous_state_tt_influence": false,
+        "request_wall_time_seconds": 0.15768795006442815,
+        "root_active_stones": 24,
+        "status": "completed",
+        "tablebase_hits": 330,
+        "tablebase_hits_by_tier": {
+          "11": 3,
+          "13": 4,
+          "14": 6,
+          "15": 11,
+          "16": 30,
+          "17": 66,
+          "18": 210
+        },
+        "tablebase_lookups": 330,
+        "tt_hits": 141,
+        "tt_probes": 1507,
+        "wall_time_seconds": 0.000238469
+      },
+      "optimal_actions": [
+        1,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          0,
+          8
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          0,
+          2,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -6,
+        "2": -10,
+        "3": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-17-24-01",
+      "metrics": {
+        "cpu_time_seconds": 9.5e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 450,
+          "tt_hits": 222,
+          "tt_probes": 2045
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 183,
+        "maximum_search_depth": 10,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0002480439143255353,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 104,
+        "tablebase_hits_by_tier": {
+          "13": 2,
+          "14": 2,
+          "15": 7,
+          "16": 11,
+          "17": 11,
+          "18": 71
+        },
+        "tablebase_lookups": 104,
+        "tt_hits": 47,
+        "tt_probes": 464,
+        "wall_time_seconds": 9.4157e-05
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          2,
+          1,
+          9
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          2,
+          0,
+          2,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": -6,
+        "3": -6,
+        "4": -4,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-17-24-02",
+      "metrics": {
+        "cpu_time_seconds": 7.9e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 494,
+          "tt_hits": 301,
+          "tt_probes": 2366
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 112,
+        "maximum_search_depth": 7,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00020844407845288515,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 38,
+        "tablebase_hits_by_tier": {
+          "13": 1,
+          "14": 1,
+          "15": 4,
+          "16": 7,
+          "17": 7,
+          "18": 18
+        },
+        "tablebase_lookups": 38,
+        "tt_hits": 59,
+        "tt_probes": 283,
+        "wall_time_seconds": 7.8316e-05
+      },
+      "optimal_actions": [
+        2,
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          2,
+          1,
+          9
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          1,
+          3,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": -10,
+        "2": -8,
+        "3": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-17-24-03",
+      "metrics": {
+        "cpu_time_seconds": 7.9e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 576,
+          "tt_hits": 388,
+          "tt_probes": 2836
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 100,
+        "maximum_search_depth": 6,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 15,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0003156979801133275,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 55,
+        "tablebase_hits_by_tier": {
+          "15": 1,
+          "16": 2,
+          "17": 9,
+          "18": 43
+        },
+        "tablebase_lookups": 55,
+        "tt_hits": 18,
+        "tt_probes": 291,
+        "wall_time_seconds": 7.9319e-05
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          0,
+          2,
+          10
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          1,
+          3,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": -2,
+        "4": -10,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -10,
+      "id": "exact-preflight-17-24-04",
+      "metrics": {
+        "cpu_time_seconds": 8.6e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 683,
+          "tt_hits": 473,
+          "tt_probes": 3341
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 129,
+        "maximum_search_depth": 7,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 15,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00024451909121125937,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 96,
+        "tablebase_hits_by_tier": {
+          "15": 2,
+          "17": 12,
+          "18": 82
+        },
+        "tablebase_lookups": 96,
+        "tt_hits": 52,
+        "tt_probes": 432,
+        "wall_time_seconds": 8.5717e-05
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          0,
+          2,
+          10
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          0,
+          4,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": -8,
+        "2": -10,
+        "3": -10,
+        "4": -8,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 0,
+      "id": "exact-preflight-17-24-05",
+      "metrics": {
+        "cpu_time_seconds": 0.000146,
+        "cumulative_cache": {
+          "tablebase_hits": 861,
+          "tt_hits": 604,
+          "tt_probes": 4220
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 225,
+        "maximum_search_depth": 6,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.000304454006254673,
+        "root_active_stones": 22,
+        "status": "completed",
+        "tablebase_hits": 150,
+        "tablebase_hits_by_tier": {
+          "13": 10,
+          "14": 10,
+          "15": 6,
+          "17": 8,
+          "18": 116
+        },
+        "tablebase_lookups": 150,
+        "tt_hits": 59,
+        "tt_probes": 737,
+        "wall_time_seconds": 0.000149771
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          4,
+          1,
+          1
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": -4,
+        "2": -4,
+        "4": -10
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -10,
+      "id": "exact-preflight-17-24-06",
+      "metrics": {
+        "cpu_time_seconds": 8.4e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 914,
+          "tt_hits": 674,
+          "tt_probes": 4460
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 66,
+        "maximum_search_depth": 3,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00019991002045571804,
+        "root_active_stones": 21,
+        "status": "completed",
+        "tablebase_hits": 47,
+        "tablebase_hits_by_tier": {
+          "13": 4,
+          "14": 7,
+          "15": 2,
+          "18": 34
+        },
+        "tablebase_lookups": 47,
+        "tt_hits": 21,
+        "tt_probes": 173,
+        "wall_time_seconds": 8.4548e-05
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          5,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          2
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -6,
+        "1": -10,
+        "2": -8,
+        "4": -4,
+        "5": -8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-17-24-07",
+      "metrics": {
+        "cpu_time_seconds": 9.6e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 955,
+          "tt_hits": 727,
+          "tt_probes": 4616
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 31,
+        "maximum_search_depth": 3,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 12,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00022483209613710642,
+        "root_active_stones": 21,
+        "status": "completed",
+        "tablebase_hits": 26,
+        "tablebase_hits_by_tier": {
+          "12": 1,
+          "13": 2,
+          "14": 1,
+          "18": 22
+        },
+        "tablebase_lookups": 26,
+        "tt_hits": 11,
+        "tt_probes": 81,
+        "wall_time_seconds": 9.5968e-05
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          6,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          2
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "2": 4,
+        "4": -8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-17-24-08",
+      "metrics": {
+        "cpu_time_seconds": 5.5e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 975,
+          "tt_hits": 749,
+          "tt_probes": 4664
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 7,
+        "maximum_search_depth": 1,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0001510060392320156,
+        "root_active_stones": 20,
+        "status": "completed",
+        "tablebase_hits": 12,
+        "tablebase_hits_by_tier": {
+          "13": 3,
+          "14": 2,
+          "18": 7
+        },
+        "tablebase_lookups": 12,
+        "tt_hits": 1,
+        "tt_probes": 14,
+        "wall_time_seconds": 5.548e-05
+      },
+      "optimal_actions": [
+        0,
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          6,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          1,
+          5,
+          0,
+          2,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -14,
+        "1": -6,
+        "2": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-17-24-09",
+      "metrics": {
+        "cpu_time_seconds": 0.000141,
+        "cumulative_cache": {
+          "tablebase_hits": 1308,
+          "tt_hits": 814,
+          "tt_probes": 6413
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 555,
+        "maximum_search_depth": 8,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 14,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0002458470407873392,
+        "root_active_stones": 24,
+        "status": "completed",
+        "tablebase_hits": 322,
+        "tablebase_hits_by_tier": {
+          "14": 6,
+          "15": 16,
+          "16": 12,
+          "17": 28,
+          "18": 260
+        },
+        "tablebase_lookups": 322,
+        "tt_hits": 63,
+        "tt_probes": 1736,
+        "wall_time_seconds": 0.000140554
+      },
+      "optimal_actions": [
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          7,
+          7,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "2": -14,
+        "5": -14
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -14,
+      "id": "exact-preflight-17-24-10",
+      "metrics": {
+        "cpu_time_seconds": 0.000118,
+        "cumulative_cache": {
+          "tablebase_hits": 1469,
+          "tt_hits": 893,
+          "tt_probes": 7370
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 309,
+        "maximum_search_depth": 8,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 9,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00022529007401317358,
+        "root_active_stones": 24,
+        "status": "completed",
+        "tablebase_hits": 159,
+        "tablebase_hits_by_tier": {
+          "10": 3,
+          "11": 4,
+          "12": 2,
+          "14": 4,
+          "15": 1,
+          "16": 5,
+          "17": 20,
+          "18": 119,
+          "9": 1
+        },
+        "tablebase_lookups": 159,
+        "tt_hits": 65,
+        "tt_probes": 941,
+        "wall_time_seconds": 0.000118081
+      },
+      "optimal_actions": [
+        2,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          8,
+          8,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "2": -14
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -14,
+      "id": "exact-preflight-17-24-11",
+      "metrics": {
+        "cpu_time_seconds": 4.9e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 1489,
+          "tt_hits": 943,
+          "tt_probes": 7518
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 35,
+        "maximum_search_depth": 5,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0001375819556415081,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 16,
+        "tablebase_hits_by_tier": {
+          "13": 2,
+          "16": 1,
+          "18": 13
+        },
+        "tablebase_lookups": 16,
+        "tt_hits": 36,
+        "tt_probes": 128,
+        "wall_time_seconds": 4.9405e-05
+      },
+      "optimal_actions": [
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          8,
+          8,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "1": 2,
+        "2": 4,
+        "3": 2,
+        "5": -14
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -14,
+      "id": "exact-preflight-17-24-12",
+      "metrics": {
+        "cpu_time_seconds": 0.000166,
+        "cumulative_cache": {
+          "tablebase_hits": 1663,
+          "tt_hits": 1054,
+          "tt_probes": 8344
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 267,
+        "maximum_search_depth": 8,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 11,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0003356289817020297,
+        "root_active_stones": 24,
+        "status": "completed",
+        "tablebase_hits": 170,
+        "tablebase_hits_by_tier": {
+          "11": 1,
+          "12": 3,
+          "13": 1,
+          "14": 9,
+          "15": 13,
+          "16": 27,
+          "17": 23,
+          "18": 93
+        },
+        "tablebase_lookups": 170,
+        "tt_hits": 94,
+        "tt_probes": 802,
+        "wall_time_seconds": 0.000166218
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          3,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          0,
+          3,
+          7
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "4": -14,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-17-24-13",
+      "metrics": {
+        "cpu_time_seconds": 9.3e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 1817,
+          "tt_hits": 1205,
+          "tt_probes": 9018
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 146,
+        "maximum_search_depth": 10,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00020797597244381905,
+        "root_active_stones": 24,
+        "status": "completed",
+        "tablebase_hits": 98,
+        "tablebase_hits_by_tier": {
+          "13": 3,
+          "14": 3,
+          "15": 5,
+          "16": 16,
+          "17": 18,
+          "18": 53
+        },
+        "tablebase_lookups": 98,
+        "tt_hits": 77,
+        "tt_probes": 422,
+        "wall_time_seconds": 9.3586e-05
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          4,
+          5,
+          1,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          0,
+          3,
+          7
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 6,
+        "1": 6,
+        "2": 8,
+        "3": 10,
+        "4": 4,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-17-24-14",
+      "metrics": {
+        "cpu_time_seconds": 0.000172,
+        "cumulative_cache": {
+          "tablebase_hits": 1949,
+          "tt_hits": 1306,
+          "tt_probes": 9558
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 147,
+        "maximum_search_depth": 8,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 11,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0003543510101735592,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 119,
+        "tablebase_hits_by_tier": {
+          "11": 3,
+          "12": 6,
+          "13": 8,
+          "14": 3,
+          "15": 7,
+          "16": 12,
+          "17": 20,
+          "18": 60
+        },
+        "tablebase_lookups": 119,
+        "tt_hits": 40,
+        "tt_probes": 438,
+        "wall_time_seconds": 0.000173861
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          5,
+          6,
+          2,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          0,
+          3,
+          0
+        ],
+        "player_store": 14
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "4": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-17-24-15",
+      "metrics": {
+        "cpu_time_seconds": 4.9e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 1980,
+          "tt_hits": 1332,
+          "tt_probes": 9641
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 15,
+        "maximum_search_depth": 3,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00013498798944056034,
+        "root_active_stones": 22,
+        "status": "completed",
+        "tablebase_hits": 17,
+        "tablebase_hits_by_tier": {
+          "13": 2,
+          "14": 3,
+          "15": 3,
+          "16": 2,
+          "18": 7
+        },
+        "tablebase_lookups": 17,
+        "tt_hits": 1,
+        "tt_probes": 35,
+        "wall_time_seconds": 4.8963e-05
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          5,
+          6,
+          2,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          3,
+          0,
+          0,
+          0,
+          3,
+          0
+        ],
+        "player_store": 14
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 28,
+        "3": 24
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 24,
+      "id": "exact-preflight-17-24-16",
+      "metrics": {
+        "cpu_time_seconds": 0.000109,
+        "cumulative_cache": {
+          "tablebase_hits": 2168,
+          "tt_hits": 1443,
+          "tt_probes": 10577
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 336,
+        "maximum_search_depth": 8,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 6,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00020301993936300278,
+        "root_active_stones": 24,
+        "status": "completed",
+        "tablebase_hits": 183,
+        "tablebase_hits_by_tier": {
+          "10": 3,
+          "13": 1,
+          "14": 5,
+          "15": 13,
+          "16": 18,
+          "17": 28,
+          "18": 112,
+          "6": 1,
+          "8": 2
+        },
+        "tablebase_lookups": 183,
+        "tt_hits": 105,
+        "tt_probes": 926,
+        "wall_time_seconds": 0.000109215
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          8,
+          0,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          1,
+          9,
+          1,
+          0,
+          2
+        ],
+        "player_store": 17
+      },
+      "stones_remaining": 24,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 24,
+        "1": 6,
+        "2": 10,
+        "3": 22,
+        "4": 18,
+        "5": 18
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 24,
+      "id": "exact-preflight-17-24-17",
+      "metrics": {
+        "cpu_time_seconds": 0.000287,
+        "cumulative_cache": {
+          "tablebase_hits": 2456,
+          "tt_hits": 1640,
+          "tt_probes": 12402
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 554,
+        "maximum_search_depth": 10,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0005262419581413269,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 288,
+        "tablebase_hits_by_tier": {
+          "10": 4,
+          "11": 2,
+          "14": 4,
+          "15": 24,
+          "16": 19,
+          "17": 43,
+          "18": 185,
+          "7": 2,
+          "8": 3,
+          "9": 2
+        },
+        "tablebase_lookups": 288,
+        "tt_hits": 182,
+        "tt_probes": 1805,
+        "wall_time_seconds": 0.000287064
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          10,
+          2,
+          1,
+          2
+        ],
+        "player_store": 17
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 22,
+        "1": 20,
+        "2": 16,
+        "3": 22,
+        "4": 10,
+        "5": 16
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 10,
+      "id": "exact-preflight-17-24-18",
+      "metrics": {
+        "cpu_time_seconds": 0.000217,
+        "cumulative_cache": {
+          "tablebase_hits": 2678,
+          "tt_hits": 1794,
+          "tt_probes": 13446
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 299,
+        "maximum_search_depth": 10,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 14,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0004257890395820141,
+        "root_active_stones": 22,
+        "status": "completed",
+        "tablebase_hits": 212,
+        "tablebase_hits_by_tier": {
+          "14": 8,
+          "15": 3,
+          "16": 18,
+          "17": 31,
+          "18": 152
+        },
+        "tablebase_lookups": 212,
+        "tt_hits": 131,
+        "tt_probes": 1001,
+        "wall_time_seconds": 0.000218032
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          1,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          3
+        ],
+        "player_store": 18
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "1": 6,
+        "3": 14,
+        "4": 20,
+        "5": 12
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 20,
+      "id": "exact-preflight-17-24-19",
+      "metrics": {
+        "cpu_time_seconds": 0.0002,
+        "cumulative_cache": {
+          "tablebase_hits": 2974,
+          "tt_hits": 1990,
+          "tt_probes": 14921
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 413,
+        "maximum_search_depth": 7,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0003810280468314886,
+        "root_active_stones": 22,
+        "status": "completed",
+        "tablebase_hits": 278,
+        "tablebase_hits_by_tier": {
+          "13": 2,
+          "14": 9,
+          "15": 1,
+          "16": 7,
+          "17": 33,
+          "18": 226
+        },
+        "tablebase_lookups": 278,
+        "tt_hits": 121,
+        "tt_probes": 1335,
+        "wall_time_seconds": 0.000200303
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          2,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          3
+        ],
+        "player_store": 18
+      },
+      "stones_remaining": 22,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 20,
+        "1": 22,
+        "2": 22,
+        "3": 22,
+        "4": 12,
+        "5": 14
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 12,
+      "id": "exact-preflight-17-24-20",
+      "metrics": {
+        "cpu_time_seconds": 0.000187,
+        "cumulative_cache": {
+          "tablebase_hits": 3106,
+          "tt_hits": 2071,
+          "tt_probes": 15382
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 117,
+        "maximum_search_depth": 6,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 14,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00038693705573678017,
+        "root_active_stones": 21,
+        "status": "completed",
+        "tablebase_hits": 112,
+        "tablebase_hits_by_tier": {
+          "14": 3,
+          "15": 10,
+          "16": 13,
+          "17": 10,
+          "18": 76
+        },
+        "tablebase_lookups": 112,
+        "tt_hits": 26,
+        "tt_probes": 347,
+        "wall_time_seconds": 0.000187319
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 10,
+        "1": 10,
+        "3": 18,
+        "4": 22
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 22,
+      "id": "exact-preflight-17-24-21",
+      "metrics": {
+        "cpu_time_seconds": 0.000108,
+        "cumulative_cache": {
+          "tablebase_hits": 3146,
+          "tt_hits": 2126,
+          "tt_probes": 15551
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 39,
+        "maximum_search_depth": 3,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 16,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0002595100086182356,
+        "root_active_stones": 21,
+        "status": "completed",
+        "tablebase_hits": 29,
+        "tablebase_hits_by_tier": {
+          "16": 2,
+          "17": 6,
+          "18": 21
+        },
+        "tablebase_lookups": 29,
+        "tt_hits": 21,
+        "tt_probes": 125,
+        "wall_time_seconds": 0.000108434
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          3,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          2,
+          0,
+          3,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 10,
+        "1": 22,
+        "2": 20,
+        "4": 12,
+        "5": 14
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 10,
+      "id": "exact-preflight-17-24-22",
+      "metrics": {
+        "cpu_time_seconds": 0.000143,
+        "cumulative_cache": {
+          "tablebase_hits": 3224,
+          "tt_hits": 2165,
+          "tt_probes": 15780
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 59,
+        "maximum_search_depth": 5,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 14,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0003161029890179634,
+        "root_active_stones": 21,
+        "status": "completed",
+        "tablebase_hits": 61,
+        "tablebase_hits_by_tier": {
+          "14": 2,
+          "15": 8,
+          "16": 1,
+          "17": 7,
+          "18": 43
+        },
+        "tablebase_lookups": 61,
+        "tt_hits": 14,
+        "tt_probes": 174,
+        "wall_time_seconds": 0.000143235
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          3,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          3,
+          1,
+          4,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "1": 4,
+        "2": 4,
+        "3": 4,
+        "4": 12
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 12,
+      "id": "exact-preflight-17-24-23",
+      "metrics": {
+        "cpu_time_seconds": 0.000159,
+        "cumulative_cache": {
+          "tablebase_hits": 3275,
+          "tt_hits": 2201,
+          "tt_probes": 15927
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 30,
+        "maximum_search_depth": 3,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00033107202034443617,
+        "root_active_stones": 20,
+        "status": "completed",
+        "tablebase_hits": 34,
+        "tablebase_hits_by_tier": {
+          "13": 1,
+          "15": 5,
+          "16": 3,
+          "17": 4,
+          "18": 21
+        },
+        "tablebase_lookups": 34,
+        "tt_hits": 8,
+        "tt_probes": 79,
+        "wall_time_seconds": 0.000158937
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          3,
+          1,
+          4,
+          2,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "1": 8,
+        "2": 4,
+        "5": 6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 4,
+      "id": "exact-preflight-17-24-24",
+      "metrics": {
+        "cpu_time_seconds": 0.000106,
+        "cumulative_cache": {
+          "tablebase_hits": 3323,
+          "tt_hits": 2221,
+          "tt_probes": 16021
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 24,
+        "maximum_search_depth": 3,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00024782202672213316,
+        "root_active_stones": 20,
+        "status": "completed",
+        "tablebase_hits": 32,
+        "tablebase_hits_by_tier": {
+          "13": 2,
+          "15": 1,
+          "16": 8,
+          "17": 5,
+          "18": 16
+        },
+        "tablebase_lookups": 32,
+        "tt_hits": 5,
+        "tt_probes": 62,
+        "wall_time_seconds": 0.000105864
+      },
+      "optimal_actions": [
+        0,
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          2,
+          5,
+          3,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "2": 2,
+        "3": 6,
+        "4": 8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 8,
+      "id": "exact-preflight-17-24-25",
+      "metrics": {
+        "cpu_time_seconds": 0.000107,
+        "cumulative_cache": {
+          "tablebase_hits": 3374,
+          "tt_hits": 2246,
+          "tt_probes": 16141
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 30,
+        "maximum_search_depth": 4,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 12,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.000253229052759707,
+        "root_active_stones": 20,
+        "status": "completed",
+        "tablebase_hits": 32,
+        "tablebase_hits_by_tier": {
+          "12": 1,
+          "17": 3,
+          "18": 28
+        },
+        "tablebase_lookups": 32,
+        "tt_hits": 7,
+        "tt_probes": 74,
+        "wall_time_seconds": 0.000107275
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          3,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          2,
+          5,
+          3,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "2": 2,
+        "5": 6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-17-24-26",
+      "metrics": {
+        "cpu_time_seconds": 8.6e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 3395,
+          "tt_hits": 2272,
+          "tt_probes": 16197
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 7,
+        "maximum_search_depth": 1,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 18,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0002032780321314931,
+        "root_active_stones": 20,
+        "status": "completed",
+        "tablebase_hits": 9,
+        "tablebase_hits_by_tier": {
+          "18": 9
+        },
+        "tablebase_lookups": 9,
+        "tt_hits": 7,
+        "tt_probes": 21,
+        "wall_time_seconds": 8.5697e-05
+      },
+      "optimal_actions": [
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          3,
+          0,
+          0,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          0,
+          0,
+          6,
+          4,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 20,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": 0,
+        "3": 2,
+        "4": 6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 6,
+      "id": "exact-preflight-17-24-27",
+      "metrics": {
+        "cpu_time_seconds": 9.7e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 3422,
+          "tt_hits": 2283,
+          "tt_probes": 16244
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 11,
+        "maximum_search_depth": 2,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 15,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00023397000040858984,
+        "root_active_stones": 19,
+        "status": "completed",
+        "tablebase_hits": 18,
+        "tablebase_hits_by_tier": {
+          "15": 2,
+          "16": 3,
+          "17": 5,
+          "18": 8
+        },
+        "tablebase_lookups": 18,
+        "tt_hits": 1,
+        "tt_probes": 22,
+        "wall_time_seconds": 9.7112e-05
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          3,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          2,
+          1,
+          0,
+          6,
+          4,
+          0
+        ],
+        "player_store": 19
+      },
+      "stones_remaining": 19,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 6,
+        "1": 6,
+        "2": 6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 6,
+      "id": "exact-preflight-17-24-28",
+      "metrics": {
+        "cpu_time_seconds": 7.6e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 3452,
+          "tt_hits": 2285,
+          "tt_probes": 16278
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 6,
+        "maximum_search_depth": 0,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0001920289359986782,
+        "root_active_stones": 18,
+        "status": "completed",
+        "tablebase_hits": 13,
+        "tablebase_hits_by_tier": {
+          "13": 1,
+          "14": 4,
+          "15": 3,
+          "17": 3,
+          "18": 2
+        },
+        "tablebase_lookups": 13,
+        "tt_hits": 0,
+        "tt_probes": 13,
+        "wall_time_seconds": 7.6582e-05
+      },
+      "optimal_actions": [
+        0,
+        1,
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          3,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          2,
+          1,
+          0,
+          6,
+          0,
+          1
+        ],
+        "player_store": 20
+      },
+      "stones_remaining": 18,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "2": -10,
+        "3": -8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-17-24-29",
+      "metrics": {
+        "cpu_time_seconds": 0.000214,
+        "cumulative_cache": {
+          "tablebase_hits": 3911,
+          "tt_hits": 2553,
+          "tt_probes": 18205
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 698,
+        "maximum_search_depth": 14,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 15,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00035991601180285215,
+        "root_active_stones": 23,
+        "status": "completed",
+        "tablebase_hits": 446,
+        "tablebase_hits_by_tier": {
+          "15": 7,
+          "16": 51,
+          "17": 127,
+          "18": 261
+        },
+        "tablebase_lookups": 446,
+        "tt_hits": 268,
+        "tt_probes": 1914,
+        "wall_time_seconds": 0.000213856
+      },
+      "optimal_actions": [
+        0,
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          0,
+          1,
+          12
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          0,
+          2,
+          5,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 23,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": -8,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-17-24-30",
+      "metrics": {
+        "cpu_time_seconds": 6e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 3970,
+          "tt_hits": 2740,
+          "tt_probes": 18634
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 42,
+        "maximum_search_depth": 5,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 17,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00015462597366422415,
+        "root_active_stones": 21,
+        "status": "completed",
+        "tablebase_hits": 17,
+        "tablebase_hits_by_tier": {
+          "17": 6,
+          "18": 11
+        },
+        "tablebase_lookups": 17,
+        "tt_hits": 59,
+        "tt_probes": 119,
+        "wall_time_seconds": 5.9107e-05
+      },
+      "optimal_actions": [
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          0,
+          0,
+          12
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          2,
+          5,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": -10,
+        "3": -8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-17-24-31",
+      "metrics": {
+        "cpu_time_seconds": 5.5e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 4001,
+          "tt_hits": 2818,
+          "tt_probes": 18818
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 47,
+        "maximum_search_depth": 6,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 16,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0001445050584152341,
+        "root_active_stones": 21,
+        "status": "completed",
+        "tablebase_hits": 20,
+        "tablebase_hits_by_tier": {
+          "16": 2,
+          "17": 4,
+          "18": 14
+        },
+        "tablebase_lookups": 20,
+        "tt_hits": 41,
+        "tt_probes": 114,
+        "wall_time_seconds": 5.4584e-05
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          12
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          2,
+          5,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "stones_remaining": 21,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -10,
+        "1": -2,
+        "3": 2,
+        "4": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-25-32-00",
+      "metrics": {
+        "cpu_time_seconds": 0.006253,
+        "cumulative_cache": {
+          "tablebase_hits": 19421,
+          "tt_hits": 8075,
+          "tt_probes": 133175
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 36411,
+        "maximum_search_depth": 28,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.006798918009735644,
+        "root_active_stones": 32,
+        "status": "completed",
+        "tablebase_hits": 15413,
+        "tablebase_hits_by_tier": {
+          "10": 69,
+          "11": 111,
+          "12": 185,
+          "13": 309,
+          "14": 402,
+          "15": 779,
+          "16": 1294,
+          "17": 1881,
+          "18": 10282,
+          "3": 2,
+          "4": 3,
+          "5": 11,
+          "6": 19,
+          "7": 16,
+          "8": 18,
+          "9": 32
+        },
+        "tablebase_lookups": 15413,
+        "tt_hits": 5233,
+        "tt_probes": 114299,
+        "wall_time_seconds": 0.006263932
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          9,
+          0,
+          3,
+          10,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 32,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -10,
+        "1": -2,
+        "4": -4,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-25-32-01",
+      "metrics": {
+        "cpu_time_seconds": 0.005159,
+        "cumulative_cache": {
+          "tablebase_hits": 30898,
+          "tt_hits": 13787,
+          "tt_probes": 227592
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 29314,
+        "maximum_search_depth": 27,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 5,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.006343730958178639,
+        "root_active_stones": 31,
+        "status": "completed",
+        "tablebase_hits": 11467,
+        "tablebase_hits_by_tier": {
+          "10": 49,
+          "11": 92,
+          "12": 124,
+          "13": 211,
+          "14": 248,
+          "15": 682,
+          "16": 1081,
+          "17": 1340,
+          "18": 7608,
+          "5": 1,
+          "6": 1,
+          "7": 2,
+          "8": 7,
+          "9": 21
+        },
+        "tablebase_lookups": 11467,
+        "tt_hits": 5671,
+        "tt_probes": 94341,
+        "wall_time_seconds": 0.005165417
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          9,
+          0,
+          0,
+          11,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 31,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -10,
+        "1": 2,
+        "4": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-25-32-02",
+      "metrics": {
+        "cpu_time_seconds": 0.00287,
+        "cumulative_cache": {
+          "tablebase_hits": 34733,
+          "tt_hits": 15287,
+          "tt_probes": 256505
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 8679,
+        "maximum_search_depth": 22,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 5,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.007385515025816858,
+        "root_active_stones": 30,
+        "status": "completed",
+        "tablebase_hits": 3653,
+        "tablebase_hits_by_tier": {
+          "10": 10,
+          "11": 36,
+          "12": 41,
+          "13": 49,
+          "14": 83,
+          "15": 140,
+          "16": 334,
+          "17": 419,
+          "18": 2526,
+          "5": 1,
+          "6": 5,
+          "7": 3,
+          "8": 4,
+          "9": 2
+        },
+        "tablebase_lookups": 3653,
+        "tt_hits": 1163,
+        "tt_probes": 27376,
+        "wall_time_seconds": 0.002882928
+      },
+      "optimal_actions": [
+        1,
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          9,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": -10,
+        "2": -4,
+        "5": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -10,
+      "id": "exact-preflight-25-32-03",
+      "metrics": {
+        "cpu_time_seconds": 0.00084,
+        "cumulative_cache": {
+          "tablebase_hits": 48399,
+          "tt_hits": 19030,
+          "tt_probes": 321754
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 2604,
+        "maximum_search_depth": 17,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 6,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0013050750130787492,
+        "root_active_stones": 30,
+        "status": "completed",
+        "tablebase_hits": 1194,
+        "tablebase_hits_by_tier": {
+          "10": 6,
+          "11": 9,
+          "12": 9,
+          "13": 21,
+          "14": 17,
+          "15": 61,
+          "16": 84,
+          "17": 132,
+          "18": 847,
+          "6": 1,
+          "8": 3,
+          "9": 4
+        },
+        "tablebase_lookups": 1194,
+        "tt_hits": 865,
+        "tt_probes": 8458,
+        "wall_time_seconds": 0.000841313
+      },
+      "optimal_actions": [
+        1
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          10,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": 0,
+        "3": -2,
+        "4": -2,
+        "5": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-25-32-04",
+      "metrics": {
+        "cpu_time_seconds": 0.002574,
+        "cumulative_cache": {
+          "tablebase_hits": 53741,
+          "tt_hits": 21654,
+          "tt_probes": 358654
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 11522,
+        "maximum_search_depth": 28,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.003135358914732933,
+        "root_active_stones": 29,
+        "status": "completed",
+        "tablebase_hits": 5315,
+        "tablebase_hits_by_tier": {
+          "10": 12,
+          "11": 8,
+          "12": 14,
+          "13": 28,
+          "14": 88,
+          "15": 317,
+          "16": 584,
+          "17": 775,
+          "18": 3416,
+          "3": 1,
+          "4": 5,
+          "5": 12,
+          "6": 18,
+          "7": 17,
+          "8": 10,
+          "9": 10
+        },
+        "tablebase_lookups": 5315,
+        "tt_hits": 2514,
+        "tt_probes": 36644,
+        "wall_time_seconds": 0.002584733
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          0,
+          1,
+          1,
+          3
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          10,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": -2,
+        "4": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-25-32-05",
+      "metrics": {
+        "cpu_time_seconds": 0.00091,
+        "cumulative_cache": {
+          "tablebase_hits": 55567,
+          "tt_hits": 22582,
+          "tt_probes": 371194
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 3826,
+        "maximum_search_depth": 18,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.001237083924934268,
+        "root_active_stones": 29,
+        "status": "completed",
+        "tablebase_hits": 1826,
+        "tablebase_hits_by_tier": {
+          "12": 5,
+          "13": 9,
+          "14": 21,
+          "15": 119,
+          "16": 205,
+          "17": 292,
+          "18": 1164,
+          "2": 1,
+          "3": 2,
+          "5": 4,
+          "6": 1,
+          "7": 1,
+          "8": 2
+        },
+        "tablebase_lookups": 1826,
+        "tt_hits": 888,
+        "tt_probes": 12468,
+        "wall_time_seconds": 0.000910835
+      },
+      "optimal_actions": [
+        1,
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          0,
+          1,
+          0,
+          4
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          10,
+          0,
+          0,
+          11,
+          0
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "1": 4,
+        "2": 0,
+        "3": 2,
+        "4": -2,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-25-32-06",
+      "metrics": {
+        "cpu_time_seconds": 0.002545,
+        "cumulative_cache": {
+          "tablebase_hits": 60873,
+          "tt_hits": 25839,
+          "tt_probes": 408745
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 11650,
+        "maximum_search_depth": 22,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0036329670110717416,
+        "root_active_stones": 28,
+        "status": "completed",
+        "tablebase_hits": 5292,
+        "tablebase_hits_by_tier": {
+          "10": 6,
+          "11": 8,
+          "12": 12,
+          "13": 50,
+          "14": 100,
+          "15": 225,
+          "16": 425,
+          "17": 575,
+          "18": 3837,
+          "2": 1,
+          "3": 2,
+          "4": 5,
+          "5": 12,
+          "6": 10,
+          "7": 10,
+          "8": 10,
+          "9": 4
+        },
+        "tablebase_lookups": 5292,
+        "tt_hits": 3144,
+        "tt_probes": 37230,
+        "wall_time_seconds": 0.002550162
+      },
+      "optimal_actions": [
+        0,
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          1,
+          4
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          12,
+          1
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 28,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": -4,
+        "3": -2,
+        "4": -14,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-25-32-07",
+      "metrics": {
+        "cpu_time_seconds": 0.001285,
+        "cumulative_cache": {
+          "tablebase_hits": 64159,
+          "tt_hits": 28164,
+          "tt_probes": 430528
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 4737,
+        "maximum_search_depth": 19,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 12,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0019004549831151962,
+        "root_active_stones": 28,
+        "status": "completed",
+        "tablebase_hits": 2351,
+        "tablebase_hits_by_tier": {
+          "12": 3,
+          "13": 16,
+          "14": 46,
+          "15": 144,
+          "16": 307,
+          "17": 450,
+          "18": 1385
+        },
+        "tablebase_lookups": 2351,
+        "tt_hits": 1314,
+        "tt_probes": 14811,
+        "wall_time_seconds": 0.001288288
+      },
+      "optimal_actions": [
+        3,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          5
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          12,
+          1
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 28,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": -4,
+        "3": -2,
+        "4": -8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-25-32-08",
+      "metrics": {
+        "cpu_time_seconds": 0.0004,
+        "cumulative_cache": {
+          "tablebase_hits": 64680,
+          "tt_hits": 29066,
+          "tt_probes": 435050
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 612,
+        "maximum_search_depth": 16,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0008208119543269277,
+        "root_active_stones": 27,
+        "status": "completed",
+        "tablebase_hits": 245,
+        "tablebase_hits_by_tier": {
+          "13": 1,
+          "14": 3,
+          "15": 21,
+          "16": 32,
+          "17": 43,
+          "18": 145
+        },
+        "tablebase_lookups": 245,
+        "tt_hits": 347,
+        "tt_probes": 2120,
+        "wall_time_seconds": 0.000402091
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          5
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          12,
+          0
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": -4,
+        "2": 2,
+        "3": -2,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-25-32-09",
+      "metrics": {
+        "cpu_time_seconds": 0.000809,
+        "cumulative_cache": {
+          "tablebase_hits": 65709,
+          "tt_hits": 29925,
+          "tt_probes": 441287
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1636,
+        "maximum_search_depth": 16,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0013812240213155746,
+        "root_active_stones": 27,
+        "status": "completed",
+        "tablebase_hits": 870,
+        "tablebase_hits_by_tier": {
+          "10": 1,
+          "12": 3,
+          "13": 7,
+          "14": 11,
+          "15": 53,
+          "16": 97,
+          "17": 128,
+          "18": 564,
+          "7": 3,
+          "8": 3
+        },
+        "tablebase_lookups": 870,
+        "tt_hits": 563,
+        "tt_probes": 5059,
+        "wall_time_seconds": 0.000808337
+      },
+      "optimal_actions": [
+        0,
+        1
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          5
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          0,
+          2,
+          12,
+          0
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "3": -2,
+        "4": -12
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-25-32-10",
+      "metrics": {
+        "cpu_time_seconds": 0.000287,
+        "cumulative_cache": {
+          "tablebase_hits": 66162,
+          "tt_hits": 30312,
+          "tt_probes": 444212
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 660,
+        "maximum_search_depth": 11,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 13,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0005205200286582112,
+        "root_active_stones": 27,
+        "status": "completed",
+        "tablebase_hits": 344,
+        "tablebase_hits_by_tier": {
+          "13": 4,
+          "14": 12,
+          "15": 34,
+          "16": 33,
+          "17": 38,
+          "18": 223
+        },
+        "tablebase_lookups": 344,
+        "tt_hits": 182,
+        "tt_probes": 2203,
+        "wall_time_seconds": 0.000287467
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          0,
+          1,
+          6
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          0,
+          2,
+          12,
+          0
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": -4,
+        "2": 0,
+        "3": 2,
+        "4": -12,
+        "5": -10
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -12,
+      "id": "exact-preflight-25-32-11",
+      "metrics": {
+        "cpu_time_seconds": 0.001367,
+        "cumulative_cache": {
+          "tablebase_hits": 68644,
+          "tt_hits": 31505,
+          "tt_probes": 458252
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 4526,
+        "maximum_search_depth": 14,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 12,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0020140400156378746,
+        "root_active_stones": 26,
+        "status": "completed",
+        "tablebase_hits": 2478,
+        "tablebase_hits_by_tier": {
+          "12": 7,
+          "13": 11,
+          "14": 65,
+          "15": 129,
+          "16": 206,
+          "17": 306,
+          "18": 1754
+        },
+        "tablebase_lookups": 2478,
+        "tt_hits": 1156,
+        "tt_probes": 13972,
+        "wall_time_seconds": 0.001368647
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          5,
+          2,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          1,
+          1,
+          3,
+          0,
+          1
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 26,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "1": -6,
+        "2": -14,
+        "3": 2,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-25-32-12",
+      "metrics": {
+        "cpu_time_seconds": 0.000733,
+        "cumulative_cache": {
+          "tablebase_hits": 69472,
+          "tt_hits": 32052,
+          "tt_probes": 463234
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1544,
+        "maximum_search_depth": 19,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 9,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0012405490269884467,
+        "root_active_stones": 26,
+        "status": "completed",
+        "tablebase_hits": 815,
+        "tablebase_hits_by_tier": {
+          "10": 2,
+          "11": 1,
+          "12": 2,
+          "13": 6,
+          "14": 14,
+          "15": 40,
+          "16": 70,
+          "17": 133,
+          "18": 546,
+          "9": 1
+        },
+        "tablebase_lookups": 815,
+        "tt_hits": 454,
+        "tt_probes": 4832,
+        "wall_time_seconds": 0.000734137
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          1,
+          1,
+          3,
+          0,
+          1
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 26,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "1": -4,
+        "2": -14,
+        "3": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 0,
+      "id": "exact-preflight-25-32-13",
+      "metrics": {
+        "cpu_time_seconds": 0.000366,
+        "cumulative_cache": {
+          "tablebase_hits": 69560,
+          "tt_hits": 32385,
+          "tt_probes": 464306
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 160,
+        "maximum_search_depth": 9,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 12,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0007499820785596967,
+        "root_active_stones": 25,
+        "status": "completed",
+        "tablebase_hits": 55,
+        "tablebase_hits_by_tier": {
+          "12": 1,
+          "13": 1,
+          "15": 5,
+          "16": 7,
+          "17": 11,
+          "18": 30
+        },
+        "tablebase_lookups": 55,
+        "tt_hits": 133,
+        "tt_probes": 560,
+        "wall_time_seconds": 0.000365322
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          1,
+          1,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": 0,
+        "2": 10,
+        "3": 2,
+        "4": -4,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-25-32-14",
+      "metrics": {
+        "cpu_time_seconds": 0.00054,
+        "cumulative_cache": {
+          "tablebase_hits": 69862,
+          "tt_hits": 32554,
+          "tt_probes": 465888
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 522,
+        "maximum_search_depth": 10,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 12,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0010277519468218088,
+        "root_active_stones": 25,
+        "status": "completed",
+        "tablebase_hits": 295,
+        "tablebase_hits_by_tier": {
+          "12": 2,
+          "13": 5,
+          "14": 3,
+          "15": 11,
+          "16": 16,
+          "17": 38,
+          "18": 220
+        },
+        "tablebase_lookups": 295,
+        "tt_hits": 112,
+        "tt_probes": 1493,
+        "wall_time_seconds": 0.000541186
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          0,
+          2,
+          3,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "1": -14,
+        "2": -2,
+        "3": -12,
+        "5": -14
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -14,
+      "id": "exact-preflight-25-32-15",
+      "metrics": {
+        "cpu_time_seconds": 0.007726,
+        "cumulative_cache": {
+          "tablebase_hits": 89688,
+          "tt_hits": 38750,
+          "tt_probes": 618893
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 48747,
+        "maximum_search_depth": 23,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 6,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.008204468060284853,
+        "root_active_stones": 32,
+        "status": "completed",
+        "tablebase_hits": 19820,
+        "tablebase_hits_by_tier": {
+          "10": 171,
+          "11": 192,
+          "12": 226,
+          "13": 300,
+          "14": 420,
+          "15": 759,
+          "16": 1276,
+          "17": 2460,
+          "18": 13877,
+          "6": 1,
+          "7": 18,
+          "8": 37,
+          "9": 83
+        },
+        "tablebase_lookups": 19820,
+        "tt_hits": 6160,
+        "tt_probes": 152959,
+        "wall_time_seconds": 0.007739683
+      },
+      "optimal_actions": [
+        1,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          3,
+          5,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          4,
+          5,
+          6,
+          0,
+          2
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 32,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -10,
+        "1": -10,
+        "2": -2,
+        "3": -6,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-25-32-16",
+      "metrics": {
+        "cpu_time_seconds": 0.025314,
+        "cumulative_cache": {
+          "tablebase_hits": 177454,
+          "tt_hits": 59578,
+          "tt_probes": 1158571
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 176296,
+        "maximum_search_depth": 28,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 6,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0260372570483014,
+        "root_active_stones": 31,
+        "status": "completed",
+        "tablebase_hits": 87721,
+        "tablebase_hits_by_tier": {
+          "10": 450,
+          "11": 777,
+          "12": 1184,
+          "13": 1516,
+          "14": 2280,
+          "15": 4049,
+          "16": 7138,
+          "17": 11468,
+          "18": 58564,
+          "6": 4,
+          "7": 29,
+          "8": 66,
+          "9": 196
+        },
+        "tablebase_lookups": 87721,
+        "tt_hits": 20429,
+        "tt_probes": 538260,
+        "wall_time_seconds": 0.025357703
+      },
+      "optimal_actions": [
+        2,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          3,
+          0,
+          2,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          4,
+          5,
+          6,
+          0,
+          2
+        ],
+        "player_store": 9
+      },
+      "stones_remaining": 31,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "1": -2,
+        "2": 0,
+        "3": 4,
+        "4": 2,
+        "5": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-25-32-17",
+      "metrics": {
+        "cpu_time_seconds": 0.006757,
+        "cumulative_cache": {
+          "tablebase_hits": 195656,
+          "tt_hits": 66897,
+          "tt_probes": 1309396
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 45550,
+        "maximum_search_depth": 27,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 8,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00702876306604594,
+        "root_active_stones": 30,
+        "status": "completed",
+        "tablebase_hits": 17621,
+        "tablebase_hits_by_tier": {
+          "10": 83,
+          "11": 110,
+          "12": 150,
+          "13": 248,
+          "14": 465,
+          "15": 872,
+          "16": 1656,
+          "17": 2741,
+          "18": 11263,
+          "8": 4,
+          "9": 29
+        },
+        "tablebase_lookups": 17621,
+        "tt_hits": 6753,
+        "tt_probes": 143213,
+        "wall_time_seconds": 0.006770286
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          4,
+          1,
+          2,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          4,
+          5,
+          0,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "1": -2,
+        "2": 0,
+        "4": -6,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 0,
+      "id": "exact-preflight-25-32-18",
+      "metrics": {
+        "cpu_time_seconds": 0.00791,
+        "cumulative_cache": {
+          "tablebase_hits": 221982,
+          "tt_hits": 77040,
+          "tt_probes": 1489587
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 58246,
+        "maximum_search_depth": 28,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.008203061996027827,
+        "root_active_stones": 30,
+        "status": "completed",
+        "tablebase_hits": 26287,
+        "tablebase_hits_by_tier": {
+          "10": 73,
+          "11": 133,
+          "12": 256,
+          "13": 427,
+          "14": 610,
+          "15": 1190,
+          "16": 2068,
+          "17": 3562,
+          "18": 17912,
+          "7": 2,
+          "8": 15,
+          "9": 39
+        },
+        "tablebase_lookups": 26287,
+        "tt_hits": 9441,
+        "tt_probes": 178724,
+        "wall_time_seconds": 0.007931957
+      },
+      "optimal_actions": [
+        2,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          4,
+          0,
+          3,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          4,
+          5,
+          0,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "1": 2,
+        "3": -8,
+        "4": -4,
+        "5": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-25-32-19",
+      "metrics": {
+        "cpu_time_seconds": 0.011655,
+        "cumulative_cache": {
+          "tablebase_hits": 261972,
+          "tt_hits": 85728,
+          "tt_probes": 1710186
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 71614,
+        "maximum_search_depth": 25,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.014764874940738082,
+        "root_active_stones": 30,
+        "status": "completed",
+        "tablebase_hits": 39832,
+        "tablebase_hits_by_tier": {
+          "10": 152,
+          "11": 336,
+          "12": 379,
+          "13": 527,
+          "14": 877,
+          "15": 1846,
+          "16": 3724,
+          "17": 6124,
+          "18": 25735,
+          "7": 12,
+          "8": 38,
+          "9": 82
+        },
+        "tablebase_lookups": 39832,
+        "tt_hits": 8274,
+        "tt_probes": 218398,
+        "wall_time_seconds": 0.011676403
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          4,
+          0,
+          3,
+          1,
+          2
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "1": 4,
+        "4": -8,
+        "5": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-25-32-20",
+      "metrics": {
+        "cpu_time_seconds": 0.004463,
+        "cumulative_cache": {
+          "tablebase_hits": 286897,
+          "tt_hits": 92111,
+          "tt_probes": 1856002
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 29341,
+        "maximum_search_depth": 24,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 9,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.004731702036224306,
+        "root_active_stones": 29,
+        "status": "completed",
+        "tablebase_hits": 13715,
+        "tablebase_hits_by_tier": {
+          "10": 42,
+          "11": 119,
+          "12": 169,
+          "13": 183,
+          "14": 224,
+          "15": 526,
+          "16": 1105,
+          "17": 1818,
+          "18": 9508,
+          "9": 21
+        },
+        "tablebase_lookups": 13715,
+        "tt_hits": 5039,
+        "tt_probes": 93834,
+        "wall_time_seconds": 0.00447142
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          4,
+          0,
+          0,
+          2,
+          3
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": -4,
+        "2": 2,
+        "3": -4,
+        "4": -4,
+        "5": 4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 4,
+      "id": "exact-preflight-25-32-21",
+      "metrics": {
+        "cpu_time_seconds": 0.005899,
+        "cumulative_cache": {
+          "tablebase_hits": 307270,
+          "tt_hits": 99041,
+          "tt_probes": 1975811
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 38301,
+        "maximum_search_depth": 27,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.006251780083402991,
+        "root_active_stones": 29,
+        "status": "completed",
+        "tablebase_hits": 20275,
+        "tablebase_hits_by_tier": {
+          "10": 67,
+          "11": 124,
+          "12": 271,
+          "13": 311,
+          "14": 493,
+          "15": 1117,
+          "16": 2293,
+          "17": 3120,
+          "18": 12436,
+          "7": 4,
+          "8": 13,
+          "9": 26
+        },
+        "tablebase_lookups": 20275,
+        "tt_hits": 6500,
+        "tt_probes": 118560,
+        "wall_time_seconds": 0.005918069
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          1,
+          3,
+          4
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          1,
+          3
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "2": -2,
+        "3": -2,
+        "4": -4,
+        "5": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-25-32-22",
+      "metrics": {
+        "cpu_time_seconds": 0.010546,
+        "cumulative_cache": {
+          "tablebase_hits": 341878,
+          "tt_hits": 109653,
+          "tt_probes": 2179494
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 64873,
+        "maximum_search_depth": 31,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.011252730037085712,
+        "root_active_stones": 29,
+        "status": "completed",
+        "tablebase_hits": 34227,
+        "tablebase_hits_by_tier": {
+          "10": 113,
+          "11": 145,
+          "12": 264,
+          "13": 468,
+          "14": 701,
+          "15": 1804,
+          "16": 3991,
+          "17": 6050,
+          "18": 20565,
+          "7": 18,
+          "8": 36,
+          "9": 72
+        },
+        "tablebase_lookups": 34227,
+        "tt_hits": 9917,
+        "tt_probes": 200235,
+        "wall_time_seconds": 0.010565064
+      },
+      "optimal_actions": [
+        4,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          1,
+          3,
+          4
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          5,
+          6,
+          1,
+          0,
+          4
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -12,
+        "1": -10,
+        "2": -4,
+        "3": -6,
+        "5": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-25-32-23",
+      "metrics": {
+        "cpu_time_seconds": 0.002479,
+        "cumulative_cache": {
+          "tablebase_hits": 352443,
+          "tt_hits": 113537,
+          "tt_probes": 2251676
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 20568,
+        "maximum_search_depth": 24,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 8,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0028309819754213095,
+        "root_active_stones": 28,
+        "status": "completed",
+        "tablebase_hits": 9043,
+        "tablebase_hits_by_tier": {
+          "10": 42,
+          "11": 91,
+          "12": 125,
+          "13": 183,
+          "14": 231,
+          "15": 330,
+          "16": 528,
+          "17": 975,
+          "18": 6524,
+          "8": 3,
+          "9": 11
+        },
+        "tablebase_lookups": 9043,
+        "tt_hits": 3125,
+        "tt_probes": 63506,
+        "wall_time_seconds": 0.002486227
+      },
+      "optimal_actions": [
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          1,
+          3,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          1,
+          0,
+          4
+        ],
+        "player_store": 10
+      },
+      "stones_remaining": 28,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": -2,
+        "2": -2,
+        "3": -4,
+        "4": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-25-32-24",
+      "metrics": {
+        "cpu_time_seconds": 0.000235,
+        "cumulative_cache": {
+          "tablebase_hits": 352940,
+          "tt_hits": 114540,
+          "tt_probes": 2257105
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1169,
+        "maximum_search_depth": 11,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 11,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00043271598406136036,
+        "root_active_stones": 27,
+        "status": "completed",
+        "tablebase_hits": 421,
+        "tablebase_hits_by_tier": {
+          "11": 4,
+          "12": 11,
+          "13": 13,
+          "14": 16,
+          "15": 12,
+          "16": 14,
+          "17": 41,
+          "18": 310
+        },
+        "tablebase_lookups": 421,
+        "tt_hits": 478,
+        "tt_probes": 3810,
+        "wall_time_seconds": 0.000238158
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          1,
+          2,
+          1,
+          3,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          1,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "1": -8,
+        "2": -6,
+        "3": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-25-32-25",
+      "metrics": {
+        "cpu_time_seconds": 0.000309,
+        "cumulative_cache": {
+          "tablebase_hits": 353945,
+          "tt_hits": 115294,
+          "tt_probes": 2266363
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 2293,
+        "maximum_search_depth": 13,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 9,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0004188331076875329,
+        "root_active_stones": 27,
+        "status": "completed",
+        "tablebase_hits": 896,
+        "tablebase_hits_by_tier": {
+          "10": 1,
+          "11": 6,
+          "12": 6,
+          "13": 5,
+          "14": 13,
+          "15": 20,
+          "16": 39,
+          "17": 65,
+          "18": 740,
+          "9": 1
+        },
+        "tablebase_lookups": 896,
+        "tt_hits": 435,
+        "tt_probes": 7417,
+        "wall_time_seconds": 0.000311117
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          1,
+          2,
+          0,
+          4,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          1,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 27,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "2": 4,
+        "4": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-25-32-26",
+      "metrics": {
+        "cpu_time_seconds": 7.8e-05,
+        "cumulative_cache": {
+          "tablebase_hits": 354056,
+          "tt_hits": 115505,
+          "tt_probes": 2267220
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 224,
+        "maximum_search_depth": 10,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 11,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0001689409837126732,
+        "root_active_stones": 25,
+        "status": "completed",
+        "tablebase_hits": 104,
+        "tablebase_hits_by_tier": {
+          "11": 5,
+          "12": 7,
+          "13": 6,
+          "14": 2,
+          "15": 2,
+          "16": 2,
+          "17": 6,
+          "18": 74
+        },
+        "tablebase_lookups": 104,
+        "tt_hits": 104,
+        "tt_probes": 697,
+        "wall_time_seconds": 7.8495e-05
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          2,
+          0,
+          4,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          6,
+          7,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": 28,
+        "3": 2,
+        "4": 2,
+        "5": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-25-32-27",
+      "metrics": {
+        "cpu_time_seconds": 0.003074,
+        "cumulative_cache": {
+          "tablebase_hits": 363571,
+          "tt_hits": 119670,
+          "tt_probes": 2333934
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 20884,
+        "maximum_search_depth": 27,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0032576830126345158,
+        "root_active_stones": 30,
+        "status": "completed",
+        "tablebase_hits": 9515,
+        "tablebase_hits_by_tier": {
+          "10": 10,
+          "11": 50,
+          "12": 109,
+          "13": 146,
+          "14": 418,
+          "15": 644,
+          "16": 1000,
+          "17": 1302,
+          "18": 5826,
+          "7": 1,
+          "8": 1,
+          "9": 8
+        },
+        "tablebase_lookups": 9515,
+        "tt_hits": 4110,
+        "tt_probes": 66640,
+        "wall_time_seconds": 0.003078816
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          3,
+          13,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          0,
+          4,
+          3,
+          0,
+          4
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 30,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "2": 28,
+        "3": -2,
+        "4": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-25-32-28",
+      "metrics": {
+        "cpu_time_seconds": 0.001021,
+        "cumulative_cache": {
+          "tablebase_hits": 366524,
+          "tt_hits": 121486,
+          "tt_probes": 2359186
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 7548,
+        "maximum_search_depth": 21,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 9,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0011699809692800045,
+        "root_active_stones": 29,
+        "status": "completed",
+        "tablebase_hits": 2718,
+        "tablebase_hits_by_tier": {
+          "10": 4,
+          "11": 14,
+          "12": 31,
+          "13": 52,
+          "14": 98,
+          "15": 210,
+          "16": 336,
+          "17": 392,
+          "18": 1580,
+          "9": 1
+        },
+        "tablebase_lookups": 2718,
+        "tt_hits": 1645,
+        "tt_probes": 24034,
+        "wall_time_seconds": 0.001022309
+      },
+      "optimal_actions": [
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          3,
+          13,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          1,
+          0,
+          4,
+          3,
+          0,
+          4
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 29,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -10,
+        "2": -6,
+        "3": -6,
+        "4": -8,
+        "5": -8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-25-32-29",
+      "metrics": {
+        "cpu_time_seconds": 0.000632,
+        "cumulative_cache": {
+          "tablebase_hits": 368746,
+          "tt_hits": 122493,
+          "tt_probes": 2373798
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 4348,
+        "maximum_search_depth": 12,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 10,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0011305080261081457,
+        "root_active_stones": 26,
+        "status": "completed",
+        "tablebase_hits": 2124,
+        "tablebase_hits_by_tier": {
+          "10": 5,
+          "11": 21,
+          "12": 35,
+          "13": 50,
+          "14": 70,
+          "15": 93,
+          "16": 123,
+          "17": 312,
+          "18": 1415
+        },
+        "tablebase_lookups": 2124,
+        "tt_hits": 684,
+        "tt_probes": 13318,
+        "wall_time_seconds": 0.000633142
+      },
+      "optimal_actions": [
+        2,
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          2,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          5,
+          4,
+          1,
+          5
+        ],
+        "player_store": 11
+      },
+      "stones_remaining": 26,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": 2,
+        "2": 0,
+        "3": -4,
+        "5": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-25-32-30",
+      "metrics": {
+        "cpu_time_seconds": 0.000264,
+        "cumulative_cache": {
+          "tablebase_hits": 370499,
+          "tt_hits": 123681,
+          "tt_probes": 2384744
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1098,
+        "maximum_search_depth": 12,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 11,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.00043693697080016136,
+        "root_active_stones": 25,
+        "status": "completed",
+        "tablebase_hits": 368,
+        "tablebase_hits_by_tier": {
+          "11": 1,
+          "12": 3,
+          "13": 7,
+          "14": 15,
+          "15": 13,
+          "16": 40,
+          "17": 47,
+          "18": 242
+        },
+        "tablebase_lookups": 368,
+        "tt_hits": 521,
+        "tt_probes": 3523,
+        "wall_time_seconds": 0.000264264
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          2,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          5,
+          2,
+          6
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "3": -14,
+        "4": 2,
+        "5": -12
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-25-32-31",
+      "metrics": {
+        "cpu_time_seconds": 0.000122,
+        "cumulative_cache": {
+          "tablebase_hits": 370616,
+          "tt_hits": 123770,
+          "tt_probes": 2385373
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 183,
+        "maximum_search_depth": 6,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 12,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0003306849393993616,
+        "root_active_stones": 25,
+        "status": "completed",
+        "tablebase_hits": 100,
+        "tablebase_hits_by_tier": {
+          "12": 1,
+          "13": 3,
+          "14": 6,
+          "15": 6,
+          "16": 5,
+          "17": 5,
+          "18": 74
+        },
+        "tablebase_lookups": 100,
+        "tt_hits": 43,
+        "tt_probes": 528,
+        "wall_time_seconds": 0.000121488
+      },
+      "optimal_actions": [
+        0,
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          3,
+          4,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          0,
+          0,
+          5,
+          2,
+          6
+        ],
+        "player_store": 12
+      },
+      "stones_remaining": 25,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "1": 0,
+        "2": 2,
+        "3": 4,
+        "4": 0,
+        "5": -4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-33-40-00",
+      "metrics": {
+        "cpu_time_seconds": 1.750448,
+        "cumulative_cache": {
+          "tablebase_hits": 6804053,
+          "tt_hits": 724662,
+          "tt_probes": 42863381
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 13038341,
+        "maximum_search_depth": 59,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 3.4798102979548275,
+        "root_active_stones": 40,
+        "status": "completed",
+        "tablebase_hits": 6433422,
+        "tablebase_hits_by_tier": {
+          "1": 119,
+          "10": 16664,
+          "11": 22316,
+          "12": 35667,
+          "13": 79556,
+          "14": 152528,
+          "15": 329409,
+          "16": 654443,
+          "17": 953044,
+          "18": 4159431,
+          "2": 261,
+          "3": 607,
+          "4": 1169,
+          "5": 1597,
+          "6": 2315,
+          "7": 4214,
+          "8": 7828,
+          "9": 12254
+        },
+        "tablebase_lookups": 6433422,
+        "tt_hits": 600798,
+        "tt_probes": 40477738,
+        "wall_time_seconds": 1.753406378
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          8,
+          8,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          6,
+          1,
+          1,
+          8,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "1": -4,
+        "2": -2,
+        "3": -2,
+        "4": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-33-40-01",
+      "metrics": {
+        "cpu_time_seconds": 0.413801,
+        "cumulative_cache": {
+          "tablebase_hits": 14580579,
+          "tt_hits": 1549896,
+          "tt_probes": 92488252
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 3029171,
+        "maximum_search_depth": 57,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.8452411559410393,
+        "root_active_stones": 39,
+        "status": "completed",
+        "tablebase_hits": 1391211,
+        "tablebase_hits_by_tier": {
+          "1": 6,
+          "10": 3628,
+          "11": 4888,
+          "12": 7674,
+          "13": 17263,
+          "14": 33024,
+          "15": 70921,
+          "16": 142042,
+          "17": 206236,
+          "18": 898555,
+          "2": 60,
+          "3": 131,
+          "4": 221,
+          "5": 391,
+          "6": 584,
+          "7": 948,
+          "8": 1786,
+          "9": 2853
+        },
+        "tablebase_lookups": 1391211,
+        "tt_hits": 226664,
+        "tt_probes": 9479681,
+        "wall_time_seconds": 0.414517326
+      },
+      "optimal_actions": [
+        1
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          8,
+          8,
+          0
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          0,
+          6,
+          1,
+          1,
+          8,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -6,
+        "1": -2,
+        "2": -8,
+        "3": -10,
+        "4": -10,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-33-40-02",
+      "metrics": {
+        "cpu_time_seconds": 0.419486,
+        "cumulative_cache": {
+          "tablebase_hits": 17632113,
+          "tt_hits": 2044899,
+          "tt_probes": 113002175
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 3379300,
+        "maximum_search_depth": 51,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.8382166080409661,
+        "root_active_stones": 38,
+        "status": "completed",
+        "tablebase_hits": 1600612,
+        "tablebase_hits_by_tier": {
+          "1": 3,
+          "10": 2407,
+          "11": 4960,
+          "12": 10386,
+          "13": 24266,
+          "14": 43226,
+          "15": 88963,
+          "16": 167660,
+          "17": 234241,
+          "18": 1020929,
+          "2": 67,
+          "3": 147,
+          "4": 257,
+          "5": 343,
+          "6": 313,
+          "7": 361,
+          "8": 737,
+          "9": 1346
+        },
+        "tablebase_lookups": 1600612,
+        "tt_hits": 262104,
+        "tt_probes": 10610737,
+        "wall_time_seconds": 0.420200205
+      },
+      "optimal_actions": [
+        1,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          0,
+          9,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          7,
+          2,
+          2,
+          9,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": -4,
+        "2": 2,
+        "4": 2,
+        "5": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-33-40-03",
+      "metrics": {
+        "cpu_time_seconds": 0.198322,
+        "cumulative_cache": {
+          "tablebase_hits": 19901385,
+          "tt_hits": 2442107,
+          "tt_probes": 128042634
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1421869,
+        "maximum_search_depth": 57,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.39197995397262275,
+        "root_active_stones": 38,
+        "status": "completed",
+        "tablebase_hits": 675508,
+        "tablebase_hits_by_tier": {
+          "1": 1,
+          "10": 1550,
+          "11": 2668,
+          "12": 4100,
+          "13": 9535,
+          "14": 17018,
+          "15": 36041,
+          "16": 68109,
+          "17": 97185,
+          "18": 437529,
+          "2": 16,
+          "3": 34,
+          "4": 55,
+          "5": 73,
+          "6": 126,
+          "7": 187,
+          "8": 441,
+          "9": 840
+        },
+        "tablebase_lookups": 675508,
+        "tt_hits": 137229,
+        "tt_probes": 4487237,
+        "wall_time_seconds": 0.19866266
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          0,
+          9,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          8,
+          2,
+          2,
+          9,
+          1
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": -6,
+        "2": -6,
+        "3": 0,
+        "4": -18,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-33-40-04",
+      "metrics": {
+        "cpu_time_seconds": 0.41277,
+        "cumulative_cache": {
+          "tablebase_hits": 22170862,
+          "tt_hits": 2832743,
+          "tt_probes": 142319532
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 3196308,
+        "maximum_search_depth": 43,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.8246406120015308,
+        "root_active_stones": 37,
+        "status": "completed",
+        "tablebase_hits": 1612160,
+        "tablebase_hits_by_tier": {
+          "10": 4439,
+          "11": 7474,
+          "12": 12965,
+          "13": 25023,
+          "14": 42317,
+          "15": 89163,
+          "16": 171038,
+          "17": 239085,
+          "18": 1014931,
+          "3": 16,
+          "4": 27,
+          "5": 161,
+          "6": 425,
+          "7": 767,
+          "8": 1539,
+          "9": 2790
+        },
+        "tablebase_lookups": 1612160,
+        "tt_hits": 259502,
+        "tt_probes": 9917087,
+        "wall_time_seconds": 0.413478153
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          3,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          9,
+          3,
+          3,
+          10,
+          2
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": 4,
+        "2": 6,
+        "5": 6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-33-40-05",
+      "metrics": {
+        "cpu_time_seconds": 0.012107,
+        "cumulative_cache": {
+          "tablebase_hits": 23793192,
+          "tt_hits": 3104606,
+          "tt_probes": 152432715
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 94432,
+        "maximum_search_depth": 40,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.013199405977502465,
+        "root_active_stones": 36,
+        "status": "completed",
+        "tablebase_hits": 27613,
+        "tablebase_hits_by_tier": {
+          "10": 51,
+          "11": 109,
+          "12": 99,
+          "13": 210,
+          "14": 359,
+          "15": 1053,
+          "16": 2337,
+          "17": 3813,
+          "18": 19424,
+          "2": 4,
+          "3": 13,
+          "4": 12,
+          "5": 9,
+          "6": 30,
+          "7": 30,
+          "8": 28,
+          "9": 32
+        },
+        "tablebase_lookups": 27613,
+        "tt_hits": 17576,
+        "tt_probes": 314647,
+        "wall_time_seconds": 0.012129365
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          2,
+          3,
+          0,
+          0,
+          2
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          9,
+          3,
+          3,
+          10,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": 0,
+        "3": -6,
+        "4": -6,
+        "5": 16
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 16,
+      "id": "exact-preflight-33-40-06",
+      "metrics": {
+        "cpu_time_seconds": 1.807795,
+        "cumulative_cache": {
+          "tablebase_hits": 31396938,
+          "tt_hits": 3599886,
+          "tt_probes": 197719870
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 14663194,
+        "maximum_search_depth": 64,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 3.6097040800377727,
+        "root_active_stones": 40,
+        "status": "completed",
+        "tablebase_hits": 7601936,
+        "tablebase_hits_by_tier": {
+          "1": 24,
+          "10": 17527,
+          "11": 30790,
+          "12": 54384,
+          "13": 96839,
+          "14": 188387,
+          "15": 372799,
+          "16": 715830,
+          "17": 1055134,
+          "18": 5042839,
+          "2": 272,
+          "3": 754,
+          "4": 1343,
+          "5": 1912,
+          "6": 2908,
+          "7": 3815,
+          "8": 5794,
+          "9": 10585
+        },
+        "tablebase_lookups": 7601936,
+        "tt_hits": 493050,
+        "tt_probes": 45269313,
+        "wall_time_seconds": 1.810623918
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          8,
+          0,
+          2,
+          0,
+          8,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          6,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "2": 8,
+        "4": 6,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 0,
+      "id": "exact-preflight-33-40-07",
+      "metrics": {
+        "cpu_time_seconds": 1.749686,
+        "cumulative_cache": {
+          "tablebase_hits": 45719841,
+          "tt_hits": 4473157,
+          "tt_probes": 286296666
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 13799622,
+        "maximum_search_depth": 53,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 3.4935374510241672,
+        "root_active_stones": 39,
+        "status": "completed",
+        "tablebase_hits": 6724237,
+        "tablebase_hits_by_tier": {
+          "1": 19,
+          "10": 11227,
+          "11": 17002,
+          "12": 30639,
+          "13": 70448,
+          "14": 172820,
+          "15": 380977,
+          "16": 705176,
+          "17": 970669,
+          "18": 4343567,
+          "2": 99,
+          "3": 329,
+          "4": 706,
+          "5": 1141,
+          "6": 1976,
+          "7": 3429,
+          "8": 5168,
+          "9": 8845
+        },
+        "tablebase_lookups": 6724237,
+        "tt_hits": 379617,
+        "tt_probes": 43349132,
+        "wall_time_seconds": 1.752468561
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          0,
+          2,
+          0,
+          8,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          0,
+          1,
+          2,
+          2,
+          2
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "1": -4,
+        "2": -10,
+        "3": 2,
+        "4": -4,
+        "5": -8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-33-40-08",
+      "metrics": {
+        "cpu_time_seconds": 0.279646,
+        "cumulative_cache": {
+          "tablebase_hits": 53390763,
+          "tt_hits": 5123421,
+          "tt_probes": 337220908
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 2405017,
+        "maximum_search_depth": 44,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.5725248929811642,
+        "root_active_stones": 38,
+        "status": "completed",
+        "tablebase_hits": 947523,
+        "tablebase_hits_by_tier": {
+          "10": 2520,
+          "11": 3724,
+          "12": 6225,
+          "13": 10546,
+          "14": 24089,
+          "15": 47916,
+          "16": 93581,
+          "17": 140915,
+          "18": 612266,
+          "2": 27,
+          "3": 91,
+          "4": 217,
+          "5": 360,
+          "6": 614,
+          "7": 970,
+          "8": 1517,
+          "9": 1945
+        },
+        "tablebase_lookups": 947523,
+        "tt_hits": 270429,
+        "tt_probes": 7579339,
+        "wall_time_seconds": 0.28010715
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          2,
+          0,
+          8,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          1,
+          2,
+          3,
+          3,
+          3
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -8,
+        "2": 4,
+        "4": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-33-40-09",
+      "metrics": {
+        "cpu_time_seconds": 0.092907,
+        "cumulative_cache": {
+          "tablebase_hits": 54712529,
+          "tt_hits": 5460855,
+          "tt_probes": 347366243
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 704779,
+        "maximum_search_depth": 46,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.15031454502604902,
+        "root_active_stones": 37,
+        "status": "completed",
+        "tablebase_hits": 322624,
+        "tablebase_hits_by_tier": {
+          "1": 8,
+          "10": 760,
+          "11": 1143,
+          "12": 1889,
+          "13": 4002,
+          "14": 7454,
+          "15": 16669,
+          "16": 31963,
+          "17": 45399,
+          "18": 211692,
+          "2": 44,
+          "3": 93,
+          "4": 115,
+          "5": 170,
+          "6": 193,
+          "7": 229,
+          "8": 318,
+          "9": 483
+        },
+        "tablebase_lookups": 322624,
+        "tt_hits": 63527,
+        "tt_probes": 2249370,
+        "wall_time_seconds": 0.093079467
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          10,
+          0,
+          2,
+          0,
+          8,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          2,
+          3,
+          4,
+          4,
+          4
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -14,
+        "1": -16,
+        "2": -8,
+        "3": -8,
+        "4": -8,
+        "5": -10
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -8,
+      "id": "exact-preflight-33-40-10",
+      "metrics": {
+        "cpu_time_seconds": 0.235595,
+        "cumulative_cache": {
+          "tablebase_hits": 55745511,
+          "tt_hits": 5780188,
+          "tt_probes": 355004072
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1964346,
+        "maximum_search_depth": 45,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.47440029704011977,
+        "root_active_stones": 36,
+        "status": "completed",
+        "tablebase_hits": 847534,
+        "tablebase_hits_by_tier": {
+          "1": 23,
+          "10": 2441,
+          "11": 3695,
+          "12": 5896,
+          "13": 10853,
+          "14": 18803,
+          "15": 40068,
+          "16": 90475,
+          "17": 131084,
+          "18": 538032,
+          "2": 113,
+          "3": 323,
+          "4": 530,
+          "5": 735,
+          "6": 901,
+          "7": 908,
+          "8": 1149,
+          "9": 1505
+        },
+        "tablebase_lookups": 847534,
+        "tt_hits": 271092,
+        "tt_probes": 6240343,
+        "wall_time_seconds": 0.236037604
+      },
+      "optimal_actions": [
+        2,
+        3,
+        4
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          3,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          1,
+          3,
+          4,
+          5,
+          4,
+          4
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "1": 2,
+        "2": 0,
+        "3": -2,
+        "4": 2,
+        "5": -10
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -10,
+      "id": "exact-preflight-33-40-11",
+      "metrics": {
+        "cpu_time_seconds": 0.027096,
+        "cumulative_cache": {
+          "tablebase_hits": 56678888,
+          "tt_hits": 6083480,
+          "tt_probes": 361898160
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 188158,
+        "maximum_search_depth": 33,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.03088798001408577,
+        "root_active_stones": 35,
+        "status": "completed",
+        "tablebase_hits": 77949,
+        "tablebase_hits_by_tier": {
+          "10": 274,
+          "11": 418,
+          "12": 584,
+          "13": 1101,
+          "14": 1832,
+          "15": 3657,
+          "16": 6981,
+          "17": 11092,
+          "18": 51577,
+          "3": 3,
+          "4": 13,
+          "5": 33,
+          "6": 43,
+          "7": 56,
+          "8": 115,
+          "9": 170
+        },
+        "tablebase_lookups": 77949,
+        "tt_hits": 26843,
+        "tt_probes": 588473,
+        "wall_time_seconds": 0.027139944
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          4,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          1,
+          3,
+          4,
+          5,
+          4,
+          0
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 35,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "1": 2,
+        "2": -10,
+        "3": -2,
+        "4": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -10,
+      "id": "exact-preflight-33-40-12",
+      "metrics": {
+        "cpu_time_seconds": 0.001267,
+        "cumulative_cache": {
+          "tablebase_hits": 56689189,
+          "tt_hits": 6090936,
+          "tt_probes": 362012261
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 8471,
+        "maximum_search_depth": 23,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 5,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0019418300362303853,
+        "root_active_stones": 34,
+        "status": "completed",
+        "tablebase_hits": 2764,
+        "tablebase_hits_by_tier": {
+          "10": 17,
+          "11": 18,
+          "12": 33,
+          "13": 105,
+          "14": 117,
+          "15": 139,
+          "16": 231,
+          "17": 410,
+          "18": 1672,
+          "5": 1,
+          "6": 2,
+          "7": 4,
+          "8": 3,
+          "9": 12
+        },
+        "tablebase_lookups": 2764,
+        "tt_hits": 2088,
+        "tt_probes": 26886,
+        "wall_time_seconds": 0.00126968
+      },
+      "optimal_actions": [
+        2
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          4,
+          1,
+          9,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          3,
+          4,
+          5,
+          4,
+          0
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -16,
+        "1": -20,
+        "2": -18,
+        "3": -16,
+        "4": -14,
+        "5": -6
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -6,
+      "id": "exact-preflight-33-40-13",
+      "metrics": {
+        "cpu_time_seconds": 0.029594,
+        "cumulative_cache": {
+          "tablebase_hits": 56807199,
+          "tt_hits": 6132489,
+          "tt_probes": 362835438
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 268026,
+        "maximum_search_depth": 26,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 7,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.030895228032022715,
+        "root_active_stones": 33,
+        "status": "completed",
+        "tablebase_hits": 117235,
+        "tablebase_hits_by_tier": {
+          "10": 496,
+          "11": 982,
+          "12": 1729,
+          "13": 2360,
+          "14": 3376,
+          "15": 4837,
+          "16": 6745,
+          "17": 12005,
+          "18": 84512,
+          "7": 8,
+          "8": 35,
+          "9": 150
+        },
+        "tablebase_lookups": 117235,
+        "tt_hits": 40810,
+        "tt_probes": 813391,
+        "wall_time_seconds": 0.029643546
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          4,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          4,
+          5,
+          6,
+          5,
+          1
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 33,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "2": -4,
+        "3": 2,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-33-40-14",
+      "metrics": {
+        "cpu_time_seconds": 0.704176,
+        "cumulative_cache": {
+          "tablebase_hits": 59381988,
+          "tt_hits": 6364201,
+          "tt_probes": 380086985
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 5505767,
+        "maximum_search_depth": 61,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 1.4226753080729395,
+        "root_active_stones": 40,
+        "status": "completed",
+        "tablebase_hits": 2572083,
+        "tablebase_hits_by_tier": {
+          "1": 1,
+          "10": 6222,
+          "11": 9095,
+          "12": 14335,
+          "13": 30184,
+          "14": 65872,
+          "15": 137812,
+          "16": 256845,
+          "17": 369638,
+          "18": 1667168,
+          "2": 72,
+          "3": 207,
+          "4": 491,
+          "5": 841,
+          "6": 1882,
+          "7": 2744,
+          "8": 3899,
+          "9": 4775
+        },
+        "tablebase_lookups": 2572083,
+        "tt_hits": 229407,
+        "tt_probes": 17224666,
+        "wall_time_seconds": 0.705384946
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          5,
+          0,
+          0,
+          6,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          0,
+          1,
+          6,
+          0,
+          8
+        ],
+        "player_store": 4
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": 4,
+        "2": 2,
+        "3": 0,
+        "4": 8,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-33-40-15",
+      "metrics": {
+        "cpu_time_seconds": 0.130259,
+        "cumulative_cache": {
+          "tablebase_hits": 62353470,
+          "tt_hits": 6692924,
+          "tt_probes": 400185446
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 916390,
+        "maximum_search_depth": 47,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 4,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.2541397550376132,
+        "root_active_stones": 39,
+        "status": "completed",
+        "tablebase_hits": 399716,
+        "tablebase_hits_by_tier": {
+          "10": 1420,
+          "11": 1837,
+          "12": 2580,
+          "13": 4601,
+          "14": 9761,
+          "15": 19469,
+          "16": 37139,
+          "17": 57834,
+          "18": 262291,
+          "4": 13,
+          "5": 61,
+          "6": 264,
+          "7": 495,
+          "8": 777,
+          "9": 1174
+        },
+        "tablebase_lookups": 399716,
+        "tt_hits": 99270,
+        "tt_probes": 2877882,
+        "wall_time_seconds": 0.13047782
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          6,
+          1,
+          1,
+          7,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          6,
+          0,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 0,
+        "2": -10,
+        "3": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 0,
+      "id": "exact-preflight-33-40-16",
+      "metrics": {
+        "cpu_time_seconds": 0.042504,
+        "cumulative_cache": {
+          "tablebase_hits": 62871993,
+          "tt_hits": 6838644,
+          "tt_probes": 404077386
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 339794,
+        "maximum_search_depth": 43,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.05230528500396758,
+        "root_active_stones": 39,
+        "status": "completed",
+        "tablebase_hits": 132849,
+        "tablebase_hits_by_tier": {
+          "10": 568,
+          "11": 615,
+          "12": 823,
+          "13": 1245,
+          "14": 3358,
+          "15": 6849,
+          "16": 12902,
+          "17": 19603,
+          "18": 85334,
+          "2": 7,
+          "3": 17,
+          "4": 33,
+          "5": 39,
+          "6": 144,
+          "7": 319,
+          "8": 454,
+          "9": 539
+        },
+        "tablebase_lookups": 132849,
+        "tt_hits": 49831,
+        "tt_probes": 1095822,
+        "wall_time_seconds": 0.042571834
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          8,
+          6,
+          1,
+          0,
+          8,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          6,
+          0,
+          0
+        ],
+        "player_store": 5
+      },
+      "stones_remaining": 39,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": 12,
+        "2": 8,
+        "4": 12,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-33-40-17",
+      "metrics": {
+        "cpu_time_seconds": 0.193342,
+        "cumulative_cache": {
+          "tablebase_hits": 63571058,
+          "tt_hits": 6988595,
+          "tt_probes": 408644253
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1386350,
+        "maximum_search_depth": 49,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.40610970300622284,
+        "root_active_stones": 38,
+        "status": "completed",
+        "tablebase_hits": 670860,
+        "tablebase_hits_by_tier": {
+          "10": 2150,
+          "11": 3079,
+          "12": 4248,
+          "13": 6875,
+          "14": 13108,
+          "15": 33193,
+          "16": 70308,
+          "17": 107982,
+          "18": 425440,
+          "3": 2,
+          "4": 4,
+          "5": 68,
+          "6": 366,
+          "7": 858,
+          "8": 1356,
+          "9": 1823
+        },
+        "tablebase_lookups": 670860,
+        "tt_hits": 139682,
+        "tt_probes": 4353070,
+        "wall_time_seconds": 0.193660244
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          7,
+          2,
+          0,
+          8,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "2": 0,
+        "4": -8,
+        "5": 8
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 8,
+      "id": "exact-preflight-33-40-18",
+      "metrics": {
+        "cpu_time_seconds": 0.038375,
+        "cumulative_cache": {
+          "tablebase_hits": 64433839,
+          "tt_hits": 7180348,
+          "tt_probes": 414361993
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 302211,
+        "maximum_search_depth": 37,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.04067156300880015,
+        "root_active_stones": 38,
+        "status": "completed",
+        "tablebase_hits": 106792,
+        "tablebase_hits_by_tier": {
+          "10": 198,
+          "11": 285,
+          "12": 516,
+          "13": 1028,
+          "14": 2148,
+          "15": 4715,
+          "16": 9150,
+          "17": 14497,
+          "18": 73599,
+          "3": 1,
+          "4": 5,
+          "5": 61,
+          "6": 91,
+          "7": 149,
+          "8": 164,
+          "9": 185
+        },
+        "tablebase_lookups": 106792,
+        "tt_hits": 48791,
+        "tt_probes": 1003949,
+        "wall_time_seconds": 0.038437646
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          7,
+          0,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "1": 12,
+        "3": 10,
+        "4": 12,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 0,
+      "id": "exact-preflight-33-40-19",
+      "metrics": {
+        "cpu_time_seconds": 0.123249,
+        "cumulative_cache": {
+          "tablebase_hits": 64792669,
+          "tt_hits": 7306186,
+          "tt_probes": 417490320
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 946396,
+        "maximum_search_depth": 40,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.2348171470221132,
+        "root_active_stones": 38,
+        "status": "completed",
+        "tablebase_hits": 354233,
+        "tablebase_hits_by_tier": {
+          "10": 980,
+          "11": 1417,
+          "12": 2262,
+          "13": 3648,
+          "14": 6682,
+          "15": 16520,
+          "16": 30942,
+          "17": 49495,
+          "18": 240432,
+          "3": 3,
+          "4": 9,
+          "5": 30,
+          "6": 140,
+          "7": 323,
+          "8": 557,
+          "9": 793
+        },
+        "tablebase_lookups": 354233,
+        "tt_hits": 122235,
+        "tt_probes": 3083264,
+        "wall_time_seconds": 0.123444568
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          7,
+          0,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 38,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "1": 0,
+        "3": -2,
+        "4": -4,
+        "5": 12
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 12,
+      "id": "exact-preflight-33-40-20",
+      "metrics": {
+        "cpu_time_seconds": 0.094143,
+        "cumulative_cache": {
+          "tablebase_hits": 65410040,
+          "tt_hits": 7499996,
+          "tt_probes": 422496370
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 684764,
+        "maximum_search_depth": 47,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.1600781240267679,
+        "root_active_stones": 37,
+        "status": "completed",
+        "tablebase_hits": 296758,
+        "tablebase_hits_by_tier": {
+          "1": 4,
+          "10": 776,
+          "11": 1009,
+          "12": 1774,
+          "13": 3022,
+          "14": 6233,
+          "15": 14450,
+          "16": 28943,
+          "17": 42468,
+          "18": 196197,
+          "2": 14,
+          "3": 25,
+          "4": 41,
+          "5": 90,
+          "6": 224,
+          "7": 340,
+          "8": 517,
+          "9": 631
+        },
+        "tablebase_lookups": 296758,
+        "tt_hits": 77024,
+        "tt_probes": 2174364,
+        "wall_time_seconds": 0.094293355
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          2,
+          10,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 4,
+        "2": 4,
+        "3": 2,
+        "4": 0,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-33-40-21",
+      "metrics": {
+        "cpu_time_seconds": 0.242521,
+        "cumulative_cache": {
+          "tablebase_hits": 66433687,
+          "tt_hits": 7745629,
+          "tt_probes": 429921566
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 1852094,
+        "maximum_search_depth": 46,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.48265128198545426,
+        "root_active_stones": 37,
+        "status": "completed",
+        "tablebase_hits": 823874,
+        "tablebase_hits_by_tier": {
+          "10": 1579,
+          "11": 2115,
+          "12": 3925,
+          "13": 7435,
+          "14": 18174,
+          "15": 43736,
+          "16": 83771,
+          "17": 122109,
+          "18": 537030,
+          "2": 20,
+          "3": 34,
+          "4": 66,
+          "5": 122,
+          "6": 547,
+          "7": 724,
+          "8": 1044,
+          "9": 1443
+        },
+        "tablebase_lookups": 823874,
+        "tt_hits": 182501,
+        "tt_probes": 5875887,
+        "wall_time_seconds": 0.24291318
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          2,
+          10,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          0,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "1": -2,
+        "4": 2,
+        "5": 2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-33-40-22",
+      "metrics": {
+        "cpu_time_seconds": 0.292488,
+        "cumulative_cache": {
+          "tablebase_hits": 68245791,
+          "tt_hits": 8102747,
+          "tt_probes": 442510930
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 2131160,
+        "maximum_search_depth": 44,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.585485443007201,
+        "root_active_stones": 37,
+        "status": "completed",
+        "tablebase_hits": 989393,
+        "tablebase_hits_by_tier": {
+          "1": 3,
+          "10": 2047,
+          "11": 2926,
+          "12": 5179,
+          "13": 9920,
+          "14": 22684,
+          "15": 52763,
+          "16": 103982,
+          "17": 151472,
+          "18": 633742,
+          "2": 46,
+          "3": 86,
+          "4": 107,
+          "5": 299,
+          "6": 531,
+          "7": 764,
+          "8": 1210,
+          "9": 1632
+        },
+        "tablebase_lookups": 989393,
+        "tt_hits": 176595,
+        "tt_probes": 6738004,
+        "wall_time_seconds": 0.293012863
+      },
+      "optimal_actions": [
+        4,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          0,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 37,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 2,
+        "1": -2,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 2,
+      "id": "exact-preflight-33-40-23",
+      "metrics": {
+        "cpu_time_seconds": 0.120877,
+        "cumulative_cache": {
+          "tablebase_hits": 69673220,
+          "tt_hits": 8353880,
+          "tt_probes": 451894686
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 841339,
+        "maximum_search_depth": 52,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.24955135397613049,
+        "root_active_stones": 36,
+        "status": "completed",
+        "tablebase_hits": 432880,
+        "tablebase_hits_by_tier": {
+          "10": 673,
+          "11": 1161,
+          "12": 2078,
+          "13": 4775,
+          "14": 11314,
+          "15": 23166,
+          "16": 44489,
+          "17": 63317,
+          "18": 280656,
+          "2": 31,
+          "3": 53,
+          "4": 93,
+          "5": 87,
+          "6": 124,
+          "7": 180,
+          "8": 303,
+          "9": 380
+        },
+        "tablebase_lookups": 432880,
+        "tt_hits": 73228,
+        "tt_probes": 2618745,
+        "wall_time_seconds": 0.121075647
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          1,
+          0,
+          0,
+          0,
+          2
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "2": 2,
+        "4": 2,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-33-40-24",
+      "metrics": {
+        "cpu_time_seconds": 0.025796,
+        "cumulative_cache": {
+          "tablebase_hits": 70184070,
+          "tt_hits": 8454176,
+          "tt_probes": 455151097
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 182134,
+        "maximum_search_depth": 32,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.07394111400935799,
+        "root_active_stones": 36,
+        "status": "completed",
+        "tablebase_hits": 71335,
+        "tablebase_hits_by_tier": {
+          "10": 195,
+          "11": 236,
+          "12": 412,
+          "13": 694,
+          "14": 1413,
+          "15": 3574,
+          "16": 6617,
+          "17": 9826,
+          "18": 47805,
+          "2": 2,
+          "3": 4,
+          "4": 13,
+          "5": 11,
+          "6": 85,
+          "7": 140,
+          "8": 149,
+          "9": 159
+        },
+        "tablebase_lookups": 71335,
+        "tt_hits": 24701,
+        "tt_probes": 589111,
+        "wall_time_seconds": 0.025852439
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          9,
+          0,
+          1,
+          0,
+          0,
+          2
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 36,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": -8,
+        "2": -4,
+        "5": 0
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 0,
+      "id": "exact-preflight-33-40-25",
+      "metrics": {
+        "cpu_time_seconds": 0.050662,
+        "cumulative_cache": {
+          "tablebase_hits": 70460981,
+          "tt_hits": 8541178,
+          "tt_probes": 457214133
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 312113,
+        "maximum_search_depth": 41,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.0928385560400784,
+        "root_active_stones": 35,
+        "status": "completed",
+        "tablebase_hits": 132076,
+        "tablebase_hits_by_tier": {
+          "1": 4,
+          "10": 152,
+          "11": 258,
+          "12": 542,
+          "13": 1048,
+          "14": 3203,
+          "15": 6801,
+          "16": 13018,
+          "17": 19285,
+          "18": 87120,
+          "2": 21,
+          "3": 48,
+          "4": 93,
+          "5": 83,
+          "6": 111,
+          "7": 117,
+          "8": 88,
+          "9": 84
+        },
+        "tablebase_lookups": 132076,
+        "tt_hits": 45689,
+        "tt_probes": 1002212,
+        "wall_time_seconds": 0.050784869
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          1,
+          0,
+          11,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          10,
+          1,
+          1,
+          0,
+          0,
+          2
+        ],
+        "player_store": 7
+      },
+      "stones_remaining": 35,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -4,
+        "1": 4,
+        "2": 4,
+        "3": 2,
+        "4": 4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -4,
+      "id": "exact-preflight-33-40-26",
+      "metrics": {
+        "cpu_time_seconds": 0.033755,
+        "cumulative_cache": {
+          "tablebase_hits": 70694433,
+          "tt_hits": 8661024,
+          "tt_probes": 459093616
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 249847,
+        "maximum_search_depth": 33,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 2,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.036092789960093796,
+        "root_active_stones": 34,
+        "status": "completed",
+        "tablebase_hits": 99193,
+        "tablebase_hits_by_tier": {
+          "10": 99,
+          "11": 190,
+          "12": 426,
+          "13": 824,
+          "14": 2151,
+          "15": 5297,
+          "16": 10563,
+          "17": 14331,
+          "18": 65124,
+          "2": 4,
+          "3": 9,
+          "4": 14,
+          "5": 13,
+          "6": 17,
+          "7": 48,
+          "8": 43,
+          "9": 40
+        },
+        "tablebase_lookups": 99193,
+        "tt_hits": 48733,
+        "tt_probes": 840528,
+        "wall_time_seconds": 0.03381137
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          10,
+          1,
+          2,
+          1,
+          11,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          2,
+          2,
+          1,
+          1,
+          3
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": 4,
+        "2": -2,
+        "3": -2,
+        "4": -2,
+        "5": 4
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 4,
+      "id": "exact-preflight-33-40-27",
+      "metrics": {
+        "cpu_time_seconds": 0.021304,
+        "cumulative_cache": {
+          "tablebase_hits": 70764387,
+          "tt_hits": 8692274,
+          "tt_probes": 459635904
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 150677,
+        "maximum_search_depth": 34,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.026504262001253664,
+        "root_active_stones": 34,
+        "status": "completed",
+        "tablebase_hits": 64694,
+        "tablebase_hits_by_tier": {
+          "1": 1,
+          "10": 97,
+          "11": 137,
+          "12": 241,
+          "13": 502,
+          "14": 1525,
+          "15": 3278,
+          "16": 6679,
+          "17": 9153,
+          "18": 42692,
+          "2": 7,
+          "3": 16,
+          "4": 29,
+          "5": 59,
+          "6": 62,
+          "7": 64,
+          "8": 74,
+          "9": 78
+        },
+        "tablebase_lookups": 64694,
+        "tt_hits": 27132,
+        "tt_probes": 491968,
+        "wall_time_seconds": 0.021331606
+      },
+      "optimal_actions": [
+        1,
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          10,
+          1,
+          0,
+          2,
+          12,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          2,
+          2,
+          1,
+          1,
+          3
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -2,
+        "1": 0,
+        "3": 4,
+        "4": 12
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-33-40-28",
+      "metrics": {
+        "cpu_time_seconds": 0.007916,
+        "cumulative_cache": {
+          "tablebase_hits": 70803724,
+          "tt_hits": 8707614,
+          "tt_probes": 459926394
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 54980,
+        "maximum_search_depth": 31,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 3,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.008763477904722095,
+        "root_active_stones": 34,
+        "status": "completed",
+        "tablebase_hits": 23950,
+        "tablebase_hits_by_tier": {
+          "10": 13,
+          "11": 33,
+          "12": 67,
+          "13": 138,
+          "14": 548,
+          "15": 1561,
+          "16": 2863,
+          "17": 4014,
+          "18": 14686,
+          "3": 1,
+          "4": 1,
+          "5": 2,
+          "6": 3,
+          "7": 5,
+          "8": 4,
+          "9": 11
+        },
+        "tablebase_lookups": 23950,
+        "tt_hits": 9872,
+        "tt_probes": 182553,
+        "wall_time_seconds": 0.00792726
+      },
+      "optimal_actions": [
+        0
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          10,
+          1,
+          0,
+          2,
+          12,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          2,
+          2,
+          1,
+          0,
+          4
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 34,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": -6,
+        "1": -6,
+        "2": -4,
+        "3": -4,
+        "5": -2
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": -2,
+      "id": "exact-preflight-33-40-29",
+      "metrics": {
+        "cpu_time_seconds": 0.026814,
+        "cumulative_cache": {
+          "tablebase_hits": 70888668,
+          "tt_hits": 8740843,
+          "tt_probes": 460563758
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 190661,
+        "maximum_search_depth": 42,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 0.028444678988307714,
+        "root_active_stones": 33,
+        "status": "completed",
+        "tablebase_hits": 83758,
+        "tablebase_hits_by_tier": {
+          "1": 1,
+          "10": 123,
+          "11": 158,
+          "12": 366,
+          "13": 627,
+          "14": 1546,
+          "15": 4151,
+          "16": 9224,
+          "17": 12736,
+          "18": 54467,
+          "2": 6,
+          "3": 21,
+          "4": 30,
+          "5": 36,
+          "6": 38,
+          "7": 54,
+          "8": 71,
+          "9": 103
+        },
+        "tablebase_lookups": 83758,
+        "tt_hits": 32126,
+        "tt_probes": 623154,
+        "wall_time_seconds": 0.026861762
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          1,
+          3,
+          13,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          3,
+          3,
+          2,
+          0,
+          4
+        ],
+        "player_store": 8
+      },
+      "stones_remaining": 33,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "1": 6,
+        "2": 12,
+        "3": 10,
+        "5": 16
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 16,
+      "id": "exact-preflight-33-40-30",
+      "metrics": {
+        "cpu_time_seconds": 5.467666,
+        "cumulative_cache": {
+          "tablebase_hits": 92569390,
+          "tt_hits": 9502041,
+          "tt_probes": 595788857
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 43968323,
+        "maximum_search_depth": 60,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 10.93987667397596,
+        "root_active_stones": 40,
+        "status": "completed",
+        "tablebase_hits": 21677187,
+        "tablebase_hits_by_tier": {
+          "1": 35,
+          "10": 52616,
+          "11": 78049,
+          "12": 126609,
+          "13": 289089,
+          "14": 564143,
+          "15": 1161575,
+          "16": 2183738,
+          "17": 3126576,
+          "18": 13912416,
+          "2": 520,
+          "3": 3669,
+          "4": 12487,
+          "5": 22075,
+          "6": 29495,
+          "7": 34015,
+          "8": 37749,
+          "9": 42331
+        },
+        "tablebase_lookups": 21677187,
+        "tt_hits": 758727,
+        "tt_probes": 135199852,
+        "wall_time_seconds": 5.477119005
+      },
+      "optimal_actions": [
+        5
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          9,
+          8,
+          8,
+          2
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          2,
+          7,
+          1,
+          0,
+          2
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    },
+    {
+      "action_final_margins": {
+        "0": 24,
+        "2": 22,
+        "3": 10,
+        "4": 14,
+        "5": 24
+      },
+      "error": null,
+      "exact": true,
+      "final_margin": 10,
+      "id": "exact-preflight-33-40-31",
+      "metrics": {
+        "cpu_time_seconds": 5.88808,
+        "cumulative_cache": {
+          "tablebase_hits": 139323928,
+          "tt_hits": 11297362,
+          "tt_probes": 880693341
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 49024135,
+        "maximum_search_depth": 54,
+        "maximum_tablebase_hit_tier": 18,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "request_wall_time_seconds": 11.766496745985933,
+        "root_active_stones": 40,
+        "status": "completed",
+        "tablebase_hits": 25079746,
+        "tablebase_hits_by_tier": {
+          "1": 84,
+          "10": 74245,
+          "11": 101737,
+          "12": 161516,
+          "13": 345953,
+          "14": 667984,
+          "15": 1341868,
+          "16": 2492068,
+          "17": 3478110,
+          "18": 16124643,
+          "2": 836,
+          "3": 5383,
+          "4": 19003,
+          "5": 36749,
+          "6": 50204,
+          "7": 57990,
+          "8": 59742,
+          "9": 61631
+        },
+        "tablebase_lookups": 25079746,
+        "tt_hits": 1036621,
+        "tt_probes": 149725104,
+        "wall_time_seconds": 5.896993022
+      },
+      "optimal_actions": [
+        3
+      ],
+      "provenance": "fresh deterministic exact-solver feasibility corpus",
+      "reproducible": true,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          9,
+          8,
+          8,
+          2
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          2,
+          7,
+          0,
+          1,
+          2
+        ],
+        "player_store": 6
+      },
+      "stones_remaining": 40,
+      "training_eligible": false
+    }
+  ],
+  "input_sha256": "fe9c317f6dace7d5c77eb7214db4739643a5b7d3ac0b83a39be885119b459a59",
+  "mode": "warm",
+  "schema": "native_hybrid_feasibility_v1",
+  "seed": 271,
+  "timeout_seconds": 30.0
+}

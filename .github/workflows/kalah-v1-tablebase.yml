@@ -5,11 +5,25 @@ on:
     paths:
       - "native/kalah_v1_tablebase/**"
       - "ml/alphazero_lite/*kalah_v1_native_tablebase*"
+      - "ml/alphazero_lite/*native_hybrid*"
+      - "ml/alphazero_lite/*native_mtdf*"
+      - "ml/alphazero_lite/test_canonical_kvtb_adapter.py"
+      - "third_party/girving-kalah/canonical_kvtb.*"
+      - "third_party/girving-kalah/native_probe.c"
+      - "third_party/girving-kalah/compatibility.patch"
+      - "script/ai/setup_native_mtdf.sh"
       - "docs/data/alphazero-lite-kalah-v1-native-tablebase-preflight-summary.json"
   push:
     paths:
       - "native/kalah_v1_tablebase/**"
       - "ml/alphazero_lite/*kalah_v1_native_tablebase*"
+      - "ml/alphazero_lite/*native_hybrid*"
+      - "ml/alphazero_lite/*native_mtdf*"
+      - "ml/alphazero_lite/test_canonical_kvtb_adapter.py"
+      - "third_party/girving-kalah/canonical_kvtb.*"
+      - "third_party/girving-kalah/native_probe.c"
+      - "third_party/girving-kalah/compatibility.patch"
+      - "script/ai/setup_native_mtdf.sh"
 
 jobs:
   bounded-validation:
@@ -25,6 +39,27 @@ jobs:
         run: .tmp/kalah_v1_tablebase_build/kalah_v1_tablebase format-selftest
       - name: Run portable format, corruption, and bounded parity tests
         run: python3 -m unittest ml.alphazero_lite.test_kalah_v1_native_tablebase_preflight
+      - name: Build and test canonical native probe variants
+        run: |
+          fixture=$(mktemp /tmp/kalah-v1-fixture-XXXXXX.kvtb)
+          .tmp/kalah_v1_tablebase_build/kalah_v1_tablebase generate 8 "$fixture"
+          prove_fixture() {
+            python3 - "$fixture" <<'PY'
+          import sys
+          from pathlib import Path
+          from ml.alphazero_lite.run_kalah_v1_tier18_experiment import KvtbReader
+          reader = KvtbReader(Path(sys.argv[1]))
+          assert reader.tier == 8, reader.tier
+          print(f"bounded KVTB fixture: tier={reader.tier} states={reader.states}")
+          PY
+          }
+          prove_fixture
+          probe=$(bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah-normal)
+          NATIVE_MTDF_PROBE="$probe" NATIVE_CANONICAL_KVTB="$fixture" python3 -m unittest ml.alphazero_lite.test_native_mtdf_probe ml.alphazero_lite.test_canonical_kvtb_adapter ml.alphazero_lite.test_native_hybrid_feasibility
+          probe=$(NO_TT=1 bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah-no-tt)
+          NATIVE_MTDF_PROBE="$probe" NATIVE_CANONICAL_KVTB="$fixture" python3 -m unittest ml.alphazero_lite.test_native_mtdf_probe
+          probe=$(SANITIZE=1 bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah-asan)
+          NATIVE_MTDF_PROBE="$probe" NATIVE_CANONICAL_KVTB="$fixture" python3 -m unittest ml.alphazero_lite.test_native_mtdf_probe
       - name: Validate summary/report consistency
         run: python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 8
       - name: Install Python quality tools

@@ -135,7 +135,9 @@ def tiny_exactness_report(executable: Path) -> dict[str, Any]:
                     "expected_root_value": root,
                     "passed": actual == expected
                     and first["exact_value"] == root
-                    and first == second,
+                    and first["action_values"] == second["action_values"]
+                    and first["exact_value"] == second["exact_value"]
+                    and first["optimal_actions"] == second["optimal_actions"],
                 }
             )
     finally:
