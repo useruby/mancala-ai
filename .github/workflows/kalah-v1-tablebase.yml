@@ -21,7 +21,11 @@ jobs:
           python-version: "3.12"
       - name: Build native tablebase with warnings as errors
         run: bash native/kalah_v1_tablebase/build.sh
+      - name: Run native portable-format selftest
+        run: .tmp/kalah_v1_tablebase_build/kalah_v1_tablebase format-selftest
       - name: Run portable format, corruption, and bounded parity tests
         run: python3 -m unittest ml.alphazero_lite.test_kalah_v1_native_tablebase_preflight
-      - name: Validate incomplete result classification
+      - name: Validate summary/report consistency
         run: python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 8
+      - name: Python quality
+        run: ruff check ml/alphazero_lite

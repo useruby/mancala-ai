@@ -1,8 +1,9 @@
 {
-  "classification": "canonical_tablebase_validation_incomplete",
+  "classification": "canonical_tablebase_feasible",
+  "classification_reason": "all correctness and budget gates passed",
+  "full_result": "docs/data/alphazero-lite-kalah-v1-native-tablebase-preflight-full.json",
   "generated_tablebases_committed": false,
   "implementation": "isolated C++17 kalah_v1_tablebase",
-  "validation_command": "python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 12 --full-validation --output /tmp/kalah-v1-results.json",
-  "validation_complete": false,
-  "reason": "The required committed full validation and scalability evidence has not been reproduced with the portable format."
+  "validation_command": "python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 12 --full-validation --run-scalability --output docs/data/alphazero-lite-kalah-v1-native-tablebase-preflight-full.json",
+  "validation_complete": true
 }

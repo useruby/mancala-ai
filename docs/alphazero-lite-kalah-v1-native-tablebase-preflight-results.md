@@ -1,47 +1,39 @@
 # Kalah V1 Native Tablebase Preflight Results
 
-**Classification:** `canonical_tablebase_validation_incomplete`
+**Classification:** `canonical_tablebase_feasible`
 
-The isolated C++17 prototype uses canonical `kalah_v1` transitions and a store-independent signed-margin payload. It neither reads nor writes the Geoffrey Irving format and does not modify production search or artifacts. Previous results used an ABI-dependent header and did not execute the required validation harness; they are not feasibility evidence.
+The committed raw result is `docs/data/alphazero-lite-kalah-v1-native-tablebase-preflight-full.json`. This isolated C++17 experiment does not integrate lookup into production search, generate an 18-stone teacher, or start training.
 
-| Maximum tier | Cumulative states | Wall time | SHA-256 |
-| --- | ---: | ---: | --- |
-| 8 | 251,940 | 0.078 s | `dd9952c7c71e1d06cb99ea5c8403c3129695c2b2371ded9460f87279127493fa` |
-| 10 | 1,293,292 | 0.566 s | temporary only |
-| 12 | 5,408,312 | 2.960 s | `b842609f119b3eaf01937a0312853a2f6fe3f27371429793bc05e8b89686b71a` |
-| 14 | 19,315,400 | 12.432 s | temporary only |
+## Correctness
 
-The exhaustive 8-stone Python `ExactKalahSolver` gate compared 251,940 values and 604,656 legal action values at 100%. The 8-stone graph contained 604,656 edges: 324,514 same-tier and 280,142 lower-tier; it had zero self/cyclic DFS back-edges. The native recurrence follows the resulting acyclic dependency order, not a remaining-stones-only order.
+| Gate | Threshold | Observed | Status |
+| --- | --- | --- | --- |
+| Rank/unrank | exhaustive through tier 10 | 1,293,292 indexed states | pass |
+| Transition parity | exhaustive through tier 8 | 251,940 states; 604,656 legal actions | pass |
+| Root/action oracle | exhaustive through tier 8 | 251,940 roots; 604,656 actions | pass |
+| Store/action order | exhaustive through tier 8 | 251,940 roots, two store offsets | pass |
+| Independent oracle | 10,000 fixed queries, seed 277 | 10,000 | pass |
+| Cited regressions | both positions | both exact action maps | pass |
+| Determinism | fresh tiers 8 and 12 | byte-identical | pass |
+| Portable format | reject malformed inputs | 19 fixtures rejected | pass |
 
-The cited compatibility position returned `{1: -4, 2: 0}`. The cited one-sided position returned storeless action values `{0: -4, 5: -4}`; adding its `18 - 24` store offset gives the required `{0: -10, 5: -10}`. A one-sided state with the empty side to move returns an explicit terminal entry.
+Tier 8 produced payload SHA-256 `441341d8825a19ab6126e8194f7045ec36f869173e788bcccce544cfff68ef94` and complete-file SHA-256 `94ee7c4698bb4b5aa94ce80a1d6900f46a5221c5686f8aa44e2e2cf5e9d3c5cf`. Tier 12 produced payload SHA-256 `d4728322ad902d504a700caef6b74b819453163420e7417f9227e279ad69595a` and complete-file SHA-256 `f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452`. All generation runs recorded zero cycles.
 
-Each generated payload consumes one byte per indexed state plus a 40-byte header, below the two-byte gate. Repeated fresh 8- and 12-stone generations were byte-identical at the listed hashes. A 100,000-query warm probe measured 626,907 positions/second.
+## Scalability
 
-## Validation Status
+Each generation enforced a 30-minute wall/CPU cap, 8 GiB address-space cap, 8 GiB temporary-disk cap, and two complete-file bytes per indexed state.
 
-The committed runner now provides portable-file rejection, exhaustive rank/unrank through 10, exhaustive transition and value gates through 8, store-offset invariance, deterministic 9-12-stone oracle samples, cited-position checks, and fresh-file determinism gates. The expensive gates must be run and recorded before any classification can advance.
+| Tier | Indexed states | Wall time | Peak RSS | Output bytes | Edges | File SHA-256 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| 8 | 251,940 | 0.085 s | 4,280 KiB | 252,164 | 604,656 | `94ee7c4698bb4b5aa94ce80a1d6900f46a5221c5686f8aa44e2e2cf5e9d3c5cf` |
+| 10 | 1,293,292 | 0.564 s | 6,324 KiB | 1,293,548 | 3,527,160 | `75088e978b7586d79767de4b16097dc81089644da207e41ee65a6cad64d28884` |
+| 12 | 5,408,312 | 2.972 s | 21,928 KiB | 5,408,600 | 16,224,936 | `f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452` |
+| 14 | 19,315,400 | 12.605 s | 70,464 KiB | 19,315,720 | 62,403,600 | `a1e7aebe6ed4f35de28466f8a91004fba36b9b55b31c55c5edecba32f42028ea` |
 
-```bash
-python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 12 --full-validation --output /tmp/kalah-v1-results.json
-```
+The native in-process fixed seed-277 corpus hash is `cce36676004502e358a5d683f7d37a82d2cd528117225f3865a491c23e7ee92a`. It loaded the tier-14 file in 112.6 ms, used 129,892 KiB RSS, and completed 100,000 warm lookups at 8.86 million/s, with 87 ns median and 211 ns p95 latency. These pass the 1 ms median/p95 and 100,000/s registered thresholds.
 
-No scalability gate or 18-stone projection is currently accepted. Do not generate an 18-stone teacher, integrate lookup into production search, or start training from this experiment.
+## Tier-18 Projection
 
-## Historical Projection
+Using the tier-14 measurements, cumulative-state ratio 8.9559, and the required 2x safety factor projects 225.8 seconds generation, 1,262,135 KiB peak RSS, and 345,978,632 output bytes. These are below the 8-hour, 16 GiB, and 4 GiB limits respectively. The raw result contains the measured inputs and thresholds.
 
-| Tier | Cumulative states | One-byte payload | Conservative generation estimate |
-| --- | ---: | ---: | ---: |
-| 16 | 60,843,510 | 58.0 MiB | 78 s |
-| 18 | 172,986,450 | 165.0 MiB | 223 s |
-| 20 | 451,585,680 | 430.8 MiB | 582 s |
-
-This historical wall-time-only estimate is invalid for feasibility classification because it lacks the required correctness, memory, disk, latency, and throughput evidence. No follow-up teacher-tablebase PR is recommended.
-
-## Reproduction
-
-```bash
-python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 8 --validate-oracle
-bash native/kalah_v1_tablebase/build.sh
-<binary> generate 14 /tmp/kalah_v1_14.kvtb
-printf '%s\n' '{"pits":[0,1,1,0,0,0,0,1,1,0,0,0],"player":0}' | <binary> probe /tmp/kalah_v1_14.kvtb
-```
+A separate PR may now evaluate the 18-stone teacher. It must retain this experiment's isolation until that PR has its own review and validation.

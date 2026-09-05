@@ -9,6 +9,7 @@ import unittest
 from ml.alphazero_lite.run_kalah_v1_native_tablebase_preflight import (
     ROOT,
     cumulative_count,
+    portable_format_gate,
     rank,
     transition_gate,
     unrank,
@@ -16,6 +17,14 @@ from ml.alphazero_lite.run_kalah_v1_native_tablebase_preflight import (
 
 
 class KalahV1NativeTablebasePreflightTest(unittest.TestCase):
+    def test_native_format_selftest(self) -> None:
+        binary = Path(
+            subprocess.check_output(
+                ["bash", "native/kalah_v1_tablebase/build.sh"], cwd=ROOT, text=True
+            ).strip()
+        )
+        subprocess.run([binary, "format-selftest"], check=True)
+
     def test_dense_rank_unrank_and_count_identity_through_ten(self) -> None:
         for tier in range(11):
             self.assertEqual(
@@ -70,24 +79,21 @@ class KalahV1NativeTablebasePreflightTest(unittest.TestCase):
         ) as temporary:
             tablebase = Path(temporary) / "portable.kvtb"
             subprocess.run([binary, "generate", "1", tablebase], check=True)
-            corrupt = Path(temporary) / "corrupt.kvtb"
-            corrupt.write_bytes(tablebase.read_bytes() + b"unexpected")
-            self.assertNotEqual(
-                0,
-                subprocess.run(
-                    [binary, "probe", corrupt], input="", text=True
-                ).returncode,
-            )
+            result = portable_format_gate(binary, tablebase, Path(temporary))
+            self.assertTrue(result["passed"])
+            self.assertGreaterEqual(result["fixture_count"], 19)
+            self.assertTrue(all(result["fixtures"].values()))
         summary = json.loads(
             (
                 ROOT
                 / "docs/data/alphazero-lite-kalah-v1-native-tablebase-preflight-summary.json"
             ).read_text()
         )
-        self.assertEqual(
-            "canonical_tablebase_validation_incomplete", summary["classification"]
-        )
-        self.assertFalse(summary["validation_complete"])
+        self.assertEqual("canonical_tablebase_feasible", summary["classification"])
+        self.assertTrue(summary["validation_complete"])
+        full = json.loads((ROOT / summary["full_result"]).read_text())
+        self.assertEqual(summary["classification"], full["classification"])
+        self.assertEqual(summary["validation_complete"], full["validation_complete"])
         report = (
             ROOT / "docs/alphazero-lite-kalah-v1-native-tablebase-preflight-results.md"
         ).read_text()

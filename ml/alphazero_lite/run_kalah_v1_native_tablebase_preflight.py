@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import argparse
+from functools import cache
 import hashlib
 import json
 from math import comb
@@ -26,6 +27,18 @@ from ml.alphazero_lite.kalah_rules import KalahGame, move_consequence_for_state
 
 SAMPLE_SEED = 277
 SAMPLE_COUNT = 10_000
+SCALABILITY_TIERS = (8, 10, 12, 14)
+GENERATOR_MEMORY_LIMIT_KIB = 8 * 1024 * 1024
+GENERATOR_TIMEOUT_SECONDS = 30 * 60
+GENERATOR_DISK_LIMIT_BYTES = 8 * 1024 * 1024 * 1024
+MAX_BYTES_PER_STATE = 2
+PROJECTION_SAFETY_FACTOR = 2
+
+
+def _limit_generator_resources(memory_limit_kib: int, cpu_limit_seconds: int) -> None:
+    memory_limit_bytes = memory_limit_kib * 1024
+    resource.setrlimit(resource.RLIMIT_AS, (memory_limit_bytes, memory_limit_bytes))
+    resource.setrlimit(resource.RLIMIT_CPU, (cpu_limit_seconds, cpu_limit_seconds))
 
 
 def state_count(tier: int) -> int:
@@ -75,23 +88,75 @@ def build() -> Path:
     )
 
 
-def generate(binary: Path, tier: int, output: Path) -> dict:
+def generate(
+    binary: Path,
+    tier: int,
+    output: Path,
+    *,
+    memory_limit_kib: int = GENERATOR_MEMORY_LIMIT_KIB,
+    timeout_seconds: int = GENERATOR_TIMEOUT_SECONDS,
+) -> dict:
     started = time.perf_counter()
-    completed = subprocess.run(
+    process = subprocess.Popen(
         [binary, "generate", str(tier), output],
-        check=True,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
+        preexec_fn=lambda: _limit_generator_resources(
+            memory_limit_kib, timeout_seconds
+        ),
     )
-    peak_rss_kib = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
-    result = json.loads(completed.stdout)
+    deadline = started + timeout_seconds
+    peak_rss_kib = 0
+    while True:
+        try:
+            status = Path(f"/proc/{process.pid}/status").read_text()
+            high_watermark = next(
+                (line for line in status.splitlines() if line.startswith("VmHWM:")),
+                None,
+            )
+            if high_watermark is not None:
+                peak_rss_kib = max(peak_rss_kib, int(high_watermark.split()[1]))
+        except FileNotFoundError:
+            pass
+        remaining = deadline - time.perf_counter()
+        if remaining <= 0:
+            process.kill()
+            process.communicate()
+            raise subprocess.TimeoutExpired(process.args, timeout_seconds)
+        try:
+            stdout, stderr = process.communicate(timeout=min(0.05, remaining))
+            break
+        except subprocess.TimeoutExpired:
+            continue
+    if process.returncode:
+        raise subprocess.CalledProcessError(
+            process.returncode, process.args, stdout, stderr
+        )
+    result = json.loads(stdout)
     result.update(
         wall_seconds=time.perf_counter() - started,
         peak_rss_kib=peak_rss_kib,
         output_bytes=output.stat().st_size,
         sha256=hashlib.sha256(output.read_bytes()).hexdigest(),
+        resource_limits={
+            "address_space_kib": memory_limit_kib,
+            "cpu_seconds": timeout_seconds,
+            "wall_seconds": timeout_seconds,
+        },
     )
     result["bytes_per_indexed_state"] = result["output_bytes"] / result["states"]
+    result["temporary_disk_peak_bytes"] = output.stat().st_size
+    result["thresholds"] = {
+        "wall_seconds": timeout_seconds,
+        "peak_rss_kib": memory_limit_kib,
+        "temporary_disk_bytes": GENERATOR_DISK_LIMIT_BYTES,
+        "bytes_per_indexed_state": MAX_BYTES_PER_STATE,
+    }
+    if result["temporary_disk_peak_bytes"] > GENERATOR_DISK_LIMIT_BYTES:
+        raise RuntimeError("temporary disk limit exceeded")
+    if result["bytes_per_indexed_state"] > MAX_BYTES_PER_STATE:
+        raise RuntimeError("output bytes per indexed state limit exceeded")
     return result
 
 
@@ -213,18 +278,24 @@ def exact_oracle_gate(binary: Path, tablebase: Path, limit: int) -> dict:
     return {"states": len(requests), "actions": actions, "passed": True}
 
 
-def sample_gate(binary: Path, tablebase: Path) -> dict:
-    requests: list[dict] = []
+@cache
+def independent_oracle_sample() -> tuple[tuple[tuple[int, ...], int], ...]:
+    requests: list[tuple[tuple[int, ...], int]] = []
     value = SAMPLE_SEED
     while len(requests) < SAMPLE_COUNT:
         value = (value * 1103515245 + 12345) & 0x7FFFFFFF
         tier = 9 + value % 4
         value = (value * 1103515245 + 12345) & 0x7FFFFFFF
-        requests.append(
-            {"pits": unrank(tier, value % comb(tier + 11, 11)), "player": value & 1}
-        )
+        requests.append((unrank(tier, value % comb(tier + 11, 11)), value & 1))
+    return tuple(requests)
+
+
+def sample_gate(binary: Path, tablebase: Path) -> dict:
+    requests = [
+        {"pits": pits, "player": player} for pits, player in independent_oracle_sample()
+    ]
     answers = probe(binary, tablebase, requests)
-    solver = ExactKalahSolver(tt_size=2_000_000, cache_enabled=False)
+    solver = ExactKalahSolver(tt_size=2_000_000)
     for request, answer in zip(requests, answers, strict=True):
         state = ExactState(tuple(request["pits"]), (0, 0), request["player"])
         assert answer["value"] == solver.solve(state)
@@ -242,11 +313,13 @@ def store_offset_gate(binary: Path, tablebase: Path, limit: int) -> dict:
         for player in (0, 1)
     ]
     answers = probe(binary, tablebase, requests)
+    solvers = {
+        stores: ExactKalahSolver(tt_size=2_000_000) for stores in ((18, 24), (31, 7))
+    }
     for request, answer in zip(requests, answers, strict=True):
-        for stores in ((18, 24), (31, 7)):
+        for stores, solver in solvers.items():
             margin = stores[0] - stores[1]
             state = ExactState(tuple(request["pits"]), stores, request["player"])
-            solver = ExactKalahSolver(tt_size=100_000)
             assert solver.solve(state) == answer["value"] + margin
             expected = solver.action_margins(state)
             adjusted = {
@@ -274,9 +347,14 @@ def cited_gate(binary: Path, tablebase: Path) -> dict:
     return {"passed": True}
 
 
-def determinism_gate(binary: Path, tier: int, directory: Path) -> dict:
+def determinism_gate(
+    binary: Path, tier: int, directory: Path, **generator_limits: int
+) -> dict:
     first, second = directory / f"{tier}-a.kvtb", directory / f"{tier}-b.kvtb"
-    a, b = generate(binary, tier, first), generate(binary, tier, second)
+    a, b = (
+        generate(binary, tier, first, **generator_limits),
+        generate(binary, tier, second, **generator_limits),
+    )
     assert first.read_bytes() == second.read_bytes()
     return {
         "tier": tier,
@@ -287,7 +365,228 @@ def determinism_gate(binary: Path, tier: int, directory: Path) -> dict:
     }
 
 
-def main() -> None:
+def portable_format_gate(binary: Path, tablebase: Path, directory: Path) -> dict:
+    data = tablebase.read_bytes()
+    tier = data[18]
+    header_size = 80 + 16 * (tier + 1)
+
+    def altered(offset: int) -> bytes:
+        fixture = bytearray(data)
+        fixture[offset] ^= 1
+        return bytes(fixture)
+
+    fixtures = {
+        "empty": b"",
+        "truncated": data[:-1],
+        "magic": altered(0),
+        "schema": altered(5),
+        "game_id": altered(7),
+        "byte_order": altered(15),
+        "player_encoding": altered(16),
+        "unknown_value": altered(17),
+        "tier": altered(18),
+        "generator_revision": altered(19),
+        "max_tier": altered(23),
+        "state_count": altered(24),
+        "payload_length": altered(32),
+        "file_length": altered(40),
+        "tier_state_count": altered(48),
+        "tier_offset": altered(56),
+        "checksum": altered(header_size - 1),
+        "payload": altered(header_size),
+        "trailing_data": data + b"trailing",
+    }
+    rejected: dict[str, bool] = {}
+    for name, fixture in fixtures.items():
+        path = directory / f"malformed-{name}.kvtb"
+        path.write_bytes(fixture)
+        rejected[name] = (
+            subprocess.run(
+                [binary, "probe", path],
+                input="",
+                capture_output=True,
+                text=True,
+                timeout=30,
+            ).returncode
+            != 0
+        )
+    assert all(rejected.values()), "native reader accepted malformed portable fixture"
+    return {"fixtures": rejected, "fixture_count": len(fixtures), "passed": True}
+
+
+def scalability_gate(binary: Path, directory: Path, **generator_limits: int) -> dict:
+    runs = {
+        str(tier): generate(
+            binary, tier, directory / f"scalability-{tier}.kvtb", **generator_limits
+        )
+        for tier in SCALABILITY_TIERS
+    }
+    return {"tiers": list(SCALABILITY_TIERS), "runs": runs, "passed": True}
+
+
+def lookup_benchmark_gate(binary: Path, tablebase: Path) -> dict:
+    """Measure lookup without Python startup or JSON-line serialization."""
+    completed = subprocess.run(
+        [binary, "lookup-benchmark", tablebase, "100000", str(SAMPLE_SEED)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    benchmark = json.loads(completed.stdout)
+    benchmark["corpus_sha256"] = hashlib.sha256(
+        f"kalah_v1_lookup_v1:{SAMPLE_SEED}:{benchmark['checksum']}".encode()
+    ).hexdigest()
+    benchmark["thresholds"] = {
+        "warm_lookup_count": 100000,
+        "warm_median_lookup_ns": 1_000_000,
+        "warm_p95_lookup_ns": 1_000_000,
+        "warm_throughput_per_second": 100000,
+    }
+    benchmark["warm_throughput_per_second"] = (
+        benchmark["warm_lookup_count"] * 1_000_000_000 / benchmark["warm_lookup_ns"]
+    )
+    benchmark["passed"] = all(
+        benchmark[name] >= threshold
+        if name == "warm_throughput_per_second"
+        else benchmark[name] <= threshold
+        for name, threshold in benchmark["thresholds"].items()
+    )
+    if not benchmark["passed"]:
+        raise RuntimeError("native lookup benchmark threshold failed")
+    return benchmark
+
+
+def projection_gate(scalability: dict) -> dict:
+    tier_14 = scalability["runs"]["14"]
+    ratio = cumulative_count(18) / cumulative_count(14)
+    projection = {
+        "safety_factor": PROJECTION_SAFETY_FACTOR,
+        "state_ratio": ratio,
+        "generation_seconds": tier_14["wall_seconds"]
+        * ratio
+        * PROJECTION_SAFETY_FACTOR,
+        "peak_rss_kib": tier_14["peak_rss_kib"] * ratio * PROJECTION_SAFETY_FACTOR,
+        "output_bytes": tier_14["output_bytes"] * ratio * PROJECTION_SAFETY_FACTOR,
+    }
+    projection["thresholds"] = {
+        "generation_seconds": 8 * 60 * 60,
+        "peak_rss_kib": 16 * 1024 * 1024,
+        "output_bytes": 4 * 1024 * 1024 * 1024,
+    }
+    projection["passed"] = all(
+        projection[name] <= projection["thresholds"][name]
+        for name in projection["thresholds"]
+    )
+    return projection
+
+
+def _error_details(error: Exception) -> dict[str, str]:
+    message = str(error).strip() or error.__class__.__name__
+    return {"type": error.__class__.__name__, "message": message}
+
+
+def run_gate(
+    gates: dict[str, dict], name: str, function, *args, **kwargs
+) -> dict | None:
+    try:
+        data = function(*args, **kwargs)
+    except Exception as error:
+        gates[name] = {"status": "failed", "error": _error_details(error)}
+        return None
+    gates[name] = {
+        "status": "passed",
+        "data": str(data) if isinstance(data, Path) else data,
+    }
+    return data
+
+
+def skip_gate(gates: dict[str, dict], name: str, reason: str) -> None:
+    gates[name] = {"status": "skipped", "reason": reason}
+
+
+def classify(gates: dict[str, dict], full_validation: bool) -> tuple[str, bool, str]:
+    statuses = {name: gate["status"] for name, gate in gates.items()}
+    failed = {name for name, status in statuses.items() if status == "failed"}
+    correctness = {
+        "rank_unrank",
+        "portable_format",
+        "cited_positions",
+        "transition_parity",
+        "root_action_oracle",
+        "store_offset_invariance",
+        "sample_oracle",
+        "determinism_8",
+        "determinism_12",
+    }
+    if failed & correctness:
+        return (
+            "canonical_tablebase_incorrect",
+            False,
+            f"correctness gate failed: {sorted(failed & correctness)[0]}",
+        )
+    if "generation" in failed and "cycle" in str(gates["generation"]):
+        return (
+            "canonical_tablebase_recurrence_blocked",
+            False,
+            "native recurrence cycle",
+        )
+    if failed & {"generation", "scalability"}:
+        return (
+            "canonical_tablebase_budget_exceeded",
+            False,
+            f"resource gate failed: {sorted(failed & {'generation', 'scalability'})[0]}",
+        )
+    full_gates = {
+        "transition_parity",
+        "root_action_oracle",
+        "store_offset_invariance",
+        "sample_oracle",
+        "determinism_8",
+        "determinism_12",
+        "lookup_benchmark",
+        "projection_18",
+    }
+    if full_validation and all(statuses.get(name) == "passed" for name in full_gates):
+        if (
+            statuses.get("scalability") == "passed"
+            and statuses.get("lookup_benchmark") == "passed"
+            and statuses.get("projection_18") == "passed"
+        ):
+            return (
+                "canonical_tablebase_feasible",
+                True,
+                "all correctness and budget gates passed",
+            )
+        return (
+            "canonical_tablebase_correct_but_not_scalable",
+            False,
+            "correctness passed but scalability was not completed",
+        )
+    return (
+        "canonical_tablebase_validation_incomplete",
+        False,
+        "required validation gates were not completed",
+    )
+
+
+def reportable_projection(result: dict[str, object]) -> dict[str, object]:
+    gates = result["gates"]
+    assert isinstance(gates, dict)
+    failed = sorted(name for name, gate in gates.items() if gate["status"] == "failed")
+    skipped = sorted(
+        name for name, gate in gates.items() if gate["status"] == "skipped"
+    )
+    generation = result.get("generation")
+    return {
+        "classification": result["classification"],
+        "validation_complete": result["validation_complete"],
+        "failed_gates": failed,
+        "skipped_gates": skipped,
+        "generation": generation,
+    }
+
+
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--tier", type=int, default=8)
     parser.add_argument("--output", type=Path)
@@ -296,60 +595,177 @@ def main() -> None:
         action="store_true",
         help="run exhaustive semantic gates and 9-12 sample oracle",
     )
+    parser.add_argument(
+        "--run-scalability",
+        action="store_true",
+        help="generate independent scalability measurements at tiers 8, 10, 12, and 14",
+    )
+    parser.add_argument(
+        "--generator-memory-limit-kib", type=int, default=GENERATOR_MEMORY_LIMIT_KIB
+    )
+    parser.add_argument(
+        "--generator-timeout-seconds", type=int, default=GENERATOR_TIMEOUT_SECONDS
+    )
     args = parser.parse_args()
     if not 0 <= args.tier <= 20:
-        raise SystemExit("tier must be 0..20")
-    binary = build()
+        parser.error("tier must be 0..20")
+    if args.generator_memory_limit_kib <= 0 or args.generator_timeout_seconds <= 0:
+        parser.error("generator limits must be positive")
     result: dict[str, object] = {
-        "classification": "canonical_tablebase_validation_incomplete",
         "environment": {
             "python": sys.version,
             "platform": platform.platform(),
             "command": " ".join(sys.argv),
             "cpu_count": os.cpu_count(),
         },
-        "gates": {"rank_unrank": rank_gate()},
+        "generator_limits": {
+            "address_space_kib": args.generator_memory_limit_kib,
+            "cpu_seconds": args.generator_timeout_seconds,
+            "wall_seconds": args.generator_timeout_seconds,
+        },
+        "gates": {},
     }
-    with tempfile.TemporaryDirectory(
-        prefix="kalah_v1_tablebase_", dir="/tmp"
-    ) as temporary:
-        directory = Path(temporary)
-        tablebase = directory / f"kalah_v1_{args.tier}.kvtb"
-        result["generation"] = generate(binary, args.tier, tablebase)
-        corrupt = directory / "corrupt.kvtb"
-        corrupt.write_bytes(tablebase.read_bytes() + b"trailing")
-        rejected = (
-            subprocess.run(
-                [binary, "probe", corrupt], input="", capture_output=True
-            ).returncode
-            != 0
-        )
-        if not rejected:
-            raise AssertionError("native reader accepted trailing data")
-        result["gates"]["portable_format"] = {
-            "passed": True,
-            "trailing_data_rejected": True,
-        }
-        result["gates"]["cited_positions"] = cited_gate(binary, tablebase)
-        if args.full_validation:
-            if args.tier < 12:
-                raise SystemExit("full validation requires --tier 12")
-            result["gates"]["transition_parity"] = transition_gate(binary, 8)
-            result["gates"]["root_action_oracle"] = exact_oracle_gate(
-                binary, tablebase, 8
-            )
-            result["gates"]["store_offset_invariance"] = store_offset_gate(
-                binary, tablebase, 8
-            )
-            result["gates"]["sample_oracle"] = sample_gate(binary, tablebase)
-            result["gates"]["determinism_8"] = determinism_gate(binary, 8, directory)
-            result["gates"]["determinism_12"] = determinism_gate(binary, 12, directory)
+    gates = result["gates"]
+    assert isinstance(gates, dict)
+    generator_limits = {
+        "memory_limit_kib": args.generator_memory_limit_kib,
+        "timeout_seconds": args.generator_timeout_seconds,
+    }
+    run_gate(gates, "rank_unrank", rank_gate)
+    binary_data = run_gate(gates, "build", build)
+    if binary_data is None:
+        for name in ("generation", "portable_format", "cited_positions"):
+            skip_gate(gates, name, "native binary was not built")
+    else:
+        binary = binary_data
+        try:
+            with tempfile.TemporaryDirectory(
+                prefix="kalah_v1_tablebase_", dir="/tmp"
+            ) as temporary:
+                directory = Path(temporary)
+                tablebase = directory / f"kalah_v1_{args.tier}.kvtb"
+                generation = run_gate(
+                    gates,
+                    "generation",
+                    generate,
+                    binary,
+                    args.tier,
+                    tablebase,
+                    **generator_limits,
+                )
+                result["generation"] = gates["generation"]
+                if generation is None:
+                    for name in ("portable_format", "cited_positions"):
+                        skip_gate(gates, name, "tablebase generation failed")
+                else:
+                    run_gate(
+                        gates,
+                        "portable_format",
+                        portable_format_gate,
+                        binary,
+                        tablebase,
+                        directory,
+                    )
+                    run_gate(gates, "cited_positions", cited_gate, binary, tablebase)
+                if args.run_scalability:
+                    scalability = run_gate(
+                        gates,
+                        "scalability",
+                        scalability_gate,
+                        binary,
+                        directory,
+                        **generator_limits,
+                    )
+                    if scalability is not None:
+                        run_gate(
+                            gates,
+                            "lookup_benchmark",
+                            lookup_benchmark_gate,
+                            binary,
+                            directory / "scalability-14.kvtb",
+                        )
+                        run_gate(gates, "projection_18", projection_gate, scalability)
+                if args.full_validation and args.tier < 12:
+                    gates["full_validation_configuration"] = {
+                        "status": "failed",
+                        "error": {
+                            "type": "ValueError",
+                            "message": "full validation requires --tier >= 12",
+                        },
+                    }
+                elif args.full_validation:
+                    run_gate(gates, "transition_parity", transition_gate, binary, 8)
+                    run_gate(
+                        gates,
+                        "root_action_oracle",
+                        exact_oracle_gate,
+                        binary,
+                        tablebase,
+                        8,
+                    )
+                    run_gate(
+                        gates,
+                        "store_offset_invariance",
+                        store_offset_gate,
+                        binary,
+                        tablebase,
+                        8,
+                    )
+                    run_gate(gates, "sample_oracle", sample_gate, binary, tablebase)
+                    run_gate(
+                        gates,
+                        "determinism_8",
+                        determinism_gate,
+                        binary,
+                        8,
+                        directory,
+                        **generator_limits,
+                    )
+                    run_gate(
+                        gates,
+                        "determinism_12",
+                        determinism_gate,
+                        binary,
+                        12,
+                        directory,
+                        **generator_limits,
+                    )
+        except Exception as error:
+            gates["runner"] = {"status": "failed", "error": _error_details(error)}
+    if args.full_validation:
+        for name in (
+            "transition_parity",
+            "root_action_oracle",
+            "store_offset_invariance",
+            "sample_oracle",
+            "determinism_8",
+            "determinism_12",
+            "lookup_benchmark",
+            "projection_18",
+        ):
+            if name not in gates:
+                skip_gate(gates, name, "full validation did not reach this gate")
+    classification, validation_complete, reason = classify(gates, args.full_validation)
+    result["classification"] = classification
+    result["validation_complete"] = validation_complete
+    result["classification_reason"] = reason
+    result["reportable"] = reportable_projection(result)
     rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.write_text(rendered)
     else:
         print(rendered, end="")
+    return (
+        1
+        if classification
+        in {
+            "canonical_tablebase_incorrect",
+            "canonical_tablebase_recurrence_blocked",
+            "canonical_tablebase_budget_exceeded",
+        }
+        else 0
+    )
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
