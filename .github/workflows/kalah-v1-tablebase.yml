@@ -27,5 +27,7 @@ jobs:
         run: python3 -m unittest ml.alphazero_lite.test_kalah_v1_native_tablebase_preflight
       - name: Validate summary/report consistency
         run: python3 ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 8
+      - name: Install Python quality tools
+        run: python3 -m pip install ruff
       - name: Python quality
         run: ruff check ml/alphazero_lite
