@@ -1,0 +1,496 @@
+{
+  "classification": "canonical_tablebase_feasible",
+  "classification_reason": "all correctness and budget gates passed",
+  "environment": {
+    "command": "ml/alphazero_lite/run_kalah_v1_native_tablebase_preflight.py --tier 12 --full-validation --run-scalability --output docs/data/alphazero-lite-kalah-v1-native-tablebase-preflight-full.json",
+    "cpu_count": 32,
+    "platform": "Linux-7.1.9-arch1-2-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
+  },
+  "gates": {
+    "build": {
+      "data": "/home/alex/Mancala/ai/.tmp/kalah_v1_tablebase_build/kalah_v1_tablebase",
+      "status": "passed"
+    },
+    "cited_positions": {
+      "data": {
+        "passed": true
+      },
+      "status": "passed"
+    },
+    "determinism_12": {
+      "data": {
+        "bytes": 5408600,
+        "passed": true,
+        "runs": [
+          {
+            "bytes_per_indexed_state": 1.0000532513656757,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 16224936,
+            "lower_tier_edges": 8004540,
+            "max_tier": 12,
+            "output_bytes": 5408600,
+            "payload_sha256": "d4728322ad902d504a700caef6b74b819453163420e7417f9227e279ad69595a",
+            "peak_rss_kib": 21732,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 8220396,
+            "sha256": "f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452",
+            "states": 5408312,
+            "temporary_disk_peak_bytes": 5408600,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 2.971022929996252
+          },
+          {
+            "bytes_per_indexed_state": 1.0000532513656757,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 16224936,
+            "lower_tier_edges": 8004540,
+            "max_tier": 12,
+            "output_bytes": 5408600,
+            "payload_sha256": "d4728322ad902d504a700caef6b74b819453163420e7417f9227e279ad69595a",
+            "peak_rss_kib": 22152,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 8220396,
+            "sha256": "f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452",
+            "states": 5408312,
+            "temporary_disk_peak_bytes": 5408600,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 2.971628600033
+          }
+        ],
+        "sha256": "f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452",
+        "tier": 12
+      },
+      "status": "passed"
+    },
+    "determinism_8": {
+      "data": {
+        "bytes": 252164,
+        "passed": true,
+        "runs": [
+          {
+            "bytes_per_indexed_state": 1.000889100579503,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 604656,
+            "lower_tier_edges": 280142,
+            "max_tier": 8,
+            "output_bytes": 252164,
+            "payload_sha256": "441341d8825a19ab6126e8194f7045ec36f869173e788bcccce544cfff68ef94",
+            "peak_rss_kib": 4228,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 324514,
+            "sha256": "94ee7c4698bb4b5aa94ce80a1d6900f46a5221c5686f8aa44e2e2cf5e9d3c5cf",
+            "states": 251940,
+            "temporary_disk_peak_bytes": 252164,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 0.08887003699783236
+          },
+          {
+            "bytes_per_indexed_state": 1.000889100579503,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 604656,
+            "lower_tier_edges": 280142,
+            "max_tier": 8,
+            "output_bytes": 252164,
+            "payload_sha256": "441341d8825a19ab6126e8194f7045ec36f869173e788bcccce544cfff68ef94",
+            "peak_rss_kib": 4112,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 324514,
+            "sha256": "94ee7c4698bb4b5aa94ce80a1d6900f46a5221c5686f8aa44e2e2cf5e9d3c5cf",
+            "states": 251940,
+            "temporary_disk_peak_bytes": 252164,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 0.0890151709318161
+          }
+        ],
+        "sha256": "94ee7c4698bb4b5aa94ce80a1d6900f46a5221c5686f8aa44e2e2cf5e9d3c5cf",
+        "tier": 8
+      },
+      "status": "passed"
+    },
+    "generation": {
+      "data": {
+        "bytes_per_indexed_state": 1.0000532513656757,
+        "classification": "ok",
+        "cycles": 0,
+        "edges": 16224936,
+        "lower_tier_edges": 8004540,
+        "max_tier": 12,
+        "output_bytes": 5408600,
+        "payload_sha256": "d4728322ad902d504a700caef6b74b819453163420e7417f9227e279ad69595a",
+        "peak_rss_kib": 22128,
+        "resource_limits": {
+          "address_space_kib": 8388608,
+          "cpu_seconds": 1800,
+          "wall_seconds": 1800
+        },
+        "same_tier_edges": 8220396,
+        "sha256": "f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452",
+        "states": 5408312,
+        "temporary_disk_peak_bytes": 5408600,
+        "thresholds": {
+          "bytes_per_indexed_state": 2,
+          "peak_rss_kib": 8388608,
+          "temporary_disk_bytes": 8589934592,
+          "wall_seconds": 1800
+        },
+        "wall_seconds": 2.9757510899798945
+      },
+      "status": "passed"
+    },
+    "lookup_benchmark": {
+      "data": {
+        "checksum": 2544,
+        "cold_lookup_ns": 10177471,
+        "corpus_sha256": "cce36676004502e358a5d683f7d37a82d2cd528117225f3865a491c23e7ee92a",
+        "load_ns": 115896291,
+        "passed": true,
+        "query_count": 100000,
+        "rss_kib": 130292,
+        "seed": 277,
+        "thresholds": {
+          "warm_lookup_count": 100000,
+          "warm_median_lookup_ns": 1000000,
+          "warm_p95_lookup_ns": 1000000,
+          "warm_throughput_per_second": 100000
+        },
+        "warm_lookup_count": 100000,
+        "warm_lookup_ns": 11479425,
+        "warm_median_lookup_ns": 87,
+        "warm_p95_lookup_ns": 230,
+        "warm_throughput_per_second": 8711237.714432562
+      },
+      "status": "passed"
+    },
+    "portable_format": {
+      "data": {
+        "fixture_count": 19,
+        "fixtures": {
+          "byte_order": true,
+          "checksum": true,
+          "empty": true,
+          "file_length": true,
+          "game_id": true,
+          "generator_revision": true,
+          "magic": true,
+          "max_tier": true,
+          "payload": true,
+          "payload_length": true,
+          "player_encoding": true,
+          "schema": true,
+          "state_count": true,
+          "tier": true,
+          "tier_offset": true,
+          "tier_state_count": true,
+          "trailing_data": true,
+          "truncated": true,
+          "unknown_value": true
+        },
+        "passed": true
+      },
+      "status": "passed"
+    },
+    "projection_18": {
+      "data": {
+        "generation_seconds": 225.89903425003456,
+        "output_bytes": 345978631.76470584,
+        "passed": true,
+        "peak_rss_kib": 1260486.7058823528,
+        "safety_factor": 2,
+        "state_ratio": 8.955882352941176,
+        "thresholds": {
+          "generation_seconds": 28800,
+          "output_bytes": 4294967296,
+          "peak_rss_kib": 16777216
+        }
+      },
+      "status": "passed"
+    },
+    "rank_unrank": {
+      "data": {
+        "one_sided": {
+          "0": 8008,
+          "1": 8008
+        },
+        "passed": true,
+        "states": 1293292
+      },
+      "status": "passed"
+    },
+    "root_action_oracle": {
+      "data": {
+        "actions": 604656,
+        "passed": true,
+        "states": 251940
+      },
+      "status": "passed"
+    },
+    "sample_oracle": {
+      "data": {
+        "passed": true,
+        "query_count": 10000,
+        "seed": 277
+      },
+      "status": "passed"
+    },
+    "scalability": {
+      "data": {
+        "passed": true,
+        "runs": {
+          "10": {
+            "bytes_per_indexed_state": 1.0001979444703903,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 3527160,
+            "lower_tier_edges": 1686366,
+            "max_tier": 10,
+            "output_bytes": 1293548,
+            "payload_sha256": "8603d0a4b184bd7195bfdcd1fdc686ceff1fadf16a673f3663c2d4296d9d7d7a",
+            "peak_rss_kib": 6276,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 1840794,
+            "sha256": "75088e978b7586d79767de4b16097dc81089644da207e41ee65a6cad64d28884",
+            "states": 1293292,
+            "temporary_disk_peak_bytes": 1293548,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 0.5640811349730939
+          },
+          "12": {
+            "bytes_per_indexed_state": 1.0000532513656757,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 16224936,
+            "lower_tier_edges": 8004540,
+            "max_tier": 12,
+            "output_bytes": 5408600,
+            "payload_sha256": "d4728322ad902d504a700caef6b74b819453163420e7417f9227e279ad69595a",
+            "peak_rss_kib": 22136,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 8220396,
+            "sha256": "f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452",
+            "states": 5408312,
+            "temporary_disk_peak_bytes": 5408600,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 2.976685971952975
+          },
+          "14": {
+            "bytes_per_indexed_state": 1.0000165670915435,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 62403600,
+            "lower_tier_edges": 31677320,
+            "max_tier": 14,
+            "output_bytes": 19315720,
+            "payload_sha256": "45fea63bdf4617769c4b9a1dac80031cf8434542e3a1a49c8d7c35f0ffa13806",
+            "peak_rss_kib": 70372,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 30726280,
+            "sha256": "a1e7aebe6ed4f35de28466f8a91004fba36b9b55b31c55c5edecba32f42028ea",
+            "states": 19315400,
+            "temporary_disk_peak_bytes": 19315720,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 12.611768743023276
+          },
+          "8": {
+            "bytes_per_indexed_state": 1.000889100579503,
+            "classification": "ok",
+            "cycles": 0,
+            "edges": 604656,
+            "lower_tier_edges": 280142,
+            "max_tier": 8,
+            "output_bytes": 252164,
+            "payload_sha256": "441341d8825a19ab6126e8194f7045ec36f869173e788bcccce544cfff68ef94",
+            "peak_rss_kib": 4096,
+            "resource_limits": {
+              "address_space_kib": 8388608,
+              "cpu_seconds": 1800,
+              "wall_seconds": 1800
+            },
+            "same_tier_edges": 324514,
+            "sha256": "94ee7c4698bb4b5aa94ce80a1d6900f46a5221c5686f8aa44e2e2cf5e9d3c5cf",
+            "states": 251940,
+            "temporary_disk_peak_bytes": 252164,
+            "thresholds": {
+              "bytes_per_indexed_state": 2,
+              "peak_rss_kib": 8388608,
+              "temporary_disk_bytes": 8589934592,
+              "wall_seconds": 1800
+            },
+            "wall_seconds": 0.08694625599309802
+          }
+        },
+        "tiers": [
+          8,
+          10,
+          12,
+          14
+        ]
+      },
+      "status": "passed"
+    },
+    "store_offset_invariance": {
+      "data": {
+        "margins": [
+          [
+            18,
+            24
+          ],
+          [
+            31,
+            7
+          ]
+        ],
+        "passed": true,
+        "states": 251940
+      },
+      "status": "passed"
+    },
+    "transition_parity": {
+      "data": {
+        "legal_actions": 604656,
+        "passed": true,
+        "states": 251940
+      },
+      "status": "passed"
+    }
+  },
+  "generation": {
+    "data": {
+      "bytes_per_indexed_state": 1.0000532513656757,
+      "classification": "ok",
+      "cycles": 0,
+      "edges": 16224936,
+      "lower_tier_edges": 8004540,
+      "max_tier": 12,
+      "output_bytes": 5408600,
+      "payload_sha256": "d4728322ad902d504a700caef6b74b819453163420e7417f9227e279ad69595a",
+      "peak_rss_kib": 22128,
+      "resource_limits": {
+        "address_space_kib": 8388608,
+        "cpu_seconds": 1800,
+        "wall_seconds": 1800
+      },
+      "same_tier_edges": 8220396,
+      "sha256": "f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452",
+      "states": 5408312,
+      "temporary_disk_peak_bytes": 5408600,
+      "thresholds": {
+        "bytes_per_indexed_state": 2,
+        "peak_rss_kib": 8388608,
+        "temporary_disk_bytes": 8589934592,
+        "wall_seconds": 1800
+      },
+      "wall_seconds": 2.9757510899798945
+    },
+    "status": "passed"
+  },
+  "generator_limits": {
+    "address_space_kib": 8388608,
+    "cpu_seconds": 1800,
+    "wall_seconds": 1800
+  },
+  "reportable": {
+    "classification": "canonical_tablebase_feasible",
+    "failed_gates": [],
+    "generation": {
+      "data": {
+        "bytes_per_indexed_state": 1.0000532513656757,
+        "classification": "ok",
+        "cycles": 0,
+        "edges": 16224936,
+        "lower_tier_edges": 8004540,
+        "max_tier": 12,
+        "output_bytes": 5408600,
+        "payload_sha256": "d4728322ad902d504a700caef6b74b819453163420e7417f9227e279ad69595a",
+        "peak_rss_kib": 22128,
+        "resource_limits": {
+          "address_space_kib": 8388608,
+          "cpu_seconds": 1800,
+          "wall_seconds": 1800
+        },
+        "same_tier_edges": 8220396,
+        "sha256": "f3ff687c9aa7309d93d1ea2647d8e8e21a8ded43e2e943b8511d5a0a8b4ba452",
+        "states": 5408312,
+        "temporary_disk_peak_bytes": 5408600,
+        "thresholds": {
+          "bytes_per_indexed_state": 2,
+          "peak_rss_kib": 8388608,
+          "temporary_disk_bytes": 8589934592,
+          "wall_seconds": 1800
+        },
+        "wall_seconds": 2.9757510899798945
+      },
+      "status": "passed"
+    },
+    "skipped_gates": [],
+    "validation_complete": true
+  },
+  "validation_complete": true
+}
