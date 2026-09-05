@@ -1,0 +1,31 @@
+{
+  "classification": "native_hybrid_exact_teacher_feasible",
+  "corpus": {
+    "input_sha256": "fe9c317f6dace7d5c77eb7214db4739643a5b7d3ac0b83a39be885119b459a59",
+    "seed": 271,
+    "states": 96,
+    "timeout_seconds": 30
+  },
+  "artifact": {
+    "complete_file_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+    "file_size": 172986834,
+    "payload_sha256": "9dc63f403bfcfeb5df06eb4ca358b6276cc73fbaccb3a28ce9cebe913dedb66a",
+    "states": 172986450
+  },
+  "warm": {
+    "solved": 96,
+    "total_elapsed_seconds": 41.920729083707556,
+    "mean_seconds": 0.43667426128862036,
+    "p50_seconds": 0.00197793502593413,
+    "p90_seconds": 0.6572319937054999,
+    "p95_seconds": 3.4818693709152284,
+    "successful_labels_per_cpu_hour": 16415.067131734904,
+    "projected_labels_24_hours": 197859,
+    "conservative_projected_labels_24_hours": 197859,
+    "generation_seconds": 147.16105053701904,
+    "generation_amortized_projected_labels_24_hours": 197170,
+    "bucket_coverage": {"17-24": "32/32", "25-32": "32/32", "33-40": "32/32"}
+  },
+  "fresh": {"solved": 96, "total_elapsed_seconds": 57.55798609578051, "mean_seconds": 0.5995623551643803, "successful_labels_per_cpu_hour": 16039.486095979337, "projected_labels_24_hours": 144105},
+  "training_eligible": false
+}
