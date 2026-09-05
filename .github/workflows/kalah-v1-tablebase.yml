@@ -43,8 +43,19 @@ jobs:
         run: |
           fixture=$(mktemp /tmp/kalah-v1-fixture-XXXXXX.kvtb)
           .tmp/kalah_v1_tablebase_build/kalah_v1_tablebase generate 8 "$fixture"
+          prove_fixture() {
+            python3 - "$fixture" <<'PY'
+          import sys
+          from pathlib import Path
+          from ml.alphazero_lite.run_kalah_v1_tier18_experiment import KvtbReader
+          reader = KvtbReader(Path(sys.argv[1]))
+          assert reader.tier == 8, reader.tier
+          print(f"bounded KVTB fixture: tier={reader.tier} states={reader.states}")
+          PY
+          }
+          prove_fixture
           probe=$(bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah-normal)
-          NATIVE_MTDF_PROBE="$probe" NATIVE_CANONICAL_KVTB="$fixture" python3 -m unittest ml.alphazero_lite.test_native_mtdf_probe ml.alphazero_lite.test_canonical_kvtb_adapter
+          NATIVE_MTDF_PROBE="$probe" NATIVE_CANONICAL_KVTB="$fixture" python3 -m unittest ml.alphazero_lite.test_native_mtdf_probe ml.alphazero_lite.test_canonical_kvtb_adapter ml.alphazero_lite.test_native_hybrid_feasibility
           probe=$(NO_TT=1 bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah-no-tt)
           NATIVE_MTDF_PROBE="$probe" NATIVE_CANONICAL_KVTB="$fixture" python3 -m unittest ml.alphazero_lite.test_native_mtdf_probe
           probe=$(SANITIZE=1 bash script/ai/setup_native_mtdf.sh /tmp/girving-kalah-asan)

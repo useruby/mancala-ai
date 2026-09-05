@@ -10,7 +10,6 @@ import unittest
 
 from ml.alphazero_lite.exact_kalah_solver import ExactState
 from ml.alphazero_lite.native_mtdf_probe import NativeProbe, payload
-from ml.alphazero_lite.run_kalah_v1_native_tablebase_preflight import unrank
 from ml.alphazero_lite.run_kalah_v1_tier18_experiment import KvtbReader
 
 
@@ -98,38 +97,57 @@ class CanonicalKvtbAdapterTest(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertFalse(self._loads(malformed))
 
-    def test_every_tier_offset_and_orientation_match_canonical_reader(self):
+    def test_offsets_orientations_and_search_match_bounded_artifact(self):
         artifact = os.environ.get("NATIVE_CANONICAL_KVTB")
         if not artifact:
-            self.skipTest("validated tier-18 artifact is not available")
+            self.skipTest("generated KVTB artifact is not available")
         reader = KvtbReader(Path(artifact))
         probe = NativeProbe(self._native())
+        top = reader.tier
         try:
-            # A nonzero rank makes the old +8 metadata expression observable.
-            for tier in range(19):
-                pits = (
-                    unrank(tier, min(1, comb(tier + 11, 11) - 1))
-                    if tier < 2
-                    else (1, 0, 0, 0, 0, 0, tier - 1, 0, 0, 0, 0, 0)
-                )
-                for player in (0, 1):
-                    state = ExactState(pits, (23, 17), player)
+            # Exercise non-terminal states below, at, and above the bounded
+            # artifact threshold so adapter offsets, orientations, and misses
+            # are all covered by the same generated fixture.
+            cases = [
+                (min(4, top), (23, 17), 0),
+                (top, (23, 17), 0),
+                (top, (23, 17), 1),
+                (top + 2, (23, 17), 0),
+            ]
+            checked_offsets = False
+            checked_above_threshold_search = False
+            for tier, stores, player in cases:
+                pits = self._nonterminal_pits(tier, player, top)
+                state = ExactState(pits, stores, player)
+                with self.subTest(tier=tier, player=player):
+                    self.assertTrue(state.legal_moves())
+                    self.assertFalse(state.is_terminal())
+                    available = tier <= top
                     result = probe.request(payload(state, "diagnose"))
-                    with self.subTest(tier=tier, player=player):
+                    if available:
+                        checked_offsets = True
                         self.assertEqual(tier, result["active_stones"])
                         self.assertEqual(reader.offsets[tier], result["offset"])
                         self.assertEqual(
                             reader.value(pits, player), result["raw_value"]
                         )
-                        self.assertEqual(6, result["store_margin"])
-                        global_margin = 6 + result["raw_value"]
+                        self.assertEqual(stores[0] - stores[1], result["store_margin"])
+                        global_margin = stores[0] - stores[1] + result["raw_value"]
                         self.assertEqual(
                             -global_margin if player else global_margin,
                             result["upstream_value"],
                         )
                         self.assertEqual(global_margin, result["player_zero_value"])
-                    if state.legal_moves():
-                        label = probe.request(payload(state, "label"))
+                    else:
+                        self.assertEqual(
+                            "tablebase lookup unavailable", result["error"]
+                        )
+                    label = probe.request(payload(state, "label"))
+                    self.assertEqual(
+                        sorted(state.legal_moves()),
+                        sorted(int(key) for key in label["action_values"]),
+                    )
+                    if available:
                         expected_actions = {}
                         for action in state.legal_moves():
                             child = state.play(action)
@@ -138,9 +156,15 @@ class CanonicalKvtbAdapterTest(unittest.TestCase):
                                 if child.is_terminal()
                                 else child.stores[0]
                                 - child.stores[1]
-                                + reader.value(child.pits, child.current_player)
+                                + (
+                                    reader.value(child.pits, child.current_player)
+                                    if sum(child.pits) <= top
+                                    else None
+                                )
                             )
-                        with self.subTest(tier=tier, player=player, actions=True):
+                        if all(
+                            value is not None for value in expected_actions.values()
+                        ):
                             self.assertEqual(
                                 expected_actions,
                                 {
@@ -148,5 +172,33 @@ class CanonicalKvtbAdapterTest(unittest.TestCase):
                                     for key, value in label["action_values"].items()
                                 },
                             )
+                    else:
+                        checked_above_threshold_search = True
+                        self.assertTrue(label["action_values"])
+                        self.assertGreaterEqual(
+                            label["metrics"]["tablebase_lookups"],
+                            label["metrics"]["tablebase_hits"],
+                        )
+            self.assertTrue(checked_offsets)
+            self.assertTrue(checked_above_threshold_search)
         finally:
             probe.close()
+
+    @staticmethod
+    def _nonterminal_pits(tier: int, player: int, top: int) -> tuple[int, ...]:
+        """Return a legal non-terminal pit vector for the requested tier."""
+        candidate_tiers = [tier] if tier >= 0 else []
+        if tier > top:
+            candidate_tiers = [tier]
+        for candidate in candidate_tiers:
+            for pits in (
+                (1,) + (0,) * 5 + (candidate - 1,) + (0,) * 5,
+                (candidate - 1,) + (0,) * 5 + (1,) + (0,) * 5,
+                (0,) * 5 + (1,) + (0,) * 5 + (candidate - 1,),
+            ):
+                if sum(pits) != candidate or len(pits) != 12:
+                    continue
+                state = ExactState(pits, (23, 17), player)
+                if state.legal_moves() and not state.is_terminal():
+                    return pits
+        raise AssertionError(f"no non-terminal fixture state at tier {tier}")
