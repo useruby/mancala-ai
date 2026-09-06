@@ -286,5 +286,83 @@ class BlendLabelBuilderTest(unittest.TestCase):
         self.assertEqual((8000, 27), (x.shape[0], x.shape[1]))
 
 
+class FinetuneOptionTest(unittest.TestCase):
+    def test_train_lane_finetune_matches_current_init(self) -> None:
+        import tempfile
+
+        import torch
+
+        from ml.alphazero_lite.run_exact_teacher_training_ablation import train_lane
+        from ml.alphazero_lite.train import (
+            PolicyValueNet,
+            checkpoint_from_state_dict,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            model = PolicyValueNet((8, 2), "mlp_v1", 27)
+            init = root / "init.npz"
+            np.savez(
+                init,
+                **{
+                    k: np.asarray(v)
+                    for k, v in checkpoint_from_state_dict(model.state_dict()).items()
+                },
+            )
+            rows = [
+                {
+                    "state": [0.1] * 27,
+                    "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    "value": 1.0,
+                }
+                for _ in range(16)
+            ]
+            result = train_lane(
+                rows,
+                model_type="mlp_v1",
+                hidden_sizes=(8, 2),
+                input_encoding="kalah_v3",
+                epochs=1,
+                batch_size=8,
+                lr=1e-3,
+                seed=42,
+                value_loss_weight=0.5,
+                val_split=0.0,
+                device=torch.device("cpu"),
+                lane_dir=root / "lane",
+                init_checkpoint=init,
+                lr_scheduler="none",
+                weight_decay=0.0,
+                trainable_scope="all",
+            )
+            self.assertTrue(Path(result["checkpoint"]).is_file())
+            self.assertIn("checkpoint_sha256", result)
+
+    def test_train_lane_rejects_bad_scheduler(self) -> None:
+        import tempfile
+
+        import torch
+
+        from ml.alphazero_lite.run_exact_teacher_training_ablation import train_lane
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ValueError):
+                train_lane(
+                    [],
+                    model_type="mlp_v1",
+                    hidden_sizes=(8, 2),
+                    input_encoding="kalah_v3",
+                    epochs=1,
+                    batch_size=8,
+                    lr=1e-3,
+                    seed=42,
+                    value_loss_weight=0.5,
+                    val_split=0.0,
+                    device=torch.device("cpu"),
+                    lane_dir=Path(tmp) / "lane",
+                    lr_scheduler="nope",
+                )
+
+
 if __name__ == "__main__":
     unittest.main()

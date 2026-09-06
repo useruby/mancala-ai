@@ -128,6 +128,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=1,
         help="Arena legs to run per lane (1 = single leg, seed 42)",
     )
+    parser.add_argument(
+        "--init-checkpoint",
+        type=Path,
+        default=None,
+        help="Optional .npz checkpoint to finetune from (default: train from scratch)",
+    )
+    parser.add_argument(
+        "--lr-scheduler",
+        default="cosine",
+        choices=["none", "cosine"],
+        help="Learning-rate schedule for train.py",
+    )
+    parser.add_argument(
+        "--weight-decay", type=float, default=0.0, help="Weight decay for train.py"
+    )
+    parser.add_argument(
+        "--trainable-scope",
+        default="all",
+        help="Trainable scope passed to train.py (default: all)",
+    )
     return parser.parse_args(argv)
 
 
@@ -198,7 +218,12 @@ def train_lane(
     val_split: float,
     device: torch.device,
     lane_dir: Path,
+    init_checkpoint: Path | None = None,
+    lr_scheduler: str = "cosine",
+    weight_decay: float = 0.0,
+    trainable_scope: str = "all",
 ) -> dict[str, Any]:
+    from ml.alphazero_lite.train import load_checkpoint_into_model
     from ml.alphazero_lite.train import train as train_fn
 
     lane_dir.mkdir(parents=True, exist_ok=True)
@@ -209,7 +234,9 @@ def train_lane(
         model_type=model_type,
         input_size=input_size_for_encoding(input_encoding),
     )
-    apply_trainable_scope(model, "all")
+    if init_checkpoint is not None:
+        load_checkpoint_into_model(model, Path(init_checkpoint))
+    apply_trainable_scope(model, trainable_scope)
     x, p, v = load_lane_arrays(rows)
     policy_loss, value_loss, best_val = train_fn(
         model,
@@ -227,6 +254,8 @@ def train_lane(
         val_split=val_split,
         grad_clip=1.0,
         save_top_k=0,
+        lr_scheduler=lr_scheduler,
+        weight_decay=weight_decay,
     )
     checkpoint = lane_dir / "checkpoint.npz"
     arrays = {
@@ -486,6 +515,12 @@ def main(argv: list[str] | None = None) -> int:
         "value_loss_weight": float(args.value_loss_weight),
         "val_split": float(args.val_split),
         "lanes": list(lanes),
+        "init_checkpoint": str(args.init_checkpoint)
+        if args.init_checkpoint is not None
+        else None,
+        "lr_scheduler": str(args.lr_scheduler),
+        "weight_decay": float(args.weight_decay),
+        "trainable_scope": str(args.trainable_scope),
     }
     results: dict[str, Any] = {"config": config, "lanes": {}}
     for lane in lanes:
@@ -505,6 +540,10 @@ def main(argv: list[str] | None = None) -> int:
                 val_split=float(args.val_split),
                 device=device,
                 lane_dir=args.workdir / lane / seed_tag,
+                init_checkpoint=args.init_checkpoint,
+                lr_scheduler=str(args.lr_scheduler),
+                weight_decay=float(args.weight_decay),
+                trainable_scope=str(args.trainable_scope),
             )
             artifact = export_artifact(
                 Path(lane_result["checkpoint"]),
