@@ -1,0 +1,14 @@
+{
+  "elapsed_seconds": 352.4,
+  "exact_train_path": "/tmp/azlite_exact_teacher_production/train.jsonl",
+  "policy_target_mode": "default",
+  "schema": "classic_mcts_train_relabel_v1",
+  "seed": 777,
+  "simulations": 1200,
+  "source_ids_identical": true,
+  "source_states_path": "/tmp/azlite_exact_teacher_production/source_states.jsonl",
+  "teacher": "classic_mcts_1200",
+  "train_rows": 8000,
+  "train_sha256": "014ac99af8df40815ba3942658f4f57902952fa184e169923efb2fc7e00a0a5f",
+  "value_target_mode": "default"
+}
