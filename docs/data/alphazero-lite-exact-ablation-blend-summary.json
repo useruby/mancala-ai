@@ -1,0 +1,10 @@
+{
+  "exact_train_path": "/tmp/azlite_exact_teacher_production/train.jsonl",
+  "exact_train_sha256": "bd383b9f281066f3711e066a64e05cf3311548d9d505dc45391502252509d978",
+  "mcts_train_path": "/tmp/azlite_exact_ablation/mcts_train.jsonl",
+  "mcts_train_sha256": "014ac99af8df40815ba3942658f4f57902952fa184e169923efb2fc7e00a0a5f",
+  "schema": "exact_policy_mcts_value_blend_v1",
+  "teacher": "exact_policy_mcts_value_blend",
+  "train_rows": 8000,
+  "train_sha256": "6f69693397f3c35ea30da7f0d4423d50d07a63cbbcf29f3d0cc33f55bd968eb8"
+}

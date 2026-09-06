@@ -7,6 +7,10 @@ from pathlib import Path
 import numpy as np
 
 from ml.alphazero_lite.run_exact_teacher_training_ablation import (
+    aggregate_lane,
+    build_holdout_contrast,
+    parse_lane_list,
+    parse_seed_list,
     score_holdout,
     verify_holdout_disjoint,
     verify_identical_states,
@@ -131,6 +135,155 @@ class HoldoutScoringStructureTest(unittest.TestCase):
             self.assertTrue(row["exact_optimal_actions"])
             self.assertIn(row["exact_value_training"], (-1.0, 0.0, 1.0))
             self.assertEqual(27, len(row["state"]))
+
+
+class LaneAndSeedParsingTest(unittest.TestCase):
+    def test_parse_lane_list_defaults(self) -> None:
+        self.assertEqual(["exact", "mcts"], parse_lane_list("exact,mcts"))
+        self.assertEqual(
+            ["exact", "mcts", "blend"], parse_lane_list("exact,mcts,blend")
+        )
+
+    def test_parse_lane_list_rejects_unknown(self) -> None:
+        with self.assertRaises(ValueError):
+            parse_lane_list("exact,nope")
+
+    def test_parse_lane_list_rejects_duplicates(self) -> None:
+        with self.assertRaises(ValueError):
+            parse_lane_list("exact,exact")
+
+    def test_parse_seed_list(self) -> None:
+        self.assertEqual([42, 43, 44], parse_seed_list("42,43,44"))
+        with self.assertRaises(ValueError):
+            parse_seed_list("42,42")
+
+    def test_aggregate_lane_means(self) -> None:
+        seeds = {
+            "seed42": {
+                "holdout": {
+                    "top_in_exact_set_rate": 0.5,
+                    "value_mae": 0.8,
+                    "policy_cross_entropy_vs_uniform_optimal": 1.4,
+                }
+            },
+            "seed43": {
+                "holdout": {
+                    "top_in_exact_set_rate": 0.6,
+                    "value_mae": 0.7,
+                    "policy_cross_entropy_vs_uniform_optimal": 1.3,
+                }
+            },
+        }
+        agg = aggregate_lane(seeds)
+        self.assertEqual(2, agg["n_seeds"])
+        self.assertAlmostEqual(0.55, agg["top_in_exact_set_rate_mean"])
+        self.assertAlmostEqual(0.75, agg["value_mae_mean"])
+
+    def test_build_holdout_contrast_three_lanes(self) -> None:
+        def lane(rate: float, mae: float) -> dict:
+            return {
+                "holdout": {
+                    "top_in_exact_set_rate": rate,
+                    "value_mae": mae,
+                },
+                "aggregate": {
+                    "top_in_exact_set_rate_mean": rate,
+                    "value_mae_mean": mae,
+                },
+            }
+
+        contrast = build_holdout_contrast(
+            {
+                "exact": lane(0.49, 0.83),
+                "mcts": lane(0.48, 0.77),
+                "blend": lane(0.485, 0.78),
+            }
+        )
+        self.assertAlmostEqual(0.01, contrast["top_in_set_rate_diff_exact_minus_mcts"])
+        self.assertLess(contrast["value_mae_diff_blend_minus_exact"], 0.0)
+        self.assertGreater(contrast["value_mae_diff_blend_minus_mcts"], 0.0)
+
+
+class BlendLabelBuilderTest(unittest.TestCase):
+    def test_blend_takes_exact_policy_and_mcts_value(self) -> None:
+        from ml.alphazero_lite.run_exact_ablation_blend_labels import build_blend_rows
+
+        state = [0.1] * 27
+        exact_rows = [
+            {
+                "source_id": "a",
+                "canonical_state": "k1",
+                "state": list(state),
+                "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "value": 1.0,
+                "policy_target_mode": "default",
+                "player": 0,
+                "move_index": 3,
+                "legal_moves": [0, 1],
+                "teacher": "native_hybrid_exact",
+                "exact_optimal_actions": [0],
+                "exact_root_margin": 4,
+                "exact_value_training": 1.0,
+            }
+        ]
+        mcts_rows = [
+            {
+                "source_id": "a",
+                "canonical_state": "k1",
+                "state": list(state),
+                "policy": [0.5, 0.5, 0.0, 0.0, 0.0, 0.0],
+                "value": 0.25,
+                "value_target_mode": "default",
+                "teacher": "classic_mcts_1200",
+                "teacher_simulations": 1200,
+            }
+        ]
+        blended = build_blend_rows(exact_rows, mcts_rows)
+        self.assertEqual(1, len(blended))
+        self.assertEqual([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], blended[0]["policy"])
+        self.assertEqual(0.25, blended[0]["value"])
+        self.assertEqual("exact_policy_mcts_value_blend", blended[0]["teacher"])
+
+    def test_blend_rejects_state_drift(self) -> None:
+        from ml.alphazero_lite.run_exact_ablation_blend_labels import build_blend_rows
+
+        exact_rows = [
+            {
+                "source_id": "a",
+                "canonical_state": "k1",
+                "state": [0.1] * 27,
+                "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "value": 1.0,
+                "player": 0,
+                "move_index": 0,
+                "legal_moves": [0],
+            }
+        ]
+        mcts_rows = [
+            {
+                "source_id": "a",
+                "canonical_state": "k1",
+                "state": [0.2] * 27,
+                "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "value": 0.5,
+                "player": 0,
+                "move_index": 0,
+                "legal_moves": [0],
+            }
+        ]
+        with self.assertRaises(ValueError):
+            build_blend_rows(exact_rows, mcts_rows)
+
+    def test_frozen_blend_file_validates(self) -> None:
+        blend_path = Path("/tmp/azlite_exact_ablation/blend_train.jsonl")
+        if not blend_path.is_file():
+            self.skipTest("blend file not present")
+        from ml.alphazero_lite.train import load_jsonl
+
+        x, _, _ = load_jsonl(
+            blend_path, policy_target_mode="default", value_target_mode="default"
+        )
+        self.assertEqual((8000, 27), (x.shape[0], x.shape[1]))
 
 
 if __name__ == "__main__":

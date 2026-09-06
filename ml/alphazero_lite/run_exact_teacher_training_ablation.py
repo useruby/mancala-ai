@@ -60,13 +60,15 @@ from ml.alphazero_lite.train import (  # noqa: E402
     set_seed,
 )
 
-LANES = ("exact", "mcts")
+LANES = ("exact", "mcts", "blend")
+DEFAULT_LANES = "exact,mcts"
 DEFAULT_MODEL_TYPE = "mlp_v1"
 DEFAULT_HIDDEN_SIZES = "64,64"
 DEFAULT_EPOCHS = 8
 DEFAULT_BATCH_SIZE = 512
 DEFAULT_LR = 1e-3
 DEFAULT_SEED = 42
+DEFAULT_SEEDS = "42"
 DEFAULT_VALUE_LOSS_WEIGHT = 0.5
 ARENA_CONTEXT = "384:256"
 ARENA_WORKERS = 8
@@ -107,7 +109,47 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--source-states", type=Path, default=None)
     parser.add_argument("--skip-arena", action="store_true")
+    parser.add_argument(
+        "--lanes",
+        default=DEFAULT_LANES,
+        help="Comma-separated subset of exact,mcts,blend",
+    )
+    parser.add_argument(
+        "--blend-train", type=Path, default=None, help="Blended lane train file"
+    )
+    parser.add_argument(
+        "--seeds",
+        default=DEFAULT_SEEDS,
+        help="Comma-separated train seeds; one checkpoint per lane per seed",
+    )
+    parser.add_argument(
+        "--arena-seeds",
+        type=int,
+        default=1,
+        help="Arena legs to run per lane (1 = single leg, seed 42)",
+    )
     return parser.parse_args(argv)
+
+
+def parse_lane_list(text: str) -> list[str]:
+    lanes = [part.strip() for part in str(text).split(",") if part.strip()]
+    if not lanes:
+        raise ValueError("--lanes must name at least one of exact,mcts,blend")
+    unknown = [lane for lane in lanes if lane not in LANES]
+    if unknown:
+        raise ValueError(f"unknown lanes: {unknown}; expected subset of {LANES}")
+    if len(set(lanes)) != len(lanes):
+        raise ValueError("--lanes must not repeat a lane")
+    return lanes
+
+
+def parse_seed_list(text: str) -> list[int]:
+    seeds = [int(part.strip()) for part in str(text).split(",") if part.strip()]
+    if not seeds:
+        raise ValueError("--seeds must name at least one integer seed")
+    if len(set(seeds)) != len(seeds):
+        raise ValueError("--seeds must not repeat a seed")
+    return seeds
 
 
 def verify_identical_states(exact_rows: list[dict], mcts_rows: list[dict]) -> None:
@@ -415,11 +457,21 @@ def bucket_map_for_holdout(args: argparse.Namespace) -> dict[str, str]:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     started = time.monotonic()
-    exact_rows = exact.read_jsonl(args.exact_train)
-    mcts_rows = exact.read_jsonl(args.mcts_train)
+    lanes = parse_lane_list(args.lanes)
+    train_seeds = parse_seed_list(args.seeds)
+    lane_files: dict[str, Path] = {"exact": args.exact_train, "mcts": args.mcts_train}
+    if "blend" in lanes:
+        if args.blend_train is None:
+            raise SystemExit("--blend-train is required when lanes includes blend")
+        lane_files["blend"] = args.blend_train
+    lane_rows: dict[str, list[dict[str, Any]]] = {
+        lane: exact.read_jsonl(lane_files[lane]) for lane in lanes
+    }
     holdout_rows = exact.read_jsonl(args.exact_holdout)
-    verify_identical_states(exact_rows, mcts_rows)
-    verify_holdout_disjoint(exact_rows, holdout_rows)
+    verify_identical_states(lane_rows[lanes[0]], lane_rows[lanes[0]])
+    for lane in lanes[1:]:
+        verify_identical_states(lane_rows[lanes[0]], lane_rows[lane])
+    verify_holdout_disjoint(lane_rows[lanes[0]], holdout_rows)
     bucket_by_source = bucket_map_for_holdout(args)
     hidden_sizes = tuple(int(v) for v in str(args.hidden_sizes).split(","))
     device = torch.device(args.device)
@@ -430,118 +482,151 @@ def main(argv: list[str] | None = None) -> int:
         "epochs": int(args.epochs),
         "batch_size": int(args.batch_size),
         "lr": float(args.lr),
-        "seed": int(args.seed),
+        "seeds": list(train_seeds),
         "value_loss_weight": float(args.value_loss_weight),
         "val_split": float(args.val_split),
+        "lanes": list(lanes),
     }
     results: dict[str, Any] = {"config": config, "lanes": {}}
-    for lane, rows in (("exact", exact_rows), ("mcts", mcts_rows)):
-        lane_result = train_lane(
-            rows,
-            model_type=args.model_type,
-            hidden_sizes=hidden_sizes,
-            input_encoding=args.input_encoding,
-            epochs=int(args.epochs),
-            batch_size=int(args.batch_size),
-            lr=float(args.lr),
-            seed=int(args.seed),
-            value_loss_weight=float(args.value_loss_weight),
-            val_split=float(args.val_split),
-            device=device,
-            lane_dir=args.workdir / lane,
-        )
-        artifact = export_artifact(
-            Path(lane_result["checkpoint"]),
-            args.workdir / lane / "artifact",
-            model_type=args.model_type,
-            input_encoding=args.input_encoding,
-            version=f"exact-ablation-{lane}",
-        )
-        lane_result["artifact"] = str(artifact)
-        lane_result["holdout"] = score_holdout(
-            Path(lane_result["checkpoint"]),
-            holdout_rows,
-            input_encoding=args.input_encoding,
-            bucket_by_source=bucket_by_source,
-        )
-        results["lanes"][lane] = lane_result
-        print(
-            f"lane={lane} policy_loss={lane_result['policy_loss']:.4f} "
-            f"value_loss={lane_result['value_loss']:.4f} "
-            f"holdout_top_in_set={lane_result['holdout']['top_in_exact_set_rate']:.4f} "
-            f"holdout_value_mae={lane_result['holdout']['value_mae']:.4f}",
-            flush=True,
-        )
-    exact_holdout = results["lanes"]["exact"]["holdout"]
-    mcts_holdout = results["lanes"]["mcts"]["holdout"]
-    results["holdout_contrast"] = {
-        "top_in_set_rate_diff_exact_minus_mcts": (
-            exact_holdout["top_in_exact_set_rate"]
-            - mcts_holdout["top_in_exact_set_rate"]
-        ),
-        "value_mae_diff_exact_minus_mcts": (
-            exact_holdout["value_mae"] - mcts_holdout["value_mae"]
-        ),
-    }
+    for lane in lanes:
+        lane_entry: dict[str, Any] = {"seeds": {}}
+        for train_seed in train_seeds:
+            seed_tag = f"seed{train_seed}"
+            lane_result = train_lane(
+                lane_rows[lane],
+                model_type=args.model_type,
+                hidden_sizes=hidden_sizes,
+                input_encoding=args.input_encoding,
+                epochs=int(args.epochs),
+                batch_size=int(args.batch_size),
+                lr=float(args.lr),
+                seed=int(train_seed),
+                value_loss_weight=float(args.value_loss_weight),
+                val_split=float(args.val_split),
+                device=device,
+                lane_dir=args.workdir / lane / seed_tag,
+            )
+            artifact = export_artifact(
+                Path(lane_result["checkpoint"]),
+                args.workdir / lane / seed_tag / "artifact",
+                model_type=args.model_type,
+                input_encoding=args.input_encoding,
+                version=f"exact-ablation-{lane}-{seed_tag}",
+            )
+            lane_result["artifact"] = str(artifact)
+            lane_result["holdout"] = score_holdout(
+                Path(lane_result["checkpoint"]),
+                holdout_rows,
+                input_encoding=args.input_encoding,
+                bucket_by_source=bucket_by_source,
+            )
+            lane_entry["seeds"][seed_tag] = lane_result
+            print(
+                f"lane={lane} {seed_tag} "
+                f"policy_loss={lane_result['policy_loss']:.4f} "
+                f"value_loss={lane_result['value_loss']:.4f} "
+                f"holdout_top_in_set={lane_result['holdout']['top_in_exact_set_rate']:.4f} "
+                f"holdout_value_mae={lane_result['holdout']['value_mae']:.4f}",
+                flush=True,
+            )
+        lane_entry["aggregate"] = aggregate_lane(lane_entry["seeds"])
+        results["lanes"][lane] = lane_entry
+    # Back-compat: single-lane summaries point at the first seed.
+    first_seed = f"seed{train_seeds[0]}"
+    for lane in lanes:
+        results["lanes"][lane]["holdout"] = results["lanes"][lane]["seeds"][first_seed][
+            "holdout"
+        ]
+    results["holdout_contrast"] = build_holdout_contrast(results["lanes"])
     if not args.skip_arena:
+        if int(args.arena_seeds) < 1:
+            raise SystemExit("--arena-seeds must be >= 1")
         suite = args.arena_suite
         current = args.current
         if not suite.is_file():
             raise SystemExit(f"arena suite not found: {suite}")
         if not (current / "weights.json").is_file():
             raise SystemExit(f"current artifact weights not found: {current}")
-        exact_records = run_arena_leg(
-            args.workdir / "arena",
-            Path(results["lanes"]["exact"]["artifact"]),
-            current,
-            suite,
-            context=args.arena_context,
-            workers=args.arena_workers,
-            games_per_opening=args.arena_games_per_opening,
-            role="exact_challenger",
-        )
-        mcts_records = run_arena_leg(
-            args.workdir / "arena",
-            Path(results["lanes"]["mcts"]["artifact"]),
-            current,
-            suite,
-            context=args.arena_context,
-            workers=args.arena_workers,
-            games_per_opening=args.arena_games_per_opening,
-            role="mcts_challenger",
-        )
-        # Head-to-head: exact-challenger vs mcts-challenger as current.
-        h2h = run_arena_leg(
-            args.workdir / "arena",
-            Path(results["lanes"]["exact"]["artifact"]),
-            Path(results["lanes"]["mcts"]["artifact"]),
-            suite,
-            context=args.arena_context,
-            workers=args.arena_workers,
-            games_per_opening=args.arena_games_per_opening,
-            role="exact_vs_mcts",
-        )
-        results["arena"] = {
+        arena_legs = min(int(args.arena_seeds), len(train_seeds))
+        arena_block: dict[str, Any] = {
             "suite": str(suite),
             "suite_sha256": sha256_file(suite),
             "context": args.arena_context,
             "games_per_opening": int(args.arena_games_per_opening),
-            "exact_vs_shared_current_effect": paired_opening_candidate_effect(
-                exact_records, mcts_records
-            ),
-            "head_to_head_exact_vs_mcts": {
-                "games": len(h2h),
-                "exact_score": float(np.mean([score_of(r) for r in h2h])),
-            },
+            "legs": [],
         }
+        leg_effects: list[float] = []
+        leg_lowers: list[float] = []
+        leg_uppers: list[float] = []
+        for leg in range(arena_legs):
+            leg_seed = train_seeds[leg]
+            leg_records: dict[str, list[dict[str, Any]]] = {}
+            for lane in lanes:
+                leg_records[lane] = run_arena_leg(
+                    args.workdir / "arena" / f"leg{leg}",
+                    Path(
+                        results["lanes"][lane]["seeds"][f"seed{leg_seed}"]["artifact"]
+                    ),
+                    current,
+                    suite,
+                    context=args.arena_context,
+                    workers=args.arena_workers,
+                    games_per_opening=args.arena_games_per_opening,
+                    role=f"{lane}_challenger",
+                )
+            leg_entry: dict[str, Any] = {"train_seed": int(leg_seed)}
+            if "exact" in lanes and "mcts" in lanes:
+                leg_effect = paired_opening_candidate_effect(
+                    leg_records["exact"], leg_records["mcts"]
+                )
+                leg_entry["exact_vs_mcts_shared_current"] = leg_effect
+                leg_effects.append(float(leg_effect["paired_candidate_effect"]))
+                leg_lowers.append(float(leg_effect["opening_bootstrap_ci"]["lower_95"]))
+                leg_uppers.append(float(leg_effect["opening_bootstrap_ci"]["upper_95"]))
+            arena_block["legs"].append(leg_entry)
+        if leg_effects:
+            arena_block["exact_vs_mcts_effect_across_legs"] = {
+                "mean": float(np.mean(leg_effects)),
+                "min": float(np.min(leg_effects)),
+                "max": float(np.max(leg_effects)),
+                "all_ci_lower_above_zero": bool(all(v > 0 for v in leg_lowers)),
+            }
+        # Head-to-head on the first leg only (keeps v1 cost).
+        if "exact" in lanes and "mcts" in lanes:
+            h2h_seed = train_seeds[0]
+            h2h = run_arena_leg(
+                args.workdir / "arena" / "leg0",
+                Path(results["lanes"]["exact"]["seeds"][f"seed{h2h_seed}"]["artifact"]),
+                Path(results["lanes"]["mcts"]["seeds"][f"seed{h2h_seed}"]["artifact"]),
+                suite,
+                context=args.arena_context,
+                workers=args.arena_workers,
+                games_per_opening=args.arena_games_per_opening,
+                role="exact_vs_mcts",
+            )
+            arena_block["head_to_head_exact_vs_mcts"] = {
+                "games": len(h2h),
+                "train_seed": int(h2h_seed),
+                "exact_score": float(np.mean([score_of(r) for r in h2h])),
+            }
+            arena_block["exact_vs_shared_current_effect"] = arena_block["legs"][0][
+                "exact_vs_mcts_shared_current"
+            ]
+        results["arena"] = arena_block
     else:
         results["arena"] = {"skipped": True}
+    train_files = {
+        "exact": str(args.exact_train),
+        "mcts": str(args.mcts_train),
+        **({"blend": str(args.blend_train)} if args.blend_train is not None else {}),
+    }
     results.update(
         {
-            "schema": "exact_teacher_training_ablation_v1",
+            "schema": "exact_teacher_training_ablation_v2",
             "exact_train": str(args.exact_train),
             "mcts_train": str(args.mcts_train),
             "exact_holdout": str(args.exact_holdout),
+            "train_files": train_files,
             "exact_train_sha256": sha256_file(args.exact_train),
             "mcts_train_sha256": sha256_file(args.mcts_train),
             "holdout_sha256": sha256_file(args.exact_holdout),
@@ -549,7 +634,6 @@ def main(argv: list[str] | None = None) -> int:
             "elapsed_seconds": round(time.monotonic() - started, 1),
             "provenance": {
                 "torch_version": torch.__version__,
-                "train_seed": int(args.seed),
             },
         }
     )
@@ -559,6 +643,64 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"ablation_written={args.out_summary}")
     return 0
+
+
+def aggregate_lane(seeds: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    rates = [v["holdout"]["top_in_exact_set_rate"] for v in seeds.values()]
+    maes = [v["holdout"]["value_mae"] for v in seeds.values()]
+    ces = [
+        v["holdout"]["policy_cross_entropy_vs_uniform_optimal"] for v in seeds.values()
+    ]
+    return {
+        "n_seeds": len(seeds),
+        "top_in_exact_set_rate_mean": float(np.mean(rates)),
+        "top_in_exact_set_rate_min": float(np.min(rates)),
+        "top_in_exact_set_rate_max": float(np.max(rates)),
+        "value_mae_mean": float(np.mean(maes)),
+        "value_mae_min": float(np.min(maes)),
+        "value_mae_max": float(np.max(maes)),
+        "policy_ce_mean": float(np.mean(ces)),
+    }
+
+
+def build_holdout_contrast(lanes: dict[str, Any]) -> dict[str, Any]:
+    contrast: dict[str, Any] = {}
+    if "exact" in lanes and "mcts" in lanes:
+        exact_holdout = lanes["exact"]["holdout"]
+        mcts_holdout = lanes["mcts"]["holdout"]
+        contrast["top_in_set_rate_diff_exact_minus_mcts"] = (
+            exact_holdout["top_in_exact_set_rate"]
+            - mcts_holdout["top_in_exact_set_rate"]
+        )
+        contrast["value_mae_diff_exact_minus_mcts"] = (
+            exact_holdout["value_mae"] - mcts_holdout["value_mae"]
+        )
+        exact_agg = lanes["exact"]["aggregate"]
+        mcts_agg = lanes["mcts"]["aggregate"]
+        contrast["top_in_set_rate_diff_means_exact_minus_mcts"] = (
+            exact_agg["top_in_exact_set_rate_mean"]
+            - mcts_agg["top_in_exact_set_rate_mean"]
+        )
+        contrast["value_mae_diff_means_exact_minus_mcts"] = (
+            exact_agg["value_mae_mean"] - mcts_agg["value_mae_mean"]
+        )
+    if "blend" in lanes and "mcts" in lanes:
+        blend_holdout = lanes["blend"]["holdout"]
+        mcts_holdout = lanes["mcts"]["holdout"]
+        contrast["top_in_set_rate_diff_blend_minus_mcts"] = (
+            blend_holdout["top_in_exact_set_rate"]
+            - mcts_holdout["top_in_exact_set_rate"]
+        )
+        contrast["value_mae_diff_blend_minus_mcts"] = (
+            blend_holdout["value_mae"] - mcts_holdout["value_mae"]
+        )
+    if "blend" in lanes and "exact" in lanes:
+        blend_holdout = lanes["blend"]["holdout"]
+        exact_holdout = lanes["exact"]["holdout"]
+        contrast["value_mae_diff_blend_minus_exact"] = (
+            blend_holdout["value_mae"] - exact_holdout["value_mae"]
+        )
+    return contrast
 
 
 def score_of(record: dict[str, Any]) -> float:
