@@ -1,0 +1,247 @@
+{
+ "candidates": {
+  "exact/seed42": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.84765625,
+     "ds": 0.08203125,
+     "p0_score": 0.9296875,
+     "p1_score": 0.84765625,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.59375,
+     "ds": 0.1171875,
+     "p0_score": 0.7109375,
+     "p1_score": 0.59375,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.375,
+     "ds": 0.390625,
+     "p0_score": 0.765625,
+     "p1_score": 0.375,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.54296875,
+     "ds": 0.32421875,
+     "p0_score": 0.8671875,
+     "p1_score": 0.54296875,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": true,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": true,
+    "primary_384_256_improved": true,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "fd0707a23c58"
+  },
+  "exact/seed43": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.96875,
+     "ds": -0.25,
+     "p0_score": 0.71875,
+     "p1_score": 0.96875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.6015625,
+     "ds": 0.12890625,
+     "p0_score": 0.73046875,
+     "p1_score": 0.6015625,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.67578125,
+     "ds": 0.02734375,
+     "p0_score": 0.703125,
+     "p1_score": 0.67578125,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.87890625,
+     "ds": -0.12109375,
+     "p0_score": 0.7578125,
+     "p1_score": 0.87890625,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "f37aa4c80961"
+  },
+  "exact/seed44": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.921875,
+     "ds": -0.28515625,
+     "p0_score": 0.63671875,
+     "p1_score": 0.921875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.7578125,
+     "ds": -0.0390625,
+     "p0_score": 0.71875,
+     "p1_score": 0.7578125,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.6484375,
+     "ds": -0.13671875,
+     "p0_score": 0.51171875,
+     "p1_score": 0.6484375,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.92578125,
+     "ds": -0.20703125,
+     "p0_score": 0.71875,
+     "p1_score": 0.92578125,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": false,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": false
+   },
+   "sha12": "8458674442d9"
+  },
+  "mcts/seed42": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.5859375,
+     "ds": -0.140625,
+     "p0_score": 0.4453125,
+     "p1_score": 0.5859375,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.15625,
+     "ds": 0.0078125,
+     "p0_score": 0.1640625,
+     "p1_score": 0.15625,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.44140625,
+     "ds": -0.19140625,
+     "p0_score": 0.25,
+     "p1_score": 0.44140625,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.25,
+     "ds": 0.0859375,
+     "p0_score": 0.3359375,
+     "p1_score": 0.25,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": false,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": true,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "ffd349aff480"
+  },
+  "mcts/seed43": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.7265625,
+     "ds": 0.03125,
+     "p0_score": 0.7578125,
+     "p1_score": 0.7265625,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.84375,
+     "ds": -0.296875,
+     "p0_score": 0.546875,
+     "p1_score": 0.84375,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.734375,
+     "ds": -0.09375,
+     "p0_score": 0.640625,
+     "p1_score": 0.734375,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.73828125,
+     "ds": -0.45703125,
+     "p0_score": 0.28125,
+     "p1_score": 0.73828125,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": false,
+    "non_regression_1200_256": true,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": false
+   },
+   "sha12": "c68d9447d628"
+  },
+  "mcts/seed44": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.6953125,
+     "ds": 0.0625,
+     "p0_score": 0.7578125,
+     "p1_score": 0.6953125,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.9375,
+     "ds": -0.28125,
+     "p0_score": 0.65625,
+     "p1_score": 0.9375,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.59765625,
+     "ds": -0.09765625,
+     "p0_score": 0.5,
+     "p1_score": 0.59765625,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.8203125,
+     "ds": -0.08203125,
+     "p0_score": 0.73828125,
+     "p1_score": 0.8203125,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": false,
+    "non_regression_1200_256": true,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": false
+   },
+   "sha12": "0f72d5a74f62"
+  }
+ },
+ "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+ "schema": "exact_scratch_finetune_attribution_gate_v1",
+ "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+}

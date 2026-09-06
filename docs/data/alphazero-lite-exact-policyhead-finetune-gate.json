@@ -1,0 +1,87 @@
+{
+ "candidates": {
+  "policyhead_e1/seed42": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.98046875,
+     "ds": -0.14453125,
+     "p0_score": 0.8359375,
+     "p1_score": 0.98046875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.1640625,
+     "ds": 0.5546875,
+     "p0_score": 0.71875,
+     "p1_score": 0.1640625,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.3046875,
+     "ds": 0.390625,
+     "p0_score": 0.6953125,
+     "p1_score": 0.3046875,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.94921875,
+     "ds": -0.375,
+     "p0_score": 0.57421875,
+     "p1_score": 0.94921875,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "6f67a770832d"
+  },
+  "policyhead_e2/seed42": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.98046875,
+     "ds": -0.14453125,
+     "p0_score": 0.8359375,
+     "p1_score": 0.98046875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.40625,
+     "ds": 0.32421875,
+     "p0_score": 0.73046875,
+     "p1_score": 0.40625,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.32421875,
+     "ds": 0.37109375,
+     "p0_score": 0.6953125,
+     "p1_score": 0.32421875,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.921875,
+     "ds": -0.265625,
+     "p0_score": 0.65625,
+     "p1_score": 0.921875,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "89d114e81fa0"
+  }
+ },
+ "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+ "schema": "exact_policyhead_finetune_gate_v1",
+ "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+}

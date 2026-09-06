@@ -1,0 +1,180 @@
+{
+  "arena": {
+    "skipped": true
+  },
+  "config": {
+    "batch_size": 512,
+    "epochs": 1,
+    "hidden_sizes": [
+      96,
+      3
+    ],
+    "init_checkpoint": "/tmp/azlite_exact_promotion/inputs/current_from_weights_json.npz",
+    "input_encoding": "kalah_v3",
+    "lanes": [
+      "exact"
+    ],
+    "lr": 1e-05,
+    "lr_scheduler": "none",
+    "model_type": "residual_v3",
+    "seeds": [
+      42,
+      43
+    ],
+    "trainable_scope": "policy_head",
+    "val_split": 0.1,
+    "value_loss_weight": 0.3,
+    "weight_decay": 0.0
+  },
+  "elapsed_seconds": 4.1,
+  "exact_holdout": "/tmp/azlite_exact_teacher_production/holdout.jsonl",
+  "exact_train": "/tmp/azlite_exact_teacher_production/train.jsonl",
+  "exact_train_sha256": "bd383b9f281066f3711e066a64e05cf3311548d9d505dc45391502252509d978",
+  "holdout_contrast": {},
+  "holdout_sha256": "a53a304c66cf84fc461df3b6248c328b521b776e6296fcfad13690958b3e0d16",
+  "identical_state_vectors": true,
+  "lanes": {
+    "exact": {
+      "aggregate": {
+        "n_seeds": 2,
+        "policy_ce_mean": 1.4325618159973497,
+        "top_in_exact_set_rate_max": 0.377,
+        "top_in_exact_set_rate_mean": 0.3765,
+        "top_in_exact_set_rate_min": 0.376,
+        "value_mae_max": 0.7959402287103531,
+        "value_mae_mean": 0.7959402287103531,
+        "value_mae_min": 0.7959402287103531
+      },
+      "holdout": {
+        "by_bucket": {
+          "17-24": {
+            "n": 502,
+            "top_in_exact_set_rate": 0.3745019920318725,
+            "value_mae": 0.7610764220305399
+          },
+          "25-32": {
+            "n": 576,
+            "top_in_exact_set_rate": 0.3420138888888889,
+            "value_mae": 0.8278737093087459
+          },
+          "33-40": {
+            "n": 684,
+            "top_in_exact_set_rate": 0.3333333333333333,
+            "value_mae": 0.8552452098465567
+          },
+          "8-16": {
+            "n": 238,
+            "top_in_exact_set_rate": 0.5840336134453782,
+            "value_mae": 0.6217525775819058
+          }
+        },
+        "multi_n": 619,
+        "multi_rate": 0.3095,
+        "n": 2000,
+        "policy_cross_entropy_vs_uniform_optimal": 1.432563997853379,
+        "single_n": 1381,
+        "single_top1_agreement": 0.2983345401882694,
+        "top_in_exact_set": 752,
+        "top_in_exact_set_rate": 0.376,
+        "value_mae": 0.7959402287103531,
+        "value_max_ae": 1.7697599293156405
+      },
+      "seeds": {
+        "seed42": {
+          "artifact": "/tmp/azlite_exact_ph/ph1/exact/seed42/artifact",
+          "best_val_loss": 1.6216166019439697,
+          "checkpoint": "/tmp/azlite_exact_ph/ph1/exact/seed42/checkpoint.npz",
+          "checkpoint_sha256": "aa117412dc1d9b432b0ecf86fae6af121d727f3a3e6e6937e3700bd2ee56f388",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.3745019920318725,
+                "value_mae": 0.7610764220305399
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.3420138888888889,
+                "value_mae": 0.8278737093087459
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.3333333333333333,
+                "value_mae": 0.8552452098465567
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5840336134453782,
+                "value_mae": 0.6217525775819058
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.432563997853379,
+            "single_n": 1381,
+            "single_top1_agreement": 0.2983345401882694,
+            "top_in_exact_set": 752,
+            "top_in_exact_set_rate": 0.376,
+            "value_mae": 0.7959402287103531,
+            "value_max_ae": 1.7697599293156405
+          },
+          "policy_loss": 1.5073962767918905,
+          "value_loss": 0.3379628658294678
+        },
+        "seed43": {
+          "artifact": "/tmp/azlite_exact_ph/ph1/exact/seed43/artifact",
+          "best_val_loss": 1.6457350254058838,
+          "checkpoint": "/tmp/azlite_exact_ph/ph1/exact/seed43/checkpoint.npz",
+          "checkpoint_sha256": "ee312f504530818fa8c6fac6f459cbcba5678945521afe1d68e4d8144fcf8caa",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.3745019920318725,
+                "value_mae": 0.7610764220305399
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.34375,
+                "value_mae": 0.8278737093087459
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.3347953216374269,
+                "value_mae": 0.8552452098465567
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5840336134453782,
+                "value_mae": 0.6217525775819058
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4325596341413203,
+            "single_n": 1381,
+            "single_top1_agreement": 0.2990586531498914,
+            "top_in_exact_set": 754,
+            "top_in_exact_set_rate": 0.377,
+            "value_mae": 0.7959402287103531,
+            "value_max_ae": 1.7697599293156405
+          },
+          "policy_loss": 1.5118911902109782,
+          "value_loss": 0.33924438754717506
+        }
+      }
+    }
+  },
+  "mcts_train": "/tmp/azlite_exact_ablation/mcts_train.jsonl",
+  "mcts_train_sha256": "014ac99af8df40815ba3942658f4f57902952fa184e169923efb2fc7e00a0a5f",
+  "provenance": {
+    "torch_version": "2.12.0+cu130"
+  },
+  "schema": "exact_teacher_training_ablation_v2",
+  "train_files": {
+    "exact": "/tmp/azlite_exact_teacher_production/train.jsonl",
+    "mcts": "/tmp/azlite_exact_ablation/mcts_train.jsonl"
+  }
+}
