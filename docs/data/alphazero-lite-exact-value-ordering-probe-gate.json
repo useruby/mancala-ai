@@ -1,0 +1,128 @@
+{
+ "candidates": {
+  "margin48_mcts": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.9375,
+     "ds": -0.26953125,
+     "p0_score": 0.66796875,
+     "p1_score": 0.9375,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.609375,
+     "ds": 0.0,
+     "p0_score": 0.609375,
+     "p1_score": 0.609375,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.6015625,
+     "ds": 0.16796875,
+     "p0_score": 0.76953125,
+     "p1_score": 0.6015625,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.25390625,
+     "ds": 0.61328125,
+     "p0_score": 0.8671875,
+     "p1_score": 0.25390625,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": true,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "18d405252656"
+  },
+  "margin_tanh_blend": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.9296875,
+     "ds": -0.1875,
+     "p0_score": 0.7421875,
+     "p1_score": 0.9296875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.359375,
+     "ds": 0.2890625,
+     "p0_score": 0.6484375,
+     "p1_score": 0.359375,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.859375,
+     "ds": -0.453125,
+     "p0_score": 0.40625,
+     "p1_score": 0.859375,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.7109375,
+     "ds": 0.15625,
+     "p0_score": 0.8671875,
+     "p1_score": 0.7109375,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": false,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": true,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "57a18ce94aec"
+  },
+  "sign_exact": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.9921875,
+     "ds": -0.0859375,
+     "p0_score": 0.90625,
+     "p1_score": 0.9921875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.4453125,
+     "ds": 0.296875,
+     "p0_score": 0.7421875,
+     "p1_score": 0.4453125,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.640625,
+     "ds": 0.1015625,
+     "p0_score": 0.7421875,
+     "p1_score": 0.640625,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.734375,
+     "ds": 0.21875,
+     "p0_score": 0.953125,
+     "p1_score": 0.734375,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": true,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "d79bbfaa00b0"
+  }
+ },
+ "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+ "schema": "exact_value_ordering_probe_gate_v1",
+ "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+ "train_seed": 42
+}

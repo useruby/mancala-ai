@@ -286,6 +286,60 @@ class BlendLabelBuilderTest(unittest.TestCase):
         self.assertEqual((8000, 27), (x.shape[0], x.shape[1]))
 
 
+class ValueVariantBuilderTest(unittest.TestCase):
+    def test_margin48_preserves_order_and_identity(self) -> None:
+        from ml.alphazero_lite.run_exact_value_variant_labels import (
+            build_variant_rows,
+            root_perspective_margin,
+            variant_value,
+        )
+
+        self.assertEqual(6, root_perspective_margin(6, 0))
+        self.assertEqual(-6, root_perspective_margin(6, 1))
+        self.assertAlmostEqual(0.125, variant_value(6, "margin48"))
+        with self.assertRaises(ValueError):
+            variant_value(6, "nope")
+        exact_rows = [
+            {
+                "source_id": "a",
+                "canonical_state": "k1",
+                "state": [0.1] * 27,
+                "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "value": 1.0,
+                "policy_target_mode": "default",
+                "value_target_mode": "default",
+                "player": 1,
+                "move_index": 0,
+                "legal_moves": [0],
+                "exact_root_margin": -24,
+            }
+        ]
+        rows = build_variant_rows(exact_rows, "margin48")
+        # player 1, player-zero margin -24 => root margin +24 => +0.5
+        self.assertAlmostEqual(0.5, rows[0]["value"])
+        self.assertEqual(exact_rows[0]["policy"], rows[0]["policy"])
+        self.assertEqual(exact_rows[0]["state"], rows[0]["state"])
+
+    def test_variant_rejects_missing_margin(self) -> None:
+        from ml.alphazero_lite.run_exact_value_variant_labels import build_variant_rows
+
+        with self.assertRaises(ValueError):
+            build_variant_rows([{"source_id": "a"}], "margin48")
+
+    def test_frozen_margin48_file_validates(self) -> None:
+        variant_path = Path("/tmp/azlite_exact_valueprobe/margin48_train.jsonl")
+        if not variant_path.is_file():
+            self.skipTest("margin48 file not present")
+        from ml.alphazero_lite.train import load_jsonl
+
+        x, _, v = load_jsonl(
+            variant_path, policy_target_mode="default", value_target_mode="default"
+        )
+        self.assertEqual((20799, 27), (x.shape[0], x.shape[1]))
+        self.assertGreaterEqual(float(v.min()), -1.0)
+        self.assertLessEqual(float(v.max()), 1.0)
+
+
 class FinetuneOptionTest(unittest.TestCase):
     def test_train_lane_finetune_matches_current_init(self) -> None:
         import tempfile
