@@ -1,0 +1,82 @@
+{
+  "arena": {
+    "benchmark_report_sha256": "1450be3e98822efc1dc15d4ff257fcddcbff367577d4af61fbfcee1e1b8a9c7d",
+    "budget_results": {
+      "control_384_192": {
+        "1200:1200": {
+          "opening_bootstrap_ci": [-0.119140625, 0.005859375],
+          "paired_candidate_effect": -0.056640625
+        },
+        "384:256": {
+          "opening_bootstrap_ci": [-0.306640625, -0.201171875],
+          "paired_candidate_effect": -0.25390625
+        }
+      },
+      "opening1200_rest192": {
+        "1200:1200": {
+          "opening_bootstrap_ci": [0.0859375, 0.208984375],
+          "paired_candidate_effect": 0.1484375
+        },
+        "384:256": {
+          "opening_bootstrap_ci": [-0.06640625, 0.052734375],
+          "paired_candidate_effect": -0.005859375
+        }
+      },
+      "uniform1200": {
+        "1200:1200": {
+          "opening_bootstrap_ci": [0.36328125, 0.4453125],
+          "paired_candidate_effect": 0.40625
+        },
+        "384:256": {
+          "opening_bootstrap_ci": [-0.01171875, 0.1171875],
+          "paired_candidate_effect": 0.052734375
+        }
+      }
+    },
+    "games_per_opening": 2,
+    "root_policy_mode": "deterministic",
+    "seed": 42,
+    "suite_rows": 128,
+    "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+  },
+  "classification": "uniform1200_dominates_phase_specific_budget",
+  "effective_workers": 24,
+  "lanes": {
+    "control_384_192": {
+      "checkpoint_sha256": "cee3a843334f716b7dd1d1661c0018675127e5bea5d941cff6c676103307ea4e",
+      "effective_simulation_counts": {
+        "192": 51159,
+        "384": 12800
+      },
+      "replay_rows": 63959,
+      "replay_sha256": "a8b9e6cf5b453db49b695e474c64a8432e5fc59f688cbdbcde3559e342ea73a8",
+      "weights_sha256": "afb961d72aa2548afae006b924344462f10c1a4d49f5e9ed505b85e57ca23ac1"
+    },
+    "opening1200_rest192": {
+      "checkpoint_sha256": "51b7256011548842fa353f796b318b336caa2dd960ce38349e80f5addfdf4d60",
+      "effective_simulation_counts": {
+        "192": 52128,
+        "1200": 12800
+      },
+      "replay_rows": 64928,
+      "replay_sha256": "10dcfc501821a16e22010ffb5955005199180cb4d78c7f0997567858f8bc6829",
+      "weights_sha256": "660c37407859f1296b4a3bb3c78380533a9382911f4052c24f5b8a2e6fe8675d"
+    },
+    "uniform1200": {
+      "checkpoint_sha256": "263418dfe9fbd48b8decc384f975289366d10cdddd67d854776c30eaa59fe86a",
+      "effective_simulation_counts": {
+        "1200": 71106
+      },
+      "replay_rows": 71106,
+      "replay_sha256": "d197bd7171838935001ad1a6900dfa0436ffbcd10063d653cf4b9e11e83c803c",
+      "weights_sha256": "8671edd37a5b7d3b7a708c0f1ddf11a35e9560bf9debfa1b9ff2dce6c3a10615"
+    }
+  },
+  "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "promotion": {
+    "performed": false,
+    "reason": "controlled_ablation_only"
+  },
+  "regenerated_baseline": true,
+  "schema": "azlite_phase_specific_selfplay_budget_ablation_v1"
+}
