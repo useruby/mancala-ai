@@ -265,13 +265,19 @@ def cache_is_reusable(
 
 
 def evidence_cache_is_reusable(
-    metadata: dict[str, Any], expected_manifest: dict[str, Any], record_path: Path
+    metadata: dict[str, Any],
+    expected_manifest: dict[str, Any],
+    record_path: Path,
+    *,
+    expected_games: int,
 ) -> bool:
     """Verify a seat-level candidate or control cache before using its records."""
+    entries = parse_game_jsonl(str(record_path)) if record_path.is_file() else []
     return (
         cache_matches(metadata.get("cache_manifest", {}), expected_manifest)
         and metadata.get("record_sha256") == record_files_sha256([record_path])
-        and bool(parse_game_jsonl(str(record_path)))
+        and metadata.get("games") == expected_games
+        and len(entries) == expected_games
     )
 
 
@@ -763,7 +769,10 @@ def main() -> int:
                         if seat_meta_path.is_file():
                             cached_seat = load_json(seat_meta_path)
                             if Path(seat_json).is_file() and evidence_cache_is_reusable(
-                                cached_seat, seat_context, Path(seat_jsonl)
+                                cached_seat,
+                                seat_context,
+                                Path(seat_jsonl),
+                                expected_games=total_games,
                             ):
                                 game_entries = parse_game_jsonl(seat_jsonl)
                                 if game_entries:
@@ -853,6 +862,7 @@ def main() -> int:
                                 load_json(control_meta_path),
                                 control_context,
                                 Path(control_jsonl),
+                                expected_games=total_games,
                             )
                         ):
                             control_report = run_arena(

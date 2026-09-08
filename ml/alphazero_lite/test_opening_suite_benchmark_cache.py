@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from ml.alphazero_lite.run_opening_suite_seat_benchmark import (
     METRIC_SCHEMA_VERSION,
     cache_is_reusable,
+    evidence_cache_is_reusable,
     record_files_sha256,
 )
 
@@ -106,3 +107,27 @@ def test_valid_v2_cache_is_reused(tmp_path: Path) -> None:
         candidate_record_paths=candidate,
         control_record_paths=control,
     )
+
+
+def test_partial_seat_evidence_is_not_reused(tmp_path: Path) -> None:
+    record = tmp_path / "partial.jsonl"
+    record.write_text('{"opening_index": 0}\n', encoding="utf-8")
+    metadata = {
+        "cache_manifest": _manifest(),
+        "record_sha256": record_files_sha256([record]),
+        "games": 1,
+    }
+    assert not evidence_cache_is_reusable(
+        metadata, _manifest(), record, expected_games=2
+    )
+
+
+def test_complete_seat_evidence_is_reused(tmp_path: Path) -> None:
+    record = tmp_path / "complete.jsonl"
+    record.write_text('{"opening_index": 0}\n{"opening_index": 1}\n', encoding="utf-8")
+    metadata = {
+        "cache_manifest": _manifest(),
+        "record_sha256": record_files_sha256([record]),
+        "games": 2,
+    }
+    assert evidence_cache_is_reusable(metadata, _manifest(), record, expected_games=2)
