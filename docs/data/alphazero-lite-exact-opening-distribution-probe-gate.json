@@ -1,0 +1,87 @@
+{
+ "candidates": {
+  "opening_seed42": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.0859375,
+     "ds": 0.296875,
+     "p0_score": 0.3828125,
+     "p1_score": 0.0859375,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.0,
+     "ds": 0.21875,
+     "p0_score": 0.21875,
+     "p1_score": 0.0,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.0,
+     "ds": 0.3828125,
+     "p0_score": 0.3828125,
+     "p1_score": 0.0,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.0,
+     "ds": 0.1953125,
+     "p0_score": 0.1953125,
+     "p1_score": 0.0,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": true,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": true,
+    "primary_384_256_improved": true,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "1b9be79c12ff"
+  },
+  "opening_seed43": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.0,
+     "ds": 0.109375,
+     "p0_score": 0.109375,
+     "p1_score": 0.0,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.09375,
+     "ds": -0.0390625,
+     "p0_score": 0.0546875,
+     "p1_score": 0.09375,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.21484375,
+     "ds": 0.17578125,
+     "p0_score": 0.390625,
+     "p1_score": 0.21484375,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.3359375,
+     "ds": -0.3203125,
+     "p0_score": 0.015625,
+     "p1_score": 0.3359375,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": true,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": false
+   },
+   "sha12": "0419da386a54"
+  }
+ },
+ "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+ "schema": "exact_opening_distribution_probe_gate_v1",
+ "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+}

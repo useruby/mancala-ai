@@ -1,0 +1,135 @@
+{
+  "arena": {
+    "skipped": true
+  },
+  "config": {
+    "batch_size": 512,
+    "epochs": 46,
+    "hidden_sizes": [
+      96,
+      3
+    ],
+    "init_checkpoint": null,
+    "input_encoding": "kalah_v3",
+    "lanes": [
+      "exact"
+    ],
+    "lr": 0.001,
+    "lr_scheduler": "cosine",
+    "model_type": "residual_v3",
+    "seeds": [
+      42,
+      43
+    ],
+    "trainable_scope": "all",
+    "val_split": 0.1,
+    "value_loss_weight": 0.5,
+    "weight_decay": 0.0
+  },
+  "elapsed_seconds": 48.0,
+  "exact_holdout": "/tmp/azlite_exact_opening/opening_labeled_holdout.jsonl",
+  "exact_train": "/tmp/azlite_exact_opening/opening_labeled_train.jsonl",
+  "exact_train_sha256": "5d03e8cb74e81d5df7ae272c8a6fc7b3613a901fa7f815dde26894069da89d0d",
+  "holdout_contrast": {},
+  "holdout_sha256": "634f3ccaf593eaa0012614f43e6371d3ffacb916231b2467a1a303f6632b4ac4",
+  "identical_state_vectors": true,
+  "lanes": {
+    "exact": {
+      "aggregate": {
+        "n_seeds": 2,
+        "policy_ce_mean": 1.5357052843233396,
+        "top_in_exact_set_rate_max": 0.36114911080711354,
+        "top_in_exact_set_rate_mean": 0.35841313269493846,
+        "top_in_exact_set_rate_min": 0.35567715458276333,
+        "value_mae_max": 0.6793427752117386,
+        "value_mae_mean": 0.6579432857826437,
+        "value_mae_min": 0.6365437963535489
+      },
+      "holdout": {
+        "by_bucket": {
+          "41-plus": {
+            "n": 731,
+            "top_in_exact_set_rate": 0.35567715458276333,
+            "value_mae": 0.6365437963535491
+          }
+        },
+        "multi_n": 92,
+        "multi_rate": 0.12585499316005472,
+        "n": 731,
+        "policy_cross_entropy_vs_uniform_optimal": 1.5427928165545677,
+        "single_n": 639,
+        "single_top1_agreement": 0.3364632237871675,
+        "top_in_exact_set": 260,
+        "top_in_exact_set_rate": 0.35567715458276333,
+        "value_mae": 0.6365437963535489,
+        "value_max_ae": 1.9845658828532375
+      },
+      "seeds": {
+        "seed42": {
+          "artifact": "/tmp/azlite_exact_opening_train/exact/seed42/artifact",
+          "best_val_loss": 1.2839393615722656,
+          "checkpoint": "/tmp/azlite_exact_opening_train/exact/seed42/checkpoint.npz",
+          "checkpoint_sha256": "3bd109c52afe6b6da9adb5f40d694a982857866740ea82d8ea1aa76b5dab9aad",
+          "holdout": {
+            "by_bucket": {
+              "41-plus": {
+                "n": 731,
+                "top_in_exact_set_rate": 0.35567715458276333,
+                "value_mae": 0.6365437963535491
+              }
+            },
+            "multi_n": 92,
+            "multi_rate": 0.12585499316005472,
+            "n": 731,
+            "policy_cross_entropy_vs_uniform_optimal": 1.5427928165545677,
+            "single_n": 639,
+            "single_top1_agreement": 0.3364632237871675,
+            "top_in_exact_set": 260,
+            "top_in_exact_set_rate": 0.35567715458276333,
+            "value_mae": 0.6365437963535489,
+            "value_max_ae": 1.9845658828532375
+          },
+          "policy_loss": 1.1800033847490947,
+          "value_loss": 0.2151772826910019
+        },
+        "seed43": {
+          "artifact": "/tmp/azlite_exact_opening_train/exact/seed43/artifact",
+          "best_val_loss": 1.3797441720962524,
+          "checkpoint": "/tmp/azlite_exact_opening_train/exact/seed43/checkpoint.npz",
+          "checkpoint_sha256": "92c27c1548451afc5fc86d2a5a5db1d50f785db0a3c0891cde70d38023367e2e",
+          "holdout": {
+            "by_bucket": {
+              "41-plus": {
+                "n": 731,
+                "top_in_exact_set_rate": 0.36114911080711354,
+                "value_mae": 0.6793427752117386
+              }
+            },
+            "multi_n": 92,
+            "multi_rate": 0.12585499316005472,
+            "n": 731,
+            "policy_cross_entropy_vs_uniform_optimal": 1.5286177520921116,
+            "single_n": 639,
+            "single_top1_agreement": 0.3489827856025039,
+            "top_in_exact_set": 264,
+            "top_in_exact_set_rate": 0.36114911080711354,
+            "value_mae": 0.6793427752117386,
+            "value_max_ae": 1.9352343122701456
+          },
+          "policy_loss": 1.1893981297810872,
+          "value_loss": 0.25463193903366727
+        }
+      }
+    }
+  },
+  "mcts_train": "/tmp/azlite_exact_opening/opening_labeled_train.jsonl",
+  "mcts_train_sha256": "5d03e8cb74e81d5df7ae272c8a6fc7b3613a901fa7f815dde26894069da89d0d",
+  "provenance": {
+    "torch_version": "2.12.0+cu130"
+  },
+  "schema": "exact_teacher_training_ablation_v2",
+  "train_files": {
+    "exact": "/tmp/azlite_exact_opening/opening_labeled_train.jsonl",
+    "mcts": "/tmp/azlite_exact_opening/opening_labeled_train.jsonl"
+  }
+}

@@ -1,0 +1,578 @@
+{
+  "arena": {
+    "skipped": true
+  },
+  "config": {
+    "batch_size": 512,
+    "epochs": 8,
+    "hidden_sizes": [
+      64,
+      64
+    ],
+    "input_encoding": "kalah_v3",
+    "lanes": [
+      "exact",
+      "mcts",
+      "blend"
+    ],
+    "lr": 0.001,
+    "model_type": "mlp_v1",
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "val_split": 0.1,
+    "value_loss_weight": 0.5
+  },
+  "elapsed_seconds": 8.6,
+  "exact_holdout": "/tmp/azlite_exact_teacher_production/holdout.jsonl",
+  "exact_train": "/tmp/azlite_exact_teacher_production/train.jsonl",
+  "exact_train_sha256": "bd383b9f281066f3711e066a64e05cf3311548d9d505dc45391502252509d978",
+  "holdout_contrast": {
+    "top_in_set_rate_diff_blend_minus_mcts": 0.0020000000000000018,
+    "top_in_set_rate_diff_exact_minus_mcts": 0.0015000000000000013,
+    "top_in_set_rate_diff_means_exact_minus_mcts": 0.0034999999999999476,
+    "value_mae_diff_blend_minus_exact": -0.062264497505756355,
+    "value_mae_diff_blend_minus_mcts": -0.0018255476012529748,
+    "value_mae_diff_exact_minus_mcts": 0.06043894990450338,
+    "value_mae_diff_means_exact_minus_mcts": 0.05790661827122712
+  },
+  "holdout_sha256": "a53a304c66cf84fc461df3b6248c328b521b776e6296fcfad13690958b3e0d16",
+  "identical_state_vectors": true,
+  "lanes": {
+    "blend": {
+      "aggregate": {
+        "n_seeds": 3,
+        "policy_ce_mean": 1.418366115104477,
+        "top_in_exact_set_rate_max": 0.4885,
+        "top_in_exact_set_rate_mean": 0.48766666666666664,
+        "top_in_exact_set_rate_min": 0.4865,
+        "value_mae_max": 0.7693494166392917,
+        "value_mae_mean": 0.7627308296309246,
+        "value_mae_min": 0.7523072518567125
+      },
+      "holdout": {
+        "by_bucket": {
+          "17-24": {
+            "n": 502,
+            "top_in_exact_set_rate": 0.5159362549800797,
+            "value_mae": 0.7838235803491347
+          },
+          "25-32": {
+            "n": 576,
+            "top_in_exact_set_rate": 0.484375,
+            "value_mae": 0.7505579799544291
+          },
+          "33-40": {
+            "n": 684,
+            "top_in_exact_set_rate": 0.44298245614035087,
+            "value_mae": 0.7764372379670258
+          },
+          "8-16": {
+            "n": 238,
+            "top_in_exact_set_rate": 0.5672268907563025,
+            "value_mae": 0.76392827193328
+          }
+        },
+        "multi_n": 619,
+        "multi_rate": 0.3095,
+        "n": 2000,
+        "policy_cross_entropy_vs_uniform_optimal": 1.4185737031647665,
+        "single_n": 1381,
+        "single_top1_agreement": 0.4069514844315713,
+        "top_in_exact_set": 976,
+        "top_in_exact_set_rate": 0.488,
+        "value_mae": 0.7693494166392917,
+        "value_max_ae": 1.5729683393319596
+      },
+      "seeds": {
+        "seed42": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/blend/seed42/artifact",
+          "best_val_loss": 1.2685245275497437,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/blend/seed42/checkpoint.npz",
+          "checkpoint_sha256": "38c685cc5f562f5a57b05c6b028535f932be8932be98ed1ec58c0235fb2c0d8e",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5159362549800797,
+                "value_mae": 0.7838235803491347
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.484375,
+                "value_mae": 0.7505579799544291
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.44298245614035087,
+                "value_mae": 0.7764372379670258
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5672268907563025,
+                "value_mae": 0.76392827193328
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4185737031647665,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4069514844315713,
+            "top_in_exact_set": 976,
+            "top_in_exact_set_rate": 0.488,
+            "value_mae": 0.7693494166392917,
+            "value_max_ae": 1.5729683393319596
+          },
+          "policy_loss": 1.204873832066854,
+          "value_loss": 0.13523617188135784
+        },
+        "seed43": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/blend/seed43/artifact",
+          "best_val_loss": 1.2992408275604248,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/blend/seed43/checkpoint.npz",
+          "checkpoint_sha256": "6966866e1d811b7ce5bab3b7039a0594df5d70e154ca1613dbd90fc9df8cb5d2",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5099601593625498,
+                "value_mae": 0.7843628855410213
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.4878472222222222,
+                "value_mae": 0.7475072116982665
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.4371345029239766,
+                "value_mae": 0.7698325311971239
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5756302521008403,
+                "value_mae": 0.7655120461130817
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.42099603742081,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4047791455467053,
+            "top_in_exact_set": 973,
+            "top_in_exact_set_rate": 0.4865,
+            "value_mae": 0.7665358203967697,
+            "value_max_ae": 1.5943183419312015
+          },
+          "policy_loss": 1.1944252332051595,
+          "value_loss": 0.1293497363726298
+        },
+        "seed44": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/blend/seed44/artifact",
+          "best_val_loss": 1.2471901178359985,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/blend/seed44/checkpoint.npz",
+          "checkpoint_sha256": "e123615921781978be48a61b55cd0d86ea8dcbcab523dc645e65bf06843fc128",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5119521912350598,
+                "value_mae": 0.769604668075
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.4913194444444444,
+                "value_mae": 0.7298324800915594
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.43859649122807015,
+                "value_mae": 0.7581100514216942
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5756302521008403,
+                "value_mae": 0.7535385572882296
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.415528604727855,
+            "single_n": 1381,
+            "single_top1_agreement": 0.40333091962346124,
+            "top_in_exact_set": 977,
+            "top_in_exact_set_rate": 0.4885,
+            "value_mae": 0.7523072518567125,
+            "value_max_ae": 1.63216399131273
+          },
+          "policy_loss": 1.198786703745524,
+          "value_loss": 0.13445497701565426
+        }
+      }
+    },
+    "exact": {
+      "aggregate": {
+        "n_seeds": 3,
+        "policy_ce_mean": 1.4170799138736532,
+        "top_in_exact_set_rate_max": 0.4945,
+        "top_in_exact_set_rate_mean": 0.48899999999999993,
+        "top_in_exact_set_rate_min": 0.485,
+        "value_mae_max": 0.835227149522095,
+        "value_mae_mean": 0.8272367446932565,
+        "value_mae_min": 0.8148691704126267
+      },
+      "holdout": {
+        "by_bucket": {
+          "17-24": {
+            "n": 502,
+            "top_in_exact_set_rate": 0.5119521912350598,
+            "value_mae": 0.8582923149209618
+          },
+          "25-32": {
+            "n": 576,
+            "top_in_exact_set_rate": 0.484375,
+            "value_mae": 0.8205682668360617
+          },
+          "33-40": {
+            "n": 684,
+            "top_in_exact_set_rate": 0.4415204678362573,
+            "value_mae": 0.813000410542932
+          },
+          "8-16": {
+            "n": 238,
+            "top_in_exact_set_rate": 0.5756302521008403,
+            "value_mae": 0.8555692592051919
+          }
+        },
+        "multi_n": 619,
+        "multi_rate": 0.3095,
+        "n": 2000,
+        "policy_cross_entropy_vs_uniform_optimal": 1.4178390766242788,
+        "single_n": 1381,
+        "single_top1_agreement": 0.4040550325850833,
+        "top_in_exact_set": 975,
+        "top_in_exact_set_rate": 0.4875,
+        "value_mae": 0.831613914145048,
+        "value_max_ae": 1.5370024186519355
+      },
+      "seeds": {
+        "seed42": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/exact/seed42/artifact",
+          "best_val_loss": 1.4084545373916626,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/exact/seed42/checkpoint.npz",
+          "checkpoint_sha256": "f68a5cb75b19a0eb4e2bb7cf7b8dde60bc1e181b00da18baee1ec79b2f88f598",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5119521912350598,
+                "value_mae": 0.8582923149209618
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.484375,
+                "value_mae": 0.8205682668360617
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.4415204678362573,
+                "value_mae": 0.813000410542932
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5756302521008403,
+                "value_mae": 0.8555692592051919
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4178390766242788,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4040550325850833,
+            "top_in_exact_set": 975,
+            "top_in_exact_set_rate": 0.4875,
+            "value_mae": 0.831613914145048,
+            "value_max_ae": 1.5370024186519355
+          },
+          "policy_loss": 1.2025348901748658,
+          "value_loss": 0.41895883083343505
+        },
+        "seed43": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/exact/seed43/artifact",
+          "best_val_loss": 1.4374949932098389,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/exact/seed43/checkpoint.npz",
+          "checkpoint_sha256": "9a27e7affb3c62a5f457f3b2e22c261e5091f3a18004c118f410bccd8bd2b0f4",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5119521912350598,
+                "value_mae": 0.8673718179581908
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.484375,
+                "value_mae": 0.8242605926742743
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.4371345029239766,
+                "value_mae": 0.8115939121716157
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5672268907563025,
+                "value_mae": 0.8618878534597098
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4199974666193453,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4040550325850833,
+            "top_in_exact_set": 970,
+            "top_in_exact_set_rate": 0.485,
+            "value_mae": 0.835227149522095,
+            "value_max_ae": 1.5091571335086709
+          },
+          "policy_loss": 1.1926707983016969,
+          "value_loss": 0.41331361333529154
+        },
+        "seed44": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/exact/seed44/artifact",
+          "best_val_loss": 1.3844537734985352,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/exact/seed44/checkpoint.npz",
+          "checkpoint_sha256": "e5c00c723e7082d7e286e8253798c16437d22dc0c12f6c274f748317cc1bae6b",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5219123505976095,
+                "value_mae": 0.8487576489610883
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.4930555555555556,
+                "value_mae": 0.7984406697091301
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.4444444444444444,
+                "value_mae": 0.7936654956465451
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5840336134453782,
+                "value_mae": 0.84408813559702
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4134031983773352,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4098479362780594,
+            "top_in_exact_set": 989,
+            "top_in_exact_set_rate": 0.4945,
+            "value_mae": 0.8148691704126267,
+            "value_max_ae": 1.5509062988634947
+          },
+          "policy_loss": 1.1932084401448568,
+          "value_loss": 0.41584900617599485
+        }
+      }
+    },
+    "mcts": {
+      "aggregate": {
+        "n_seeds": 3,
+        "policy_ce_mean": 1.4360442937597167,
+        "top_in_exact_set_rate_max": 0.4865,
+        "top_in_exact_set_rate_mean": 0.4855,
+        "top_in_exact_set_rate_min": 0.484,
+        "value_mae_max": 0.7711749642405447,
+        "value_mae_mean": 0.7693301264220294,
+        "value_mae_min": 0.7676979537214428
+      },
+      "holdout": {
+        "by_bucket": {
+          "17-24": {
+            "n": 502,
+            "top_in_exact_set_rate": 0.5159362549800797,
+            "value_mae": 0.7839500832068829
+          },
+          "25-32": {
+            "n": 576,
+            "top_in_exact_set_rate": 0.484375,
+            "value_mae": 0.752362167625638
+          },
+          "33-40": {
+            "n": 684,
+            "top_in_exact_set_rate": 0.43567251461988304,
+            "value_mae": 0.7802815605196198
+          },
+          "8-16": {
+            "n": 238,
+            "top_in_exact_set_rate": 0.5714285714285714,
+            "value_mae": 0.763587356148934
+          }
+        },
+        "multi_n": 619,
+        "multi_rate": 0.3095,
+        "n": 2000,
+        "policy_cross_entropy_vs_uniform_optimal": 1.4358035117622177,
+        "single_n": 1381,
+        "single_top1_agreement": 0.4069514844315713,
+        "top_in_exact_set": 972,
+        "top_in_exact_set_rate": 0.486,
+        "value_mae": 0.7711749642405447,
+        "value_max_ae": 1.5783301888954824
+      },
+      "seeds": {
+        "seed42": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/mcts/seed42/artifact",
+          "best_val_loss": 1.342487096786499,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/mcts/seed42/checkpoint.npz",
+          "checkpoint_sha256": "74f4f22c87492098412dd440ddf585ce7a1008ac7a6135421c862dbdc2585fd8",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5159362549800797,
+                "value_mae": 0.7839500832068829
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.484375,
+                "value_mae": 0.752362167625638
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.43567251461988304,
+                "value_mae": 0.7802815605196198
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5714285714285714,
+                "value_mae": 0.763587356148934
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4358035117622177,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4069514844315713,
+            "top_in_exact_set": 972,
+            "top_in_exact_set_rate": 0.486,
+            "value_mae": 0.7711749642405447,
+            "value_max_ae": 1.5783301888954824
+          },
+          "policy_loss": 1.2751106103261312,
+          "value_loss": 0.1336866537729899
+        },
+        "seed43": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/mcts/seed43/artifact",
+          "best_val_loss": 1.3507208824157715,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/mcts/seed43/checkpoint.npz",
+          "checkpoint_sha256": "bf7f5ccd2551243f57d75a5301995545bc9c416d6ecdb36303c774db31dbe705",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5039840637450199,
+                "value_mae": 0.7827878342791301
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.484375,
+                "value_mae": 0.7522130090110014
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.44298245614035087,
+                "value_mae": 0.7759439125825104
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5588235294117647,
+                "value_mae": 0.7615760521147217
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4369240493636912,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4091238233164374,
+            "top_in_exact_set": 968,
+            "top_in_exact_set_rate": 0.484,
+            "value_mae": 0.7691174613041006,
+            "value_max_ae": 1.556263954261159
+          },
+          "policy_loss": 1.2714213530222576,
+          "value_loss": 0.1272924140095711
+        },
+        "seed44": {
+          "artifact": "/tmp/azlite_exact_ablation/v2_mlp/mcts/seed44/artifact",
+          "best_val_loss": 1.3192956447601318,
+          "checkpoint": "/tmp/azlite_exact_ablation/v2_mlp/mcts/seed44/checkpoint.npz",
+          "checkpoint_sha256": "7e68e80ccb8a03d45c504c0bf5a6f88b2cf9d405cf77ee53a89b69c25baa7786",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5159362549800797,
+                "value_mae": 0.7808573476715478
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.4895833333333333,
+                "value_mae": 0.7490086466388126
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.4327485380116959,
+                "value_mae": 0.7750642806245244
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.5714285714285714,
+                "value_mae": 0.7640023970615032
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.4354053201532413,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4091238233164374,
+            "top_in_exact_set": 973,
+            "top_in_exact_set_rate": 0.4865,
+            "value_mae": 0.7676979537214428,
+            "value_max_ae": 1.604481295394931
+          },
+          "policy_loss": 1.2744305928548176,
+          "value_loss": 0.13173253536224366
+        }
+      }
+    }
+  },
+  "mcts_train": "/tmp/azlite_exact_ablation/mcts_train.jsonl",
+  "mcts_train_sha256": "014ac99af8df40815ba3942658f4f57902952fa184e169923efb2fc7e00a0a5f",
+  "provenance": {
+    "torch_version": "2.12.0+cu130"
+  },
+  "schema": "exact_teacher_training_ablation_v2",
+  "train_files": {
+    "blend": "/tmp/azlite_exact_ablation/blend_train.jsonl",
+    "exact": "/tmp/azlite_exact_teacher_production/train.jsonl",
+    "mcts": "/tmp/azlite_exact_ablation/mcts_train.jsonl"
+  }
+}

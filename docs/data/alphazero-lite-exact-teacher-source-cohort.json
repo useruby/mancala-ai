@@ -1,0 +1,33 @@
+{
+  "exclusion_counts": {
+    "feasibility_corpus": 96,
+    "forensic_suite": 224,
+    "opening_suites": 384
+  },
+  "opening_suite_files": {
+    "/tmp/azlite_opening_suite/large_eval.jsonl": 384,
+    "/tmp/azlite_opening_suite/medium_eval.jsonl": 128,
+    "/tmp/azlite_opening_suite/small_smoke.jsonl": 32
+  },
+  "per_bucket": 2500,
+  "schema": "exact_teacher_source_cohort_v1",
+  "seed": 20260906,
+  "source_sha256": "f5d6bb3256bf31ae3fe8089cdd8e1ebd602e731f46f874251a1b9374bc5f49cb",
+  "stats": {
+    "duplicates_skipped": 1148,
+    "excluded_feasibility": 0,
+    "excluded_forensic_suite": 75,
+    "excluded_opening_suite": 53,
+    "frozen_rows": 10000,
+    "games_played": 318,
+    "out_of_scope_skipped": 3059,
+    "positions_visited": 14498,
+    "rows_per_bucket": {
+      "17-24": 2500,
+      "25-32": 2500,
+      "33-40": 2500,
+      "8-16": 2500
+    },
+    "terminal_skipped": 318
+  }
+}

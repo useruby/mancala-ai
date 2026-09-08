@@ -1,0 +1,188 @@
+{
+  "arena": {
+    "context": "384:256",
+    "games_per_opening": 2,
+    "legs": [
+      {
+        "train_seed": 42
+      }
+    ],
+    "suite": "/tmp/azlite_opening_suite/medium_eval.jsonl",
+    "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+  },
+  "config": {
+    "batch_size": 512,
+    "epochs": 46,
+    "hidden_sizes": [
+      96,
+      3
+    ],
+    "init_checkpoint": "/tmp/azlite_exact_promotion/inputs/current_from_weights_json.npz",
+    "input_encoding": "kalah_v3",
+    "lanes": [
+      "exact"
+    ],
+    "lr": 1e-05,
+    "lr_scheduler": "none",
+    "model_type": "residual_v3",
+    "seeds": [
+      42,
+      43
+    ],
+    "trainable_scope": "all",
+    "val_split": 0.1,
+    "value_loss_weight": 0.3,
+    "weight_decay": 0.0
+  },
+  "elapsed_seconds": 104.6,
+  "exact_holdout": "/tmp/azlite_exact_teacher_production/holdout.jsonl",
+  "exact_train": "/tmp/azlite_exact_teacher_production/train.jsonl",
+  "exact_train_sha256": "bd383b9f281066f3711e066a64e05cf3311548d9d505dc45391502252509d978",
+  "holdout_contrast": {},
+  "holdout_sha256": "a53a304c66cf84fc461df3b6248c328b521b776e6296fcfad13690958b3e0d16",
+  "identical_state_vectors": true,
+  "lanes": {
+    "exact": {
+      "aggregate": {
+        "n_seeds": 2,
+        "policy_ce_mean": 1.3911906157966691,
+        "top_in_exact_set_rate_max": 0.515,
+        "top_in_exact_set_rate_mean": 0.5145,
+        "top_in_exact_set_rate_min": 0.514,
+        "value_mae_max": 0.711299265937125,
+        "value_mae_mean": 0.7100112455197001,
+        "value_mae_min": 0.7087232251022751
+      },
+      "holdout": {
+        "by_bucket": {
+          "17-24": {
+            "n": 502,
+            "top_in_exact_set_rate": 0.5199203187250996,
+            "value_mae": 0.6966270324765256
+          },
+          "25-32": {
+            "n": 576,
+            "top_in_exact_set_rate": 0.4982638888888889,
+            "value_mae": 0.7121187031842342
+          },
+          "33-40": {
+            "n": 684,
+            "top_in_exact_set_rate": 0.4649122807017544,
+            "value_mae": 0.768025262458827
+          },
+          "8-16": {
+            "n": 238,
+            "top_in_exact_set_rate": 0.6890756302521008,
+            "value_mae": 0.5772357521641935
+          }
+        },
+        "multi_n": 619,
+        "multi_rate": 0.3095,
+        "n": 2000,
+        "policy_cross_entropy_vs_uniform_optimal": 1.3912382857766181,
+        "single_n": 1381,
+        "single_top1_agreement": 0.4330195510499638,
+        "top_in_exact_set": 1030,
+        "top_in_exact_set_rate": 0.515,
+        "value_mae": 0.711299265937125,
+        "value_max_ae": 1.6797690174889421
+      },
+      "seeds": {
+        "seed42": {
+          "artifact": "/tmp/azlite_exact_promotion/lanes/exact/seed42/artifact",
+          "best_val_loss": 1.2409714460372925,
+          "checkpoint": "/tmp/azlite_exact_promotion/lanes/exact/seed42/checkpoint.npz",
+          "checkpoint_sha256": "4debf0af02c93d870225fba42dfd0b39224b7fc2cb954782ebb9e2c7eb20fa46",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5199203187250996,
+                "value_mae": 0.6966270324765256
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.4982638888888889,
+                "value_mae": 0.7121187031842342
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.4649122807017544,
+                "value_mae": 0.768025262458827
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.6890756302521008,
+                "value_mae": 0.5772357521641935
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.3912382857766181,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4330195510499638,
+            "top_in_exact_set": 1030,
+            "top_in_exact_set_rate": 0.515,
+            "value_mae": 0.711299265937125,
+            "value_max_ae": 1.6797690174889421
+          },
+          "policy_loss": 1.1395539840062459,
+          "value_loss": 0.29129571715990704
+        },
+        "seed43": {
+          "artifact": "/tmp/azlite_exact_promotion/lanes/exact/seed43/artifact",
+          "best_val_loss": 1.2742843627929688,
+          "checkpoint": "/tmp/azlite_exact_promotion/lanes/exact/seed43/checkpoint.npz",
+          "checkpoint_sha256": "d89b9d518c87195d05045b281bc96093d8bd0a15a90d26a0424241a997bf6de3",
+          "holdout": {
+            "by_bucket": {
+              "17-24": {
+                "n": 502,
+                "top_in_exact_set_rate": 0.5159362549800797,
+                "value_mae": 0.6929745953240106
+              },
+              "25-32": {
+                "n": 576,
+                "top_in_exact_set_rate": 0.5069444444444444,
+                "value_mae": 0.7102061946700279
+              },
+              "33-40": {
+                "n": 684,
+                "top_in_exact_set_rate": 0.4590643274853801,
+                "value_mae": 0.7663252820303582
+              },
+              "8-16": {
+                "n": 238,
+                "top_in_exact_set_rate": 0.6848739495798319,
+                "value_mae": 0.572806480307547
+              }
+            },
+            "multi_n": 619,
+            "multi_rate": 0.3095,
+            "n": 2000,
+            "policy_cross_entropy_vs_uniform_optimal": 1.39114294581672,
+            "single_n": 1381,
+            "single_top1_agreement": 0.4330195510499638,
+            "top_in_exact_set": 1028,
+            "top_in_exact_set_rate": 0.514,
+            "value_mae": 0.7087232251022751,
+            "value_max_ae": 1.6721272188370118
+          },
+          "policy_loss": 1.1397955258687338,
+          "value_loss": 0.29058643579483034
+        }
+      }
+    }
+  },
+  "mcts_train": "/tmp/azlite_exact_ablation/mcts_train.jsonl",
+  "mcts_train_sha256": "014ac99af8df40815ba3942658f4f57902952fa184e169923efb2fc7e00a0a5f",
+  "provenance": {
+    "torch_version": "2.12.0+cu130"
+  },
+  "schema": "exact_teacher_training_ablation_v2",
+  "train_files": {
+    "exact": "/tmp/azlite_exact_teacher_production/train.jsonl",
+    "mcts": "/tmp/azlite_exact_ablation/mcts_train.jsonl"
+  }
+}

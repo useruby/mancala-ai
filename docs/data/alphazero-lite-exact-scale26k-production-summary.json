@@ -1,0 +1,56 @@
+{
+  "complete": true,
+  "cpu_seconds": 6.485786407000001,
+  "failed_labels": 1,
+  "failure_reason_counts": {
+    "native request exceeded timeout": 1
+  },
+  "failures_sha256": "05f1596ce3fd9fd4978a786bc02a5862a5b581a0b78ade8d8d7e01f0524b2564",
+  "holdout_canonical_hash": "1c569fecc1ff8d7609299ecd5164ac4f496534fd7a2fbe1836bc71ac1e3931ff",
+  "holdout_rows": 5200,
+  "holdout_sha256": "c9e48ff141eb26f3cd1605a3ebd14680c723c546d5b1c26d87e7f18e8fc13fa2",
+  "label_latency_cpu_seconds": {
+    "count": 25999,
+    "max": 0.0005047419999995029,
+    "mean": 0.00011157448351859868,
+    "p50": 7.810700000021598e-05,
+    "p90": 0.0002497649999995133,
+    "p95": 0.00026389299999962645,
+    "p99": 0.0003105209999993974
+  },
+  "label_latency_wall_seconds": {
+    "count": 25999,
+    "max": 46.86401476908941,
+    "mean": 0.27029348087244226,
+    "p50": 0.000651989015750587,
+    "p90": 0.4625986369792372,
+    "p95": 1.386439214926213,
+    "p99": 5.268967959098518
+  },
+  "labels_per_cpu_hour": 14431002.522528797,
+  "requested_unique_states": 26000,
+  "schema": "native_hybrid_exact_label_production_v1",
+  "solve_rate": 0.9999615384615385,
+  "solved_labels": 25999,
+  "source_states_path": "/tmp/azlite_exact_scale/source_states.jsonl",
+  "source_states_sha256": "85655f8a0c81f757d67d0b5aca24cd5c62c6cdbbf830e79d571642a0e12b16b0",
+  "teacher_provenance": {
+    "fresh_process": false,
+    "identity": "native_hybrid_exact",
+    "native_probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+    "policy_target_convention": "uniform_over_exact_optimal_set",
+    "solver_timeout_seconds": 30.0,
+    "tablebase_artifact": "/tmp/kalah_v1_tier18_mmiqjum_/kalah_v1_18.kvtb",
+    "tablebase_artifact_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+    "value_semantics": "native exact_value/action_values are player-zero final stone margins; root extremum max(player0)/min(player1); training value is sign from root-player perspective (+1 win/0 draw/-1 loss)",
+    "value_target_convention": "sign_of_root_perspective_margin_pm1_from_player_zero_margin",
+    "version": "pr281_production_v1"
+  },
+  "timeout_seconds": 30.0,
+  "train_canonical_hash": "9b72d9a56286a016ab21bdddd347cb0db0791b89e2d36c521c97ddf1446ed453",
+  "train_holdout_canonical_overlap": 0,
+  "train_rows": 20799,
+  "train_sha256": "0d4c768795328eca09ed8b5dfc3d03c4020f18f39932f3c73cd81a31ddbbc898",
+  "train_split": 0.8,
+  "wall_seconds": 7061.003812878975
+}

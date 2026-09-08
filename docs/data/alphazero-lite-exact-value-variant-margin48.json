@@ -1,0 +1,9 @@
+{
+  "exact_train_path": "/tmp/azlite_exact_scale/train.jsonl",
+  "exact_train_sha256": "0d4c768795328eca09ed8b5dfc3d03c4020f18f39932f3c73cd81a31ddbbc898",
+  "order_identical": true,
+  "schema": "exact_value_variant_v1",
+  "train_rows": 20799,
+  "train_sha256": "6169443b056b0632ed1f7b24d0c1827675db0fbc590f7050c770962160e5a52f",
+  "variant": "margin48"
+}
