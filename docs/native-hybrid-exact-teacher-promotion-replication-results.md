@@ -51,7 +51,7 @@ from the seat-aware gate.
 ## Artifacts
 
 - `docs/data/alphazero-lite-exact-promotion-replication-summary.json`
-- `docs/data/alphazero-lite-exact-promotion-benchmark-report.json`
+- `docs/data/alphazero-lite-exact-promotion-finetune-gate.json`
 - Checkpoints/benchmark workdir (not committed):
   `/tmp/azlite_exact_promotion/lanes/`,
   `/tmp/azlite_exact_promotion/bench/`

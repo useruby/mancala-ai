@@ -1,0 +1,99 @@
+{
+ "base_seed": 42,
+ "c_puct": 1.25,
+ "c_puct_schedule": {
+  "default_c_puct": 1.25,
+  "overrides": {
+   "768:768": 0.9
+  }
+ },
+ "candidates": {
+  "exact/seed42": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.96875,
+     "ds": -0.1328125,
+     "p0_score": 0.8359375,
+     "p1_score": 0.96875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.5859375,
+     "ds": -0.0234375,
+     "p0_score": 0.5625,
+     "p1_score": 0.5859375,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.48828125,
+     "ds": 0.1171875,
+     "p0_score": 0.60546875,
+     "p1_score": 0.48828125,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.72265625,
+     "ds": 0.27734375,
+     "p0_score": 1.0,
+     "p1_score": 0.72265625,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": true,
+    "primary_768_768_non_regressed": false
+   },
+   "sha12": "4e93f61c9150"
+  },
+  "exact/seed43": {
+   "budgets": {
+    "1200_vs_256": {
+     "disadvantaged_seat_score": 0.96875,
+     "ds": -0.2109375,
+     "p0_score": 0.7578125,
+     "p1_score": 0.96875,
+     "total_games": 512
+    },
+    "equal_768": {
+     "disadvantaged_seat_score": 0.3671875,
+     "ds": 0.28125,
+     "p0_score": 0.6484375,
+     "p1_score": 0.3671875,
+     "total_games": 512
+    },
+    "equal_high": {
+     "disadvantaged_seat_score": 0.7109375,
+     "ds": 0.125,
+     "p0_score": 0.8359375,
+     "p1_score": 0.7109375,
+     "total_games": 512
+    },
+    "standard": {
+     "disadvantaged_seat_score": 0.81640625,
+     "ds": -0.11328125,
+     "p0_score": 0.703125,
+     "p1_score": 0.81640625,
+     "total_games": 512
+    }
+   },
+   "gate": {
+    "follow_up_promotion_gate_candidate": false,
+    "non_regression_1200_1200": true,
+    "non_regression_1200_256": false,
+    "primary_384_256_improved": false,
+    "primary_768_768_non_regressed": true
+   },
+   "sha12": "742da3f76313"
+  }
+ },
+ "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+ "root_policy_mode": "deterministic",
+ "schema": "exact_promotion_finetune_gate_v1",
+ "seed_contract": "azlite_eval_seed_v2",
+ "suite_path": "/tmp/azlite_opening_suite/medium_eval.jsonl",
+ "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+ "suite_size": 128
+}
