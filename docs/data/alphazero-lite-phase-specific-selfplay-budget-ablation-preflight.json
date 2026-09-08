@@ -1,0 +1,39 @@
+{
+  "classification": "phase_specific_budget_ablation_preflight_only",
+  "lanes": {
+    "control_384_192": {
+      "opening_min_simulations": 384,
+      "opening_min_simulations_plies": 8,
+      "simulations": 192,
+      "status": "dry_run"
+    },
+    "opening1200_rest192": {
+      "opening_min_simulations": 1200,
+      "opening_min_simulations_plies": 8,
+      "simulations": 192,
+      "status": "dry_run"
+    },
+    "uniform1200": {
+      "opening_min_simulations": null,
+      "opening_min_simulations_plies": null,
+      "simulations": 1200,
+      "status": "dry_run"
+    }
+  },
+  "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "promotion": {
+    "performed": false,
+    "reason": "controlled_ablation_only"
+  },
+  "regenerated_baseline": {
+    "controls_replay": {
+      "rows": 5,
+      "sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+    },
+    "selected_replay": {
+      "rows": 20,
+      "sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b"
+    }
+  },
+  "schema": "azlite_phase_specific_selfplay_budget_ablation_v1"
+}

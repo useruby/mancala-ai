@@ -1,0 +1,30 @@
+{
+  "schema": "azlite_phase_specific_selfplay_budget_ablation_v1",
+  "base_config": "ml/alphazero_lite/configs/exp_v3_denoised_opening_min384_selected_w1_guard_w2_clean_root.json",
+  "current_path": "storage/ai/alphazero_lite/current",
+  "selected_replay": "/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+  "selected_replay_summary": "/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation_summary.json",
+  "controls_replay": "/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl",
+  "controls_replay_summary": "/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only_summary.json",
+  "lanes": {
+    "control_384_192": {
+      "simulations": 192,
+      "opening_min_simulations": 384,
+      "opening_min_simulations_plies": 8
+    },
+    "opening1200_rest192": {
+      "simulations": 192,
+      "opening_min_simulations": 1200,
+      "opening_min_simulations_plies": 8
+    },
+    "uniform1200": {
+      "simulations": 1200,
+      "opening_min_simulations": null,
+      "opening_min_simulations_plies": null
+    }
+  },
+  "promotion": {
+    "performed": false,
+    "reason": "controlled_ablation_only"
+  }
+}
