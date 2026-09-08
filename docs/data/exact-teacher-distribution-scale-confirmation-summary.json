@@ -1,0 +1,238 @@
+{
+  "classification": "exact_distribution_scale_gate_not_met",
+  "dataset": {
+    "composition": {
+      "midgame": 2940,
+      "opening": 2940
+    },
+    "exact_teacher_provenance": [
+      {
+        "teacher": "native_hybrid_exact",
+        "teacher_version": "pr281_production_v1"
+      }
+    ],
+    "lane_sha256": "b99ef0559d47d7e7d1b8baf3e458e6075f48e710dfa2c3249bc35e3724bb71f3",
+    "row_count": 5880
+  },
+  "elapsed_seconds": 0.7,
+  "gate_pass_count": 0,
+  "paired_effect_delta_vs_pr283": {
+    "seed42": {
+      "1200_vs_256": 0.5234375,
+      "equal_768": 0.3671875,
+      "equal_high": 0.236328125,
+      "standard": 0.322265625
+    },
+    "seed43": {
+      "1200_vs_256": 0.48828125,
+      "equal_768": 0.390625,
+      "equal_high": 0.22265625,
+      "standard": 0.29296875
+    },
+    "seed44": {
+      "1200_vs_256": 0.23828125,
+      "equal_768": 0.1640625,
+      "equal_high": 0.20703125,
+      "standard": 0.015625
+    }
+  },
+  "pre_registered_success_rule": "mixed_50_50_scale gate passes >=2 of 3 seeds",
+  "promotion": {
+    "performed": false,
+    "reason": "scale_confirmation_only"
+  },
+  "schema": "exact_teacher_distribution_scale_confirmation_v1",
+  "seeds": {
+    "seed42": {
+      "arena": {
+        "1200_vs_256": {
+          "disadvantaged_seat_score": 0.484375,
+          "ds": 0.1875,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.384765625,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.267578125
+          },
+          "paired_candidate_effect": -0.326171875
+        },
+        "equal_768": {
+          "disadvantaged_seat_score": 0.5,
+          "ds": -0.265625,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.1953125,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.06640625
+          },
+          "paired_candidate_effect": -0.1328125
+        },
+        "equal_high": {
+          "disadvantaged_seat_score": 0.375,
+          "ds": -0.22265625,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.291015625,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.177734375
+          },
+          "paired_candidate_effect": -0.236328125
+        },
+        "standard": {
+          "disadvantaged_seat_score": 0.09375,
+          "ds": 0.51171875,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.509765625,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.423828125
+          },
+          "paired_candidate_effect": -0.466796875
+        }
+      },
+      "artifact": "/tmp/azlite_exact_distribution_scale_confirmation/training/seed42/artifact_seed42",
+      "checkpoint_sha256": "eae5b1fdb2bba5159af0333b7e2bac7d6fc34b2b6df3d892069cd555d65cab02",
+      "gate_by_budget": {
+        "1200_vs_256": true,
+        "equal_768": false,
+        "equal_high": false,
+        "standard": true
+      },
+      "gate_pass": false
+    },
+    "seed43": {
+      "arena": {
+        "1200_vs_256": {
+          "disadvantaged_seat_score": 0.4453125,
+          "ds": 0.1015625,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.474609375,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.34375
+          },
+          "paired_candidate_effect": -0.408203125
+        },
+        "equal_768": {
+          "disadvantaged_seat_score": 0.3359375,
+          "ds": 0.140625,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.16015625,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.0234375
+          },
+          "paired_candidate_effect": -0.09375
+        },
+        "equal_high": {
+          "disadvantaged_seat_score": 0.3359375,
+          "ds": -0.2265625,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.3203125,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.234375
+          },
+          "paired_candidate_effect": -0.27734375
+        },
+        "standard": {
+          "disadvantaged_seat_score": 0.2421875,
+          "ds": 0.1015625,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.580078125,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.46875
+          },
+          "paired_candidate_effect": -0.5234375
+        }
+      },
+      "artifact": "/tmp/azlite_exact_distribution_scale_confirmation/training/seed43/artifact_seed43",
+      "checkpoint_sha256": "f534f66a1035b460952553b67df15a888eb992f2f2f13f51723fcf675675ef71",
+      "gate_by_budget": {
+        "1200_vs_256": true,
+        "equal_768": true,
+        "equal_high": false,
+        "standard": true
+      },
+      "gate_pass": false
+    },
+    "seed44": {
+      "arena": {
+        "1200_vs_256": {
+          "disadvantaged_seat_score": 0.2109375,
+          "ds": 0.109375,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.6953125,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.58203125
+          },
+          "paired_candidate_effect": -0.638671875
+        },
+        "equal_768": {
+          "disadvantaged_seat_score": 0.09375,
+          "ds": 0.3203125,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.2890625,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.203125
+          },
+          "paired_candidate_effect": -0.24609375
+        },
+        "equal_high": {
+          "disadvantaged_seat_score": 0.09375,
+          "ds": 0.4296875,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.234375,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.15234375
+          },
+          "paired_candidate_effect": -0.19140625
+        },
+        "standard": {
+          "disadvantaged_seat_score": 0.34375,
+          "ds": -0.0234375,
+          "opening_bootstrap_ci": {
+            "lower_95": -0.556640625,
+            "samples": 10000,
+            "unique_openings": 128,
+            "upper_95": -0.4140625
+          },
+          "paired_candidate_effect": -0.484375
+        }
+      },
+      "artifact": "/tmp/azlite_exact_distribution_scale_confirmation/training/seed44/artifact_seed44",
+      "checkpoint_sha256": "0e60a50cebedce1f601e9905220721bea4b4f8bd6e92b3feb68cd8372c25ada2",
+      "gate_by_budget": {
+        "1200_vs_256": true,
+        "equal_768": true,
+        "equal_high": true,
+        "standard": false
+      },
+      "gate_pass": false
+    }
+  },
+  "training_config": {
+    "batch_size": 512,
+    "epochs": 46,
+    "hidden_sizes": [
+      96,
+      3
+    ],
+    "init_checkpoint": null,
+    "input_encoding": "kalah_v3",
+    "lr": 0.001,
+    "lr_scheduler": "cosine",
+    "model_type": "residual_v3",
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "value_loss_weight": 0.5,
+    "weight_decay": 0.0
+  }
+}
