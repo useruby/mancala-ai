@@ -256,6 +256,144 @@ def build_failed_row(
     return row
 
 
+OPENING_PLY_BUCKETS = ("ply-3-8",)
+OPENING_PLY_BUCKET_RANGES = {
+    "ply-3-8": (3, 8),
+}
+
+
+def opening_ply_bucket(move_index: int) -> str:
+    ply = int(move_index) + 1
+    for bucket, (low, high) in OPENING_PLY_BUCKET_RANGES.items():
+        if low <= ply <= high:
+            return bucket
+    raise ExactLabelError(f"ply {ply} outside 3-8 opening scope")
+
+
+def freeze_opening_cohort(
+    *,
+    seed: int,
+    per_bucket: int,
+    exclusion_keys: dict[str, set[str]] | None = None,
+    max_games: int = 400_000,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Freeze a deterministic opening-distribution source cohort.
+
+    Random-play games from the standard opening contribute plies 3-8
+    (move_index 2-7; plies 1-2 are fully covered by the v1/v2 cohorts and
+    the opening-suite exclusions, so no fresh states exist there). The
+    reachable ply 3-8 space holds only a few thousand distinct states
+    (~145 fresh ply 3-4 states in 400k games), so the cohort is a single
+    ply-3-8 pool capped at ``per_bucket`` rows rather than per-ply-pair
+    strata. States are deduplicated by canonical key. The same leakage
+    exclusions as :func:`freeze_source_cohort` apply (feasibility corpus,
+    forensic suite, opening suites), counted and never labeled; pass
+    ``diagnostic_suite_buckets`` + ``forensic_bucket_by_key`` to admit
+    selected forensic buckets explicitly.
+    """
+    excluded: dict[str, Any] = dict(exclusion_keys or {})
+    feasibility_keys = set(excluded.get("feasibility_corpus") or set())
+    forensic_keys = set(excluded.get("forensic_suite") or set())
+    opening_hashes = set(excluded.get("opening_suites") or set())
+    diagnostic_suite_buckets = set(excluded.get("diagnostic_suite_buckets") or set())
+    forensic_bucket_by_key: dict[str, str] = dict(
+        excluded.get("forensic_bucket_by_key") or {}
+    )
+    rng = random.Random(seed)
+    buckets: dict[str, list[dict[str, Any]]] = {b: [] for b in OPENING_PLY_BUCKETS}
+    seen: set[str] = set()
+    stats: dict[str, Any] = {
+        "games_played": 0,
+        "positions_visited": 0,
+        "duplicates_skipped": 0,
+        "out_of_scope_skipped": 0,
+        "excluded_feasibility": 0,
+        "excluded_forensic_suite": 0,
+        "excluded_opening_suite": 0,
+    }
+    game_index = 0
+    while any(len(rows) < per_bucket for rows in buckets.values()):
+        if game_index >= max_games:
+            raise ExactLabelError(
+                f"could not fill all opening buckets after {max_games} games: "
+                + str({b: len(r) for b, r in buckets.items()})
+            )
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4, 4, 4, 4, 4, 4],
+                "opponent_pits": [4, 4, 4, 4, 4, 4],
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+        prefix_moves: list[int] = []
+        for move_index in range(8):
+            if game.over():
+                break
+            legal = game.possible_moves()
+            if not legal:
+                break
+            chosen = rng.choice(legal)
+            if move_index >= 2:
+                raw = game.to_state()
+                active = sum(raw["player_pits"]) + sum(raw["opponent_pits"])
+                stats["positions_visited"] += 1
+                key = canonical_state_key(raw)
+                if key in seen:
+                    stats["duplicates_skipped"] += 1
+                else:
+                    seen.add(key)
+                    forensic_hit = key in forensic_keys and (
+                        not diagnostic_suite_buckets
+                        or forensic_bucket_by_key.get(key) in diagnostic_suite_buckets
+                    )
+                    if key in feasibility_keys:
+                        stats["excluded_feasibility"] += 1
+                    elif forensic_hit:
+                        stats["excluded_forensic_suite"] += 1
+                    elif _opening_hash(raw) in opening_hashes:
+                        stats["excluded_opening_suite"] += 1
+                    else:
+                        bucket = opening_ply_bucket(move_index)
+                        if len(buckets[bucket]) < per_bucket:
+                            buckets[bucket].append(
+                                {
+                                    "source_id": (
+                                        f"exact-open-frozen-{bucket}-"
+                                        f"{len(buckets[bucket]):05d}"
+                                    ),
+                                    "state": game_state_from_row_state(raw),
+                                    "canonical_state": key,
+                                    "active_stones": int(active),
+                                    "stones_bucket": "41-plus",
+                                    "ply_bucket": bucket,
+                                    "ply": int(move_index) + 1,
+                                    "phase": phase_label(move_index),
+                                    "move_index": int(move_index),
+                                    "player": int(raw["current_player"]),
+                                    "legal_moves": list(legal),
+                                    "training_eligible": True,
+                                    "provenance": {
+                                        "generator": "exact_teacher_label_production",
+                                        "generator_version": TEACHER_VERSION,
+                                        "source_seed": int(seed),
+                                        "source_game_index": int(game_index),
+                                        "source_ply": int(move_index),
+                                    },
+                                }
+                            )
+            prefix_moves.append(chosen)
+            if not game.move(game.pit_index(chosen)):
+                break
+        game_index += 1
+    stats["games_played"] = game_index
+    rows = [row for bucket in OPENING_PLY_BUCKETS for row in buckets[bucket]]
+    stats["frozen_rows"] = len(rows)
+    stats["rows_per_bucket"] = {b: len(r) for b, r in buckets.items()}
+    return rows, stats
+
+
 def freeze_source_cohort(
     *,
     seed: int,
@@ -549,6 +687,15 @@ def load_forensic_suite_keys(
     from ml.alphazero_lite.forensic_suite import load_suite
 
     return {position.canonical_key for position in load_suite(path)}
+
+
+def load_forensic_suite_buckets(
+    path: str | Path = "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+) -> dict[str, str]:
+    """Map canonical state key to forensic bucket (for selective exclusion)."""
+    from ml.alphazero_lite.forensic_suite import load_suite
+
+    return {position.canonical_key: position.bucket for position in load_suite(path)}
 
 
 def load_opening_suite_hashes(

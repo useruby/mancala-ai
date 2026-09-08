@@ -266,6 +266,53 @@ class ExactConversionTest(unittest.TestCase):
         self.assertEqual(32, len({r["canonical_state"] for r in rows}))
         self.assertTrue(all(r["training_eligible"] for r in rows))
 
+    def test_opening_ply_bucket_boundaries(self) -> None:
+        self.assertEqual("ply-3-8", exact.opening_ply_bucket(2))
+        self.assertEqual("ply-3-8", exact.opening_ply_bucket(7))
+        with self.assertRaises(exact.ExactLabelError):
+            exact.opening_ply_bucket(0)
+        with self.assertRaises(exact.ExactLabelError):
+            exact.opening_ply_bucket(8)
+
+    def test_freeze_opening_rows_unique_and_early(self) -> None:
+        rows, stats = exact.freeze_opening_cohort(seed=999, per_bucket=20)
+        self.assertEqual(20, len(rows))
+        self.assertEqual({"ply-3-8": 20}, stats["rows_per_bucket"])
+        self.assertEqual(20, len({r["canonical_state"] for r in rows}))
+        self.assertTrue(all(r["training_eligible"] for r in rows))
+        self.assertTrue(all(3 <= r["ply"] <= 8 for r in rows))
+        self.assertTrue(all(r["move_index"] == r["ply"] - 1 for r in rows))
+
+    def test_freeze_opening_excludes_suite_and_v1(self) -> None:
+        opening, _ = exact.load_opening_suite_hashes(
+            [
+                "/tmp/azlite_opening_suite/medium_eval.jsonl",
+                "/tmp/azlite_opening_suite/large_eval.jsonl",
+                "/tmp/azlite_opening_suite/small_smoke.jsonl",
+            ]
+        )
+        v1 = {
+            r["canonical_state"]
+            for r in exact.read_jsonl(
+                __import__("pathlib").Path(
+                    "/tmp/azlite_exact_teacher_production/source_states.jsonl"
+                )
+            )
+        }
+        rows, _ = exact.freeze_opening_cohort(
+            seed=12345,
+            per_bucket=20,
+            exclusion_keys={
+                "feasibility_corpus": v1,
+                "forensic_suite": exact.load_forensic_suite_keys(),
+                "opening_suites": opening,
+            },
+        )
+        keys = {r["canonical_state"] for r in rows}
+        self.assertEqual(len(rows), len(keys))
+        self.assertFalse(keys & v1)
+        self.assertFalse(keys & exact.load_forensic_suite_keys())
+
     def test_audit_metrics_primary_set_membership(self) -> None:
         pairs = [
             {
