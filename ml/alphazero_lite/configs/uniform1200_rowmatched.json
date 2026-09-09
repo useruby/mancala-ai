@@ -1,0 +1,21 @@
+{
+  "schema": "azlite_uniform1200_rowmatched_v1",
+  "pr": 287,
+  "artifact_root": "/tmp/uniform1200-seed-confirmation",
+  "base_config": "ml/alphazero_lite/configs/exp_v3_denoised_opening_min384_selected_w1_guard_w2_clean_root.json",
+  "seeds": [44, 45, 46],
+  "target_rows": {"44": 63352, "45": 64108, "46": 63562},
+  "selected_replay": "/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+  "controls_replay": "/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl",
+  "expected": {
+    "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "selected_replay_sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b",
+    "controls_replay_sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5",
+    "checkpoints": {
+      "44": {"control": "979f906a80610e2a6648d5bc2ac1a88d47efad75bda53488b045688d12b2c513", "uniform": "806d04b9452b98dbd7a844e553ea8e4e8af6094cbe37790cf16bc0a0bc90278a"},
+      "45": {"control": "52d3df027c0cdccaba7e27f1c2827f673091a610f0103271c77411f0dca4131d", "uniform": "97a82737efebcee541e9572def4cca08da5e0f5c12728f3a439753ed1b6594da"},
+      "46": {"control": "ed61f4a6e943529a5d4fe5d452b00380bad0927c423f983de8fa9a363adc4ee2", "uniform": "9baa2227602df7ffa0c16c009d16973c67181a079fca810a364b8f4ce97aa604"}
+    }
+  },
+  "promotion": {"performed": false, "reason": "causal_ablation_only"}
+}
