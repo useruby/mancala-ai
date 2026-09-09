@@ -1,0 +1,33 @@
+{
+  "schema": "azlite_uniform1200_rowmatched_results_v1",
+  "classification": "uniform1200_replay_mass_confound_rejected",
+  "promotion": {"performed": false},
+  "preflight": {
+    "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "selected_replay_sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b",
+    "controls_replay_sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5",
+    "replay_semantics": "load_jsonl_replay tiles each source compact index by integer weight"
+  },
+  "rowmatched": {
+    "44": {"rows": 63352, "replay_sha256": "77a5268982276523591c2e20a37f1c8a78bdf05474744fe2b48dbfe56ee683ca", "weights_sha256": "7aea6ef5e0bcb3caede9a7e88ac9080cac12110d25770c65d605701770fcdd84"},
+    "45": {"rows": 64108, "replay_sha256": "8e3ee111bac3ba15648e78aa340ba9a30d65fad97002db731f2a2eab9ae59eac", "weights_sha256": "c27f24f678b60c768f722d186b286cb197ae111bc75e5342628ffd21f53d5a21"},
+    "46": {"rows": 63562, "replay_sha256": "a419f96642365c14c72b0144f6dcf26eb1ec21b389594d7759c37284ff90f9c1", "weights_sha256": "3c80a84081ceb43f981056caa528eefa96b914d215be41c453cef263300102de"}
+  },
+  "effective_exposure": {
+    "44": {"control_or_rowmatched": [63352, 20, 10], "uniform1200": [71166, 20, 10]},
+    "45": {"control_or_rowmatched": [64108, 20, 10], "uniform1200": [70975, 20, 10]},
+    "46": {"control_or_rowmatched": [63562, 20, 10], "uniform1200": [70584, 20, 10]}
+  },
+  "direct_equal_high": {
+    "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+    "seed": 42,
+    "rowmatched_vs_control": {"44": {"effect": 0.140625, "ci95": [0.10546875, 0.17578125]}, "45": {"effect": 0.220703125}, "46": {"effect": 0.26953125}},
+    "rowmatched_vs_uniform1200": {"44": -0.162109375, "45": -0.0078125, "46": -0.09375}
+  },
+  "production_gate": {
+    "44": {"passed": false, "arena_score": 1.0, "failure_reasons": ["regression_check_failed", "forensic_overall_regressed"], "forensic": {"overall": {"top1_delta": 0.0, "average_regret_delta": 0.019, "blunder_rate_delta": 0.058}, "capture_available": {"top1_delta": 0.0, "average_regret_delta": -0.049, "blunder_rate_delta": -0.125}, "sparse_endgame": {"top1_delta": 0.0, "average_regret_delta": 0.0, "blunder_rate_delta": 0.0}}},
+    "45": {"passed": false, "arena_score": 1.0, "failure_reasons": ["forensic_overall_regressed"], "forensic": {"overall": {"top1_delta": 0.0, "average_regret_delta": 0.0147, "blunder_rate_delta": 0.058}, "capture_available": {"top1_delta": 0.0, "average_regret_delta": -0.0463, "blunder_rate_delta": -0.1666}, "sparse_endgame": {"top1_delta": 0.0, "average_regret_delta": 0.0123, "blunder_rate_delta": 0.0}}},
+    "46": {"passed": false, "arena_score": 0.5, "failure_reasons": ["arena_score_below_threshold"], "forensic": "not run after arena prefilter"}
+  },
+  "recommended_next_experiment": "bucket-level replay-distribution audit"
+}
