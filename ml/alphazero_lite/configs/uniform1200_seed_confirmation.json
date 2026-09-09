@@ -1,0 +1,33 @@
+{
+  "schema": "azlite_uniform1200_seed_confirmation_v1",
+  "base_config": "ml/alphazero_lite/configs/exp_v3_denoised_opening_min384_selected_w1_guard_w2_clean_root.json",
+  "current_path": "storage/ai/alphazero_lite/current",
+  "selected_replay": "/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+  "controls_replay": "/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl",
+  "expected_replays": {
+    "selected": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b",
+    "controls": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+  },
+  "seeds": [44, 45, 46],
+  "evaluation": {
+    "suite": "/tmp/azlite_opening_suite/medium_eval.jsonl",
+    "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+    "seed": 42,
+    "games_per_opening": 2,
+    "workers": 24,
+    "budget_pairs": "384:256,1200:1200,1200:256,256:768"
+  },
+  "lanes": {
+    "control_384_192": {
+      "simulations": 192,
+      "opening_min_simulations": 384,
+      "opening_min_simulations_plies": 8
+    },
+    "uniform1200": {
+      "simulations": 1200,
+      "opening_min_simulations": null,
+      "opening_min_simulations_plies": null
+    }
+  },
+  "promotion": {"performed": false, "reason": "seed_confirmation_only"}
+}
