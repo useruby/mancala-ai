@@ -32,16 +32,19 @@ terminal status, and canonical key.
 
 ## Exact Oracle And Checkpoints
 
-The required pinned native probe and canonical tablebase were unavailable in
-this workspace. Per the registered protocol, the audit did not fall back to
-MCTS or the Python solver. Consequently exact solve rate, frozen-reference
-agreement, checkpoint exact-quality tables, replay coverage, supervision
-diagnoses, and B/C/D repair diagnostics are unavailable rather than inferred.
+The pinned native probe and a deterministic canonical tier-18 tablebase were
+provisioned. Under the registered fixed 30-second request timeout, the native
+run produced 87 exact solves and 58 explicit timeouts before the audit budget
+was stopped. This is far below the registered coverage acceptance thresholds.
+Per the registered protocol, the audit did not fall back to MCTS or the Python
+solver. Consequently frozen-reference agreement, checkpoint exact-quality
+tables, replay coverage, supervision diagnoses, and B/C/D repair diagnostics
+remain unavailable rather than inferred.
 
-The machine artifact records this as `not_run` with the required input hashes
-and a deterministic neighborhood manifest. Checkpoint SHA verification and raw
-network evaluation are intentionally gated behind a successful native-oracle
-run, so no approximate scores can be mistaken for exact evidence.
+The machine artifact records the partial coverage, required input hashes, and a
+deterministic neighborhood manifest. Checkpoint SHA verification and raw network
+evaluation remain gated behind a successful native-oracle run, so no
+approximate scores can be mistaken for exact evidence.
 
 ## Hard Classification
 

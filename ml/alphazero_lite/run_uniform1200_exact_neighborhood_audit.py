@@ -15,7 +15,7 @@ import statistics
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 if __package__ in (None, ""):
@@ -190,7 +190,11 @@ def sample_radius2(
 
 
 def solve_exact(
-    cohort: list[dict[str, Any]], probe: Path, tablebase: Path, timeout: float
+    cohort: list[dict[str, Any]],
+    probe: Path,
+    tablebase: Path,
+    timeout: float,
+    on_update: Callable[[], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Attach native labels with explicit exact_solved/timeout/error status."""
     # Importing production label conversion also imports the training encoder;
@@ -204,8 +208,17 @@ def solve_exact(
     worker = NativeHybridProcess(probe, tablebase)
     try:
         for row in cohort:
+            if row.get("oracle_status") in {
+                "exact_solved",
+                "exact_timeout",
+                "exact_error",
+                "terminal",
+            }:
+                continue
             if row["terminal"]:
                 row["oracle_status"] = "terminal"
+                if on_update:
+                    on_update()
                 continue
             game = KalahGame.from_state(row["state"])
             try:
@@ -250,6 +263,8 @@ def solve_exact(
                     }
                 )
                 worker.replace()
+            if on_update:
+                on_update()
     finally:
         worker.close()
     return cohort
@@ -373,6 +388,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--native-probe", type=Path)
     parser.add_argument("--tablebase", type=Path)
     parser.add_argument("--timeout", type=float, default=30.0)
+    parser.add_argument(
+        "--finalize-partial",
+        action="store_true",
+        help="persist a resumable exact run as partial without submitting new requests",
+    )
     args = parser.parse_args(argv)
     regressions, improvements = load_anchor_ids()
     cohort = generate_cohort(regressions)
@@ -394,17 +414,49 @@ def main(argv: list[str] | None = None) -> int:
         "neighborhood_counts": counts,
         "cohort": sampled,
     }
-    if args.native_probe and args.tablebase:
-        solve_exact(sampled, args.native_probe, args.tablebase, args.timeout)
+    if args.output.exists():
+        prior = json.loads(args.output.read_text(encoding="utf-8"))
+        prior_rows = {
+            row["canonical_state_key"]: row for row in prior.get("cohort", [])
+        }
+        for row in sampled:
+            previous = prior_rows.get(row["canonical_state_key"])
+            if previous and previous.get("oracle_status"):
+                row.update(
+                    {
+                        key: value
+                        for key, value in previous.items()
+                        if key.startswith("oracle_") or key.startswith("exact_")
+                    }
+                )
+
+    def persist() -> None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+
+    if args.finalize_partial:
+        statuses = Counter(row.get("oracle_status", "not_attempted") for row in sampled)
+        report["oracle_status"] = "partial: fixed solver timeout exhausted"
+        report["oracle_coverage"] = dict(sorted(statuses.items()))
+    elif args.native_probe and args.tablebase:
+        report["oracle_status"] = "running"
+        persist()
+        solve_exact(
+            sampled,
+            args.native_probe,
+            args.tablebase,
+            args.timeout,
+            on_update=persist,
+        )
+        report["oracle_status"] = "completed"
         report["frozen_reference_audit"] = frozen_reference_audit(sampled)
     else:
         report["oracle_status"] = (
             "not_run: --native-probe and --tablebase are required; no MCTS fallback"
         )
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    persist()
     return 0
 
 
