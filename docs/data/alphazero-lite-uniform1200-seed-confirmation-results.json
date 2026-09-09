@@ -1,0 +1,29 @@
+{
+  "schema": "azlite_uniform1200_seed_confirmation_results_v1",
+  "classification": "uniform1200_not_confirmed",
+  "promotion": {"performed": false},
+  "baseline": {
+    "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "selected_replay_sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b",
+    "controls_replay_sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+  },
+  "seed_contract": {"training_and_selfplay_seeds": [44,45,46], "selfplay_sweeps": ["43,44,45","44,45,46","45,46,47"], "evaluation_seed": 42},
+  "direct_uniform_vs_control_1200_1200": {
+    "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+    "ci_method": "opening bootstrap, 10,000 samples",
+    "seeds": {
+      "44": {"effect": 0.1640625, "ci": [0.126953125,0.201171875], "disadvantaged_seat_score": 0.8828125},
+      "45": {"effect": 0.232421875, "ci": [0.193359375,0.2734375], "disadvantaged_seat_score": 0.890625},
+      "46": {"effect": 0.08203125, "ci": [0.037109375,0.12890625], "disadvantaged_seat_score": 0.625}
+    },
+    "mean_effect": 0.15950520833333334
+  },
+  "replay": {
+    "44": {"control_rows":63352,"uniform_rows":71166,"control_simulations":14621184,"uniform_simulations":85399200,"compute_multiplier":5.840},
+    "45": {"control_rows":64108,"uniform_rows":70975,"control_simulations":14766336,"uniform_simulations":85170000,"compute_multiplier":5.768},
+    "46": {"control_rows":63562,"uniform_rows":70584,"control_simulations":14661504,"uniform_simulations":84700800,"compute_multiplier":5.777}
+  },
+  "production_gate": {"uniform1200": {"44":"fail_arena_score_below_threshold","45":"fail_forensic_overall_regressed","46":"fail_arena_score_below_threshold"}},
+  "exact_audit": {"solver_time_limit_seconds":1,"opening":"128 sampled per lane; 0 solved in every uniform lane","uniform_midgame":{"44":{"solved":51,"top_action_in_optimal_set":0.8431,"optimal_mass":0.8520},"45":{"solved":55,"top_action_in_optimal_set":0.8,"optimal_mass":0.8068},"46":{"solved":55,"top_action_in_optimal_set":0.7818,"optimal_mass":0.7785}},"labels_used_for_training":false},
+  "artifacts": {"44":{"control_checkpoint":"979f906a80610e2a6648d5bc2ac1a88d47efad75bda53488b045688d12b2c513","uniform_checkpoint":"806d04b9452b98dbd7a844e553ea8e4e8af6094cbe37790cf16bc0a0bc90278a"},"45":{"control_checkpoint":"52d3df027c0cdccaba7e27f1c2827f673091a610f0103271c77411f0dca4131d","uniform_checkpoint":"97a82737efebcee541e9572def4cca08da5e0f5c12728f3a439753ed1b6594da"},"46":{"control_checkpoint":"ed61f4a6e943529a5d4fe5d452b00380bad0927c423f983de8fa9a363adc4ee2","uniform_checkpoint":"9baa2227602df7ffa0c16c009d16973c67181a079fca810a364b8f4ce97aa604"}}
+}
