@@ -1,0 +1,30 @@
+{
+  "schema": "azlite_uniform1200_midgame_2x2_results_v1",
+  "classification": "midgame_2x2_no_gain",
+  "promotion": {"performed": false},
+  "self_play": {"generated": false},
+  "phase_selection": {
+    "selected_phase": "mid",
+    "move_index_range": [10, 29],
+    "median_matched_policy_tv": {"early": 0.230506, "mid": 0.311059, "late": 0.036521},
+    "shared_states": {"early": [1359, 1362, 1400], "mid": [347, 398, 361], "late": [510, 551, 508]}
+  },
+  "inherited_sha256": {
+    "parent_weights": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "fixed_selected_replay": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b",
+    "fixed_controls_replay": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+  },
+  "exposure_matching": {"44": 0.997360, "45": 0.997106, "46": 0.997653},
+  "standard_arena_vs_incumbent": {
+    "B": {"44": [0.167969, 0.130859, 0.205078], "45": [-0.021484, -0.080078, 0.035156], "46": [-0.082031, -0.158203, -0.005859]},
+    "C": {"44": [0.062500, -0.001953, 0.126953], "45": [0.113281, 0.058594, 0.167969], "46": [-0.087891, -0.160156, -0.015625]},
+    "D": {"44": [-0.074219, -0.152344, 0.003906], "45": [-0.117188, -0.195312, -0.039062], "46": [-0.109375, -0.189453, -0.031201]}
+  },
+  "overall_forensic_blunder_delta_vs_matched_control": {
+    "B": {"44": 0.0759, "45": 0.0669, "46": 0.0581},
+    "C": {"44": 0.0625, "45": 0.0625, "46": 0.0491},
+    "D": {"44": 0.0669, "45": 0.0669, "46": 0.0268}
+  },
+  "success_rule": {"B": false, "C": false, "D": false},
+  "next_action": "Expand/strengthen the frozen forensic training-distribution diagnostic around PR #289 consistent regression families before another ML change."
+}
