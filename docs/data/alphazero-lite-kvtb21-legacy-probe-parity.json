@@ -1,0 +1,118 @@
+{
+  "artifacts": {
+    "18": {
+      "active_stone_tiers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "labels_equal": true,
+      "legal_action_counts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "multi_optimal_rows": 106,
+      "tablebase_bytes": 172986834,
+      "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac"
+    },
+    "19": {
+      "active_stone_tiers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "labels_equal": true,
+      "legal_action_counts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "multi_optimal_rows": 106,
+      "tablebase_bytes": 282241450,
+      "tablebase_sha256": "53cf399e8a00e0eb4bbd9d7ae20d528f6e2d91f9350269047de49d2c4a4099fd"
+    },
+    "20": {
+      "active_stone_tiers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "labels_equal": true,
+      "legal_action_counts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "multi_optimal_rows": 106,
+      "tablebase_bytes": 451586096,
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d"
+    }
+  },
+  "corpus_sha256": "ea84297db8d0852f6854e14d44746b994be0956202c231861a0f84c59ba37320",
+  "corpus_states": 256,
+  "new_probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+  "old_probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+  "passed": true,
+  "schema": "kvtb21_legacy_probe_parity_v1"
+}

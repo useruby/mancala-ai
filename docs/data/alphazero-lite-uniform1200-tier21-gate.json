@@ -1,0 +1,776 @@
+{
+  "classification": "tier21_oracle_effective_but_gate_unmet",
+  "combined_coverage_by_radius": {
+    "0": {
+      "exact_solved": 36,
+      "solve_rate": 0.9473684210526315,
+      "states": 38
+    },
+    "1": {
+      "exact_solved": 196,
+      "solve_rate": 0.9849246231155779,
+      "states": 199
+    },
+    "2": {
+      "exact_solved": 936,
+      "solve_rate": 0.9821615949632738,
+      "states": 953
+    }
+  },
+  "frozen_cohort_sha256": "2ae5376b06e26ec382e31b4ea9bad49a21dadd055891a863c407fde9fbe164ce",
+  "metrics": {
+    "attempted": 9,
+    "by_radius": {
+      "0": {
+        "exact_solved": 1,
+        "exact_timeout": 2
+      },
+      "1": {
+        "exact_solved": 3,
+        "exact_timeout": 3
+      }
+    },
+    "error": 0,
+    "forward_nodes": 3073692512,
+    "maximum_tablebase_tier_hit": 21,
+    "solved": 4,
+    "solved_latency_seconds": {
+      "max": 119.68599952501245,
+      "p50": 98.32195990998298,
+      "p90": 107.48571998300031
+    },
+    "tablebase_hits": 1718547959,
+    "tablebase_lookups": 1718547959,
+    "timeout": 5,
+    "tt_hits": 5045074,
+    "tt_probes": 9685825552
+  },
+  "original_pr291_coverage_gate_passed": false,
+  "preflight": {
+    "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+    "tablebase_bytes": 709635072,
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tablebase_tier": 21
+  },
+  "rows": [
+    {
+      "active_stones": 47,
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "1": 10,
+        "2": 0,
+        "3": 4,
+        "4": 4,
+        "5": 4
+      },
+      "exact_optimal_actions": [
+        1
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 10,
+      "native_metrics": {
+        "cpu_time_seconds": 97.534618,
+        "cumulative_cache": {
+          "tablebase_hits": 399806310,
+          "tt_hits": 1139856,
+          "tt_probes": 2235299072
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 709759413,
+        "maximum_search_depth": 72,
+        "maximum_tablebase_hit_tier": 21,
+        "minimum_tablebase_hit_tier": 1,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 399806310,
+        "tablebase_hits_by_tier": {
+          "1": 784,
+          "10": 569907,
+          "11": 745333,
+          "12": 948942,
+          "13": 1277365,
+          "14": 2016210,
+          "15": 3076992,
+          "16": 5854999,
+          "17": 9918108,
+          "18": 18595858,
+          "19": 33401303,
+          "2": 5596,
+          "20": 52364936,
+          "3": 17854,
+          "4": 36473,
+          "5": 64622,
+          "6": 108718,
+          "7": 171213,
+          "8": 266821,
+          "9": 404717
+        },
+        "tablebase_lookups": 399806310,
+        "tt_hits": 1139856,
+        "tt_probes": 2235299072,
+        "wall_time_seconds": 97.70158171
+      },
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "native request exceeded timeout",
+          "historical_pr291": true,
+          "probe_sha256": null,
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": null,
+          "timeout_seconds": 30.0,
+          "wall_duration_seconds": null
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 3,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.18768442096189
+        },
+        {
+          "attempt_number": 4,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.18630811409093
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "status": "exact_solved",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 98.32195990998298
+    },
+    {
+      "active_stones": 48,
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,5,4],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "native request exceeded timeout",
+          "historical_pr291": true,
+          "probe_sha256": null,
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": null,
+          "timeout_seconds": 30.0,
+          "wall_duration_seconds": null
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 3,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.23198926402256
+        },
+        {
+          "attempt_number": 4,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.33803793089464
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,5,4],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "status": "exact_timeout",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.12163510196842
+    },
+    {
+      "active_stones": 48,
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.21169683383778
+        },
+        {
+          "attempt_number": 3,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.32578767812811
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "status": "exact_timeout",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.12189093790948
+    },
+    {
+      "active_stones": 47,
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,0,6,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.23678858811036
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,0,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "status": "exact_timeout",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.12147632893175
+    },
+    {
+      "active_stones": 47,
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.32147041405551
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "status": "exact_timeout",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.12191432295367
+    },
+    {
+      "active_stones": 47,
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,6,6,5],\"player_store\":0}",
+      "exact_action_values": {
+        "0": -8,
+        "1": -6,
+        "2": -8,
+        "3": -8,
+        "4": -8,
+        "5": -6
+      },
+      "exact_optimal_actions": [
+        1,
+        5
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": -6,
+      "native_metrics": {
+        "cpu_time_seconds": 118.858557,
+        "cumulative_cache": {
+          "tablebase_hits": 523637056,
+          "tt_hits": 1354641,
+          "tt_probes": 2878804646
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 913790536,
+        "maximum_search_depth": 77,
+        "maximum_tablebase_hit_tier": 21,
+        "minimum_tablebase_hit_tier": 1,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 523637056,
+        "tablebase_hits_by_tier": {
+          "1": 5480,
+          "10": 517336,
+          "11": 730607,
+          "12": 1017260,
+          "13": 1516869,
+          "14": 2574699,
+          "15": 3936126,
+          "16": 7471671,
+          "17": 12923299,
+          "18": 24685180,
+          "19": 43898378,
+          "2": 26548,
+          "20": 66301996,
+          "3": 45296,
+          "4": 69215,
+          "5": 98341,
+          "6": 135889,
+          "7": 193488,
+          "8": 278058,
+          "9": 381493
+        },
+        "tablebase_lookups": 523637056,
+        "tt_hits": 1354641,
+        "tt_probes": 2878804646,
+        "wall_time_seconds": 119.061470755
+      },
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.2317193581257
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "status": "exact_solved",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 119.68599952501245
+    },
+    {
+      "active_stones": 47,
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,0,5],\"player_store\":1}",
+      "exact_action_values": {
+        "0": 8,
+        "1": 8,
+        "2": 2,
+        "3": 2,
+        "4": 4,
+        "5": 6
+      },
+      "exact_optimal_actions": [
+        2,
+        3
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": 2,
+      "native_metrics": {
+        "cpu_time_seconds": 84.696093,
+        "cumulative_cache": {
+          "tablebase_hits": 862964911,
+          "tt_hits": 2656929,
+          "tt_probes": 4806352080
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 613530217,
+        "maximum_search_depth": 73,
+        "maximum_tablebase_hit_tier": 21,
+        "minimum_tablebase_hit_tier": 1,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 339327855,
+        "tablebase_hits_by_tier": {
+          "1": 399,
+          "10": 720251,
+          "11": 844748,
+          "12": 958567,
+          "13": 1212303,
+          "14": 1917501,
+          "15": 2819667,
+          "16": 5132461,
+          "17": 8500979,
+          "18": 16190185,
+          "19": 28989963,
+          "2": 2296,
+          "20": 44649500,
+          "3": 11515,
+          "4": 29450,
+          "5": 67985,
+          "6": 130729,
+          "7": 233225,
+          "8": 374926,
+          "9": 554933
+        },
+        "tablebase_lookups": 339327855,
+        "tt_hits": 1302288,
+        "tt_probes": 1927547434,
+        "wall_time_seconds": 84.847456936
+      },
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.23422543890774
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,0,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "status": "exact_solved",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 84.84765218105167
+    },
+    {
+      "active_stones": 47,
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[1,2,7,6,6,5],\"player_store\":0}",
+      "exact_action_values": {
+        "0": -8,
+        "1": -10,
+        "2": -4,
+        "3": -6,
+        "4": -4,
+        "5": -10
+      },
+      "exact_optimal_actions": [
+        2,
+        4
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": -4,
+      "native_metrics": {
+        "cpu_time_seconds": 107.287846,
+        "cumulative_cache": {
+          "tablebase_hits": 1318741649,
+          "tt_hits": 3905218,
+          "tt_probes": 7450526480
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 836612346,
+        "maximum_search_depth": 80,
+        "maximum_tablebase_hit_tier": 21,
+        "minimum_tablebase_hit_tier": 1,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 455776738,
+        "tablebase_hits_by_tier": {
+          "1": 597,
+          "10": 542550,
+          "11": 729308,
+          "12": 958968,
+          "13": 1327859,
+          "14": 2161646,
+          "15": 3311422,
+          "16": 6497902,
+          "17": 11562163,
+          "18": 21868809,
+          "19": 38951326,
+          "2": 3765,
+          "20": 58425431,
+          "3": 12985,
+          "4": 29634,
+          "5": 58804,
+          "6": 109873,
+          "7": 189540,
+          "8": 291381,
+          "9": 414356
+        },
+        "tablebase_lookups": 455776738,
+        "tt_hits": 1248289,
+        "tt_probes": 2644174400,
+        "wall_time_seconds": 107.485563758
+      },
+      "pr292_status": "exact_timeout",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "native request exceeded timeout",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 120.14239325607195
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[1,2,7,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "status": "exact_solved",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 107.48571998300031
+    },
+    {
+      "active_stones": 48,
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "pr292_status": "exact_error",
+      "prior_attempt_history": [
+        {
+          "attempt_number": 1,
+          "failure_reason": "native request exceeded timeout",
+          "historical_pr291": true,
+          "probe_sha256": null,
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_timeout",
+          "tablebase_sha256": null,
+          "timeout_seconds": 30.0,
+          "wall_duration_seconds": null
+        },
+        {
+          "attempt_number": 2,
+          "failure_reason": "worker crash: No module named 'numpy'",
+          "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+          "solver_identity": "native_mtdf_hybrid_canonical_kvtb",
+          "status": "exact_error",
+          "tablebase_sha256": "6e65399387f4b9c13bd83568c60a35fbe474a6bdb8ec868002b783eb0abb02ac",
+          "timeout_seconds": 120.0,
+          "wall_duration_seconds": 0.0
+        }
+      ],
+      "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+      "provenance": [
+        {
+          "action_path": [
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "status": "exact_timeout",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_tier": 21,
+      "tier19_status": "exact_timeout",
+      "tier20_status": "exact_timeout",
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.12135787308216
+    }
+  ],
+  "schema": "azlite_uniform1200_tier21_gate_v1",
+  "tier21_cohort_sha256": "fad6ace2323e3022bbc36b61c0e46d01e62916bc95b274c214033c6a10a89b50",
+  "timeout_seconds": 120.0,
+  "workers": 1
+}

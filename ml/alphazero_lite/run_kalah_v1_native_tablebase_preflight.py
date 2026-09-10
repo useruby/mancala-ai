@@ -382,6 +382,8 @@ def portable_format_gate(binary: Path, tablebase: Path, directory: Path) -> dict
         fixture[offset] ^= 1
         return bytes(fixture)
 
+    invalid_declared_max = bytearray(data)
+    invalid_declared_max[23] = 22
     fixtures = {
         "empty": b"",
         "truncated": data[:-1],
@@ -393,7 +395,7 @@ def portable_format_gate(binary: Path, tablebase: Path, directory: Path) -> dict
         "unknown_value": altered(17),
         "tier": altered(18),
         "generator_revision": altered(19),
-        "max_tier": altered(23),
+        "max_tier": bytes(invalid_declared_max),
         "state_count": altered(24),
         "payload_length": altered(32),
         "file_length": altered(40),
