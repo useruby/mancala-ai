@@ -1,0 +1,43 @@
+{
+  "command": ".tmp/kalah_v1_tablebase_build/kalah_v1_tablebase generate 21 .tmp/kalah_v1_21.kvtb",
+  "generation": {
+    "bytes_per_indexed_state": 1.000000608763969,
+    "classification": "ok",
+    "cpu_seconds": 709.903698,
+    "cycles": 0,
+    "edges": 2709514080,
+    "lower_tier_edges": 1491122690,
+    "max_tier": 21,
+    "output_bytes": 709635072,
+    "payload_sha256": "1ff568e36770ab03476d69367119c97412ca67c073c91bc6c7c8ac62e0b24de1",
+    "peak_rss_kib": 2523620,
+    "resource_limits": {
+      "address_space_kib": 8388608,
+      "cpu_seconds": 1800,
+      "wall_seconds": 1800
+    },
+    "same_tier_edges": 1218391390,
+    "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "states": 709634640,
+    "temporary_disk_peak_bytes": 709635072,
+    "thresholds": {
+      "bytes_per_indexed_state": 2,
+      "peak_rss_kib": 8388608,
+      "temporary_disk_bytes": 8589934592,
+      "wall_seconds": 1800
+    },
+    "wall_seconds": 711.149396546185
+  },
+  "header": {
+    "bytes": 432,
+    "declared_max_tier": 21,
+    "magic": "KVTB1",
+    "tier": 21
+  },
+  "resource_preflight": {
+    "available_disk_bytes": 1671408689152,
+    "available_memory_bytes": 44935462912,
+    "file_descriptor_limit": 524288
+  },
+  "schema": "kvtb21_generation_v1"
+}

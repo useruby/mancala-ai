@@ -7,7 +7,9 @@
 #include <string.h>
 
 #define KVTB_SCHEMA 1
-#define KVTB_MAX_TIER 20
+#define KVTB_LEGACY_DECLARED_MAX_TIER 20
+#define KVTB_MAX_TIER 21
+#define KVTB_MAX_HEADER_BYTES (80 + 16 * (KVTB_MAX_TIER + 1))
 #define KVTB_REVISION 2
 #define KVTB_UNKNOWN ((int8_t)-128)
 
@@ -28,14 +30,14 @@ void canonical_tablebase_reset_request_metrics(void) { request_lookups=request_h
 void canonical_tablebase_close(void) { free(payload); payload=0; memset(offsets,0,sizeof(offsets)); top=-1; hits=0; canonical_tablebase_reset_request_metrics(); }
 
 int canonical_tablebase_load(const char *path) {
-  FILE *f=0; unsigned char h[416],digest[32]; uint64_t states,bytes,total,expected=0,header; long length; int i;
+  FILE *f=0; unsigned char h[KVTB_MAX_HEADER_BYTES],digest[32]; uint64_t states,bytes,total,expected=0,header; long length; int i;
   canonical_tablebase_close();
   if(!path || !(f=fopen(path,"rb"))) goto fail;
   if(fseek(f,0,SEEK_END) || (length=ftell(f))<0 || fseek(f,0,SEEK_SET)) goto fail;
   if((uintmax_t)length>UINT64_MAX || fread(h,1,48,f)!=48) goto fail;
   if(memcmp(h,"KVTB1",5) || h[5]!=KVTB_SCHEMA || h[6] || memcmp(h+7,"kalah_v1",8) || h[15]!=1 || h[16]!=1 || (int8_t)h[17]!=KVTB_UNKNOWN) goto fail;
   top=h[18];
-  if(top>KVTB_MAX_TIER || get32(h+19)!=KVTB_REVISION || h[23]!=KVTB_MAX_TIER) goto fail;
+  if(top>KVTB_MAX_TIER || get32(h+19)!=KVTB_REVISION || h[23]<top || h[23]>KVTB_MAX_TIER || (h[23]!=KVTB_LEGACY_DECLARED_MAX_TIER && h[23]!=KVTB_MAX_TIER)) goto fail;
   states=get64(h+24); bytes=get64(h+32); total=get64(h+40); header=80+16*((uint64_t)top+1);
   if(bytes!=states || total!=(uint64_t)length || header>sizeof(h) || total<header || bytes!=total-header) goto fail;
   if(fread(h+48,1,(size_t)(header-48),f)!=(size_t)(header-48)) goto fail;
