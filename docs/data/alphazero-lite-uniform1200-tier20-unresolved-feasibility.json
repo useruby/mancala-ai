@@ -1,0 +1,3313 @@
+{
+  "classification": "tier20_oracle_effective_but_insufficient",
+  "combined_coverage_by_radius": {
+    "0": {
+      "exact_solved": 35,
+      "solve_rate": 0.9210526315789473,
+      "states": 38
+    },
+    "1": {
+      "exact_solved": 193,
+      "solve_rate": 0.9698492462311558,
+      "states": 199
+    },
+    "2": {
+      "exact_solved": 936,
+      "solve_rate": 0.9821615949632738,
+      "states": 953
+    }
+  },
+  "complete": true,
+  "coverage": {
+    "exact_solved": 27,
+    "exact_timeout": 26
+  },
+  "frozen_cohort_sha256": "2ae5376b06e26ec382e31b4ea9bad49a21dadd055891a863c407fde9fbe164ce",
+  "generation": {
+    "bytes": 451586096,
+    "command": ".tmp/kalah_v1_tablebase_build/kalah_v1_tablebase generate 20 .tmp/kalah_v1_20.kvtb",
+    "cpu_seconds": 429.22114000000005,
+    "peak_rss_kib": 1602004,
+    "sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+    "states": 451585680,
+    "wall_seconds": 429.822936383076
+  },
+  "metrics": {
+    "attempted": 53,
+    "by_active_stones": {
+      "44": 2,
+      "45": 3,
+      "46": 16,
+      "47": 28,
+      "48": 4
+    },
+    "by_radius": {
+      "0": {
+        "exact_solved": 3,
+        "exact_timeout": 3
+      },
+      "1": {
+        "exact_solved": 9,
+        "exact_timeout": 6
+      },
+      "2": {
+        "exact_solved": 15,
+        "exact_timeout": 17
+      }
+    },
+    "error": 0,
+    "forward_search_nodes": 19687005664,
+    "maximum_tablebase_tier_hit": 20,
+    "solve_rate": 0.5094339622641509,
+    "solved": 27,
+    "solved_latency_seconds": {
+      "max": 119.39769372716546,
+      "p50": 97.91596383112483,
+      "p90": 116.18729536910541,
+      "p95": 118.54201627289876
+    },
+    "tablebase_hits": 10878567392,
+    "timeout": 26,
+    "tt_hits": 32945840,
+    "tt_probes": 61847264799
+  },
+  "next_experiment": "evaluate tier 21 on only the still-unresolved frozen states",
+  "original_pr291_coverage_gate_passed": false,
+  "paired_tier19_vs_tier20": {
+    "search_node_reduction": "not measurable: tier-19 timeout rows have no completed native metrics",
+    "tier19_timeout_to_tier20_solved": 27,
+    "tier19_timeout_to_tier20_timeout": 26,
+    "tier19_timeout_wall_seconds": {
+      "max": 120.10020661191083,
+      "p50": 120.0997053871397,
+      "p90": 120.10012076515704,
+      "p95": 120.10013526887633
+    }
+  },
+  "preflight": {
+    "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+    "tablebase_bytes": 451586096,
+    "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+    "tablebase_tier": 20
+  },
+  "rows": [
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,7,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "1": 0,
+        "2": 2,
+        "3": 0,
+        "4": 4,
+        "5": 4
+      },
+      "exact_optimal_actions": [
+        1,
+        3
+      ],
+      "exact_root_value": 0.0,
+      "exact_value": 0,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 104.597606,
+        "cumulative_cache": {
+          "tablebase_hits": 1590659495,
+          "tt_hits": 4769112,
+          "tt_probes": 8886434563
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 736277757,
+        "maximum_search_depth": 80,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 412791163,
+        "tablebase_hits_by_tier": {
+          "1": 2581,
+          "10": 629690,
+          "11": 814808,
+          "12": 1142778,
+          "13": 1882015,
+          "14": 2884459,
+          "15": 5569883,
+          "16": 9938915,
+          "17": 19692863,
+          "18": 36276298,
+          "19": 54691498,
+          "2": 14563,
+          "20": 277888353,
+          "3": 33109,
+          "4": 60069,
+          "5": 97022,
+          "6": 146596,
+          "7": 220225,
+          "8": 330031,
+          "9": 475407
+        },
+        "tablebase_lookups": 412791163,
+        "tt_hits": 1003217,
+        "tt_probes": 2308998369,
+        "wall_time_seconds": 104.782087722
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,7,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 104.7823237509001,
+      "worker_ordinal": 3,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[0,2,7,6,6,6],\"player_store\":0}",
+      "exact_action_values": {
+        "0": 6,
+        "1": 0,
+        "2": -12,
+        "3": -4,
+        "4": -2
+      },
+      "exact_optimal_actions": [
+        2
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": -12,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 107.447143,
+        "cumulative_cache": {
+          "tablebase_hits": 435149926,
+          "tt_hits": 1430342,
+          "tt_probes": 2391866836
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 767102628,
+        "maximum_search_depth": 78,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 435149926,
+        "tablebase_hits_by_tier": {
+          "1": 3574,
+          "10": 773603,
+          "11": 980698,
+          "12": 1333030,
+          "13": 2062936,
+          "14": 3130130,
+          "15": 6187639,
+          "16": 10897478,
+          "17": 21646548,
+          "18": 39216512,
+          "19": 56681277,
+          "2": 15808,
+          "20": 290541980,
+          "3": 34527,
+          "4": 66172,
+          "5": 113425,
+          "6": 176815,
+          "7": 276854,
+          "8": 421511,
+          "9": 589409
+        },
+        "tablebase_lookups": 435149926,
+        "tt_hits": 1430342,
+        "tt_probes": 2391866836,
+        "wall_time_seconds": 107.630550007
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-025",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[0,2,7,6,6,6],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 108.04413114185445,
+      "worker_ordinal": 0,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 48,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 6,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.1001756589394,
+      "worker_ordinal": 7,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 44,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,10,7,6,6,4],\"opponent_store\":0,\"player_pits\":[0,0,0,1,1,8],\"player_store\":4}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            2
+          ],
+          "anchor_id": "starvation_pressure-007",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,10,7,6,6,4],\"opponent_store\":0,\"player_pits\":[0,0,0,1,1,8],\"player_store\":4}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.10021221800707,
+      "worker_ordinal": 9,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 48,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[0,1,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,0,7,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 7,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[0,1,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,0,7,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09919809992425,
+      "worker_ordinal": 8,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,0],\"opponent_store\":1,\"player_pits\":[0,2,7,6,6,6],\"player_store\":0}",
+      "exact_action_values": {
+        "1": -4,
+        "2": 2,
+        "3": 6,
+        "4": 4,
+        "5": 2
+      },
+      "exact_optimal_actions": [
+        3
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 6,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 89.53827,
+        "cumulative_cache": {
+          "tablebase_hits": 786838651,
+          "tt_hits": 2498971,
+          "tt_probes": 4360865890
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 630525091,
+        "maximum_search_depth": 78,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 351688725,
+        "tablebase_hits_by_tier": {
+          "1": 3266,
+          "10": 581956,
+          "11": 730197,
+          "12": 1015697,
+          "13": 1661884,
+          "14": 2538634,
+          "15": 4846222,
+          "16": 8597239,
+          "17": 17342170,
+          "18": 31873814,
+          "19": 46647667,
+          "2": 13829,
+          "20": 234448208,
+          "3": 28263,
+          "4": 55097,
+          "5": 99480,
+          "6": 157421,
+          "7": 237348,
+          "8": 345503,
+          "9": 464830
+        },
+        "tablebase_lookups": 351688725,
+        "tt_hits": 1068629,
+        "tt_probes": 1968999054,
+        "wall_time_seconds": 89.698767295
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-025",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,0],\"opponent_store\":1,\"player_pits\":[0,2,7,6,6,6],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 89.69895040197298,
+      "worker_ordinal": 1,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,0,8,8,6],\"player_store\":2}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            1,
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,0,8,8,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.1000839699991,
+      "worker_ordinal": 4,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,6],\"opponent_store\":0,\"player_pits\":[0,0,1,7,7,6],\"player_store\":2}",
+      "exact_action_values": {
+        "2": -18,
+        "3": 4,
+        "4": 4,
+        "5": 0
+      },
+      "exact_optimal_actions": [
+        3,
+        4
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 4,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 75.07395,
+        "cumulative_cache": {
+          "tablebase_hits": 304050660,
+          "tt_hits": 887087,
+          "tt_probes": 1704585450
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 539487921,
+        "maximum_search_depth": 80,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 304050660,
+        "tablebase_hits_by_tier": {
+          "1": 2576,
+          "10": 272417,
+          "11": 393091,
+          "12": 670951,
+          "13": 1299615,
+          "14": 2070323,
+          "15": 4052161,
+          "16": 7250094,
+          "17": 14474505,
+          "18": 26651001,
+          "19": 39338099,
+          "2": 13308,
+          "20": 206856251,
+          "3": 26087,
+          "4": 43743,
+          "5": 63276,
+          "6": 85851,
+          "7": 118659,
+          "8": 160498,
+          "9": 208154
+        },
+        "tablebase_lookups": 304050660,
+        "tt_hits": 887087,
+        "tt_probes": 1704585450,
+        "wall_time_seconds": 75.219946773
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-070",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,6],\"opponent_store\":0,\"player_pits\":[0,0,1,7,7,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": true,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 75.63305818499066,
+      "worker_ordinal": 0,
+      "worker_shard_id": 3
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[1,0,6,6,6,5],\"opponent_store\":1,\"player_pits\":[1,5,5,0,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "0": -2,
+        "1": 6,
+        "2": 4,
+        "4": 2,
+        "5": 2
+      },
+      "exact_optimal_actions": [
+        1
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 6,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 87.880202,
+        "cumulative_cache": {
+          "tablebase_hits": 353470855,
+          "tt_hits": 1063670,
+          "tt_probes": 2001740731
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 635501556,
+        "maximum_search_depth": 84,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 353470855,
+        "tablebase_hits_by_tier": {
+          "1": 1177,
+          "10": 462148,
+          "11": 613461,
+          "12": 907650,
+          "13": 1503948,
+          "14": 2298803,
+          "15": 4536899,
+          "16": 8576779,
+          "17": 17000614,
+          "18": 30793856,
+          "19": 45023347,
+          "2": 6989,
+          "20": 240764560,
+          "3": 17243,
+          "4": 36405,
+          "5": 64142,
+          "6": 102696,
+          "7": 161764,
+          "8": 247300,
+          "9": 351074
+        },
+        "tablebase_lookups": 353470855,
+        "tt_hits": 1063670,
+        "tt_probes": 2001740731,
+        "wall_time_seconds": 88.034983312
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3,
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[1,0,6,6,6,5],\"opponent_store\":1,\"player_pits\":[1,5,5,0,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 88.43833410809748,
+      "worker_ordinal": 0,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[1,0,7,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 8,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            2,
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[1,0,7,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.0996413519606,
+      "worker_ordinal": 9,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,0,7,6],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 9,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,0,7,6],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09979403787293,
+      "worker_ordinal": 10,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,0,7,7,6],\"player_store\":2}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            1,
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,0,7,7,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.0995258979965,
+      "worker_ordinal": 1,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,0,5],\"player_store\":1}",
+      "exact_action_values": {
+        "1": 8,
+        "2": 6,
+        "3": 8,
+        "5": 4
+      },
+      "exact_optimal_actions": [
+        1,
+        3
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 8,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 118.035528,
+        "cumulative_cache": {
+          "tablebase_hits": 458042666,
+          "tt_hits": 1134130,
+          "tt_probes": 2686127480
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 856063275,
+        "maximum_search_depth": 80,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 458042666,
+        "tablebase_hits_by_tier": {
+          "1": 981,
+          "10": 917498,
+          "11": 1084616,
+          "12": 1457719,
+          "13": 2327426,
+          "14": 3479891,
+          "15": 6631506,
+          "16": 11358249,
+          "17": 22241993,
+          "18": 40224476,
+          "19": 59502823,
+          "2": 5544,
+          "20": 306560143,
+          "3": 24596,
+          "4": 66302,
+          "5": 147494,
+          "6": 259260,
+          "7": 395569,
+          "8": 585206,
+          "9": 771374
+        },
+        "tablebase_lookups": 458042666,
+        "tt_hits": 1134130,
+        "tt_probes": 2686127480,
+        "wall_time_seconds": 118.235186212
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            4,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,0,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 118.67623597197235,
+      "worker_ordinal": 2,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,7,6,6],\"opponent_store\":0,\"player_pits\":[0,5,0,6,0,6],\"player_store\":2}",
+      "exact_action_values": {
+        "0": 6,
+        "1": 6,
+        "2": 2,
+        "3": 0,
+        "4": 2,
+        "5": 8
+      },
+      "exact_optimal_actions": [
+        3
+      ],
+      "exact_root_value": 0.0,
+      "exact_value": 0,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 85.184073,
+        "cumulative_cache": {
+          "tablebase_hits": 636004787,
+          "tt_hits": 2101597,
+          "tt_probes": 3627566019
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 608712395,
+        "maximum_search_depth": 78,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 331954127,
+        "tablebase_hits_by_tier": {
+          "1": 1097,
+          "10": 411565,
+          "11": 546952,
+          "12": 813859,
+          "13": 1437258,
+          "14": 2231538,
+          "15": 4417619,
+          "16": 7948855,
+          "17": 15705052,
+          "18": 28876092,
+          "19": 43042515,
+          "2": 6726,
+          "20": 225614823,
+          "3": 17489,
+          "4": 35890,
+          "5": 61681,
+          "6": 94329,
+          "7": 149271,
+          "8": 226098,
+          "9": 315418
+        },
+        "tablebase_lookups": 331954127,
+        "tt_hits": 1214510,
+        "tt_probes": 1922980569,
+        "wall_time_seconds": 85.330390697
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-070",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,7,6,6],\"opponent_store\":0,\"player_pits\":[0,5,0,6,0,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 85.33057450386696,
+      "worker_ordinal": 1,
+      "worker_shard_id": 3
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,0,7,6],\"player_store\":2}",
+      "exact_action_values": {
+        "1": 16,
+        "2": 12,
+        "4": 14,
+        "5": 10
+      },
+      "exact_optimal_actions": [
+        1
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 16,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 95.547043,
+        "cumulative_cache": {
+          "tablebase_hits": 403889671,
+          "tt_hits": 1144503,
+          "tt_probes": 2209225024
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 702766346,
+        "maximum_search_depth": 71,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 403889671,
+        "tablebase_hits_by_tier": {
+          "1": 8110,
+          "10": 684633,
+          "11": 985049,
+          "12": 1405525,
+          "13": 2096892,
+          "14": 3102407,
+          "15": 5964840,
+          "16": 9963431,
+          "17": 18469141,
+          "18": 31392502,
+          "19": 47054841,
+          "2": 29615,
+          "20": 281756771,
+          "3": 36144,
+          "4": 39760,
+          "5": 46922,
+          "6": 65615,
+          "7": 111898,
+          "8": 235630,
+          "9": 439945
+        },
+        "tablebase_lookups": 403889671,
+        "tt_hits": 1144503,
+        "tt_probes": 2209225024,
+        "wall_time_seconds": 95.73506373
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,0,7,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 96.16465138597414,
+      "worker_ordinal": 5,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,7,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,0,6],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 10,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,7,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,0,6],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.10009437799454,
+      "worker_ordinal": 11,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,0,6,6],\"opponent_store\":1,\"player_pits\":[0,3,6,6,6,5],\"player_store\":0}",
+      "exact_action_values": {
+        "0": 0,
+        "2": -6,
+        "4": -6,
+        "5": -2
+      },
+      "exact_optimal_actions": [
+        2,
+        4
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": -6,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 99.664076,
+        "cumulative_cache": {
+          "tablebase_hits": 414871050,
+          "tt_hits": 928637,
+          "tt_probes": 2350526321
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 746024347,
+        "maximum_search_depth": 85,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 414871050,
+        "tablebase_hits_by_tier": {
+          "1": 3057,
+          "10": 493618,
+          "11": 681841,
+          "12": 1040723,
+          "13": 1767942,
+          "14": 2763830,
+          "15": 5554649,
+          "16": 10190892,
+          "17": 20171038,
+          "18": 36340302,
+          "19": 53624285,
+          "2": 16139,
+          "20": 281030667,
+          "3": 33469,
+          "4": 61422,
+          "5": 96608,
+          "6": 136525,
+          "7": 199611,
+          "8": 286491,
+          "9": 377941
+        },
+        "tablebase_lookups": 414871050,
+        "tt_hits": 928637,
+        "tt_probes": 2350526321,
+        "wall_time_seconds": 99.834136936
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 11,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,0,6,6],\"opponent_store\":1,\"player_pits\":[0,3,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 100.23690593102947,
+      "worker_ordinal": 12,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,0,6],\"player_store\":2}",
+      "exact_action_values": {
+        "1": 16,
+        "2": 4,
+        "3": 14,
+        "5": 10
+      },
+      "exact_optimal_actions": [
+        1
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 16,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 114.162215,
+        "cumulative_cache": {
+          "tablebase_hits": 848429345,
+          "tt_hits": 2445005,
+          "tt_probes": 4768614097
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 812681947,
+        "maximum_search_depth": 78,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 444539674,
+        "tablebase_hits_by_tier": {
+          "1": 2352,
+          "10": 841543,
+          "11": 1114360,
+          "12": 1586869,
+          "13": 2382693,
+          "14": 3440461,
+          "15": 6473212,
+          "16": 10825961,
+          "17": 20934655,
+          "18": 37003817,
+          "19": 55751667,
+          "2": 12738,
+          "20": 302548755,
+          "3": 37700,
+          "4": 73617,
+          "5": 123027,
+          "6": 172279,
+          "7": 239358,
+          "8": 379763,
+          "9": 594847
+        },
+        "tablebase_lookups": 444539674,
+        "tt_hits": 1300502,
+        "tt_probes": 2559389073,
+        "wall_time_seconds": 114.383581394
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            4,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,0,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 114.38371885707602,
+      "worker_ordinal": 6,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            2,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09992138110101,
+      "worker_ordinal": 3,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 45,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,0,2,0,8,7],\"player_store\":3}",
+      "exact_action_values": {
+        "0": 8,
+        "1": 8,
+        "2": 6,
+        "3": 8,
+        "4": 8,
+        "5": 14
+      },
+      "exact_optimal_actions": [
+        2
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": 6,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 97.711258,
+        "cumulative_cache": {
+          "tablebase_hits": 1209303199,
+          "tt_hits": 3939562,
+          "tt_probes": 6907439466
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 680263148,
+        "maximum_search_depth": 71,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 45,
+        "status": "completed",
+        "tablebase_hits": 360873854,
+        "tablebase_hits_by_tier": {
+          "1": 5533,
+          "10": 523689,
+          "11": 779188,
+          "12": 1203102,
+          "13": 1968881,
+          "14": 2867775,
+          "15": 5324434,
+          "16": 8662719,
+          "17": 16480931,
+          "18": 29954616,
+          "19": 46396696,
+          "2": 20773,
+          "20": 245829173,
+          "3": 35204,
+          "4": 47818,
+          "5": 57568,
+          "6": 73196,
+          "7": 110617,
+          "8": 195601,
+          "9": 336340
+        },
+        "tablebase_lookups": 360873854,
+        "tt_hits": 1494557,
+        "tt_probes": 2138825369,
+        "wall_time_seconds": 97.91575723
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            1,
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,0,2,0,8,7],\"player_store\":3}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 97.91596383112483,
+      "worker_ordinal": 7,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,6,0,7,6],\"player_store\":2}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 3,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            1,
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,6,0,7,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.0586478470359,
+      "worker_ordinal": 4,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[1,0,8,7,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 11,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            4,
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[1,0,8,7,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09509638696909,
+      "worker_ordinal": 13,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,0,6,6,5],\"opponent_store\":1,\"player_pits\":[1,5,0,7,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "0": -2,
+        "1": 2,
+        "3": 2,
+        "4": 2,
+        "5": 0
+      },
+      "exact_optimal_actions": [
+        1,
+        3,
+        4
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 2,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 92.210492,
+        "cumulative_cache": {
+          "tablebase_hits": 1550181298,
+          "tt_hits": 4862389,
+          "tt_probes": 8845543241
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 615080868,
+        "maximum_search_depth": 82,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 340878099,
+        "tablebase_hits_by_tier": {
+          "1": 2282,
+          "10": 428512,
+          "11": 572586,
+          "12": 853009,
+          "13": 1539512,
+          "14": 2373503,
+          "15": 4616054,
+          "16": 8110095,
+          "17": 15954274,
+          "18": 29537992,
+          "19": 44927004,
+          "2": 10534,
+          "20": 230987996,
+          "3": 25874,
+          "4": 48235,
+          "5": 77465,
+          "6": 111318,
+          "7": 156659,
+          "8": 226084,
+          "9": 319111
+        },
+        "tablebase_lookups": 340878099,
+        "tt_hits": 922827,
+        "tt_probes": 1938103775,
+        "wall_time_seconds": 92.396049928
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            2,
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,0,6,6,5],\"opponent_store\":1,\"player_pits\":[1,5,0,7,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 92.39624465815723,
+      "worker_ordinal": 8,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,0,6,6],\"opponent_store\":1,\"player_pits\":[1,0,7,7,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 12,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3,
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,0,6,6],\"opponent_store\":1,\"player_pits\":[1,0,7,7,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09994168602861,
+      "worker_ordinal": 14,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,7,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,0],\"player_store\":1}",
+      "exact_action_values": {
+        "0": 2,
+        "1": 4,
+        "2": -2,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "exact_optimal_actions": [
+        2
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": -2,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 110.386484,
+        "cumulative_cache": {
+          "tablebase_hits": 459615653,
+          "tt_hits": 1318009,
+          "tt_probes": 2571475841
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 819851134,
+        "maximum_search_depth": 83,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 459615653,
+        "tablebase_hits_by_tier": {
+          "1": 4994,
+          "10": 586142,
+          "11": 739540,
+          "12": 1087493,
+          "13": 1892022,
+          "14": 3014626,
+          "15": 6003199,
+          "16": 11196348,
+          "17": 22747586,
+          "18": 41766032,
+          "19": 61406306,
+          "2": 22602,
+          "20": 307357051,
+          "3": 54531,
+          "4": 105250,
+          "5": 165599,
+          "6": 232826,
+          "7": 317266,
+          "8": 414211,
+          "9": 502029
+        },
+        "tablebase_lookups": 459615653,
+        "tt_hits": 1318009,
+        "tt_probes": 2571475841,
+        "wall_time_seconds": 110.577075126
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 13,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            5
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,7,7,6,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,0],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 111.00045886007138,
+      "worker_ordinal": 15,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,0,7,7,6],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 13,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,2,6,6,6,5],\"opponent_store\":0,\"player_pits\":[0,1,0,7,7,6],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.07508678198792,
+      "worker_ordinal": 16,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,1,1,6,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,0,7,6],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 14,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            2,
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,1,1,6,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,0,7,6],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.10007664305158,
+      "worker_ordinal": 17,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[0,2,6,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 15,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            2,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[0,2,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.07968518207781,
+      "worker_ordinal": 18,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,0,6,6,0,6],\"player_store\":2}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 4,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            1,
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,0,6,6,0,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09935503918678,
+      "worker_ordinal": 5,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,1,1,7,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,6,6,0],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 16,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            2,
+            5
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,1,1,7,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,6,6,0],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09972238284536,
+      "worker_ordinal": 19,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[0,6,0,6,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "0": -2,
+        "3": -4,
+        "4": -6,
+        "5": 0
+      },
+      "exact_optimal_actions": [
+        4
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": -6,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 111.168643,
+        "cumulative_cache": {
+          "tablebase_hits": 1088008458,
+          "tt_hits": 3037693,
+          "tt_probes": 6204029203
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 817465239,
+        "maximum_search_depth": 79,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 452003671,
+        "tablebase_hits_by_tier": {
+          "1": 4001,
+          "10": 495391,
+          "11": 701798,
+          "12": 1107320,
+          "13": 1969809,
+          "14": 3030699,
+          "15": 6115043,
+          "16": 11033604,
+          "17": 21847477,
+          "18": 39772769,
+          "19": 58282902,
+          "2": 20285,
+          "20": 306443240,
+          "3": 46042,
+          "4": 77032,
+          "5": 110654,
+          "6": 145079,
+          "7": 190765,
+          "8": 258152,
+          "9": 351609
+        },
+        "tablebase_lookups": 452003671,
+        "tt_hits": 936096,
+        "tt_probes": 2576463184,
+        "wall_time_seconds": 111.352639365
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            2,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-070",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[0,6,0,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 111.35288047208451,
+      "worker_ordinal": 2,
+      "worker_shard_id": 3
+    },
+    {
+      "active_stones": 44,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,10,7,7,6,4],\"opponent_store\":0,\"player_pits\":[0,0,0,0,1,8],\"player_store\":4}",
+      "exact_action_values": {
+        "0": 14,
+        "1": 16,
+        "2": 12,
+        "3": 10,
+        "4": 10,
+        "5": 18
+      },
+      "exact_optimal_actions": [
+        3,
+        4
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": 10,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 87.505021,
+        "cumulative_cache": {
+          "tablebase_hits": 721641997,
+          "tt_hits": 2520286,
+          "tt_probes": 4064365053
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 691518191,
+        "maximum_search_depth": 63,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 44,
+        "status": "completed",
+        "tablebase_hits": 375809591,
+        "tablebase_hits_by_tier": {
+          "1": 46,
+          "10": 634168,
+          "11": 978772,
+          "12": 1489970,
+          "13": 2293732,
+          "14": 3317874,
+          "15": 5972672,
+          "16": 9855017,
+          "17": 19162695,
+          "18": 32810516,
+          "19": 47879386,
+          "2": 553,
+          "20": 250715403,
+          "3": 1476,
+          "4": 4283,
+          "5": 15214,
+          "6": 38416,
+          "7": 84536,
+          "8": 187393,
+          "9": 367469
+        },
+        "tablebase_lookups": 375809591,
+        "tt_hits": 1738712,
+        "tt_probes": 2175791431,
+        "wall_time_seconds": 87.665532458
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 17,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            3
+          ],
+          "anchor_id": "starvation_pressure-002",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,10,7,7,6,4],\"opponent_store\":0,\"player_pits\":[0,0,0,0,1,8],\"player_store\":4}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 87.66576452902518,
+      "worker_ordinal": 21,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,5,1],\"opponent_store\":1,\"player_pits\":[0,2,7,6,6,6],\"player_store\":0}",
+      "exact_action_values": {
+        "1": -8,
+        "2": -2,
+        "3": 0,
+        "4": -4,
+        "5": -8
+      },
+      "exact_optimal_actions": [
+        3
+      ],
+      "exact_root_value": 0.0,
+      "exact_value": 0,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 98.555481,
+        "cumulative_cache": {
+          "tablebase_hits": 1177868332,
+          "tt_hits": 3765895,
+          "tt_probes": 6577436194
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 708954206,
+        "maximum_search_depth": 77,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 391029681,
+        "tablebase_hits_by_tier": {
+          "1": 2275,
+          "10": 557332,
+          "11": 678362,
+          "12": 936787,
+          "13": 1623660,
+          "14": 2617373,
+          "15": 5543596,
+          "16": 9948320,
+          "17": 19678225,
+          "18": 35916102,
+          "19": 52018156,
+          "2": 14389,
+          "20": 260042432,
+          "3": 33371,
+          "4": 65239,
+          "5": 108153,
+          "6": 166238,
+          "7": 253742,
+          "8": 361949,
+          "9": 463980
+        },
+        "tablebase_lookups": 391029681,
+        "tt_hits": 1266924,
+        "tt_probes": 2216570304,
+        "wall_time_seconds": 98.726418179
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            0,
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-025",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,5,1],\"opponent_store\":1,\"player_pits\":[0,2,7,6,6,6],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 98.72662885300815,
+      "worker_ordinal": 2,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,0,6,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 5,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,7,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,0,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.0997826140374,
+      "worker_ordinal": 6,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[0,3,7,6,6,5],\"player_store\":0}",
+      "exact_action_values": {
+        "0": -8,
+        "2": -6,
+        "3": -6,
+        "5": 0
+      },
+      "exact_optimal_actions": [
+        0
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": -8,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 79.440212,
+        "cumulative_cache": {
+          "tablebase_hits": 345832406,
+          "tt_hits": 781574,
+          "tt_probes": 1888573622
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 602759649,
+        "maximum_search_depth": 86,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 345832406,
+        "tablebase_hits_by_tier": {
+          "1": 1312,
+          "10": 473770,
+          "11": 617227,
+          "12": 868706,
+          "13": 1463041,
+          "14": 2278671,
+          "15": 4636333,
+          "16": 8496117,
+          "17": 16851850,
+          "18": 30709437,
+          "19": 45034671,
+          "2": 7071,
+          "20": 233246590,
+          "3": 23056,
+          "4": 47158,
+          "5": 85162,
+          "6": 132193,
+          "7": 199869,
+          "8": 283967,
+          "9": 376205
+        },
+        "tablebase_lookups": 345832406,
+        "tt_hits": 781574,
+        "tt_probes": 1888573622,
+        "wall_time_seconds": 79.575804063
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 17,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            4,
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[0,3,7,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 2,
+          "terminal": false
+        }
+      ],
+      "radius": 2,
+      "source_oracle_status": "exact_error",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 79.9785336649511,
+      "worker_ordinal": 20,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 45,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,8,6,6,6,4],\"opponent_store\":0,\"player_pits\":[0,0,0,7,0,7],\"player_store\":3}",
+      "exact_action_values": {
+        "0": 10,
+        "1": 8,
+        "2": 14,
+        "3": 8,
+        "4": 8,
+        "5": 14
+      },
+      "exact_optimal_actions": [
+        1,
+        3,
+        4
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": 8,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 115.592043,
+        "cumulative_cache": {
+          "tablebase_hits": 492150955,
+          "tt_hits": 1703001,
+          "tt_probes": 2857552568
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 906952665,
+        "maximum_search_depth": 71,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 45,
+        "status": "completed",
+        "tablebase_hits": 492150955,
+        "tablebase_hits_by_tier": {
+          "1": 1869,
+          "10": 630886,
+          "11": 964076,
+          "12": 1583080,
+          "13": 2660885,
+          "14": 3868938,
+          "15": 7355340,
+          "16": 12352804,
+          "17": 23277994,
+          "18": 41826550,
+          "19": 62689812,
+          "2": 11364,
+          "20": 333723978,
+          "3": 30825,
+          "4": 54922,
+          "5": 89621,
+          "6": 126499,
+          "7": 179819,
+          "8": 285712,
+          "9": 435981
+        },
+        "tablebase_lookups": 492150955,
+        "tt_hits": 1703001,
+        "tt_probes": 2857552568,
+        "wall_time_seconds": 115.786352895
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 3,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "starvation_pressure-002",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,8,6,6,6,4],\"opponent_store\":0,\"player_pits\":[0,0,0,7,0,7],\"player_store\":3}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 116.18729536910541,
+      "worker_ordinal": 3,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,6,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 3,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09957848489285,
+      "worker_ordinal": 10,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "0": 4,
+        "2": 4,
+        "3": -2,
+        "4": 0,
+        "5": 4
+      },
+      "exact_optimal_actions": [
+        3
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": -2,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 108.581501,
+        "cumulative_cache": {
+          "tablebase_hits": 1518876907,
+          "tt_hits": 4151663,
+          "tt_probes": 8580320633
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 758934853,
+        "maximum_search_depth": 82,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 430868449,
+        "tablebase_hits_by_tier": {
+          "1": 3729,
+          "10": 608513,
+          "11": 772006,
+          "12": 1113111,
+          "13": 1914840,
+          "14": 3008143,
+          "15": 5945656,
+          "16": 10517874,
+          "17": 20834523,
+          "18": 38318188,
+          "19": 56692840,
+          "2": 18107,
+          "20": 289709707,
+          "3": 39339,
+          "4": 66716,
+          "5": 101813,
+          "6": 148595,
+          "7": 231521,
+          "8": 346532,
+          "9": 476696
+        },
+        "tablebase_lookups": 430868449,
+        "tt_hits": 1113970,
+        "tt_probes": 2376291430,
+        "wall_time_seconds": 108.767775329
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "opening_plies_1_8-070",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[5,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 108.76795579190366,
+      "worker_ordinal": 3,
+      "worker_shard_id": 3
+    },
+    {
+      "active_stones": 45,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,8,7,6,6,4],\"opponent_store\":0,\"player_pits\":[0,0,6,0,0,7],\"player_store\":3}",
+      "exact_action_values": {
+        "0": 10,
+        "1": 8,
+        "2": 6,
+        "3": 6,
+        "4": 18,
+        "5": 14
+      },
+      "exact_optimal_actions": [
+        2,
+        3
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": 6,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 95.964073,
+        "cumulative_cache": {
+          "tablebase_hits": 1823168775,
+          "tt_hits": 6082784,
+          "tt_probes": 10409193992
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 739559978,
+        "maximum_search_depth": 71,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 45,
+        "status": "completed",
+        "tablebase_hits": 388911872,
+        "tablebase_hits_by_tier": {
+          "1": 711,
+          "10": 545210,
+          "11": 731371,
+          "12": 1139072,
+          "13": 2077172,
+          "14": 3102708,
+          "15": 5714618,
+          "16": 9624258,
+          "17": 18431384,
+          "18": 33451997,
+          "19": 50337188,
+          "2": 5233,
+          "20": 262276885,
+          "3": 22558,
+          "4": 61539,
+          "5": 119618,
+          "6": 193306,
+          "7": 269490,
+          "8": 360277,
+          "9": 447277
+        },
+        "tablebase_lookups": 388911872,
+        "tt_hits": 1780076,
+        "tt_probes": 2331921965,
+        "wall_time_seconds": 96.140299715
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 4,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "starvation_pressure-007",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,8,7,6,6,4],\"opponent_store\":0,\"player_pits\":[0,0,6,0,0,7],\"player_store\":3}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 96.14048730605282,
+      "worker_ordinal": 14,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 48,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,5,4],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 17,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,5,4],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.10012793820351,
+      "worker_ordinal": 22,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 48,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 21,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[4,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[0,1,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 0,
+          "terminal": false
+        }
+      ],
+      "radius": 0,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09978288994171,
+      "worker_ordinal": 27,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,0,7,6],\"player_store\":2}",
+      "exact_action_values": {
+        "0": 16,
+        "1": 16,
+        "2": 6,
+        "3": 10,
+        "4": 4,
+        "5": 10
+      },
+      "exact_optimal_actions": [
+        4
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": 4,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 118.768845,
+        "cumulative_cache": {
+          "tablebase_hits": 532649602,
+          "tt_hits": 1700409,
+          "tt_probes": 2915669569
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 929811612,
+        "maximum_search_depth": 71,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 532649602,
+        "tablebase_hits_by_tier": {
+          "1": 8533,
+          "10": 879018,
+          "11": 1236591,
+          "12": 1769120,
+          "13": 2709695,
+          "14": 4032821,
+          "15": 7803591,
+          "16": 13117437,
+          "17": 24303542,
+          "18": 42185545,
+          "19": 63498968,
+          "2": 33270,
+          "20": 369682330,
+          "3": 44392,
+          "4": 54208,
+          "5": 74429,
+          "6": 111631,
+          "7": 182250,
+          "8": 340115,
+          "9": 582116
+        },
+        "tablebase_lookups": 532649602,
+        "tt_hits": 1700409,
+        "tt_probes": 2915669569,
+        "wall_time_seconds": 118.97468194
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 4,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,0,7,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 119.39769372716546,
+      "worker_ordinal": 11,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,0,6,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 18,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,0,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.07608571811579,
+      "worker_ordinal": 23,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 19,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.09930695290677,
+      "worker_ordinal": 24,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,5,0],\"opponent_store\":1,\"player_pits\":[1,2,7,7,6,5],\"player_store\":0}",
+      "exact_action_values": {
+        "0": -8,
+        "1": -8,
+        "2": -2,
+        "3": -4,
+        "4": -2,
+        "5": -6
+      },
+      "exact_optimal_actions": [
+        2,
+        4
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": -2,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 81.922507,
+        "cumulative_cache": {
+          "tablebase_hits": 335413435,
+          "tt_hits": 1447727,
+          "tt_probes": 1991307123
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 637146375,
+        "maximum_search_depth": 75,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 335413435,
+        "tablebase_hits_by_tier": {
+          "1": 2798,
+          "10": 594679,
+          "11": 696847,
+          "12": 940973,
+          "13": 1517589,
+          "14": 2350058,
+          "15": 4680721,
+          "16": 8531631,
+          "17": 17136857,
+          "18": 31503355,
+          "19": 46122128,
+          "2": 14120,
+          "20": 219677762,
+          "3": 35611,
+          "4": 72399,
+          "5": 129487,
+          "6": 200520,
+          "7": 291083,
+          "8": 405578,
+          "9": 509239
+        },
+        "tablebase_lookups": 335413435,
+        "tt_hits": 1447727,
+        "tt_probes": 1991307123,
+        "wall_time_seconds": 82.067778241
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 22,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            5
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,5,0],\"opponent_store\":1,\"player_pits\":[1,2,7,7,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 82.46846748003736,
+      "worker_ordinal": 28,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,2,7,7,6],\"player_store\":2}",
+      "exact_action_values": {
+        "2": 2,
+        "3": 6,
+        "4": 10,
+        "5": 8
+      },
+      "exact_optimal_actions": [
+        4
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 10,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 95.03498,
+        "cumulative_cache": {
+          "tablebase_hits": 924427583,
+          "tt_hits": 2607975,
+          "tt_probes": 5159938152
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 711940801,
+        "maximum_search_depth": 79,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 391777981,
+        "tablebase_hits_by_tier": {
+          "1": 2077,
+          "10": 525291,
+          "11": 717341,
+          "12": 1069058,
+          "13": 1861964,
+          "14": 2894826,
+          "15": 5479747,
+          "16": 9301193,
+          "17": 18292672,
+          "18": 33703184,
+          "19": 50365275,
+          "2": 11476,
+          "20": 266475807,
+          "3": 27969,
+          "4": 52979,
+          "5": 84892,
+          "6": 122256,
+          "7": 171198,
+          "8": 250785,
+          "9": 367991
+        },
+        "tablebase_lookups": 391777981,
+        "tt_hits": 907566,
+        "tt_probes": 2244268583,
+        "wall_time_seconds": 95.197360554
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 4,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,2,7,7,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": true,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 95.19753758283332,
+      "worker_ordinal": 12,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,6],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "1": 4,
+        "3": 2,
+        "4": 0,
+        "5": 0
+      },
+      "exact_optimal_actions": [
+        1
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 4,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 82.754559,
+        "cumulative_cache": {
+          "tablebase_hits": 1845293207,
+          "tt_hits": 4872519,
+          "tt_probes": 10384022642
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 575111091,
+        "maximum_search_depth": 81,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 326416300,
+        "tablebase_hits_by_tier": {
+          "1": 2861,
+          "10": 398802,
+          "11": 535281,
+          "12": 811110,
+          "13": 1432297,
+          "14": 2260332,
+          "15": 4459765,
+          "16": 7877003,
+          "17": 15644151,
+          "18": 29006793,
+          "19": 42939147,
+          "2": 14492,
+          "20": 220035186,
+          "3": 31667,
+          "4": 53225,
+          "5": 79498,
+          "6": 115650,
+          "7": 170634,
+          "8": 237460,
+          "9": 310946
+        },
+        "tablebase_lookups": 326416300,
+        "tt_hits": 720856,
+        "tt_probes": 1803702009,
+        "wall_time_seconds": 82.892703832
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            0
+          ],
+          "anchor_id": "opening_plies_1_8-070",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,1,6,6,6,6],\"opponent_store\":0,\"player_pits\":[0,5,0,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 82.89284181199037,
+      "worker_ordinal": 4,
+      "worker_shard_id": 3
+    },
+    {
+      "active_stones": 46,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,0,6],\"player_store\":2}",
+      "exact_action_values": {
+        "0": 16,
+        "1": 12,
+        "2": 4,
+        "3": 10,
+        "4": 8,
+        "5": 10
+      },
+      "exact_optimal_actions": [
+        2
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": 4,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 118.331732,
+        "cumulative_cache": {
+          "tablebase_hits": 1434256903,
+          "tt_hits": 4302708,
+          "tt_probes": 8077272027
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 927770418,
+        "maximum_search_depth": 73,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": true,
+        "root_active_stones": 46,
+        "status": "completed",
+        "tablebase_hits": 509829320,
+        "tablebase_hits_by_tier": {
+          "1": 2899,
+          "10": 827209,
+          "11": 1154142,
+          "12": 1696876,
+          "13": 2642595,
+          "14": 3907415,
+          "15": 7559028,
+          "16": 12793501,
+          "17": 23989104,
+          "18": 41842561,
+          "19": 63254609,
+          "2": 17639,
+          "20": 348540364,
+          "3": 46859,
+          "4": 83539,
+          "5": 127904,
+          "6": 174039,
+          "7": 234926,
+          "8": 361553,
+          "9": 572558
+        },
+        "tablebase_lookups": 509829320,
+        "tt_hits": 1694733,
+        "tt_probes": 2917333875,
+        "wall_time_seconds": 118.541776602
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 4,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-071",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,6,5,4],\"opponent_store\":0,\"player_pits\":[0,5,1,6,0,6],\"player_store\":2}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 118.54201627289876,
+      "worker_ordinal": 13,
+      "worker_shard_id": 2
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 1,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            2
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,0,6,6,6],\"opponent_store\":1,\"player_pits\":[1,1,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.10002277279273,
+      "worker_ordinal": 0,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,0,6,6],\"opponent_store\":1,\"player_pits\":[1,2,6,6,6,5],\"player_store\":0}",
+      "exact_action_values": {
+        "0": -6,
+        "1": -8,
+        "2": -10,
+        "3": -6,
+        "4": -2,
+        "5": -8
+      },
+      "exact_optimal_actions": [
+        4
+      ],
+      "exact_root_value": -1.0,
+      "exact_value": -2,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 110.61951,
+        "cumulative_cache": {
+          "tablebase_hits": 484322684,
+          "tt_hits": 1330673,
+          "tt_probes": 2784207242
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 886467528,
+        "maximum_search_depth": 77,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 484322684,
+        "tablebase_hits_by_tier": {
+          "1": 2975,
+          "10": 647629,
+          "11": 862150,
+          "12": 1253751,
+          "13": 2097588,
+          "14": 3303056,
+          "15": 6541013,
+          "16": 11936610,
+          "17": 23381698,
+          "18": 42465227,
+          "19": 62247293,
+          "2": 16266,
+          "20": 328071777,
+          "3": 33160,
+          "4": 64934,
+          "5": 109704,
+          "6": 166095,
+          "7": 251272,
+          "8": 370045,
+          "9": 500441
+        },
+        "tablebase_lookups": 484322684,
+        "tt_hits": 1330673,
+        "tt_probes": 2784207242,
+        "wall_time_seconds": 110.821782844
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            3
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,0,6,6],\"opponent_store\":1,\"player_pits\":[1,2,6,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 111.24813899211586,
+      "worker_ordinal": 1,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,6,6,6,5],\"player_store\":1}",
+      "exact_action_values": {
+        "2": 0,
+        "3": 4,
+        "4": 4,
+        "5": 2
+      },
+      "exact_optimal_actions": [
+        3,
+        4
+      ],
+      "exact_root_value": 1.0,
+      "exact_value": 4,
+      "failure_reason": null,
+      "native_metrics": {
+        "cpu_time_seconds": 85.80712,
+        "cumulative_cache": {
+          "tablebase_hits": 349735322,
+          "tt_hits": 912903,
+          "tt_probes": 2014768002
+        },
+        "first_tablebase_hit_depth": -1,
+        "forward_search_nodes": 642274645,
+        "maximum_search_depth": 78,
+        "maximum_tablebase_hit_tier": 20,
+        "minimum_tablebase_hit_tier": 1,
+        "previous_state_tt_influence": false,
+        "root_active_stones": 47,
+        "status": "completed",
+        "tablebase_hits": 349735322,
+        "tablebase_hits_by_tier": {
+          "1": 1108,
+          "10": 574180,
+          "11": 725856,
+          "12": 1003781,
+          "13": 1667757,
+          "14": 2578039,
+          "15": 4866311,
+          "16": 8503473,
+          "17": 16864943,
+          "18": 31169502,
+          "19": 46709671,
+          "2": 8092,
+          "20": 233753659,
+          "3": 24513,
+          "4": 51042,
+          "5": 92969,
+          "6": 143783,
+          "7": 219984,
+          "8": 327448,
+          "9": 449211
+        },
+        "tablebase_lookups": 349735322,
+        "tt_hits": 912903,
+        "tt_probes": 2014768002,
+        "wall_time_seconds": 85.964922862
+      },
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 20,
+      "process_reused_from_previous_success": false,
+      "provenance": [
+        {
+          "action_path": [
+            1
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[0,0,6,6,6,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": true,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_solved",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 86.36470135697164,
+      "worker_ordinal": 25,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,0,5],\"player_store\":1}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 20,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-009",
+          "canonical_state_key": "{\"current_player\":1,\"opponent_pits\":[1,6,6,5,5,4],\"opponent_store\":0,\"player_pits\":[0,5,5,5,0,5],\"player_store\":1}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.02983637992293,
+      "worker_ordinal": 26,
+      "worker_shard_id": 1
+    },
+    {
+      "active_stones": 47,
+      "attempt_class": "tier20_larger_tablebase_feasibility",
+      "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[1,2,7,6,6,5],\"player_store\":0}",
+      "failure_reason": "native request exceeded timeout",
+      "probe_sha256": "c93e3fc532b58ca83da21e69941ff2a2d1a9cf58c161fd32b5b845edcc5c4973",
+      "process_generation": 2,
+      "process_reused_from_previous_success": true,
+      "provenance": [
+        {
+          "action_path": [
+            4
+          ],
+          "anchor_id": "opening_plies_1_8-064",
+          "canonical_state_key": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,0,6],\"opponent_store\":1,\"player_pits\":[1,2,7,6,6,5],\"player_store\":0}",
+          "capture": false,
+          "extra_turn": false,
+          "radius": 1,
+          "terminal": false
+        }
+      ],
+      "radius": 1,
+      "source_oracle_status": "exact_timeout",
+      "source_tier19_status": "exact_timeout",
+      "status": "exact_timeout",
+      "tablebase_sha256": "6af75fd010bd3a554befe8b5e060a019cb09ea9980af3b943d0033629a19945d",
+      "tablebase_tier": 20,
+      "timeout_seconds": 120.0,
+      "wall_duration_seconds": 120.10008720098995,
+      "worker_ordinal": 2,
+      "worker_shard_id": 1
+    }
+  ],
+  "schema": "azlite_uniform1200_tier20_unresolved_feasibility_v1",
+  "tier20_cohort_sha256": "171c16b86e722d0d7208b3ad6110de49c0877163b7df75330507080c6bbbf5d7",
+  "timeout_seconds": 120.0,
+  "unresolved_states": 53,
+  "workers": 4
+}
