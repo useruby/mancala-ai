@@ -628,6 +628,14 @@ def coverage_by_radius(rows: Iterable[dict[str, Any]]) -> dict[str, dict[str, An
     return result
 
 
+def original_coverage_gate(coverage: dict[str, dict[str, Any]]) -> bool:
+    """The PR #291 acceptance gate: 99% at each early radius and 95% at radius 2."""
+    return all(
+        coverage[str(radius)]["solve_rate"] >= threshold
+        for radius, threshold in ((0, 0.99), (1, 0.99), (2, 0.95))
+    )
+
+
 def _benchmark_sort_key(row: dict[str, Any]) -> tuple[str, str]:
     return stable_sha(row["canonical_state_key"]), row["canonical_state_key"]
 

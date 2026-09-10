@@ -18,6 +18,7 @@ from ml.alphazero_lite.run_uniform1200_exact_neighborhood_audit import (
     shard_tasks,
     solve_exact,
     coverage_by_radius,
+    original_coverage_gate,
     benchmark_cohort,
     benchmark_metrics,
     run_warm_vs_fresh_benchmark,
@@ -326,6 +327,10 @@ class ExactNeighborhoodAuditTest(unittest.TestCase):
         self.assertEqual(1.0, rates["0"]["solve_rate"])
         self.assertEqual(0.0, rates["1"]["solve_rate"])
         self.assertEqual(1.0, rates["2"]["solve_rate"])
+        rates["1"]["solve_rate"] = 1.0
+        self.assertTrue(original_coverage_gate(rates))
+        rates["0"]["solve_rate"] = 0.98
+        self.assertFalse(original_coverage_gate(rates))
 
     def test_preflight_rejects_noncanonical_tablebase_before_requests(self) -> None:
         with self.assertRaises(ValueError):
