@@ -2,6 +2,280 @@
   "hard_classification": "uniform1200_exact_regression_confirmed",
   "next_experiment": "return to the exact failure families and identify the dominant training mechanism using the now-valid exact oracle.",
   "oracle": "azlite_forensic_references_v2",
+  "pr290": {
+    "B": {
+      "44": {
+        "checkpoint_sha256": "cbdc7021ffa1c092efac6aa802ed016501b17ccf43a79d97bae0b4d69f5cf6d2",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": 0.4167,
+            "blunder_rate": 0.0,
+            "top1_agreement": 0.0
+          },
+          "overall": {
+            "average_regret": -0.9766,
+            "blunder_rate": -0.1127,
+            "top1_agreement": 0.1127
+          },
+          "sparse_endgame": {
+            "average_regret": -0.6667,
+            "blunder_rate": -0.0833,
+            "top1_agreement": 0.0833
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "fail"
+      },
+      "45": {
+        "checkpoint_sha256": "3deea611bcd909b802adaa2643138b25c45d44750239bd9ee626a654cf028785",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": -0.5,
+            "blunder_rate": -0.0417,
+            "top1_agreement": 0.0417
+          },
+          "overall": {
+            "average_regret": -1.3991,
+            "blunder_rate": -0.1268,
+            "top1_agreement": 0.1268
+          },
+          "sparse_endgame": {
+            "average_regret": -0.6667,
+            "blunder_rate": -0.0833,
+            "top1_agreement": 0.0833
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "pass"
+      },
+      "46": {
+        "checkpoint_sha256": "be34d4b5815d718f3be74bcf1817111d6b0fd17207de726c289e4411cf537d42",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": -0.6667,
+            "blunder_rate": -0.0833,
+            "top1_agreement": 0.0833
+          },
+          "overall": {
+            "average_regret": -1.1455,
+            "blunder_rate": -0.1173,
+            "top1_agreement": 0.1173
+          },
+          "sparse_endgame": {
+            "average_regret": -0.5,
+            "blunder_rate": -0.0416,
+            "top1_agreement": 0.0416
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "pass"
+      }
+    },
+    "C": {
+      "44": {
+        "checkpoint_sha256": "d9d2cd041cace869de15161798c2531ab51f7cb780177464c075703426225007",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": 0.4167,
+            "blunder_rate": 0.0,
+            "top1_agreement": 0.0
+          },
+          "overall": {
+            "average_regret": -0.9766,
+            "blunder_rate": -0.1033,
+            "top1_agreement": 0.1033
+          },
+          "sparse_endgame": {
+            "average_regret": -0.6667,
+            "blunder_rate": -0.0833,
+            "top1_agreement": 0.0833
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "fail"
+      },
+      "45": {
+        "checkpoint_sha256": "0b81b59dd116b98906c9f83da4034ffe737c71d4c9907044627869950930c2b5",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": -0.3334,
+            "blunder_rate": -0.0417,
+            "top1_agreement": 0.0417
+          },
+          "overall": {
+            "average_regret": -1.1831,
+            "blunder_rate": -0.1033,
+            "top1_agreement": 0.1033
+          },
+          "sparse_endgame": {
+            "average_regret": -0.75,
+            "blunder_rate": -0.125,
+            "top1_agreement": 0.125
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "pass"
+      },
+      "46": {
+        "checkpoint_sha256": "d93011572d6e368b1281f7b462fe31443fd456f9eb094a64be4d5ca37fa6e3c4",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": -0.4167,
+            "blunder_rate": 0.0,
+            "top1_agreement": 0.0
+          },
+          "overall": {
+            "average_regret": -0.9765,
+            "blunder_rate": -0.0845,
+            "top1_agreement": 0.0845
+          },
+          "sparse_endgame": {
+            "average_regret": -0.5,
+            "blunder_rate": -0.0416,
+            "top1_agreement": 0.0416
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "pass"
+      }
+    },
+    "D": {
+      "44": {
+        "checkpoint_sha256": "6723355da021bfed0c41cc9dcd1954223a00668f968f97792357e615fdb3a8a6",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": 0.75,
+            "blunder_rate": 0.0416,
+            "top1_agreement": -0.0416
+          },
+          "overall": {
+            "average_regret": -0.8169,
+            "blunder_rate": -0.0751,
+            "top1_agreement": 0.0751
+          },
+          "sparse_endgame": {
+            "average_regret": -0.6667,
+            "blunder_rate": -0.0833,
+            "top1_agreement": 0.0833
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "fail"
+      },
+      "45": {
+        "checkpoint_sha256": "c1e5b77e1e07d0c6bce0e4629fafbfa0010d87e2e6765df764cf1ce3cd91696f",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": -0.25,
+            "blunder_rate": 0.0416,
+            "top1_agreement": -0.0416
+          },
+          "overall": {
+            "average_regret": -1.2207,
+            "blunder_rate": -0.0986,
+            "top1_agreement": 0.0986
+          },
+          "sparse_endgame": {
+            "average_regret": -0.75,
+            "blunder_rate": -0.125,
+            "top1_agreement": 0.125
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "fail"
+      },
+      "46": {
+        "checkpoint_sha256": "0483a9e7ba4f104baad70ca4b9019def3afd2e85b5606309795c61c352e0933a",
+        "exact_deltas": {
+          "capture_available": {
+            "average_regret": -0.5834,
+            "blunder_rate": -0.0833,
+            "top1_agreement": 0.0833
+          },
+          "overall": {
+            "average_regret": -0.7887,
+            "blunder_rate": -0.0986,
+            "top1_agreement": 0.0986
+          },
+          "sparse_endgame": {
+            "average_regret": -0.5,
+            "blunder_rate": -0.0416,
+            "top1_agreement": 0.0416
+          }
+        },
+        "old_forensic_decision": "fail",
+        "shadow_exact_forensic_decision": "pass"
+      }
+    }
+  },
+  "rowmatched": {
+    "44": {
+      "checkpoint_sha256": "7aea6ef5e0bcb3caede9a7e88ac9080cac12110d25770c65d605701770fcdd84",
+      "exact_deltas": {
+        "capture_available": {
+          "average_regret": 0.3334,
+          "blunder_rate": 0.0,
+          "top1_agreement": 0.0
+        },
+        "overall": {
+          "average_regret": -0.9484,
+          "blunder_rate": -0.0986,
+          "top1_agreement": 0.0986
+        },
+        "sparse_endgame": {
+          "average_regret": -0.9167,
+          "blunder_rate": -0.125,
+          "top1_agreement": 0.125
+        }
+      },
+      "old_forensic_decision": "fail",
+      "shadow_exact_forensic_decision": "fail"
+    },
+    "45": {
+      "checkpoint_sha256": "c27f24f678b60c768f722d186b286cb197ae111bc75e5342628ffd21f53d5a21",
+      "exact_deltas": {
+        "capture_available": {
+          "average_regret": -0.6667,
+          "blunder_rate": -0.0417,
+          "top1_agreement": 0.0417
+        },
+        "overall": {
+          "average_regret": -1.4366,
+          "blunder_rate": -0.0986,
+          "top1_agreement": 0.0986
+        },
+        "sparse_endgame": {
+          "average_regret": -0.75,
+          "blunder_rate": -0.125,
+          "top1_agreement": 0.125
+        }
+      },
+      "old_forensic_decision": "fail",
+      "shadow_exact_forensic_decision": "pass"
+    },
+    "46": {
+      "checkpoint_sha256": "3c80a84081ceb43f981056caa528eefa96b914d215be41c453cef263300102de",
+      "exact_deltas": {
+        "capture_available": {
+          "average_regret": -0.8334,
+          "blunder_rate": -0.0833,
+          "top1_agreement": 0.0833
+        },
+        "overall": {
+          "average_regret": -1.0141,
+          "blunder_rate": -0.1033,
+          "top1_agreement": 0.1033
+        },
+        "sparse_endgame": {
+          "average_regret": -0.5,
+          "blunder_rate": -0.0416,
+          "top1_agreement": 0.0416
+        }
+      },
+      "old_forensic_decision": "fail",
+      "shadow_exact_forensic_decision": "pass"
+    }
+  },
   "schema": "azlite_uniform1200_exact_shadow_replay_v1",
   "seeds": {
     "44": {

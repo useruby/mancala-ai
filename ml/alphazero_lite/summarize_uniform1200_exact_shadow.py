@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -85,6 +86,70 @@ def main() -> int:
         "hard_classification": "uniform1200_exact_regression_confirmed",
         "next_experiment": "return to the exact failure families and identify the dominant training mechanism using the now-valid exact oracle.",
     }
+    rowmatched_old = json.loads(
+        (
+            ROOT / "docs/data/alphazero-lite-uniform1200-rowmatched-results.json"
+        ).read_text()
+    )
+    output["rowmatched"] = {}
+    for seed in (44, 45, 46):
+        report = json.loads(
+            (
+                ROOT
+                / f"docs/data/alphazero-lite-exact-forensic-shadow-rowmatched-seed{seed}.json"
+            ).read_text()
+        )
+        decision, deltas = passed(report)
+        output["rowmatched"][str(seed)] = {
+            "old_forensic_decision": "pass"
+            if rowmatched_old["production_gate"][str(seed)]["passed"]
+            else "fail",
+            "shadow_exact_forensic_decision": "pass" if decision else "fail",
+            "exact_deltas": deltas,
+            "checkpoint_sha256": hashlib.sha256(
+                (
+                    ROOT.parent
+                    / "rowmatched-work"
+                    / "runs"
+                    / f"seed{seed}"
+                    / "uniform1200_rowmatched"
+                    / f"uniform1200-rowmatched-seed{seed}-iter1"
+                    / "weights.json"
+                ).read_bytes()
+            ).hexdigest(),
+        }
+    output["pr290"] = {}
+    mapping = {
+        "B": "control_like_exposure__unsharpened",
+        "C": "uniform_exposure__unsharpened",
+        "D": "control_like_exposure__sharpened",
+    }
+    for cell, lane in mapping.items():
+        output["pr290"][cell] = {}
+        for seed in (44, 45, 46):
+            report = json.loads(
+                (
+                    ROOT
+                    / f"docs/data/alphazero-lite-exact-forensic-shadow-pr290-{cell}-seed{seed}.json"
+                ).read_text()
+            )
+            decision, deltas = passed(report)
+            checkpoint = (
+                ROOT
+                / ".tmp/midgame-2x2-training/runs"
+                / f"seed{seed}"
+                / lane
+                / f"midgame-2x2-seed{seed}-{lane}-iter1"
+                / "weights.json"
+            )
+            output["pr290"][cell][str(seed)] = {
+                "old_forensic_decision": "fail",
+                "shadow_exact_forensic_decision": "pass" if decision else "fail",
+                "exact_deltas": deltas,
+                "checkpoint_sha256": hashlib.sha256(
+                    checkpoint.read_bytes()
+                ).hexdigest(),
+            }
     data = ROOT / "docs/data/alphazero-lite-uniform1200-exact-shadow-replay.json"
     data.write_text(
         json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -101,6 +166,20 @@ def main() -> int:
         delta = row["exact_deltas"]["overall"]
         lines.append(
             f"| {seed} | {delta['top1_agreement']:+.4f} | {delta['average_regret']:+.4f} | {delta['blunder_rate']:+.4f} | {row['shadow_exact_forensic_decision']} |"
+        )
+    lines += [
+        "",
+        "## Other Historical Candidates",
+        "",
+        "| Candidate | Exact shadow passes |",
+        "| --- | ---: |",
+    ]
+    lines.append(
+        f"| PR #288 rowmatched | {sum(row['shadow_exact_forensic_decision'] == 'pass' for row in output['rowmatched'].values())}/3 |"
+    )
+    for cell, candidates in output["pr290"].items():
+        lines.append(
+            f"| PR #290 {cell} | {sum(row['shadow_exact_forensic_decision'] == 'pass' for row in candidates.values())}/3 |"
         )
     lines += [
         "",

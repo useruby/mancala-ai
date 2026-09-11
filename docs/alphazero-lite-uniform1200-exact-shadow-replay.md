@@ -8,6 +8,15 @@
 | 45 | +0.1268 | -1.2489 | -0.1268 | fail |
 | 46 | +0.1126 | -1.0141 | -0.1126 | pass |
 
+## Other Historical Candidates
+
+| Candidate | Exact shadow passes |
+| --- | ---: |
+| PR #288 rowmatched | 2/3 |
+| PR #290 B | 2/3 |
+| PR #290 C | 2/3 |
+| PR #290 D | 1/3 |
+
 ## Hard Classification
 
 `uniform1200_exact_regression_confirmed`
