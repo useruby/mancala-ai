@@ -14,6 +14,7 @@ from ml.alphazero_lite.forensic_suite import load_suite
 
 
 REFERENCE_SCHEMA = "azlite_forensic_references_v1"
+EXACT_REFERENCE_SCHEMA = "azlite_forensic_references_v2"
 DEFAULT_SUITE_PATH = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
 DEFAULT_REFERENCE_PATH = Path(
     "ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json"
@@ -54,6 +55,23 @@ def validate_reference_artifact(
     suite_ids_by_canonical = {position.canonical_key: position.id for position in suite}
 
     payload = _load_json(reference_artifact_path)
+    if payload.get("schema") == EXACT_REFERENCE_SCHEMA:
+        from ml.alphazero_lite.forensic_exact_references import validate_v2
+
+        errors = validate_v2(payload, Path(suite_path))
+        return {
+            "schema": "azlite_forensic_reference_validation_v1",
+            "suite_path": str(Path(suite_path)),
+            "reference_artifact_path": str(Path(reference_artifact_path)),
+            "suite_row_count": len(suite),
+            "reference_row_count": len(payload.get("rows", [])),
+            "missing_row_ids": [],
+            "extra_row_ids": [],
+            "illegal_reference_row_ids": [],
+            "error_count": len(errors),
+            "errors": errors,
+            "valid": not errors,
+        }
     errors: list[str] = []
     if payload.get("schema") != REFERENCE_SCHEMA:
         _error(errors, f"reference artifact schema must be {REFERENCE_SCHEMA}")

@@ -38,6 +38,7 @@ else:
 
 DEFAULT_SUITE_PATH = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
 SHARED_REFERENCE_SCHEMA = "azlite_forensic_references_v1"
+EXACT_REFERENCE_SCHEMA = "azlite_forensic_references_v2"
 
 
 def parse_args() -> argparse.Namespace:
@@ -113,14 +114,34 @@ def _top1_available(rows: list[dict[str, Any]]) -> bool:
     return any(row.get("agrees_top1") is not None for row in rows)
 
 
-def _apply_sparse_regret_summaries(summary: dict[str, Any]) -> dict[str, Any]:
-    if not _regret_available(summary["rows"]):
-        _clear_regret_summary(summary["overall"])
+def _apply_sparse_regret_summaries(
+    summary: dict[str, Any], *, exact_covered_only: bool = False
+) -> dict[str, Any]:
+    def apply(rows: list[dict[str, Any]], target: dict[str, Any]) -> None:
+        regrets = [
+            float(row["regret"]) for row in rows if row.get("regret") is not None
+        ]
+        if not regrets:
+            _clear_regret_summary(target)
+            return
+        target["average_regret"] = round(sum(regrets) / len(regrets), 4)
+        target["blunder_rate"] = round(
+            sum(regret > 0.0 for regret in regrets) / len(regrets), 4
+        )
 
+    if not exact_covered_only:
+        if not _regret_available(summary["rows"]):
+            _clear_regret_summary(summary["overall"])
+        for bucket, bucket_summary in summary["buckets"].items():
+            bucket_rows = [row for row in summary["rows"] if row["bucket"] == bucket]
+            if not _regret_available(bucket_rows):
+                _clear_regret_summary(bucket_summary)
+        return summary
+
+    apply(summary["rows"], summary["overall"])
     for bucket, bucket_summary in summary["buckets"].items():
         bucket_rows = [row for row in summary["rows"] if row["bucket"] == bucket]
-        if not _regret_available(bucket_rows):
-            _clear_regret_summary(bucket_summary)
+        apply(bucket_rows, bucket_summary)
     return summary
 
 
@@ -183,9 +204,11 @@ def _load_shared_references(
     reference_artifact_path: str | Path,
 ) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     artifact = json.loads(Path(reference_artifact_path).read_text(encoding="utf-8"))
-    if artifact.get("schema") != SHARED_REFERENCE_SCHEMA:
+    schema = artifact.get("schema")
+    if schema not in {SHARED_REFERENCE_SCHEMA, EXACT_REFERENCE_SCHEMA}:
         raise SystemExit(
-            f"shared reference artifact must use schema {SHARED_REFERENCE_SCHEMA}"
+            "shared reference artifact must use schema "
+            f"{SHARED_REFERENCE_SCHEMA} or {EXACT_REFERENCE_SCHEMA}"
         )
 
     rows = artifact.get("rows")
@@ -203,6 +226,19 @@ def _load_shared_references(
         "observed_reference_moves",
         "seed_samples",
     }
+    if schema == EXACT_REFERENCE_SCHEMA:
+        required_fields = {
+            "id",
+            "canonical_state",
+            "state",
+            "legal_moves",
+            "oracle_kind",
+            "exact_status",
+            "exact_root_value",
+            "exact_action_values",
+            "exact_optimal_actions",
+            "oracle_provenance",
+        }
     for index, row in enumerate(rows):
         if not isinstance(row, dict):
             raise SystemExit(f"shared reference artifact row {index} must be an object")
@@ -318,6 +354,43 @@ def run_reference(
 
 
 def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> dict:
+    if reference.get("oracle_kind") == "exact":
+        selected_move = system["selected_move"]
+        solved = reference.get("exact_status") == "exact_solved"
+        optimal_actions = reference.get("exact_optimal_actions") or []
+        from ml.alphazero_lite.forensic_exact_references import exact_regret
+
+        regret = exact_regret(reference, selected_move)
+        exact_root_value = reference.get("exact_root_value") if solved else None
+        row = {
+            "id": position.id,
+            "state": position.state,
+            "canonical_state": position.canonical_key,
+            "side_to_move": position.side_to_move,
+            "legal_moves": list(position.legal_moves),
+            "phase": position.phase,
+            "bucket": position.bucket,
+            "tags": list(position.tags),
+            "source": position.source,
+            "oracle_kind": "exact",
+            "exact_status": reference["exact_status"],
+            "exact_optimal_actions": optimal_actions if solved else None,
+            "exact_action_values": reference.get("exact_action_values")
+            if solved
+            else None,
+            "reference_move": None,
+            "selected_move": selected_move,
+            "agrees_top1": (selected_move in optimal_actions) if solved else None,
+            "regret": None if regret is None else round(regret, 4),
+            "teacher_value": exact_root_value,
+            "system_value": round(float(system["value"]), 4),
+            # Native exact_root_value is already the tested root-training domain.
+            "value_error": None
+            if exact_root_value is None
+            else round(abs(float(system["value"]) - float(exact_root_value)), 4),
+            "value_calibration_available": solved,
+        }
+        return row
     reference_move = _reference_move(reference)
     teacher_value = reference.get("teacher_value")
     system_value = float(system["value"])
@@ -482,9 +555,17 @@ def main() -> None:
     if reference_artifact_path:
         for system_summary in report["systems"].values():
             _apply_sparse_top1_summaries(system_summary)
+            if shared_reference_artifact.get("schema") == EXACT_REFERENCE_SCHEMA:
+                _apply_sparse_regret_summaries(system_summary, exact_covered_only=True)
 
     if reference_artifact_path and not all(
         _has_reference_child_stats(reference) for reference in references
+    ):
+        report["buckets"] = _apply_sparse_bucket_matrix(report["buckets"], system_rows)
+
+    if (
+        reference_artifact_path
+        and shared_reference_artifact.get("schema") == EXACT_REFERENCE_SCHEMA
     ):
         report["buckets"] = _apply_sparse_bucket_matrix(report["buckets"], system_rows)
 
