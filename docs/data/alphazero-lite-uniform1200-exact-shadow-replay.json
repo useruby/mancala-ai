@@ -1,0 +1,110 @@
+{
+  "hard_classification": "uniform1200_exact_regression_confirmed",
+  "next_experiment": "return to the exact failure families and identify the dominant training mechanism using the now-valid exact oracle.",
+  "oracle": "azlite_forensic_references_v2",
+  "schema": "azlite_uniform1200_exact_shadow_replay_v1",
+  "seeds": {
+    "44": {
+      "control": {
+        "average_regret": 3.5869,
+        "blunder_rate": 0.4413,
+        "positions": 224,
+        "top1_agreement": 0.5587,
+        "value_calibration_mae": 0.8774
+      },
+      "exact_deltas": {
+        "capture_available": {
+          "average_regret": 0.6667,
+          "blunder_rate": 0.0416,
+          "top1_agreement": -0.0416
+        },
+        "overall": {
+          "average_regret": -1.0235,
+          "blunder_rate": -0.0845,
+          "top1_agreement": 0.0845
+        },
+        "sparse_endgame": {
+          "average_regret": -0.75,
+          "blunder_rate": -0.125,
+          "top1_agreement": 0.125
+        }
+      },
+      "shadow_exact_forensic_decision": "fail",
+      "uniform1200": {
+        "average_regret": 2.5634,
+        "blunder_rate": 0.3568,
+        "positions": 224,
+        "top1_agreement": 0.6432,
+        "value_calibration_mae": 0.8652
+      }
+    },
+    "45": {
+      "control": {
+        "average_regret": 3.8404,
+        "blunder_rate": 0.4601,
+        "positions": 224,
+        "top1_agreement": 0.5399,
+        "value_calibration_mae": 0.8879
+      },
+      "exact_deltas": {
+        "capture_available": {
+          "average_regret": 0.25,
+          "blunder_rate": 0.0416,
+          "top1_agreement": -0.0416
+        },
+        "overall": {
+          "average_regret": -1.2489,
+          "blunder_rate": -0.1268,
+          "top1_agreement": 0.1268
+        },
+        "sparse_endgame": {
+          "average_regret": -0.75,
+          "blunder_rate": -0.125,
+          "top1_agreement": 0.125
+        }
+      },
+      "shadow_exact_forensic_decision": "fail",
+      "uniform1200": {
+        "average_regret": 2.5915,
+        "blunder_rate": 0.3333,
+        "positions": 224,
+        "top1_agreement": 0.6667,
+        "value_calibration_mae": 0.8282
+      }
+    },
+    "46": {
+      "control": {
+        "average_regret": 3.4554,
+        "blunder_rate": 0.4225,
+        "positions": 224,
+        "top1_agreement": 0.5775,
+        "value_calibration_mae": 0.8684
+      },
+      "exact_deltas": {
+        "capture_available": {
+          "average_regret": -0.75,
+          "blunder_rate": -0.125,
+          "top1_agreement": 0.125
+        },
+        "overall": {
+          "average_regret": -1.0141,
+          "blunder_rate": -0.1126,
+          "top1_agreement": 0.1126
+        },
+        "sparse_endgame": {
+          "average_regret": -0.5833,
+          "blunder_rate": -0.0833,
+          "top1_agreement": 0.0833
+        }
+      },
+      "shadow_exact_forensic_decision": "pass",
+      "uniform1200": {
+        "average_regret": 2.4413,
+        "blunder_rate": 0.3099,
+        "positions": 224,
+        "top1_agreement": 0.6901,
+        "value_calibration_mae": 0.8365
+      }
+    }
+  }
+}

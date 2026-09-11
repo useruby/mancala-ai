@@ -1,0 +1,1792 @@
+{
+  "baseline_sha256": {
+    "audited_overrides": "571506bffe91177c8440d72697b33a5ec4034e3058994fb1d9c6b24469877e5b",
+    "current_reference": "ed67bcf8e437b41c494ee4ca4bed78f7e94dd51ac783bc9bfb7d380791e2f69d",
+    "exact_v2": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
+    "forensic_suite": "68506f12685e32c868cc1a21c2e7fa16b9f57478ee3fb885bbe1ba5ef475f4fd"
+  },
+  "coverage": {
+    "by_bucket": {
+      "capture_available": {
+        "exact_covered_rows": 24,
+        "total": 24,
+        "unresolved_rows": 0
+      },
+      "early_extra_turn": {
+        "exact_covered_rows": 24,
+        "total": 24,
+        "unresolved_rows": 0
+      },
+      "high_imbalance": {
+        "exact_covered_rows": 24,
+        "total": 24,
+        "unresolved_rows": 0
+      },
+      "high_value_swing": {
+        "exact_covered_rows": 24,
+        "total": 24,
+        "unresolved_rows": 0
+      },
+      "incumbent_proxy_disagreement": {
+        "exact_covered_rows": 32,
+        "total": 32,
+        "unresolved_rows": 0
+      },
+      "opening_plies_1_8": {
+        "exact_covered_rows": 37,
+        "total": 48,
+        "unresolved_rows": 11
+      },
+      "sparse_endgame": {
+        "exact_covered_rows": 24,
+        "total": 24,
+        "unresolved_rows": 0
+      },
+      "starvation_pressure": {
+        "exact_covered_rows": 24,
+        "total": 24,
+        "unresolved_rows": 0
+      }
+    },
+    "overall": {
+      "exact_covered_rows": 213,
+      "total": 224,
+      "unresolved_rows": 11
+    }
+  },
+  "coverage_interpretation": "opening-only unresolved roots; both critical buckets are exact-complete",
+  "pr289_regression_anchors": {
+    "current_reference_strictly_suboptimal_rows": 25,
+    "exact_covered_rows": 36,
+    "registered_rows": 38,
+    "unresolved_rows": 2
+  },
+  "pre_registered_status": "exact_forensic_reference_partial",
+  "read_only": {
+    "promotion": false,
+    "self_play": false,
+    "tablebase_generation": false,
+    "training": false
+  },
+  "reference_quality": {
+    "current_reference_exact_regret": {
+      "max": 40.0,
+      "p50": 0.0,
+      "p90": 8.0
+    },
+    "current_reference_move_in_exact_optimal_set": 113,
+    "current_reference_strictly_suboptimal_rate": 0.4694835680751174,
+    "exact_covered_rows": 213,
+    "exact_multi_optimum_rate": 0.2347417840375587,
+    "exact_single_optimum_agreement": 79,
+    "rows": [
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-001",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "high_value_swing-001",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_value_swing-002",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 14.0,
+        "id": "high_value_swing-003",
+        "multi_optimum": true,
+        "reference_move": 0
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "capture_available-001",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-002",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-003",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-001",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-002",
+        "multi_optimum": true,
+        "reference_move": 3
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 40.0,
+        "id": "starvation_pressure-001",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-002",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "starvation_pressure-003",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 12.0,
+        "id": "high_imbalance-003",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "incumbent_proxy_disagreement-001",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "incumbent_proxy_disagreement-002",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "incumbent_proxy_disagreement-003",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-001",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-002",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-003",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-001",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-002",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-003",
+        "multi_optimum": true,
+        "reference_move": 0
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-007",
+        "multi_optimum": true,
+        "reference_move": 0
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-008",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-009",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-010",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "incumbent_proxy_disagreement-011",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "incumbent_proxy_disagreement-012",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-013",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-014",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-015",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "incumbent_proxy_disagreement-016",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-017",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-018",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-019",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-020",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-021",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-022",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "incumbent_proxy_disagreement-023",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-024",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-025",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-026",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "incumbent_proxy_disagreement-027",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-028",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-029",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "incumbent_proxy_disagreement-030",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-031",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "incumbent_proxy_disagreement-032",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "incumbent_proxy_disagreement-033",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "incumbent_proxy_disagreement-034",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "incumbent_proxy_disagreement",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "incumbent_proxy_disagreement-035",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-007",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-008",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "capture_available-009",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-010",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-011",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-012",
+        "multi_optimum": true,
+        "reference_move": 5
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-013",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "capture_available-014",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "capture_available-015",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "capture_available-016",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-017",
+        "multi_optimum": true,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-018",
+        "multi_optimum": true,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-019",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-020",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-021",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "capture_available-022",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "capture_available-023",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "capture_available-024",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-025",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "capture_available-026",
+        "multi_optimum": true,
+        "reference_move": 3
+      },
+      {
+        "bucket": "capture_available",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "capture_available-027",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-007",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-009",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-010",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-011",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "early_extra_turn-012",
+        "multi_optimum": true,
+        "reference_move": 3
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "early_extra_turn-013",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "early_extra_turn-014",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "early_extra_turn-015",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "early_extra_turn-016",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "early_extra_turn-017",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "early_extra_turn-018",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-019",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-020",
+        "multi_optimum": true,
+        "reference_move": 5
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-021",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-022",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-023",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-024",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "early_extra_turn-025",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-026",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-027",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "early_extra_turn",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "early_extra_turn-028",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-007",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-008",
+        "multi_optimum": true,
+        "reference_move": 3
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-009",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "high_imbalance-010",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "high_imbalance-011",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "high_imbalance-012",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "high_imbalance-013",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "high_imbalance-014",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-015",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "high_imbalance-016",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-017",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "high_imbalance-018",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-019",
+        "multi_optimum": true,
+        "reference_move": 3
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "high_imbalance-020",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "high_imbalance-021",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-022",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "high_imbalance-023",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "high_imbalance-024",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 22.0,
+        "id": "high_imbalance-025",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_imbalance-026",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_imbalance",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "high_imbalance-027",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 12.0,
+        "id": "high_value_swing-007",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 14.0,
+        "id": "high_value_swing-008",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "high_value_swing-009",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "high_value_swing-010",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "high_value_swing-011",
+        "multi_optimum": true,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "high_value_swing-012",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "high_value_swing-013",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_value_swing-014",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 14.0,
+        "id": "high_value_swing-015",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "high_value_swing-016",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "high_value_swing-017",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "high_value_swing-018",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "high_value_swing-019",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "high_value_swing-020",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "high_value_swing-021",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "high_value_swing-022",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "high_value_swing-023",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_value_swing-024",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": false,
+        "exact_regret": 16.0,
+        "id": "high_value_swing-025",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_value_swing-026",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "high_value_swing",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "high_value_swing-027",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-005",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "opening_plies_1_8-006",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 20.0,
+        "id": "opening_plies_1_8-007",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "opening_plies_1_8-008",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-010",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-013",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-015",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "opening_plies_1_8-016",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "opening_plies_1_8-017",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-019",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-020",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-021",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "opening_plies_1_8-022",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-023",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-024",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-025",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-007",
+        "multi_optimum": true,
+        "reference_move": 0
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-008",
+        "multi_optimum": true,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "sparse_endgame-009",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-010",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "sparse_endgame-011",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "sparse_endgame-012",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-013",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-014",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-015",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-016",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-017",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "sparse_endgame-018",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-019",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-020",
+        "multi_optimum": true,
+        "reference_move": 2
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-021",
+        "multi_optimum": true,
+        "reference_move": 0
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-022",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-023",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "sparse_endgame-024",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "sparse_endgame-025",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "sparse_endgame-026",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "sparse_endgame",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "sparse_endgame-027",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "starvation_pressure-007",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "starvation_pressure-008",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "starvation_pressure-009",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-010",
+        "multi_optimum": true,
+        "reference_move": 4
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-011",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-012",
+        "multi_optimum": false,
+        "reference_move": 3
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-013",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-014",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-015",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "starvation_pressure-016",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-017",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-018",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "starvation_pressure-019",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-020",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-021",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "starvation_pressure-022",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "starvation_pressure-023",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "starvation_pressure-024",
+        "multi_optimum": true,
+        "reference_move": 1
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "starvation_pressure-025",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 14.0,
+        "id": "starvation_pressure-026",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "starvation_pressure",
+        "exact_optimal": false,
+        "exact_regret": 10.0,
+        "id": "starvation_pressure-027",
+        "multi_optimum": false,
+        "reference_move": 0
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 6.0,
+        "id": "opening_plies_1_8-050",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-051",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-052",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "opening_plies_1_8-053",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-054",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-055",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-056",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 8.0,
+        "id": "opening_plies_1_8-057",
+        "multi_optimum": true,
+        "reference_move": 5
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-058",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 4.0,
+        "id": "opening_plies_1_8-059",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-060",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-061",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-062",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-065",
+        "multi_optimum": true,
+        "reference_move": 5
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-066",
+        "multi_optimum": false,
+        "reference_move": 5
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-067",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-068",
+        "multi_optimum": false,
+        "reference_move": 2
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": false,
+        "exact_regret": 2.0,
+        "id": "opening_plies_1_8-070",
+        "multi_optimum": false,
+        "reference_move": 4
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-071",
+        "multi_optimum": false,
+        "reference_move": 1
+      },
+      {
+        "bucket": "opening_plies_1_8",
+        "exact_optimal": true,
+        "exact_regret": 0.0,
+        "id": "opening_plies_1_8-072",
+        "multi_optimum": true,
+        "reference_move": 1
+      }
+    ],
+    "unresolved_rows": 11
+  },
+  "schema": "azlite_exact_forensic_shadow_v1",
+  "shadow_exact_forensic_decision": "not_interpretable_on_partial_reference"
+}
