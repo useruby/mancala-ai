@@ -66,6 +66,16 @@ def passed(report: dict) -> tuple[bool, dict]:
 
 def main() -> int:
     rows = {}
+    v1 = {
+        row["canonical_state"]: row
+        for row in json.loads(
+            (
+                ROOT
+                / "ml/alphazero_lite/fixtures/incumbent_forensic_references_v1.json"
+            ).read_text()
+        )["rows"]
+    }
+    flips = {}
     for seed in (44, 45, 46):
         report = json.loads(
             (
@@ -74,11 +84,66 @@ def main() -> int:
         )
         decision, deltas = passed(report)
         rows[str(seed)] = {
+            "old_forensic_decision": "fail",
             "shadow_exact_forensic_decision": "pass" if decision else "fail",
             "exact_deltas": deltas,
             "control": report["systems"]["current"]["overall"],
             "uniform1200": report["systems"]["challenger"]["overall"],
         }
+        current = {
+            row["canonical_state"]: row for row in report["systems"]["current"]["rows"]
+        }
+        uniform = {
+            row["canonical_state"]: row
+            for row in report["systems"]["challenger"]["rows"]
+        }
+        categories = {
+            "old_reference_false_regressions": [],
+            "genuine_regressions": [],
+            "hidden_regressions": [],
+            "apparent_improvements_not_exact": [],
+        }
+        for key, control_row in current.items():
+            candidate = uniform[key]
+            reference_move = v1[key].get("reference_move")
+            if control_row["regret"] is None or candidate["regret"] is None:
+                continue
+            old_regression = (
+                reference_move is not None
+                and control_row["selected_move"] == reference_move
+                and candidate["selected_move"] != reference_move
+            )
+            old_improvement = (
+                reference_move is not None
+                and control_row["selected_move"] != reference_move
+                and candidate["selected_move"] == reference_move
+            )
+            exact_delta = candidate["regret"] - control_row["regret"]
+            detail = {
+                "id": candidate["id"],
+                "bucket": candidate["bucket"],
+                "control_move": control_row["selected_move"],
+                "uniform_move": candidate["selected_move"],
+                "exact_optimal_actions": candidate["exact_optimal_actions"],
+                "exact_action_values": candidate["exact_action_values"],
+                "uniform_minus_control_exact_regret": exact_delta,
+            }
+            if old_regression and exact_delta <= 0:
+                categories["old_reference_false_regressions"].append(detail)
+            if exact_delta > 0:
+                categories["genuine_regressions"].append(detail)
+                if not old_regression:
+                    categories["hidden_regressions"].append(detail)
+            if old_improvement and exact_delta >= 0:
+                categories["apparent_improvements_not_exact"].append(detail)
+        for value in categories.values():
+            value.sort(
+                key=lambda item: (
+                    -abs(item["uniform_minus_control_exact_regret"]),
+                    item["id"],
+                )
+            )
+        flips[str(seed)] = categories
     output = {
         "schema": "azlite_uniform1200_exact_shadow_replay_v1",
         "oracle": "azlite_forensic_references_v2",
@@ -92,6 +157,7 @@ def main() -> int:
         ).read_text()
     )
     output["rowmatched"] = {}
+    output["decision_flips"] = flips
     for seed in (44, 45, 46):
         report = json.loads(
             (
@@ -159,13 +225,13 @@ def main() -> int:
         "",
         "## Matched PR #287 Results",
         "",
-        "| Seed | Exact-set delta | Exact regret delta | Exact blunder delta | Shadow decision |",
+        "| Seed | Exact-set delta | Exact regret delta | Exact blunder delta | Old / shadow decision |",
         "| ---: | ---: | ---: | ---: | --- |",
     ]
     for seed, row in rows.items():
         delta = row["exact_deltas"]["overall"]
         lines.append(
-            f"| {seed} | {delta['top1_agreement']:+.4f} | {delta['average_regret']:+.4f} | {delta['blunder_rate']:+.4f} | {row['shadow_exact_forensic_decision']} |"
+            f"| {seed} | {delta['top1_agreement']:+.4f} | {delta['average_regret']:+.4f} | {delta['blunder_rate']:+.4f} | {row['old_forensic_decision']} / {row['shadow_exact_forensic_decision']} |"
         )
     lines += [
         "",
@@ -181,6 +247,21 @@ def main() -> int:
         lines.append(
             f"| PR #290 {cell} | {sum(row['shadow_exact_forensic_decision'] == 'pass' for row in candidates.values())}/3 |"
         )
+    lines += [
+        "",
+        "## Decision-Changing Positions",
+        "",
+        "| Seed | Old-reference false regressions | Genuine regressions | Hidden regressions |",
+        "| ---: | ---: | ---: | ---: |",
+    ]
+    for seed, categories in flips.items():
+        lines.append(
+            f"| {seed} | {len(categories['old_reference_false_regressions'])} | {len(categories['genuine_regressions'])} | {len(categories['hidden_regressions'])} |"
+        )
+    lines += [
+        "",
+        "Largest decision-changing rows, including exact action sets and values, are recorded in `decision_flips` in the JSON artifact.",
+    ]
     lines += [
         "",
         "## Hard Classification",
