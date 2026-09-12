@@ -61,6 +61,12 @@ EXPECTED_CHECKPOINTS = {
         "uniform1200": "9baa2227602df7ffa0c16c009d16973c67181a079fca810a364b8f4ce97aa604",
     },
 }
+ROWMATCHED_ROOT = Path("/home/alex/Mancala/rowmatched-work/runs")
+EXPECTED_ROWMATCHED_WEIGHTS_JSON = {
+    44: "7aea6ef5e0bcb3caede9a7e88ac9080cac12110d25770c65d605701770fcdd84",
+    45: "c27f24f678b60c768f722d186b286cb197ae111bc75e5342628ffd21f53d5a21",
+    46: "3c80a84081ceb43f981056caa528eefa96b914d215be41c453cef263300102de",
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -176,6 +182,15 @@ def cross_seed_dominance(categories: dict[int, list[str]]) -> str | None:
 def _run_dir(seed: int, lane: str) -> Path:
     name = f"uniform1200-confirm-seed{seed}-{lane}-iter1"
     return RUNS / f"seed{seed}" / lane / name
+
+
+def _rowmatched_dir(seed: int) -> Path:
+    return (
+        ROWMATCHED_ROOT
+        / f"seed{seed}"
+        / "uniform1200_rowmatched"
+        / f"uniform1200-rowmatched-seed{seed}-iter1"
+    )
 
 
 def _rows(path: Path) -> list[dict[str, Any]]:
@@ -484,6 +499,43 @@ def main() -> int:
         for seed in (44, 45, 46)
         for lane in ("control_384_192", "uniform1200")
     }
+    secondary: dict[str, Any] = {"rowmatched": {}, "pr290": {}}
+    critical_positions = [row for row in positions if row["id"] in critical]
+    for seed in (44, 45, 46):
+        directory = _rowmatched_dir(seed)
+        checkpoint = directory / "checkpoint.npz"
+        actual = sha256_file(checkpoint)
+        metadata = json.loads((directory / "metadata.json").read_text())
+        artifacts = metadata.get("artifacts", {})
+        if artifacts.get("weights_sha256") != actual:
+            raise RuntimeError(
+                f"rowmatched checkpoint SHA disagrees with metadata for seed {seed}"
+            )
+        if (
+            artifacts.get("weights_json_sha256")
+            != EXPECTED_ROWMATCHED_WEIGHTS_JSON[seed]
+        ):
+            raise RuntimeError(f"rowmatched weights SHA mismatch for seed {seed}")
+        evaluator = CheckpointEvaluator(checkpoint, input_encoding="kalah_v3")
+        secondary["rowmatched"][str(seed)] = {
+            "checkpoint": {
+                "path": str(checkpoint),
+                "sha256": actual,
+                "recorded_weights_json_sha256": artifacts["weights_json_sha256"],
+            },
+            "rows": [
+                {
+                    "id": row["id"],
+                    "raw": _raw(row, evaluator),
+                    "search": _searched(row, directory),
+                }
+                for row in critical_positions
+            ],
+        }
+        secondary["pr290"][str(seed)] = {
+            name: {"available": False, "reason": "raw checkpoint artifact not retained"}
+            for name in ("B", "C", "D")
+        }
     result = {
         "schema": "azlite_capture_family_attribution_v1",
         "read_only": {
@@ -507,6 +559,7 @@ def main() -> int:
         "stored_target_quality": target_quality,
         "teacher_student_inversions": inversions,
         "neighborhood_coverage": neighborhoods,
+        "secondary": secondary,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")

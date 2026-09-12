@@ -57,7 +57,7 @@ The runner consumes the already generated PR #291--#296 exact neighborhood cohor
 
 The shared parent snapshot is retained as `parent_init_checkpoint.npz` alongside each primary run and is SHA-verifiable through the run manifests. The runner evaluates parent raw and frozen-production PUCT traces for all 24 capture states, enabling parent/control/uniform comparisons in `parent_evaluations`.
 
-PR #288 rowmatched and PR #290 B/C/D raw checkpoint artifacts are not retained locally. Their tracked exact-shadow outputs remain historical searched-move evidence, but cannot support raw-vs-search attribution; the runner reports them as unavailable rather than regenerating checkpoints or claiming an unverified mechanism.
+PR #288 rowmatched checkpoints are retained and are SHA-verified through their artifact metadata and recorded weights SHA. The runner evaluates their raw and production-search behavior on the decision-critical set under `secondary.rowmatched`. PR #290 B/C/D raw checkpoint artifacts are not retained locally. Their tracked exact-shadow outputs remain historical searched-move evidence, but cannot support raw-vs-search attribution; the runner reports them as unavailable rather than regenerating checkpoints or claiming an unverified mechanism.
 
 ## Seed 46 Negative Control
 

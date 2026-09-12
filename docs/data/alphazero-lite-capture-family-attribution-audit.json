@@ -15420,6 +15420,486 @@
     }
   },
   "schema": "azlite_capture_family_attribution_v1",
+  "secondary": {
+    "pr290": {
+      "44": {
+        "B": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        },
+        "C": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        },
+        "D": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        }
+      },
+      "45": {
+        "B": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        },
+        "C": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        },
+        "D": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        }
+      },
+      "46": {
+        "B": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        },
+        "C": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        },
+        "D": {
+          "available": false,
+          "reason": "raw checkpoint artifact not retained"
+        }
+      }
+    },
+    "rowmatched": {
+      "44": {
+        "checkpoint": {
+          "path": "/home/alex/Mancala/rowmatched-work/runs/seed44/uniform1200_rowmatched/uniform1200-rowmatched-seed44-iter1/checkpoint.npz",
+          "recorded_weights_json_sha256": "7aea6ef5e0bcb3caede9a7e88ac9080cac12110d25770c65d605701770fcdd84",
+          "sha256": "c5a96e57d9eed14670c4d94b59cee9409a60ec984c1993a4b1ff3e5495ff1b2a"
+        },
+        "rows": [
+          {
+            "id": "capture_available-002",
+            "raw": {
+              "entropy": 1.1775508336391312,
+              "expected_exact_action_value": -5.856341419857709,
+              "expected_exact_regret": 10.143658580142292,
+              "max_probability": 0.5957272676169624,
+              "optimal_mass": 0.18111942184060173,
+              "policy": [
+                0.0811428502202034,
+                0.4231768548488617,
+                0.12865878641605377,
+                0.026715073734521866,
+                0.050659775733947754,
+                0.28964653611183167
+              ],
+              "regret": 12.0,
+              "top_action": 1,
+              "top_optimal": false,
+              "value": 0.2078030445196368
+            },
+            "search": {
+              "child_q": [
+                {
+                  "move": 0,
+                  "q_value": 0.00551794240406404,
+                  "visits": 18
+                },
+                {
+                  "move": 1,
+                  "q_value": 0.07917995419746304,
+                  "visits": 186
+                },
+                {
+                  "move": 2,
+                  "q_value": 0.11927708748784237,
+                  "visits": 116
+                },
+                {
+                  "move": 3,
+                  "q_value": 0.12024911292470418,
+                  "visits": 26
+                },
+                {
+                  "move": 4,
+                  "q_value": 0.10496365975000356,
+                  "visits": 38
+                }
+              ],
+              "regret": 12.0,
+              "root_prior": [
+                0.11422884464263916,
+                0.5957273244857788,
+                0.1811194270849228,
+                0.03760814294219017,
+                0.07131631672382355,
+                0.0
+              ],
+              "search_value": 0.09317195989357667,
+              "selected_action": 1,
+              "visits": [
+                18.0,
+                186.0,
+                116.0,
+                26.0,
+                38.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "id": "capture_available-020",
+            "raw": {
+              "entropy": 1.3749764312134356,
+              "expected_exact_action_value": -11.427706766748985,
+              "expected_exact_regret": 4.572293233251015,
+              "max_probability": 0.28681518634734104,
+              "optimal_mass": 0.28681518634734104,
+              "policy": [
+                0.15783314406871796,
+                0.22761034965515137,
+                0.07994945347309113,
+                0.2338849902153015,
+                0.19612690806388855,
+                0.10459516197443008
+              ],
+              "regret": 0.0,
+              "top_action": 3,
+              "top_optimal": true,
+              "value": 0.15222641790136052
+            },
+            "search": {
+              "child_q": [
+                {
+                  "move": 0,
+                  "q_value": 0.09236450715106911,
+                  "visits": 40
+                },
+                {
+                  "move": 1,
+                  "q_value": 0.12032426496640451,
+                  "visits": 74
+                },
+                {
+                  "move": 3,
+                  "q_value": 0.14622668026024666,
+                  "visits": 98
+                },
+                {
+                  "move": 4,
+                  "q_value": 0.176772752675217,
+                  "visits": 172
+                }
+              ],
+              "regret": 4.0,
+              "root_prior": [
+                0.19355210661888123,
+                0.27912065386772156,
+                0.0,
+                0.28681522607803345,
+                0.24051208794116974,
+                0.0
+              ],
+              "search_value": 0.14930652088332863,
+              "selected_action": 4,
+              "visits": [
+                40.0,
+                74.0,
+                0.0,
+                98.0,
+                172.0,
+                0.0
+              ]
+            }
+          }
+        ]
+      },
+      "45": {
+        "checkpoint": {
+          "path": "/home/alex/Mancala/rowmatched-work/runs/seed45/uniform1200_rowmatched/uniform1200-rowmatched-seed45-iter1/checkpoint.npz",
+          "recorded_weights_json_sha256": "c27f24f678b60c768f722d186b286cb197ae111bc75e5342628ffd21f53d5a21",
+          "sha256": "aff9ff234011fe69d0094f1296d29f638c915a2d8e451c9d4d560bcdc148b292"
+        },
+        "rows": [
+          {
+            "id": "capture_available-002",
+            "raw": {
+              "entropy": 1.2734970203343574,
+              "expected_exact_action_value": -6.124110312087136,
+              "expected_exact_regret": 9.875889687912865,
+              "max_probability": 0.5282937535270189,
+              "optimal_mass": 0.21012648427648256,
+              "policy": [
+                0.10574972629547119,
+                0.4191738963127136,
+                0.1667245477437973,
+                0.028893817216157913,
+                0.07290653139352798,
+                0.20655149221420288
+              ],
+              "regret": 12.0,
+              "top_action": 1,
+              "top_optimal": false,
+              "value": 0.24521195311006724
+            },
+            "search": {
+              "child_q": [
+                {
+                  "move": 0,
+                  "q_value": -0.01689076214825036,
+                  "visits": 16
+                },
+                {
+                  "move": 1,
+                  "q_value": 0.0887062702669239,
+                  "visits": 146
+                },
+                {
+                  "move": 2,
+                  "q_value": 0.1502250593552436,
+                  "visits": 186
+                },
+                {
+                  "move": 3,
+                  "q_value": 0.11205566059798003,
+                  "visits": 10
+                },
+                {
+                  "move": 4,
+                  "q_value": 0.08889357106258663,
+                  "visits": 26
+                }
+              ],
+              "regret": 0.0,
+              "root_prior": [
+                0.13327863812446594,
+                0.528293788433075,
+                0.21012648940086365,
+                0.036415472626686096,
+                0.09188561886548996,
+                0.0
+              ],
+              "search_value": 0.11472529624552408,
+              "selected_action": 2,
+              "visits": [
+                16.0,
+                146.0,
+                186.0,
+                10.0,
+                26.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "id": "capture_available-020",
+            "raw": {
+              "entropy": 1.3679231415236486,
+              "expected_exact_action_value": -10.608894434164707,
+              "expected_exact_regret": 5.391105565835293,
+              "max_probability": 0.3118944002054822,
+              "optimal_mass": 0.22332245425728167,
+              "policy": [
+                0.24264611303806305,
+                0.2734421193599701,
+                0.051787737756967545,
+                0.1957898736000061,
+                0.16483567655086517,
+                0.07149858772754669
+              ],
+              "regret": 6.0,
+              "top_action": 1,
+              "top_optimal": false,
+              "value": 0.07692428412202718
+            },
+            "search": {
+              "child_q": [
+                {
+                  "move": 0,
+                  "q_value": 0.10466924085685948,
+                  "visits": 53
+                },
+                {
+                  "move": 1,
+                  "q_value": 0.18034070878141056,
+                  "visits": 152
+                },
+                {
+                  "move": 3,
+                  "q_value": 0.12824752166246375,
+                  "visits": 54
+                },
+                {
+                  "move": 4,
+                  "q_value": 0.1938654158632271,
+                  "visits": 125
+                }
+              ],
+              "regret": 6.0,
+              "root_prior": [
+                0.2767677307128906,
+                0.31189438700675964,
+                0.0,
+                0.22332251071929932,
+                0.1880153864622116,
+                0.0
+              ],
+              "search_value": 0.1669734392001677,
+              "selected_action": 1,
+              "visits": [
+                53.0,
+                152.0,
+                0.0,
+                54.0,
+                125.0,
+                0.0
+              ]
+            }
+          }
+        ]
+      },
+      "46": {
+        "checkpoint": {
+          "path": "/home/alex/Mancala/rowmatched-work/runs/seed46/uniform1200_rowmatched/uniform1200-rowmatched-seed46-iter1/checkpoint.npz",
+          "recorded_weights_json_sha256": "3c80a84081ceb43f981056caa528eefa96b914d215be41c453cef263300102de",
+          "sha256": "5ef163276aa1e5f85a778643355566936defd4a84e4aec194b772f86cab7dcfe"
+        },
+        "rows": [
+          {
+            "id": "capture_available-002",
+            "raw": {
+              "entropy": 1.2253033553351134,
+              "expected_exact_action_value": -8.580918952511068,
+              "expected_exact_regret": 7.419081047488931,
+              "max_probability": 0.4417946665413865,
+              "optimal_mass": 0.3761634883667106,
+              "policy": [
+                0.02110924758017063,
+                0.1702037900686264,
+                0.1449190229177475,
+                0.013601087033748627,
+                0.035422272980213165,
+                0.6147446036338806
+              ],
+              "regret": 12.0,
+              "top_action": 1,
+              "top_optimal": false,
+              "value": 0.11924142915620306
+            },
+            "search": {
+              "child_q": [
+                {
+                  "move": 0,
+                  "q_value": -0.0034137701150029898,
+                  "visits": 8
+                },
+                {
+                  "move": 1,
+                  "q_value": 0.06807318936693961,
+                  "visits": 107
+                },
+                {
+                  "move": 2,
+                  "q_value": 0.12741564072989625,
+                  "visits": 219
+                },
+                {
+                  "move": 3,
+                  "q_value": 0.09764610578052023,
+                  "visits": 11
+                },
+                {
+                  "move": 4,
+                  "q_value": 0.11127237823958962,
+                  "visits": 39
+                }
+              ],
+              "regret": 0.0,
+              "root_prior": [
+                0.05479280650615692,
+                0.44179442524909973,
+                0.3761637210845947,
+                0.03530409559607506,
+                0.09194496273994446,
+                0.0
+              ],
+              "search_value": 0.10566217795864456,
+              "selected_action": 2,
+              "visits": [
+                8.0,
+                107.0,
+                219.0,
+                11.0,
+                39.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "id": "capture_available-020",
+            "raw": {
+              "entropy": 1.3739945636054303,
+              "expected_exact_action_value": -11.36129606893279,
+              "expected_exact_regret": 4.6387039310672105,
+              "max_probability": 0.300733007413765,
+              "optimal_mass": 0.300733007413765,
+              "policy": [
+                0.20295670628547668,
+                0.16170264780521393,
+                0.06695600599050522,
+                0.2516639232635498,
+                0.2205117791891098,
+                0.09620900452136993
+              ],
+              "regret": 0.0,
+              "top_action": 3,
+              "top_optimal": true,
+              "value": 0.10019676460550735
+            },
+            "search": {
+              "child_q": [
+                {
+                  "move": 0,
+                  "q_value": 0.08706687667438666,
+                  "visits": 59
+                },
+                {
+                  "move": 1,
+                  "q_value": 0.14307101270109837,
+                  "visits": 88
+                },
+                {
+                  "move": 3,
+                  "q_value": 0.11914843122780305,
+                  "visits": 109
+                },
+                {
+                  "move": 4,
+                  "q_value": 0.13584273757351184,
+                  "visits": 128
+                }
+              ],
+              "regret": 4.0,
+              "root_prior": [
+                0.2425287663936615,
+                0.1932312548160553,
+                0.0,
+                0.3007330596446991,
+                0.2635069191455841,
+                0.0
+              ],
+              "search_value": 0.12526626108001437,
+              "selected_action": 4,
+              "visits": [
+                59.0,
+                88.0,
+                0.0,
+                109.0,
+                128.0,
+                0.0
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
   "stored_target_quality": {
     "dynamic": {
       "44:control_384_192": {
