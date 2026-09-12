@@ -964,6 +964,7 @@ class PUCT:
         root_snapshot_checkpoints: set[int] | None = None,
         record_root_trajectory: bool = False,
         root_backup_history: list[dict[str, int | float]] | None = None,
+        root_audit_trace: list[dict[str, Any]] | None = None,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -1006,6 +1007,9 @@ class PUCT:
         # Root-only backup telemetry is intentionally opt-in: it records the
         # already selected edge and committed root-perspective backup value.
         self.root_backup_history = root_backup_history
+        # Root-only audit data is deliberately separate from full selection traces.
+        # It records the evidence used for each root decision, not tree internals.
+        self.root_audit_trace = root_audit_trace
         self._last_trace_root_snapshots: list[dict] = []
         self._last_root_snapshots: list[dict] = []
         self._last_root_trajectory: list[dict] = []
@@ -1070,6 +1074,8 @@ class PUCT:
             self.selection_trace.clear()
         if self.root_backup_history is not None:
             self.root_backup_history.clear()
+        if self.root_audit_trace is not None:
+            self.root_audit_trace.clear()
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -1085,6 +1091,17 @@ class PUCT:
             if self.pre_simulation_hook is not None:
                 # The observer sees exactly the tree evidence available before t.
                 self.pre_simulation_hook(simulation_index, root)
+            root_audit_record = None
+            if self.root_audit_trace is not None:
+                entries, selected_move, _selected_child, _trust = (
+                    self._selection_entries(root, sort_moves=True)
+                )
+                root_audit_record = {
+                    "simulation": int(simulation_index),
+                    "root_q_before": float(root.q_value),
+                    "moves_before": entries,
+                    "selected_action": int(selected_move),
+                }
             trace_record = (
                 {"simulation_index": int(simulation_index), "selection_path": []}
                 if self.selection_trace is not None
@@ -1129,6 +1146,17 @@ class PUCT:
                 self._last_backed_up_value_max = float(value)
             root.visit_count += 1
             root.value_sum += value
+            if root_audit_record is not None:
+                post_entries, _next_move, _child, _trust = self._selection_entries(
+                    root, sort_moves=True
+                )
+                root_audit_record.update(
+                    {
+                        "root_q": float(root.q_value),
+                        "moves": post_entries,
+                    }
+                )
+                self.root_audit_trace.append(root_audit_record)
             if self.root_backup_history is not None:
                 assert selected_edges
                 root_child = selected_edges[0][1]
