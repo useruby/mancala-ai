@@ -47,11 +47,17 @@ Exact action values are `{0: 2, 1: -4, 2: -16, 3: -10, 4: -6}` for player 1, so 
 
 The retained dynamic replay gives `capture_available-002` control/uniform occurrence counts of 1/1 (seed 44), 3/1 (seed 45), and 1/0 (seed 46). For seeds 44 and 45, the uniform stored target places 0.9679 mass on exact action 2 versus the control target's 0.5461. The target is therefore better, while both raw students still choose action 1; PUCT Q/visit allocation determines whether the error is repaired.
 
+Across exact-labeled dynamic replay rows, uniform expected target regret is lower in every seed: 1.4318 vs 2.6292 (44), 2.1320 vs 3.5172 (45), and 1.3442 vs 3.4898 (46). The exact-labeled row counts are 35/47, 35/41, and 27/44 (uniform/control). The machine result also records fixed-source quality and paired shared-state teacher/student inversion results.
+
+## Neighborhood Coverage
+
+The runner consumes the already generated PR #291--#296 exact neighborhood cohort without creating any synthetic states. It records unique state coverage, row-weighted occurrences, and fractions for radii 0, 1, and 2 for both all 24 capture anchors and the decision-critical subset. These fields are under `neighborhood_coverage` in the machine result and preserve zero coverage where no retained cohort state maps to an anchor.
+
 ## Parent And Secondary Scope
 
-The shared parent snapshot is retained as `parent_init_checkpoint.npz` alongside each primary run and is SHA-verifiable through the run manifests. The current runner records the primary checkpoints and their raw/search traces; historical rowmatched and PR #290 B/C/D artifacts are intentionally not rerun as full suites.
+The shared parent snapshot is retained as `parent_init_checkpoint.npz` alongside each primary run and is SHA-verifiable through the run manifests. The runner evaluates parent raw and frozen-production PUCT traces for all 24 capture states, enabling parent/control/uniform comparisons in `parent_evaluations`.
 
-The requested local-neighborhood and all-exact-replay target aggregation cannot be made causally complete from the tracked artifacts alone: PR #291--#296 neighborhood rows do not cover all 24 PR #297 anchors, and the historical replay artifacts only expose exact labels for the frozen roots. The runner fails closed on the 24-root population rather than synthesizing neighbors or labels. This limitation does not affect the observed seed-44/45/46 search transition for `capture_available-002`.
+PR #288 rowmatched and PR #290 B/C/D raw checkpoint artifacts are not retained locally. Their tracked exact-shadow outputs remain historical searched-move evidence, but cannot support raw-vs-search attribution; the runner reports them as unavailable rather than regenerating checkpoints or claiming an unverified mechanism.
 
 ## Seed 46 Negative Control
 

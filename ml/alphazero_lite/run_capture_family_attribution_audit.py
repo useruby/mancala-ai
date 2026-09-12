@@ -13,6 +13,7 @@ import argparse
 import hashlib
 import json
 import math
+import random
 import sys
 from collections import Counter
 from pathlib import Path
@@ -32,10 +33,13 @@ from ml.alphazero_lite.forensic_exact_references import exact_regret
 from ml.alphazero_lite.forensic_suite import canonical_state_key
 from ml.alphazero_lite.fresh_p1_adapter_teacher_audit import decode_kalah_v3_base_state
 from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.self_play import CheckpointEvaluator
+from ml.alphazero_lite.self_play import CheckpointEvaluator, PUCT
 
 SHADOW = ROOT / "docs/data/alphazero-lite-uniform1200-exact-shadow-replay.json"
 EXACT = ROOT / "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json"
+NEIGHBORHOODS = (
+    ROOT / "docs/data/alphazero-lite-uniform1200-exact-neighborhood-audit.json"
+)
 RUNS = Path("/tmp/uniform1200-seed-confirmation/runs")
 FIXED = (
     Path(
@@ -181,7 +185,11 @@ def _rows(path: Path) -> list[dict[str, Any]]:
 def _decoded_rows(path: Path) -> list[dict[str, Any]]:
     result = []
     for row in _rows(path):
-        state = decode_kalah_v3_base_state(list(row["state"]))
+        state = (
+            row["state"]
+            if isinstance(row["state"], dict)
+            else decode_kalah_v3_base_state(list(row["state"]))
+        )
         result.append({**row, "canonical_state": canonical_state_key(state)})
     return result
 
@@ -220,6 +228,140 @@ def _searched(exact: dict[str, Any], artifact: Path) -> dict[str, Any]:
     }
 
 
+def _searched_checkpoint(
+    exact: dict[str, Any], evaluator: CheckpointEvaluator
+) -> dict[str, Any]:
+    """Parent checkpoint has no exported artifact; run the same frozen PUCT directly."""
+    game = KalahGame.from_state(exact["state"])
+    search = PUCT(
+        evaluator,
+        simulations=384,
+        c_puct=1.25,
+        rng=random.Random(42),
+        **build_eval_search_options(),
+    )
+    visits, root = search.run(game, dirichlet_alpha=None, dirichlet_epsilon=0.0)
+    selected = search.select_root_move(root, game.possible_moves())
+    children = [
+        {
+            "move": move,
+            "visits": root.children[move].visit_count,
+            "q_value": root.children[move].q_value,
+        }
+        for move in game.possible_moves()
+    ]
+    prior, _ = evaluator.evaluate(game)
+    return {
+        "selected_action": selected,
+        "regret": exact_regret(exact, selected),
+        "visits": [float(value) for value in visits],
+        "root_prior": [float(value) for value in prior],
+        "child_q": children,
+        "search_value": search.root_summary().get("root_q_value"),
+    }
+
+
+def target_rows(
+    rows: list[dict[str, Any]], labels: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Score stored, legal-masked training policies only where exact labels exist."""
+    return [
+        {
+            "canonical_state": row["canonical_state"],
+            **policy_quality(row["policy"], labels[row["canonical_state"]]),
+        }
+        for row in rows
+        if row["canonical_state"] in labels
+    ]
+
+
+def summarize_quality(rows: list[dict[str, Any]]) -> dict[str, float | int | None]:
+    if not rows:
+        return {
+            "rows": 0,
+            "top_optimal_rate": None,
+            "optimal_mass": None,
+            "expected_exact_regret": None,
+            "entropy": None,
+            "max_probability": None,
+        }
+    return {
+        "rows": len(rows),
+        "top_optimal_rate": sum(bool(row["top_optimal"]) for row in rows) / len(rows),
+        "optimal_mass": sum(float(row["optimal_mass"]) for row in rows) / len(rows),
+        "expected_exact_regret": sum(
+            float(row["expected_exact_regret"]) for row in rows
+        )
+        / len(rows),
+        "entropy": sum(float(row["entropy"]) for row in rows) / len(rows),
+        "max_probability": sum(float(row["max_probability"]) for row in rows)
+        / len(rows),
+    }
+
+
+def neighborhood_coverage(
+    rows: list[dict[str, Any]], cohort: list[dict[str, Any]], anchors: set[str]
+) -> dict[str, dict[str, float | int]]:
+    """Use only existing PR #291--#296 exact states; never synthesize neighbors."""
+    keys = {row["canonical_state"] for row in rows}
+    result: dict[str, dict[str, float | int]] = {}
+    for radius in (0, 1, 2):
+        states = {
+            row["canonical_state_key"]
+            for row in cohort
+            if row.get("oracle_status") == "exact_solved"
+            and row.get("radius", 0) <= radius
+            and any(item["anchor_id"] in anchors for item in row.get("provenance", []))
+        }
+        occurrences = sum(row["canonical_state"] in states for row in rows)
+        present = len(states & keys)
+        result[str(radius)] = {
+            "exact_states": len(states),
+            "unique_state_coverage": present,
+            "row_weighted_occurrences": occurrences,
+            "coverage_fraction": present / len(states) if states else 0.0,
+        }
+    return result
+
+
+def teacher_student_inversions(
+    control_targets: list[dict[str, Any]],
+    uniform_targets: list[dict[str, Any]],
+    control_evaluations: list[dict[str, Any]],
+    uniform_evaluations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Compare mean shared teacher regret with the matched raw student regret."""
+
+    def mean_by_key(rows: list[dict[str, Any]]) -> dict[str, float]:
+        grouped: dict[str, list[float]] = {}
+        for row in rows:
+            grouped.setdefault(row["canonical_state"], []).append(
+                float(row["expected_exact_regret"])
+            )
+        return {key: sum(values) / len(values) for key, values in grouped.items()}
+
+    controls, uniforms = mean_by_key(control_targets), mean_by_key(uniform_targets)
+    raw_control = {
+        row["id"]: float(row["raw"]["regret"]) for row in control_evaluations
+    }
+    raw_uniform = {
+        row["id"]: float(row["raw"]["regret"]) for row in uniform_evaluations
+    }
+    by_key = {row["canonical_state"]: row["id"] for row in capture_rows()}
+    shared = sorted(set(controls) & set(uniforms) & set(by_key))
+    inversions = [
+        by_key[key]
+        for key in shared
+        if uniforms[key] <= controls[key]
+        and raw_uniform[by_key[key]] > raw_control[by_key[key]]
+    ]
+    return {
+        "shared_states": len(shared),
+        "inversion_ids": inversions,
+        "inversion_rate": len(inversions) / len(shared) if shared else None,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
@@ -227,13 +369,21 @@ def main() -> int:
     positions = capture_rows()
     shadow = json.loads(SHADOW.read_text())
     critical = decision_critical_ids(shadow)
+    cohort = json.loads(NEIGHBORHOODS.read_text())["cohort"]
+    labels = {row["canonical_state"]: row for row in positions}
     inputs: dict[str, Any] = {
         "exact_reference": {"path": str(EXACT), "sha256": sha256_file(EXACT)},
         "shadow": {"path": str(SHADOW), "sha256": sha256_file(SHADOW)},
+        "neighborhoods": {
+            "path": str(NEIGHBORHOODS),
+            "sha256": sha256_file(NEIGHBORHOODS),
+        },
         "checkpoints": {},
         "replays": {},
+        "fixed_replays": {},
     }
     evaluations: dict[str, Any] = {}
+    parent_evaluations: dict[str, Any] = {}
     replay_by_lane: dict[tuple[int, str], list[dict[str, Any]]] = {}
     for seed in (44, 45, 46):
         for lane in ("control_384_192", "uniform1200"):
@@ -264,6 +414,28 @@ def main() -> int:
                 }
                 for row in positions
             ]
+        parent = _run_dir(seed, "control_384_192") / "parent_init_checkpoint.npz"
+        parent_sha = sha256_file(parent)
+        inputs["checkpoints"][f"{seed}:parent"] = {
+            "path": str(parent),
+            "sha256": parent_sha,
+        }
+        parent_evaluator = CheckpointEvaluator(parent, input_encoding="kalah_v3")
+        parent_evaluations[str(seed)] = [
+            {
+                "id": row["id"],
+                "raw": _raw(row, parent_evaluator),
+                "search": _searched_checkpoint(row, parent_evaluator),
+            }
+            for row in positions
+        ]
+    fixed_rows = []
+    for path in FIXED:
+        inputs["fixed_replays"][path.name] = {
+            "path": str(path),
+            "sha256": sha256_file(path),
+        }
+        fixed_rows.extend(_decoded_rows(path))
     coverage = {}
     exact_by_key = {row["canonical_state"]: row for row in positions}
     for seed in (44, 45, 46):
@@ -281,6 +453,37 @@ def main() -> int:
                 )
                 for identifier, exact in ((row["id"], row) for row in positions)
             }
+    target_quality = {
+        "fixed": summarize_quality(target_rows(fixed_rows, labels)),
+        "dynamic": {
+            f"{seed}:{lane}": summarize_quality(
+                target_rows(replay_by_lane[seed, lane], labels)
+            )
+            for seed in (44, 45, 46)
+            for lane in ("control_384_192", "uniform1200")
+        },
+    }
+    inversions = {
+        str(seed): teacher_student_inversions(
+            target_rows(replay_by_lane[seed, "control_384_192"], labels),
+            target_rows(replay_by_lane[seed, "uniform1200"], labels),
+            evaluations[f"{seed}:control_384_192"],
+            evaluations[f"{seed}:uniform1200"],
+        )
+        for seed in (44, 45, 46)
+    }
+    neighborhoods = {
+        f"{seed}:{lane}": {
+            "all_capture": neighborhood_coverage(
+                replay_by_lane[seed, lane], cohort, {row["id"] for row in positions}
+            ),
+            "decision_critical": neighborhood_coverage(
+                replay_by_lane[seed, lane], cohort, set(critical)
+            ),
+        }
+        for seed in (44, 45, 46)
+        for lane in ("control_384_192", "uniform1200")
+    }
     result = {
         "schema": "azlite_capture_family_attribution_v1",
         "read_only": {
@@ -299,7 +502,11 @@ def main() -> int:
             "sha256": hashlib.sha256("\n".join(critical).encode()).hexdigest(),
         },
         "evaluations": evaluations,
+        "parent_evaluations": parent_evaluations,
         "root_replay_coverage": coverage,
+        "stored_target_quality": target_quality,
+        "teacher_student_inversions": inversions,
+        "neighborhood_coverage": neighborhoods,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")

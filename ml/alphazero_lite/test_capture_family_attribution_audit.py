@@ -1,9 +1,11 @@
 from ml.alphazero_lite.run_capture_family_attribution_audit import (
     cross_seed_dominance,
+    capture_rows,
     decision_critical_ids,
     mechanism,
     policy_quality,
     search_induced_regression,
+    teacher_student_inversions,
     transition,
 )
 
@@ -61,3 +63,18 @@ def test_cross_seed_dominance_requires_two_seeds():
         )
         == "coverage_deficit"
     )
+
+
+def test_teacher_student_inversion_requires_worse_raw_student():
+    key = next(
+        row["canonical_state"]
+        for row in capture_rows()
+        if row["id"] == "capture_available-002"
+    )
+    targets = [{"canonical_state": key, "expected_exact_regret": 0.0}]
+    evaluations = [{"id": "capture_available-002", "raw": {"regret": 0.0}}]
+    assert teacher_student_inversions(targets, targets, evaluations, evaluations) == {
+        "shared_states": 1,
+        "inversion_ids": [],
+        "inversion_rate": 0.0,
+    }

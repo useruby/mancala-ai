@@ -9955,6 +9955,10 @@
         "path": "/tmp/uniform1200-seed-confirmation/runs/seed44/control_384_192/uniform1200-confirm-seed44-control_384_192-iter1/checkpoint.npz",
         "sha256": "979f906a80610e2a6648d5bc2ac1a88d47efad75bda53488b045688d12b2c513"
       },
+      "44:parent": {
+        "path": "/tmp/uniform1200-seed-confirmation/runs/seed44/control_384_192/uniform1200-confirm-seed44-control_384_192-iter1/parent_init_checkpoint.npz",
+        "sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4"
+      },
       "44:uniform1200": {
         "path": "/tmp/uniform1200-seed-confirmation/runs/seed44/uniform1200/uniform1200-confirm-seed44-uniform1200-iter1/checkpoint.npz",
         "sha256": "806d04b9452b98dbd7a844e553ea8e4e8af6094cbe37790cf16bc0a0bc90278a"
@@ -9962,6 +9966,10 @@
       "45:control_384_192": {
         "path": "/tmp/uniform1200-seed-confirmation/runs/seed45/control_384_192/uniform1200-confirm-seed45-control_384_192-iter1/checkpoint.npz",
         "sha256": "52d3df027c0cdccaba7e27f1c2827f673091a610f0103271c77411f0dca4131d"
+      },
+      "45:parent": {
+        "path": "/tmp/uniform1200-seed-confirmation/runs/seed45/control_384_192/uniform1200-confirm-seed45-control_384_192-iter1/parent_init_checkpoint.npz",
+        "sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4"
       },
       "45:uniform1200": {
         "path": "/tmp/uniform1200-seed-confirmation/runs/seed45/uniform1200/uniform1200-confirm-seed45-uniform1200-iter1/checkpoint.npz",
@@ -9971,6 +9979,10 @@
         "path": "/tmp/uniform1200-seed-confirmation/runs/seed46/control_384_192/uniform1200-confirm-seed46-control_384_192-iter1/checkpoint.npz",
         "sha256": "ed61f4a6e943529a5d4fe5d452b00380bad0927c423f983de8fa9a363adc4ee2"
       },
+      "46:parent": {
+        "path": "/tmp/uniform1200-seed-confirmation/runs/seed46/control_384_192/uniform1200-confirm-seed46-control_384_192-iter1/parent_init_checkpoint.npz",
+        "sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4"
+      },
       "46:uniform1200": {
         "path": "/tmp/uniform1200-seed-confirmation/runs/seed46/uniform1200/uniform1200-confirm-seed46-uniform1200-iter1/checkpoint.npz",
         "sha256": "9baa2227602df7ffa0c16c009d16973c67181a079fca810a364b8f4ce97aa604"
@@ -9979,6 +9991,20 @@
     "exact_reference": {
       "path": "/home/alex/Mancala/ai/ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
       "sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626"
+    },
+    "fixed_replays": {
+      "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl": {
+        "path": "/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+        "sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b"
+      },
+      "guard_safe_controls_only.jsonl": {
+        "path": "/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl",
+        "sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+      }
+    },
+    "neighborhoods": {
+      "path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-exact-neighborhood-audit.json",
+      "sha256": "323f6dcc149f90a70629204d9c259546a1f6010e6160167522dd218624c3d503"
     },
     "replays": {
       "44:control_384_192": {
@@ -10010,6 +10036,5218 @@
       "path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-exact-shadow-replay.json",
       "sha256": "576ba79430cec0c1d13ea006bc9bbd4c131acc4750e3944432257e8ea158d776"
     }
+  },
+  "neighborhood_coverage": {
+    "44:control_384_192": {
+      "all_capture": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 2,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.375,
+          "exact_states": 8,
+          "row_weighted_occurrences": 3,
+          "unique_state_coverage": 3
+        },
+        "2": {
+          "coverage_fraction": 0.3333333333333333,
+          "exact_states": 9,
+          "row_weighted_occurrences": 3,
+          "unique_state_coverage": 3
+        }
+      },
+      "decision_critical": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 2,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.375,
+          "exact_states": 8,
+          "row_weighted_occurrences": 3,
+          "unique_state_coverage": 3
+        },
+        "2": {
+          "coverage_fraction": 0.3333333333333333,
+          "exact_states": 9,
+          "row_weighted_occurrences": 3,
+          "unique_state_coverage": 3
+        }
+      }
+    },
+    "44:uniform1200": {
+      "all_capture": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 7,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.625,
+          "exact_states": 8,
+          "row_weighted_occurrences": 13,
+          "unique_state_coverage": 5
+        },
+        "2": {
+          "coverage_fraction": 0.5555555555555556,
+          "exact_states": 9,
+          "row_weighted_occurrences": 13,
+          "unique_state_coverage": 5
+        }
+      },
+      "decision_critical": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 7,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.625,
+          "exact_states": 8,
+          "row_weighted_occurrences": 13,
+          "unique_state_coverage": 5
+        },
+        "2": {
+          "coverage_fraction": 0.5555555555555556,
+          "exact_states": 9,
+          "row_weighted_occurrences": 13,
+          "unique_state_coverage": 5
+        }
+      }
+    },
+    "45:control_384_192": {
+      "all_capture": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 6,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.625,
+          "exact_states": 8,
+          "row_weighted_occurrences": 11,
+          "unique_state_coverage": 5
+        },
+        "2": {
+          "coverage_fraction": 0.5555555555555556,
+          "exact_states": 9,
+          "row_weighted_occurrences": 11,
+          "unique_state_coverage": 5
+        }
+      },
+      "decision_critical": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 6,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.625,
+          "exact_states": 8,
+          "row_weighted_occurrences": 11,
+          "unique_state_coverage": 5
+        },
+        "2": {
+          "coverage_fraction": 0.5555555555555556,
+          "exact_states": 9,
+          "row_weighted_occurrences": 11,
+          "unique_state_coverage": 5
+        }
+      }
+    },
+    "45:uniform1200": {
+      "all_capture": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 12,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.625,
+          "exact_states": 8,
+          "row_weighted_occurrences": 23,
+          "unique_state_coverage": 5
+        },
+        "2": {
+          "coverage_fraction": 0.5555555555555556,
+          "exact_states": 9,
+          "row_weighted_occurrences": 23,
+          "unique_state_coverage": 5
+        }
+      },
+      "decision_critical": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 12,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.625,
+          "exact_states": 8,
+          "row_weighted_occurrences": 23,
+          "unique_state_coverage": 5
+        },
+        "2": {
+          "coverage_fraction": 0.5555555555555556,
+          "exact_states": 9,
+          "row_weighted_occurrences": 23,
+          "unique_state_coverage": 5
+        }
+      }
+    },
+    "46:control_384_192": {
+      "all_capture": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 3,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.5,
+          "exact_states": 8,
+          "row_weighted_occurrences": 5,
+          "unique_state_coverage": 4
+        },
+        "2": {
+          "coverage_fraction": 0.4444444444444444,
+          "exact_states": 9,
+          "row_weighted_occurrences": 5,
+          "unique_state_coverage": 4
+        }
+      },
+      "decision_critical": {
+        "0": {
+          "coverage_fraction": 1.0,
+          "exact_states": 2,
+          "row_weighted_occurrences": 3,
+          "unique_state_coverage": 2
+        },
+        "1": {
+          "coverage_fraction": 0.5,
+          "exact_states": 8,
+          "row_weighted_occurrences": 5,
+          "unique_state_coverage": 4
+        },
+        "2": {
+          "coverage_fraction": 0.4444444444444444,
+          "exact_states": 9,
+          "row_weighted_occurrences": 5,
+          "unique_state_coverage": 4
+        }
+      }
+    },
+    "46:uniform1200": {
+      "all_capture": {
+        "0": {
+          "coverage_fraction": 0.5,
+          "exact_states": 2,
+          "row_weighted_occurrences": 2,
+          "unique_state_coverage": 1
+        },
+        "1": {
+          "coverage_fraction": 0.25,
+          "exact_states": 8,
+          "row_weighted_occurrences": 4,
+          "unique_state_coverage": 2
+        },
+        "2": {
+          "coverage_fraction": 0.2222222222222222,
+          "exact_states": 9,
+          "row_weighted_occurrences": 4,
+          "unique_state_coverage": 2
+        }
+      },
+      "decision_critical": {
+        "0": {
+          "coverage_fraction": 0.5,
+          "exact_states": 2,
+          "row_weighted_occurrences": 2,
+          "unique_state_coverage": 1
+        },
+        "1": {
+          "coverage_fraction": 0.25,
+          "exact_states": 8,
+          "row_weighted_occurrences": 4,
+          "unique_state_coverage": 2
+        },
+        "2": {
+          "coverage_fraction": 0.2222222222222222,
+          "exact_states": 9,
+          "row_weighted_occurrences": 4,
+          "unique_state_coverage": 2
+        }
+      }
+    }
+  },
+  "parent_evaluations": {
+    "44": [
+      {
+        "id": "capture_available-001",
+        "raw": {
+          "entropy": 1.275591799610161,
+          "expected_exact_action_value": -5.254360476306113,
+          "expected_exact_regret": 6.745639523693888,
+          "max_probability": 0.4833461459211184,
+          "optimal_mass": 0.24835792675191815,
+          "policy": [
+            0.15888889133930206,
+            0.41947653889656067,
+            0.21553978323936462,
+            0.043894000351428986,
+            0.13214045763015747,
+            0.03006027452647686
+          ],
+          "regret": 10.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.13457217527331083
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.022133352881215013,
+              "visits": 76
+            },
+            {
+              "move": 1,
+              "q_value": 0.009785222273573813,
+              "visits": 164
+            },
+            {
+              "move": 2,
+              "q_value": 0.029611139988223435,
+              "visits": 117
+            },
+            {
+              "move": 3,
+              "q_value": -0.011825156215544141,
+              "visits": 13
+            },
+            {
+              "move": 5,
+              "q_value": 0.01852217735965569,
+              "visits": 14
+            }
+          ],
+          "regret": 10.0,
+          "root_prior": [
+            0.15888889133930206,
+            0.41947653889656067,
+            0.21553978323936462,
+            0.043894000351428986,
+            0.13214045763015747,
+            0.03006027452647686
+          ],
+          "search_value": 0.017856765892431486,
+          "selected_action": 1,
+          "visits": [
+            76.0,
+            164.0,
+            117.0,
+            13.0,
+            0.0,
+            14.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-002",
+        "raw": {
+          "entropy": 0.8819270533977208,
+          "expected_exact_action_value": -0.34138963989028714,
+          "expected_exact_regret": 15.658610360109714,
+          "max_probability": 0.6986185414139992,
+          "optimal_mass": 0.02838036350204099,
+          "policy": [
+            0.6736302971839905,
+            0.20876245200634003,
+            0.027365252375602722,
+            0.019175507128238678,
+            0.035298410803079605,
+            0.035768166184425354
+          ],
+          "regret": 18.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.1277830153981115
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.012624492733393035,
+              "visits": 282
+            },
+            {
+              "move": 1,
+              "q_value": -0.0024481850869454364,
+              "visits": 72
+            },
+            {
+              "move": 2,
+              "q_value": 0.00013873290954851983,
+              "visits": 11
+            },
+            {
+              "move": 3,
+              "q_value": 0.020798413582844833,
+              "visits": 9
+            },
+            {
+              "move": 4,
+              "q_value": -0.01942832809078046,
+              "visits": 10
+            }
+          ],
+          "regret": 18.0,
+          "root_prior": [
+            0.6736302971839905,
+            0.20876245200634003,
+            0.027365252375602722,
+            0.019175507128238678,
+            0.035298410803079605,
+            0.035768166184425354
+          ],
+          "search_value": 0.008797568041405199,
+          "selected_action": 0,
+          "visits": [
+            282.0,
+            72.0,
+            11.0,
+            9.0,
+            10.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-003",
+        "raw": {
+          "entropy": 1.3619658948439406,
+          "expected_exact_action_value": -7.1168687387308305,
+          "expected_exact_regret": 6.8831312612691695,
+          "max_probability": 0.46702956841569354,
+          "optimal_mass": 0.16281144434035721,
+          "policy": [
+            0.18678709864616394,
+            0.4083350896835327,
+            0.14234992861747742,
+            0.03654954209923744,
+            0.10030218958854675,
+            0.12567609548568726
+          ],
+          "regret": 4.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.13177833362051014
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0031034650772428295,
+              "visits": 59
+            },
+            {
+              "move": 1,
+              "q_value": 0.019850483969102432,
+              "visits": 161
+            },
+            {
+              "move": 2,
+              "q_value": 0.05501658295333211,
+              "visits": 113
+            },
+            {
+              "move": 3,
+              "q_value": 0.0028420568695419423,
+              "visits": 11
+            },
+            {
+              "move": 4,
+              "q_value": 0.0220745773067772,
+              "visits": 40
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.18678709864616394,
+            0.4083350896835327,
+            0.14234992861747742,
+            0.03654954209923744,
+            0.10030218958854675,
+            0.12567609548568726
+          ],
+          "search_value": 0.02737018737017029,
+          "selected_action": 1,
+          "visits": [
+            59.0,
+            161.0,
+            113.0,
+            11.0,
+            40.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-007",
+        "raw": {
+          "entropy": 1.4274088174307886,
+          "expected_exact_action_value": -4.313347793499109,
+          "expected_exact_regret": 7.6866522065008915,
+          "max_probability": 0.40463020248453657,
+          "optimal_mass": 0.161027432910875,
+          "policy": [
+            0.20344825088977814,
+            0.31945207715034485,
+            0.12712977826595306,
+            0.045527584850788116,
+            0.09393373876810074,
+            0.2105085402727127
+          ],
+          "regret": 6.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.15449796811771876
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.016255434657306955,
+              "visits": 60
+            },
+            {
+              "move": 1,
+              "q_value": 0.022791625031171926,
+              "visits": 147
+            },
+            {
+              "move": 2,
+              "q_value": 0.05074946374234461,
+              "visits": 101
+            },
+            {
+              "move": 3,
+              "q_value": 0.03608392499311002,
+              "visits": 26
+            },
+            {
+              "move": 4,
+              "q_value": 0.02859867528332957,
+              "visits": 50
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.20344825088977814,
+            0.31945207715034485,
+            0.12712977826595306,
+            0.045527584850788116,
+            0.09393373876810074,
+            0.2105085402727127
+          ],
+          "search_value": 0.025700141802364587,
+          "selected_action": 1,
+          "visits": [
+            60.0,
+            147.0,
+            101.0,
+            26.0,
+            50.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-008",
+        "raw": {
+          "entropy": 1.3496770393481434,
+          "expected_exact_action_value": -1.137515902906401,
+          "expected_exact_regret": 8.8624840970936,
+          "max_probability": 0.4516251257613844,
+          "optimal_mass": 0.26751992215378395,
+          "policy": [
+            0.4366442561149597,
+            0.25864601135253906,
+            0.08472049236297607,
+            0.045229628682136536,
+            0.14158858358860016,
+            0.03317099064588547
+          ],
+          "regret": 14.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.06833007620731242
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.004823516967639456,
+              "visits": 132
+            },
+            {
+              "move": 1,
+              "q_value": 0.042160723850572325,
+              "visits": 144
+            },
+            {
+              "move": 2,
+              "q_value": 0.04344673683400941,
+              "visits": 48
+            },
+            {
+              "move": 3,
+              "q_value": 0.036078304941625235,
+              "visits": 22
+            },
+            {
+              "move": 4,
+              "q_value": -0.004033245427613949,
+              "visits": 38
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.4366442561149597,
+            0.25864601135253906,
+            0.08472049236297607,
+            0.045229628682136536,
+            0.14158858358860016,
+            0.03317099064588547
+          ],
+          "search_value": 0.02456706048101481,
+          "selected_action": 1,
+          "visits": [
+            132.0,
+            144.0,
+            48.0,
+            22.0,
+            38.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-009",
+        "raw": {
+          "entropy": 1.1798512839702746,
+          "expected_exact_action_value": -5.87050940221005,
+          "expected_exact_regret": 8.12949059778995,
+          "max_probability": 0.4165676147498292,
+          "optimal_mass": 0.4160577135294669,
+          "policy": [
+            0.40538138151168823,
+            0.4048851728439331,
+            0.04008802771568298,
+            0.020933808758854866,
+            0.10185826569795609,
+            0.026853317394852638
+          ],
+          "regret": 16.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.03394618774840551
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.02157607801076492,
+              "visits": 94
+            },
+            {
+              "move": 1,
+              "q_value": 0.04038653862339493,
+              "visits": 219
+            },
+            {
+              "move": 2,
+              "q_value": 0.023652263410960543,
+              "visits": 16
+            },
+            {
+              "move": 3,
+              "q_value": 0.05091024050684608,
+              "visits": 17
+            },
+            {
+              "move": 4,
+              "q_value": 0.017911325518387547,
+              "visits": 38
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.40538138151168823,
+            0.4048851728439331,
+            0.04008802771568298,
+            0.020933808758854866,
+            0.10185826569795609,
+            0.026853317394852638
+          ],
+          "search_value": 0.022763128381255385,
+          "selected_action": 1,
+          "visits": [
+            94.0,
+            219.0,
+            16.0,
+            17.0,
+            38.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-010",
+        "raw": {
+          "entropy": 0.49108419661672265,
+          "expected_exact_action_value": 10.769327626629488,
+          "expected_exact_regret": 1.230672373370511,
+          "max_probability": 0.868275072856077,
+          "optimal_mass": 0.868275072856077,
+          "policy": [
+            0.005514718592166901,
+            0.09585828334093094,
+            0.8221524357795715,
+            0.016085922718048096,
+            0.053119905292987823,
+            0.007268794812262058
+          ],
+          "regret": 0.0,
+          "top_action": 2,
+          "top_optimal": true,
+          "value": -0.1397772433394823
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.07111455277661612,
+              "visits": 1
+            },
+            {
+              "move": 1,
+              "q_value": 0.025804502083053408,
+              "visits": 33
+            },
+            {
+              "move": 2,
+              "q_value": 0.03855097281532033,
+              "visits": 344
+            },
+            {
+              "move": 3,
+              "q_value": -0.03060286219877259,
+              "visits": 3
+            },
+            {
+              "move": 5,
+              "q_value": 0.022174143060974056,
+              "visits": 3
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.005514718592166901,
+            0.09585828334093094,
+            0.8221524357795715,
+            0.016085922718048096,
+            0.053119905292987823,
+            0.007268794812262058
+          ],
+          "search_value": 0.036501777362033715,
+          "selected_action": 2,
+          "visits": [
+            1.0,
+            33.0,
+            344.0,
+            3.0,
+            0.0,
+            3.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-011",
+        "raw": {
+          "entropy": 1.152419905507599,
+          "expected_exact_action_value": 5.521641643370088,
+          "expected_exact_regret": 0.4783583566299132,
+          "max_probability": 0.4451316880822873,
+          "optimal_mass": 0.8127130734615741,
+          "policy": [
+            0.2236042469739914,
+            0.3558097779750824,
+            0.2707790434360504,
+            0.08236223459243774,
+            0.035877980291843414,
+            0.031566690653562546
+          ],
+          "regret": 0.0,
+          "top_action": 2,
+          "top_optimal": true,
+          "value": -0.11985326611631819
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.03465408702628069,
+              "visits": 96
+            },
+            {
+              "move": 2,
+              "q_value": 0.08235877869547525,
+              "visits": 222
+            },
+            {
+              "move": 3,
+              "q_value": 0.06707928203145239,
+              "visits": 55
+            },
+            {
+              "move": 5,
+              "q_value": 0.011890335479888074,
+              "visits": 11
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2236042469739914,
+            0.3558097779750824,
+            0.2707790434360504,
+            0.08236223459243774,
+            0.035877980291843414,
+            0.031566690653562546
+          ],
+          "search_value": 0.06622550892428933,
+          "selected_action": 2,
+          "visits": [
+            96.0,
+            0.0,
+            222.0,
+            55.0,
+            0.0,
+            11.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-012",
+        "raw": {
+          "entropy": 1.029186777265725,
+          "expected_exact_action_value": -7.90502830675187,
+          "expected_exact_regret": 2.0949716932481297,
+          "max_probability": 0.6248749994612001,
+          "optimal_mass": 0.16381957695736762,
+          "policy": [
+            0.185909241437912,
+            0.549773097038269,
+            0.08409685641527176,
+            0.08580240607261658,
+            0.03609022498130798,
+            0.05832817405462265
+          ],
+          "regret": 2.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.051491835699418884
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.020308307845352983,
+              "visits": 60
+            },
+            {
+              "move": 1,
+              "q_value": 0.055693930960868665,
+              "visits": 278
+            },
+            {
+              "move": 3,
+              "q_value": 0.02303959906917386,
+              "visits": 27
+            },
+            {
+              "move": 5,
+              "q_value": 0.023011396481403646,
+              "visits": 19
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.185909241437912,
+            0.549773097038269,
+            0.08409685641527176,
+            0.08580240607261658,
+            0.03609022498130798,
+            0.05832817405462265
+          ],
+          "search_value": 0.046251815067336034,
+          "selected_action": 1,
+          "visits": [
+            60.0,
+            278.0,
+            0.0,
+            27.0,
+            0.0,
+            19.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-013",
+        "raw": {
+          "entropy": 1.348289878799011,
+          "expected_exact_action_value": -0.9666363405976637,
+          "expected_exact_regret": 0.9666363405976637,
+          "max_probability": 0.4306413050609229,
+          "optimal_mass": 0.5166818297011682,
+          "policy": [
+            0.27148178219795227,
+            0.3695872128009796,
+            0.196349635720253,
+            0.067054383456707,
+            0.06231880933046341,
+            0.03320816904306412
+          ],
+          "regret": 2.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.151956846643582
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.035254879515607844,
+              "visits": 116
+            },
+            {
+              "move": 2,
+              "q_value": -0.037753495172694655,
+              "visits": 83
+            },
+            {
+              "move": 3,
+              "q_value": 0.006746264807659873,
+              "visits": 53
+            },
+            {
+              "move": 4,
+              "q_value": 0.029950711406010848,
+              "visits": 95
+            },
+            {
+              "move": 5,
+              "q_value": 0.01937740353625415,
+              "visits": 37
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.27148178219795227,
+            0.3695872128009796,
+            0.196349635720253,
+            0.067054383456707,
+            0.06231880933046341,
+            0.03320816904306412
+          ],
+          "search_value": -0.008602272327931664,
+          "selected_action": 0,
+          "visits": [
+            116.0,
+            0.0,
+            83.0,
+            53.0,
+            95.0,
+            37.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-014",
+        "raw": {
+          "entropy": 1.417706705820303,
+          "expected_exact_action_value": -6.112025792624376,
+          "expected_exact_regret": 4.112025792624376,
+          "max_probability": 0.3678549901748992,
+          "optimal_mass": 0.03207046954077496,
+          "policy": [
+            0.13936996459960938,
+            0.41977357864379883,
+            0.13915565609931946,
+            0.06965352594852448,
+            0.018608136102557182,
+            0.2134392112493515
+          ],
+          "regret": 4.0,
+          "top_action": 5,
+          "top_optimal": false,
+          "value": -0.0917647697316241
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.014274685668025441,
+              "visits": 81
+            },
+            {
+              "move": 2,
+              "q_value": -0.01849391342572952,
+              "visits": 73
+            },
+            {
+              "move": 3,
+              "q_value": 0.0018359864195155215,
+              "visits": 51
+            },
+            {
+              "move": 4,
+              "q_value": -0.040200364164603736,
+              "visits": 11
+            },
+            {
+              "move": 5,
+              "q_value": 0.006315393193591368,
+              "visits": 168
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.13936996459960938,
+            0.41977357864379883,
+            0.13915565609931946,
+            0.06965352594852448,
+            0.018608136102557182,
+            0.2134392112493515
+          ],
+          "search_value": -0.004671582971563318,
+          "selected_action": 5,
+          "visits": [
+            81.0,
+            0.0,
+            73.0,
+            51.0,
+            11.0,
+            168.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-015",
+        "raw": {
+          "entropy": 1.2958409898016763,
+          "expected_exact_action_value": 4.155480391901879,
+          "expected_exact_regret": 1.844519608098121,
+          "max_probability": 0.4355803699959163,
+          "optimal_mass": 0.22045986875664542,
+          "policy": [
+            0.11472256481647491,
+            0.19616441428661346,
+            0.16176311671733856,
+            0.3501332104206085,
+            0.17721258103847504,
+            4.07363950216677e-06
+          ],
+          "regret": 2.0,
+          "top_action": 3,
+          "top_optimal": false,
+          "value": 0.12247345692164478
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.028561140145705554,
+              "visits": 80
+            },
+            {
+              "move": 2,
+              "q_value": -0.0059072567538002736,
+              "visits": 66
+            },
+            {
+              "move": 3,
+              "q_value": 0.006066943989432096,
+              "visits": 160
+            },
+            {
+              "move": 4,
+              "q_value": 0.0027287485803574245,
+              "visits": 78
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.11472256481647491,
+            0.19616441428661346,
+            0.16176311671733856,
+            0.3501332104206085,
+            0.17721258103847504,
+            4.07363950216677e-06
+          ],
+          "search_value": 0.008017098160111048,
+          "selected_action": 3,
+          "visits": [
+            80.0,
+            0.0,
+            66.0,
+            160.0,
+            78.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-016",
+        "raw": {
+          "entropy": 0.7525924763426938,
+          "expected_exact_action_value": 2.0729620896983514,
+          "expected_exact_regret": 3.9270379103016486,
+          "max_probability": 0.782669243484265,
+          "optimal_mass": 0.023836883338785364,
+          "policy": [
+            0.7826137542724609,
+            0.06822402775287628,
+            0.0074798972345888615,
+            0.0238351933658123,
+            0.11777622997760773,
+            7.100570655893534e-05
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.09635908350729036
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.004314054952386862,
+              "visits": 294
+            },
+            {
+              "move": 1,
+              "q_value": 0.02028266268587018,
+              "visits": 43
+            },
+            {
+              "move": 2,
+              "q_value": -0.005403990361558873,
+              "visits": 3
+            },
+            {
+              "move": 3,
+              "q_value": 0.02601292632114383,
+              "visits": 19
+            },
+            {
+              "move": 4,
+              "q_value": -0.05246001937017489,
+              "visits": 25
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.7826137542724609,
+            0.06822402775287628,
+            0.0074798972345888615,
+            0.0238351933658123,
+            0.11777622997760773,
+            7.100570655893534e-05
+          ],
+          "search_value": -0.0032021992597568625,
+          "selected_action": 0,
+          "visits": [
+            294.0,
+            43.0,
+            3.0,
+            19.0,
+            25.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-017",
+        "raw": {
+          "entropy": 0.8526355042664475,
+          "expected_exact_action_value": 0.6560283076431239,
+          "expected_exact_regret": 5.343971692356876,
+          "max_probability": 0.7311594038740251,
+          "optimal_mass": 0.02642539952567147,
+          "policy": [
+            0.7311479449272156,
+            0.11804436892271042,
+            0.007999587804079056,
+            0.01842539757490158,
+            0.12436702847480774,
+            1.5693156456109136e-05
+          ],
+          "regret": 6.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.1027836454436474
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0025296623024743054,
+              "visits": 254
+            },
+            {
+              "move": 1,
+              "q_value": 0.03462884516478871,
+              "visits": 74
+            },
+            {
+              "move": 2,
+              "q_value": -0.08970167891406375,
+              "visits": 1
+            },
+            {
+              "move": 3,
+              "q_value": -0.003537913447642308,
+              "visits": 7
+            },
+            {
+              "move": 4,
+              "q_value": 0.009923173911804086,
+              "visits": 48
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.7311479449272156,
+            0.11804436892271042,
+            0.007999587804079056,
+            0.01842539757490158,
+            0.12436702847480774,
+            1.5693156456109136e-05
+          ],
+          "search_value": 0.009288838650369474,
+          "selected_action": 0,
+          "visits": [
+            254.0,
+            74.0,
+            1.0,
+            7.0,
+            48.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-018",
+        "raw": {
+          "entropy": 0.7067312707259966,
+          "expected_exact_action_value": 1.7816173972053724,
+          "expected_exact_regret": 4.218382602794628,
+          "max_probability": 0.8041957796534784,
+          "optimal_mass": 0.02606770481318596,
+          "policy": [
+            0.8041203618049622,
+            0.0806557908654213,
+            0.01175591628998518,
+            0.014309343881905079,
+            0.08906480669975281,
+            9.369809413328767e-05
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.06976788536081929
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.019541096272839602,
+              "visits": 280
+            },
+            {
+              "move": 1,
+              "q_value": 0.01505237432719122,
+              "visits": 58
+            },
+            {
+              "move": 2,
+              "q_value": -0.010174710104149373,
+              "visits": 4
+            },
+            {
+              "move": 3,
+              "q_value": 0.0010567375961233944,
+              "visits": 10
+            },
+            {
+              "move": 4,
+              "q_value": -0.017889499501121512,
+              "visits": 32
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.8041203618049622,
+            0.0806557908654213,
+            0.01175591628998518,
+            0.014309343881905079,
+            0.08906480669975281,
+            9.369809413328767e-05
+          ],
+          "search_value": -0.013544439307055343,
+          "selected_action": 0,
+          "visits": [
+            280.0,
+            58.0,
+            4.0,
+            10.0,
+            32.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-019",
+        "raw": {
+          "entropy": 0.6406584416980026,
+          "expected_exact_action_value": 4.351555702657366,
+          "expected_exact_regret": 7.648444297342633,
+          "max_probability": 0.8305821881614738,
+          "optimal_mass": 0.012303718159272252,
+          "policy": [
+            0.8305282592773438,
+            0.06895138323307037,
+            0.011352185159921646,
+            0.012302919290959835,
+            0.07680032402276993,
+            6.487248174380511e-05
+          ],
+          "regret": 8.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.09759475071010384
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.01862538497842814,
+              "visits": 323
+            },
+            {
+              "move": 1,
+              "q_value": 0.015525446705827088,
+              "visits": 26
+            },
+            {
+              "move": 2,
+              "q_value": 0.04720614556357138,
+              "visits": 8
+            },
+            {
+              "move": 3,
+              "q_value": 0.019330971528520594,
+              "visits": 6
+            },
+            {
+              "move": 4,
+              "q_value": -0.007396074231796665,
+              "visits": 21
+            }
+          ],
+          "regret": 8.0,
+          "root_prior": [
+            0.8305282592773438,
+            0.06895138323307037,
+            0.011352185159921646,
+            0.012302919290959835,
+            0.07680032402276993,
+            6.487248174380511e-05
+          ],
+          "search_value": 0.017598902076030615,
+          "selected_action": 0,
+          "visits": [
+            323.0,
+            26.0,
+            8.0,
+            6.0,
+            21.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-020",
+        "raw": {
+          "entropy": 1.3791959999882715,
+          "expected_exact_action_value": -11.321088094891635,
+          "expected_exact_regret": 4.678911905108363,
+          "max_probability": 0.27483567456347013,
+          "optimal_mass": 0.2621261158404412,
+          "policy": [
+            0.1919812262058258,
+            0.2517487704753876,
+            0.03827755153179169,
+            0.2511957287788391,
+            0.26337531208992004,
+            0.0034214279148727655
+          ],
+          "regret": 4.0,
+          "top_action": 4,
+          "top_optimal": false,
+          "value": 0.011492528649826694
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.026876857607425933,
+              "visits": 93
+            },
+            {
+              "move": 1,
+              "q_value": 0.02300604251890649,
+              "visits": 115
+            },
+            {
+              "move": 3,
+              "q_value": 0.015390454657577041,
+              "visits": 97
+            },
+            {
+              "move": 4,
+              "q_value": -0.0053268483022773,
+              "visits": 79
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.1919812262058258,
+            0.2517487704753876,
+            0.03827755153179169,
+            0.2511957287788391,
+            0.26337531208992004,
+            0.0034214279148727655
+          ],
+          "search_value": 0.016190874304869585,
+          "selected_action": 1,
+          "visits": [
+            93.0,
+            115.0,
+            0.0,
+            97.0,
+            79.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-021",
+        "raw": {
+          "entropy": 1.0032435639532389,
+          "expected_exact_action_value": -10.118475887242713,
+          "expected_exact_regret": 3.8815241127572877,
+          "max_probability": 0.5224521398270942,
+          "optimal_mass": 0.5224521398270942,
+          "policy": [
+            0.3083438575267792,
+            0.4274974465370178,
+            0.01698259264230728,
+            0.028698056936264038,
+            0.053712520748376846,
+            0.1647655963897705
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.07882255370526237
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0058894781895331245,
+              "visits": 102
+            },
+            {
+              "move": 1,
+              "q_value": 0.04310082356187514,
+              "visits": 241
+            },
+            {
+              "move": 3,
+              "q_value": 0.04673593468642943,
+              "visits": 18
+            },
+            {
+              "move": 4,
+              "q_value": 0.019095904542437675,
+              "visits": 23
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.3083438575267792,
+            0.4274974465370178,
+            0.01698259264230728,
+            0.028698056936264038,
+            0.053712520748376846,
+            0.1647655963897705
+          ],
+          "search_value": 0.03194916115254187,
+          "selected_action": 1,
+          "visits": [
+            102.0,
+            241.0,
+            0.0,
+            18.0,
+            23.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-022",
+        "raw": {
+          "entropy": 1.1750438149619296,
+          "expected_exact_action_value": -10.173076839409323,
+          "expected_exact_regret": 3.826923160590677,
+          "max_probability": 0.5768601129955254,
+          "optimal_mass": 0.5768601129955254,
+          "policy": [
+            0.16683438420295715,
+            0.4124358892440796,
+            0.04226662963628769,
+            0.033139247447252274,
+            0.060290753841400146,
+            0.28503313660621643
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.111378968972881
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.016445722683914164,
+              "visits": 80
+            },
+            {
+              "move": 1,
+              "q_value": 0.0314326082884371,
+              "visits": 249
+            },
+            {
+              "move": 2,
+              "q_value": -0.0510037014482128,
+              "visits": 10
+            },
+            {
+              "move": 3,
+              "q_value": 0.01861255918571784,
+              "visits": 16
+            },
+            {
+              "move": 4,
+              "q_value": 0.016405568506172797,
+              "visits": 29
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.16683438420295715,
+            0.4124358892440796,
+            0.04226662963628769,
+            0.033139247447252274,
+            0.060290753841400146,
+            0.28503313660621643
+          ],
+          "search_value": 0.024494538275266504,
+          "selected_action": 1,
+          "visits": [
+            80.0,
+            249.0,
+            10.0,
+            16.0,
+            29.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-023",
+        "raw": {
+          "entropy": 1.3881450795780153,
+          "expected_exact_action_value": -9.759468979886854,
+          "expected_exact_regret": 6.240531020113147,
+          "max_probability": 0.4067306731401421,
+          "optimal_mass": 0.4067306731401421,
+          "policy": [
+            0.2750667631626129,
+            0.36887305974960327,
+            0.06979621946811676,
+            0.06194804236292839,
+            0.13123807311058044,
+            0.09307786077260971
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.13281974522397835
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.04287233456170787,
+              "visits": 114
+            },
+            {
+              "move": 1,
+              "q_value": 0.05364561110732864,
+              "visits": 180
+            },
+            {
+              "move": 2,
+              "q_value": 0.03884176753946579,
+              "visits": 26
+            },
+            {
+              "move": 3,
+              "q_value": 0.052688450973728956,
+              "visits": 30
+            },
+            {
+              "move": 4,
+              "q_value": 0.006735839275858071,
+              "visits": 34
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2750667631626129,
+            0.36887305974960327,
+            0.06979621946811676,
+            0.06194804236292839,
+            0.13123807311058044,
+            0.09307786077260971
+          ],
+          "search_value": 0.045216703541591186,
+          "selected_action": 1,
+          "visits": [
+            114.0,
+            180.0,
+            26.0,
+            30.0,
+            34.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-024",
+        "raw": {
+          "entropy": 1.0477841425037966,
+          "expected_exact_action_value": -15.173586954085103,
+          "expected_exact_regret": 4.826413045914896,
+          "max_probability": 0.6201941508992719,
+          "optimal_mass": 0.6201941508992719,
+          "policy": [
+            0.2136766016483307,
+            0.5803050398826599,
+            0.024787234142422676,
+            0.02060803771018982,
+            0.0963059514760971,
+            0.06431715190410614
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.03447902116753748
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.03814051239335138,
+              "visits": 99
+            },
+            {
+              "move": 1,
+              "q_value": 0.027260749454476478,
+              "visits": 222
+            },
+            {
+              "move": 2,
+              "q_value": 0.02321783862986298,
+              "visits": 9
+            },
+            {
+              "move": 3,
+              "q_value": 0.0650478086649656,
+              "visits": 19
+            },
+            {
+              "move": 4,
+              "q_value": 0.02214750726360315,
+              "visits": 35
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2136766016483307,
+            0.5803050398826599,
+            0.024787234142422676,
+            0.02060803771018982,
+            0.0963059514760971,
+            0.06431715190410614
+          ],
+          "search_value": 0.031374554094699934,
+          "selected_action": 1,
+          "visits": [
+            99.0,
+            222.0,
+            9.0,
+            19.0,
+            35.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-025",
+        "raw": {
+          "entropy": 1.0775955213837247,
+          "expected_exact_action_value": -1.3275832414170725,
+          "expected_exact_regret": 2.6724167585829273,
+          "max_probability": 0.6156936968635996,
+          "optimal_mass": 0.2794853175721359,
+          "policy": [
+            0.5319973826408386,
+            0.12715932726860046,
+            0.0905718058347702,
+            0.09297797828912735,
+            0.14851459860801697,
+            0.008778895251452923
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.050370247798158546
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.006579515586677538,
+              "visits": 232
+            },
+            {
+              "move": 2,
+              "q_value": 0.0020415790962606006,
+              "visits": 46
+            },
+            {
+              "move": 3,
+              "q_value": 0.012430001659914994,
+              "visits": 58
+            },
+            {
+              "move": 4,
+              "q_value": -0.03219113417159994,
+              "visits": 48
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.5319973826408386,
+            0.12715932726860046,
+            0.0905718058347702,
+            0.09297797828912735,
+            0.14851459860801697,
+            0.008778895251452923
+          ],
+          "search_value": -0.005877003441778461,
+          "selected_action": 0,
+          "visits": [
+            232.0,
+            0.0,
+            46.0,
+            58.0,
+            48.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-026",
+        "raw": {
+          "entropy": 1.4617909739828592,
+          "expected_exact_action_value": -0.5958165494153649,
+          "expected_exact_regret": 3.4041834505846347,
+          "max_probability": 0.37459895450826913,
+          "optimal_mass": 0.23711289920334275,
+          "policy": [
+            0.3649418354034424,
+            0.2750250995159149,
+            0.10325302183628082,
+            0.08844143152236938,
+            0.1425587236881256,
+            0.025779835879802704
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.022888733825157763
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.00921387037276492,
+              "visits": 149
+            },
+            {
+              "move": 1,
+              "q_value": -0.03515257041136464,
+              "visits": 77
+            },
+            {
+              "move": 2,
+              "q_value": 0.011017566499304582,
+              "visits": 62
+            },
+            {
+              "move": 3,
+              "q_value": 0.005868761663537869,
+              "visits": 47
+            },
+            {
+              "move": 4,
+              "q_value": -0.018242570955266702,
+              "visits": 49
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.3649418354034424,
+            0.2750250995159149,
+            0.10325302183628082,
+            0.08844143152236938,
+            0.1425587236881256,
+            0.025779835879802704
+          ],
+          "search_value": -0.010454634538755085,
+          "selected_action": 0,
+          "visits": [
+            149.0,
+            77.0,
+            62.0,
+            47.0,
+            49.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-027",
+        "raw": {
+          "entropy": 1.121619764327043,
+          "expected_exact_action_value": 6.102428870996999,
+          "expected_exact_regret": 4.102428870996999,
+          "max_probability": 0.649852934126933,
+          "optimal_mass": 0.06346471241724479,
+          "policy": [
+            0.08365321904420853,
+            0.639300525188446,
+            0.016238149255514145,
+            0.06243416294455528,
+            0.07570852339267731,
+            0.1226654201745987
+          ],
+          "regret": 4.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.2504393605874438
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.027094794347737112,
+              "visits": 35
+            },
+            {
+              "move": 1,
+              "q_value": -0.036599859825231236,
+              "visits": 232
+            },
+            {
+              "move": 3,
+              "q_value": -0.04685382168921053,
+              "visits": 22
+            },
+            {
+              "move": 4,
+              "q_value": -0.007750302750348559,
+              "visits": 48
+            },
+            {
+              "move": 5,
+              "q_value": -0.03288449008164325,
+              "visits": 47
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.08365321904420853,
+            0.639300525188446,
+            0.016238149255514145,
+            0.06243416294455528,
+            0.07570852339267731,
+            0.1226654201745987
+          ],
+          "search_value": -0.032260038866252685,
+          "selected_action": 1,
+          "visits": [
+            35.0,
+            232.0,
+            0.0,
+            22.0,
+            48.0,
+            47.0
+          ]
+        }
+      }
+    ],
+    "45": [
+      {
+        "id": "capture_available-001",
+        "raw": {
+          "entropy": 1.275591799610161,
+          "expected_exact_action_value": -5.254360476306113,
+          "expected_exact_regret": 6.745639523693888,
+          "max_probability": 0.4833461459211184,
+          "optimal_mass": 0.24835792675191815,
+          "policy": [
+            0.15888889133930206,
+            0.41947653889656067,
+            0.21553978323936462,
+            0.043894000351428986,
+            0.13214045763015747,
+            0.03006027452647686
+          ],
+          "regret": 10.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.13457217527331083
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.022133352881215013,
+              "visits": 76
+            },
+            {
+              "move": 1,
+              "q_value": 0.009785222273573813,
+              "visits": 164
+            },
+            {
+              "move": 2,
+              "q_value": 0.029611139988223435,
+              "visits": 117
+            },
+            {
+              "move": 3,
+              "q_value": -0.011825156215544141,
+              "visits": 13
+            },
+            {
+              "move": 5,
+              "q_value": 0.01852217735965569,
+              "visits": 14
+            }
+          ],
+          "regret": 10.0,
+          "root_prior": [
+            0.15888889133930206,
+            0.41947653889656067,
+            0.21553978323936462,
+            0.043894000351428986,
+            0.13214045763015747,
+            0.03006027452647686
+          ],
+          "search_value": 0.017856765892431486,
+          "selected_action": 1,
+          "visits": [
+            76.0,
+            164.0,
+            117.0,
+            13.0,
+            0.0,
+            14.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-002",
+        "raw": {
+          "entropy": 0.8819270533977208,
+          "expected_exact_action_value": -0.34138963989028714,
+          "expected_exact_regret": 15.658610360109714,
+          "max_probability": 0.6986185414139992,
+          "optimal_mass": 0.02838036350204099,
+          "policy": [
+            0.6736302971839905,
+            0.20876245200634003,
+            0.027365252375602722,
+            0.019175507128238678,
+            0.035298410803079605,
+            0.035768166184425354
+          ],
+          "regret": 18.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.1277830153981115
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.012624492733393035,
+              "visits": 282
+            },
+            {
+              "move": 1,
+              "q_value": -0.0024481850869454364,
+              "visits": 72
+            },
+            {
+              "move": 2,
+              "q_value": 0.00013873290954851983,
+              "visits": 11
+            },
+            {
+              "move": 3,
+              "q_value": 0.020798413582844833,
+              "visits": 9
+            },
+            {
+              "move": 4,
+              "q_value": -0.01942832809078046,
+              "visits": 10
+            }
+          ],
+          "regret": 18.0,
+          "root_prior": [
+            0.6736302971839905,
+            0.20876245200634003,
+            0.027365252375602722,
+            0.019175507128238678,
+            0.035298410803079605,
+            0.035768166184425354
+          ],
+          "search_value": 0.008797568041405199,
+          "selected_action": 0,
+          "visits": [
+            282.0,
+            72.0,
+            11.0,
+            9.0,
+            10.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-003",
+        "raw": {
+          "entropy": 1.3619658948439406,
+          "expected_exact_action_value": -7.1168687387308305,
+          "expected_exact_regret": 6.8831312612691695,
+          "max_probability": 0.46702956841569354,
+          "optimal_mass": 0.16281144434035721,
+          "policy": [
+            0.18678709864616394,
+            0.4083350896835327,
+            0.14234992861747742,
+            0.03654954209923744,
+            0.10030218958854675,
+            0.12567609548568726
+          ],
+          "regret": 4.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.13177833362051014
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0031034650772428295,
+              "visits": 59
+            },
+            {
+              "move": 1,
+              "q_value": 0.019850483969102432,
+              "visits": 161
+            },
+            {
+              "move": 2,
+              "q_value": 0.05501658295333211,
+              "visits": 113
+            },
+            {
+              "move": 3,
+              "q_value": 0.0028420568695419423,
+              "visits": 11
+            },
+            {
+              "move": 4,
+              "q_value": 0.0220745773067772,
+              "visits": 40
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.18678709864616394,
+            0.4083350896835327,
+            0.14234992861747742,
+            0.03654954209923744,
+            0.10030218958854675,
+            0.12567609548568726
+          ],
+          "search_value": 0.02737018737017029,
+          "selected_action": 1,
+          "visits": [
+            59.0,
+            161.0,
+            113.0,
+            11.0,
+            40.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-007",
+        "raw": {
+          "entropy": 1.4274088174307886,
+          "expected_exact_action_value": -4.313347793499109,
+          "expected_exact_regret": 7.6866522065008915,
+          "max_probability": 0.40463020248453657,
+          "optimal_mass": 0.161027432910875,
+          "policy": [
+            0.20344825088977814,
+            0.31945207715034485,
+            0.12712977826595306,
+            0.045527584850788116,
+            0.09393373876810074,
+            0.2105085402727127
+          ],
+          "regret": 6.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.15449796811771876
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.016255434657306955,
+              "visits": 60
+            },
+            {
+              "move": 1,
+              "q_value": 0.022791625031171926,
+              "visits": 147
+            },
+            {
+              "move": 2,
+              "q_value": 0.05074946374234461,
+              "visits": 101
+            },
+            {
+              "move": 3,
+              "q_value": 0.03608392499311002,
+              "visits": 26
+            },
+            {
+              "move": 4,
+              "q_value": 0.02859867528332957,
+              "visits": 50
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.20344825088977814,
+            0.31945207715034485,
+            0.12712977826595306,
+            0.045527584850788116,
+            0.09393373876810074,
+            0.2105085402727127
+          ],
+          "search_value": 0.025700141802364587,
+          "selected_action": 1,
+          "visits": [
+            60.0,
+            147.0,
+            101.0,
+            26.0,
+            50.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-008",
+        "raw": {
+          "entropy": 1.3496770393481434,
+          "expected_exact_action_value": -1.137515902906401,
+          "expected_exact_regret": 8.8624840970936,
+          "max_probability": 0.4516251257613844,
+          "optimal_mass": 0.26751992215378395,
+          "policy": [
+            0.4366442561149597,
+            0.25864601135253906,
+            0.08472049236297607,
+            0.045229628682136536,
+            0.14158858358860016,
+            0.03317099064588547
+          ],
+          "regret": 14.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.06833007620731242
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.004823516967639456,
+              "visits": 132
+            },
+            {
+              "move": 1,
+              "q_value": 0.042160723850572325,
+              "visits": 144
+            },
+            {
+              "move": 2,
+              "q_value": 0.04344673683400941,
+              "visits": 48
+            },
+            {
+              "move": 3,
+              "q_value": 0.036078304941625235,
+              "visits": 22
+            },
+            {
+              "move": 4,
+              "q_value": -0.004033245427613949,
+              "visits": 38
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.4366442561149597,
+            0.25864601135253906,
+            0.08472049236297607,
+            0.045229628682136536,
+            0.14158858358860016,
+            0.03317099064588547
+          ],
+          "search_value": 0.02456706048101481,
+          "selected_action": 1,
+          "visits": [
+            132.0,
+            144.0,
+            48.0,
+            22.0,
+            38.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-009",
+        "raw": {
+          "entropy": 1.1798512839702746,
+          "expected_exact_action_value": -5.87050940221005,
+          "expected_exact_regret": 8.12949059778995,
+          "max_probability": 0.4165676147498292,
+          "optimal_mass": 0.4160577135294669,
+          "policy": [
+            0.40538138151168823,
+            0.4048851728439331,
+            0.04008802771568298,
+            0.020933808758854866,
+            0.10185826569795609,
+            0.026853317394852638
+          ],
+          "regret": 16.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.03394618774840551
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.02157607801076492,
+              "visits": 94
+            },
+            {
+              "move": 1,
+              "q_value": 0.04038653862339493,
+              "visits": 219
+            },
+            {
+              "move": 2,
+              "q_value": 0.023652263410960543,
+              "visits": 16
+            },
+            {
+              "move": 3,
+              "q_value": 0.05091024050684608,
+              "visits": 17
+            },
+            {
+              "move": 4,
+              "q_value": 0.017911325518387547,
+              "visits": 38
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.40538138151168823,
+            0.4048851728439331,
+            0.04008802771568298,
+            0.020933808758854866,
+            0.10185826569795609,
+            0.026853317394852638
+          ],
+          "search_value": 0.022763128381255385,
+          "selected_action": 1,
+          "visits": [
+            94.0,
+            219.0,
+            16.0,
+            17.0,
+            38.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-010",
+        "raw": {
+          "entropy": 0.49108419661672265,
+          "expected_exact_action_value": 10.769327626629488,
+          "expected_exact_regret": 1.230672373370511,
+          "max_probability": 0.868275072856077,
+          "optimal_mass": 0.868275072856077,
+          "policy": [
+            0.005514718592166901,
+            0.09585828334093094,
+            0.8221524357795715,
+            0.016085922718048096,
+            0.053119905292987823,
+            0.007268794812262058
+          ],
+          "regret": 0.0,
+          "top_action": 2,
+          "top_optimal": true,
+          "value": -0.1397772433394823
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.07111455277661612,
+              "visits": 1
+            },
+            {
+              "move": 1,
+              "q_value": 0.025804502083053408,
+              "visits": 33
+            },
+            {
+              "move": 2,
+              "q_value": 0.03855097281532033,
+              "visits": 344
+            },
+            {
+              "move": 3,
+              "q_value": -0.03060286219877259,
+              "visits": 3
+            },
+            {
+              "move": 5,
+              "q_value": 0.022174143060974056,
+              "visits": 3
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.005514718592166901,
+            0.09585828334093094,
+            0.8221524357795715,
+            0.016085922718048096,
+            0.053119905292987823,
+            0.007268794812262058
+          ],
+          "search_value": 0.036501777362033715,
+          "selected_action": 2,
+          "visits": [
+            1.0,
+            33.0,
+            344.0,
+            3.0,
+            0.0,
+            3.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-011",
+        "raw": {
+          "entropy": 1.152419905507599,
+          "expected_exact_action_value": 5.521641643370088,
+          "expected_exact_regret": 0.4783583566299132,
+          "max_probability": 0.4451316880822873,
+          "optimal_mass": 0.8127130734615741,
+          "policy": [
+            0.2236042469739914,
+            0.3558097779750824,
+            0.2707790434360504,
+            0.08236223459243774,
+            0.035877980291843414,
+            0.031566690653562546
+          ],
+          "regret": 0.0,
+          "top_action": 2,
+          "top_optimal": true,
+          "value": -0.11985326611631819
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.03465408702628069,
+              "visits": 96
+            },
+            {
+              "move": 2,
+              "q_value": 0.08235877869547525,
+              "visits": 222
+            },
+            {
+              "move": 3,
+              "q_value": 0.06707928203145239,
+              "visits": 55
+            },
+            {
+              "move": 5,
+              "q_value": 0.011890335479888074,
+              "visits": 11
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2236042469739914,
+            0.3558097779750824,
+            0.2707790434360504,
+            0.08236223459243774,
+            0.035877980291843414,
+            0.031566690653562546
+          ],
+          "search_value": 0.06622550892428933,
+          "selected_action": 2,
+          "visits": [
+            96.0,
+            0.0,
+            222.0,
+            55.0,
+            0.0,
+            11.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-012",
+        "raw": {
+          "entropy": 1.029186777265725,
+          "expected_exact_action_value": -7.90502830675187,
+          "expected_exact_regret": 2.0949716932481297,
+          "max_probability": 0.6248749994612001,
+          "optimal_mass": 0.16381957695736762,
+          "policy": [
+            0.185909241437912,
+            0.549773097038269,
+            0.08409685641527176,
+            0.08580240607261658,
+            0.03609022498130798,
+            0.05832817405462265
+          ],
+          "regret": 2.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.051491835699418884
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.020308307845352983,
+              "visits": 60
+            },
+            {
+              "move": 1,
+              "q_value": 0.055693930960868665,
+              "visits": 278
+            },
+            {
+              "move": 3,
+              "q_value": 0.02303959906917386,
+              "visits": 27
+            },
+            {
+              "move": 5,
+              "q_value": 0.023011396481403646,
+              "visits": 19
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.185909241437912,
+            0.549773097038269,
+            0.08409685641527176,
+            0.08580240607261658,
+            0.03609022498130798,
+            0.05832817405462265
+          ],
+          "search_value": 0.046251815067336034,
+          "selected_action": 1,
+          "visits": [
+            60.0,
+            278.0,
+            0.0,
+            27.0,
+            0.0,
+            19.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-013",
+        "raw": {
+          "entropy": 1.348289878799011,
+          "expected_exact_action_value": -0.9666363405976637,
+          "expected_exact_regret": 0.9666363405976637,
+          "max_probability": 0.4306413050609229,
+          "optimal_mass": 0.5166818297011682,
+          "policy": [
+            0.27148178219795227,
+            0.3695872128009796,
+            0.196349635720253,
+            0.067054383456707,
+            0.06231880933046341,
+            0.03320816904306412
+          ],
+          "regret": 2.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.151956846643582
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.035254879515607844,
+              "visits": 116
+            },
+            {
+              "move": 2,
+              "q_value": -0.037753495172694655,
+              "visits": 83
+            },
+            {
+              "move": 3,
+              "q_value": 0.006746264807659873,
+              "visits": 53
+            },
+            {
+              "move": 4,
+              "q_value": 0.029950711406010848,
+              "visits": 95
+            },
+            {
+              "move": 5,
+              "q_value": 0.01937740353625415,
+              "visits": 37
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.27148178219795227,
+            0.3695872128009796,
+            0.196349635720253,
+            0.067054383456707,
+            0.06231880933046341,
+            0.03320816904306412
+          ],
+          "search_value": -0.008602272327931664,
+          "selected_action": 0,
+          "visits": [
+            116.0,
+            0.0,
+            83.0,
+            53.0,
+            95.0,
+            37.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-014",
+        "raw": {
+          "entropy": 1.417706705820303,
+          "expected_exact_action_value": -6.112025792624376,
+          "expected_exact_regret": 4.112025792624376,
+          "max_probability": 0.3678549901748992,
+          "optimal_mass": 0.03207046954077496,
+          "policy": [
+            0.13936996459960938,
+            0.41977357864379883,
+            0.13915565609931946,
+            0.06965352594852448,
+            0.018608136102557182,
+            0.2134392112493515
+          ],
+          "regret": 4.0,
+          "top_action": 5,
+          "top_optimal": false,
+          "value": -0.0917647697316241
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.014274685668025441,
+              "visits": 81
+            },
+            {
+              "move": 2,
+              "q_value": -0.01849391342572952,
+              "visits": 73
+            },
+            {
+              "move": 3,
+              "q_value": 0.0018359864195155215,
+              "visits": 51
+            },
+            {
+              "move": 4,
+              "q_value": -0.040200364164603736,
+              "visits": 11
+            },
+            {
+              "move": 5,
+              "q_value": 0.006315393193591368,
+              "visits": 168
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.13936996459960938,
+            0.41977357864379883,
+            0.13915565609931946,
+            0.06965352594852448,
+            0.018608136102557182,
+            0.2134392112493515
+          ],
+          "search_value": -0.004671582971563318,
+          "selected_action": 5,
+          "visits": [
+            81.0,
+            0.0,
+            73.0,
+            51.0,
+            11.0,
+            168.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-015",
+        "raw": {
+          "entropy": 1.2958409898016763,
+          "expected_exact_action_value": 4.155480391901879,
+          "expected_exact_regret": 1.844519608098121,
+          "max_probability": 0.4355803699959163,
+          "optimal_mass": 0.22045986875664542,
+          "policy": [
+            0.11472256481647491,
+            0.19616441428661346,
+            0.16176311671733856,
+            0.3501332104206085,
+            0.17721258103847504,
+            4.07363950216677e-06
+          ],
+          "regret": 2.0,
+          "top_action": 3,
+          "top_optimal": false,
+          "value": 0.12247345692164478
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.028561140145705554,
+              "visits": 80
+            },
+            {
+              "move": 2,
+              "q_value": -0.0059072567538002736,
+              "visits": 66
+            },
+            {
+              "move": 3,
+              "q_value": 0.006066943989432096,
+              "visits": 160
+            },
+            {
+              "move": 4,
+              "q_value": 0.0027287485803574245,
+              "visits": 78
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.11472256481647491,
+            0.19616441428661346,
+            0.16176311671733856,
+            0.3501332104206085,
+            0.17721258103847504,
+            4.07363950216677e-06
+          ],
+          "search_value": 0.008017098160111048,
+          "selected_action": 3,
+          "visits": [
+            80.0,
+            0.0,
+            66.0,
+            160.0,
+            78.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-016",
+        "raw": {
+          "entropy": 0.7525924763426938,
+          "expected_exact_action_value": 2.0729620896983514,
+          "expected_exact_regret": 3.9270379103016486,
+          "max_probability": 0.782669243484265,
+          "optimal_mass": 0.023836883338785364,
+          "policy": [
+            0.7826137542724609,
+            0.06822402775287628,
+            0.0074798972345888615,
+            0.0238351933658123,
+            0.11777622997760773,
+            7.100570655893534e-05
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.09635908350729036
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.004314054952386862,
+              "visits": 294
+            },
+            {
+              "move": 1,
+              "q_value": 0.02028266268587018,
+              "visits": 43
+            },
+            {
+              "move": 2,
+              "q_value": -0.005403990361558873,
+              "visits": 3
+            },
+            {
+              "move": 3,
+              "q_value": 0.02601292632114383,
+              "visits": 19
+            },
+            {
+              "move": 4,
+              "q_value": -0.05246001937017489,
+              "visits": 25
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.7826137542724609,
+            0.06822402775287628,
+            0.0074798972345888615,
+            0.0238351933658123,
+            0.11777622997760773,
+            7.100570655893534e-05
+          ],
+          "search_value": -0.0032021992597568625,
+          "selected_action": 0,
+          "visits": [
+            294.0,
+            43.0,
+            3.0,
+            19.0,
+            25.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-017",
+        "raw": {
+          "entropy": 0.8526355042664475,
+          "expected_exact_action_value": 0.6560283076431239,
+          "expected_exact_regret": 5.343971692356876,
+          "max_probability": 0.7311594038740251,
+          "optimal_mass": 0.02642539952567147,
+          "policy": [
+            0.7311479449272156,
+            0.11804436892271042,
+            0.007999587804079056,
+            0.01842539757490158,
+            0.12436702847480774,
+            1.5693156456109136e-05
+          ],
+          "regret": 6.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.1027836454436474
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0025296623024743054,
+              "visits": 254
+            },
+            {
+              "move": 1,
+              "q_value": 0.03462884516478871,
+              "visits": 74
+            },
+            {
+              "move": 2,
+              "q_value": -0.08970167891406375,
+              "visits": 1
+            },
+            {
+              "move": 3,
+              "q_value": -0.003537913447642308,
+              "visits": 7
+            },
+            {
+              "move": 4,
+              "q_value": 0.009923173911804086,
+              "visits": 48
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.7311479449272156,
+            0.11804436892271042,
+            0.007999587804079056,
+            0.01842539757490158,
+            0.12436702847480774,
+            1.5693156456109136e-05
+          ],
+          "search_value": 0.009288838650369474,
+          "selected_action": 0,
+          "visits": [
+            254.0,
+            74.0,
+            1.0,
+            7.0,
+            48.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-018",
+        "raw": {
+          "entropy": 0.7067312707259966,
+          "expected_exact_action_value": 1.7816173972053724,
+          "expected_exact_regret": 4.218382602794628,
+          "max_probability": 0.8041957796534784,
+          "optimal_mass": 0.02606770481318596,
+          "policy": [
+            0.8041203618049622,
+            0.0806557908654213,
+            0.01175591628998518,
+            0.014309343881905079,
+            0.08906480669975281,
+            9.369809413328767e-05
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.06976788536081929
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.019541096272839602,
+              "visits": 280
+            },
+            {
+              "move": 1,
+              "q_value": 0.01505237432719122,
+              "visits": 58
+            },
+            {
+              "move": 2,
+              "q_value": -0.010174710104149373,
+              "visits": 4
+            },
+            {
+              "move": 3,
+              "q_value": 0.0010567375961233944,
+              "visits": 10
+            },
+            {
+              "move": 4,
+              "q_value": -0.017889499501121512,
+              "visits": 32
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.8041203618049622,
+            0.0806557908654213,
+            0.01175591628998518,
+            0.014309343881905079,
+            0.08906480669975281,
+            9.369809413328767e-05
+          ],
+          "search_value": -0.013544439307055343,
+          "selected_action": 0,
+          "visits": [
+            280.0,
+            58.0,
+            4.0,
+            10.0,
+            32.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-019",
+        "raw": {
+          "entropy": 0.6406584416980026,
+          "expected_exact_action_value": 4.351555702657366,
+          "expected_exact_regret": 7.648444297342633,
+          "max_probability": 0.8305821881614738,
+          "optimal_mass": 0.012303718159272252,
+          "policy": [
+            0.8305282592773438,
+            0.06895138323307037,
+            0.011352185159921646,
+            0.012302919290959835,
+            0.07680032402276993,
+            6.487248174380511e-05
+          ],
+          "regret": 8.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.09759475071010384
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.01862538497842814,
+              "visits": 323
+            },
+            {
+              "move": 1,
+              "q_value": 0.015525446705827088,
+              "visits": 26
+            },
+            {
+              "move": 2,
+              "q_value": 0.04720614556357138,
+              "visits": 8
+            },
+            {
+              "move": 3,
+              "q_value": 0.019330971528520594,
+              "visits": 6
+            },
+            {
+              "move": 4,
+              "q_value": -0.007396074231796665,
+              "visits": 21
+            }
+          ],
+          "regret": 8.0,
+          "root_prior": [
+            0.8305282592773438,
+            0.06895138323307037,
+            0.011352185159921646,
+            0.012302919290959835,
+            0.07680032402276993,
+            6.487248174380511e-05
+          ],
+          "search_value": 0.017598902076030615,
+          "selected_action": 0,
+          "visits": [
+            323.0,
+            26.0,
+            8.0,
+            6.0,
+            21.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-020",
+        "raw": {
+          "entropy": 1.3791959999882715,
+          "expected_exact_action_value": -11.321088094891635,
+          "expected_exact_regret": 4.678911905108363,
+          "max_probability": 0.27483567456347013,
+          "optimal_mass": 0.2621261158404412,
+          "policy": [
+            0.1919812262058258,
+            0.2517487704753876,
+            0.03827755153179169,
+            0.2511957287788391,
+            0.26337531208992004,
+            0.0034214279148727655
+          ],
+          "regret": 4.0,
+          "top_action": 4,
+          "top_optimal": false,
+          "value": 0.011492528649826694
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.026876857607425933,
+              "visits": 93
+            },
+            {
+              "move": 1,
+              "q_value": 0.02300604251890649,
+              "visits": 115
+            },
+            {
+              "move": 3,
+              "q_value": 0.015390454657577041,
+              "visits": 97
+            },
+            {
+              "move": 4,
+              "q_value": -0.0053268483022773,
+              "visits": 79
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.1919812262058258,
+            0.2517487704753876,
+            0.03827755153179169,
+            0.2511957287788391,
+            0.26337531208992004,
+            0.0034214279148727655
+          ],
+          "search_value": 0.016190874304869585,
+          "selected_action": 1,
+          "visits": [
+            93.0,
+            115.0,
+            0.0,
+            97.0,
+            79.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-021",
+        "raw": {
+          "entropy": 1.0032435639532389,
+          "expected_exact_action_value": -10.118475887242713,
+          "expected_exact_regret": 3.8815241127572877,
+          "max_probability": 0.5224521398270942,
+          "optimal_mass": 0.5224521398270942,
+          "policy": [
+            0.3083438575267792,
+            0.4274974465370178,
+            0.01698259264230728,
+            0.028698056936264038,
+            0.053712520748376846,
+            0.1647655963897705
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.07882255370526237
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0058894781895331245,
+              "visits": 102
+            },
+            {
+              "move": 1,
+              "q_value": 0.04310082356187514,
+              "visits": 241
+            },
+            {
+              "move": 3,
+              "q_value": 0.04673593468642943,
+              "visits": 18
+            },
+            {
+              "move": 4,
+              "q_value": 0.019095904542437675,
+              "visits": 23
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.3083438575267792,
+            0.4274974465370178,
+            0.01698259264230728,
+            0.028698056936264038,
+            0.053712520748376846,
+            0.1647655963897705
+          ],
+          "search_value": 0.03194916115254187,
+          "selected_action": 1,
+          "visits": [
+            102.0,
+            241.0,
+            0.0,
+            18.0,
+            23.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-022",
+        "raw": {
+          "entropy": 1.1750438149619296,
+          "expected_exact_action_value": -10.173076839409323,
+          "expected_exact_regret": 3.826923160590677,
+          "max_probability": 0.5768601129955254,
+          "optimal_mass": 0.5768601129955254,
+          "policy": [
+            0.16683438420295715,
+            0.4124358892440796,
+            0.04226662963628769,
+            0.033139247447252274,
+            0.060290753841400146,
+            0.28503313660621643
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.111378968972881
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.016445722683914164,
+              "visits": 80
+            },
+            {
+              "move": 1,
+              "q_value": 0.0314326082884371,
+              "visits": 249
+            },
+            {
+              "move": 2,
+              "q_value": -0.0510037014482128,
+              "visits": 10
+            },
+            {
+              "move": 3,
+              "q_value": 0.01861255918571784,
+              "visits": 16
+            },
+            {
+              "move": 4,
+              "q_value": 0.016405568506172797,
+              "visits": 29
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.16683438420295715,
+            0.4124358892440796,
+            0.04226662963628769,
+            0.033139247447252274,
+            0.060290753841400146,
+            0.28503313660621643
+          ],
+          "search_value": 0.024494538275266504,
+          "selected_action": 1,
+          "visits": [
+            80.0,
+            249.0,
+            10.0,
+            16.0,
+            29.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-023",
+        "raw": {
+          "entropy": 1.3881450795780153,
+          "expected_exact_action_value": -9.759468979886854,
+          "expected_exact_regret": 6.240531020113147,
+          "max_probability": 0.4067306731401421,
+          "optimal_mass": 0.4067306731401421,
+          "policy": [
+            0.2750667631626129,
+            0.36887305974960327,
+            0.06979621946811676,
+            0.06194804236292839,
+            0.13123807311058044,
+            0.09307786077260971
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.13281974522397835
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.04287233456170787,
+              "visits": 114
+            },
+            {
+              "move": 1,
+              "q_value": 0.05364561110732864,
+              "visits": 180
+            },
+            {
+              "move": 2,
+              "q_value": 0.03884176753946579,
+              "visits": 26
+            },
+            {
+              "move": 3,
+              "q_value": 0.052688450973728956,
+              "visits": 30
+            },
+            {
+              "move": 4,
+              "q_value": 0.006735839275858071,
+              "visits": 34
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2750667631626129,
+            0.36887305974960327,
+            0.06979621946811676,
+            0.06194804236292839,
+            0.13123807311058044,
+            0.09307786077260971
+          ],
+          "search_value": 0.045216703541591186,
+          "selected_action": 1,
+          "visits": [
+            114.0,
+            180.0,
+            26.0,
+            30.0,
+            34.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-024",
+        "raw": {
+          "entropy": 1.0477841425037966,
+          "expected_exact_action_value": -15.173586954085103,
+          "expected_exact_regret": 4.826413045914896,
+          "max_probability": 0.6201941508992719,
+          "optimal_mass": 0.6201941508992719,
+          "policy": [
+            0.2136766016483307,
+            0.5803050398826599,
+            0.024787234142422676,
+            0.02060803771018982,
+            0.0963059514760971,
+            0.06431715190410614
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.03447902116753748
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.03814051239335138,
+              "visits": 99
+            },
+            {
+              "move": 1,
+              "q_value": 0.027260749454476478,
+              "visits": 222
+            },
+            {
+              "move": 2,
+              "q_value": 0.02321783862986298,
+              "visits": 9
+            },
+            {
+              "move": 3,
+              "q_value": 0.0650478086649656,
+              "visits": 19
+            },
+            {
+              "move": 4,
+              "q_value": 0.02214750726360315,
+              "visits": 35
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2136766016483307,
+            0.5803050398826599,
+            0.024787234142422676,
+            0.02060803771018982,
+            0.0963059514760971,
+            0.06431715190410614
+          ],
+          "search_value": 0.031374554094699934,
+          "selected_action": 1,
+          "visits": [
+            99.0,
+            222.0,
+            9.0,
+            19.0,
+            35.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-025",
+        "raw": {
+          "entropy": 1.0775955213837247,
+          "expected_exact_action_value": -1.3275832414170725,
+          "expected_exact_regret": 2.6724167585829273,
+          "max_probability": 0.6156936968635996,
+          "optimal_mass": 0.2794853175721359,
+          "policy": [
+            0.5319973826408386,
+            0.12715932726860046,
+            0.0905718058347702,
+            0.09297797828912735,
+            0.14851459860801697,
+            0.008778895251452923
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.050370247798158546
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.006579515586677538,
+              "visits": 232
+            },
+            {
+              "move": 2,
+              "q_value": 0.0020415790962606006,
+              "visits": 46
+            },
+            {
+              "move": 3,
+              "q_value": 0.012430001659914994,
+              "visits": 58
+            },
+            {
+              "move": 4,
+              "q_value": -0.03219113417159994,
+              "visits": 48
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.5319973826408386,
+            0.12715932726860046,
+            0.0905718058347702,
+            0.09297797828912735,
+            0.14851459860801697,
+            0.008778895251452923
+          ],
+          "search_value": -0.005877003441778461,
+          "selected_action": 0,
+          "visits": [
+            232.0,
+            0.0,
+            46.0,
+            58.0,
+            48.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-026",
+        "raw": {
+          "entropy": 1.4617909739828592,
+          "expected_exact_action_value": -0.5958165494153649,
+          "expected_exact_regret": 3.4041834505846347,
+          "max_probability": 0.37459895450826913,
+          "optimal_mass": 0.23711289920334275,
+          "policy": [
+            0.3649418354034424,
+            0.2750250995159149,
+            0.10325302183628082,
+            0.08844143152236938,
+            0.1425587236881256,
+            0.025779835879802704
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.022888733825157763
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.00921387037276492,
+              "visits": 149
+            },
+            {
+              "move": 1,
+              "q_value": -0.03515257041136464,
+              "visits": 77
+            },
+            {
+              "move": 2,
+              "q_value": 0.011017566499304582,
+              "visits": 62
+            },
+            {
+              "move": 3,
+              "q_value": 0.005868761663537869,
+              "visits": 47
+            },
+            {
+              "move": 4,
+              "q_value": -0.018242570955266702,
+              "visits": 49
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.3649418354034424,
+            0.2750250995159149,
+            0.10325302183628082,
+            0.08844143152236938,
+            0.1425587236881256,
+            0.025779835879802704
+          ],
+          "search_value": -0.010454634538755085,
+          "selected_action": 0,
+          "visits": [
+            149.0,
+            77.0,
+            62.0,
+            47.0,
+            49.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-027",
+        "raw": {
+          "entropy": 1.121619764327043,
+          "expected_exact_action_value": 6.102428870996999,
+          "expected_exact_regret": 4.102428870996999,
+          "max_probability": 0.649852934126933,
+          "optimal_mass": 0.06346471241724479,
+          "policy": [
+            0.08365321904420853,
+            0.639300525188446,
+            0.016238149255514145,
+            0.06243416294455528,
+            0.07570852339267731,
+            0.1226654201745987
+          ],
+          "regret": 4.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.2504393605874438
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.027094794347737112,
+              "visits": 35
+            },
+            {
+              "move": 1,
+              "q_value": -0.036599859825231236,
+              "visits": 232
+            },
+            {
+              "move": 3,
+              "q_value": -0.04685382168921053,
+              "visits": 22
+            },
+            {
+              "move": 4,
+              "q_value": -0.007750302750348559,
+              "visits": 48
+            },
+            {
+              "move": 5,
+              "q_value": -0.03288449008164325,
+              "visits": 47
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.08365321904420853,
+            0.639300525188446,
+            0.016238149255514145,
+            0.06243416294455528,
+            0.07570852339267731,
+            0.1226654201745987
+          ],
+          "search_value": -0.032260038866252685,
+          "selected_action": 1,
+          "visits": [
+            35.0,
+            232.0,
+            0.0,
+            22.0,
+            48.0,
+            47.0
+          ]
+        }
+      }
+    ],
+    "46": [
+      {
+        "id": "capture_available-001",
+        "raw": {
+          "entropy": 1.275591799610161,
+          "expected_exact_action_value": -5.254360476306113,
+          "expected_exact_regret": 6.745639523693888,
+          "max_probability": 0.4833461459211184,
+          "optimal_mass": 0.24835792675191815,
+          "policy": [
+            0.15888889133930206,
+            0.41947653889656067,
+            0.21553978323936462,
+            0.043894000351428986,
+            0.13214045763015747,
+            0.03006027452647686
+          ],
+          "regret": 10.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.13457217527331083
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.022133352881215013,
+              "visits": 76
+            },
+            {
+              "move": 1,
+              "q_value": 0.009785222273573813,
+              "visits": 164
+            },
+            {
+              "move": 2,
+              "q_value": 0.029611139988223435,
+              "visits": 117
+            },
+            {
+              "move": 3,
+              "q_value": -0.011825156215544141,
+              "visits": 13
+            },
+            {
+              "move": 5,
+              "q_value": 0.01852217735965569,
+              "visits": 14
+            }
+          ],
+          "regret": 10.0,
+          "root_prior": [
+            0.15888889133930206,
+            0.41947653889656067,
+            0.21553978323936462,
+            0.043894000351428986,
+            0.13214045763015747,
+            0.03006027452647686
+          ],
+          "search_value": 0.017856765892431486,
+          "selected_action": 1,
+          "visits": [
+            76.0,
+            164.0,
+            117.0,
+            13.0,
+            0.0,
+            14.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-002",
+        "raw": {
+          "entropy": 0.8819270533977208,
+          "expected_exact_action_value": -0.34138963989028714,
+          "expected_exact_regret": 15.658610360109714,
+          "max_probability": 0.6986185414139992,
+          "optimal_mass": 0.02838036350204099,
+          "policy": [
+            0.6736302971839905,
+            0.20876245200634003,
+            0.027365252375602722,
+            0.019175507128238678,
+            0.035298410803079605,
+            0.035768166184425354
+          ],
+          "regret": 18.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.1277830153981115
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.012624492733393035,
+              "visits": 282
+            },
+            {
+              "move": 1,
+              "q_value": -0.0024481850869454364,
+              "visits": 72
+            },
+            {
+              "move": 2,
+              "q_value": 0.00013873290954851983,
+              "visits": 11
+            },
+            {
+              "move": 3,
+              "q_value": 0.020798413582844833,
+              "visits": 9
+            },
+            {
+              "move": 4,
+              "q_value": -0.01942832809078046,
+              "visits": 10
+            }
+          ],
+          "regret": 18.0,
+          "root_prior": [
+            0.6736302971839905,
+            0.20876245200634003,
+            0.027365252375602722,
+            0.019175507128238678,
+            0.035298410803079605,
+            0.035768166184425354
+          ],
+          "search_value": 0.008797568041405199,
+          "selected_action": 0,
+          "visits": [
+            282.0,
+            72.0,
+            11.0,
+            9.0,
+            10.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-003",
+        "raw": {
+          "entropy": 1.3619658948439406,
+          "expected_exact_action_value": -7.1168687387308305,
+          "expected_exact_regret": 6.8831312612691695,
+          "max_probability": 0.46702956841569354,
+          "optimal_mass": 0.16281144434035721,
+          "policy": [
+            0.18678709864616394,
+            0.4083350896835327,
+            0.14234992861747742,
+            0.03654954209923744,
+            0.10030218958854675,
+            0.12567609548568726
+          ],
+          "regret": 4.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.13177833362051014
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0031034650772428295,
+              "visits": 59
+            },
+            {
+              "move": 1,
+              "q_value": 0.019850483969102432,
+              "visits": 161
+            },
+            {
+              "move": 2,
+              "q_value": 0.05501658295333211,
+              "visits": 113
+            },
+            {
+              "move": 3,
+              "q_value": 0.0028420568695419423,
+              "visits": 11
+            },
+            {
+              "move": 4,
+              "q_value": 0.0220745773067772,
+              "visits": 40
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.18678709864616394,
+            0.4083350896835327,
+            0.14234992861747742,
+            0.03654954209923744,
+            0.10030218958854675,
+            0.12567609548568726
+          ],
+          "search_value": 0.02737018737017029,
+          "selected_action": 1,
+          "visits": [
+            59.0,
+            161.0,
+            113.0,
+            11.0,
+            40.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-007",
+        "raw": {
+          "entropy": 1.4274088174307886,
+          "expected_exact_action_value": -4.313347793499109,
+          "expected_exact_regret": 7.6866522065008915,
+          "max_probability": 0.40463020248453657,
+          "optimal_mass": 0.161027432910875,
+          "policy": [
+            0.20344825088977814,
+            0.31945207715034485,
+            0.12712977826595306,
+            0.045527584850788116,
+            0.09393373876810074,
+            0.2105085402727127
+          ],
+          "regret": 6.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.15449796811771876
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.016255434657306955,
+              "visits": 60
+            },
+            {
+              "move": 1,
+              "q_value": 0.022791625031171926,
+              "visits": 147
+            },
+            {
+              "move": 2,
+              "q_value": 0.05074946374234461,
+              "visits": 101
+            },
+            {
+              "move": 3,
+              "q_value": 0.03608392499311002,
+              "visits": 26
+            },
+            {
+              "move": 4,
+              "q_value": 0.02859867528332957,
+              "visits": 50
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.20344825088977814,
+            0.31945207715034485,
+            0.12712977826595306,
+            0.045527584850788116,
+            0.09393373876810074,
+            0.2105085402727127
+          ],
+          "search_value": 0.025700141802364587,
+          "selected_action": 1,
+          "visits": [
+            60.0,
+            147.0,
+            101.0,
+            26.0,
+            50.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-008",
+        "raw": {
+          "entropy": 1.3496770393481434,
+          "expected_exact_action_value": -1.137515902906401,
+          "expected_exact_regret": 8.8624840970936,
+          "max_probability": 0.4516251257613844,
+          "optimal_mass": 0.26751992215378395,
+          "policy": [
+            0.4366442561149597,
+            0.25864601135253906,
+            0.08472049236297607,
+            0.045229628682136536,
+            0.14158858358860016,
+            0.03317099064588547
+          ],
+          "regret": 14.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.06833007620731242
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.004823516967639456,
+              "visits": 132
+            },
+            {
+              "move": 1,
+              "q_value": 0.042160723850572325,
+              "visits": 144
+            },
+            {
+              "move": 2,
+              "q_value": 0.04344673683400941,
+              "visits": 48
+            },
+            {
+              "move": 3,
+              "q_value": 0.036078304941625235,
+              "visits": 22
+            },
+            {
+              "move": 4,
+              "q_value": -0.004033245427613949,
+              "visits": 38
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.4366442561149597,
+            0.25864601135253906,
+            0.08472049236297607,
+            0.045229628682136536,
+            0.14158858358860016,
+            0.03317099064588547
+          ],
+          "search_value": 0.02456706048101481,
+          "selected_action": 1,
+          "visits": [
+            132.0,
+            144.0,
+            48.0,
+            22.0,
+            38.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-009",
+        "raw": {
+          "entropy": 1.1798512839702746,
+          "expected_exact_action_value": -5.87050940221005,
+          "expected_exact_regret": 8.12949059778995,
+          "max_probability": 0.4165676147498292,
+          "optimal_mass": 0.4160577135294669,
+          "policy": [
+            0.40538138151168823,
+            0.4048851728439331,
+            0.04008802771568298,
+            0.020933808758854866,
+            0.10185826569795609,
+            0.026853317394852638
+          ],
+          "regret": 16.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.03394618774840551
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.02157607801076492,
+              "visits": 94
+            },
+            {
+              "move": 1,
+              "q_value": 0.04038653862339493,
+              "visits": 219
+            },
+            {
+              "move": 2,
+              "q_value": 0.023652263410960543,
+              "visits": 16
+            },
+            {
+              "move": 3,
+              "q_value": 0.05091024050684608,
+              "visits": 17
+            },
+            {
+              "move": 4,
+              "q_value": 0.017911325518387547,
+              "visits": 38
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.40538138151168823,
+            0.4048851728439331,
+            0.04008802771568298,
+            0.020933808758854866,
+            0.10185826569795609,
+            0.026853317394852638
+          ],
+          "search_value": 0.022763128381255385,
+          "selected_action": 1,
+          "visits": [
+            94.0,
+            219.0,
+            16.0,
+            17.0,
+            38.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-010",
+        "raw": {
+          "entropy": 0.49108419661672265,
+          "expected_exact_action_value": 10.769327626629488,
+          "expected_exact_regret": 1.230672373370511,
+          "max_probability": 0.868275072856077,
+          "optimal_mass": 0.868275072856077,
+          "policy": [
+            0.005514718592166901,
+            0.09585828334093094,
+            0.8221524357795715,
+            0.016085922718048096,
+            0.053119905292987823,
+            0.007268794812262058
+          ],
+          "regret": 0.0,
+          "top_action": 2,
+          "top_optimal": true,
+          "value": -0.1397772433394823
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.07111455277661612,
+              "visits": 1
+            },
+            {
+              "move": 1,
+              "q_value": 0.025804502083053408,
+              "visits": 33
+            },
+            {
+              "move": 2,
+              "q_value": 0.03855097281532033,
+              "visits": 344
+            },
+            {
+              "move": 3,
+              "q_value": -0.03060286219877259,
+              "visits": 3
+            },
+            {
+              "move": 5,
+              "q_value": 0.022174143060974056,
+              "visits": 3
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.005514718592166901,
+            0.09585828334093094,
+            0.8221524357795715,
+            0.016085922718048096,
+            0.053119905292987823,
+            0.007268794812262058
+          ],
+          "search_value": 0.036501777362033715,
+          "selected_action": 2,
+          "visits": [
+            1.0,
+            33.0,
+            344.0,
+            3.0,
+            0.0,
+            3.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-011",
+        "raw": {
+          "entropy": 1.152419905507599,
+          "expected_exact_action_value": 5.521641643370088,
+          "expected_exact_regret": 0.4783583566299132,
+          "max_probability": 0.4451316880822873,
+          "optimal_mass": 0.8127130734615741,
+          "policy": [
+            0.2236042469739914,
+            0.3558097779750824,
+            0.2707790434360504,
+            0.08236223459243774,
+            0.035877980291843414,
+            0.031566690653562546
+          ],
+          "regret": 0.0,
+          "top_action": 2,
+          "top_optimal": true,
+          "value": -0.11985326611631819
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.03465408702628069,
+              "visits": 96
+            },
+            {
+              "move": 2,
+              "q_value": 0.08235877869547525,
+              "visits": 222
+            },
+            {
+              "move": 3,
+              "q_value": 0.06707928203145239,
+              "visits": 55
+            },
+            {
+              "move": 5,
+              "q_value": 0.011890335479888074,
+              "visits": 11
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2236042469739914,
+            0.3558097779750824,
+            0.2707790434360504,
+            0.08236223459243774,
+            0.035877980291843414,
+            0.031566690653562546
+          ],
+          "search_value": 0.06622550892428933,
+          "selected_action": 2,
+          "visits": [
+            96.0,
+            0.0,
+            222.0,
+            55.0,
+            0.0,
+            11.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-012",
+        "raw": {
+          "entropy": 1.029186777265725,
+          "expected_exact_action_value": -7.90502830675187,
+          "expected_exact_regret": 2.0949716932481297,
+          "max_probability": 0.6248749994612001,
+          "optimal_mass": 0.16381957695736762,
+          "policy": [
+            0.185909241437912,
+            0.549773097038269,
+            0.08409685641527176,
+            0.08580240607261658,
+            0.03609022498130798,
+            0.05832817405462265
+          ],
+          "regret": 2.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.051491835699418884
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.020308307845352983,
+              "visits": 60
+            },
+            {
+              "move": 1,
+              "q_value": 0.055693930960868665,
+              "visits": 278
+            },
+            {
+              "move": 3,
+              "q_value": 0.02303959906917386,
+              "visits": 27
+            },
+            {
+              "move": 5,
+              "q_value": 0.023011396481403646,
+              "visits": 19
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.185909241437912,
+            0.549773097038269,
+            0.08409685641527176,
+            0.08580240607261658,
+            0.03609022498130798,
+            0.05832817405462265
+          ],
+          "search_value": 0.046251815067336034,
+          "selected_action": 1,
+          "visits": [
+            60.0,
+            278.0,
+            0.0,
+            27.0,
+            0.0,
+            19.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-013",
+        "raw": {
+          "entropy": 1.348289878799011,
+          "expected_exact_action_value": -0.9666363405976637,
+          "expected_exact_regret": 0.9666363405976637,
+          "max_probability": 0.4306413050609229,
+          "optimal_mass": 0.5166818297011682,
+          "policy": [
+            0.27148178219795227,
+            0.3695872128009796,
+            0.196349635720253,
+            0.067054383456707,
+            0.06231880933046341,
+            0.03320816904306412
+          ],
+          "regret": 2.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.151956846643582
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.035254879515607844,
+              "visits": 116
+            },
+            {
+              "move": 2,
+              "q_value": -0.037753495172694655,
+              "visits": 83
+            },
+            {
+              "move": 3,
+              "q_value": 0.006746264807659873,
+              "visits": 53
+            },
+            {
+              "move": 4,
+              "q_value": 0.029950711406010848,
+              "visits": 95
+            },
+            {
+              "move": 5,
+              "q_value": 0.01937740353625415,
+              "visits": 37
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.27148178219795227,
+            0.3695872128009796,
+            0.196349635720253,
+            0.067054383456707,
+            0.06231880933046341,
+            0.03320816904306412
+          ],
+          "search_value": -0.008602272327931664,
+          "selected_action": 0,
+          "visits": [
+            116.0,
+            0.0,
+            83.0,
+            53.0,
+            95.0,
+            37.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-014",
+        "raw": {
+          "entropy": 1.417706705820303,
+          "expected_exact_action_value": -6.112025792624376,
+          "expected_exact_regret": 4.112025792624376,
+          "max_probability": 0.3678549901748992,
+          "optimal_mass": 0.03207046954077496,
+          "policy": [
+            0.13936996459960938,
+            0.41977357864379883,
+            0.13915565609931946,
+            0.06965352594852448,
+            0.018608136102557182,
+            0.2134392112493515
+          ],
+          "regret": 4.0,
+          "top_action": 5,
+          "top_optimal": false,
+          "value": -0.0917647697316241
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.014274685668025441,
+              "visits": 81
+            },
+            {
+              "move": 2,
+              "q_value": -0.01849391342572952,
+              "visits": 73
+            },
+            {
+              "move": 3,
+              "q_value": 0.0018359864195155215,
+              "visits": 51
+            },
+            {
+              "move": 4,
+              "q_value": -0.040200364164603736,
+              "visits": 11
+            },
+            {
+              "move": 5,
+              "q_value": 0.006315393193591368,
+              "visits": 168
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.13936996459960938,
+            0.41977357864379883,
+            0.13915565609931946,
+            0.06965352594852448,
+            0.018608136102557182,
+            0.2134392112493515
+          ],
+          "search_value": -0.004671582971563318,
+          "selected_action": 5,
+          "visits": [
+            81.0,
+            0.0,
+            73.0,
+            51.0,
+            11.0,
+            168.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-015",
+        "raw": {
+          "entropy": 1.2958409898016763,
+          "expected_exact_action_value": 4.155480391901879,
+          "expected_exact_regret": 1.844519608098121,
+          "max_probability": 0.4355803699959163,
+          "optimal_mass": 0.22045986875664542,
+          "policy": [
+            0.11472256481647491,
+            0.19616441428661346,
+            0.16176311671733856,
+            0.3501332104206085,
+            0.17721258103847504,
+            4.07363950216677e-06
+          ],
+          "regret": 2.0,
+          "top_action": 3,
+          "top_optimal": false,
+          "value": 0.12247345692164478
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.028561140145705554,
+              "visits": 80
+            },
+            {
+              "move": 2,
+              "q_value": -0.0059072567538002736,
+              "visits": 66
+            },
+            {
+              "move": 3,
+              "q_value": 0.006066943989432096,
+              "visits": 160
+            },
+            {
+              "move": 4,
+              "q_value": 0.0027287485803574245,
+              "visits": 78
+            }
+          ],
+          "regret": 2.0,
+          "root_prior": [
+            0.11472256481647491,
+            0.19616441428661346,
+            0.16176311671733856,
+            0.3501332104206085,
+            0.17721258103847504,
+            4.07363950216677e-06
+          ],
+          "search_value": 0.008017098160111048,
+          "selected_action": 3,
+          "visits": [
+            80.0,
+            0.0,
+            66.0,
+            160.0,
+            78.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-016",
+        "raw": {
+          "entropy": 0.7525924763426938,
+          "expected_exact_action_value": 2.0729620896983514,
+          "expected_exact_regret": 3.9270379103016486,
+          "max_probability": 0.782669243484265,
+          "optimal_mass": 0.023836883338785364,
+          "policy": [
+            0.7826137542724609,
+            0.06822402775287628,
+            0.0074798972345888615,
+            0.0238351933658123,
+            0.11777622997760773,
+            7.100570655893534e-05
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.09635908350729036
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.004314054952386862,
+              "visits": 294
+            },
+            {
+              "move": 1,
+              "q_value": 0.02028266268587018,
+              "visits": 43
+            },
+            {
+              "move": 2,
+              "q_value": -0.005403990361558873,
+              "visits": 3
+            },
+            {
+              "move": 3,
+              "q_value": 0.02601292632114383,
+              "visits": 19
+            },
+            {
+              "move": 4,
+              "q_value": -0.05246001937017489,
+              "visits": 25
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.7826137542724609,
+            0.06822402775287628,
+            0.0074798972345888615,
+            0.0238351933658123,
+            0.11777622997760773,
+            7.100570655893534e-05
+          ],
+          "search_value": -0.0032021992597568625,
+          "selected_action": 0,
+          "visits": [
+            294.0,
+            43.0,
+            3.0,
+            19.0,
+            25.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-017",
+        "raw": {
+          "entropy": 0.8526355042664475,
+          "expected_exact_action_value": 0.6560283076431239,
+          "expected_exact_regret": 5.343971692356876,
+          "max_probability": 0.7311594038740251,
+          "optimal_mass": 0.02642539952567147,
+          "policy": [
+            0.7311479449272156,
+            0.11804436892271042,
+            0.007999587804079056,
+            0.01842539757490158,
+            0.12436702847480774,
+            1.5693156456109136e-05
+          ],
+          "regret": 6.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.1027836454436474
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0025296623024743054,
+              "visits": 254
+            },
+            {
+              "move": 1,
+              "q_value": 0.03462884516478871,
+              "visits": 74
+            },
+            {
+              "move": 2,
+              "q_value": -0.08970167891406375,
+              "visits": 1
+            },
+            {
+              "move": 3,
+              "q_value": -0.003537913447642308,
+              "visits": 7
+            },
+            {
+              "move": 4,
+              "q_value": 0.009923173911804086,
+              "visits": 48
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.7311479449272156,
+            0.11804436892271042,
+            0.007999587804079056,
+            0.01842539757490158,
+            0.12436702847480774,
+            1.5693156456109136e-05
+          ],
+          "search_value": 0.009288838650369474,
+          "selected_action": 0,
+          "visits": [
+            254.0,
+            74.0,
+            1.0,
+            7.0,
+            48.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-018",
+        "raw": {
+          "entropy": 0.7067312707259966,
+          "expected_exact_action_value": 1.7816173972053724,
+          "expected_exact_regret": 4.218382602794628,
+          "max_probability": 0.8041957796534784,
+          "optimal_mass": 0.02606770481318596,
+          "policy": [
+            0.8041203618049622,
+            0.0806557908654213,
+            0.01175591628998518,
+            0.014309343881905079,
+            0.08906480669975281,
+            9.369809413328767e-05
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.06976788536081929
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.019541096272839602,
+              "visits": 280
+            },
+            {
+              "move": 1,
+              "q_value": 0.01505237432719122,
+              "visits": 58
+            },
+            {
+              "move": 2,
+              "q_value": -0.010174710104149373,
+              "visits": 4
+            },
+            {
+              "move": 3,
+              "q_value": 0.0010567375961233944,
+              "visits": 10
+            },
+            {
+              "move": 4,
+              "q_value": -0.017889499501121512,
+              "visits": 32
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.8041203618049622,
+            0.0806557908654213,
+            0.01175591628998518,
+            0.014309343881905079,
+            0.08906480669975281,
+            9.369809413328767e-05
+          ],
+          "search_value": -0.013544439307055343,
+          "selected_action": 0,
+          "visits": [
+            280.0,
+            58.0,
+            4.0,
+            10.0,
+            32.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-019",
+        "raw": {
+          "entropy": 0.6406584416980026,
+          "expected_exact_action_value": 4.351555702657366,
+          "expected_exact_regret": 7.648444297342633,
+          "max_probability": 0.8305821881614738,
+          "optimal_mass": 0.012303718159272252,
+          "policy": [
+            0.8305282592773438,
+            0.06895138323307037,
+            0.011352185159921646,
+            0.012302919290959835,
+            0.07680032402276993,
+            6.487248174380511e-05
+          ],
+          "regret": 8.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.09759475071010384
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.01862538497842814,
+              "visits": 323
+            },
+            {
+              "move": 1,
+              "q_value": 0.015525446705827088,
+              "visits": 26
+            },
+            {
+              "move": 2,
+              "q_value": 0.04720614556357138,
+              "visits": 8
+            },
+            {
+              "move": 3,
+              "q_value": 0.019330971528520594,
+              "visits": 6
+            },
+            {
+              "move": 4,
+              "q_value": -0.007396074231796665,
+              "visits": 21
+            }
+          ],
+          "regret": 8.0,
+          "root_prior": [
+            0.8305282592773438,
+            0.06895138323307037,
+            0.011352185159921646,
+            0.012302919290959835,
+            0.07680032402276993,
+            6.487248174380511e-05
+          ],
+          "search_value": 0.017598902076030615,
+          "selected_action": 0,
+          "visits": [
+            323.0,
+            26.0,
+            8.0,
+            6.0,
+            21.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-020",
+        "raw": {
+          "entropy": 1.3791959999882715,
+          "expected_exact_action_value": -11.321088094891635,
+          "expected_exact_regret": 4.678911905108363,
+          "max_probability": 0.27483567456347013,
+          "optimal_mass": 0.2621261158404412,
+          "policy": [
+            0.1919812262058258,
+            0.2517487704753876,
+            0.03827755153179169,
+            0.2511957287788391,
+            0.26337531208992004,
+            0.0034214279148727655
+          ],
+          "regret": 4.0,
+          "top_action": 4,
+          "top_optimal": false,
+          "value": 0.011492528649826694
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.026876857607425933,
+              "visits": 93
+            },
+            {
+              "move": 1,
+              "q_value": 0.02300604251890649,
+              "visits": 115
+            },
+            {
+              "move": 3,
+              "q_value": 0.015390454657577041,
+              "visits": 97
+            },
+            {
+              "move": 4,
+              "q_value": -0.0053268483022773,
+              "visits": 79
+            }
+          ],
+          "regret": 6.0,
+          "root_prior": [
+            0.1919812262058258,
+            0.2517487704753876,
+            0.03827755153179169,
+            0.2511957287788391,
+            0.26337531208992004,
+            0.0034214279148727655
+          ],
+          "search_value": 0.016190874304869585,
+          "selected_action": 1,
+          "visits": [
+            93.0,
+            115.0,
+            0.0,
+            97.0,
+            79.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-021",
+        "raw": {
+          "entropy": 1.0032435639532389,
+          "expected_exact_action_value": -10.118475887242713,
+          "expected_exact_regret": 3.8815241127572877,
+          "max_probability": 0.5224521398270942,
+          "optimal_mass": 0.5224521398270942,
+          "policy": [
+            0.3083438575267792,
+            0.4274974465370178,
+            0.01698259264230728,
+            0.028698056936264038,
+            0.053712520748376846,
+            0.1647655963897705
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.07882255370526237
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.0058894781895331245,
+              "visits": 102
+            },
+            {
+              "move": 1,
+              "q_value": 0.04310082356187514,
+              "visits": 241
+            },
+            {
+              "move": 3,
+              "q_value": 0.04673593468642943,
+              "visits": 18
+            },
+            {
+              "move": 4,
+              "q_value": 0.019095904542437675,
+              "visits": 23
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.3083438575267792,
+            0.4274974465370178,
+            0.01698259264230728,
+            0.028698056936264038,
+            0.053712520748376846,
+            0.1647655963897705
+          ],
+          "search_value": 0.03194916115254187,
+          "selected_action": 1,
+          "visits": [
+            102.0,
+            241.0,
+            0.0,
+            18.0,
+            23.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-022",
+        "raw": {
+          "entropy": 1.1750438149619296,
+          "expected_exact_action_value": -10.173076839409323,
+          "expected_exact_regret": 3.826923160590677,
+          "max_probability": 0.5768601129955254,
+          "optimal_mass": 0.5768601129955254,
+          "policy": [
+            0.16683438420295715,
+            0.4124358892440796,
+            0.04226662963628769,
+            0.033139247447252274,
+            0.060290753841400146,
+            0.28503313660621643
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.111378968972881
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.016445722683914164,
+              "visits": 80
+            },
+            {
+              "move": 1,
+              "q_value": 0.0314326082884371,
+              "visits": 249
+            },
+            {
+              "move": 2,
+              "q_value": -0.0510037014482128,
+              "visits": 10
+            },
+            {
+              "move": 3,
+              "q_value": 0.01861255918571784,
+              "visits": 16
+            },
+            {
+              "move": 4,
+              "q_value": 0.016405568506172797,
+              "visits": 29
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.16683438420295715,
+            0.4124358892440796,
+            0.04226662963628769,
+            0.033139247447252274,
+            0.060290753841400146,
+            0.28503313660621643
+          ],
+          "search_value": 0.024494538275266504,
+          "selected_action": 1,
+          "visits": [
+            80.0,
+            249.0,
+            10.0,
+            16.0,
+            29.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-023",
+        "raw": {
+          "entropy": 1.3881450795780153,
+          "expected_exact_action_value": -9.759468979886854,
+          "expected_exact_regret": 6.240531020113147,
+          "max_probability": 0.4067306731401421,
+          "optimal_mass": 0.4067306731401421,
+          "policy": [
+            0.2750667631626129,
+            0.36887305974960327,
+            0.06979621946811676,
+            0.06194804236292839,
+            0.13123807311058044,
+            0.09307786077260971
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.13281974522397835
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.04287233456170787,
+              "visits": 114
+            },
+            {
+              "move": 1,
+              "q_value": 0.05364561110732864,
+              "visits": 180
+            },
+            {
+              "move": 2,
+              "q_value": 0.03884176753946579,
+              "visits": 26
+            },
+            {
+              "move": 3,
+              "q_value": 0.052688450973728956,
+              "visits": 30
+            },
+            {
+              "move": 4,
+              "q_value": 0.006735839275858071,
+              "visits": 34
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2750667631626129,
+            0.36887305974960327,
+            0.06979621946811676,
+            0.06194804236292839,
+            0.13123807311058044,
+            0.09307786077260971
+          ],
+          "search_value": 0.045216703541591186,
+          "selected_action": 1,
+          "visits": [
+            114.0,
+            180.0,
+            26.0,
+            30.0,
+            34.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-024",
+        "raw": {
+          "entropy": 1.0477841425037966,
+          "expected_exact_action_value": -15.173586954085103,
+          "expected_exact_regret": 4.826413045914896,
+          "max_probability": 0.6201941508992719,
+          "optimal_mass": 0.6201941508992719,
+          "policy": [
+            0.2136766016483307,
+            0.5803050398826599,
+            0.024787234142422676,
+            0.02060803771018982,
+            0.0963059514760971,
+            0.06431715190410614
+          ],
+          "regret": 0.0,
+          "top_action": 1,
+          "top_optimal": true,
+          "value": 0.03447902116753748
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": 0.03814051239335138,
+              "visits": 99
+            },
+            {
+              "move": 1,
+              "q_value": 0.027260749454476478,
+              "visits": 222
+            },
+            {
+              "move": 2,
+              "q_value": 0.02321783862986298,
+              "visits": 9
+            },
+            {
+              "move": 3,
+              "q_value": 0.0650478086649656,
+              "visits": 19
+            },
+            {
+              "move": 4,
+              "q_value": 0.02214750726360315,
+              "visits": 35
+            }
+          ],
+          "regret": 0.0,
+          "root_prior": [
+            0.2136766016483307,
+            0.5803050398826599,
+            0.024787234142422676,
+            0.02060803771018982,
+            0.0963059514760971,
+            0.06431715190410614
+          ],
+          "search_value": 0.031374554094699934,
+          "selected_action": 1,
+          "visits": [
+            99.0,
+            222.0,
+            9.0,
+            19.0,
+            35.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-025",
+        "raw": {
+          "entropy": 1.0775955213837247,
+          "expected_exact_action_value": -1.3275832414170725,
+          "expected_exact_regret": 2.6724167585829273,
+          "max_probability": 0.6156936968635996,
+          "optimal_mass": 0.2794853175721359,
+          "policy": [
+            0.5319973826408386,
+            0.12715932726860046,
+            0.0905718058347702,
+            0.09297797828912735,
+            0.14851459860801697,
+            0.008778895251452923
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": 0.050370247798158546
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.006579515586677538,
+              "visits": 232
+            },
+            {
+              "move": 2,
+              "q_value": 0.0020415790962606006,
+              "visits": 46
+            },
+            {
+              "move": 3,
+              "q_value": 0.012430001659914994,
+              "visits": 58
+            },
+            {
+              "move": 4,
+              "q_value": -0.03219113417159994,
+              "visits": 48
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.5319973826408386,
+            0.12715932726860046,
+            0.0905718058347702,
+            0.09297797828912735,
+            0.14851459860801697,
+            0.008778895251452923
+          ],
+          "search_value": -0.005877003441778461,
+          "selected_action": 0,
+          "visits": [
+            232.0,
+            0.0,
+            46.0,
+            58.0,
+            48.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-026",
+        "raw": {
+          "entropy": 1.4617909739828592,
+          "expected_exact_action_value": -0.5958165494153649,
+          "expected_exact_regret": 3.4041834505846347,
+          "max_probability": 0.37459895450826913,
+          "optimal_mass": 0.23711289920334275,
+          "policy": [
+            0.3649418354034424,
+            0.2750250995159149,
+            0.10325302183628082,
+            0.08844143152236938,
+            0.1425587236881256,
+            0.025779835879802704
+          ],
+          "regret": 4.0,
+          "top_action": 0,
+          "top_optimal": false,
+          "value": -0.022888733825157763
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.00921387037276492,
+              "visits": 149
+            },
+            {
+              "move": 1,
+              "q_value": -0.03515257041136464,
+              "visits": 77
+            },
+            {
+              "move": 2,
+              "q_value": 0.011017566499304582,
+              "visits": 62
+            },
+            {
+              "move": 3,
+              "q_value": 0.005868761663537869,
+              "visits": 47
+            },
+            {
+              "move": 4,
+              "q_value": -0.018242570955266702,
+              "visits": 49
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.3649418354034424,
+            0.2750250995159149,
+            0.10325302183628082,
+            0.08844143152236938,
+            0.1425587236881256,
+            0.025779835879802704
+          ],
+          "search_value": -0.010454634538755085,
+          "selected_action": 0,
+          "visits": [
+            149.0,
+            77.0,
+            62.0,
+            47.0,
+            49.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "capture_available-027",
+        "raw": {
+          "entropy": 1.121619764327043,
+          "expected_exact_action_value": 6.102428870996999,
+          "expected_exact_regret": 4.102428870996999,
+          "max_probability": 0.649852934126933,
+          "optimal_mass": 0.06346471241724479,
+          "policy": [
+            0.08365321904420853,
+            0.639300525188446,
+            0.016238149255514145,
+            0.06243416294455528,
+            0.07570852339267731,
+            0.1226654201745987
+          ],
+          "regret": 4.0,
+          "top_action": 1,
+          "top_optimal": false,
+          "value": 0.2504393605874438
+        },
+        "search": {
+          "child_q": [
+            {
+              "move": 0,
+              "q_value": -0.027094794347737112,
+              "visits": 35
+            },
+            {
+              "move": 1,
+              "q_value": -0.036599859825231236,
+              "visits": 232
+            },
+            {
+              "move": 3,
+              "q_value": -0.04685382168921053,
+              "visits": 22
+            },
+            {
+              "move": 4,
+              "q_value": -0.007750302750348559,
+              "visits": 48
+            },
+            {
+              "move": 5,
+              "q_value": -0.03288449008164325,
+              "visits": 47
+            }
+          ],
+          "regret": 4.0,
+          "root_prior": [
+            0.08365321904420853,
+            0.639300525188446,
+            0.016238149255514145,
+            0.06243416294455528,
+            0.07570852339267731,
+            0.1226654201745987
+          ],
+          "search_value": -0.032260038866252685,
+          "selected_action": 1,
+          "visits": [
+            35.0,
+            232.0,
+            0.0,
+            22.0,
+            48.0,
+            47.0
+          ]
+        }
+      }
+    ]
   },
   "read_only": {
     "promotion": false,
@@ -10181,5 +15419,82 @@
       }
     }
   },
-  "schema": "azlite_capture_family_attribution_v1"
+  "schema": "azlite_capture_family_attribution_v1",
+  "stored_target_quality": {
+    "dynamic": {
+      "44:control_384_192": {
+        "entropy": 0.8531386871208732,
+        "expected_exact_regret": 2.62918028373382,
+        "max_probability": 0.7133973949327014,
+        "optimal_mass": 0.6776964575545755,
+        "rows": 47,
+        "top_optimal_rate": 0.8723404255319149
+      },
+      "44:uniform1200": {
+        "entropy": 0.26129046410475326,
+        "expected_exact_regret": 1.431798603646955,
+        "max_probability": 0.9432733396736637,
+        "optimal_mass": 0.7731941859759248,
+        "rows": 35,
+        "top_optimal_rate": 0.8
+      },
+      "45:control_384_192": {
+        "entropy": 0.9305861249954533,
+        "expected_exact_regret": 3.5172292694218954,
+        "max_probability": 0.6564425799564884,
+        "optimal_mass": 0.6180623455058583,
+        "rows": 41,
+        "top_optimal_rate": 0.7317073170731707
+      },
+      "45:uniform1200": {
+        "entropy": 0.31698961124569847,
+        "expected_exact_regret": 2.1319891069023402,
+        "max_probability": 0.9270938526079504,
+        "optimal_mass": 0.664205416419047,
+        "rows": 35,
+        "top_optimal_rate": 0.6857142857142857
+      },
+      "46:control_384_192": {
+        "entropy": 0.8525749391012691,
+        "expected_exact_regret": 3.4897911914821234,
+        "max_probability": 0.7011150870046045,
+        "optimal_mass": 0.6074451635696303,
+        "rows": 44,
+        "top_optimal_rate": 0.7954545454545454
+      },
+      "46:uniform1200": {
+        "entropy": 0.23489752117533957,
+        "expected_exact_regret": 1.3442317533442663,
+        "max_probability": 0.9503248569544469,
+        "optimal_mass": 0.8192788443738063,
+        "rows": 27,
+        "top_optimal_rate": 0.8518518518518519
+      }
+    },
+    "fixed": {
+      "entropy": 0.6477848564108498,
+      "expected_exact_regret": 1.5425166666666668,
+      "max_probability": 0.8165916666666666,
+      "optimal_mass": 0.8165916666666666,
+      "rows": 8,
+      "top_optimal_rate": 1.0
+    }
+  },
+  "teacher_student_inversions": {
+    "44": {
+      "inversion_ids": [],
+      "inversion_rate": 0.0,
+      "shared_states": 11
+    },
+    "45": {
+      "inversion_ids": [],
+      "inversion_rate": 0.0,
+      "shared_states": 8
+    },
+    "46": {
+      "inversion_ids": [],
+      "inversion_rate": 0.0,
+      "shared_states": 9
+    }
+  }
 }
