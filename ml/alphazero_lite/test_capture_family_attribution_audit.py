@@ -1,9 +1,11 @@
 from ml.alphazero_lite.run_capture_family_attribution_audit import (
     cross_seed_dominance,
     capture_rows,
+    comparative_search_regression,
     decision_critical_ids,
     mechanism,
     policy_quality,
+    paired_target_deltas,
     PR290_LANES,
     search_induced_regression,
     teacher_student_inversions,
@@ -87,3 +89,26 @@ def test_pr290_cells_have_the_historical_lane_mapping():
         "C": "uniform_exposure__unsharpened",
         "D": "control_like_exposure__sharpened",
     }
+
+
+def test_paired_target_deltas_and_comparative_search_regression():
+    control = [
+        {
+            "canonical_state": "x",
+            "optimal_mass": 0.5,
+            "expected_exact_regret": 2,
+            "entropy": 1,
+            "top_optimal": False,
+        }
+    ]
+    uniform = [
+        {
+            "canonical_state": "x",
+            "optimal_mass": 0.75,
+            "expected_exact_regret": 1,
+            "entropy": 0.5,
+            "top_optimal": True,
+        }
+    ]
+    assert paired_target_deltas(control, uniform)["expected_exact_regret_delta"] == -1
+    assert comparative_search_regression(12, 0, 12, 12)

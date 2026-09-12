@@ -8,6 +8,8 @@ The decision-critical separation is produced by production PUCT in seeds 44 and 
 
 Exactly one next experiment: a capture-focused PUCT diagnostic varying **root FPU only**, with all checkpoints, replay, oracle, and other search settings frozen.
 
+The programmatic mechanism precedence is recorded in `mechanisms`. It applies a category only when uniform searched regret is strictly worse than matched control; seed-46 improvements are retained as the negative control rather than counted as failures. The cross-seed dominant mechanism is `inference_search_degradation`: it appears in seed 44 (`capture_available-002`) and seed 45 (`capture_available-002`, `capture_available-020`).
+
 ## Verification
 
 The audit is evaluation-only: no training, self-play, replay mutation, promotion, or tablebase generation occurred. The machine-readable result is `docs/data/alphazero-lite-capture-family-attribution-audit.json`.
@@ -25,6 +27,8 @@ Its ordered-ID SHA256 is `58c7ca4677136570b7e5154b1bf3d531772839bd6a66117e6beab8
 ## Raw Versus Search
 
 Production forensic search uses the existing deterministic evaluation profile: 384 simulations, `c_puct=1.25`, zero FPU, no value transform, deterministic root selection, no tactical bias, and seed 42. The result retains legal-masked raw policies, raw values, root priors, visits, and child Q values for every primary checkpoint/state.
+
+The full 24-state by-checkpoint table is the `evaluations` collection in the machine result. Each row includes its raw/search regrets and can be aggregated without replacing the frozen positions.
 
 | State | Seed | Control raw/search regret | Uniform raw/search regret | Result |
 | --- | ---: | ---: | ---: | --- |
@@ -48,6 +52,19 @@ Exact action values are `{0: 2, 1: -4, 2: -16, 3: -10, 4: -6}` for player 1, so 
 The retained dynamic replay gives `capture_available-002` control/uniform occurrence counts of 1/1 (seed 44), 3/1 (seed 45), and 1/0 (seed 46). For seeds 44 and 45, the uniform stored target places 0.9679 mass on exact action 2 versus the control target's 0.5461. The target is therefore better, while both raw students still choose action 1; PUCT Q/visit allocation determines whether the error is repaired.
 
 Across exact-labeled dynamic replay rows, uniform expected target regret is lower in every seed: 1.4318 vs 2.6292 (44), 2.1320 vs 3.5172 (45), and 1.3442 vs 3.4898 (46). The exact-labeled row counts are 35/47, 35/41, and 27/44 (uniform/control). The machine result also records fixed-source quality and paired shared-state teacher/student inversion results.
+
+Unique-state paired target deltas (uniform minus control) likewise favor uniform in expected exact regret: -2.6871 over 11 shared states (44), -2.9558 over 8 (45), and -2.0427 over 9 (46). This rules out a systematic target-quality deficit for the repeated `capture_available-002` failure.
+
+## Mechanism Trace
+
+| Seed | Critical state | Control raw/search regret | Uniform raw/search regret | Primary mechanism |
+| ---: | --- | ---: | ---: | --- |
+| 44 | capture_available-002 | 12 / 0 | 12 / 12 | inference_search_degradation |
+| 44 | capture_available-020 | 0 / 0 | 6 / 6 | target_quality_deficit |
+| 45 | capture_available-002 | 12 / 0 | 12 / 12 | inference_search_degradation |
+| 45 | capture_available-020 | 10 / 4 | 6 / 6 | inference_search_degradation |
+| 46 | capture_available-002 | 12 / 0 | 12 / 0 | negative control |
+| 46 | capture_available-020 | 6 / 6 | 0 / 4 | negative control |
 
 ## Neighborhood Coverage
 

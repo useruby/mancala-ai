@@ -28,6 +28,7 @@
       "capture_available-027"
     ]
   },
+  "cross_seed_dominant_mechanism": "inference_search_degradation",
   "decision_critical_capture_set": {
     "ids": [
       "capture_available-002",
@@ -9949,6 +9950,7 @@
       }
     ]
   },
+  "hard_classification": "capture_regression_search_induced",
   "inputs": {
     "checkpoints": {
       "44:control_384_192": {
@@ -10036,6 +10038,80 @@
       "path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-exact-shadow-replay.json",
       "sha256": "576ba79430cec0c1d13ea006bc9bbd4c131acc4750e3944432257e8ea158d776"
     }
+  },
+  "mechanisms": {
+    "44": [
+      {
+        "category": "inference_search_degradation",
+        "comparative_search_regression": true,
+        "control_raw_regret": 12.0,
+        "control_search_regret": 0.0,
+        "coverage_adequate": true,
+        "id": "capture_available-002",
+        "paired_target_evidence": true,
+        "uniform_raw_regret": 12.0,
+        "uniform_search_regret": 12.0
+      },
+      {
+        "category": "target_quality_deficit",
+        "comparative_search_regression": false,
+        "control_raw_regret": 0.0,
+        "control_search_regret": 0.0,
+        "coverage_adequate": true,
+        "id": "capture_available-020",
+        "paired_target_evidence": true,
+        "uniform_raw_regret": 6.0,
+        "uniform_search_regret": 6.0
+      }
+    ],
+    "45": [
+      {
+        "category": "inference_search_degradation",
+        "comparative_search_regression": true,
+        "control_raw_regret": 12.0,
+        "control_search_regret": 0.0,
+        "coverage_adequate": false,
+        "id": "capture_available-002",
+        "paired_target_evidence": true,
+        "uniform_raw_regret": 12.0,
+        "uniform_search_regret": 12.0
+      },
+      {
+        "category": "inference_search_degradation",
+        "comparative_search_regression": true,
+        "control_raw_regret": 10.0,
+        "control_search_regret": 4.0,
+        "coverage_adequate": true,
+        "id": "capture_available-020",
+        "paired_target_evidence": true,
+        "uniform_raw_regret": 6.0,
+        "uniform_search_regret": 6.0
+      }
+    ],
+    "46": [
+      {
+        "category": "mixed_or_unclear",
+        "comparative_search_regression": false,
+        "control_raw_regret": 12.0,
+        "control_search_regret": 0.0,
+        "coverage_adequate": false,
+        "id": "capture_available-002",
+        "paired_target_evidence": false,
+        "uniform_raw_regret": 12.0,
+        "uniform_search_regret": 0.0
+      },
+      {
+        "category": "mixed_or_unclear",
+        "comparative_search_regression": false,
+        "control_raw_regret": 6.0,
+        "control_search_regret": 6.0,
+        "coverage_adequate": true,
+        "id": "capture_available-020",
+        "paired_target_evidence": true,
+        "uniform_raw_regret": 0.0,
+        "uniform_search_regret": 4.0
+      }
+    ]
   },
   "neighborhood_coverage": {
     "44:control_384_192": {
@@ -10289,6 +10365,29 @@
           "unique_state_coverage": 2
         }
       }
+    }
+  },
+  "paired_target_deltas": {
+    "44": {
+      "entropy_delta": -0.7279075394499558,
+      "expected_exact_regret_delta": -2.6871001878437757,
+      "optimal_mass_delta": 0.2603236666163634,
+      "shared_states": 11,
+      "top_action_correctness_delta": 0.09090909090909091
+    },
+    "45": {
+      "entropy_delta": -0.7622040329572493,
+      "expected_exact_regret_delta": -2.955801602343098,
+      "optimal_mass_delta": 0.2865668272948813,
+      "shared_states": 8,
+      "top_action_correctness_delta": 0.125
+    },
+    "46": {
+      "entropy_delta": -0.5977112690891317,
+      "expected_exact_regret_delta": -2.042737540482026,
+      "optimal_mass_delta": 0.19159325828077176,
+      "shared_states": 9,
+      "top_action_correctness_delta": 0.1111111111111111
     }
   },
   "parent_evaluations": {

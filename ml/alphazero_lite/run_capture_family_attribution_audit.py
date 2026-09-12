@@ -388,6 +388,68 @@ def teacher_student_inversions(
     }
 
 
+def paired_target_deltas(
+    control_targets: list[dict[str, Any]], uniform_targets: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Unique-state paired target deltas, uniform minus matched control."""
+
+    def by_key(rows: list[dict[str, Any]]) -> dict[str, dict[str, float]]:
+        grouped: dict[str, list[dict[str, Any]]] = {}
+        for row in rows:
+            grouped.setdefault(row["canonical_state"], []).append(row)
+        return {
+            key: {
+                metric: sum(float(row[metric]) for row in values) / len(values)
+                for metric in ("optimal_mass", "expected_exact_regret", "entropy")
+            }
+            | {
+                "top_optimal": sum(bool(row["top_optimal"]) for row in values)
+                / len(values)
+            }
+            for key, values in grouped.items()
+        }
+
+    control, uniform = by_key(control_targets), by_key(uniform_targets)
+    shared = sorted(set(control) & set(uniform))
+    if not shared:
+        return {
+            "shared_states": 0,
+            "optimal_mass_delta": None,
+            "expected_exact_regret_delta": None,
+            "entropy_delta": None,
+            "top_action_correctness_delta": None,
+        }
+    return {
+        "shared_states": len(shared),
+        "optimal_mass_delta": sum(
+            uniform[key]["optimal_mass"] - control[key]["optimal_mass"]
+            for key in shared
+        )
+        / len(shared),
+        "expected_exact_regret_delta": sum(
+            uniform[key]["expected_exact_regret"]
+            - control[key]["expected_exact_regret"]
+            for key in shared
+        )
+        / len(shared),
+        "entropy_delta": sum(
+            uniform[key]["entropy"] - control[key]["entropy"] for key in shared
+        )
+        / len(shared),
+        "top_action_correctness_delta": sum(
+            uniform[key]["top_optimal"] - control[key]["top_optimal"] for key in shared
+        )
+        / len(shared),
+    }
+
+
+def comparative_search_regression(
+    control_raw: float, control_search: float, uniform_raw: float, uniform_search: float
+) -> bool:
+    """A matched raw tie/better uniform is separated only by production search."""
+    return uniform_raw <= control_raw and uniform_search > control_search
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
@@ -498,6 +560,85 @@ def main() -> int:
         )
         for seed in (44, 45, 46)
     }
+    paired_targets = {
+        str(seed): paired_target_deltas(
+            target_rows(replay_by_lane[seed, "control_384_192"], labels),
+            target_rows(replay_by_lane[seed, "uniform1200"], labels),
+        )
+        for seed in (44, 45, 46)
+    }
+    critical_positions = [row for row in positions if row["id"] in critical]
+    mechanisms: dict[str, list[dict[str, Any]]] = {}
+    for seed in (44, 45, 46):
+        control_targets = {
+            row["canonical_state"]: row
+            for row in target_rows(replay_by_lane[seed, "control_384_192"], labels)
+        }
+        uniform_targets = {
+            row["canonical_state"]: row
+            for row in target_rows(replay_by_lane[seed, "uniform1200"], labels)
+        }
+        control_eval = {
+            row["id"]: row for row in evaluations[f"{seed}:control_384_192"]
+        }
+        uniform_eval = {row["id"]: row for row in evaluations[f"{seed}:uniform1200"]}
+        mechanisms[str(seed)] = []
+        for exact in critical_positions:
+            identifier, key = exact["id"], exact["canonical_state"]
+            control, uniform = control_eval[identifier], uniform_eval[identifier]
+            c_raw, c_search = (
+                float(control["raw"]["regret"]),
+                float(control["search"]["regret"]),
+            )
+            u_raw, u_search = (
+                float(uniform["raw"]["regret"]),
+                float(uniform["search"]["regret"]),
+            )
+            has_pair = key in control_targets and key in uniform_targets
+            coverage_adequate = (
+                coverage[str(seed)]["uniform1200"][identifier]
+                >= coverage[str(seed)]["control_384_192"][identifier]
+            )
+            target_worse = has_pair and float(
+                uniform_targets[key]["expected_exact_regret"]
+            ) > float(control_targets[key]["expected_exact_regret"])
+            search_stage = comparative_search_regression(
+                c_raw, c_search, u_raw, u_search
+            )
+            category = (
+                mechanism(
+                    search_induced=search_stage,
+                    coverage_adequate=coverage_adequate,
+                    target_worse=target_worse,
+                    raw_worse=u_raw > c_raw,
+                )
+                if u_search > c_search
+                else "mixed_or_unclear"
+            )
+            mechanisms[str(seed)].append(
+                {
+                    "id": identifier,
+                    "category": category,
+                    "control_raw_regret": c_raw,
+                    "control_search_regret": c_search,
+                    "uniform_raw_regret": u_raw,
+                    "uniform_search_regret": u_search,
+                    "coverage_adequate": coverage_adequate,
+                    "paired_target_evidence": has_pair,
+                    "comparative_search_regression": search_stage,
+                }
+            )
+    dominant = cross_seed_dominance(
+        {
+            int(seed): [row["category"] for row in rows]
+            for seed, rows in mechanisms.items()
+        }
+    )
+    final_classification = (
+        "capture_regression_search_induced"
+        if dominant == "inference_search_degradation"
+        else "capture_regression_mechanism_heterogeneous"
+    )
     neighborhoods = {
         f"{seed}:{lane}": {
             "all_capture": neighborhood_coverage(
@@ -511,7 +652,6 @@ def main() -> int:
         for lane in ("control_384_192", "uniform1200")
     }
     secondary: dict[str, Any] = {"rowmatched": {}, "pr290": {}}
-    critical_positions = [row for row in positions if row["id"] in critical]
     for seed in (44, 45, 46):
         directory = _rowmatched_dir(seed)
         checkpoint = directory / "checkpoint.npz"
@@ -598,8 +738,12 @@ def main() -> int:
         "root_replay_coverage": coverage,
         "stored_target_quality": target_quality,
         "teacher_student_inversions": inversions,
+        "paired_target_deltas": paired_targets,
         "neighborhood_coverage": neighborhoods,
         "secondary": secondary,
+        "mechanisms": mechanisms,
+        "cross_seed_dominant_mechanism": dominant,
+        "hard_classification": final_classification,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
