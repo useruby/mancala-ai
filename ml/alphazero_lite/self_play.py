@@ -944,6 +944,7 @@ class PUCT:
         root: Node | None = None,
         *,
         fpu_mode: str = DEFAULT_SEARCH_OPTIONS["fpu_mode"],
+        root_fpu_mode: str | None = None,
         reuse_subtree: bool = DEFAULT_SEARCH_OPTIONS["reuse_subtree"],
         normalize_values: bool = DEFAULT_SEARCH_OPTIONS["normalize_values"],
         root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
@@ -970,6 +971,10 @@ class PUCT:
         self.rng = rng
         self.root = root
         self.fpu_mode = fpu_mode
+        if root_fpu_mode not in {None, "zero", "parent_q"}:
+            raise ValueError(f"unsupported root_fpu_mode: {root_fpu_mode}")
+        # None intentionally leaves the historical all-node FPU path untouched.
+        self.root_fpu_mode = root_fpu_mode
         self.reuse_subtree = reuse_subtree
         self.normalize_values = normalize_values
         self.root_policy_mode = normalize_root_policy_mode(root_policy_mode)
@@ -1005,6 +1010,7 @@ class PUCT:
         self._last_root_snapshots: list[dict] = []
         self._last_root_trajectory: list[dict] = []
         self._last_root: Node | None = None
+        self._active_root: Node | None = None
         self._last_visit_snapshots: list[dict] = []
         self._last_root_prior_before: list[float] | None = None
         self._last_root_prior_after: list[float] | None = None
@@ -1045,6 +1051,7 @@ class PUCT:
         dirichlet_epsilon: float = 0.25,
     ) -> tuple[np.ndarray, Node]:
         root = self._root_for(root_game)
+        self._active_root = root
         self._last_visit_snapshots = []
         self._last_root_prior_before = None
         self._last_root_prior_after = None
@@ -1193,6 +1200,7 @@ class PUCT:
         for move, child in root.children.items():
             visits[move] = child.visit_count
         self._last_root = root
+        self._active_root = None
         self._active_simulation_index = None
         if self.selection_trace is not None:
             for trace_record in self.selection_trace:
@@ -1705,6 +1713,10 @@ class PUCT:
     def _child_q_value(self, parent: Node, child: Node) -> float:
         if child.visit_count > 0:
             return child.q_value
+        if self._active_root is parent and self.root_fpu_mode is not None:
+            if self.root_fpu_mode == "parent_q":
+                return parent.q_value
+            return 0.0
         if self.fpu_mode in {"parent_q", "parent_value"}:
             return parent.q_value
         return 0.0
