@@ -87,6 +87,59 @@ def exact_regret(row: dict[str, Any], selected_move: int | None) -> float | None
     return float(values[int(selected_move)] - min(values.values()))
 
 
+def exact_outcome_utility(*, margin: int, current_player: int) -> int:
+    """Return a forced W/D/L utility from the root player's perspective."""
+    if current_player not in (0, 1):
+        raise ValueError(f"current_player must be 0 or 1, got {current_player}")
+    utility = 0 if margin == 0 else (1 if margin > 0 else -1)
+    return utility if current_player == 0 else -utility
+
+
+def outcome_utilities(row: dict[str, Any]) -> dict[int, int]:
+    """Return root-player W/D/L utility for every exact legal action."""
+    if row.get("exact_status") != "exact_solved":
+        return {}
+    current_player = int(row["state"]["current_player"])
+    return {
+        int(action): exact_outcome_utility(
+            margin=int(margin), current_player=current_player
+        )
+        for action, margin in row["exact_action_values"].items()
+    }
+
+
+def outcome_optimal_actions(row: dict[str, Any]) -> list[int]:
+    """Return all exact actions attaining the best root-player W/D/L utility."""
+    utilities = outcome_utilities(row)
+    if not utilities:
+        return []
+    best = max(utilities.values())
+    return sorted(action for action, utility in utilities.items() if utility == best)
+
+
+def outcome_regret(row: dict[str, Any], selected_move: int | None) -> int | None:
+    """Return W/D/L regret (0, 1, or 2), or unavailable for an invalid row."""
+    utilities = outcome_utilities(row)
+    if selected_move is None or int(selected_move) not in utilities:
+        return None
+    return max(utilities.values()) - utilities[int(selected_move)]
+
+
+def same_outcome_margin_regression(
+    row: dict[str, Any], selected_move: int | None
+) -> bool:
+    """Whether a selected move loses margin while retaining the best W/D/L result."""
+    regret = outcome_regret(row, selected_move)
+    margin = exact_regret(row, selected_move)
+    return regret == 0 and margin is not None and margin > 0
+
+
+def outcome_regression(row: dict[str, Any], selected_move: int | None) -> bool:
+    """Whether a selected move is genuinely worse in forced W/D/L utility."""
+    regret = outcome_regret(row, selected_move)
+    return regret is not None and regret > 0
+
+
 def exact_row(
     position: Any,
     label: dict[str, Any] | None,
