@@ -62,6 +62,12 @@ EXPECTED_CHECKPOINTS = {
     },
 }
 ROWMATCHED_ROOT = Path("/home/alex/Mancala/rowmatched-work/runs")
+PR290_ROOT = ROOT / ".tmp/midgame-2x2-training/runs"
+PR290_LANES = {
+    "B": "control_like_exposure__unsharpened",
+    "C": "uniform_exposure__unsharpened",
+    "D": "control_like_exposure__sharpened",
+}
 EXPECTED_ROWMATCHED_WEIGHTS_JSON = {
     44: "7aea6ef5e0bcb3caede9a7e88ac9080cac12110d25770c65d605701770fcdd84",
     45: "c27f24f678b60c768f722d186b286cb197ae111bc75e5342628ffd21f53d5a21",
@@ -191,6 +197,11 @@ def _rowmatched_dir(seed: int) -> Path:
         / "uniform1200_rowmatched"
         / f"uniform1200-rowmatched-seed{seed}-iter1"
     )
+
+
+def _pr290_dir(seed: int, cell: str) -> Path:
+    lane = PR290_LANES[cell]
+    return PR290_ROOT / f"seed{seed}" / lane / f"midgame-2x2-seed{seed}-{lane}-iter1"
 
 
 def _rows(path: Path) -> list[dict[str, Any]]:
@@ -532,10 +543,39 @@ def main() -> int:
                 for row in critical_positions
             ],
         }
-        secondary["pr290"][str(seed)] = {
-            name: {"available": False, "reason": "raw checkpoint artifact not retained"}
-            for name in ("B", "C", "D")
-        }
+        secondary["pr290"][str(seed)] = {}
+        for cell in ("B", "C", "D"):
+            directory = _pr290_dir(seed, cell)
+            checkpoint = directory / "checkpoint.npz"
+            actual = sha256_file(checkpoint)
+            metadata = json.loads((directory / "metadata.json").read_text())
+            artifacts = metadata.get("artifacts", {})
+            expected = shadow["pr290"][cell][str(seed)]["checkpoint_sha256"]
+            if artifacts.get("weights_sha256") != actual:
+                raise RuntimeError(
+                    f"PR #290 {cell} checkpoint metadata mismatch for seed {seed}"
+                )
+            if artifacts.get("weights_json_sha256") != expected:
+                raise RuntimeError(
+                    f"PR #290 {cell} historical SHA mismatch for seed {seed}"
+                )
+            evaluator = CheckpointEvaluator(checkpoint, input_encoding="kalah_v3")
+            secondary["pr290"][str(seed)][cell] = {
+                "available": True,
+                "checkpoint": {
+                    "path": str(checkpoint),
+                    "sha256": actual,
+                    "recorded_weights_json_sha256": expected,
+                },
+                "rows": [
+                    {
+                        "id": row["id"],
+                        "raw": _raw(row, evaluator),
+                        "search": _searched(row, directory),
+                    }
+                    for row in critical_positions
+                ],
+            }
     result = {
         "schema": "azlite_capture_family_attribution_v1",
         "read_only": {

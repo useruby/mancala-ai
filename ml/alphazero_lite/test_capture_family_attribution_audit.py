@@ -4,6 +4,7 @@ from ml.alphazero_lite.run_capture_family_attribution_audit import (
     decision_critical_ids,
     mechanism,
     policy_quality,
+    PR290_LANES,
     search_induced_regression,
     teacher_student_inversions,
     transition,
@@ -77,4 +78,12 @@ def test_teacher_student_inversion_requires_worse_raw_student():
         "shared_states": 1,
         "inversion_ids": [],
         "inversion_rate": 0.0,
+    }
+
+
+def test_pr290_cells_have_the_historical_lane_mapping():
+    assert PR290_LANES == {
+        "B": "control_like_exposure__unsharpened",
+        "C": "uniform_exposure__unsharpened",
+        "D": "control_like_exposure__sharpened",
     }

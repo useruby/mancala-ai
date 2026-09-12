@@ -15424,44 +15424,1313 @@
     "pr290": {
       "44": {
         "B": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed44/control_like_exposure__unsharpened/midgame-2x2-seed44-control_like_exposure__unsharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "cbdc7021ffa1c092efac6aa802ed016501b17ccf43a79d97bae0b4d69f5cf6d2",
+            "sha256": "2ea49824ffb48d7ea50f7979433ef353ccad580436ac10a1a786c2b988977599"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.2384442259587476,
+                "expected_exact_action_value": -5.470966985796021,
+                "expected_exact_regret": 10.529033014203979,
+                "max_probability": 0.5507793933959534,
+                "optimal_mass": 0.1765600468679534,
+                "policy": [
+                  0.12058112770318985,
+                  0.3879483938217163,
+                  0.1243622899055481,
+                  0.031072963029146194,
+                  0.040397804230451584,
+                  0.2956373393535614
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.2187841058261256
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.0786060283228509,
+                    "visits": 53
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.10026808787901562,
+                    "visits": 230
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.10116352975585383,
+                    "visits": 73
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.0652074899355119,
+                    "visits": 11
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.08235977433950585,
+                    "visits": 17
+                  }
+                ],
+                "regret": 12.0,
+                "root_prior": [
+                  0.17119184136390686,
+                  0.5507795214653015,
+                  0.17655998468399048,
+                  0.044115014374256134,
+                  0.057353705167770386,
+                  0.0
+                ],
+                "search_value": 0.0956513435899069,
+                "selected_action": 1,
+                "visits": [
+                  53.0,
+                  230.0,
+                  73.0,
+                  11.0,
+                  17.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.346270031348487,
+                "expected_exact_action_value": -11.890159806032896,
+                "expected_exact_regret": 4.109840193967104,
+                "max_probability": 0.377473582363181,
+                "optimal_mass": 0.377473582363181,
+                "policy": [
+                  0.15248729288578033,
+                  0.1507570892572403,
+                  0.07533722370862961,
+                  0.2834866940975189,
+                  0.16427960991859436,
+                  0.17365214228630066
+                ],
+                "regret": 0.0,
+                "top_action": 3,
+                "top_optimal": true,
+                "value": 0.1532177221330075
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.10968362493440509,
+                    "visits": 60
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.13828063807802188,
+                    "visits": 86
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.10988625222775486,
+                    "visits": 112
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.14772910290371832,
+                    "visits": 126
+                  }
+                ],
+                "regret": 4.0,
+                "root_prior": [
+                  0.2030428946018219,
+                  0.2007390260696411,
+                  0.0,
+                  0.37747347354888916,
+                  0.2187446504831314,
+                  0.0
+                ],
+                "search_value": 0.12863093642226886,
+                "selected_action": 4,
+                "visits": [
+                  60.0,
+                  86.0,
+                  0.0,
+                  112.0,
+                  126.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         },
         "C": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed44/uniform_exposure__unsharpened/midgame-2x2-seed44-uniform_exposure__unsharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "d9d2cd041cace869de15161798c2531ab51f7cb780177464c075703426225007",
+            "sha256": "061226dfe01cbd800d78338345de65948f8ed715354eb1c578da2ab88b19e0e0"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.1060912839371801,
+                "expected_exact_action_value": -5.344585599724788,
+                "expected_exact_regret": 10.655414400275212,
+                "max_probability": 0.6375511133949137,
+                "optimal_mass": 0.14753869346448514,
+                "policy": [
+                  0.0904078334569931,
+                  0.4670945107936859,
+                  0.1080925315618515,
+                  0.024086132645606995,
+                  0.042957521975040436,
+                  0.26736143231391907
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.22100979559025552
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.07778895685332828,
+                    "visits": 40
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.07932180749173925,
+                    "visits": 215
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.10401506443747899,
+                    "visits": 82
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.10888352809059951,
+                    "visits": 18
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.09696251192483409,
+                    "visits": 29
+                  }
+                ],
+                "regret": 12.0,
+                "root_prior": [
+                  0.12340038269758224,
+                  0.637550950050354,
+                  0.14753872156143188,
+                  0.03287588804960251,
+                  0.058634016662836075,
+                  0.0
+                ],
+                "search_value": 0.08715312114630554,
+                "selected_action": 1,
+                "visits": [
+                  40.0,
+                  215.0,
+                  82.0,
+                  18.0,
+                  29.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.3724717427223467,
+                "expected_exact_action_value": -11.327528149321362,
+                "expected_exact_regret": 4.672471850678638,
+                "max_probability": 0.2933754106042981,
+                "optimal_mass": 0.2933754106042981,
+                "policy": [
+                  0.15729767084121704,
+                  0.21557752788066864,
+                  0.07368523627519608,
+                  0.218515545129776,
+                  0.15344177186489105,
+                  0.1814822256565094
+                ],
+                "regret": 0.0,
+                "top_action": 3,
+                "top_optimal": true,
+                "value": 0.2070514700598435
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.08586319920411983,
+                    "visits": 43
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.12691496779831749,
+                    "visits": 90
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.13351388678639334,
+                    "visits": 101
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.1721446354421399,
+                    "visits": 150
+                  }
+                ],
+                "regret": 4.0,
+                "root_prior": [
+                  0.2111853063106537,
+                  0.2894309461116791,
+                  0.0,
+                  0.2933753728866577,
+                  0.20600837469100952,
+                  0.0
+                ],
+                "search_value": 0.1417215170556574,
+                "selected_action": 4,
+                "visits": [
+                  43.0,
+                  90.0,
+                  0.0,
+                  101.0,
+                  150.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         },
         "D": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed44/control_like_exposure__sharpened/midgame-2x2-seed44-control_like_exposure__sharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "6723355da021bfed0c41cc9dcd1954223a00668f968f97792357e615fdb3a8a6",
+            "sha256": "5bf5951def03e7c35f9f1d01b5e028ee2a70c825e1b5926f167be0e1d41960ef"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.3244755243589668,
+                "expected_exact_action_value": -4.652183807960804,
+                "expected_exact_regret": 11.347816192039197,
+                "max_probability": 0.48242585226291745,
+                "optimal_mass": 0.13940846923550732,
+                "policy": [
+                  0.17224781215190887,
+                  0.3334578275680542,
+                  0.09636060148477554,
+                  0.03741684928536415,
+                  0.05172743648290634,
+                  0.3087894320487976
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.2906330736690464
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.08882363915166723,
+                    "visits": 69
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.1280407516210083,
+                    "visits": 243
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.02596446965948086,
+                    "visits": 22
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.1431598557351992,
+                    "visits": 29
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.09250196417616237,
+                    "visits": 21
+                  }
+                ],
+                "regret": 12.0,
+                "root_prior": [
+                  0.2491970658302307,
+                  0.4824259877204895,
+                  0.13940854370594025,
+                  0.0541323721408844,
+                  0.07483606785535812,
+                  0.0
+                ],
+                "search_value": 0.11434408630702819,
+                "selected_action": 1,
+                "visits": [
+                  69.0,
+                  243.0,
+                  22.0,
+                  29.0,
+                  21.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.3634978179213606,
+                "expected_exact_action_value": -11.326111644486549,
+                "expected_exact_regret": 4.673888355513451,
+                "max_probability": 0.3224641869481322,
+                "optimal_mass": 0.3224641869481322,
+                "policy": [
+                  0.20411893725395203,
+                  0.1346512734889984,
+                  0.08130639046430588,
+                  0.2453305721282959,
+                  0.17669865489006042,
+                  0.15789417922496796
+                ],
+                "regret": 0.0,
+                "top_action": 3,
+                "top_optimal": true,
+                "value": 0.12111228661932066
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.11889734955888892,
+                    "visits": 63
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.18052626830413593,
+                    "visits": 108
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.1509325157604971,
+                    "visits": 106
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.1670677716828552,
+                    "visits": 107
+                  }
+                ],
+                "regret": 6.0,
+                "root_prior": [
+                  0.2682952582836151,
+                  0.1769866645336151,
+                  0.0,
+                  0.32246410846710205,
+                  0.23225396871566772,
+                  0.0
+                ],
+                "search_value": 0.15849601104097624,
+                "selected_action": 1,
+                "visits": [
+                  63.0,
+                  108.0,
+                  0.0,
+                  106.0,
+                  107.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         }
       },
       "45": {
         "B": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed45/control_like_exposure__unsharpened/midgame-2x2-seed45-control_like_exposure__unsharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "3deea611bcd909b802adaa2643138b25c45d44750239bd9ee626a654cf028785",
+            "sha256": "49baa50ecac30930f983d3c146f82889d86c80f913af9be808190b7109259356"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.2852291402315275,
+                "expected_exact_action_value": -8.34908961573899,
+                "expected_exact_regret": 7.65091038426101,
+                "max_probability": 0.39988775890707495,
+                "optimal_mass": 0.3829429266206368,
+                "policy": [
+                  0.07142062485218048,
+                  0.28069862723350525,
+                  0.26880431175231934,
+                  0.02341185137629509,
+                  0.057608120143413544,
+                  0.298056423664093
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.19608982021150406
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.05504777342347162,
+                    "visits": 14
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.10745728567219627,
+                    "visits": 81
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.19089024001266808,
+                    "visits": 250
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.12615334081717514,
+                    "visits": 11
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.15585492579599045,
+                    "visits": 28
+                  }
+                ],
+                "regret": 0.0,
+                "root_prior": [
+                  0.10174687206745148,
+                  0.39988747239112854,
+                  0.3829432427883148,
+                  0.033352941274642944,
+                  0.08206954598426819,
+                  0.0
+                ],
+                "search_value": 0.1639294105255734,
+                "selected_action": 2,
+                "visits": [
+                  14.0,
+                  81.0,
+                  250.0,
+                  11.0,
+                  28.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.2706168651318654,
+                "expected_exact_action_value": -10.094118410163688,
+                "expected_exact_regret": 5.905881589836312,
+                "max_probability": 0.42420468451779414,
+                "optimal_mass": 0.1732706114743312,
+                "policy": [
+                  0.21944215893745422,
+                  0.3190590739250183,
+                  0.06260408461093903,
+                  0.13032284379005432,
+                  0.08331064879894257,
+                  0.18526114523410797
+                ],
+                "regret": 6.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.12242689181526799
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.12344024852269662,
+                    "visits": 53
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.1934133820401825,
+                    "visits": 157
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.1821496426463285,
+                    "visits": 59
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.23092097495176384,
+                    "visits": 115
+                  }
+                ],
+                "regret": 6.0,
+                "root_prior": [
+                  0.29175907373428345,
+                  0.42420485615730286,
+                  0.0,
+                  0.173270583152771,
+                  0.11076553165912628,
+                  0.0
+                ],
+                "search_value": 0.19325774788436925,
+                "selected_action": 1,
+                "visits": [
+                  53.0,
+                  157.0,
+                  0.0,
+                  59.0,
+                  115.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         },
         "C": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed45/uniform_exposure__unsharpened/midgame-2x2-seed45-uniform_exposure__unsharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "0b81b59dd116b98906c9f83da4034ffe737c71d4c9907044627869950930c2b5",
+            "sha256": "7515ff2b6bce87092f8474f117f94a34863368788fbc6ea10b74f29d2e8448c8"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.3073497673285257,
+                "expected_exact_action_value": -6.7414870840748025,
+                "expected_exact_regret": 9.258512915925198,
+                "max_probability": 0.47162684203878885,
+                "optimal_mass": 0.267154467745783,
+                "policy": [
+                  0.09242639690637589,
+                  0.31418856978416443,
+                  0.17797307670116425,
+                  0.020505432039499283,
+                  0.061086948961019516,
+                  0.3338196277618408
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.2760905824601854
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.01432456357870251,
+                    "visits": 20
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.09712095639521354,
+                    "visits": 133
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.15943019157240806,
+                    "visits": 201
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.09474157231549422,
+                    "visits": 9
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.08078064339324123,
+                    "visits": 21
+                  }
+                ],
+                "regret": 0.0,
+                "root_prior": [
+                  0.13874083757400513,
+                  0.47162672877311707,
+                  0.2671545147895813,
+                  0.030780624598264694,
+                  0.09169736504554749,
+                  0.0
+                ],
+                "search_value": 0.12447425687575257,
+                "selected_action": 2,
+                "visits": [
+                  20.0,
+                  133.0,
+                  201.0,
+                  9.0,
+                  21.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.3721113875162279,
+                "expected_exact_action_value": -10.827943200650681,
+                "expected_exact_regret": 5.172056799349319,
+                "max_probability": 0.32120939583065933,
+                "optimal_mass": 0.20815198461668458,
+                "policy": [
+                  0.1905447095632553,
+                  0.2695757746696472,
+                  0.05999626964330673,
+                  0.1746920645236969,
+                  0.2044399082660675,
+                  0.10075128823518753
+                ],
+                "regret": 6.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.08839421868085229
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.10437289728661595,
+                    "visits": 46
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.17714715791020566,
+                    "visits": 163
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.13454871185087158,
+                    "visits": 57
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.1715764042258389,
+                    "visits": 118
+                  }
+                ],
+                "regret": 6.0,
+                "root_prior": [
+                  0.22704114019870758,
+                  0.3212093412876129,
+                  0.0,
+                  0.2081519216299057,
+                  0.24359756708145142,
+                  0.0
+                ],
+                "search_value": 0.16039435491848053,
+                "selected_action": 1,
+                "visits": [
+                  46.0,
+                  163.0,
+                  0.0,
+                  57.0,
+                  118.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         },
         "D": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed45/control_like_exposure__sharpened/midgame-2x2-seed45-control_like_exposure__sharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "c1e5b77e1e07d0c6bce0e4629fafbfa0010d87e2e6765df764cf1ce3cd91696f",
+            "sha256": "a695c7682eaad261cb831ce68837dc117aa73a830d60dbe09e65ea6bf7d3aab0"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.3519616441285613,
+                "expected_exact_action_value": -9.123867813961887,
+                "expected_exact_regret": 6.876132186038114,
+                "max_probability": 0.4286103537415468,
+                "optimal_mass": 0.4286103537415468,
+                "policy": [
+                  0.06480701267719269,
+                  0.21339459717273712,
+                  0.29703521728515625,
+                  0.03494839742779732,
+                  0.08283400535583496,
+                  0.30698078870773315
+                ],
+                "regret": 0.0,
+                "top_action": 2,
+                "top_optimal": true,
+                "value": 0.2823444120057187
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.05139992798847908,
+                    "visits": 11
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.09287315590772778,
+                    "visits": 50
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.20575194618508608,
+                    "visits": 273
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.14991398947313428,
+                    "visits": 15
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.15821859972285374,
+                    "visits": 35
+                  }
+                ],
+                "regret": 0.0,
+                "root_prior": [
+                  0.09351406991481781,
+                  0.30792006850242615,
+                  0.42861032485961914,
+                  0.050429217517375946,
+                  0.11952632665634155,
+                  0.0
+                ],
+                "search_value": 0.1801190081879819,
+                "selected_action": 2,
+                "visits": [
+                  11.0,
+                  50.0,
+                  273.0,
+                  15.0,
+                  35.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.3384723536415042,
+                "expected_exact_action_value": -10.548269708201037,
+                "expected_exact_regret": 5.451730291798965,
+                "max_probability": 0.3535626911342831,
+                "optimal_mass": 0.22692652087883897,
+                "policy": [
+                  0.23659329116344452,
+                  0.3037584125995636,
+                  0.08164868503808975,
+                  0.19496072828769684,
+                  0.12382350116968155,
+                  0.059215400367975235
+                ],
+                "regret": 6.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.14050778534749464
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.1673213273583763,
+                    "visits": 69
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.1901639424513319,
+                    "visits": 116
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.17575339252306593,
+                    "visits": 63
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.2373904136064298,
+                    "visits": 136
+                  }
+                ],
+                "regret": 4.0,
+                "root_prior": [
+                  0.2753852605819702,
+                  0.3535626232624054,
+                  0.0,
+                  0.22692646086215973,
+                  0.14412559568881989,
+                  0.0
+                ],
+                "search_value": 0.20042122107164081,
+                "selected_action": 4,
+                "visits": [
+                  69.0,
+                  116.0,
+                  0.0,
+                  63.0,
+                  136.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         }
       },
       "46": {
         "B": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed46/control_like_exposure__unsharpened/midgame-2x2-seed46-control_like_exposure__unsharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "be34d4b5815d718f3be74bcf1817111d6b0fd17207de726c289e4411cf537d42",
+            "sha256": "1cfbccf56c95ba6af6a3ffda8cfe69c9909f970a3fc7704496745096282aae9c"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.329805453166401,
+                "expected_exact_action_value": -8.454901492622538,
+                "expected_exact_regret": 7.545098507377463,
+                "max_probability": 0.40204479249074654,
+                "optimal_mass": 0.35221280117000536,
+                "policy": [
+                  0.03942667320370674,
+                  0.2601999342441559,
+                  0.2279490977525711,
+                  0.03627835586667061,
+                  0.08333734422922134,
+                  0.3528086245059967
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.13715669306004089
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": -0.02403409696287579,
+                    "visits": 9
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.004490833202684028,
+                    "visits": 69
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.11071449229897627,
+                    "visits": 245
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.07993427056935616,
+                    "visits": 20
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.06338435495499431,
+                    "visits": 41
+                  }
+                ],
+                "regret": 0.0,
+                "root_prior": [
+                  0.06091960147023201,
+                  0.4020448327064514,
+                  0.35221293568611145,
+                  0.056055035442113876,
+                  0.12876763939857483,
+                  0.0
+                ],
+                "search_value": 0.08181264373987081,
+                "selected_action": 2,
+                "visits": [
+                  9.0,
+                  69.0,
+                  245.0,
+                  20.0,
+                  41.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.3222134979514872,
+                "expected_exact_action_value": -11.617380162579458,
+                "expected_exact_regret": 4.382619837420543,
+                "max_probability": 0.3540285394205022,
+                "optimal_mass": 0.3540285394205022,
+                "policy": [
+                  0.23038160800933838,
+                  0.10348410159349442,
+                  0.039207592606544495,
+                  0.31279924511909485,
+                  0.23687750101089478,
+                  0.0772499367594719
+                ],
+                "regret": 0.0,
+                "top_action": 3,
+                "top_optimal": true,
+                "value": 0.0813601391667854
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.06832888661213501,
+                    "visits": 66
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.09240028002442649,
+                    "visits": 39
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.10542956311375805,
+                    "visits": 126
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.12342922119545488,
+                    "visits": 153
+                  }
+                ],
+                "regret": 4.0,
+                "root_prior": [
+                  0.2607475519180298,
+                  0.1171240285038948,
+                  0.0,
+                  0.3540286421775818,
+                  0.2680997848510742,
+                  0.0
+                ],
+                "search_value": 0.10490133654320744,
+                "selected_action": 4,
+                "visits": [
+                  66.0,
+                  39.0,
+                  0.0,
+                  126.0,
+                  153.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         },
         "C": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed46/uniform_exposure__unsharpened/midgame-2x2-seed46-uniform_exposure__unsharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "d93011572d6e368b1281f7b462fe31443fd456f9eb094a64be4d5ca37fa6e3c4",
+            "sha256": "316e261b8b293382e6cf6a405d7e78b419ba64c2790d4fc10a68c7d1e593cc5b"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.232145300589934,
+                "expected_exact_action_value": -7.420288077787518,
+                "expected_exact_regret": 8.579711922212484,
+                "max_probability": 0.507970676506648,
+                "optimal_mass": 0.2932365641366942,
+                "policy": [
+                  0.046184953302145004,
+                  0.2924473285675049,
+                  0.16882126033306122,
+                  0.020961400121450424,
+                  0.0473020076751709,
+                  0.42428305745124817
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.13821742357799582
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": -0.014577735234828046,
+                    "visits": 12
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.05718719365245636,
+                    "visits": 138
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.10766181205648796,
+                    "visits": 175
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.09313342545989572,
+                    "visits": 17
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.09683012135238164,
+                    "visits": 42
+                  }
+                ],
+                "regret": 0.0,
+                "root_prior": [
+                  0.08022159337997437,
+                  0.5079706311225891,
+                  0.293236643075943,
+                  0.03640924021601677,
+                  0.08216189593076706,
+                  0.0
+                ],
+                "search_value": 0.08387461026230388,
+                "selected_action": 2,
+                "visits": [
+                  12.0,
+                  138.0,
+                  175.0,
+                  17.0,
+                  42.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.383119458307447,
+                "expected_exact_action_value": -11.27868804278739,
+                "expected_exact_regret": 4.72131195721261,
+                "max_probability": 0.28250080624532026,
+                "optimal_mass": 0.28250080624532026,
+                "policy": [
+                  0.19739699363708496,
+                  0.20941179990768433,
+                  0.058155857026576996,
+                  0.24464060366153717,
+                  0.21453256905078888,
+                  0.07586222141981125
+                ],
+                "regret": 0.0,
+                "top_action": 3,
+                "top_optimal": true,
+                "value": 0.10534116084851192
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.10596021340767804,
+                    "visits": 95
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.11716938921305729,
+                    "visits": 101
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.05121850804820404,
+                    "visits": 59
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.11817540367185354,
+                    "visits": 129
+                  }
+                ],
+                "regret": 4.0,
+                "root_prior": [
+                  0.22794581949710846,
+                  0.2418200522661209,
+                  0.0,
+                  0.2825007736682892,
+                  0.24773333966732025,
+                  0.0
+                ],
+                "search_value": 0.10460116571031601,
+                "selected_action": 4,
+                "visits": [
+                  95.0,
+                  101.0,
+                  0.0,
+                  59.0,
+                  129.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         },
         "D": {
-          "available": false,
-          "reason": "raw checkpoint artifact not retained"
+          "available": true,
+          "checkpoint": {
+            "path": "/home/alex/Mancala/ai/.tmp/midgame-2x2-training/runs/seed46/control_like_exposure__sharpened/midgame-2x2-seed46-control_like_exposure__sharpened-iter1/checkpoint.npz",
+            "recorded_weights_json_sha256": "0483a9e7ba4f104baad70ca4b9019def3afd2e85b5606309795c61c352e0933a",
+            "sha256": "16040c45cbd2c459f9a6ee12edf89cd194ec980b7c28985ab994002b9e44b14a"
+          },
+          "rows": [
+            {
+              "id": "capture_available-002",
+              "raw": {
+                "entropy": 1.2274770187021873,
+                "expected_exact_action_value": -7.89562450322699,
+                "expected_exact_regret": 8.104375496773013,
+                "max_probability": 0.49431385354222457,
+                "optimal_mass": 0.31540251755402393,
+                "policy": [
+                  0.03622208535671234,
+                  0.32306116819381714,
+                  0.20613281428813934,
+                  0.028366319835186005,
+                  0.05977236479520798,
+                  0.346445232629776
+                ],
+                "regret": 12.0,
+                "top_action": 1,
+                "top_optimal": false,
+                "value": 0.04817906125205922
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": -0.013158380881779723,
+                    "visits": 9
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.0015659076056908816,
+                    "visits": 100
+                  },
+                  {
+                    "move": 2,
+                    "q_value": 0.0851311066033423,
+                    "visits": 214
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.06180098417269833,
+                    "visits": 17
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.06896066637074744,
+                    "visits": 44
+                  }
+                ],
+                "regret": 0.0,
+                "root_prior": [
+                  0.05542323365807533,
+                  0.4943138360977173,
+                  0.31540247797966003,
+                  0.04340314492583275,
+                  0.09145732969045639,
+                  0.0
+                ],
+                "search_value": 0.05817996926301324,
+                "selected_action": 2,
+                "visits": [
+                  9.0,
+                  100.0,
+                  214.0,
+                  17.0,
+                  44.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "id": "capture_available-020",
+              "raw": {
+                "entropy": 1.2865685139651821,
+                "expected_exact_action_value": -12.132683642538371,
+                "expected_exact_regret": 3.867316357461629,
+                "max_probability": 0.3994500614357563,
+                "optimal_mass": 0.3994500614357563,
+                "policy": [
+                  0.19222672283649445,
+                  0.09412351995706558,
+                  0.04659561812877655,
+                  0.3657764494419098,
+                  0.26357337832450867,
+                  0.03770429641008377
+                ],
+                "regret": 0.0,
+                "top_action": 3,
+                "top_optimal": true,
+                "value": 0.03833530309164195
+              },
+              "search": {
+                "child_q": [
+                  {
+                    "move": 0,
+                    "q_value": 0.05112826281550283,
+                    "visits": 49
+                  },
+                  {
+                    "move": 1,
+                    "q_value": 0.07444871570013704,
+                    "visits": 31
+                  },
+                  {
+                    "move": 3,
+                    "q_value": 0.09376211970061796,
+                    "visits": 163
+                  },
+                  {
+                    "move": 4,
+                    "q_value": 0.10554071624617997,
+                    "visits": 141
+                  }
+                ],
+                "regret": 0.0,
+                "root_prior": [
+                  0.20992322266101837,
+                  0.10278860479593277,
+                  0.0,
+                  0.39945006370544434,
+                  0.2878381311893463,
+                  0.0
+                ],
+                "search_value": 0.09108766032962497,
+                "selected_action": 3,
+                "visits": [
+                  49.0,
+                  31.0,
+                  0.0,
+                  163.0,
+                  141.0,
+                  0.0
+                ]
+              }
+            }
+          ]
         }
       }
     },
