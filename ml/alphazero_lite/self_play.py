@@ -1560,6 +1560,8 @@ class PUCT:
                 trace_record.update(
                     {
                         "selected_leaf_state_hash": self._state_hash(node.game),
+                        "selected_leaf_player_to_move": int(node.game.current_player),
+                        "selected_leaf_legal_moves": node.game.possible_moves(),
                         "leaf_evaluator_value": float(terminal),
                         "terminal_leaf": True,
                     }
@@ -1580,6 +1582,8 @@ class PUCT:
                 trace_record.update(
                     {
                         "selected_leaf_state_hash": self._state_hash(node.game),
+                        "selected_leaf_player_to_move": int(node.game.current_player),
+                        "selected_leaf_legal_moves": node.game.possible_moves(),
                         "leaf_evaluator_value": float(value),
                         "terminal_leaf": False,
                     }
