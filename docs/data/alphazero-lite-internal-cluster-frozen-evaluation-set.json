@@ -1,0 +1,332 @@
+{
+  "entries": [
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [
+        3,
+        4
+      ],
+      "exact_outcome_optimal_actions": [
+        0
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "id": "cluster_anchor-244dadc26015ebbc",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "membership": "cluster_anchor",
+      "provenance": "PR305 selected canonical state",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "244dadc26015ebbca84735a5841583e1e4cf09a7d9b2833aef73605dc372c143",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0],\"legal_count\":4,\"own_zero_mask\":\"001001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        4
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "id": "matched_control-11f57287d52ab7f2",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "membership": "matched_control",
+      "provenance": "exact label matched before longitudinal evaluation; seed45 control and uniform1200 raw top-1 optimal",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          7,
+          0,
+          9,
+          3
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          7,
+          0,
+          0,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_sha256": "11f57287d52ab7f2092bfdfd88e268b9addbd64279ea18bf13ac843b2f73e305",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":4,\"own_zero_mask\":\"001100\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "id": "one_ply_child-0c052588b0daa7dc",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "one_ply_child",
+      "provenance": "PR305 legal child",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          1,
+          7,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "0c052588b0daa7dc5041c6204d1dc0487de0165c27957c240aa073d1feb7545a",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "id": "one_ply_child-487e68a18d1f94c0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "one_ply_child",
+      "provenance": "PR305 legal child",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "487e68a18d1f94c01c53a7c31237e499c20ef7decc9ce3cf664c253f764392f5",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":6,\"own_zero_mask\":\"001010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "id": "one_ply_child-a10cdabeaeea0081",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "one_ply_child",
+      "provenance": "PR305 legal child",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          0,
+          1,
+          7,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "a10cdabeaeea00816d9223aeedda2d10857ef8528042624c1c63c7b6e874858a",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"010001\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "id": "one_ply_child-e95450b6d1ff9a43",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "one_ply_child",
+      "provenance": "PR305 legal child",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          0,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "e95450b6d1ff9a433db96ed94289232ab313aa2d37c383b25bfef37512182ace",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":6,\"own_zero_mask\":\"001100\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "id": "structural_cluster-0fb60203365b0571",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "membership": "structural_cluster",
+      "provenance": "PR303/PR305 exact outcome label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          7,
+          0,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "0fb60203365b0571d0d41f98f8cd5d41630037e5b7ec07dac2de7dc78b1af92d",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0],\"legal_count\":4,\"own_zero_mask\":\"001001\",\"player\":0}",
+      "training_ineligible": true
+    }
+  ],
+  "exact_labels_used_for_training": false,
+  "schema": "azlite_internal_cluster_frozen_eval_v1",
+  "selected_cluster": {
+    "capture_actions": [],
+    "extra_turn_actions": [
+      0
+    ],
+    "legal_count": 4,
+    "own_zero_mask": "001001",
+    "player": 0
+  },
+  "set_sha256": "5f86367fdb75af02294a1ace1c08dc2938919f0a5f0419376bdf89d127b6257a",
+  "training_injection": false
+}
