@@ -1,0 +1,1279 @@
+{
+  "broad_family_negative_control": {
+    "sampling_rule": "SHA-ordered states where seed45 control is raw-wrong or seed46 uniform is raw-correct",
+    "states": [
+      {
+        "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,6,0],\"player_store\":3}",
+        "case": "45:control:capture_available-018",
+        "raw_top_is_outcome_optimal": false
+      },
+      {
+        "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,1,0,8,2,7],\"opponent_store\":3,\"player_pits\":[2,3,1,8,7,1],\"player_store\":4}",
+        "case": "45:control:capture_available-018",
+        "raw_top_is_outcome_optimal": false
+      }
+    ]
+  },
+  "hard_classification": "internal_prior_failure_heterogeneous",
+  "inherited": {
+    "audit_sha256": "f683f5b86f4195432ab649a7e1a2e57664b26c794b26e13abfbe82627f82e7a6",
+    "classification": "repeated_internal_prior_failure_identified",
+    "labels_sha256": "5b1f6bac3d0289c62d74cccfa104fd3b31a41dc17eb7cfb24b457573df9f477c",
+    "selected_family": "win_to_draw|neither|extra_turn|5-6"
+  },
+  "next_experiment": "Exactly one next experiment: take the highest-contribution canonical state cluster inside capture_available-018 and run a state-cluster-specific provenance audit.",
+  "primary_failure_states": {
+    "case": "45:uniform1200:capture_available-018",
+    "ordered_state_sha256": "6ee595c97df4d02627e26af354469dc39cf40f0b2b8ccf6e4070376a50101eb0",
+    "states": [
+      {
+        "aggregate_targets": {
+          "control": null,
+          "uniform1200": null
+        },
+        "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,1],\"player_store\":4}",
+        "children": {
+          "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}": {
+            "action": 5,
+            "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}",
+            "exact_outcome_utility": 1,
+            "label_status": "available",
+            "outcome_optimal": true,
+            "tactical_type": {
+              "absolute_pit_index": 5,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": true,
+              "immediate_score_delta": 1,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 5,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 5,
+              "produces_capture": false,
+              "resulting_side_to_move": 0,
+              "seed_count": 1,
+              "store_delta_immediate": 1
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}": {
+            "action": 0,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}",
+            "exact_outcome_utility": -1,
+            "label_status": "unavailable",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 0,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 0,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 0,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 0,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 2,
+              "store_delta_immediate": 0
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}": {
+            "action": 1,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}",
+            "exact_outcome_utility": -1,
+            "label_status": "unavailable",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 1,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 0,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 1,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 1,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 4,
+              "store_delta_immediate": 0
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}": {
+            "action": 2,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}",
+            "exact_outcome_utility": -1,
+            "label_status": "unavailable",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 2,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 0,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 2,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 2,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 1,
+              "store_delta_immediate": 0
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}": {
+            "action": 3,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}",
+            "exact_outcome_utility": -1,
+            "label_status": "available",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 3,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 1,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 3,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 3,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 7,
+              "store_delta_immediate": 1
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}": {
+            "action": 4,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}",
+            "exact_outcome_utility": 0,
+            "label_status": "available",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 4,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 1,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 4,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 4,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 7,
+              "store_delta_immediate": 1
+            }
+          }
+        },
+        "degradation_rate": 0.1,
+        "events": 1,
+        "exact_outcome_optimal_actions": [
+          5
+        ],
+        "exact_state_absence": "both_exact_state_absent",
+        "lineage": "both_descendants_repair",
+        "mechanism": "internal_prior_failure_inherited",
+        "median_depth": 4,
+        "opportunities": 10,
+        "paired_dynamic_targets": null,
+        "raw_policy": {
+          "control": {
+            "degrading_action_mass": 0.23074032967978086,
+            "exact_optimal_mass": 0.34224850831828846,
+            "expected_outcome_regret": 1.0847626536836423,
+            "expected_outcome_utility": -0.08476265368364222,
+            "policy": [
+              0.020556595712513365,
+              0.04778049638294978,
+              0.03136188991193931,
+              0.3273121799945282,
+              0.23074032967978086,
+              0.34224850831828846
+            ],
+            "policy_entropy": 2.0264575070956843,
+            "top_action": 5,
+            "top_is_outcome_optimal": true
+          },
+          "parent": {
+            "degrading_action_mass": 0.3083308831789421,
+            "exact_optimal_mass": 0.11876094688159033,
+            "expected_outcome_regret": 1.4541472230578774,
+            "expected_outcome_utility": -0.45414722305787725,
+            "policy": [
+              0.05586854181134374,
+              0.3347227163147016,
+              0.02392734879498877,
+              0.1583895630184335,
+              0.3083308831789421,
+              0.11876094688159033
+            ],
+            "policy_entropy": 2.1993847413641436,
+            "top_action": 1,
+            "top_is_outcome_optimal": false
+          },
+          "uniform1200": {
+            "degrading_action_mass": 0.08227367660834604,
+            "exact_optimal_mass": 0.7877716981443963,
+            "expected_outcome_regret": 0.34218292710286136,
+            "expected_outcome_utility": 0.6578170728971386,
+            "policy": [
+              0.009111060718488597,
+              0.04155299048147634,
+              0.01594511225845147,
+              0.06334546178884123,
+              0.08227367660834604,
+              0.7877716981443963
+            ],
+            "policy_entropy": 1.1673760713404935,
+            "top_action": 5,
+            "top_is_outcome_optimal": true
+          }
+        },
+        "replay_coverage": {
+          "control": [
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 2,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 5,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "dynamic_only"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "dynamic_current_self_play"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 2,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 5,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 2,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 5,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "guard_safe_controls_only.jsonl"
+            }
+          ],
+          "uniform1200": [
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 2,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 5,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "dynamic_only"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "dynamic_current_self_play"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 2,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 5,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[0,5,2,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,0,2,8,8,2],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 2,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,0,8,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,0,8,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,8,1,3,3,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,0,2],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 5,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,0],\"player_store\":5}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "guard_safe_controls_only.jsonl"
+            }
+          ]
+        },
+        "selected_degrading_action": 4,
+        "selected_degrading_actions": [
+          4
+        ],
+        "source_exact_targets": {
+          "control": [
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "dynamic_current_self_play",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "guard_safe_controls_only.jsonl",
+              "summary": null
+            }
+          ],
+          "uniform1200": [
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "dynamic_current_self_play",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "guard_safe_controls_only.jsonl",
+              "summary": null
+            }
+          ]
+        },
+        "state": {
+          "current_player": 0,
+          "opponent_pits": [
+            1,
+            7,
+            0,
+            2,
+            2,
+            7
+          ],
+          "opponent_store": 3,
+          "player_pits": [
+            2,
+            4,
+            1,
+            7,
+            7,
+            1
+          ],
+          "player_store": 4
+        },
+        "teacher_student_inversion": false
+      },
+      {
+        "aggregate_targets": {
+          "control": null,
+          "uniform1200": null
+        },
+        "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,6,0],\"player_store\":3}",
+        "children": {
+          "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}": {
+            "action": 0,
+            "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}",
+            "exact_outcome_utility": 1,
+            "label_status": "available",
+            "outcome_optimal": true,
+            "tactical_type": {
+              "absolute_pit_index": 0,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": true,
+              "immediate_score_delta": 1,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 0,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 0,
+              "produces_capture": false,
+              "resulting_side_to_move": 0,
+              "seed_count": 6,
+              "store_delta_immediate": 1
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}": {
+            "action": 1,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}",
+            "exact_outcome_utility": -1,
+            "label_status": "available",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 1,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 0,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 1,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 1,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 2,
+              "store_delta_immediate": 0
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}": {
+            "action": 3,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}",
+            "exact_outcome_utility": 0,
+            "label_status": "available",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 3,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 1,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 3,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 3,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 6,
+              "store_delta_immediate": 1
+            }
+          },
+          "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}": {
+            "action": 4,
+            "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}",
+            "exact_outcome_utility": 0,
+            "label_status": "available",
+            "outcome_optimal": false,
+            "tactical_type": {
+              "absolute_pit_index": 4,
+              "capture_count": 0,
+              "game_over_after_move": false,
+              "gives_extra_turn": false,
+              "immediate_score_delta": 1,
+              "lands_on_own_empty_pit": false,
+              "legal": true,
+              "move_index": 4,
+              "opponent_store_delta_immediate": 0,
+              "opposite_pit_seeds": 0,
+              "pit_index": 4,
+              "produces_capture": false,
+              "resulting_side_to_move": 1,
+              "seed_count": 6,
+              "store_delta_immediate": 1
+            }
+          }
+        },
+        "degradation_rate": 0.9315068493150684,
+        "events": 68,
+        "exact_outcome_optimal_actions": [
+          0
+        ],
+        "exact_state_absence": "both_exact_state_absent",
+        "lineage": "other",
+        "mechanism": "internal_prior_failure_heterogeneous",
+        "median_depth": 3.0,
+        "opportunities": 73,
+        "paired_dynamic_targets": null,
+        "raw_policy": {
+          "control": {
+            "degrading_action_mass": 0.40560865603900303,
+            "exact_optimal_mass": 0.26977238485330857,
+            "expected_outcome_regret": 0.8253137353758092,
+            "expected_outcome_utility": 0.17468626462419076,
+            "policy": [
+              0.26977238485330857,
+              0.0950861202291178,
+              0.0,
+              0.40560865603900303,
+              0.22953283887857062,
+              0.0
+            ],
+            "policy_entropy": 1.84808908264976,
+            "top_action": 3,
+            "top_is_outcome_optimal": false
+          },
+          "parent": {
+            "degrading_action_mass": 0.25091778910538637,
+            "exact_optimal_mass": 0.39994432779370254,
+            "expected_outcome_regret": 0.6802229489469168,
+            "expected_outcome_utility": 0.3197770510530832,
+            "policy": [
+              0.39994432779370254,
+              0.08016727674061935,
+              0.0,
+              0.25091778910538637,
+              0.26897060636029174,
+              0.0
+            ],
+            "policy_entropy": 1.8307227825328303,
+            "top_action": 0,
+            "top_is_outcome_optimal": true
+          },
+          "uniform1200": {
+            "degrading_action_mass": 0.5779026331237344,
+            "exact_optimal_mass": 0.059786622760080656,
+            "expected_outcome_regret": 0.9720143918064018,
+            "expected_outcome_utility": 0.027985608193598223,
+            "policy": [
+              0.059786622760080656,
+              0.03180101456648243,
+              0.0,
+              0.5779026331237344,
+              0.3305097295497025,
+              0.0
+            ],
+            "policy_entropy": 1.3862595471810912,
+            "top_action": 3,
+            "top_is_outcome_optimal": false
+          }
+        },
+        "replay_coverage": {
+          "control": [
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "dynamic_only"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "dynamic_current_self_play"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "guard_safe_controls_only.jsonl"
+            }
+          ],
+          "uniform1200": [
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "dynamic_only"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "dynamic_current_self_play"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl"
+            },
+            {
+              "availability": "verified",
+              "child_coverage": [
+                {
+                  "action": 0,
+                  "canonical_state": "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[0,3,1,7,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": true
+                },
+                {
+                  "action": 1,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,0,1,7,6,0],\"player_store\":3}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 3,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,0,7,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                },
+                {
+                  "action": 4,
+                  "canonical_state": "{\"current_player\":1,\"opponent_pits\":[3,1,8,8,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,0,1],\"player_store\":4}",
+                  "effective_occurrences": 0,
+                  "occurrences": 0,
+                  "outcome_optimal": false
+                }
+              ],
+              "distinct_trajectories": "unknown",
+              "effective_exact_occurrences": 0,
+              "evidence_levels": [
+                "full_verified_mixture"
+              ],
+              "exact_occurrences": 0,
+              "exact_rows": [],
+              "first_occurrence": null,
+              "parent_occurrences": 0,
+              "parents": [],
+              "source": "guard_safe_controls_only.jsonl"
+            }
+          ]
+        },
+        "selected_degrading_action": 3,
+        "selected_degrading_actions": [
+          3,
+          4
+        ],
+        "source_exact_targets": {
+          "control": [
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "dynamic_current_self_play",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "guard_safe_controls_only.jsonl",
+              "summary": null
+            }
+          ],
+          "uniform1200": [
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "dynamic_current_self_play",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+              "summary": null
+            },
+            {
+              "availability": "verified",
+              "effective_occurrences": null,
+              "source": "guard_safe_controls_only.jsonl",
+              "summary": null
+            }
+          ]
+        },
+        "state": {
+          "current_player": 0,
+          "opponent_pits": [
+            2,
+            0,
+            7,
+            7,
+            1,
+            6
+          ],
+          "opponent_store": 2,
+          "player_pits": [
+            6,
+            2,
+            0,
+            6,
+            6,
+            0
+          ],
+          "player_store": 3
+        },
+        "teacher_student_inversion": false
+      }
+    ]
+  },
+  "read_only": {
+    "promotion": false,
+    "search_changes": false,
+    "self_play": false,
+    "training": false
+  },
+  "schema": "azlite_internal_family_replay_provenance_audit_v1",
+  "selected_family_all_states": {
+    "count": 10,
+    "ordered_state_sha256": "34a092533c84a30c64f22aeb62c3098fb5488b5ccacd20a232b5da221386b08a",
+    "states": [
+      "{\"current_player\":0,\"opponent_pits\":[1,1,0,8,2,7],\"opponent_store\":3,\"player_pits\":[2,3,1,8,7,1],\"player_store\":4}",
+      "{\"current_player\":0,\"opponent_pits\":[1,7,0,2,2,7],\"opponent_store\":3,\"player_pits\":[2,4,1,7,7,1],\"player_store\":4}",
+      "{\"current_player\":0,\"opponent_pits\":[2,0,7,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,0,6,6,0],\"player_store\":3}",
+      "{\"current_player\":0,\"opponent_pits\":[2,0,8,7,1,6],\"opponent_store\":2,\"player_pits\":[6,2,6,5,0,0],\"player_store\":3}",
+      "{\"current_player\":1,\"opponent_pits\":[0,2,6,1,7,1],\"opponent_store\":4,\"player_pits\":[2,0,1,9,7,6],\"player_store\":2}",
+      "{\"current_player\":1,\"opponent_pits\":[0,2,7,2,8,1],\"opponent_store\":4,\"player_pits\":[2,7,0,0,7,6],\"player_store\":2}",
+      "{\"current_player\":1,\"opponent_pits\":[0,2,7,7,2,1],\"opponent_store\":4,\"player_pits\":[2,7,1,0,7,6],\"player_store\":2}",
+      "{\"current_player\":1,\"opponent_pits\":[6,0,0,6,6,1],\"opponent_store\":2,\"player_pits\":[2,0,1,9,7,6],\"player_store\":2}",
+      "{\"current_player\":1,\"opponent_pits\":[6,1,1,7,6,1],\"opponent_store\":2,\"player_pits\":[2,6,0,8,0,6],\"player_store\":2}",
+      "{\"current_player\":1,\"opponent_pits\":[6,1,1,7,6,1],\"opponent_store\":2,\"player_pits\":[2,6,0,8,6,0],\"player_store\":2}"
+    ]
+  },
+  "source_inventory": {
+    "control": [
+      {
+        "artifact_path": "/tmp/uniform1200-seed-confirmation/runs/seed45/control_384_192/uniform1200-confirm-seed45-control_384_192-iter1/self_play.jsonl",
+        "availability": "verified",
+        "dynamic": true,
+        "effective_fraction_verified": 0.9995322585674639,
+        "effective_sample_count": 64108,
+        "expected_sha256": "d914fba65da942ed17e9da706893a53653977d644d5cb4e08441dffff76278d0",
+        "name": "dynamic_current_self_play",
+        "raw_rows": 64108,
+        "replay_weight": 1,
+        "sha256": "d914fba65da942ed17e9da706893a53653977d644d5cb4e08441dffff76278d0"
+      },
+      {
+        "artifact_path": "/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+        "availability": "verified",
+        "dynamic": false,
+        "effective_fraction_verified": 0.00031182762169072937,
+        "effective_sample_count": 20,
+        "expected_sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b",
+        "name": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+        "raw_rows": 20,
+        "replay_weight": 1,
+        "sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b"
+      },
+      {
+        "artifact_path": "/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl",
+        "availability": "verified",
+        "dynamic": false,
+        "effective_fraction_verified": 0.00015591381084536468,
+        "effective_sample_count": 10,
+        "expected_sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5",
+        "name": "guard_safe_controls_only.jsonl",
+        "raw_rows": 5,
+        "replay_weight": 2,
+        "sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+      }
+    ],
+    "uniform1200": [
+      {
+        "artifact_path": "/tmp/uniform1200-seed-confirmation/runs/seed45/uniform1200/uniform1200-confirm-seed45-uniform1200-iter1/self_play.jsonl",
+        "availability": "verified",
+        "dynamic": true,
+        "effective_fraction_verified": 0.9995774945426379,
+        "effective_sample_count": 70975,
+        "expected_sha256": "514913e29d646f3a011347ec31a13ac33a2105be48c482e0816e53f92724ba57",
+        "name": "dynamic_current_self_play",
+        "raw_rows": 70975,
+        "replay_weight": 1,
+        "sha256": "514913e29d646f3a011347ec31a13ac33a2105be48c482e0816e53f92724ba57"
+      },
+      {
+        "artifact_path": "/tmp/azlite_guard_safe_opening_replay/family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+        "availability": "verified",
+        "dynamic": false,
+        "effective_fraction_verified": 0.0002816703049081051,
+        "effective_sample_count": 20,
+        "expected_sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b",
+        "name": "family_leave_one_out_without_opening_missed_extra_turn_continuation.jsonl",
+        "raw_rows": 20,
+        "replay_weight": 1,
+        "sha256": "787cca93c7db454c2daebe1fdab001e93df0b9f80a1e7005598a0324774c427b"
+      },
+      {
+        "artifact_path": "/tmp/azlite_guard_safe_opening_replay/guard_safe_controls_only.jsonl",
+        "availability": "verified",
+        "dynamic": false,
+        "effective_fraction_verified": 0.00014083515245405255,
+        "effective_sample_count": 10,
+        "expected_sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5",
+        "name": "guard_safe_controls_only.jsonl",
+        "raw_rows": 5,
+        "replay_weight": 2,
+        "sha256": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+      }
+    ]
+  }
+}
