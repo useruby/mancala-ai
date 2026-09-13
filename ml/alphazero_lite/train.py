@@ -576,6 +576,7 @@ def train_one_epoch(
     behavior_loss_weight: float = 0.0,
     compact_legal_masks: np.ndarray | None = None,
     behavior_anchor_legal_masks: np.ndarray | None = None,
+    audit_source_indexes: set[int] | None = None,
 ) -> dict[str, float | None]:
     model.train()
     use_supervised = compact_x.shape[0] > 0 and replay_indexes.size > 0
@@ -672,6 +673,7 @@ def train_one_epoch(
     behavior_anchor_losses: list[float] = []
     total_losses: list[float] = []
     grad_norms: list[float] = []
+    audit_samples = 0
     total_primary_rows = int(permutation.size(0))
     for start in range(0, total_primary_rows, batch_size):
         indexes = permutation[start : start + batch_size]
@@ -680,6 +682,11 @@ def train_one_epoch(
         )
         assert primary_replay_tensor is not None
         batch_primary_replay_indexes = primary_replay_tensor[indexes]
+        if audit_source_indexes:
+            audit_samples += sum(
+                int(index) in audit_source_indexes
+                for index in batch_primary_replay_indexes.detach().cpu().tolist()
+            )
         batch_size_actual = int(batch_primary_replay_indexes.size(0))
 
         policy_loss = torch.zeros((), device=device)
@@ -794,6 +801,7 @@ def train_one_epoch(
         else 0.0,
         "total_loss": float(np.mean(total_losses)) if total_losses else 0.0,
         "gradient_norm": float(np.mean(grad_norms)) if grad_norms else None,
+        "audit_source_samples": float(audit_samples),
     }
 
 
@@ -1016,6 +1024,8 @@ def train(
     save_epochs: set[int] | None = None,
     save_epochs_dir: Path | None = None,
     save_epochs_base: str | None = None,
+    epoch_history: list[dict[str, float | int | None]] | None = None,
+    audit_source_indexes: set[int] | None = None,
     pairwise_x: np.ndarray | None = None,
     pairwise_preferred_moves: np.ndarray | None = None,
     pairwise_baseline_moves: np.ndarray | None = None,
@@ -1214,12 +1224,15 @@ def train(
             behavior_loss_weight=behavior_loss_weight,
             compact_legal_masks=compact_legal_masks,
             behavior_anchor_legal_masks=behavior_anchor_legal_masks,
+            audit_source_indexes=audit_source_indexes,
         )
         policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
         value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
         pairwise_loss_value = float(epoch_metrics["pairwise_loss"] or 0.0)
         behavior_anchor_loss_value = float(epoch_metrics["behavior_anchor_loss"] or 0.0)
         total_loss_value = float(epoch_metrics["total_loss"] or 0.0)
+        if epoch_history is not None:
+            epoch_history.append({"epoch": epoch_idx, **epoch_metrics})
 
         if scheduler is not None:
             scheduler.step()
@@ -1876,6 +1889,16 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=0.0,
         help="Weight for behavior-anchor policy cross-entropy",
     )
+    parser.add_argument(
+        "--epoch-metrics-out",
+        default=None,
+        help="Optional JSON output for per-epoch training metrics",
+    )
+    parser.add_argument(
+        "--audit-source-indexes",
+        default=None,
+        help="Optional comma-separated compact replay indexes to count without changing sampling",
+    )
     return parser
 
 
@@ -2001,6 +2024,12 @@ def main() -> None:
         save_epochs_dir.mkdir(parents=True, exist_ok=True)
         save_epochs_base = out_path.stem
 
+    epoch_history: list[dict[str, float | int | None]] = []
+    audit_source_indexes = (
+        {int(index) for index in args.audit_source_indexes.split(",") if index.strip()}
+        if args.audit_source_indexes
+        else None
+    )
     policy_loss, value_loss, best_val_loss = train(
         model,
         x,
@@ -2022,6 +2051,8 @@ def main() -> None:
         save_epochs=save_epochs_set,
         save_epochs_dir=save_epochs_dir,
         save_epochs_base=save_epochs_base,
+        epoch_history=epoch_history,
+        audit_source_indexes=audit_source_indexes,
         pairwise_x=pairwise_x,
         pairwise_preferred_moves=pairwise_preferred_moves,
         pairwise_baseline_moves=pairwise_baseline_moves,
@@ -2053,6 +2084,12 @@ def main() -> None:
     )
     print(f"total_loss={float(last_train_metrics.get('total_loss', 0.0)):.6f}")
     print(f"best_val_loss={best_val_loss:.6f}")
+    if args.epoch_metrics_out:
+        epoch_metrics_path = Path(args.epoch_metrics_out)
+        epoch_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        epoch_metrics_path.write_text(
+            json.dumps(epoch_history, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
 
     if args.save_top_k > 0:
         topk_dir = Path(args.top_k_dir) if args.top_k_dir else out_path.parent
