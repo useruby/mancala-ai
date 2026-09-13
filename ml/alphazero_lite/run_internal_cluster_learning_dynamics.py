@@ -450,6 +450,20 @@ def natural_repair_passes(lineages: list[dict[str, Any]]) -> bool:
     )
 
 
+def classify_learning_dynamics(lineages: list[dict[str, Any]]) -> str:
+    """Apply the pre-registered outcome labels without selecting a lineage."""
+    if natural_repair_passes(lineages):
+        return "internal_cluster_naturally_repaired"
+    trajectory_sets = {
+        tuple(sorted(lineage["trajectory_counts"].items())) for lineage in lineages
+    }
+    if len(trajectory_sets) > 1:
+        return "internal_cluster_learning_dynamics_heterogeneous"
+    if any(lineage["trajectory_counts"].get("forgotten", 0) for lineage in lineages):
+        return "internal_cluster_forgetting"
+    return "internal_cluster_persistent_without_exposure"
+
+
 def assert_lineage_isolation(lineages: list[dict[str, Any]], parent_sha: str) -> None:
     if any(row["g0_sha256"] != parent_sha for row in lineages):
         raise ValueError("every lineage must start from the same G0 parent")
@@ -645,11 +659,9 @@ def main(argv: list[str] | None = None) -> int:
     result = {
         "schema": RESULT_SCHEMA,
         "classification": (
-            "natural_repair_supported"
-            if args.execute and natural_repair_passes(lineages)
+            classify_learning_dynamics(lineages)
+            if args.execute
             else "learning_dynamics_planned"
-            if not args.execute
-            else "natural_repair_not_supported"
         ),
         "execute": bool(args.execute),
         "manifest": str(args.manifest),

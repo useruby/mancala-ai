@@ -1,0 +1,3649 @@
+{
+  "baseline_games": 30,
+  "classification": "internal_cluster_learning_dynamics_heterogeneous",
+  "execute": true,
+  "lineages": [
+    {
+      "config": ".tmp/internal-cluster-learning-dynamics/configs/seed61.json",
+      "final_cluster_delta": 0.19546897348967218,
+      "final_control_delta": 0.16941075026988983,
+      "g0_sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4",
+      "mass_by_generation": {
+        "G0": {
+          "cluster": {
+            "degrading_action_mass": 0.08388591806093852,
+            "optimal_mass": 0.6125370146085819,
+            "policy_entropy": 1.6588620013846544,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.6506453088593497
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.6636637300252914,
+            "policy_entropy": 1.739473312259541,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.12567528813879597
+          }
+        },
+        "G1": {
+          "cluster": {
+            "degrading_action_mass": 0.07217427094777425,
+            "optimal_mass": 0.6812720580492169,
+            "policy_entropy": 1.311288039149505,
+            "top1_accuracy": 0.8333333333333334,
+            "value_mae": 0.6349819341477726
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.7839653491973877,
+            "policy_entropy": 1.5560751631850822,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.0938187132367541
+          }
+        },
+        "G2": {
+          "cluster": {
+            "degrading_action_mass": 0.030220445866386097,
+            "optimal_mass": 0.8013803089561407,
+            "policy_entropy": 0.5076817604484433,
+            "top1_accuracy": 0.8333333333333334,
+            "value_mae": 0.5922985005248155
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.8279754966497421,
+            "policy_entropy": 1.2527395330518716,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.016207337388860658
+          }
+        },
+        "G3": {
+          "cluster": {
+            "degrading_action_mass": 0.08758214116096497,
+            "optimal_mass": 0.8080059880982541,
+            "policy_entropy": 0.8030055847540738,
+            "top1_accuracy": 0.8333333333333334,
+            "value_mae": 0.6514778146579298
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.8330744802951813,
+            "policy_entropy": 1.498851479417948,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.004780691948522261
+          }
+        }
+      },
+      "pipeline_command": [
+        "/home/alex/Mancala/ai/.venv/bin/python",
+        "ml/alphazero_lite/pipeline.py",
+        "--config",
+        ".tmp/internal-cluster-learning-dynamics/configs/seed61.json"
+      ],
+      "raw_evaluations": [
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/g0-parent/checkpoint.npz",
+          "checkpoint_sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4",
+          "generation": "G0",
+          "rows": [
+            {
+              "degrading_action_mass": 0.5033155083656311,
+              "exact_wdl_value_error": 0.9683798720890519,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.38719499111175537,
+              "policy": [
+                0.38719499111175537,
+                0.07761172205209732,
+                0.0,
+                0.24291908740997314,
+                0.26039642095565796,
+                0.0
+              ],
+              "policy_entropy": 1.8176123763378036,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.03162012791094815
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.12567528813879597,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.6636637300252914,
+              "policy": [
+                0.17691496014595032,
+                0.2155638188123703,
+                0.0,
+                0.0,
+                0.44809991121292114,
+                0.08449296653270721
+              ],
+              "policy_entropy": 1.739473312259541,
+              "top_action": 4,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.12567528813879597
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0074227728105325,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9868290908634663,
+              "policy": [
+                0.0,
+                0.023334970697760582,
+                0.01965196244418621,
+                0.12157784402370453,
+                0.011287319473922253,
+                0.8222643136978149
+              ],
+              "policy_entropy": 0.9126862489103195,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.007422772810532599
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.0065628167501851275,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.53094083070755,
+              "policy": [
+                0.04263034462928772,
+                0.0195408184081316,
+                0.53094083070755,
+                0.1882011890411377,
+                0.06657775491476059,
+                0.1521090865135193
+              ],
+              "policy_entropy": 1.9169346967803578,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0065628167501851275
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.931608365548237,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.3800274729728699,
+              "policy": [
+                0.23294863104820251,
+                0.0,
+                0.3800274729728699,
+                0.21636994183063507,
+                0.11188198626041412,
+                0.011712398380041122
+              ],
+              "policy_entropy": 1.9266137146858822,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.06839163445176304
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.050405719130205695,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.5701615214347839,
+              "policy": [
+                0.21493284404277802,
+                0.06278090178966522,
+                0.5701615214347839,
+                0.09099967032670975,
+                0.05689020827412605,
+                0.0042347535490989685
+              ],
+              "policy_entropy": 1.7729367546178407,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.050405719130205695
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9394923068278863,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8200681805610657,
+              "policy": [
+                0.5307084321975708,
+                0.12066783756017685,
+                0.0,
+                0.2893597483634949,
+                0.05696810036897659,
+                0.0
+              ],
+              "policy_entropy": 1.6063882169757238,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.060507693172113644
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter1/checkpoint.npz",
+          "checkpoint_sha256": "c659c26ccd040cb2c8a5b0363fe31573a5d857fd84ac38955ef3d76c8bbeacab",
+          "generation": "G1",
+          "rows": [
+            {
+              "degrading_action_mass": 0.4330456256866455,
+              "exact_wdl_value_error": 0.924918400851297,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.19174011051654816,
+              "policy": [
+                0.19174011051654816,
+                0.07100296765565872,
+                0.0,
+                0.2548257112503052,
+                0.17821991443634033,
+                0.0
+              ],
+              "policy_entropy": 1.6739012135181812,
+              "top_action": 3,
+              "top_is_outcome_optimal": false,
+              "value_prediction": 0.07508159914870305
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.0938187132367541,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.7839653491973877,
+              "policy": [
+                0.08225785940885544,
+                0.2626541256904602,
+                0.0,
+                0.0,
+                0.5213112235069275,
+                0.06775356829166412
+              ],
+              "policy_entropy": 1.5560751631850822,
+              "top_action": 4,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0938187132367541
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9252535586548575,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9972971729002893,
+              "policy": [
+                0.0,
+                0.006387792062014341,
+                0.003937924280762672,
+                0.04490669444203377,
+                0.0023607902694493532,
+                0.9420647621154785
+              ],
+              "policy_entropy": 0.3807864252817339,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.07474644134514256
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.022563214806059984,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.7554396986961365,
+              "policy": [
+                0.0233150701969862,
+                0.009228771552443504,
+                0.7554396986961365,
+                0.10802099108695984,
+                0.0701904371380806,
+                0.033805008977651596
+              ],
+              "policy_entropy": 1.2754877130607667,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.022563214806059984
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9506953555898707,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.5384585857391357,
+              "policy": [
+                0.159104585647583,
+                0.0,
+                0.5384585857391357,
+                0.14386238157749176,
+                0.12741921842098236,
+                0.006759991869330406
+              ],
+              "policy_entropy": 1.7327137698413788,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.049304644410129245
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.023043804742595847,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.775570809841156,
+              "policy": [
+                0.1107245609164238,
+                0.01953011564910412,
+                0.775570809841156,
+                0.040228474885225296,
+                0.05213402584195137,
+                0.0018120745662599802
+              ],
+              "policy_entropy": 1.1719838262147007,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.023043804742595847
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.963417270241955,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8291259706020355,
+              "policy": [
+                0.49236276745796204,
+                0.07296223193407059,
+                0.0,
+                0.3367632031440735,
+                0.09634081274271011,
+                0.0
+              ],
+              "policy_entropy": 1.632855286980268,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.036582729758045045
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter2/checkpoint.npz",
+          "checkpoint_sha256": "2d348ac460df836b8f1b9d43ec7fdc8c482d9620712170d0cbbe2ebc55771824",
+          "generation": "G2",
+          "rows": [
+            {
+              "degrading_action_mass": 0.18132267519831657,
+              "exact_wdl_value_error": 0.8697439649468299,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.006944483611732721,
+              "policy": [
+                0.006944483611732721,
+                0.013083045370876789,
+                0.0,
+                0.14783881604671478,
+                0.03348385915160179,
+                0.0
+              ],
+              "policy_entropy": 0.7034500598332007,
+              "top_action": 3,
+              "top_is_outcome_optimal": false,
+              "value_prediction": 0.13025603505317007
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.016207337388860658,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.8279754966497421,
+              "policy": [
+                0.057030089199543,
+                0.6148483753204346,
+                0.0,
+                0.0,
+                0.21312712132930756,
+                0.019396167248487473
+              ],
+              "policy_entropy": 1.2527395330518716,
+              "top_action": 1,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.016207337388860658
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.8556173316481698,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9998723058379255,
+              "policy": [
+                0.0,
+                0.004525620955973864,
+                0.0008696843287907541,
+                0.00637027295306325,
+                0.00010771380766527727,
+                0.9881067276000977
+              ],
+              "policy_entropy": 0.10902945908533315,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.14438266835183022
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.012449593569934667,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.8889408707618713,
+              "policy": [
+                0.003275717841461301,
+                0.005837713833898306,
+                0.8889408707618713,
+                0.04054679721593857,
+                0.019693806767463684,
+                0.041705165058374405
+              ],
+              "policy_entropy": 0.7115817041837312,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.012449593569934667
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9457926591591553,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.967036247253418,
+              "policy": [
+                0.004456136375665665,
+                0.0,
+                0.967036247253418,
+                0.014901483431458473,
+                0.008328442461788654,
+                0.0008631335222162306
+              ],
+              "policy_entropy": 0.23831039146379907,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.05420734084084463
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.0051540238752568026,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9959457516670227,
+              "policy": [
+                0.0008915300713852048,
+                0.0008872509351931512,
+                0.9959457516670227,
+                0.0004375241114757955,
+                0.0016713662771508098,
+                0.00016652265912853181
+              ],
+              "policy_entropy": 0.04625510833546155,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0051540238752568026
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.8650334299495459,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.9495421946048737,
+              "policy": [
+                0.6009495854377747,
+                0.02087576873600483,
+                0.0,
+                0.348592609167099,
+                0.029356909915804863,
+                0.0
+              ],
+              "policy_entropy": 1.2374638397891338,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.1349665700504541
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter3/checkpoint.npz",
+          "checkpoint_sha256": "aeb7904b58193cb35f07bac3af8f39ae1356c4d471dea39948decccf54192956",
+          "generation": "G3",
+          "rows": [
+            {
+              "degrading_action_mass": 0.5254928469657898,
+              "exact_wdl_value_error": 1.0563838932478657,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.32492777705192566,
+              "policy": [
+                0.32492777705192566,
+                0.0012642372166737914,
+                0.0,
+                0.09511709213256836,
+                0.43037575483322144,
+                0.0
+              ],
+              "policy_entropy": 1.3854635883024595,
+              "top_action": 4,
+              "top_is_outcome_optimal": false,
+              "value_prediction": -0.05638389324786569
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.004780691948522261,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.8330744802951813,
+              "policy": [
+                0.09938453137874603,
+                0.45981141924858093,
+                0.0,
+                0.0,
+                0.37326306104660034,
+                0.022148042917251587
+              ],
+              "policy_entropy": 1.498851479417948,
+              "top_action": 1,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.004780691948522261
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.8431661985917264,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9995304912154097,
+              "policy": [
+                0.0,
+                0.00046452481183223426,
+                0.0005967766628600657,
+                0.009200469590723515,
+                0.000416875584051013,
+                0.9892687201499939
+              ],
+              "policy_entropy": 0.09384698422328837,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.15683380140827366
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.01897030699271147,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.8615280389785767,
+              "policy": [
+                0.007660213392227888,
+                0.0024946245830506086,
+                0.8615280389785767,
+                0.030263828113675117,
+                0.008302547968924046,
+                0.08975072205066681
+              ],
+              "policy_entropy": 0.7829199202846208,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.01897030699271147
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0774740446479945,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.7805707454681396,
+              "policy": [
+                0.15080063045024872,
+                0.0,
+                0.7805707454681396,
+                0.020512666553258896,
+                0.010927540250122547,
+                0.014043951407074928
+              ],
+              "policy_entropy": 0.9632022816603657,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.07747404464799437
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.03936690809298492,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.966795802116394,
+              "policy": [
+                0.027239935472607613,
+                0.003045455552637577,
+                0.966795802116394,
+                0.0009034265531226993,
+                0.0014734107535332441,
+                0.0005418540677055717
+              ],
+              "policy_entropy": 0.24302799257177965,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.03936690809298492
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.8735055363742956,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.914683073759079,
+              "policy": [
+                0.5123944878578186,
+                0.0042643495835363865,
+                0.0,
+                0.4022885859012604,
+                0.0807795450091362,
+                0.0
+              ],
+              "policy_entropy": 1.3495727414819292,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.12649446362570443
+            }
+          ]
+        }
+      ],
+      "replay_exposure": {
+        "G1": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 20,
+          "structural_neighbor_occurrences": 20
+        },
+        "G2": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 20,
+          "structural_neighbor_occurrences": 20
+        },
+        "G3": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 0,
+          "structural_neighbor_occurrences": 0
+        }
+      },
+      "run_id": "internal-cluster-learning-dynamics-seed61",
+      "seed": 61,
+      "static_baseline": {
+        "G1": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter1/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed61-g1.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 41.7,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.886482908609522,
+              "method": "wilson_score",
+              "upper": 1.0
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 0,
+            "notes": {
+              "base_seed": 61,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter1",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 24.21,
+              "move_time_p95_ms": 41.7,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "2b50a271c29b4b159de1c8592b9105670f4ad959f03171faf417fc8783474314",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "62aadad38c6083caa188947e5c7b7c9971c1d749f208330e2804bd7554bde95a",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 61,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "17ed92fd9827e2c384c901db3a74f7165437c10fcc622c6ede5e6ad01096fc5c",
+              "seed_ledger_hash": "17ed92fd9827e2c384c901db3a74f7165437c10fcc622c6ede5e6ad01096fc5c",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 690,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 405,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 285,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 1.0,
+            "threshold": 0.55,
+            "threshold_margin": 0.44999999999999996,
+            "unstable_decision": false,
+            "wins": 30
+          }
+        },
+        "G2": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter2/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed61-g2.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 43.78,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.886482908609522,
+              "method": "wilson_score",
+              "upper": 1.0
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 0,
+            "notes": {
+              "base_seed": 61,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter2",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 23.12,
+              "move_time_p95_ms": 43.78,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "3dac38da352c822899a5b5b82e275e47d1fdcf15b2cdb0dfd891bc3ee5bcbf77",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "160fca057f5b69f278ea45d595115546e03c1730691cac572adbc6d1f19e31a7",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 61,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "d627fc0eb0fe00de1259e6c981b3917c78ac5263a282c654ddcbd3c8200cc873",
+              "seed_ledger_hash": "d627fc0eb0fe00de1259e6c981b3917c78ac5263a282c654ddcbd3c8200cc873",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 750,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 435,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 315,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 1.0,
+            "threshold": 0.55,
+            "threshold_margin": 0.44999999999999996,
+            "unstable_decision": false,
+            "wins": 30
+          }
+        },
+        "G3": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter3/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed61-g3.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 49.31,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.3315385122717376,
+              "method": "wilson_score",
+              "upper": 0.6684614877282624
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 15,
+            "notes": {
+              "base_seed": 61,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed61/internal-cluster-learning-dynamics-seed61-iter3",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 26.07,
+              "move_time_p95_ms": 49.31,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "fc0400ba1e5cbcdd3b81e5ad98a9ad7825abe15acbdcbc0ee8731c252918ef72",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "74930a54e2454d33a378d17a89a13aa9e20cc227ac53957b865f789758994c33",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 61,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "f670cca4702fecad4dc145073d3b026427e83f83c4a39b73fa0d1b27d015c7f7",
+              "seed_ledger_hash": "f670cca4702fecad4dc145073d3b026427e83f83c4a39b73fa0d1b27d015c7f7",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 750,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": false
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 390,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 360,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5,
+            "threshold": 0.55,
+            "threshold_margin": -0.050000000000000044,
+            "unstable_decision": true,
+            "wins": 15
+          }
+        }
+      },
+      "status": "completed",
+      "trajectories": [
+        {
+          "id": "cluster_anchor-244dadc26015ebbc",
+          "membership": "cluster_anchor",
+          "optimal_mass": [
+            0.38719499111175537,
+            0.19174011051654816,
+            0.006944483611732721,
+            0.32492777705192566
+          ],
+          "top1_outcome_optimal": [
+            true,
+            false,
+            false,
+            false
+          ],
+          "trajectory": "forgotten"
+        },
+        {
+          "id": "matched_control-11f57287d52ab7f2",
+          "membership": "matched_control",
+          "optimal_mass": [
+            0.6636637300252914,
+            0.7839653491973877,
+            0.8279754966497421,
+            0.8330744802951813
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-0c052588b0daa7dc",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.9868290908634663,
+            0.9972971729002893,
+            0.9998723058379255,
+            0.9995304912154097
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-487e68a18d1f94c0",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.53094083070755,
+            0.7554396986961365,
+            0.8889408707618713,
+            0.8615280389785767
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-a10cdabeaeea0081",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.3800274729728699,
+            0.5384585857391357,
+            0.967036247253418,
+            0.7805707454681396
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-e95450b6d1ff9a43",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.5701615214347839,
+            0.775570809841156,
+            0.9959457516670227,
+            0.966795802116394
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "structural_cluster-0fb60203365b0571",
+          "membership": "structural_cluster",
+          "optimal_mass": [
+            0.8200681805610657,
+            0.8291259706020355,
+            0.9495421946048737,
+            0.914683073759079
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        }
+      ],
+      "trajectory_counts": {
+        "forgotten": 1,
+        "stable_good": 6
+      }
+    },
+    {
+      "config": ".tmp/internal-cluster-learning-dynamics/configs/seed62.json",
+      "final_cluster_delta": 0.20999887140897044,
+      "final_control_delta": 0.1787305325269699,
+      "g0_sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4",
+      "mass_by_generation": {
+        "G0": {
+          "cluster": {
+            "degrading_action_mass": 0.08388591806093852,
+            "optimal_mass": 0.6125370146085819,
+            "policy_entropy": 1.6588620013846544,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.6506453088593497
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.6636637300252914,
+            "policy_entropy": 1.739473312259541,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.12567528813879597
+          }
+        },
+        "G1": {
+          "cluster": {
+            "degrading_action_mass": 0.07325367877880733,
+            "optimal_mass": 0.6536358845963454,
+            "policy_entropy": 1.5106435642103062,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.6502895722024042
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.7129749953746796,
+            "policy_entropy": 1.636736577339243,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.07954172087742009
+          }
+        },
+        "G2": {
+          "cluster": {
+            "degrading_action_mass": 0.0027148531128962836,
+            "optimal_mass": 0.9289871827835062,
+            "policy_entropy": 0.5150690203528814,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.6584037731072249
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.7141893357038498,
+            "policy_entropy": 1.4119005750666955,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.03531388013126559
+          }
+        },
+        "G3": {
+          "cluster": {
+            "degrading_action_mass": 0.003036759172876676,
+            "optimal_mass": 0.8225358860175523,
+            "policy_entropy": 0.237149092707858,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.6662352083723307
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.8423942625522614,
+            "policy_entropy": 1.4747211781406526,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.016146631047707836
+          }
+        }
+      },
+      "pipeline_command": [
+        "/home/alex/Mancala/ai/.venv/bin/python",
+        "ml/alphazero_lite/pipeline.py",
+        "--config",
+        ".tmp/internal-cluster-learning-dynamics/configs/seed62.json"
+      ],
+      "raw_evaluations": [
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/g0-parent/checkpoint.npz",
+          "checkpoint_sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4",
+          "generation": "G0",
+          "rows": [
+            {
+              "degrading_action_mass": 0.5033155083656311,
+              "exact_wdl_value_error": 0.9683798720890519,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.38719499111175537,
+              "policy": [
+                0.38719499111175537,
+                0.07761172205209732,
+                0.0,
+                0.24291908740997314,
+                0.26039642095565796,
+                0.0
+              ],
+              "policy_entropy": 1.8176123763378036,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.03162012791094815
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.12567528813879597,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.6636637300252914,
+              "policy": [
+                0.17691496014595032,
+                0.2155638188123703,
+                0.0,
+                0.0,
+                0.44809991121292114,
+                0.08449296653270721
+              ],
+              "policy_entropy": 1.739473312259541,
+              "top_action": 4,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.12567528813879597
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0074227728105325,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9868290908634663,
+              "policy": [
+                0.0,
+                0.023334970697760582,
+                0.01965196244418621,
+                0.12157784402370453,
+                0.011287319473922253,
+                0.8222643136978149
+              ],
+              "policy_entropy": 0.9126862489103195,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.007422772810532599
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.0065628167501851275,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.53094083070755,
+              "policy": [
+                0.04263034462928772,
+                0.0195408184081316,
+                0.53094083070755,
+                0.1882011890411377,
+                0.06657775491476059,
+                0.1521090865135193
+              ],
+              "policy_entropy": 1.9169346967803578,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0065628167501851275
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.931608365548237,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.3800274729728699,
+              "policy": [
+                0.23294863104820251,
+                0.0,
+                0.3800274729728699,
+                0.21636994183063507,
+                0.11188198626041412,
+                0.011712398380041122
+              ],
+              "policy_entropy": 1.9266137146858822,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.06839163445176304
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.050405719130205695,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.5701615214347839,
+              "policy": [
+                0.21493284404277802,
+                0.06278090178966522,
+                0.5701615214347839,
+                0.09099967032670975,
+                0.05689020827412605,
+                0.0042347535490989685
+              ],
+              "policy_entropy": 1.7729367546178407,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.050405719130205695
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9394923068278863,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8200681805610657,
+              "policy": [
+                0.5307084321975708,
+                0.12066783756017685,
+                0.0,
+                0.2893597483634949,
+                0.05696810036897659,
+                0.0
+              ],
+              "policy_entropy": 1.6063882169757238,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.060507693172113644
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter1/checkpoint.npz",
+          "checkpoint_sha256": "42c3cbd9e37ae20d9d5b1f201ec0aaaadaa7d5c3d6c3ac9919ad432bcfa7240f",
+          "generation": "G1",
+          "rows": [
+            {
+              "degrading_action_mass": 0.43952207267284393,
+              "exact_wdl_value_error": 0.9359304863678521,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.3341149091720581,
+              "policy": [
+                0.3341149091720581,
+                0.1781153380870819,
+                0.0,
+                0.25922688841819763,
+                0.1802951842546463,
+                0.0
+              ],
+              "policy_entropy": 1.9222916823084606,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.06406951363214787
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.07954172087742009,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.7129749953746796,
+              "policy": [
+                0.14097872376441956,
+                0.27695736289024353,
+                0.0,
+                0.0,
+                0.43601763248443604,
+                0.045593295246362686
+              ],
+              "policy_entropy": 1.636736577339243,
+              "top_action": 4,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.07954172087742009
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9367705864959616,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9942924396600574,
+              "policy": [
+                0.0,
+                0.020063893869519234,
+                0.0030200777109712362,
+                0.06416530907154083,
+                0.005350806750357151,
+                0.9070431590080261
+              ],
+              "policy_entropy": 0.5607039679712242,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.06322941350403842
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.05779837593071337,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.6369088888168335,
+              "policy": [
+                0.0333680734038353,
+                0.02905365638434887,
+                0.6369088888168335,
+                0.10719431936740875,
+                0.06186046078801155,
+                0.1316145658493042
+              ],
+              "policy_entropy": 1.7052931109561331,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.05779837593071337
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9837427941171983,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.4745430648326874,
+              "policy": [
+                0.22568359971046448,
+                0.0,
+                0.4745430648326874,
+                0.1291099488735199,
+                0.09452115744352341,
+                0.007177789695560932
+              ],
+              "policy_entropy": 1.7491046903451577,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.016257205882801638
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.0458529810062336,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.6813852787017822,
+              "policy": [
+                0.13238650560379028,
+                0.07555393874645233,
+                0.6813852787017822,
+                0.04304317757487297,
+                0.06308775395154953,
+                0.0045433868654072285
+              ],
+              "policy_entropy": 1.5270410621595134,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0458529810062336
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9416422092964666,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8005707263946533,
+              "policy": [
+                0.5580267906188965,
+                0.14164771139621735,
+                0.0,
+                0.24254393577575684,
+                0.056682489812374115,
+                0.0
+              ],
+              "policy_entropy": 1.5994268715213489,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.05835779070353339
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter2/checkpoint.npz",
+          "checkpoint_sha256": "52672199632b7eaaec949fc4909c06ca64bff59eb7b8a3acadba98a9057b72c8",
+          "generation": "G2",
+          "rows": [
+            {
+              "degrading_action_mass": 0.0162891186773777,
+              "exact_wdl_value_error": 0.9922009536928307,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.96783047914505,
+              "policy": [
+                0.96783047914505,
+                0.013934511691331863,
+                0.0,
+                0.00901084952056408,
+                0.0072782691568136215,
+                0.0
+              ],
+              "policy_entropy": 0.24447757520394378,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.007799046307169297
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.03531388013126559,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.7141893357038498,
+              "policy": [
+                0.18202725052833557,
+                0.5555444955825806,
+                0.0,
+                0.0,
+                0.15864484012126923,
+                0.011089371517300606
+              ],
+              "policy_entropy": 1.4119005750666955,
+              "top_action": 1,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.03531388013126559
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9299866679875259,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9993213123525493,
+              "policy": [
+                0.0,
+                0.006189989857375622,
+                0.000490253500174731,
+                0.01171121746301651,
+                0.0005043601267971098,
+                0.9809298515319824
+              ],
+              "policy_entropy": 0.15871029903780418,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.07001333201247405
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.029657414825977037,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9012501835823059,
+              "policy": [
+                0.0032339587341994047,
+                0.0015847908798605204,
+                0.9012501835823059,
+                0.03069346770644188,
+                0.02762727253139019,
+                0.03561023995280266
+              ],
+              "policy_entropy": 0.6453331913689415,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.029657414825977037
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.00243428613719,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.8357462882995605,
+              "policy": [
+                0.04339790716767311,
+                0.0,
+                0.8357462882995605,
+                0.04772932082414627,
+                0.0530819408595562,
+                0.0033003392163664103
+              ],
+              "policy_entropy": 0.8742968157426291,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.002434286137189963
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.10162525326445696,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9877195358276367,
+              "policy": [
+                0.0007797369034960866,
+                0.0006609420524910092,
+                0.9877195358276367,
+                0.0018985574133694172,
+                0.00884765200316906,
+                9.356713417218998e-05
+              ],
+              "policy_entropy": 0.11140217358520778,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.10162525326445696
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.8945180627353683,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8820552974939346,
+              "policy": [
+                0.776739776134491,
+                0.10167904198169708,
+                0.0,
+                0.10531552135944366,
+                0.01606922224164009,
+                0.0
+              ],
+              "policy_entropy": 1.0561940671787617,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.1054819372646317
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter3/checkpoint.npz",
+          "checkpoint_sha256": "2a60e4e06b8b16420912107be343653e4f21f62427ee22db14ca089da8277df9",
+          "generation": "G3",
+          "rows": [
+            {
+              "degrading_action_mass": 0.018220555037260056,
+              "exact_wdl_value_error": 0.9227367962566493,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.06521876156330109,
+              "policy": [
+                0.06521876156330109,
+                0.00740088289603591,
+                0.0,
+                0.011351770721375942,
+                0.006868784315884113,
+                0.0
+              ],
+              "policy_entropy": 0.431953016511021,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.07726320374335072
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.016146631047707836,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.8423942625522614,
+              "policy": [
+                0.1084975004196167,
+                0.5026291012763977,
+                0.0,
+                0.0,
+                0.33976516127586365,
+                0.01681136153638363
+              ],
+              "policy_entropy": 1.4747211781406526,
+              "top_action": 1,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.016146631047707836
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.7694453687029567,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9999609872211295,
+              "policy": [
+                0.0,
+                4.609089592122473e-05,
+                0.00012280489318072796,
+                0.0010323448805138469,
+                2.8129723432357423e-05,
+                0.9987597465515137
+              ],
+              "policy_entropy": 0.01471351305559237,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.23055463129704334
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.05592502928399463,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.932420015335083,
+              "policy": [
+                0.0006622591172344983,
+                0.0017953556962311268,
+                0.932420015335083,
+                0.042701661586761475,
+                0.008737016469240189,
+                0.01368371769785881
+              ],
+              "policy_entropy": 0.4562406750983638,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.05592502928399463
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.1467280674282767,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9739964604377747,
+              "policy": [
+                0.004441389348357916,
+                0.0,
+                0.9739964604377747,
+                0.009069450199604034,
+                0.0045722597278654575,
+                0.0015229872660711408
+              ],
+              "policy_entropy": 0.18305877487423,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.14672806742827665
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.16150987783867343,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9906212091445923,
+              "policy": [
+                0.001731696305796504,
+                0.0013409521197900176,
+                0.9906212091445923,
+                0.0029431774746626616,
+                0.0032685198821127415,
+                9.450264769839123e-05
+              ],
+              "policy_entropy": 0.09514856595053497,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.16150987783867343
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9410661107234337,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.9729978824034333,
+              "policy": [
+                0.9675718545913696,
+                0.01036949921399355,
+                0.0,
+                0.005426027812063694,
+                0.0140761137008667,
+                0.0
+              ],
+              "policy_entropy": 0.24178001075740582,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.05893388927656634
+            }
+          ]
+        }
+      ],
+      "replay_exposure": {
+        "G1": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 37,
+          "structural_neighbor_occurrences": 37
+        },
+        "G2": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 15,
+          "structural_neighbor_occurrences": 15
+        },
+        "G3": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 0,
+          "structural_neighbor_occurrences": 0
+        }
+      },
+      "run_id": "internal-cluster-learning-dynamics-seed62",
+      "seed": 62,
+      "static_baseline": {
+        "G1": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter1/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed62-g1.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 39.74,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.886482908609522,
+              "method": "wilson_score",
+              "upper": 1.0
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 0,
+            "notes": {
+              "base_seed": 62,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter1",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 23.71,
+              "move_time_p95_ms": 39.74,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "de9402cdb1eaec1b3ab8289368d87792bdf8188150fa294aac9958b889497ee2",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "1d841bd8a0e216bdda007b38ebc4c7f370eb0d9ca8a581bd5e64d38166ef767d",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 62,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "53dadc9ff3f117def9321d59c965bb0002535846801b6c638c963e6fbfc09c1f",
+              "seed_ledger_hash": "53dadc9ff3f117def9321d59c965bb0002535846801b6c638c963e6fbfc09c1f",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 690,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 405,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 285,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 1.0,
+            "threshold": 0.55,
+            "threshold_margin": 0.44999999999999996,
+            "unstable_decision": false,
+            "wins": 30
+          }
+        },
+        "G2": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter2/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed62-g2.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 43.96,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.3315385122717376,
+              "method": "wilson_score",
+              "upper": 0.6684614877282624
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 15,
+            "notes": {
+              "base_seed": 62,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter2",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 24.5,
+              "move_time_p95_ms": 43.96,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "5dca228793ffdfc50c9406de3f9f1c2ec805a62d3f8d7729e59e192f9c6a1476",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "d0d2be69e9998068b67e8697b1453d30fba517cc77cad8ed1f88ec1016a5c578",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 62,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "ea2934751abb6800d7bce1702fe374360657b6f571f19d852f54d377c01c5bda",
+              "seed_ledger_hash": "ea2934751abb6800d7bce1702fe374360657b6f571f19d852f54d377c01c5bda",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 840,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": false
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 420,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 420,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5,
+            "threshold": 0.55,
+            "threshold_margin": -0.050000000000000044,
+            "unstable_decision": true,
+            "wins": 15
+          }
+        },
+        "G3": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter3/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed62-g3.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 49.47,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.3315385122717376,
+              "method": "wilson_score",
+              "upper": 0.6684614877282624
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 15,
+            "notes": {
+              "base_seed": 62,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed62/internal-cluster-learning-dynamics-seed62-iter3",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 26.19,
+              "move_time_p95_ms": 49.47,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "8b587a2ac78816265906d061860efd2253449ff2a484ffaad4c360c02174dfc3",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "6445c75f7f2e3b5a1f75f3f6c34dcf984f0bd40f33380b54702727c33046632b",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 62,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "fd0bfe1c099396816ffa15d724feac75767d8409a70f5b6225243191fd48be9a",
+              "seed_ledger_hash": "fd0bfe1c099396816ffa15d724feac75767d8409a70f5b6225243191fd48be9a",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 705,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": false
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 330,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 375,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5,
+            "threshold": 0.55,
+            "threshold_margin": -0.050000000000000044,
+            "unstable_decision": true,
+            "wins": 15
+          }
+        }
+      },
+      "status": "completed",
+      "trajectories": [
+        {
+          "id": "cluster_anchor-244dadc26015ebbc",
+          "membership": "cluster_anchor",
+          "optimal_mass": [
+            0.38719499111175537,
+            0.3341149091720581,
+            0.96783047914505,
+            0.06521876156330109
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "matched_control-11f57287d52ab7f2",
+          "membership": "matched_control",
+          "optimal_mass": [
+            0.6636637300252914,
+            0.7129749953746796,
+            0.7141893357038498,
+            0.8423942625522614
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-0c052588b0daa7dc",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.9868290908634663,
+            0.9942924396600574,
+            0.9993213123525493,
+            0.9999609872211295
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-487e68a18d1f94c0",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.53094083070755,
+            0.6369088888168335,
+            0.9012501835823059,
+            0.932420015335083
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-a10cdabeaeea0081",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.3800274729728699,
+            0.4745430648326874,
+            0.8357462882995605,
+            0.9739964604377747
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-e95450b6d1ff9a43",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.5701615214347839,
+            0.6813852787017822,
+            0.9877195358276367,
+            0.9906212091445923
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "structural_cluster-0fb60203365b0571",
+          "membership": "structural_cluster",
+          "optimal_mass": [
+            0.8200681805610657,
+            0.8005707263946533,
+            0.8820552974939346,
+            0.9729978824034333
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        }
+      ],
+      "trajectory_counts": {
+        "stable_good": 7
+      }
+    },
+    {
+      "config": ".tmp/internal-cluster-learning-dynamics/configs/seed63.json",
+      "final_cluster_delta": 0.18239323649322614,
+      "final_control_delta": -0.07850374281406403,
+      "g0_sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4",
+      "mass_by_generation": {
+        "G0": {
+          "cluster": {
+            "degrading_action_mass": 0.08388591806093852,
+            "optimal_mass": 0.6125370146085819,
+            "policy_entropy": 1.6588620013846544,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.6506453088593497
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.6636637300252914,
+            "policy_entropy": 1.739473312259541,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.12567528813879597
+          }
+        },
+        "G1": {
+          "cluster": {
+            "degrading_action_mass": 0.08926692356665929,
+            "optimal_mass": 0.6543726852784554,
+            "policy_entropy": 1.4741304673566147,
+            "top1_accuracy": 0.8333333333333334,
+            "value_mae": 0.6715692818956515
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.763827383518219,
+            "policy_entropy": 1.4905209765498462,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.10452207344531442
+          }
+        },
+        "G2": {
+          "cluster": {
+            "degrading_action_mass": 0.0546284851928552,
+            "optimal_mass": 0.8003409352968447,
+            "policy_entropy": 0.590068201367808,
+            "top1_accuracy": 0.8333333333333334,
+            "value_mae": 0.6456967124169822
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.7217355668544769,
+            "policy_entropy": 1.5418038189561076,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.029457850439319228
+          }
+        },
+        "G3": {
+          "cluster": {
+            "degrading_action_mass": 0.031410532693068184,
+            "optimal_mass": 0.794930251101808,
+            "policy_entropy": 0.5706468704185572,
+            "top1_accuracy": 0.8333333333333334,
+            "value_mae": 0.6781754556482307
+          },
+          "matched_control": {
+            "degrading_action_mass": 0.0,
+            "optimal_mass": 0.5851599872112274,
+            "policy_entropy": 1.5881200022149164,
+            "top1_accuracy": 1.0,
+            "value_mae": 0.03751253590839754
+          }
+        }
+      },
+      "pipeline_command": [
+        "/home/alex/Mancala/ai/.venv/bin/python",
+        "ml/alphazero_lite/pipeline.py",
+        "--config",
+        ".tmp/internal-cluster-learning-dynamics/configs/seed63.json"
+      ],
+      "raw_evaluations": [
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/g0-parent/checkpoint.npz",
+          "checkpoint_sha256": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4",
+          "generation": "G0",
+          "rows": [
+            {
+              "degrading_action_mass": 0.5033155083656311,
+              "exact_wdl_value_error": 0.9683798720890519,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.38719499111175537,
+              "policy": [
+                0.38719499111175537,
+                0.07761172205209732,
+                0.0,
+                0.24291908740997314,
+                0.26039642095565796,
+                0.0
+              ],
+              "policy_entropy": 1.8176123763378036,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.03162012791094815
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.12567528813879597,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.6636637300252914,
+              "policy": [
+                0.17691496014595032,
+                0.2155638188123703,
+                0.0,
+                0.0,
+                0.44809991121292114,
+                0.08449296653270721
+              ],
+              "policy_entropy": 1.739473312259541,
+              "top_action": 4,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.12567528813879597
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0074227728105325,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9868290908634663,
+              "policy": [
+                0.0,
+                0.023334970697760582,
+                0.01965196244418621,
+                0.12157784402370453,
+                0.011287319473922253,
+                0.8222643136978149
+              ],
+              "policy_entropy": 0.9126862489103195,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.007422772810532599
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.0065628167501851275,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.53094083070755,
+              "policy": [
+                0.04263034462928772,
+                0.0195408184081316,
+                0.53094083070755,
+                0.1882011890411377,
+                0.06657775491476059,
+                0.1521090865135193
+              ],
+              "policy_entropy": 1.9169346967803578,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0065628167501851275
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.931608365548237,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.3800274729728699,
+              "policy": [
+                0.23294863104820251,
+                0.0,
+                0.3800274729728699,
+                0.21636994183063507,
+                0.11188198626041412,
+                0.011712398380041122
+              ],
+              "policy_entropy": 1.9266137146858822,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.06839163445176304
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.050405719130205695,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.5701615214347839,
+              "policy": [
+                0.21493284404277802,
+                0.06278090178966522,
+                0.5701615214347839,
+                0.09099967032670975,
+                0.05689020827412605,
+                0.0042347535490989685
+              ],
+              "policy_entropy": 1.7729367546178407,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.050405719130205695
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9394923068278863,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8200681805610657,
+              "policy": [
+                0.5307084321975708,
+                0.12066783756017685,
+                0.0,
+                0.2893597483634949,
+                0.05696810036897659,
+                0.0
+              ],
+              "policy_entropy": 1.6063882169757238,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.060507693172113644
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter1/checkpoint.npz",
+          "checkpoint_sha256": "c58a0ee186d479d32f9182a2dd0b5651db64b9d4f6899481891ff4e4df1827da",
+          "generation": "G1",
+          "rows": [
+            {
+              "degrading_action_mass": 0.5356015413999557,
+              "exact_wdl_value_error": 0.9717382371639199,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.2360355108976364,
+              "policy": [
+                0.2360355108976364,
+                0.1807543933391571,
+                0.0,
+                0.3158707916736603,
+                0.21973074972629547,
+                0.0
+              ],
+              "policy_entropy": 1.9432655644601577,
+              "top_action": 3,
+              "top_is_outcome_optimal": false,
+              "value_prediction": 0.028261762836080076
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.10452207344531442,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.763827383518219,
+              "policy": [
+                0.09121265262365341,
+                0.3270522356033325,
+                0.0,
+                0.0,
+                0.4367751479148865,
+                0.023235632106661797
+              ],
+              "policy_entropy": 1.4905209765498462,
+              "top_action": 4,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.10452207344531442
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.921709081886624,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9949140287935734,
+              "policy": [
+                0.0,
+                0.019159333780407906,
+                0.007597366347908974,
+                0.07363048940896988,
+                0.00480653764680028,
+                0.8945268392562866
+              ],
+              "policy_entropy": 0.6207763701373403,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.07829091811337599
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.04047296565458632,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.7218264937400818,
+              "policy": [
+                0.04908430203795433,
+                0.02728927880525589,
+                0.7218264937400818,
+                0.08218370378017426,
+                0.06487615406513214,
+                0.0547400563955307
+              ],
+              "policy_entropy": 1.476401979168072,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.04047296565458632
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0027250617343453,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.5057076811790466,
+              "policy": [
+                0.21505078673362732,
+                0.0,
+                0.5057076811790466,
+                0.11834296584129333,
+                0.09825652837753296,
+                0.004138762131333351
+              ],
+              "policy_entropy": 1.7002797115360389,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0027250617343451927
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.01762126878447311,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.6127277612686157,
+              "policy": [
+                0.24065789580345154,
+                0.06273721158504486,
+                0.6127277612686157,
+                0.035408295691013336,
+                0.0467778816819191,
+                0.0016909558326005936
+              ],
+              "policy_entropy": 1.5710442540665843,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.01762126878447311
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0751490761499602,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8550246357917786,
+              "policy": [
+                0.543749988079071,
+                0.10044339299201965,
+                0.0,
+                0.3112746477127075,
+                0.043888211250305176,
+                0.0
+              ],
+              "policy_entropy": 1.5330149247714946,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.07514907614996034
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter2/checkpoint.npz",
+          "checkpoint_sha256": "b986836222c28e46b23f9048585a12ec1aaeb8c63c93b454db7bb50fd2f37357",
+          "generation": "G2",
+          "rows": [
+            {
+              "degrading_action_mass": 0.3277709111571312,
+              "exact_wdl_value_error": 0.9514778351078431,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.04882198944687843,
+              "policy": [
+                0.04882198944687843,
+                0.01882294937968254,
+                0.0,
+                0.25791168212890625,
+                0.06985922902822495,
+                0.0
+              ],
+              "policy_entropy": 1.0930140142422258,
+              "top_action": 3,
+              "top_is_outcome_optimal": false,
+              "value_prediction": 0.04852216489215692
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.029457850439319228,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.7217355668544769,
+              "policy": [
+                0.16666929423809052,
+                0.4493405818939209,
+                0.0,
+                0.0,
+                0.27239498496055603,
+                0.012970314361155033
+              ],
+              "policy_entropy": 1.5418038189561076,
+              "top_action": 1,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.029457850439319228
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.8953293808762365,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9992569332243875,
+              "policy": [
+                0.0,
+                0.0003838943666778505,
+                0.00037696276558563113,
+                0.016668399795889854,
+                0.0006957871373742819,
+                0.9818276762962341
+              ],
+              "policy_entropy": 0.14037488053039474,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.10467061912376352
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.021082808354845307,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9543675184249878,
+              "policy": [
+                0.0028439548332244158,
+                0.0033948698546737432,
+                0.9543675184249878,
+                0.019250404089689255,
+                0.012548835948109627,
+                0.007594447582960129
+              ],
+              "policy_entropy": 0.358649269675558,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.021082808354845307
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9787023147101706,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9251095056533813,
+              "policy": [
+                0.010962351225316525,
+                0.0,
+                0.9251095056533813,
+                0.030727671459317207,
+                0.025012772530317307,
+                0.0043189930729568005
+              ],
+              "policy_entropy": 0.4966820008238946,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.021297685289829477
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.055151225731177735,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9910992980003357,
+              "policy": [
+                0.0011246203212067485,
+                0.0013120411895215511,
+                0.9910992980003357,
+                0.0018939557485282421,
+                0.0033865992445498705,
+                0.0011834598844870925
+              ],
+              "policy_entropy": 0.0927887210799068,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.055151225731177735
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9724367097216199,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.8833903670310974,
+              "policy": [
+                0.6301581263542175,
+                0.020481068640947342,
+                0.0,
+                0.2532322406768799,
+                0.09490050375461578,
+                0.0
+              ],
+              "policy_entropy": 1.358900321854868,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.027563290278380073
+            }
+          ]
+        },
+        {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter3/checkpoint.npz",
+          "checkpoint_sha256": "e50ce043deb2547499166b8f68a764d4e1c287fba1a857c6bb49195103643f92",
+          "generation": "G3",
+          "rows": [
+            {
+              "degrading_action_mass": 0.18846319615840912,
+              "exact_wdl_value_error": 0.9497767147094068,
+              "id": "cluster_anchor-244dadc26015ebbc",
+              "membership": "cluster_anchor",
+              "optimal_mass": 0.034731410443782806,
+              "policy": [
+                0.034731410443782806,
+                0.007958182133734226,
+                0.0,
+                0.14966705441474915,
+                0.03879614174365997,
+                0.0
+              ],
+              "policy_entropy": 0.8158471506522246,
+              "top_action": 3,
+              "top_is_outcome_optimal": false,
+              "value_prediction": 0.050223285290593125
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.03751253590839754,
+              "id": "matched_control-11f57287d52ab7f2",
+              "membership": "matched_control",
+              "optimal_mass": 0.5851599872112274,
+              "policy": [
+                0.20968885719776154,
+                0.25688692927360535,
+                0.0,
+                0.0,
+                0.32827305793762207,
+                0.013595320284366608
+              ],
+              "policy_entropy": 1.5881200022149164,
+              "top_action": 4,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.03751253590839754
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0056496182994241,
+              "id": "one_ply_child-0c052588b0daa7dc",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9998462373623624,
+              "policy": [
+                0.0,
+                0.00015053298557177186,
+                0.000733136257622391,
+                0.013872312381863594,
+                0.00013563927495852113,
+                0.9850902557373047
+              ],
+              "policy_entropy": 0.1182527907776731,
+              "top_action": 5,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0056496182994241
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.024377112676765605,
+              "id": "one_ply_child-487e68a18d1f94c0",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.9634603261947632,
+              "policy": [
+                0.006361955311149359,
+                0.0036391501780599356,
+                0.9634603261947632,
+                0.016879839822649956,
+                0.004622190725058317,
+                0.005036555230617523
+              ],
+              "policy_entropy": 0.3013433653347915,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.024377112676765605
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 1.0071452832109653,
+              "id": "one_ply_child-a10cdabeaeea0081",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.8508887887001038,
+              "policy": [
+                0.08962114155292511,
+                0.0,
+                0.8508887887001038,
+                0.02606206201016903,
+                0.010381646454334259,
+                0.002443371806293726
+              ],
+              "policy_entropy": 0.7368542421145687,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.0071452832109653594
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.10542502157442396,
+              "id": "one_ply_child-e95450b6d1ff9a43",
+              "membership": "one_ply_child",
+              "optimal_mass": 0.983677864074707,
+              "policy": [
+                0.0016997423954308033,
+                0.0005741879576817155,
+                0.983677864074707,
+                0.004655145108699799,
+                0.008483784273266792,
+                0.0009092332329601049
+              ],
+              "policy_entropy": 0.1488016980126412,
+              "top_action": 2,
+              "top_is_outcome_optimal": true,
+              "value_prediction": -0.10542502157442396
+            },
+            {
+              "degrading_action_mass": 0,
+              "exact_wdl_value_error": 0.9766789834183981,
+              "id": "structural_cluster-0fb60203365b0571",
+              "membership": "structural_cluster",
+              "optimal_mass": 0.9369768798351288,
+              "policy": [
+                0.518354594707489,
+                0.00883630570024252,
+                0.0,
+                0.41862228512763977,
+                0.05321136862039566,
+                0.0
+              ],
+              "policy_entropy": 1.3027819756194443,
+              "top_action": 0,
+              "top_is_outcome_optimal": true,
+              "value_prediction": 0.023321016581601874
+            }
+          ]
+        }
+      ],
+      "replay_exposure": {
+        "G1": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 23,
+          "structural_neighbor_occurrences": 23
+        },
+        "G2": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 13,
+          "structural_neighbor_occurrences": 13
+        },
+        "G3": {
+          "exact_anchor_occurrences": 0,
+          "exact_cluster_targets": [],
+          "matched_control_occurrences": 0,
+          "one_ply_parent_occurrences": 0,
+          "structural_cluster_occurrences": 0,
+          "structural_neighbor_effective_occurrences": 0,
+          "structural_neighbor_occurrences": 0
+        }
+      },
+      "run_id": "internal-cluster-learning-dynamics-seed63",
+      "seed": 63,
+      "static_baseline": {
+        "G1": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter1/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed63-g1.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 40.72,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.886482908609522,
+              "method": "wilson_score",
+              "upper": 1.0
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 0,
+            "notes": {
+              "base_seed": 63,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter1",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 23.73,
+              "move_time_p95_ms": 40.72,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "e6f13cbb5e7d6d1466e61ea59db951e5d214f9fc94f9431907a45582de8feaae",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "55a595695b0e33b2e8fe2ea90db79bb7c2d248a14bc5edfc3bf5ed2a645d779b",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 63,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "d9295929335a97be06779dc140ab0d07be7e476c2f11bb366a16b605bd28bb41",
+              "seed_ledger_hash": "d9295929335a97be06779dc140ab0d07be7e476c2f11bb366a16b605bd28bb41",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 750,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 435,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 315,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 1.0,
+            "threshold": 0.55,
+            "threshold_margin": 0.44999999999999996,
+            "unstable_decision": false,
+            "wins": 30
+          }
+        },
+        "G2": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter2/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed63-g2.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 45.33,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.886482908609522,
+              "method": "wilson_score",
+              "upper": 1.0
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 0,
+            "notes": {
+              "base_seed": 63,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter2",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 24.0,
+              "move_time_p95_ms": 45.33,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "487404bf88bd52497732373cf2645908d513559d4a67cc1dde2548b29988dd25",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "d0e4eea6b156051d5bc0e3a523abef25133a189d1077ebb2398fb7e49dd3e5f5",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 63,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "7fe11de1543664a0d9b335d094c122263823a2f4afa50d42d75eaaf718dd116b",
+              "seed_ledger_hash": "7fe11de1543664a0d9b335d094c122263823a2f4afa50d42d75eaaf718dd116b",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 780,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 465,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 315,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 1.0,
+            "threshold": 0.55,
+            "threshold_margin": 0.44999999999999996,
+            "unstable_decision": false,
+            "wins": 30
+          }
+        },
+        "G3": {
+          "checkpoint": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter3/checkpoint.npz",
+          "report": ".tmp/internal-cluster-learning-dynamics/static_baseline/seed63-g3.json",
+          "result": {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 47.65,
+              "trigger_counts": {
+                "fixed_budget": 30
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.886482908609522,
+              "method": "wilson_score",
+              "upper": 1.0
+            },
+            "draws": 0,
+            "games": 30,
+            "games_played": 30,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 15,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 15,
+                "score": null
+              }
+            },
+            "losses": 0,
+            "notes": {
+              "base_seed": 63,
+              "challenger_path": ".tmp/internal-cluster-learning-dynamics/versions/seed63/internal-cluster-learning-dynamics-seed63-iter3",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "storage/ai/alphazero_lite/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 256,
+              "move_time_mean_ms": 25.29,
+              "move_time_p95_ms": 47.65,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "3185b89ab7d72daa76f998f3a9fb55fc5eabcc4b214f8e4c587b6da97939a57c",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "c7b1387591d17cf52cd49a736d6be3f5764ccbd508ed4412270514549866f434",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 256,
+                "hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+              "seed": 63,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "03cbe5257365fda07ef5d170e3c5fdadaef4398a3b4ef6489871876b383ceb40",
+              "seed_ledger_hash": "03cbe5257365fda07ef5d170e3c5fdadaef4398a3b4ef6489871876b383ceb40",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 720,
+              "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                30
+              ],
+              "workers_requested": 1,
+              "workers_used": 1
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 435,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 285,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 1.0,
+            "threshold": 0.55,
+            "threshold_margin": 0.44999999999999996,
+            "unstable_decision": false,
+            "wins": 30
+          }
+        }
+      },
+      "status": "completed",
+      "trajectories": [
+        {
+          "id": "cluster_anchor-244dadc26015ebbc",
+          "membership": "cluster_anchor",
+          "optimal_mass": [
+            0.38719499111175537,
+            0.2360355108976364,
+            0.04882198944687843,
+            0.034731410443782806
+          ],
+          "top1_outcome_optimal": [
+            true,
+            false,
+            false,
+            false
+          ],
+          "trajectory": "forgotten"
+        },
+        {
+          "id": "matched_control-11f57287d52ab7f2",
+          "membership": "matched_control",
+          "optimal_mass": [
+            0.6636637300252914,
+            0.763827383518219,
+            0.7217355668544769,
+            0.5851599872112274
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-0c052588b0daa7dc",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.9868290908634663,
+            0.9949140287935734,
+            0.9992569332243875,
+            0.9998462373623624
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-487e68a18d1f94c0",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.53094083070755,
+            0.7218264937400818,
+            0.9543675184249878,
+            0.9634603261947632
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-a10cdabeaeea0081",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.3800274729728699,
+            0.5057076811790466,
+            0.9251095056533813,
+            0.8508887887001038
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "one_ply_child-e95450b6d1ff9a43",
+          "membership": "one_ply_child",
+          "optimal_mass": [
+            0.5701615214347839,
+            0.6127277612686157,
+            0.9910992980003357,
+            0.983677864074707
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        },
+        {
+          "id": "structural_cluster-0fb60203365b0571",
+          "membership": "structural_cluster",
+          "optimal_mass": [
+            0.8200681805610657,
+            0.8550246357917786,
+            0.8833903670310974,
+            0.9369768798351288
+          ],
+          "top1_outcome_optimal": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "trajectory": "stable_good"
+        }
+      ],
+      "trajectory_counts": {
+        "forgotten": 1,
+        "stable_good": 6
+      }
+    }
+  ],
+  "manifest": "docs/data/alphazero-lite-internal-cluster-frozen-evaluation-set.json",
+  "manifest_sha256": "5f86367fdb75af02294a1ace1c08dc2938919f0a5f0419376bdf89d127b6257a",
+  "parent_checkpoint": ".tmp/internal-cluster-learning-dynamics/g0-parent/checkpoint.npz",
+  "schema": "azlite_internal_cluster_learning_dynamics_v1"
+}
