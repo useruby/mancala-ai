@@ -517,6 +517,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--parent-checkpoint", type=Path)
     parser.add_argument("--control-checkpoint", type=Path)
     parser.add_argument("--uniform-checkpoint", type=Path)
+    parser.add_argument(
+        "--baseline-artifact",
+        type=Path,
+        default=ROOT / "storage/ai/alphazero_lite/current",
+    )
     parser.add_argument("--workdir", type=Path)
     parser.add_argument("--out-result", type=Path)
     parser.add_argument("--out-report", type=Path)
@@ -553,6 +558,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"manifest does not exist: {args.manifest}")
     if args.execute and not args.parent_checkpoint.is_file():
         parser.error(f"parent checkpoint does not exist: {args.parent_checkpoint}")
+    if args.execute and not args.baseline_artifact.is_dir():
+        parser.error(f"baseline artifact does not exist: {args.baseline_artifact}")
 
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     if manifest.get("schema") != MANIFEST_SCHEMA:
@@ -581,7 +588,11 @@ def main(argv: list[str] | None = None) -> int:
             "status": "planned",
         }
         if args.execute:
-            subprocess.run(lineage["pipeline_command"], cwd=ROOT, check=True)
+            final_checkpoint = (
+                versions_dir / f"{config['run_id']}-iter3" / "checkpoint.npz"
+            )
+            if not final_checkpoint.exists():
+                subprocess.run(lineage["pipeline_command"], cwd=ROOT, check=True)
             evaluations = [
                 evaluate_checkpoint(
                     checkpoint_for_generation(
@@ -616,14 +627,14 @@ def main(argv: list[str] | None = None) -> int:
                         run_id=config["run_id"],
                         generation=generation,
                     ),
-                    baseline_artifact=args.parent_checkpoint.parent,
+                    baseline_artifact=args.baseline_artifact,
                     out=args.workdir
                     / "static_baseline"
                     / f"seed{seed}-g{generation}.json",
                     games=args.baseline_games,
                     seed=seed,
                 )
-                for generation in range(4)
+                for generation in range(1, 4)
             }
             lineage["status"] = "completed"
         lineages.append(lineage)
