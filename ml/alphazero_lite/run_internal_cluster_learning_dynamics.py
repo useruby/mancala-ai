@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 import statistics
 import subprocess
 import sys
@@ -31,6 +30,11 @@ from ml.alphazero_lite.run_internal_state_cluster_provenance_audit import (
     cluster_signature,
 )  # noqa: E402
 from ml.alphazero_lite.self_play import CheckpointEvaluator  # noqa: E402
+from ml.alphazero_lite.legal_policy_metrics import (  # noqa: E402
+    normalize_policy_over_legal_actions,
+    policy_entropy,
+    zeroed_legal_policy,
+)
 
 PR305 = ROOT / "docs/data/alphazero-lite-internal-state-cluster-provenance-audit.json"
 LABELS = (
@@ -248,18 +252,38 @@ def policy_metrics(
     policy: list[float], *, entry_row: dict[str, Any], value: float
 ) -> dict[str, Any]:
     legal = entry_row["legal_actions"]
-    masked = [float(policy[action]) if action in legal else 0.0 for action in range(6)]
-    top = min(legal, key=lambda action: (-masked[action], action))
+    legacy = zeroed_legal_policy(policy, legal)
+    normalized = normalize_policy_over_legal_actions(policy, legal)
+    top = min(legal, key=lambda action: (-normalized[action], action))
     optimal = set(entry_row["exact_outcome_optimal_actions"])
+    legacy_metric = {
+        "policy": legacy.tolist(),
+        "legal_mass": float(legacy.sum()),
+        "illegal_mass": float(1.0 - legacy.sum()),
+        "optimal_mass": float(sum(legacy[action] for action in optimal)),
+        "degrading_action_mass": float(
+            sum(legacy[action] for action in entry_row["degrading_actions"])
+        ),
+        "legacy_zeroed_entropy": policy_entropy(legacy),
+    }
+    legal_normalized_metric = {
+        "policy": normalized.tolist(),
+        "optimal_mass": float(sum(normalized[action] for action in optimal)),
+        "degrading_action_mass": float(
+            sum(normalized[action] for action in entry_row["degrading_actions"])
+        ),
+        "legal_normalized_entropy": policy_entropy(normalized),
+    }
     return {
-        "policy": masked,
+        # Primary fields are canonical for all new frozen-set checkpoint evaluation.
+        "policy": legal_normalized_metric["policy"],
         "top_action": top,
         "top_is_outcome_optimal": top in optimal,
-        "optimal_mass": sum(masked[action] for action in optimal),
-        "degrading_action_mass": sum(
-            masked[action] for action in entry_row["degrading_actions"]
-        ),
-        "policy_entropy": -sum(p * math.log2(p) for p in masked if p > 0),
+        "optimal_mass": legal_normalized_metric["optimal_mass"],
+        "degrading_action_mass": legal_normalized_metric["degrading_action_mass"],
+        "policy_entropy": legal_normalized_metric["legal_normalized_entropy"],
+        "legacy_metric": legacy_metric,
+        "legal_normalized_metric": legal_normalized_metric,
         "value_prediction": float(value),
         "exact_wdl_value_error": abs(
             float(value) - float(entry_row["exact_outcome_value"])
