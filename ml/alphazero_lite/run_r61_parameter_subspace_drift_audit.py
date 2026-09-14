@@ -32,11 +32,11 @@ from ml.alphazero_lite.run_g1_replay_optimizer_crossover import (
 )
 from ml.alphazero_lite.run_internal_cluster_learning_dynamics import (
     MANIFEST_SCHEMA,
+    evaluate_checkpoint,
     grouped_aggregates,
 )
 from ml.alphazero_lite.run_r61_lr_stability_ablation import (
     BASELINE_TOLERANCE,
-    EXPECTED_CONTROL_DELTA,
     REPLAY,
     REPLAY_WEIGHTS,
     verify_r61_artifacts,
@@ -44,6 +44,7 @@ from ml.alphazero_lite.run_r61_lr_stability_ablation import (
 from ml.alphazero_lite.self_play import encode_state
 from ml.alphazero_lite.train import (
     PolicyValueNet,
+    checkpoint_from_model,
     load_checkpoint_into_model,
     load_jsonl_replay,
     set_seed,
@@ -67,6 +68,12 @@ ROLLED_GROUPS = {
     "value_path": ("value_hidden", "value_readout"),
 }
 EPS = 1e-12
+# Verified by the legal-policy metric parity audit from the same serialized
+# checkpoints. These are checkpoint-based, legal-normalized anchor deltas.
+EXPECTED_CANONICAL_DELTA = {
+    "T61": -0.12624626191219118,
+    "T63": 0.1548060723101608,
+}
 
 
 def write_json(path: Path, value: dict[str, Any]) -> None:
@@ -349,7 +356,7 @@ def compare_progress(
 
 
 def run_trajectory(
-    paths: dict[str, Any], manifest: dict[str, Any], seed_name: str
+    paths: dict[str, Any], manifest: dict[str, Any], seed_name: str, workdir: Path
 ) -> dict[str, Any]:
     set_seed(TRAINING_SEEDS[seed_name])
     x, p, v, replay_indexes = load_jsonl_replay(
@@ -437,6 +444,9 @@ def run_trajectory(
         epoch_callback=epoch_callback,
     )
     snapshots[len(traces)] = state_snapshot(model)
+    checkpoint = workdir / seed_name / "checkpoint.npz"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(checkpoint, **checkpoint_from_model(model))
     selected = sorted(
         {
             0,
@@ -475,6 +485,7 @@ def run_trajectory(
         "probes": probes,
         "anchor": anchor,
         "anchor_x": anchor_x,
+        "checkpoint": checkpoint,
     }
 
 
@@ -492,12 +503,12 @@ def render_report(result: dict[str, Any]) -> str:
         "",
         "## Baseline Reproduction",
         "",
-        "| seed | expected delta | observed delta | final top |",
+        "| seed | expected canonical delta | observed checkpoint delta | final top |",
         "| --- | ---: | ---: | ---: |",
     ]
     for seed, row in result["baseline_reproduction"].items():
         lines.append(
-            f"| {seed} | {row['expected_delta']:.4f} | {row['actual_delta']:.4f} | {row['top_action']} |"
+            f"| {seed} | {row['expected_canonical_delta']:.4f} | {row['actual_delta']:.4f} | {row['top_action']} |"
         )
     lines += [
         "",
@@ -573,30 +584,30 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     trajectories = {
-        seed: run_trajectory(paths, manifest, seed) for seed in TRAINING_SEEDS
+        seed: run_trajectory(paths, manifest, seed, args.workdir)
+        for seed in TRAINING_SEEDS
     }
     baseline = {}
     for seed, trajectory in trajectories.items():
         evaluated = evaluate_model(
             trajectory["model"], manifest, trajectory["anchor_x"], trajectory["anchor"]
         )
-        # Use a correctly loaded G0 for the reproduction delta.
-        g0model = PolicyValueNet(
-            (96, 3), "residual_v3", trajectory["anchor_x"].shape[1]
+        checkpoint_evaluation = evaluate_checkpoint(trajectory["checkpoint"], manifest)
+        g0_evaluation = evaluate_checkpoint(paths["parent"], manifest)
+        checkpoint_anchor = next(
+            row for row in checkpoint_evaluation["rows"] if row["id"] == ANCHOR_ID
         )
-        load_checkpoint_into_model(g0model, paths["parent"])
-        delta = (
-            evaluated["anchor"]["optimal_mass"]
-            - margin_metrics(
-                g0model, trajectory["anchor_x"], trajectory["anchor"]["legal_actions"]
-            )["optimal_mass"]
-        )
+        g0_anchor = next(row for row in g0_evaluation["rows"] if row["id"] == ANCHOR_ID)
+        delta = checkpoint_anchor["optimal_mass"] - g0_anchor["optimal_mass"]
         baseline[seed] = {
-            "expected_delta": EXPECTED_CONTROL_DELTA[seed],
+            "metric": "legal_normalized_metric",
+            "expected_canonical_delta": EXPECTED_CANONICAL_DELTA[seed],
             "actual_delta": delta,
-            "within_tolerance": abs(delta - EXPECTED_CONTROL_DELTA[seed])
+            "within_tolerance": abs(delta - EXPECTED_CANONICAL_DELTA[seed])
             <= BASELINE_TOLERANCE,
-            "top_action": evaluated["anchor"]["top_action"],
+            "top_action": checkpoint_anchor["top_action"],
+            "checkpoint": str(trajectory["checkpoint"]),
+            "checkpoint_sha256": checkpoint_evaluation["checkpoint_sha256"],
         }
         trajectory["evaluation"] = evaluated
     if (
