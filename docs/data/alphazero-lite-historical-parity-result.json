@@ -1,0 +1,59 @@
+{
+  "schema": "azlite_historical_parity_v1",
+  "inherited_classification": "baseline_reproduction_unexplained",
+  "execution_status": "same_runtime_checkpoint_parity_completed; exact_pr313_runtime_unavailable",
+  "commits": {
+    "h307": "e83c263193b0c08f928eb22883859ae719e577b6",
+    "h308": "6084fd9a446afd5a78ba40d2185d6a805b05d1b7",
+    "current": "b7a4ff8f6909f637b51afb72ef57148a31ce85ab"
+  },
+  "runtime": {
+    "python_executable": "/home/alex/Mancala/ai/.venv/bin/python",
+    "python": "3.14.7",
+    "numpy": "2.4.6",
+    "torch": "2.12.0+cu130",
+    "blas_backend": "MKL 2024.2; MKL-DNN 3.11.2; OpenMP 4.5; AVX2",
+    "cpu_architecture": "x86_64",
+    "cpu_count": 32,
+    "torch_num_threads": 24,
+    "torch_num_interop_threads": 24,
+    "deterministic_algorithms": false,
+    "environment": {
+      "MKL_NUM_THREADS": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "PYTHONHASHSEED": null
+    },
+    "package_freeze_sha256": "371087232a27eff0a75ab0b2ddc3044021c5a5fa9002268ac23937784a13df59"
+  },
+  "artifacts": {
+    "g0": "4cd77f12319935d776b68c5e597b8d399fd68f15ba7ea25b3d66bbe786292ed4",
+    "r61": "6218a63b4817a58ce41df9c701c3816739976d26a1629aa32b158f3d0650aa87",
+    "frozen_set": "5f86367fdb75af02294a1ace1c08dc2938919f0a5f0419376bdf89d127b6257a",
+    "fixed_a": "735e66b10fb58438a215b11870ee4d7c32aca065e173663d46e7c41a55dd5a71",
+    "fixed_b": "ffac24dc8fb773fddd4dc14f397317d7c5e0a973631ca71adb216b5e68b444a5"
+  },
+  "same_runtime_checkpoint_sha256": {
+    "h307_t61": "50736a6063cd0558329c433ad7a6c60b741c83ceee75d36e21e703749af8c9de",
+    "h308_t61": "50736a6063cd0558329c433ad7a6c60b741c83ceee75d36e21e703749af8c9de",
+    "current_t61": "50736a6063cd0558329c433ad7a6c60b741c83ceee75d36e21e703749af8c9de",
+    "h308_t63": "bab60465a9bc93ac569ed28b356ef2abde2c1cbb0987a4a474e26117f9a57324",
+    "current_t63": "bab60465a9bc93ac569ed28b356ef2abde2c1cbb0987a4a474e26117f9a57324"
+  },
+  "training_config": {
+    "architecture": "residual_v3",
+    "device": "cpu",
+    "optimizer": "Adam",
+    "lr": 0.001,
+    "batch_size": 512,
+    "epochs": 4,
+    "grad_clip": 1.0,
+    "scheduler": "none",
+    "value_loss_weight": 0.3,
+    "huber_delta": 1.0,
+    "replay_weights": [1, 1, 2],
+    "seeds": {"T61": 61, "T63": 63}
+  },
+  "classification": "historical_parity_audit_inconclusive",
+  "next_action": "restore the exact PR #313 Python 3.14.7/NumPy 2.5.3/PyTorch 2.14.0+cu130 environment from trustworthy provenance, then rerun untouched H308 T61/T63 and checkpoint-based evaluation."
+}
