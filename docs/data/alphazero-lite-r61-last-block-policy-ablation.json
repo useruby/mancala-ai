@@ -1,0 +1,21 @@
+{
+  "artifacts": {
+    "inherited_full": "unavailable in this checkout",
+    "inherited_heads_only": "unavailable in this checkout",
+    "reason": "The SHA-verified PR #315/#316 checkpoint directories are absent."
+  },
+  "classification": "last_block_policy_ablation_inconclusive",
+  "guardrails": {
+    "architecture_change": false,
+    "exact_labels_training": false,
+    "optimizer_change": false,
+    "promotion": false,
+    "replay_mutation": false,
+    "replay_weight_change": false,
+    "search_change": false,
+    "self_play": false
+  },
+  "next_experiment": "recover the SHA-verified inherited PR #315/#316 artifacts and execute this same R61 last_block_policy ablation.",
+  "schema": "azlite_r61_last_block_policy_ablation_v1",
+  "status": "not_executed_missing_inherited_artifacts"
+}
