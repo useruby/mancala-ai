@@ -792,6 +792,22 @@ def train_one_epoch(
             "policy_loss": float(policy_loss.detach().cpu().item()),
             "value_loss": float(value_component.detach().cpu().item()),
             "gradient_norm": float(np.sqrt(grad_squared)),
+            "grad_clip": float(grad_clip)
+            if grad_clip is not None and grad_clip > 0.0
+            else None,
+            "clip_active": bool(
+                grad_clip is not None
+                and grad_clip > 0.0
+                and np.sqrt(grad_squared) > grad_clip
+            ),
+            "clip_scale": min(1.0, float(grad_clip) / np.sqrt(grad_squared))
+            if grad_clip is not None and grad_clip > 0.0 and grad_squared > 0.0
+            else 1.0,
+            "post_clip_gradient_norm": min(
+                float(np.sqrt(grad_squared)), float(grad_clip)
+            )
+            if grad_clip is not None and grad_clip > 0.0
+            else float(np.sqrt(grad_squared)),
         }
         if step_callback is not None:
             step_callback("before", step_context)
@@ -1053,6 +1069,8 @@ def train(
     behavior_anchor_replay_indexes: np.ndarray | None = None,
     behavior_loss_weight: float = 0.0,
     step_callback: Callable[[str, dict[str, Any]], None] | None = None,
+    epoch_callback: Callable[[int, torch.optim.Optimizer, nn.Module], None]
+    | None = None,
 ) -> tuple[float, float, float]:
     model.to(device)
     model.train()
@@ -1249,12 +1267,10 @@ def train(
         pairwise_loss_value = float(epoch_metrics["pairwise_loss"] or 0.0)
         behavior_anchor_loss_value = float(epoch_metrics["behavior_anchor_loss"] or 0.0)
         total_loss_value = float(epoch_metrics["total_loss"] or 0.0)
-        if epoch_history is not None:
-            epoch_history.append({"epoch": epoch_idx, **epoch_metrics})
-
         if scheduler is not None:
             scheduler.step()
 
+        validation_metrics: dict[str, float] = {}
         if val_count > 0 or pairwise_val_count > 0:
             model.eval()
             with torch.no_grad():
@@ -1337,6 +1353,11 @@ def train(
                     .cpu()
                     .item()
                 )
+                validation_metrics = {
+                    "validation_policy_loss": float(val_policy_loss.cpu().item()),
+                    "validation_value_loss": float(val_value_loss.cpu().item()),
+                    "validation_total_loss": val_total,
+                }
                 if val_total < best_val_loss:
                     best_val_loss = val_total
                     best_state = {
@@ -1345,6 +1366,14 @@ def train(
                     }
                 maybe_record_top_state(val_total)
             model.train()
+
+        if epoch_history is not None:
+            epoch_history.append(
+                {"epoch": epoch_idx, **epoch_metrics, **validation_metrics}
+            )
+
+        if epoch_callback is not None:
+            epoch_callback(epoch_idx, optimizer, model)
 
         if val_count == 0:
             maybe_record_top_state(total_loss_value)
