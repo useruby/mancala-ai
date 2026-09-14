@@ -810,6 +810,15 @@ def train_one_epoch(
             else float(np.sqrt(grad_squared)),
         }
         if step_callback is not None:
+            # Diagnostic callbacks need the actual per-parameter pre-clip values;
+            # cloning here is observational and occurs only when explicitly asked.
+            step_context["raw_gradients"] = {
+                name: torch.zeros_like(parameter).cpu()
+                if parameter.grad is None
+                else parameter.grad.detach().cpu().clone()
+                for name, parameter in model.named_parameters()
+            }
+            step_context["optimizer"] = optimizer
             step_callback("before", step_context)
         if grad_clip is not None and grad_clip > 0.0:
             torch.nn.utils.clip_grad_norm_(
