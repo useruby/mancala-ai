@@ -8,6 +8,7 @@ import json
 import random
 import sys
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
@@ -577,6 +578,8 @@ def train_one_epoch(
     compact_legal_masks: np.ndarray | None = None,
     behavior_anchor_legal_masks: np.ndarray | None = None,
     audit_source_indexes: set[int] | None = None,
+    step_callback: Callable[[str, dict[str, Any]], None] | None = None,
+    epoch: int | None = None,
 ) -> dict[str, float | None]:
     model.train()
     use_supervised = compact_x.shape[0] > 0 and replay_indexes.size > 0
@@ -782,11 +785,23 @@ def train_one_epoch(
             if parameter.grad is not None:
                 grad_squared += float(torch.sum(parameter.grad.detach() ** 2).item())
         grad_norms.append(float(np.sqrt(grad_squared)))
+        step_context = {
+            "epoch": epoch,
+            "batch_indexes": batch_primary_replay_indexes.detach().cpu().tolist(),
+            "lr": float(optimizer.param_groups[0]["lr"]),
+            "policy_loss": float(policy_loss.detach().cpu().item()),
+            "value_loss": float(value_component.detach().cpu().item()),
+            "gradient_norm": float(np.sqrt(grad_squared)),
+        }
+        if step_callback is not None:
+            step_callback("before", step_context)
         if grad_clip is not None and grad_clip > 0.0:
             torch.nn.utils.clip_grad_norm_(
                 (p for p in model.parameters() if p.requires_grad), grad_clip
             )
         optimizer.step()
+        if step_callback is not None:
+            step_callback("after", step_context)
         policy_losses.append(float(policy_loss.detach().cpu().item()))
         value_losses.append(float(value_component.detach().cpu().item()))
         pairwise_losses.append(float(pairwise_loss.detach().cpu().item()))
@@ -1037,6 +1052,7 @@ def train(
     behavior_anchor_v: np.ndarray | None = None,
     behavior_anchor_replay_indexes: np.ndarray | None = None,
     behavior_loss_weight: float = 0.0,
+    step_callback: Callable[[str, dict[str, Any]], None] | None = None,
 ) -> tuple[float, float, float]:
     model.to(device)
     model.train()
@@ -1225,6 +1241,8 @@ def train(
             compact_legal_masks=compact_legal_masks,
             behavior_anchor_legal_masks=behavior_anchor_legal_masks,
             audit_source_indexes=audit_source_indexes,
+            step_callback=step_callback,
+            epoch=epoch_idx,
         )
         policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
         value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
