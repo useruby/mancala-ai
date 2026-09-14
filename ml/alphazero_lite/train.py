@@ -579,6 +579,9 @@ def train_one_epoch(
     behavior_anchor_legal_masks: np.ndarray | None = None,
     audit_source_indexes: set[int] | None = None,
     step_callback: Callable[[str, dict[str, Any]], None] | None = None,
+    step_callback_needs_raw_gradients: bool = True,
+    step_observer: Callable[[str, dict[str, Any]], None] | None = None,
+    permutation_callback: Callable[[int | None, list[int]], None] | None = None,
     epoch: int | None = None,
 ) -> dict[str, float | None]:
     model.train()
@@ -670,6 +673,8 @@ def train_one_epoch(
     else:
         assert pairwise_replay_tensor is not None
         permutation = torch.randperm(pairwise_replay_tensor.size(0), device=device)
+    if permutation_callback is not None:
+        permutation_callback(epoch, permutation.detach().cpu().tolist())
     policy_losses: list[float] = []
     value_losses: list[float] = []
     pairwise_losses: list[float] = []
@@ -812,14 +817,17 @@ def train_one_epoch(
         if step_callback is not None:
             # Diagnostic callbacks need the actual per-parameter pre-clip values;
             # cloning here is observational and occurs only when explicitly asked.
-            step_context["raw_gradients"] = {
-                name: torch.zeros_like(parameter).cpu()
-                if parameter.grad is None
-                else parameter.grad.detach().cpu().clone()
-                for name, parameter in model.named_parameters()
-            }
+            if step_callback_needs_raw_gradients:
+                step_context["raw_gradients"] = {
+                    name: torch.zeros_like(parameter).cpu()
+                    if parameter.grad is None
+                    else parameter.grad.detach().cpu().clone()
+                    for name, parameter in model.named_parameters()
+                }
             step_context["optimizer"] = optimizer
             step_callback("before", step_context)
+        if step_observer is not None:
+            step_observer("before", step_context)
         if grad_clip is not None and grad_clip > 0.0:
             torch.nn.utils.clip_grad_norm_(
                 (p for p in model.parameters() if p.requires_grad), grad_clip
@@ -827,6 +835,8 @@ def train_one_epoch(
         optimizer.step()
         if step_callback is not None:
             step_callback("after", step_context)
+        if step_observer is not None:
+            step_observer("after", step_context)
         policy_losses.append(float(policy_loss.detach().cpu().item()))
         value_losses.append(float(value_component.detach().cpu().item()))
         pairwise_losses.append(float(pairwise_loss.detach().cpu().item()))
@@ -1078,6 +1088,9 @@ def train(
     behavior_anchor_replay_indexes: np.ndarray | None = None,
     behavior_loss_weight: float = 0.0,
     step_callback: Callable[[str, dict[str, Any]], None] | None = None,
+    step_callback_needs_raw_gradients: bool = True,
+    step_observer: Callable[[str, dict[str, Any]], None] | None = None,
+    permutation_callback: Callable[[int | None, list[int]], None] | None = None,
     epoch_callback: Callable[[int, torch.optim.Optimizer, nn.Module], None]
     | None = None,
 ) -> tuple[float, float, float]:
@@ -1269,6 +1282,9 @@ def train(
             behavior_anchor_legal_masks=behavior_anchor_legal_masks,
             audit_source_indexes=audit_source_indexes,
             step_callback=step_callback,
+            step_callback_needs_raw_gradients=step_callback_needs_raw_gradients,
+            step_observer=step_observer,
+            permutation_callback=permutation_callback,
             epoch=epoch_idx,
         )
         policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
