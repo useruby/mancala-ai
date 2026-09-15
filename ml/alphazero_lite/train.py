@@ -581,6 +581,7 @@ def train_one_epoch(
     step_callback: Callable[[str, dict[str, Any]], None] | None = None,
     step_callback_needs_raw_gradients: bool = True,
     step_observer: Callable[[str, dict[str, Any]], None] | None = None,
+    loss_observer: Callable[[dict[str, Any]], None] | None = None,
     permutation_callback: Callable[[int | None, list[int]], None] | None = None,
     epoch: int | None = None,
 ) -> dict[str, float | None]:
@@ -783,6 +784,25 @@ def train_one_epoch(
             + (pairwise_loss_weight * pairwise_loss)
             + (behavior_loss_weight * behavior_anchor_loss)
         )
+        if loss_observer is not None:
+            # The observer is strictly pre-backward: it may use autograd.grad on
+            # these scalars without changing .grad, the optimizer, or RNG state.
+            loss_observer(
+                {
+                    "epoch": epoch,
+                    "batch_indexes": batch_primary_replay_indexes.detach()
+                    .cpu()
+                    .tolist(),
+                    "policy_loss_tensor": policy_loss,
+                    "value_loss_tensor": value_component,
+                    "pairwise_loss_tensor": pairwise_loss,
+                    "behavior_anchor_loss_tensor": behavior_anchor_loss,
+                    "total_loss_tensor": total_loss,
+                    "value_loss_weight": float(value_loss_weight),
+                    "pairwise_loss_weight": float(pairwise_loss_weight),
+                    "behavior_loss_weight": float(behavior_loss_weight),
+                }
+            )
         optimizer.zero_grad(set_to_none=True)
         total_loss.backward()
         grad_squared = 0.0
@@ -1090,6 +1110,7 @@ def train(
     step_callback: Callable[[str, dict[str, Any]], None] | None = None,
     step_callback_needs_raw_gradients: bool = True,
     step_observer: Callable[[str, dict[str, Any]], None] | None = None,
+    loss_observer: Callable[[dict[str, Any]], None] | None = None,
     permutation_callback: Callable[[int | None, list[int]], None] | None = None,
     epoch_callback: Callable[[int, torch.optim.Optimizer, nn.Module], None]
     | None = None,
@@ -1284,6 +1305,7 @@ def train(
             step_callback=step_callback,
             step_callback_needs_raw_gradients=step_callback_needs_raw_gradients,
             step_observer=step_observer,
+            loss_observer=loss_observer,
             permutation_callback=permutation_callback,
             epoch=epoch_idx,
         )
