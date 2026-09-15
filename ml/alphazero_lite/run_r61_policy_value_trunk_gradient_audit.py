@@ -291,7 +291,11 @@ def cloned_adam_step(
     """
     if source not in {"historical", "no_value_to_trunk", "no_policy_to_trunk"}:
         raise ValueError(f"unsupported counterfactual source: {source}")
-    model = PolicyValueNet((96, 3), "residual_v3", batch_x.shape[1])
+    trunk_width = int(before["input_layer.weight"].shape[0])
+    block_count = len(
+        {name.split(".")[1] for name in before if name.startswith("residual_layers.")}
+    )
+    model = PolicyValueNet((trunk_width, block_count), "residual_v3", batch_x.shape[1])
     with torch.no_grad():
         for name, parameter in model.named_parameters():
             parameter.copy_(before[name])
@@ -307,6 +311,13 @@ def cloned_adam_step(
     value_loss = compute_value_loss_vector(
         prediction, target_v, value_loss="huber", huber_delta=1.0
     ).mean()
+    if source == "historical":
+        # Use the production combined backward path verbatim for clone-A parity.
+        optimizer.zero_grad(set_to_none=True)
+        (policy_loss + VALUE_WEIGHT * value_loss).backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP)
+        optimizer.step()
+        return model
     policy, value = (
         gradients(policy_loss, model),
         {
@@ -364,7 +375,10 @@ def counterfactual_summary(
             for name, parameter in variants["historical"].named_parameters()
         )
         if maximum_error > IDENTITY_TOLERANCE:
-            raise RuntimeError("adam_counterfactual_not_validated")
+            raise RuntimeError(
+                "adam_counterfactual_not_validated "
+                f"step={row['optimizer_step']} max_abs_error={maximum_error:.9g}"
+            )
         metrics = {}
         for source, model in variants.items():
             with torch.no_grad():
@@ -538,6 +552,11 @@ def run_lane(
                         )
                     ),
                 }
+            # Raw vectors are only needed during this callback. The artifact is
+            # intentionally a machine-readable scalar summary, not a tensor dump.
+            diagnostic.pop("policy")
+            diagnostic.pop("value")
+            diagnostic.pop("margin_gradient")
             row |= diagnostic
             states.append(before)
             after_states.append(after)
