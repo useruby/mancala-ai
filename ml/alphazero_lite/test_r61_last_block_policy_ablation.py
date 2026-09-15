@@ -72,14 +72,14 @@ def test_frozen_parameters_remain_bit_identical_and_last_block_moves() -> None:
             "value_head.",
         ),
     )
-    before = model.residual_layers[-1].conv1.weight.detach().clone()
+    before = model.residual_layers[-1][0].weight.detach().clone()
     optimizer = torch.optim.Adam(
         (p for p in model.parameters() if p.requires_grad), lr=0.001
     )
     logits, values = model(torch.randn(8, 27))
     (logits.square().mean() + values.square().mean()).backward()
     optimizer.step()
-    assert not torch.equal(before, model.residual_layers[-1].conv1.weight)
+    assert not torch.equal(before, model.residual_layers[-1][0].weight)
     assert_frozen_equal(frozen, model)
     with torch.no_grad():
         model.value_head.weight.add_(1)
@@ -92,7 +92,7 @@ def test_drift_cosines_are_descriptive_for_final_block_only(tmp_path) -> None:
     for index in range(5):
         model = PolicyValueNet((96, 3), "residual_v3", 27)
         with torch.no_grad():
-            model.residual_layers[-1].conv1.weight.add_(index)
+            model.residual_layers[-1][0].weight.add_(index)
         path = tmp_path / f"model-{index}.npz"
         import numpy as np
 

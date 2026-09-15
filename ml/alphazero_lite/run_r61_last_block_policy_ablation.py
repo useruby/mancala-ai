@@ -83,6 +83,20 @@ INHERITED_HEADS = {
         "707a0e06cae9ab5eee8db7fef09d337e1e5e20b47bb84bcecf2403ba144dcf1e",
     ),
 }
+HEADS_ONLY_PERMUTATION_HASHES = {
+    "T61": {
+        "1": "42e3f78793b832785e1c945c9c40ebcaa50de783b739ecb79fe75825788da3f4",
+        "2": "4997dff171ade513bc5ef284e40441894dec990caff5b504b14c9b2d580ee36a",
+        "3": "92559a493a49492777c3a81e806f64cacc7751cc922295a1d46a620680dd7e24",
+        "4": "82d16cedbaaca7b97865b9372ee3d563419ba3f190f44198aecd588b6c3cb049",
+    },
+    "T63": {
+        "1": "2c2c0d9a979e2beb2babab332605ef7579d725cef17f4ffc59505a2cdc1661e9",
+        "2": "994e33a49a85e4a799d9da218384f7a8dd3d2a4e31cacb20a481d4eb199e566e",
+        "3": "6d9012c8905ab7c0de84a53131e99f939ca3c49581f3879112b1e3ef5c22fa42",
+        "4": "3117f2ab9d5f5d76f9f028583706af820df46c04113702e7530f68297101b9d7",
+    },
+}
 FROZEN_PREFIXES = ("input_layer.", "value_hidden_layer.", "value_head.")
 
 
@@ -554,6 +568,7 @@ def main(argv: list[str] | None = None) -> int:
         result.update({"classification": "planned", "next_experiment": "not run"})
     else:
         g0_eval = evaluate_checkpoint(paths["parent"], manifest)
+        result["g0_anchor"] = anchor_metrics(paths["parent"], manifest)
         inherited: dict[tuple[str, str], dict[str, Any]] = {}
         for scope, checkpoints in (
             ("all", INHERITED_FULL),
@@ -642,6 +657,25 @@ def main(argv: list[str] | None = None) -> int:
             },
             candidates,
         )
+        result["minibatch_parity"] = {
+            seed: {
+                "expected_pr316_heads_only": HEADS_ONLY_PERMUTATION_HASHES[seed],
+                "actual_last_block_policy": next(
+                    cell
+                    for cell in result["cells"]
+                    if cell["training_seed"] == seed
+                    and cell["scope"] == "last_block_policy"
+                )["epoch_permutation_hashes"],
+                "matches": next(
+                    cell
+                    for cell in result["cells"]
+                    if cell["training_seed"] == seed
+                    and cell["scope"] == "last_block_policy"
+                )["epoch_permutation_hashes"]
+                == HEADS_ONLY_PERMUTATION_HASHES[seed],
+            }
+            for seed in TRAINING_SEEDS
+        }
         result["secondary_vs_heads_only"] = {
             seed: {
                 "anchor_mass_better": next(
