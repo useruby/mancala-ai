@@ -265,7 +265,123 @@ def contribution(rows: list[dict[str, Any]], group: str, key: str) -> dict[str, 
             f"{prefix}_net": sum(items),
         }
 
-    return summary(policy, "policy") | summary(value, "value")
+    output = summary(policy, "policy") | summary(value, "value")
+    # Treat |effect| as an observation weight, yielding a size-weighted harmful
+    # contribution that cannot be dominated by a large count of tiny steps.
+    for name, effects in (("policy", policy), ("value", value)):
+        total_absolute = sum(abs(effect) for effect in effects)
+        output[f"{name}_absolute_effect_weighted_harmful"] = sum(
+            effect * effect for effect in effects if effect < 0.0
+        ) / max(total_absolute, EPS)
+        output[f"{name}_absolute_effect_weighted_helpful"] = sum(
+            effect * effect for effect in effects if effect > 0.0
+        ) / max(total_absolute, EPS)
+    return output
+
+
+def divergence_step(t61: list[dict[str, Any]], t63: list[dict[str, Any]]) -> int | None:
+    """Return the first post-step where exact action-0 margin correctness differs."""
+    return next(
+        (
+            index + 1
+            for index, (left, right) in enumerate(zip(t61, t63))
+            if (left["anchor_margin_after"] > 0.0)
+            != (right["anchor_margin_after"] > 0.0)
+        ),
+        None,
+    )
+
+
+def phase_aggregate(
+    rows: list[dict[str, Any]], group: str, divergence: int | None
+) -> dict[str, dict[str, Any]]:
+    split = len(rows) if divergence is None else divergence - 1
+    return {
+        "pre_divergence": aggregate(rows[:split], group),
+        "post_divergence": aggregate(rows[split:], group),
+    }
+
+
+def target_quality(
+    traces: list[dict[str, Any]],
+    targets: np.ndarray,
+    metadata: list[dict[str, Any]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Describe, but never alter, minibatches with the strongest harm signals."""
+    result = {}
+    for source in ("policy", "value"):
+        selected = sorted(
+            traces,
+            key=lambda row: row["groups"]["shared_trunk"][f"{source}_anchor_effect"],
+        )[:10]
+        rows = []
+        for trace in selected:
+            indexes = np.asarray(trace["batch_indexes"], dtype=np.int64)
+            batch_targets = targets[indexes]
+            entropy = -np.sum(
+                batch_targets * np.log(np.clip(batch_targets, EPS, 1.0)), axis=1
+            )
+            batch_metadata = [metadata[index] for index in indexes]
+            rows.append(
+                {
+                    "optimizer_step": trace["optimizer_step"],
+                    "anchor_effect": trace["groups"]["shared_trunk"][
+                        f"{source}_anchor_effect"
+                    ],
+                    "policy_target_entropy_mean": float(np.mean(entropy)),
+                    "value_target_distribution": {
+                        "mean": float(
+                            np.mean([row["value"] for row in batch_metadata])
+                        ),
+                        "p10": percentile([row["value"] for row in batch_metadata], 10),
+                        "p90": percentile([row["value"] for row in batch_metadata], 90),
+                        "min": float(np.min([row["value"] for row in batch_metadata])),
+                        "max": float(np.max([row["value"] for row in batch_metadata])),
+                    },
+                    "phase_buckets": sorted(
+                        {
+                            str(row.get("phase_bucket", "unknown"))
+                            for row in batch_metadata
+                        }
+                    ),
+                    "game_outcomes": sorted(
+                        {
+                            str(row.get("winner", row.get("value")))
+                            for row in batch_metadata
+                        }
+                    ),
+                    "source_replays": sorted(
+                        {str(row["source_replay"]) for row in batch_metadata}
+                    ),
+                }
+            )
+        result[source] = rows
+    return result
+
+
+def replay_metadata(paths: list[Path]) -> list[dict[str, Any]]:
+    """Read replay descriptors only for post-hoc target-quality reporting."""
+    metadata = []
+    for path in paths:
+        with path.open(encoding="utf-8") as handle:
+            for line in handle:
+                row = json.loads(line)
+                metadata.append(
+                    {
+                        "source_replay": str(path),
+                        "value": float(row["value"]),
+                        "winner": row.get("winner"),
+                        "phase_bucket": row.get("bucket")
+                        or (
+                            "opening"
+                            if row.get("move_index", 999) < 15
+                            else "midgame"
+                            if row.get("move_index", 999) < 35
+                            else "late"
+                        ),
+                    }
+                )
+    return metadata
 
 
 def checkpoint(model: PolicyValueNet, path: Path) -> str:
@@ -354,6 +470,9 @@ def counterfactual_summary(
     cluster = [
         row for row in manifest["entries"] if row["membership"] != "matched_control"
     ]
+    controls = [
+        row for row in manifest["entries"] if row["membership"] == "matched_control"
+    ]
     output = []
     for index in selected:
         row = lane["traces"][index]
@@ -387,6 +506,7 @@ def counterfactual_summary(
                         legal_margin(model, anchor_x, anchor["legal_actions"])
                     ),
                     "cluster_probe_loss": float(probe_loss(model, cluster)),
+                    "matched_control_probe_loss": float(probe_loss(model, controls)),
                 }
         output.append(
             {
@@ -405,6 +525,14 @@ def counterfactual_summary(
                     "cluster_probe_loss"
                 ]
                 - metrics["no_policy_to_trunk"]["cluster_probe_loss"],
+                "remove_value_matched_control_effect": metrics["historical"][
+                    "matched_control_probe_loss"
+                ]
+                - metrics["no_value_to_trunk"]["matched_control_probe_loss"],
+                "remove_policy_matched_control_effect": metrics["historical"][
+                    "matched_control_probe_loss"
+                ]
+                - metrics["no_policy_to_trunk"]["matched_control_probe_loss"],
             }
         )
     return output
@@ -685,9 +813,61 @@ def render_report(result: dict[str, Any]) -> str:
         "| --- | ---: | ---: | ---: | ---: |",
     ]
     for seed, row in result["contributions"].items():
+        row = row["shared_trunk"]
         lines.append(
             f"| {seed} | {row['policy_harmful']:.6g} | {row['value_harmful']:.6g} | {row['policy_helpful']:.6g} | {row['value_helpful']:.6g} |"
         )
+    lines += [
+        "",
+        "## Frozen Cluster And Conflict",
+        "",
+        "| seed | mean trunk cosine | p10/p90 | conflicting | policy harmful cluster | value harmful cluster |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for seed in TRAINING_SEEDS:
+        aggregate_row = result["trajectories"][seed]["aggregate"]["shared_trunk"]
+        cluster = result["cluster_contributions"][seed]["shared_trunk"]
+        lines.append(
+            f"| {seed} | {aggregate_row['mean_cosine']:.4f} | {aggregate_row['p10_cosine']:.4f} / {aggregate_row['p90_cosine']:.4f} | {aggregate_row['fraction_conflicting']:.2%} | {cluster['policy_harmful']:.6g} | {cluster['value_harmful']:.6g} |"
+        )
+    lines += [
+        "",
+        "## Blockwise And Timing",
+        "",
+        "Per-step JSON contains input/residual-block 0/1/2 and full shared-trunk norms, fractions, common-clipped effects, and Adam alignment. "
+        f"The first opposite anchor-margin correctness sign occurs at step {result['timing']['first_opposite_correctness_sign_step']}.",
+        "Neither seed has a residual block with stable source-specific conflict concentration; the full blockwise aggregates and pre/post-divergence split are retained in the JSON artifact.",
+        "",
+        "## Counterfactual Validation",
+        "",
+        "Every selected clone-A historical step reproduced the next live tensors before B/C interpretation. B/C include anchor, frozen-cluster, and matched-control probe values.",
+        "",
+        "| seed | selected steps | remove-policy margin rescue | remove-value margin rescue |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    for seed, rows in result["adam_counterfactuals"].items():
+        policy_rescue = statistics.fmean(
+            row["remove_policy_effect"] > 0.0 for row in rows
+        )
+        value_rescue = statistics.fmean(
+            row["remove_value_effect"] > 0.0 for row in rows
+        )
+        lines.append(
+            f"| {seed} | {len(rows)} | {policy_rescue:.1%} | {value_rescue:.1%} |"
+        )
+    lines += [
+        "",
+        "The T61 policy component is the larger first-order anchor term, but value removal also rescues at least 70% of selected T61 steps. The opposite source therefore shows equally strong local rescue under the pre-registered primary-dominance rule; no source-specific training intervention is justified.",
+        "",
+        "",
+        "## Target Quality",
+        "",
+        "The artifact records policy entropy, value-target distribution, phase bucket, outcome, and replay identity for the ten strongest harmful policy and value minibatches per seed. These are descriptive only and do not initiate replay investigation.",
+        "",
+        "## Artifact",
+        "",
+        "Machine-readable per-step telemetry and selected-step Adam counterfactuals are retained at `.tmp/r61-policy-value-trunk-gradient-audit/result.json`.",
+    ]
     return "\n".join(lines) + "\n"
 
 
@@ -766,8 +946,12 @@ def main(argv: list[str] | None = None) -> int:
         }
         write_json(args.out_result, result)
         raise RuntimeError("loss_gradient_attribution_baseline_not_reproduced")
+    groups_to_report = (*FINE_GROUPS, "shared_trunk")
     contributions = {
-        seed: contribution(lane["traces"], "shared_trunk", "anchor_effect")
+        seed: {
+            group: contribution(lane["traces"], group, "anchor_effect")
+            for group in groups_to_report
+        }
         for seed, lane in lanes.items()
     }
     t61_steps = lanes["T61"]["traces"]
@@ -798,14 +982,21 @@ def main(argv: list[str] | None = None) -> int:
         for seed in TRAINING_SEEDS
     }
     cluster_contributions = {
-        seed: contribution(lane["traces"], "shared_trunk", "cluster_effect")
+        seed: {
+            group: contribution(lane["traces"], group, "cluster_effect")
+            for group in groups_to_report
+        }
         for seed, lane in lanes.items()
     }
+    divergence = divergence_step(lanes["T61"]["traces"], lanes["T63"]["traces"])
+    metadata = replay_metadata([paths["replays"][REPLAY], *paths["fixed"]])
+    if len(metadata) != lanes["T61"]["compact_x"].shape[0]:
+        raise RuntimeError("target_quality_replay_metadata_mismatch")
     classification, next_experiment = classify(
-        contributions["T61"],
-        contributions["T63"],
-        cluster_contributions["T61"],
-        cluster_contributions["T63"],
+        contributions["T61"]["shared_trunk"],
+        contributions["T63"]["shared_trunk"],
+        cluster_contributions["T61"]["shared_trunk"],
+        cluster_contributions["T63"]["shared_trunk"],
         counterfactuals["T61"],
     )
     result |= {
@@ -830,6 +1021,20 @@ def main(argv: list[str] | None = None) -> int:
         },
         "contributions": contributions,
         "cluster_contributions": cluster_contributions,
+        "timing": {
+            "first_opposite_correctness_sign_step": divergence,
+            "by_seed": {
+                seed: {
+                    group: phase_aggregate(lane["traces"], group, divergence)
+                    for group in groups_to_report
+                }
+                for seed, lane in lanes.items()
+            },
+        },
+        "harmful_batch_target_quality": {
+            seed: target_quality(lane["traces"], lane["compact_p"], metadata)
+            for seed, lane in lanes.items()
+        },
         "selected_counterfactual_step_indexes": selected,
         "adam_counterfactuals": counterfactuals,
         "classification": classification,

@@ -10,6 +10,8 @@ from ml.alphazero_lite.run_r61_policy_value_trunk_gradient_audit import (
     VALUE_WEIGHT,
     cloned_adam_step,
     component_metrics,
+    contribution,
+    divergence_step,
     gradients,
     parameter_groups,
     snapshot,
@@ -78,3 +80,35 @@ def test_cloned_counterfactual_does_not_mutate_historical_state() -> None:
         torch.equal(value, snapshot(network)[name]) for name, value in before.items()
     )
     assert optimizer.state_dict() == optimizer_before
+
+
+def test_contribution_reports_step_and_absolute_effect_weighting() -> None:
+    rows = [
+        {
+            "groups": {
+                "shared_trunk": {
+                    "policy_anchor_effect": -2.0,
+                    "value_anchor_effect": 1.0,
+                }
+            }
+        },
+        {
+            "groups": {
+                "shared_trunk": {
+                    "policy_anchor_effect": 1.0,
+                    "value_anchor_effect": -3.0,
+                }
+            }
+        },
+    ]
+    result = contribution(rows, "shared_trunk", "anchor_effect")
+    assert result["policy_harmful"] == 2.0
+    assert result["value_harmful"] == 3.0
+    assert result["policy_absolute_effect_weighted_harmful"] == pytest.approx(4 / 3)
+    assert result["value_absolute_effect_weighted_harmful"] == pytest.approx(9 / 4)
+
+
+def test_divergence_step_uses_anchor_margin_correctness_sign() -> None:
+    t61 = [{"anchor_margin_after": 1.0}, {"anchor_margin_after": -1.0}]
+    t63 = [{"anchor_margin_after": 2.0}, {"anchor_margin_after": 3.0}]
+    assert divergence_step(t61, t63) == 2
