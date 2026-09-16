@@ -1,0 +1,74 @@
+{
+  "feature_groups": {
+    "opponent_pits": [
+      "opponent_pits_0",
+      "opponent_pits_1",
+      "opponent_pits_2",
+      "opponent_pits_3",
+      "opponent_pits_4",
+      "opponent_pits_5"
+    ],
+    "player_pits": [
+      "player_pits_0",
+      "player_pits_1",
+      "player_pits_2",
+      "player_pits_3",
+      "player_pits_4",
+      "player_pits_5"
+    ],
+    "player_to_move": [
+      "current_player"
+    ],
+    "stores": [
+      "player_store",
+      "opponent_store"
+    ],
+    "v3_tactical": [
+      "player_extra_turn_available",
+      "player_capture_available",
+      "player_empty_pit_ratio",
+      "player_high_seed_ratio",
+      "player_one_to_store_ratio",
+      "player_remaining_stones",
+      "opponent_extra_turn_available",
+      "opponent_capture_available",
+      "opponent_empty_pit_ratio",
+      "opponent_high_seed_ratio",
+      "opponent_one_to_store_ratio",
+      "opponent_remaining_stones"
+    ]
+  },
+  "feature_names": [
+    "player_pits_0",
+    "player_pits_1",
+    "player_pits_2",
+    "player_pits_3",
+    "player_pits_4",
+    "player_pits_5",
+    "opponent_pits_0",
+    "opponent_pits_1",
+    "opponent_pits_2",
+    "opponent_pits_3",
+    "opponent_pits_4",
+    "opponent_pits_5",
+    "player_store",
+    "opponent_store",
+    "current_player",
+    "player_extra_turn_available",
+    "player_capture_available",
+    "player_empty_pit_ratio",
+    "player_high_seed_ratio",
+    "player_one_to_store_ratio",
+    "player_remaining_stones",
+    "opponent_extra_turn_available",
+    "opponent_capture_available",
+    "opponent_empty_pit_ratio",
+    "opponent_high_seed_ratio",
+    "opponent_one_to_store_ratio",
+    "opponent_remaining_stones"
+  ],
+  "ordinary_replay_response": [],
+  "schema": "azlite_r61_a0_unit_geometry_audit_v1",
+  "selected_units": [],
+  "units": []
+}

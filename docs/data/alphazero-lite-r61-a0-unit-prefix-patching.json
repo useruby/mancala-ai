@@ -1,0 +1,146 @@
+{
+  "leave_one_out": [],
+  "minimal_causal_prefix": null,
+  "prefixes": [
+    {
+      "control_degradation_fraction": 0.0,
+      "forward": {
+        "anchor_margin_delta": -0.2420242577791214,
+        "cluster_margin_delta": 0.01803573966026306,
+        "cluster_optimal_mass_delta": 0.0006433369591832161,
+        "cluster_top1_repair_count": 0,
+        "control_degradation_count": 0,
+        "control_margin_delta": 0.014216959476470947,
+        "state_margin_deltas": {
+          "cluster_anchor-244dadc26015ebbc": -0.2420242577791214,
+          "matched_control-11f57287d52ab7f2": 0.014216959476470947,
+          "one_ply_child-0c052588b0daa7dc": 0.007628917694091797,
+          "one_ply_child-487e68a18d1f94c0": 0.038762450218200684,
+          "one_ply_child-a10cdabeaeea0081": 0.06862881779670715,
+          "one_ply_child-e95450b6d1ff9a43": 0.019481897354125977,
+          "structural_cluster-0fb60203365b0571": -0.0443233847618103
+        }
+      },
+      "forward_correct_direction_fraction": 0.0,
+      "forward_transfer_fraction": -0.028985406318611212,
+      "reverse": {
+        "anchor_margin_delta": 0.16222292184829712,
+        "cluster_margin_delta": -0.047711601667106154,
+        "cluster_optimal_mass_delta": -0.00559000838547945,
+        "cluster_top1_repair_count": 0,
+        "control_degradation_count": 0,
+        "control_margin_delta": -0.026358231902122498,
+        "state_margin_deltas": {
+          "cluster_anchor-244dadc26015ebbc": 0.16222292184829712,
+          "matched_control-11f57287d52ab7f2": -0.026358231902122498,
+          "one_ply_child-0c052588b0daa7dc": 0.009575843811035156,
+          "one_ply_child-487e68a18d1f94c0": 0.010683299042284489,
+          "one_ply_child-a10cdabeaeea0081": -0.05017787218093872,
+          "one_ply_child-e95450b6d1ff9a43": -0.05197586119174957,
+          "structural_cluster-0fb60203365b0571": -0.1566634178161621
+        }
+      },
+      "reverse_transfer_fraction": -0.07667776240279678,
+      "size": 1,
+      "step108_directional": true,
+      "units": [
+        78
+      ]
+    },
+    {
+      "control_degradation_fraction": 0.0,
+      "forward": {
+        "anchor_margin_delta": -0.24096538126468658,
+        "cluster_margin_delta": 0.025317490100860596,
+        "cluster_optimal_mass_delta": 0.0013390085892751812,
+        "cluster_top1_repair_count": 0,
+        "control_degradation_count": 0,
+        "control_margin_delta": 0.01636683940887451,
+        "state_margin_deltas": {
+          "cluster_anchor-244dadc26015ebbc": -0.24096538126468658,
+          "matched_control-11f57287d52ab7f2": 0.01636683940887451,
+          "one_ply_child-0c052588b0daa7dc": 0.01778101921081543,
+          "one_ply_child-487e68a18d1f94c0": 0.04010826349258423,
+          "one_ply_child-a10cdabeaeea0081": 0.07619184255599976,
+          "one_ply_child-e95450b6d1ff9a43": 0.019191980361938477,
+          "structural_cluster-0fb60203365b0571": -0.026685655117034912
+        }
+      },
+      "forward_correct_direction_fraction": 0.0,
+      "forward_transfer_fraction": -0.040687975728418674,
+      "reverse": {
+        "anchor_margin_delta": 0.1588262915611267,
+        "cluster_margin_delta": -0.051603153347969055,
+        "cluster_optimal_mass_delta": -0.006212253402918577,
+        "cluster_top1_repair_count": 0,
+        "control_degradation_count": 0,
+        "control_margin_delta": -0.02736780047416687,
+        "state_margin_deltas": {
+          "cluster_anchor-244dadc26015ebbc": 0.1588262915611267,
+          "matched_control-11f57287d52ab7f2": -0.02736780047416687,
+          "one_ply_child-0c052588b0daa7dc": 0.0008418560028076172,
+          "one_ply_child-487e68a18d1f94c0": 0.004687845706939697,
+          "one_ply_child-a10cdabeaeea0081": -0.05409055948257446,
+          "one_ply_child-e95450b6d1ff9a43": -0.050779715180397034,
+          "structural_cluster-0fb60203365b0571": -0.1586751937866211
+        }
+      },
+      "reverse_transfer_fraction": -0.08293191159790016,
+      "size": 2,
+      "step108_directional": true,
+      "units": [
+        78,
+        41
+      ]
+    },
+    {
+      "control_degradation_fraction": 0.0,
+      "forward": {
+        "anchor_margin_delta": -0.3399323374032974,
+        "cluster_margin_delta": 0.03698117136955261,
+        "cluster_optimal_mass_delta": 0.0010654536308720708,
+        "cluster_top1_repair_count": 0,
+        "control_degradation_count": 0,
+        "control_margin_delta": 0.006997108459472656,
+        "state_margin_deltas": {
+          "cluster_anchor-244dadc26015ebbc": -0.3399323374032974,
+          "matched_control-11f57287d52ab7f2": 0.006997108459472656,
+          "one_ply_child-0c052588b0daa7dc": 0.008625268936157227,
+          "one_ply_child-487e68a18d1f94c0": -0.03981703519821167,
+          "one_ply_child-a10cdabeaeea0081": 0.09204784035682678,
+          "one_ply_child-e95450b6d1ff9a43": 0.02377110719680786,
+          "structural_cluster-0fb60203365b0571": 0.10027867555618286
+        }
+      },
+      "forward_correct_direction_fraction": 0.0,
+      "forward_transfer_fraction": -0.05943278725886435,
+      "reverse": {
+        "anchor_margin_delta": 0.12349390983581543,
+        "cluster_margin_delta": -0.058131042122840884,
+        "cluster_optimal_mass_delta": -0.008207035064697266,
+        "cluster_top1_repair_count": 0,
+        "control_degradation_count": 0,
+        "control_margin_delta": -0.022524595260620117,
+        "state_margin_deltas": {
+          "cluster_anchor-244dadc26015ebbc": 0.12349390983581543,
+          "matched_control-11f57287d52ab7f2": -0.022524595260620117,
+          "one_ply_child-0c052588b0daa7dc": 0.004797458648681641,
+          "one_ply_child-487e68a18d1f94c0": 0.05000251531600952,
+          "one_ply_child-a10cdabeaeea0081": -0.07200819253921509,
+          "one_ply_child-e95450b6d1ff9a43": -0.08380158245563507,
+          "structural_cluster-0fb60203365b0571": -0.1896454095840454
+        }
+      },
+      "reverse_transfer_fraction": -0.09342294285616506,
+      "size": 4,
+      "step108_directional": true,
+      "units": [
+        78,
+        41,
+        75,
+        1
+      ]
+    }
+  ],
+  "schema": "azlite_r61_a0_unit_geometry_audit_v1"
+}
