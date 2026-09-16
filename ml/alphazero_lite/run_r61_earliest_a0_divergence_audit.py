@@ -237,6 +237,7 @@ def reconstruct_lane(
     np.savez(checkpoint, **checkpoint_from_model(model))
     return {
         "sha": sha256_file(checkpoint),
+        "final": tensor_snapshot(model),
         "snapshots": snapshots,
         "trace": trace,
         "x": x,

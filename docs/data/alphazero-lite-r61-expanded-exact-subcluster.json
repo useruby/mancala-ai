@@ -1,0 +1,2919 @@
+{
+  "depth": 4,
+  "entries": [
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [
+        3,
+        4
+      ],
+      "exact_outcome_optimal_actions": [
+        0
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 0,
+      "id": "cluster_anchor-244dadc26015ebbc",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "membership": "cluster_anchor",
+      "provenance": "R61 deterministic legal descendant depth 0; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "244dadc26015ebbca84735a5841583e1e4cf09a7d9b2833aef73605dc372c143",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0],\"legal_count\":4,\"own_zero_mask\":\"001001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 1,
+      "id": "expanded_exact_descendant-0c052588b0daa7dc",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 1; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          1,
+          7,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "0c052588b0daa7dc5041c6204d1dc0487de0165c27957c240aa073d1feb7545a",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 1,
+      "id": "expanded_exact_descendant-487e68a18d1f94c0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 1; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "487e68a18d1f94c01c53a7c31237e499c20ef7decc9ce3cf664c253f764392f5",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":6,\"own_zero_mask\":\"001010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 1,
+      "id": "expanded_exact_descendant-a10cdabeaeea0081",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 1; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          0,
+          1,
+          7,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "a10cdabeaeea00816d9223aeedda2d10857ef8528042624c1c63c7b6e874858a",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"010001\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 1,
+      "id": "expanded_exact_descendant-e95450b6d1ff9a43",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 1; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          0,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "e95450b6d1ff9a433db96ed94289232ab313aa2d37c383b25bfef37512182ace",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":6,\"own_zero_mask\":\"001100\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        5
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-00878e58252b198a",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          9,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          7,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "00878e58252b198a1f79157b6716043079aa0e767ba9e0d43bc79484e0f59fd2",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[5],\"legal_count\":5,\"own_zero_mask\":\"000010\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-1224addf9c7f7c67",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          0,
+          1,
+          7,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "1224addf9c7f7c67ef30109609ee25d61841b2c7d3070d0dae8e13b4492003ea",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0],\"legal_count\":4,\"own_zero_mask\":\"010001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-1cabf950d7813429",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          7,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          8,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "1cabf950d78134293be3dcc86fc33246cc01abd42ce4e5a8da4522440e197b69",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-1cd5371b9b331b32",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          1,
+          2,
+          8,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "1cd5371b9b331b32935d2f67453b44558cf1885a3af8b7fbb13ad2c687f13720",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        1,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-364cc1a9a674d0fd",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          7,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          0,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "364cc1a9a674d0fd017d4ffee57e64ee93697ed298dd8474cc4e2ba57ed76cc3",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[0,5],\"legal_count\":4,\"own_zero_mask\":\"001100\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3,
+        5
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-3bc92e92130442ed",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          8,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "3bc92e92130442edea697ecba1ed242790b08601fcaeedb1ecc857357a5adcc0",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-4dcabdd53ce0aa52",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "4dcabdd53ce0aa525b4a4cab9315decee365236261827fb1586cc6ec83160e65",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        1,
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-517088185c658b11",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          1,
+          2,
+          8,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "517088185c658b11cfb17d6d659c981df4e66afb9ed7acc668d3d411b6bfcb89",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-74896ea574b23890",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          9,
+          8,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "74896ea574b23890d5204277fee8fea7a88308cd114d2632e7355806f9b960e6",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0,5],\"legal_count\":4,\"own_zero_mask\":\"001010\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        1,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-7a0dbb8a9b462006",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          9,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          0,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "7a0dbb8a9b4620063d038ac78a0c158052593a4e71000b69e12a69a38ad99902",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[0,5],\"legal_count\":4,\"own_zero_mask\":\"001100\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-7dc9f8f316dcb03d",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          7,
+          1,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "7dc9f8f316dcb03d4b884d136c3ea9e3442b232a5e5e457d6bb068f077826327",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-8ed8b2ef8d838aed",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          7,
+          1,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "8ed8b2ef8d838aede40f41aceeb8035778305e9e4d9e33c666e5e216739ed55d",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-928e85c737d80535",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "928e85c737d805353b3f6c488d4e421d9e08bf00bf441d9604ccae77ac746e3b",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0,5],\"legal_count\":4,\"own_zero_mask\":\"001010\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        1,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-c785f4b5de841f2f",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          9,
+          8,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          0,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "c785f4b5de841f2f25082d261315b4c36d38f5972fc7dfab51eb20d6f19eaf32",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[0,5],\"legal_count\":4,\"own_zero_mask\":\"001100\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-e49a1b301537f3c5",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          8,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          0,
+          1,
+          7,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "e49a1b301537f3c56eb43f1794fe453447ea19873047baa588f3c2c6ba12c122",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0],\"legal_count\":4,\"own_zero_mask\":\"010001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 42,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        3,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 2,
+      "id": "expanded_exact_descendant-f13d24733a2bccd3",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 2; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          9,
+          9,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "f13d24733a2bccd3610fe3da4e167b8c797d6c1046852088b7bd608f73c7b8d3",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0,5],\"legal_count\":4,\"own_zero_mask\":\"001010\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-1d40d906e76c48b0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          8,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          4,
+          2,
+          2,
+          8,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "1d40d906e76c48b0275bbaf021b95a78ba440bb7935087ef99cdcb2f6717e2a4",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[4],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2,
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-1fd8099914c4d075",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          7,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "1fd8099914c4d07537e35b4681fc9a07bbc2a15fb6d5f0d9267db580f843c473",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-2bbdbee96a2ec4ed",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          0,
+          8,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          4,
+          2,
+          2,
+          8,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "2bbdbee96a2ec4ed42177779d49fd20dc3913d7eecc36dd6111c317ad81dc5e3",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[4],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-3a7f66cc3ce323b7",
+      "legal_actions": [
+        0,
+        1,
+        3
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          9,
+          9,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          6,
+          0,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "3a7f66cc3ce323b71a528c018c7bfd90c57f602ef02231e18a2791a1538ae86f",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[0],\"legal_count\":3,\"own_zero_mask\":\"001011\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-3cd129b7b7127652",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          1,
+          2,
+          8,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "3cd129b7b7127652f9bc56392bae20639124961c0f691fdf0a870e44aab4bcfd",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[4],\"legal_count\":6,\"own_zero_mask\":\"000010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-4416d9688b7785e7",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          2,
+          1,
+          9,
+          3,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          0,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "4416d9688b7785e7dbe2b9f6ee9888518941dd79dd035344717e751a07bb42cb",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":6,\"own_zero_mask\":\"000010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-6ab224b2faf54687",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          8,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          7,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "6ab224b2faf54687e68d6a1a2f266f1b2da086b0fdf7ead0e8a25b526a41d4c7",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-941831b32b07a310",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          7,
+          1,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "941831b32b07a310f2b52b3c046df7a4144eed9beef1a02f0f3d35afded62ad7",
+      "structural_signature": "{\"capture_actions\":[4],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2,
+        3,
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-a4d46c9e92a6fad3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          7,
+          0,
+          2
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "a4d46c9e92a6fad36298ce1db70e5ac1908b52514228fa06e008088ba90eb4e3",
+      "structural_signature": "{\"capture_actions\":[4],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-b4133161eac0bbf8",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          9,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          7,
+          0,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "b4133161eac0bbf871519191e4cb683a3d9355b955b65344a174a94882da3c4f",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[],\"legal_count\":4,\"own_zero_mask\":\"000011\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-caa49113093e6f3d",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          7,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          8,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "caa49113093e6f3dbdacfd99a106dcdcbd99ceb5f3526f731678f26ceffd7ad6",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 3,
+      "id": "expanded_exact_descendant-d154f48687e8037d",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 3; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          7,
+          1,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "d154f48687e8037d8b975e673b6aee94e40a23f7d13f603bb36e4dff65fbb4cd",
+      "structural_signature": "{\"capture_actions\":[4],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-086cc959448b641c",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          2,
+          9,
+          8,
+          2,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          0,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "086cc959448b641c0639c848ae028ffdd82f41d4a9a6e3596e312ad63b2616f6",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[4,5],\"legal_count\":6,\"own_zero_mask\":\"000010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-0aab402e97e225fb",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          2,
+          1,
+          9,
+          3,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          0,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "0aab402e97e225fbbcc9544f00fba861628d6edcda797313b4906b6d44e60394",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":6,\"own_zero_mask\":\"000010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2,
+        3,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-1419d98d7f470838",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          9,
+          3,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          4,
+          2,
+          8,
+          0,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "1419d98d7f47083856da0a089e42d5071dc5cf7613e7c0412599651bf3b50731",
+      "structural_signature": "{\"capture_actions\":[2],\"extra_turn_actions\":[5],\"legal_count\":5,\"own_zero_mask\":\"000010\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-28c8bbc698c47d04",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          0,
+          9,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          4,
+          2,
+          8,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "28c8bbc698c47d049fccd32ec0267f0bfe1064382f64e73fd799b0e91de7d508",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[4],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-2e50728577603964",
+      "legal_actions": [
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          0,
+          2,
+          8,
+          8,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "2e507285776039640c075df7c8b2d16cea79606d5daab5ac86a25409f8d4092c",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":3,\"own_zero_mask\":\"110001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-2f8d8d863b01611e",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          2,
+          9,
+          9,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          0,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "2f8d8d863b01611e1fb9a6b28b1f8663334efb53ae0c074827424e1284a29118",
+      "structural_signature": "{\"capture_actions\":[4],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000100\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3,
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-3ebbf4dfe3f0603d",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          1,
+          8,
+          0,
+          2,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          5,
+          3,
+          3,
+          9,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "3ebbf4dfe3f0603d458bd04230d996da81d014b50d7ea9e1c7f290c3171fac20",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[1,3],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        2,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-44417ef985812a99",
+      "legal_actions": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          9,
+          9,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          1,
+          0,
+          8,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "44417ef985812a996278e778c318e67895cb111a92890a6e24471519af0580e3",
+      "structural_signature": "{\"capture_actions\":[2],\"extra_turn_actions\":[5],\"legal_count\":4,\"own_zero_mask\":\"100100\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-46b51439e607cc5f",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          2,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          4,
+          2,
+          8,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "46b51439e607cc5f991b665dc4b8f9253a4e912553ef07d607cf636f87c417d4",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-4be965440ff0ea44",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          2,
+          1,
+          10,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          0,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "4be965440ff0ea448144a969cac8cde61420d7a0bf7f1d68a085ddcce168070c",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[4],\"legal_count\":6,\"own_zero_mask\":\"000100\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-4ee0327ed1af7e58",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          7,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          1,
+          3,
+          9,
+          9,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "4ee0327ed1af7e58a44432f9235bb2b41275abce134b6bb9e374a335f8e16e55",
+      "structural_signature": "{\"capture_actions\":[2],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        5
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-5ed9fa4252b46c2c",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          2,
+          9,
+          1,
+          3,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          1,
+          0,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "5ed9fa4252b46c2cf3d2dbf5e5dd00e634f6770d3881dd946915de2611054c52",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":6,\"own_zero_mask\":\"000010\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-67e5e004e8006079",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          9,
+          8,
+          2,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          1,
+          7,
+          0,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "67e5e004e8006079be94ef81063fe7794952b8fd5e7f93b68353ff336f2fe1ad",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":4,\"own_zero_mask\":\"100010\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2,
+        3,
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-729afe93987305b5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          1,
+          3,
+          9,
+          8,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "729afe93987305b55ce2cfd254c63563012cc9a906712d1f880659ceccda88c3",
+      "structural_signature": "{\"capture_actions\":[2],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-75fa934d00d243d8",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          0,
+          2,
+          8,
+          2,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "75fa934d00d243d872bfba63cf468265c04a99e0dfcc31c0afd71c7e59d5c50f",
+      "structural_signature": "{\"capture_actions\":[4],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"010001\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3,
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-76b417e035a954c9",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          1,
+          8,
+          7,
+          0,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          4,
+          2,
+          2,
+          9,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "76b417e035a954c99e5271ab38b95d49c93617543d0b88b08bb3f6b28665382d",
+      "structural_signature": "{\"capture_actions\":[4],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-7731251a2895107c",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          8,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          4,
+          2,
+          2,
+          8,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "7731251a2895107cc28ff80003efe757848290a9252e10aac6e7f996f9f90b16",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[4],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        3,
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-79f87dbe37319d51",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          1,
+          0,
+          8,
+          2,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          5,
+          3,
+          3,
+          9,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "79f87dbe37319d51ce72265e50d398406a1968eae652a8427797a8bd0502161c",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[1,3],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-7a918293d4d09744",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          9,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          4,
+          2,
+          1,
+          8,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "7a918293d4d09744e440b678fef318f81f9da124a18aa862e76bcbd5190e6e88",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-836bb4ff740ae79f",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          4,
+          2,
+          1,
+          9,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "836bb4ff740ae79f4ea57ccf3a079ad1c3d2493b20d64d6858ad3ec6ce44889a",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 41,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        3
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-8592154cbda94e0b",
+      "legal_actions": [
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          8,
+          7,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          0,
+          2,
+          8,
+          8,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "8592154cbda94e0b24a359617c74696ec6a387adab1141e458df72a2ef30b237",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":3,\"own_zero_mask\":\"110001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        2,
+        3,
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-a1be60eab62df89a",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          0,
+          8,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          1,
+          3,
+          8,
+          8,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "a1be60eab62df89aaf6d74ff0133ef2d184eaf5053962689da7dbcc7b19f7915",
+      "structural_signature": "{\"capture_actions\":[2],\"extra_turn_actions\":[],\"legal_count\":5,\"own_zero_mask\":\"000001\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        2,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-cd6fd28fdab53103",
+      "legal_actions": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          9,
+          8,
+          1,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          1,
+          0,
+          8,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "cd6fd28fdab5310357e255ebd7ec0927d305cd52cd2e2658e9267a5ff495c214",
+      "structural_signature": "{\"capture_actions\":[2],\"extra_turn_actions\":[5],\"legal_count\":4,\"own_zero_mask\":\"100100\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-d10449eada5bd1b8",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          0,
+          3,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          4,
+          2,
+          8,
+          1,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "d10449eada5bd1b8bb3ef31eb23270358deadd4ac7483cbdd2aa3168603f5067",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[5],\"legal_count\":6,\"own_zero_mask\":\"000000\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-d73ada7e984bb21a",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          9,
+          9,
+          2,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          1,
+          7,
+          0,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "d73ada7e984bb21abce79b1cebabd9a31635cfe5fa926425c1fb4b7ce0c7ee46",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[5],\"legal_count\":4,\"own_zero_mask\":\"100010\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-d7862ae1e9e117e4",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          0,
+          8,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          4,
+          2,
+          2,
+          8,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "d7862ae1e9e117e4d4102bf8358533f71b4a417987dc8cb6e6d4552360de8592",
+      "structural_signature": "{\"capture_actions\":[1],\"extra_turn_actions\":[4],\"legal_count\":5,\"own_zero_mask\":\"100000\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 39,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        4,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-db6d80b5bf9a0689",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          2,
+          9,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          3,
+          1,
+          0,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "db6d80b5bf9a0689837d4f02fe186ef6c7e0322a9d00fd7a65f35f50ba3f51b5",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[4],\"legal_count\":6,\"own_zero_mask\":\"000100\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 40,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        2,
+        5
+      ],
+      "exact_outcome_value": 1.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-f3aa3941fd6c0c7a",
+      "legal_actions": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          8,
+          8,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          1,
+          0,
+          8,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "f3aa3941fd6c0c7a8ec81a1eec1f84447cc688ab8345dd558d6f2b02f1c88026",
+      "structural_signature": "{\"capture_actions\":[2],\"extra_turn_actions\":[5],\"legal_count\":4,\"own_zero_mask\":\"100100\",\"player\":0}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 38,
+      "approximate_phase": "mid",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        0,
+        4
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "expansion_depth": 4,
+      "id": "expanded_exact_descendant-f8a4533e0e37b58f",
+      "legal_actions": [
+        0,
+        3,
+        4,
+        5
+      ],
+      "membership": "expanded_exact_descendant",
+      "provenance": "R61 deterministic legal descendant depth 4; exact inherited label",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          0,
+          9,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          0,
+          2,
+          8,
+          0,
+          0
+        ],
+        "player_store": 7
+      },
+      "state_sha256": "f8a4533e0e37b58f363c2e92930b98dab3f64b68414f2b62eaca519e419d93ec",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[4],\"legal_count\":4,\"own_zero_mask\":\"010011\",\"player\":1}",
+      "training_ineligible": true
+    },
+    {
+      "active_stones": 43,
+      "approximate_phase": "early",
+      "degrading_actions": [],
+      "exact_outcome_optimal_actions": [
+        1,
+        4
+      ],
+      "exact_outcome_value": 0.0,
+      "excluded_from_generated_replay": true,
+      "id": "matched_control-11f57287d52ab7f2",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "membership": "matched_control",
+      "provenance": "exact label matched before longitudinal evaluation; seed45 control and uniform1200 raw top-1 optimal",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          7,
+          0,
+          9,
+          3
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          7,
+          0,
+          0,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_sha256": "11f57287d52ab7f2092bfdfd88e268b9addbd64279ea18bf13ac843b2f73e305",
+      "structural_signature": "{\"capture_actions\":[],\"extra_turn_actions\":[],\"legal_count\":4,\"own_zero_mask\":\"001100\",\"player\":0}",
+      "training_ineligible": true
+    }
+  ],
+  "exact_label_artifact_sha256": "5b1f6bac3d0289c62d74cccfa104fd3b31a41dc17eb7cfb24b457573df9f477c",
+  "excluded_all_legal_actions_optimal": 15,
+  "guardrails": {
+    "promotion": false,
+    "replay_mutation": false,
+    "search": false,
+    "training": false
+  },
+  "schema": "azlite_r61_expanded_exact_subcluster_v1",
+  "set_sha256": "e13fe629b5c1f8b187f5c38605fe1f8773696326adb647260075334732037b44",
+  "source_manifest_sha256": "184884f23e11b1c9db2229dc16f478eeab30e30e819d2c356419406b97ccd672",
+  "training_injection": false
+}
