@@ -180,6 +180,124 @@ Steps 1-108 are pre-registered as formation. Per-step ordered batch provenance, 
 }
 ```
 
+## Content And Source Attribution
+
+The JSON artifact contains raw-count composition comparisons, exposure-normalized source effects, replay-row/state recurrence, and all eight pre-registered family summaries.
+
+```json
+{
+  "selected_family": null,
+  "counterfactual": {
+    "steps": [
+      {
+        "t61_step": 3,
+        "content_stable_harm": false,
+        "t61_state_dependent_harm": true,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": -0.06374144852161408,
+        "t63_recipient_t61_batch_effect": 0.0658799409866333,
+        "replacement_improvement": 0.0034185945987701416,
+        "t61_control_a0_effect": 0.1872037649154663
+      },
+      {
+        "t61_step": 85,
+        "content_stable_harm": true,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": true,
+        "t61_cluster_a0_effect": -0.0738977313041687,
+        "t63_recipient_t61_batch_effect": -0.0247730553150177,
+        "replacement_improvement": 0.02355750203132629,
+        "t61_control_a0_effect": 0.04481637477874756
+      },
+      {
+        "t61_step": 4,
+        "content_stable_harm": true,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": -0.07187562882900238,
+        "t63_recipient_t61_batch_effect": -0.13840622156858445,
+        "replacement_improvement": -0.03378225564956665,
+        "t61_control_a0_effect": 0.009890735149383545
+      },
+      {
+        "t61_step": 101,
+        "content_stable_harm": true,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": -0.05722641870379448,
+        "t63_recipient_t61_batch_effect": -0.10373406410217285,
+        "replacement_improvement": -0.01101866364479065,
+        "t61_control_a0_effect": 0.01819649338722229
+      },
+      {
+        "t61_step": 95,
+        "content_stable_harm": false,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": 0.018003815412521364,
+        "t63_recipient_t61_batch_effect": -0.005843168497085572,
+        "replacement_improvement": -0.024291348457336426,
+        "t61_control_a0_effect": 0.07960081100463867
+      },
+      {
+        "t61_step": 84,
+        "content_stable_harm": true,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": -0.02441921830177307,
+        "t63_recipient_t61_batch_effect": -0.006976038217544556,
+        "replacement_improvement": -0.024516403675079346,
+        "t61_control_a0_effect": 0.036763012409210205
+      },
+      {
+        "t61_step": 41,
+        "content_stable_harm": false,
+        "t61_state_dependent_harm": true,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": -0.01316385269165039,
+        "t63_recipient_t61_batch_effect": 0.017440134286880495,
+        "replacement_improvement": -0.003561025857925417,
+        "t61_control_a0_effect": 0.03926116228103638
+      },
+      {
+        "t61_step": 74,
+        "content_stable_harm": true,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": true,
+        "t61_cluster_a0_effect": -0.03724954724311828,
+        "t63_recipient_t61_batch_effect": -0.006539070606231689,
+        "replacement_improvement": 0.022157514095306394,
+        "t61_control_a0_effect": 0.014115899801254272
+      },
+      {
+        "t61_step": 81,
+        "content_stable_harm": false,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": 0.038923409581184384,
+        "t63_recipient_t61_batch_effect": 0.014367318153381348,
+        "replacement_improvement": -0.006253796815872188,
+        "t61_control_a0_effect": 0.08652713894844055
+      },
+      {
+        "t61_step": 94,
+        "content_stable_harm": false,
+        "t61_state_dependent_harm": false,
+        "t63_batch_protective": false,
+        "t61_cluster_a0_effect": 0.021748217940330505,
+        "t63_recipient_t61_batch_effect": 0.0016411006450653075,
+        "replacement_improvement": -0.02184736132621765,
+        "t61_control_a0_effect": 0.06761026382446289
+      }
+    ],
+    "content_stable_fraction": 0.5,
+    "state_dependent_fraction": 0.2,
+    "protective_replacement_fraction": 0.2,
+    "cluster_harm_stronger_than_controls": true
+  }
+}
+```
+
 ## Classification
 
 `early_trunk_provenance_heterogeneous`

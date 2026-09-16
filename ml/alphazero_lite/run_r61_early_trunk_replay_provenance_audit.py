@@ -14,7 +14,7 @@ import hashlib
 import json
 import statistics
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -358,6 +358,341 @@ def select_candidate_family(families: list[dict[str, Any]]) -> dict[str, Any] | 
         )[0]
         if qualified
         else None
+    )
+
+
+def batch_family_fraction(
+    batch_indexes: list[int], metadata: list[dict[str, Any]], field: str, value: str
+) -> float:
+    return sum(
+        family_id(metadata[index], field) == value for index in batch_indexes
+    ) / max(len(batch_indexes), 1)
+
+
+def source_accounting(
+    metadata: list[dict[str, Any]], formation: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Separate static replay weights from actual chronological exposures."""
+    by_source: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in metadata:
+        by_source[row["source"]].append(row)
+    total_expected = sum(row["effective_replay_weight"] for row in metadata)
+    total_observed = sum(len(row["batch_indexes"]) for row in formation)
+    result = []
+    for source, rows in sorted(by_source.items()):
+        observed = [
+            (step, index)
+            for step in formation
+            for index in step["batch_indexes"]
+            if metadata[index]["source"] == source
+        ]
+        negative, positive = 0.0, 0.0
+        for step in formation:
+            per_exposure = float(step["cluster_specific_a0_effect"]) / max(
+                len(step["batch_indexes"]), 1
+            )
+            count = sum(
+                metadata[index]["source"] == source for index in step["batch_indexes"]
+            )
+            if per_exposure < 0:
+                negative += -per_exposure * count
+            else:
+                positive += per_exposure * count
+        exposure_count = len(observed)
+        result.append(
+            {
+                "source": source,
+                "source_artifact": rows[0]["source_artifact"],
+                "source_sha256": rows[0]["source_sha256"],
+                "raw_compact_rows": len(rows),
+                "effective_weighted_rows": sum(
+                    row["effective_replay_weight"] for row in rows
+                ),
+                "expected_exposure_fraction": sum(
+                    row["effective_replay_weight"] for row in rows
+                )
+                / max(total_expected, 1),
+                "observed_formation_exposures": exposure_count,
+                "observed_formation_fraction": exposure_count / max(total_observed, 1),
+                "negative_a0_movement_share": negative,
+                "positive_a0_movement_share": positive,
+                "negative_a0_effect_per_1000_exposures": 1000
+                * negative
+                / max(exposure_count, 1),
+                "positive_a0_effect_per_1000_exposures": 1000
+                * positive
+                / max(exposure_count, 1),
+            }
+        )
+    total_negative = sum(row["negative_a0_movement_share"] for row in result)
+    total_positive = sum(row["positive_a0_movement_share"] for row in result)
+    for row in result:
+        row["negative_a0_movement_share"] /= max(total_negative, EPS)
+        row["positive_a0_movement_share"] /= max(total_positive, EPS)
+    return result
+
+
+def family_summaries(
+    formation: list[dict[str, Any]],
+    metadata: list[dict[str, Any]],
+    harmful_steps: set[int],
+) -> list[dict[str, Any]]:
+    """Evaluate only the eight pre-registered single-axis family definitions."""
+    output = []
+    total_negative = sum(
+        -float(step["cluster_specific_a0_effect"])
+        for step in formation
+        if step["cluster_specific_a0_effect"] < 0
+    )
+    total_exposures = sum(len(step["batch_indexes"]) for step in formation)
+    for field in FAMILY_FIELDS:
+        identifiers = sorted({family_id(row, field) for row in metadata})
+        for identifier in identifiers:
+            enriched = [
+                step
+                for step in formation
+                if batch_family_fraction(
+                    step["batch_indexes"], metadata, field, identifier
+                )
+                >= 0.10
+            ]
+            harmful = [
+                step
+                for step in enriched
+                if step["cluster_specific_a0_effect"] < 0
+                and step["optimizer_step"] in harmful_steps
+            ]
+            exposures = sum(
+                sum(
+                    family_id(metadata[index], field) == identifier
+                    for index in step["batch_indexes"]
+                )
+                for step in formation
+            )
+            negative = sum(
+                -float(step["cluster_specific_a0_effect"])
+                * batch_family_fraction(
+                    step["batch_indexes"], metadata, field, identifier
+                )
+                for step in formation
+                if step["cluster_specific_a0_effect"] < 0
+            )
+            alignments = [
+                step["input_gradient"]["cluster_probe_alignment"]
+                for step in harmful
+                if step["input_gradient"]["cluster_probe_alignment"] is not None
+            ]
+            control_alignments = [
+                step["input_gradient"]["control_probe_alignment"]
+                for step in harmful
+                if step["input_gradient"]["control_probe_alignment"] is not None
+            ]
+            prevalence = len(enriched) / max(len(formation), 1)
+            output.append(
+                {
+                    "family_id": identifier,
+                    "family_field": field,
+                    "formation_exposures": exposures,
+                    "formation_exposure_fraction": exposures / max(total_exposures, 1),
+                    "enriched_batches": len(enriched),
+                    "harmful_batches": len(harmful),
+                    "harmful_batch_prevalence": len(harmful)
+                    / max(len(harmful_steps), 1),
+                    "all_formation_batch_prevalence": prevalence,
+                    "enrichment": (len(harmful) / max(len(harmful_steps), 1))
+                    / max(prevalence, EPS),
+                    "negative_contribution": negative,
+                    "negative_contribution_share": negative / max(total_negative, EPS),
+                    "negative_per_exposure": -negative / max(exposures, 1),
+                    "baseline_negative_per_exposure": -total_negative
+                    / max(total_exposures, 1),
+                    "median_cluster_probe_alignment": float(np.median(alignments))
+                    if alignments
+                    else 0.0,
+                    "median_control_probe_alignment": float(
+                        np.median(control_alignments)
+                    )
+                    if control_alignments
+                    else 0.0,
+                }
+            )
+    return sorted(output, key=lambda row: row["family_id"])
+
+
+def composition(
+    steps: list[dict[str, Any]], metadata: list[dict[str, Any]]
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    """Raw counts plus fractions for the requested batch-content comparison."""
+    fields = (
+        "source",
+        "phase",
+        "current_player",
+        "legal_action_count",
+        "capture_available",
+        "extra_turn_available",
+        "value_target_sign",
+        "policy_target_top_action",
+        "structural_neighbor",
+    )
+    indexes = [index for step in steps for index in step["batch_indexes"]]
+    output: dict[str, dict[str, dict[str, float | int]]] = {}
+    for field in fields:
+        counts = Counter(str(metadata[index][field]) for index in indexes)
+        output[field] = {
+            value: {"count": count, "fraction": count / max(len(indexes), 1)}
+            for value, count in sorted(counts.items())
+        }
+    entropy = [metadata[index]["policy_target_entropy"] for index in indexes]
+    output["policy_target_entropy"] = {
+        "mean": {
+            "count": len(entropy),
+            "fraction": statistics.fmean(entropy) if entropy else 0.0,
+        }
+    }
+    return output
+
+
+def recurrence(
+    formation: list[dict[str, Any]],
+    metadata: list[dict[str, Any]],
+    worst_steps: set[int],
+    best_steps: set[int],
+) -> dict[str, list[dict[str, Any]]]:
+    rows: dict[int, dict[str, Any]] = {}
+    for index, meta in enumerate(metadata):
+        matching = [step for step in formation if index in step["batch_indexes"]]
+        harmful = [step for step in matching if step["optimizer_step"] in worst_steps]
+        protective = [step for step in matching if step["optimizer_step"] in best_steps]
+        if len(harmful) >= 3:
+            rows[index] = {
+                "compact_index": index,
+                "canonical_state_hash": meta["canonical_state_hash"],
+                "source": meta["source"],
+                "local_jsonl_row": meta["local_jsonl_row"],
+                "formation_exposures": len(matching),
+                "worst_20_batches": len(harmful),
+                "best_20_batches": len(protective),
+            }
+    by_state: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows.values():
+        by_state[row["canonical_state_hash"]].append(row)
+    states = [
+        {
+            "canonical_state_hash": key,
+            "compact_rows": len(value),
+            "formation_exposures": sum(row["formation_exposures"] for row in value),
+            "worst_20_batches": sum(row["worst_20_batches"] for row in value),
+            "best_20_batches": sum(row["best_20_batches"] for row in value),
+        }
+        for key, value in by_state.items()
+    ]
+    return {
+        "rows_support_ge_3": sorted(
+            rows.values(),
+            key=lambda row: (-row["worst_20_batches"], row["compact_index"]),
+        ),
+        "states_support_ge_3": sorted(
+            states,
+            key=lambda row: (-row["worst_20_batches"], row["canonical_state_hash"]),
+        ),
+    }
+
+
+def temporal_summary(
+    t61: list[dict[str, Any]], t63: list[dict[str, Any]]
+) -> dict[str, Any]:
+    rows, cumulative = [], {"T61": 0.0, "T63": 0.0}
+    for left, right in zip(t61, t63):
+        for lane, step in (("T61", left), ("T63", right)):
+            cumulative[lane] += float(step["cluster_specific_a0_effect"])
+        rows.append(
+            {
+                "step": left["optimizer_step"],
+                "t61_cumulative_net": cumulative["T61"],
+                "t63_cumulative_net": cumulative["T63"],
+                "t61_minus_t63": cumulative["T61"] - cumulative["T63"],
+            }
+        )
+    return {"per_step": rows, "final": rows[-1] if rows else {}}
+
+
+def counterfactual_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
+    classifications = []
+    for row in cells:
+        values = row["cells"]
+        t61 = values["T61_historical"]["cluster_a0_effect"]
+        on_t63 = values["T63_T61_batch"]["cluster_a0_effect"]
+        replacement = values["T61_matched_T63_batch"]["cluster_a0_effect"] - t61
+        classifications.append(
+            {
+                "t61_step": row["t61_step"],
+                "content_stable_harm": t61 < 0 and on_t63 < 0,
+                "t61_state_dependent_harm": t61 < 0 and on_t63 >= 0,
+                "t63_batch_protective": replacement >= 0.01,
+                "t61_cluster_a0_effect": t61,
+                "t63_recipient_t61_batch_effect": on_t63,
+                "replacement_improvement": replacement,
+                "t61_control_a0_effect": values["T61_historical"]["control_a0_effect"],
+            }
+        )
+    total = len(classifications)
+    return {
+        "steps": classifications,
+        "content_stable_fraction": sum(
+            row["content_stable_harm"] for row in classifications
+        )
+        / max(total, 1),
+        "state_dependent_fraction": sum(
+            row["t61_state_dependent_harm"] for row in classifications
+        )
+        / max(total, 1),
+        "protective_replacement_fraction": sum(
+            row["t63_batch_protective"] for row in classifications
+        )
+        / max(total, 1),
+        "cluster_harm_stronger_than_controls": statistics.fmean(
+            row["t61_cluster_a0_effect"] - row["t61_control_a0_effect"]
+            for row in classifications
+        )
+        < 0
+        if classifications
+        else False,
+    }
+
+
+def hard_classification(
+    candidate: dict[str, Any] | None,
+    ranking: dict[str, Any],
+    counterfactual: dict[str, Any],
+) -> tuple[str, str]:
+    """Apply the pre-registered decision tree without selecting by narrative."""
+    if (
+        candidate
+        and counterfactual["content_stable_fraction"] >= 0.70
+        and counterfactual["cluster_harm_stronger_than_controls"]
+    ):
+        if candidate["family_field"] == "source":
+            return (
+                "early_trunk_replay_source_identified",
+                "run one fixed-total source-mixture ablation that reduces that source while replacing examples from another already-historical source.",
+            )
+        return (
+            "early_trunk_replay_content_family_identified",
+            "run one fixed-total replay ablation replacing the identified family with matched ordinary replay rows from the same source/phase distribution.",
+        )
+    if counterfactual["state_dependent_fraction"] > 0.50:
+        return (
+            "early_trunk_parameter_state_interaction",
+            "audit the earliest narrow optimizer window that produces the T61/T63 A0 state divergence using local batch-order swaps, without changing replay content.",
+        )
+    if ranking["negative_concentration"]["20"] < 0.60:
+        return (
+            "early_trunk_diffuse_replay_interference",
+            "test one G0 A0 feature-retention regularizer on ordinary training replay states under frozen R61 with one pre-registered coefficient.",
+        )
+    return (
+        "early_trunk_provenance_heterogeneous",
+        "restrict analysis to the earliest pre-step-108 window in which cumulative T61-vs-T63 A0 damage first becomes material, and repeat the 2x2 batch-state counterfactual there only.",
     )
 
 
@@ -718,16 +1053,23 @@ def main(argv: list[str] | None = None) -> int:
         manifest,
         [row["optimizer_step"] for row in top["T61"]["worst_10"]],
     )
-    classification = (
-        "early_trunk_batch_counterfactual_invalid"
-        if not valid
-        else "early_trunk_provenance_heterogeneous"
+    t61_worst = {int(step) for step in rankings["T61"]["worst_20"]}  # type: ignore[index]
+    family_rows = family_summaries(
+        formation["T61"], lanes["T61"]["metadata"], t61_worst
     )
-    next_experiment = (
-        "none"
+    candidate = select_candidate_family(family_rows)
+    counterfactual = counterfactual_summary(cells)
+    classification, next_experiment = (
+        ("early_trunk_batch_counterfactual_invalid", "none")
         if not valid
-        else "restrict analysis to the earliest pre-step-108 window in which cumulative T61-vs-T63 A0 damage first becomes material, and repeat the 2x2 batch-state counterfactual there only."
+        else hard_classification(candidate, rankings["T61"], counterfactual)
     )
+    composition_rows = {
+        "t61_worst_20": composition(top["T61"]["worst_20"], lanes["T61"]["metadata"]),
+        "t61_best_20": composition(top["T61"]["best_20"], lanes["T61"]["metadata"]),
+        "t61_formation": composition(formation["T61"], lanes["T61"]["metadata"]),
+        "t63_formation": composition(formation["T63"], lanes["T63"]["metadata"]),
+    }
     result |= {
         "baseline_reproduction": baseline,
         "replay_rows": lanes["T61"]["metadata"],
@@ -742,7 +1084,22 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "per_step": {seed: lane["traces"] for seed, lane in lanes.items()},
         "formation_rankings": rankings,
+        "temporal_comparison": temporal_summary(formation["T61"], formation["T63"]),
+        "harmful_batch_composition": composition_rows,
+        "source_accounting": {
+            seed: source_accounting(lane["metadata"], formation[seed])
+            for seed, lane in lanes.items()
+        },
+        "family_summaries": family_rows,
+        "selected_family": candidate,
+        "row_recurrence": recurrence(
+            formation["T61"],
+            lanes["T61"]["metadata"],
+            {int(step) for step in rankings["T61"]["worst_20"]},  # type: ignore[index]
+            {int(step) for step in rankings["T61"]["best_20"]},  # type: ignore[index]
+        ),
         "counterfactual_valid": valid,
+        "counterfactual_summary": counterfactual,
         "classification": classification,
         "next_experiment": next_experiment,
     }
@@ -774,6 +1131,17 @@ def main(argv: list[str] | None = None) -> int:
                 "",
                 "```json",
                 json.dumps(rankings, indent=2),
+                "```",
+                "",
+                "## Content And Source Attribution",
+                "",
+                "The JSON artifact contains raw-count composition comparisons, exposure-normalized source effects, replay-row/state recurrence, and all eight pre-registered family summaries.",
+                "",
+                "```json",
+                json.dumps(
+                    {"selected_family": candidate, "counterfactual": counterfactual},
+                    indent=2,
+                ),
                 "```",
                 "",
                 "## Classification",

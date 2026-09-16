@@ -11,6 +11,8 @@ from ml.alphazero_lite.run_r61_early_trunk_replay_provenance_audit import (
     clone_adam_step,
     cohort,
     evaluate_step,
+    family_summaries,
+    hard_classification,
     input_vector,
     ranked_steps,
     select_candidate_family,
@@ -126,6 +128,66 @@ def test_family_definitions_are_pre_registered_and_non_conjunctive() -> None:
         "source_value_sign",
         "source_structural_neighbor",
     )
+
+
+def test_family_selection_uses_worst_batch_prevalence_and_raw_exposures() -> None:
+    metadata = [
+        {
+            "source": "dynamic",
+            "phase": "early",
+            "current_player": 0,
+            "legal_action_count": 2,
+            "capture_available": False,
+            "extra_turn_available": False,
+            "value_target_sign": "positive",
+            "structural_neighbor": False,
+        },
+        {
+            "source": "fixed:a",
+            "phase": "late",
+            "current_player": 1,
+            "legal_action_count": 3,
+            "capture_available": True,
+            "extra_turn_available": True,
+            "value_target_sign": "negative",
+            "structural_neighbor": True,
+        },
+    ]
+    steps = [
+        {
+            "optimizer_step": step,
+            "batch_indexes": [0] if step < 3 else [1],
+            "cluster_specific_a0_effect": -1.0 if step == 1 else 0.1,
+            "input_gradient": {
+                "cluster_probe_alignment": -0.2,
+                "control_probe_alignment": -0.1,
+            },
+        }
+        for step in range(1, 5)
+    ]
+    rows = family_summaries(steps, metadata, {1})
+    dynamic = next(row for row in rows if row["family_id"] == "source:dynamic")
+    assert dynamic["formation_exposures"] == 2
+    assert dynamic["harmful_batch_prevalence"] == pytest.approx(1.0)
+
+
+def test_hard_classification_requires_counterfactual_stability() -> None:
+    ranking = {"negative_concentration": {"20": 0.7}}
+    counterfactual = {
+        "content_stable_fraction": 0.7,
+        "state_dependent_fraction": 0.0,
+        "cluster_harm_stronger_than_controls": True,
+    }
+    classification, _ = hard_classification(
+        {"family_field": "source"}, ranking, counterfactual
+    )
+    assert classification == "early_trunk_replay_source_identified"
+    classification, _ = hard_classification(
+        None,
+        {"negative_concentration": {"20": 0.1}},
+        counterfactual | {"content_stable_fraction": 0.0},
+    )
+    assert classification == "early_trunk_diffuse_replay_interference"
 
 
 def test_cloned_adam_step_reproduces_historical_update() -> None:
