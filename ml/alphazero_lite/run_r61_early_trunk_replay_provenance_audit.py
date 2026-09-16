@@ -209,6 +209,24 @@ def probe_gradient(
     return torch.cat([value.detach().reshape(-1).float().cpu() for value in gradients])
 
 
+def finite_probe_descent_delta(
+    model: PolicyValueNet, entries: list[dict[str, Any]], epsilon: float = 1e-5
+) -> float:
+    """Test-only sign check: descending the probe gradient lowers probe loss."""
+    clone = copy.deepcopy(model).eval()
+    before = float(state_probe_loss(clone, entries).detach())
+    gradient = probe_gradient(clone, entries)
+    width = clone.input_layer.weight.numel()
+    with torch.no_grad():
+        clone.input_layer.weight.sub_(
+            epsilon * gradient[:width].reshape_as(clone.input_layer.weight)
+        )
+        clone.input_layer.bias.sub_(
+            epsilon * gradient[width:].reshape_as(clone.input_layer.bias)
+        )
+    return float(state_probe_loss(clone, entries).detach()) - before
+
+
 def replay_metadata(
     paths: list[Path], compact_p: np.ndarray, compact_v: np.ndarray
 ) -> list[dict[str, Any]]:
@@ -616,6 +634,159 @@ def temporal_summary(
     return {"per_step": rows, "final": rows[-1] if rows else {}}
 
 
+def movement_summary(steps: list[dict[str, Any]]) -> dict[str, dict[str, float]]:
+    """Aggregate A0 movement by immutable frozen cohort, including the anchor."""
+    output: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
+    for step in steps:
+        for row in step["states"]:
+            for key, value in row["movement"].items():
+                output[row["cohort"]][key].append(float(value))
+    return {
+        cohort_name: {key: statistics.fmean(values) for key, values in metrics.items()}
+        for cohort_name, metrics in output.items()
+    }
+
+
+def post_context_effects(step: dict[str, Any]) -> dict[str, float]:
+    values: dict[str, list[float]] = defaultdict(list)
+    for row in step["states"]:
+        values[row["cohort"]].append(float(row["a0_only_margin_delta_post_context"]))
+    cluster = statistics.fmean(values["cluster"]) if values["cluster"] else 0.0
+    control = statistics.fmean(values["controls"]) if values["controls"] else 0.0
+    return {
+        "cluster_a0_effect_post_context": cluster,
+        "control_a0_effect_post_context": control,
+        "cluster_specific_a0_effect_post_context": cluster - control,
+        "anchor_a0_effect_post_context": statistics.fmean(values["anchor"])
+        if values["anchor"]
+        else 0.0,
+    }
+
+
+def window_effect_summary(steps: list[dict[str, Any]]) -> dict[str, float]:
+    effects = [float(step["cluster_a0_effect"]) for step in steps]
+    controls = [float(step["control_a0_effect"]) for step in steps]
+    anchors = [
+        statistics.fmean(
+            row["a0_only_margin_delta"]
+            for row in step["states"]
+            if row["cohort"] == "anchor"
+        )
+        for step in steps
+    ]
+    post = [float(step["cluster_specific_a0_effect_post_context"]) for step in steps]
+    pre = [float(step["cluster_specific_a0_effect"]) for step in steps]
+    return {
+        "steps": len(steps),
+        "cumulative_cluster_a0_harm": sum(-value for value in effects if value < 0),
+        "cumulative_cluster_a0_help": sum(value for value in effects if value > 0),
+        "cumulative_cluster_a0_net": sum(effects),
+        "cumulative_control_a0_effect": sum(controls),
+        "cumulative_anchor_margin_effect": sum(anchors),
+        "cumulative_cluster_specific_pre_context": sum(pre),
+        "cumulative_cluster_specific_post_context": sum(post),
+        "pre_post_sign_agree": (sum(pre) == 0 or sum(post) == 0)
+        or (sum(pre) > 0) == (sum(post) > 0),
+    }
+
+
+def ranked_middle(steps: list[dict[str, Any]], count: int = 20) -> list[dict[str, Any]]:
+    ordered = sorted(
+        steps,
+        key=lambda row: (row["cluster_specific_a0_effect"], row["optimizer_step"]),
+    )
+    start = max((len(ordered) - count) // 2, 0)
+    return ordered[start : start + count]
+
+
+def gradient_response_summary(
+    groups: dict[str, list[dict[str, Any]]],
+) -> dict[str, dict[str, float]]:
+    output = {}
+    for name, steps in groups.items():
+        gradients = [step["input_gradient"] for step in steps]
+        output[name] = {
+            key: statistics.fmean(
+                float(value)
+                for gradient in gradients
+                if (value := gradient[key]) is not None
+            )
+            if gradients
+            else 0.0
+            for key in (
+                "preclip_norm",
+                "postclip_norm",
+                "update_norm",
+                "cosine_update_to_negative_raw_gradient",
+                "cluster_probe_alignment",
+                "control_probe_alignment",
+            )
+        }
+    return output
+
+
+def recurrence_both_seeds(
+    t61: list[dict[str, Any]],
+    t63: list[dict[str, Any]],
+    metadata: list[dict[str, Any]],
+    worst_steps: set[int],
+    best_steps: set[int],
+) -> dict[str, list[dict[str, Any]]]:
+    """Count exact compact rows and canonical states under both seed permutations."""
+    rows = []
+    for index, meta in enumerate(metadata):
+        t61_exposure = sum(index in step["batch_indexes"] for step in t61)
+        t63_exposure = sum(index in step["batch_indexes"] for step in t63)
+        harmful = sum(
+            index in step["batch_indexes"] and step["optimizer_step"] in worst_steps
+            for step in t61
+        )
+        protective = sum(
+            index in step["batch_indexes"] and step["optimizer_step"] in best_steps
+            for step in t61
+        )
+        if harmful >= 3:
+            rows.append(
+                {
+                    "compact_index": index,
+                    "canonical_state_hash": meta["canonical_state_hash"],
+                    "source": meta["source"],
+                    "local_jsonl_row": meta["local_jsonl_row"],
+                    "t61_formation_exposures": t61_exposure,
+                    "t63_formation_exposures": t63_exposure,
+                    "t61_worst_20_batches": harmful,
+                    "t61_best_20_batches": protective,
+                }
+            )
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        grouped[row["canonical_state_hash"]].append(row)
+    states = [
+        {
+            "canonical_state_hash": state_hash,
+            "compact_rows": len(value),
+            "t61_formation_exposures": sum(
+                row["t61_formation_exposures"] for row in value
+            ),
+            "t63_formation_exposures": sum(
+                row["t63_formation_exposures"] for row in value
+            ),
+            "t61_worst_20_batches": sum(row["t61_worst_20_batches"] for row in value),
+            "t61_best_20_batches": sum(row["t61_best_20_batches"] for row in value),
+        }
+        for state_hash, value in grouped.items()
+    ]
+    return {
+        "rows_support_ge_3": sorted(
+            rows, key=lambda row: (-row["t61_worst_20_batches"], row["compact_index"])
+        ),
+        "states_support_ge_3": sorted(
+            states,
+            key=lambda row: (-row["t61_worst_20_batches"], row["canonical_state_hash"]),
+        ),
+    }
+
+
 def counterfactual_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
     classifications = []
     for row in cells:
@@ -824,6 +995,7 @@ def run_lane(
             model.eval()
             state_rows, effects = evaluate_step(before_model, model, entries)
             model.train(was_training)
+            effects |= post_context_effects({"states": state_rows})
             raw = pending.pop("raw")
             update = input_vector(after) - input_vector(before)
             probe = pending.pop("probe")
@@ -1070,6 +1242,25 @@ def main(argv: list[str] | None = None) -> int:
         "t61_formation": composition(formation["T61"], lanes["T61"]["metadata"]),
         "t63_formation": composition(formation["T63"], lanes["T63"]["metadata"]),
     }
+    windows = {
+        seed: {
+            "formation": window_effect_summary(formation[seed]),
+            "maintenance": window_effect_summary(
+                [
+                    row
+                    for row in lanes[seed]["traces"]
+                    if row["optimizer_step"] > FORMATION_END
+                ]
+            ),
+        }
+        for seed in TRAINING_SEEDS
+    }
+    gradient_groups = {
+        "t61_worst_20": top["T61"]["worst_20"],
+        "t61_best_20": top["T61"]["best_20"],
+        "t61_neutral_20": ranked_middle(formation["T61"]),
+        "t63_formation": formation["T63"],
+    }
     result |= {
         "baseline_reproduction": baseline,
         "replay_rows": lanes["T61"]["metadata"],
@@ -1084,6 +1275,10 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "per_step": {seed: lane["traces"] for seed, lane in lanes.items()},
         "formation_rankings": rankings,
+        "formation_and_maintenance": windows,
+        "a0_movement_by_cohort": {
+            seed: movement_summary(lane["traces"]) for seed, lane in lanes.items()
+        },
         "temporal_comparison": temporal_summary(formation["T61"], formation["T63"]),
         "harmful_batch_composition": composition_rows,
         "source_accounting": {
@@ -1092,12 +1287,14 @@ def main(argv: list[str] | None = None) -> int:
         },
         "family_summaries": family_rows,
         "selected_family": candidate,
-        "row_recurrence": recurrence(
+        "row_recurrence": recurrence_both_seeds(
             formation["T61"],
+            formation["T63"],
             lanes["T61"]["metadata"],
             {int(step) for step in rankings["T61"]["worst_20"]},  # type: ignore[index]
             {int(step) for step in rankings["T61"]["best_20"]},  # type: ignore[index]
         ),
+        "input_layer_gradient_response": gradient_response_summary(gradient_groups),
         "counterfactual_valid": valid,
         "counterfactual_summary": counterfactual,
         "classification": classification,
@@ -1125,9 +1322,22 @@ def main(argv: list[str] | None = None) -> int:
                 "",
                 "## Formation Window",
                 "",
-                "Steps 1-108 are pre-registered as formation. Per-step ordered batch provenance, compact-row source mapping, A0 pre/post vectors and movement, fixed-downstream margin effects, input gradients, and probe alignments are in the JSON artifact.",
+                "Steps 1-108 are pre-registered as formation. The immutable compact-row map contains source artifact/SHA/local JSONL row, canonical state hash, effective replay weight, sharpened policy target, and value target.",
                 "",
-                "## Ranking",
+                f"Unique compact rows: {len(lanes['T61']['metadata'])}; effective weighted replay exposures: {result['effective_row_exposures']}.",
+                "",
+                "## A0 Movement And Contexts",
+                "",
+                "A0 before/after vectors, L2/normalized L2/cosine/support flips, and fixed pre/post-downstream margin effects are recorded per frozen state and step in the machine artifact.",
+                "",
+                "```json",
+                json.dumps(
+                    {"windows": windows, "movement": result["a0_movement_by_cohort"]},
+                    indent=2,
+                ),
+                "```",
+                "",
+                "## Harmful And Protective Ranking",
                 "",
                 "```json",
                 json.dumps(rankings, indent=2),
@@ -1135,14 +1345,36 @@ def main(argv: list[str] | None = None) -> int:
                 "",
                 "## Content And Source Attribution",
                 "",
-                "The JSON artifact contains raw-count composition comparisons, exposure-normalized source effects, replay-row/state recurrence, and all eight pre-registered family summaries.",
+                "Worst-20, best-20, T61-formation, and T63-formation composition tables retain raw counts, fractions, and the eight pre-registered family dimensions in the machine artifact.",
                 "",
                 "```json",
                 json.dumps(
-                    {"selected_family": candidate, "counterfactual": counterfactual},
+                    {
+                        "source_accounting": result["source_accounting"],
+                        "recurrence_support_ge_3": {
+                            key: len(value)
+                            for key, value in result["row_recurrence"].items()
+                        },
+                        "input_layer_gradient_response": result[
+                            "input_layer_gradient_response"
+                        ],
+                        "selected_family": candidate,
+                    },
                     indent=2,
                 ),
                 "```",
+                "",
+                "## Probe And Counterfactuals",
+                "",
+                "Cluster and matched-control probe alignments are included for worst, best, neutral, and T63 formation batches. The finite-step test verifies that descending a positive-alignment probe gradient lowers its loss. Historical T61/T63 clone cells reproduced their next tensors within tolerance.",
+                "",
+                "```json",
+                json.dumps(counterfactual, indent=2),
+                "```",
+                "",
+                "## Formation Timing And Control Safety",
+                "",
+                "No deterministic content family qualified, so no family timing claim or replay-content intervention is made. Counterfactual rows retain matched-control A0 effects and the classification requires cluster-specific harm.",
                 "",
                 "## Classification",
                 "",

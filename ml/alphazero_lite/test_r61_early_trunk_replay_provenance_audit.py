@@ -12,6 +12,7 @@ from ml.alphazero_lite.run_r61_early_trunk_replay_provenance_audit import (
     cohort,
     evaluate_step,
     family_summaries,
+    finite_probe_descent_delta,
     hard_classification,
     input_vector,
     ranked_steps,
@@ -89,6 +90,11 @@ def test_fixed_pre_and_post_context_a0_effects_are_recorded() -> None:
     assert summary["cluster_specific_a0_effect"] == pytest.approx(
         summary["cluster_a0_effect"] - summary["control_a0_effect"]
     )
+
+
+def test_cluster_probe_gradient_sign_matches_finite_gradient_descent() -> None:
+    network = PolicyValueNet((8, 3), "residual_v3", 27).eval()
+    assert finite_probe_descent_delta(network, [entry()]) <= 1e-6
 
 
 def test_ranked_steps_uses_fixed_formation_boundary_and_stable_ties() -> None:
