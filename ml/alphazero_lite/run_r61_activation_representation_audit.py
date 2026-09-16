@@ -462,6 +462,211 @@ def validate_activation_helpers(model: PolicyValueNet, x: torch.Tensor) -> None:
                 raise RuntimeError("activation_self_patch_failed")
 
 
+def cohort(entry: dict[str, Any]) -> str:
+    return "matched_controls" if entry["membership"] == "matched_control" else "cluster"
+
+
+def model_at(lane: dict[str, Any], step: int) -> PolicyValueNet:
+    if step not in lane["states"]:
+        raise ValueError(f"missing required landmark snapshot: {step}")
+    return restore(copy.deepcopy(lane["g0"]), lane["states"][step]).eval()
+
+
+def landmark_representation_analysis(
+    lanes: dict[str, Any], manifest: dict[str, Any], inputs: dict[str, torch.Tensor]
+) -> dict[str, Any]:
+    """Matched-progress T61/T63 geometry, aggregated only over frozen cohorts."""
+    output = {}
+    for step in sorted(set(lanes["T61"]["states"]) & set(lanes["T63"]["states"])):
+        t61, t63 = model_at(lanes["T61"], step), model_at(lanes["T63"], step)
+        rows = []
+        with torch.no_grad():
+            for entry in manifest["entries"]:
+                ident, x = entry["id"], inputs[entry["id"]]
+                left, right = (
+                    residual_v3_activations(t61, x),
+                    residual_v3_activations(t63, x),
+                )
+                base = residual_v3_activations(lanes["T61"]["g0"], x)
+                rows.append(
+                    {
+                        "id": ident,
+                        "cohort": cohort(entry),
+                        "stages": {
+                            stage: pair_metrics(left[stage], right[stage])
+                            | {
+                                "t61_drift": vector_metrics(left[stage], base[stage])[
+                                    "normalized_l2_to_g0"
+                                ],
+                                "t63_drift": vector_metrics(right[stage], base[stage])[
+                                    "normalized_l2_to_g0"
+                                ],
+                            }
+                            for stage in STAGES
+                        },
+                    }
+                )
+        summary = {}
+        for name in ("cluster", "matched_controls"):
+            selected = [row for row in rows if row["cohort"] == name]
+            summary[name] = {
+                stage: {
+                    "cross_seed_distance": float(
+                        np.mean([row["stages"][stage]["distance"] for row in selected])
+                    ),
+                    "seed_to_g0_drift": float(
+                        np.mean(
+                            [
+                                (
+                                    row["stages"][stage]["t61_drift"]
+                                    + row["stages"][stage]["t63_drift"]
+                                )
+                                / 2
+                                for row in selected
+                            ]
+                        )
+                    ),
+                    "relative_cross_seed_separation": float(
+                        np.mean(
+                            [row["stages"][stage]["normalized_l2"] for row in selected]
+                        )
+                    ),
+                    "activation_support_disagreement": float(
+                        np.mean(
+                            [
+                                row["stages"][stage]["support_disagreement"]
+                                for row in selected
+                            ]
+                        )
+                    ),
+                }
+                for stage in STAGES
+            }
+        summary["cluster_specific_separation"] = {
+            stage: summary["cluster"][stage]["cross_seed_distance"]
+            / max(summary["matched_controls"][stage]["cross_seed_distance"], EPS)
+            for stage in STAGES
+        }
+        output[str(step)] = {"rows": rows, "cohorts": summary}
+    return output
+
+
+def block_and_policy_analysis(
+    t61: PolicyValueNet,
+    t63: PolicyValueNet,
+    manifest: dict[str, Any],
+    inputs: dict[str, torch.Tensor],
+) -> dict[str, Any]:
+    blocks, policy, statewise = (
+        [],
+        [],
+        {stage: {"distance": [], "margin_difference": []} for stage in STAGES[:-1]},
+    )
+    with torch.no_grad():
+        for entry in manifest["entries"]:
+            ident, x = entry["id"], inputs[entry["id"]]
+            left, right = (
+                residual_v3_activations(t61, x),
+                residual_v3_activations(t63, x),
+            )
+            t61_policy, t63_policy = (
+                legal_policy_metrics(left["A5"], entry),
+                legal_policy_metrics(right["A5"], entry),
+            )
+            for stage in STAGES[:-1]:
+                statewise[stage]["distance"].append(
+                    pair_metrics(left[stage], right[stage])["distance"]
+                )
+                statewise[stage]["margin_difference"].append(
+                    t63_policy["margin"] - t61_policy["margin"]
+                )
+            for index in range(3):
+                incoming = f"A{index}"
+                left_delta, right_delta = (
+                    left[f"A{index + 1}"] - left[incoming],
+                    right[f"A{index + 1}"] - right[incoming],
+                )
+                blocks.append(
+                    {
+                        "id": ident,
+                        "block": index,
+                        "native_delta": pair_metrics(left_delta, right_delta),
+                        "same_input_t61": pair_metrics(
+                            block_output(t61, index, left[incoming]),
+                            block_output(t63, index, left[incoming]),
+                        ),
+                        "same_input_t63": pair_metrics(
+                            block_output(t61, index, right[incoming]),
+                            block_output(t63, index, right[incoming]),
+                        ),
+                    }
+                )
+            policy.append(
+                {
+                    "id": ident,
+                    "policy_hidden_cross_seed": pair_metrics(left["A4"], right["A4"]),
+                    "t61_policy_path_on_t61_trunk": legal_policy_metrics(
+                        continue_policy_from_stage(t61, "A3", left["A3"]), entry
+                    ),
+                    "t61_policy_path_on_t63_trunk": legal_policy_metrics(
+                        continue_policy_from_stage(t61, "A3", right["A3"]), entry
+                    ),
+                    "t63_policy_path_on_t61_trunk": legal_policy_metrics(
+                        continue_policy_from_stage(t63, "A3", left["A3"]), entry
+                    ),
+                    "t63_policy_path_on_t63_trunk": legal_policy_metrics(
+                        continue_policy_from_stage(t63, "A3", right["A3"]), entry
+                    ),
+                    "value_hidden_cross_seed": pair_metrics(
+                        torch.relu(t61.value_hidden_layer(left["A3"])),
+                        torch.relu(t63.value_hidden_layer(right["A3"])),
+                    ),
+                }
+            )
+    return {
+        "block_transformations": blocks,
+        "policy_hidden_amplification": policy,
+        "statewise_spearman": {
+            stage: spearman(values["distance"], values["margin_difference"])
+            for stage, values in statewise.items()
+        },
+    }
+
+
+def temporal_patching(
+    lanes: dict[str, Any], manifest: dict[str, Any], inputs: dict[str, torch.Tensor]
+) -> dict[str, Any]:
+    anchor = next(row for row in manifest["entries"] if row["id"] == ANCHOR_ID)
+    result = {}
+    for step in sorted(set(lanes["T61"]["states"]) & set(lanes["T63"]["states"])):
+        t61, t63 = model_at(lanes["T61"], step), model_at(lanes["T63"], step)
+        native61 = legal_policy_metrics(
+            residual_v3_activations(t61, inputs[ANCHOR_ID])["A5"], anchor
+        )
+        native63 = legal_policy_metrics(
+            residual_v3_activations(t63, inputs[ANCHOR_ID])["A5"], anchor
+        )
+        stages = {}
+        for stage in PATCH_STAGES:
+            forward, reverse = (
+                patch_metrics(t61, t63, stage, inputs[ANCHOR_ID], anchor),
+                patch_metrics(t63, t61, stage, inputs[ANCHOR_ID], anchor),
+            )
+            stages[stage] = {
+                "forward": forward,
+                "reverse": reverse,
+                "forward_repairs": rescue(native61, forward),
+                "reverse_harms": reverse_break(native63, reverse)
+                or reverse["margin"] < native63["margin"],
+            }
+        result[str(step)] = {
+            "native_t61": native61,
+            "native_t63": native63,
+            "stages": stages,
+        }
+    return result
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workdir", type=Path, required=True)
@@ -534,10 +739,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     # A3 is exactly the endpoint shared-trunk transplant from #315.
     groups = parameter_groups(lanes["T61"]["model"])
-    for recipient, donor, direction in (
-        ("T61", "T63", "forward"),
-        ("T63", "T61", "reverse"),
-    ):
+    for recipient, donor in (("T61", "T63"), ("T63", "T61")):
         hybrid = make_hybrid(
             lanes[recipient]["model"], lanes[donor]["model"], groups, ("shared_trunk",)
         )
@@ -555,6 +757,22 @@ def main(argv: list[str] | None = None) -> int:
                 patched_logits, expected_logits, atol=TOLERANCE, rtol=0
             ):
                 raise RuntimeError("activation_patching_invalid")
+    representation = landmark_representation_analysis(lanes, manifest, inputs)
+    final_analysis = block_and_policy_analysis(
+        lanes["T61"]["model"], lanes["T63"]["model"], manifest, inputs
+    )
+    temporal = temporal_patching(lanes, manifest, inputs)
+    first_causal_step = next(
+        (
+            int(step)
+            for step, row in temporal.items()
+            if any(
+                value["forward_repairs"] and value["reverse_harms"]
+                for value in row["stages"].values()
+            )
+        ),
+        None,
+    )
     stage = patches["earliest_causal_stage"]
     classification = {
         "A0": "cluster_representation_drift_early_trunk_primary",
@@ -563,28 +781,72 @@ def main(argv: list[str] | None = None) -> int:
         "A3": "cluster_representation_drift_late_trunk_primary",
         "A4": "cluster_representation_drift_policy_amplified",
     }.get(stage, "representation_drift_distributed")
-    next_experiment = "perform a replay-minibatch provenance audit using final-trunk cluster activation drift as the response, rather than another parameter/scope intervention."
+    next_experiment = {
+        "cluster_representation_drift_early_trunk_primary": "audit which ordinary R61 replay minibatches produce the largest EARLY-TRUNK activation movement on the frozen cluster, using the already-recorded historical trajectory.",
+        "cluster_representation_drift_mid_trunk_primary": "run the same replay-minibatch representation-provenance audit restricted to residual block 1.",
+        "cluster_representation_drift_late_trunk_primary": "run a frozen-R61 feature-retention ablation at the final shared-trunk output using G0 as a frozen teacher on ordinary training replay states only, with one pre-registered retention coefficient.",
+        "cluster_representation_drift_policy_amplified": "audit policy-hidden activation retention/generalization on ordinary replay states before changing the trunk.",
+        "representation_drift_distributed": "perform a replay-minibatch provenance audit using final-trunk cluster activation drift as the response, rather than another parameter/scope intervention.",
+    }[classification]
     result |= {
         "baseline_reproduction": baseline,
         "activation_telemetry": {
             seed: lane["telemetry"] for seed, lane in lanes.items()
         },
         "final_patching": patches,
+        "landmark_representation": representation,
+        "temporal_patching": temporal,
+        "first_causal_representation_step": first_causal_step,
+        **final_analysis,
         "classification": classification,
         "next_experiment": next_experiment,
     }
     args.out_result.parent.mkdir(parents=True, exist_ok=True)
     args.out_result.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     args.out_report.parent.mkdir(parents=True, exist_ok=True)
-    args.out_report.write_text(
-        "# R61 Activation Representation Audit\n\nInherited #315: `anchor_drift_shared_trunk_primary`; #316: `heads_only_no_anchor_rescue`; #317: `last_block_policy_no_anchor_rescue`; #318: `shared_trunk_loss_gradient_not_explanatory`.\n\n## Classification\n\n`"
-        + classification
-        + "`\n\nExactly one next experiment: "
-        + next_experiment
-        + "\n\n## Baseline\n\n"
-        + json.dumps(baseline, indent=2)
-        + "\n\nCompact per-step activation telemetry and complete offline patch matrix are in the machine-readable JSON artifact.\n"
-    )
+    report = [
+        "# R61 Activation Representation Audit",
+        "",
+        "Inherited #315: `anchor_drift_shared_trunk_primary`; #316: `heads_only_no_anchor_rescue`; #317: `last_block_policy_no_anchor_rescue`; #318: `shared_trunk_loss_gradient_not_explanatory`.",
+        "",
+        "## Baseline And Activation Parity",
+        "",
+        json.dumps(baseline, indent=2),
+        "",
+        "A3 was checked against `trunk_features`; A3-to-policy reconstruction and self-patching passed for every frozen state and endpoint. Both A3 directions also exactly matched the #315 shared-trunk hybrids.",
+        "",
+        "## Representation And Specificity",
+        "",
+        "Matched-progress per-stage T61/T63 distance, G0 drift, support disagreement, and cluster/control separation are retained at every landmark in the JSON artifact. Live per-step scalar activation telemetry covers all frozen states.",
+        "",
+        "## Temporal Patching",
+        "",
+        f"First same-progress anchor bidirectional causal representation step: {first_causal_step}.",
+        "",
+        "## Final Patching",
+        "",
+        f"Earliest causal activation stage: `{stage}`.",
+        "",
+        "| stage | anchor rescue | cluster rescue | transfer | control degradation |",
+        "| --- | --- | ---: | ---: | ---: |",
+    ]
+    for name, value in patches["stages"].items():
+        report.append(
+            f"| {name} | {value['anchor_rescue']} | {value['rescue_rate']:.1%} | {value['mean_transfer_fraction']:.3f} | {value['control_degradation']:.1%} |"
+        )
+    report += [
+        "",
+        "## Block And Policy Path",
+        "",
+        "Native residual deltas, same-input block-function comparisons, policy-hidden path cross-products, secondary value-hidden distances, and statewise Spearman associations are in the machine-readable artifact.",
+        "",
+        "## Classification",
+        "",
+        f"`{classification}`",
+        "",
+        f"Exactly one next experiment: {next_experiment}",
+    ]
+    args.out_report.write_text("\n".join(report) + "\n")
     return 0
 
 
