@@ -1,0 +1,459 @@
+{
+  "classification": "early_divergence_local_decomposition_mixed",
+  "final_decomposition": {
+    "a0_factorial": {
+      "abs_adam_main_effect": 0.12217742130160332,
+      "abs_interaction": 0.15502909272909163,
+      "abs_parameter_main_effect": 0.0405221201479435,
+      "adam_main_effect": 0.12217742130160332,
+      "interaction": -0.15502909272909163,
+      "parameter_main_effect": -0.0405221201479435
+    },
+    "margin_factorial": {
+      "abs_adam_main_effect": 0.055430622398853324,
+      "abs_interaction": 0.35069349110126447,
+      "abs_parameter_main_effect": 0.25705386102199557,
+      "adam_main_effect": 0.055430622398853324,
+      "interaction": -0.35069349110126447,
+      "parameter_main_effect": 0.25705386102199557
+    }
+  },
+  "guardrails": {
+    "full_training": false,
+    "promotion": false,
+    "replay_mutation": false,
+    "self_play": false
+  },
+  "historical_checkpoint_sha256": {
+    "T61": "50736a6063cd0558329c433ad7a6c60b741c83ceee75d36e21e703749af8c9de",
+    "T63": "bab60465a9bc93ac569ed28b356ef2abde2c1cbb0987a4a474e26117f9a57324"
+  },
+  "inherited_classification": "earliest_divergence_mixed",
+  "native_reproduction": {
+    "T61": true,
+    "T63": true
+  },
+  "next_experiment": "move to the input-layer/A0 unit-level representation geometry at steps 80\u201382 rather than doing another optimizer-state sweep.",
+  "primary_t61_sequence": [
+    {
+      "batch_indexes_sha256": "94329fe8f038d2fec82f1fe5424403ec3caa37069833d2ed7faf7afb49f52e35",
+      "cells": {
+        "P61_A63": {
+          "a0_representation_movement": 0.004878586158156395,
+          "anchor_a0_only_margin_effect": 0.1226157546043396,
+          "anchor_margin": -1.153254747390747,
+          "cluster_a0_effect": 0.00039611458778381347,
+          "cluster_mean_margin": 1.4275958478450774,
+          "cluster_specific_a0_effect": 0.027402740716934205,
+          "control_a0_effect": -0.02700662612915039,
+          "input_layer_update_norm": 0.009089012630283833,
+          "step": 80,
+          "support_flips": 0
+        },
+        "P63_A61": {
+          "a0_representation_movement": 0.007245735544711351,
+          "anchor_a0_only_margin_effect": -0.18300235271453857,
+          "anchor_margin": -0.7998379468917847,
+          "cluster_a0_effect": -0.035168445110321044,
+          "cluster_mean_margin": 1.9686266243457795,
+          "cluster_specific_a0_effect": -0.06870368719100953,
+          "control_a0_effect": 0.03353524208068848,
+          "input_layer_update_norm": 0.01019580103456974,
+          "step": 80,
+          "support_flips": 1
+        },
+        "P63_A63": {
+          "a0_representation_movement": 0.0041747540701180695,
+          "anchor_a0_only_margin_effect": -0.0022003650665283203,
+          "anchor_margin": 0.16256272792816162,
+          "cluster_a0_effect": -0.01597756743431091,
+          "cluster_mean_margin": 2.092642068862915,
+          "cluster_specific_a0_effect": 0.01446937918663025,
+          "control_a0_effect": -0.030446946620941162,
+          "input_layer_update_norm": 0.00830575730651617,
+          "step": 80,
+          "support_flips": 0
+        },
+        "PP61_A61": {
+          "a0_representation_movement": 0.006776216812431813,
+          "anchor_a0_only_margin_effect": -0.1264655590057373,
+          "anchor_margin": -1.9199742376804352,
+          "cluster_a0_effect": -0.00020587444305419922,
+          "cluster_mean_margin": 1.4188529759645463,
+          "cluster_specific_a0_effect": -0.01634681224822998,
+          "control_a0_effect": 0.01614093780517578,
+          "input_layer_update_norm": 0.009778978303074837,
+          "step": 80,
+          "support_flips": 1
+        }
+      },
+      "factorial": {
+        "abs_adam_main_effect": 0.06346130967140198,
+        "abs_interaction": 0.03942351341247559,
+        "abs_parameter_main_effect": 0.03264511823654175,
+        "adam_main_effect": 0.06346130967140198,
+        "interaction": 0.03942351341247559,
+        "parameter_main_effect": -0.03264511823654175
+      },
+      "same_t61_batch_in_all_cells": true,
+      "step": 80
+    },
+    {
+      "batch_indexes_sha256": "afcb9f2ef7f01f391f883796be91fed5fa2eb25d52eb69a3842b37e61ccf8127",
+      "cells": {
+        "P61_A63": {
+          "a0_representation_movement": 0.005510369781404734,
+          "anchor_a0_only_margin_effect": -0.03111809492111206,
+          "anchor_margin": -1.295503169298172,
+          "cluster_a0_effect": 0.05549914240837097,
+          "cluster_mean_margin": 1.6390474632382392,
+          "cluster_specific_a0_effect": 0.025707697868347167,
+          "control_a0_effect": 0.029791444540023804,
+          "input_layer_update_norm": 0.00904294103384018,
+          "step": 81,
+          "support_flips": 0
+        },
+        "P63_A61": {
+          "a0_representation_movement": 0.006337158102542162,
+          "anchor_a0_only_margin_effect": -0.17029714584350586,
+          "anchor_margin": -1.5734665244817734,
+          "cluster_a0_effect": 0.041444826126098636,
+          "cluster_mean_margin": 2.2102381378412246,
+          "cluster_specific_a0_effect": -0.003796947002410886,
+          "control_a0_effect": 0.04524177312850952,
+          "input_layer_update_norm": 0.009775366634130478,
+          "step": 81,
+          "support_flips": 1
+        },
+        "P63_A63": {
+          "a0_representation_movement": 0.004451016196981072,
+          "anchor_a0_only_margin_effect": -0.06965231895446777,
+          "anchor_margin": -0.21083390712738037,
+          "cluster_a0_effect": 0.02973095178604126,
+          "cluster_mean_margin": 2.194653847813606,
+          "cluster_specific_a0_effect": 0.026078736782073973,
+          "control_a0_effect": 0.003652215003967285,
+          "input_layer_update_norm": 0.007732158061116934,
+          "step": 81,
+          "support_flips": 1
+        },
+        "PP61_A61": {
+          "a0_representation_movement": 0.00647963285446167,
+          "anchor_a0_only_margin_effect": -0.18712452054023743,
+          "anchor_margin": -2.561057686805725,
+          "cluster_a0_effect": 0.038923409581184384,
+          "cluster_mean_margin": 1.6232985138893128,
+          "cluster_specific_a0_effect": -0.04760372936725617,
+          "control_a0_effect": 0.08652713894844055,
+          "input_layer_update_norm": 0.009913242422044277,
+          "step": 81,
+          "support_flips": 0
+        }
+      },
+      "factorial": {
+        "abs_adam_main_effect": 0.05159355551004409,
+        "abs_interaction": 0.04343574345111847,
+        "abs_parameter_main_effect": 0.022088910639286044,
+        "adam_main_effect": 0.05159355551004409,
+        "interaction": -0.04343574345111847,
+        "parameter_main_effect": 0.022088910639286044
+      },
+      "same_t61_batch_in_all_cells": true,
+      "step": 81
+    },
+    {
+      "batch_indexes_sha256": "eaad8e3daaa7fa72b46cc3b58053aad661f9da96f4cd8c1708c83912846c2691",
+      "cells": {
+        "P61_A63": {
+          "a0_representation_movement": 0.005903661623597145,
+          "anchor_a0_only_margin_effect": -0.05537053942680359,
+          "anchor_margin": -1.8349714875221252,
+          "cluster_a0_effect": 0.08296914547681808,
+          "cluster_mean_margin": 1.9108728080987931,
+          "cluster_specific_a0_effect": 0.026634262502193445,
+          "control_a0_effect": 0.056334882974624634,
+          "input_layer_update_norm": 0.00959273986518383,
+          "step": 82,
+          "support_flips": 1
+        },
+        "P63_A61": {
+          "a0_representation_movement": 0.005446651391685009,
+          "anchor_a0_only_margin_effect": -0.13136811554431915,
+          "anchor_margin": -2.4514615535736084,
+          "cluster_a0_effect": 0.04905886054039001,
+          "cluster_mean_margin": 2.348748852312565,
+          "cluster_specific_a0_effect": 0.02105583846569061,
+          "control_a0_effect": 0.028003022074699402,
+          "input_layer_update_norm": 0.009141209535300732,
+          "step": 82,
+          "support_flips": 0
+        },
+        "P63_A63": {
+          "a0_representation_movement": 0.004922516644001007,
+          "anchor_a0_only_margin_effect": -0.13662594556808472,
+          "anchor_margin": -1.0975831151008606,
+          "cluster_a0_effect": -0.008556133508682251,
+          "cluster_mean_margin": 2.1986606985330583,
+          "cluster_specific_a0_effect": -0.035586363077163695,
+          "control_a0_effect": 0.027030229568481445,
+          "input_layer_update_norm": 0.008095436729490757,
+          "step": 82,
+          "support_flips": 0
+        },
+        "PP61_A61": {
+          "a0_representation_movement": 0.0056932344101369384,
+          "anchor_a0_only_margin_effect": -0.127821683883667,
+          "anchor_margin": -3.00339138507843,
+          "cluster_a0_effect": 0.046933434903621674,
+          "cluster_mean_margin": 1.8938814848661423,
+          "cluster_specific_a0_effect": 0.007592104375362396,
+          "control_a0_effect": 0.03934133052825928,
+          "input_layer_update_norm": 0.009299010969698429,
+          "step": 82,
+          "support_flips": 0
+        }
+      },
+      "factorial": {
+        "abs_adam_main_effect": 0.01880002170801163,
+        "abs_interaction": 0.07568435966968536,
+        "abs_parameter_main_effect": 0.024378445744514463,
+        "adam_main_effect": -0.01880002170801163,
+        "interaction": -0.07568435966968536,
+        "parameter_main_effect": -0.024378445744514463
+      },
+      "same_t61_batch_in_all_cells": true,
+      "step": 82
+    },
+    {
+      "batch_indexes_sha256": "2128c622b62dbae05d961fe13de74eee0a67897ae24d4bd1d24804df23d5f841",
+      "cells": {
+        "P61_A63": {
+          "a0_representation_movement": 0.004111745301634074,
+          "anchor_a0_only_margin_effect": 0.058131396770477295,
+          "anchor_margin": -1.634220153093338,
+          "cluster_a0_effect": 0.019718974828720093,
+          "cluster_mean_margin": 1.9760246083140374,
+          "cluster_specific_a0_effect": -0.013766638934612274,
+          "control_a0_effect": 0.03348561376333237,
+          "input_layer_update_norm": 0.008290139958262444,
+          "step": 83,
+          "support_flips": 0
+        },
+        "P63_A61": {
+          "a0_representation_movement": 0.004216341068968177,
+          "anchor_a0_only_margin_effect": -0.0693432092666626,
+          "anchor_margin": -2.6283681392669678,
+          "cluster_a0_effect": -0.008766549825668334,
+          "cluster_mean_margin": 2.3172420255839823,
+          "cluster_specific_a0_effect": -0.011348354816436767,
+          "control_a0_effect": 0.0025818049907684326,
+          "input_layer_update_norm": 0.008245090954005718,
+          "step": 83,
+          "support_flips": 0
+        },
+        "P63_A63": {
+          "a0_representation_movement": 0.004077074211090803,
+          "anchor_a0_only_margin_effect": -0.07040849328041077,
+          "anchor_margin": -1.4495239332318306,
+          "cluster_a0_effect": -0.013295924663543702,
+          "cluster_mean_margin": 2.1419708490371705,
+          "cluster_specific_a0_effect": -0.039532816410064696,
+          "control_a0_effect": 0.026236891746520996,
+          "input_layer_update_norm": 0.007931909523904324,
+          "step": 83,
+          "support_flips": 2
+        },
+        "PP61_A61": {
+          "a0_representation_movement": 0.004160594940185547,
+          "anchor_a0_only_margin_effect": 0.0264737606048584,
+          "anchor_margin": -2.7507951259613037,
+          "cluster_a0_effect": -0.008513963222503662,
+          "cluster_mean_margin": 1.8922761142253877,
+          "cluster_specific_a0_effect": -0.00938037633895874,
+          "control_a0_effect": 0.0008664131164550781,
+          "input_layer_update_norm": 0.007879670709371567,
+          "step": 83,
+          "support_flips": 0
+        }
+      },
+      "factorial": {
+        "abs_adam_main_effect": 0.01628536209464073,
+        "abs_interaction": 0.023798198997974397,
+        "abs_parameter_main_effect": 0.013867077976465223,
+        "adam_main_effect": -0.01628536209464073,
+        "interaction": -0.023798198997974397,
+        "parameter_main_effect": -0.013867077976465223
+      },
+      "same_t61_batch_in_all_cells": true,
+      "step": 83
+    },
+    {
+      "batch_indexes_sha256": "deede724cc9eeceab60070e731c74e166897a99799e8fd1f57c1cfc114369742",
+      "cells": {
+        "P61_A63": {
+          "a0_representation_movement": 0.004463617037981748,
+          "anchor_a0_only_margin_effect": 0.10757377743721008,
+          "anchor_margin": -1.174962729215622,
+          "cluster_a0_effect": 0.012656885385513305,
+          "cluster_mean_margin": 2.060662168264389,
+          "cluster_specific_a0_effect": 0.0067928612232208245,
+          "control_a0_effect": 0.0058640241622924805,
+          "input_layer_update_norm": 0.008234506472945213,
+          "step": 84,
+          "support_flips": 1
+        },
+        "P63_A61": {
+          "a0_representation_movement": 0.005198307614773512,
+          "anchor_a0_only_margin_effect": 0.035169124603271484,
+          "anchor_margin": -2.2296138405799866,
+          "cluster_a0_effect": -0.006340539455413819,
+          "cluster_mean_margin": 2.262285406887531,
+          "cluster_specific_a0_effect": -0.027135467529296874,
+          "control_a0_effect": 0.020794928073883057,
+          "input_layer_update_norm": 0.00818853173404932,
+          "step": 84,
+          "support_flips": 0
+        },
+        "P63_A63": {
+          "a0_representation_movement": 0.005114121548831463,
+          "anchor_a0_only_margin_effect": 0.02296692132949829,
+          "anchor_margin": -1.3486423790454865,
+          "cluster_a0_effect": -0.014663901925086976,
+          "cluster_mean_margin": 2.142369283735752,
+          "cluster_specific_a0_effect": -0.010694679617881776,
+          "control_a0_effect": -0.0039692223072052,
+          "input_layer_update_norm": 0.008155221119523048,
+          "step": 84,
+          "support_flips": 1
+        },
+        "PP61_A61": {
+          "a0_representation_movement": 0.004541590344160795,
+          "anchor_a0_only_margin_effect": 0.08714187145233154,
+          "anchor_margin": -2.1341867446899414,
+          "cluster_a0_effect": -0.02441921830177307,
+          "cluster_mean_margin": 1.8298848003149033,
+          "cluster_specific_a0_effect": -0.061182230710983276,
+          "control_a0_effect": 0.036763012409210205,
+          "input_layer_update_norm": 0.008055374957621098,
+          "step": 84,
+          "support_flips": 0
+        }
+      },
+      "factorial": {
+        "abs_adam_main_effect": 0.0422079399228096,
+        "abs_interaction": 0.05153430402278901,
+        "abs_parameter_main_effect": 0.008279611170291901,
+        "adam_main_effect": 0.0422079399228096,
+        "interaction": -0.05153430402278901,
+        "parameter_main_effect": 0.008279611170291901
+      },
+      "same_t61_batch_in_all_cells": true,
+      "step": 84
+    }
+  ],
+  "schema": "azlite_r61_step82_parameter_adam_decomposition_v1",
+  "steps": [
+    80,
+    81,
+    82,
+    83,
+    84
+  ],
+  "t63_batch_robustness": {
+    "final_a0_factorial": {
+      "abs_adam_main_effect": 0.2060257622040808,
+      "abs_interaction": 0.05460794735699889,
+      "abs_parameter_main_effect": 0.13510522330179808,
+      "adam_main_effect": 0.2060257622040808,
+      "interaction": -0.05460794735699889,
+      "parameter_main_effect": -0.13510522330179808
+    },
+    "steps": [
+      {
+        "factorial": {
+          "abs_adam_main_effect": 0.06469210088253022,
+          "abs_interaction": 0.03777422308921814,
+          "abs_parameter_main_effect": 0.018075126409530642,
+          "adam_main_effect": 0.06469210088253022,
+          "interaction": 0.03777422308921814,
+          "parameter_main_effect": -0.018075126409530642
+        },
+        "responses": {
+          "P61_A63": 0.047627052664756774,
+          "P63_A61": -0.03514017462730408,
+          "P63_A63": 0.0484390377998352,
+          "PP61_A61": 0.001822063326835632
+        },
+        "step": 80
+      },
+      {
+        "factorial": {
+          "abs_adam_main_effect": 0.05147077450528741,
+          "abs_interaction": 0.007369649596512318,
+          "abs_parameter_main_effect": 0.028559571597725153,
+          "adam_main_effect": 0.05147077450528741,
+          "interaction": -0.007369649596512318,
+          "parameter_main_effect": -0.028559571597725153
+        },
+        "responses": {
+          "P61_A63": 0.04223931450396776,
+          "P63_A61": -0.0377910315990448,
+          "P63_A63": 0.00999491810798645,
+          "PP61_A61": -0.012916284799575808
+        },
+        "step": 81
+      },
+      {
+        "factorial": {
+          "abs_adam_main_effect": 0.01142965480685234,
+          "abs_interaction": 0.01525257676839828,
+          "abs_parameter_main_effect": 0.038287799805402756,
+          "adam_main_effect": 0.01142965480685234,
+          "interaction": -0.01525257676839828,
+          "parameter_main_effect": -0.038287799805402756
+        },
+        "responses": {
+          "P61_A63": 0.02287845462560653,
+          "P63_A61": -0.02683899998664856,
+          "P63_A63": -0.02303563356399536,
+          "PP61_A61": 0.0038225114345550523
+        },
+        "step": 82
+      },
+      {
+        "factorial": {
+          "abs_adam_main_effect": 0.00433875024318695,
+          "abs_interaction": 0.01969785094261169,
+          "abs_parameter_main_effect": 0.029268553853034972,
+          "adam_main_effect": 0.00433875024318695,
+          "interaction": -0.01969785094261169,
+          "parameter_main_effect": -0.029268553853034972
+        },
+        "responses": {
+          "P61_A63": 0.017867392301559447,
+          "P63_A61": -0.015739911794662477,
+          "P63_A63": -0.02125008702278137,
+          "PP61_A61": 0.0036797165870666518
+        },
+        "step": 83
+      },
+      {
+        "factorial": {
+          "abs_adam_main_effect": 0.07409448176622391,
+          "abs_interaction": 0.05006209313869475,
+          "abs_parameter_main_effect": 0.020914171636104584,
+          "adam_main_effect": 0.07409448176622391,
+          "interaction": -0.05006209313869475,
+          "parameter_main_effect": -0.020914171636104584
+        },
+        "responses": {
+          "P61_A63": 0.055847978591918944,
+          "P63_A61": -0.03916067481040955,
+          "P63_A63": 0.00990276038646698,
+          "PP61_A61": -0.043277549743652347
+        },
+        "step": 84
+      }
+    ]
+  }
+}
