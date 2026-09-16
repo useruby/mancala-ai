@@ -60,6 +60,7 @@ def build(original: dict[str, Any], labels: dict[str, Any]) -> dict[str, Any]:
         row for row in original["entries"] if row["membership"] == "cluster_anchor"
     )
     records = []
+    excluded_all_optimal = 0
     for depth, state in descendants(anchor["state"], DEPTH):
         key = canonical_state_key(state)
         if key not in labels:
@@ -72,9 +73,26 @@ def build(original: dict[str, Any], labels: dict[str, Any]) -> dict[str, Any]:
             provenance=f"R61 deterministic legal descendant depth {depth}; exact inherited label",
             degrading_actions=anchor["degrading_actions"] if depth == 0 else None,
         )
+        # Canonical policy margin requires an outcome-suboptimal legal action.
+        if len(item["exact_outcome_optimal_actions"]) == len(item["legal_actions"]):
+            excluded_all_optimal += 1
+            continue
         item["expansion_depth"] = depth
         records.append(item)
-    records.sort(key=lambda row: (row["expansion_depth"], row["state_sha256"]))
+    # Preserve the original matched control unchanged for specificity metrics;
+    # it is never considered a member of the expanded failure subcluster.
+    records.extend(
+        row
+        for row in original["entries"]
+        if row["membership"] == "matched_control"
+    )
+    records.sort(
+        key=lambda row: (
+            row["membership"] == "matched_control",
+            row.get("expansion_depth", 0),
+            row["state_sha256"],
+        )
+    )
     if records[0]["state_sha256"] != anchor["state_sha256"] or len(records) <= 1:
         raise RuntimeError("expanded_exact_subcluster_invalid")
     return {
@@ -84,6 +102,7 @@ def build(original: dict[str, Any], labels: dict[str, Any]) -> dict[str, Any]:
         "depth": DEPTH,
         "entries": records,
         "set_sha256": sha256(records),
+        "excluded_all_legal_actions_optimal": excluded_all_optimal,
         "training_injection": False,
         "guardrails": {
             "training": False,

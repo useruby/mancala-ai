@@ -578,6 +578,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out-prefixes", type=Path, required=True)
     parser.add_argument("--out-feature-geometry", type=Path, required=True)
     parser.add_argument("--out-report", type=Path, required=True)
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=ROOT
+        / "docs/data/alphazero-lite-internal-cluster-frozen-evaluation-set.json",
+    )
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args(argv)
     result: dict[str, Any] = {
@@ -598,18 +604,26 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     paths = artifact_paths()
     verify_r61_artifacts(paths)
-    manifest = json.loads(
-        (
-            ROOT
-            / "docs/data/alphazero-lite-internal-cluster-frozen-evaluation-set.json"
-        ).read_text()
+    manifest = json.loads(args.manifest.read_text())
+    original_manifest = (
+        manifest.get("schema") == MANIFEST_SCHEMA
+        and manifest.get("set_sha256") == FROZEN_SET_SHA
+    )
+    expanded_manifest = (
+        manifest.get("schema") == "azlite_r61_expanded_exact_subcluster_v1"
+        and isinstance(manifest.get("source_manifest_sha256"), str)
+        and isinstance(manifest.get("set_sha256"), str)
     )
     if (
-        manifest.get("schema") != MANIFEST_SCHEMA
-        or manifest.get("set_sha256") != FROZEN_SET_SHA
+        not (original_manifest or expanded_manifest)
         or manifest.get("training_injection") is not False
     ):
         raise RuntimeError("frozen_manifest_guard_failed")
+    result["evaluation_manifest"] = {
+        "path": str(args.manifest),
+        "set_sha256": manifest["set_sha256"],
+        "expanded": expanded_manifest,
+    }
     lanes = {
         seed: reconstruct_lane(paths, manifest, seed, {80, 81, 82, 108}, args.workdir)
         for seed in ("T61", "T63")
