@@ -82,9 +82,7 @@ def build(original: dict[str, Any], labels: dict[str, Any]) -> dict[str, Any]:
     # Preserve the original matched control unchanged for specificity metrics;
     # it is never considered a member of the expanded failure subcluster.
     records.extend(
-        row
-        for row in original["entries"]
-        if row["membership"] == "matched_control"
+        row for row in original["entries"] if row["membership"] == "matched_control"
     )
     records.sort(
         key=lambda row: (
