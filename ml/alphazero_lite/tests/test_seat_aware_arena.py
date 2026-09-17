@@ -543,6 +543,55 @@ class BuildSeatAwareReportTest(unittest.TestCase):
             shutil.rmtree(cand_dir)
             shutil.rmtree(curr_dir)
 
+    def test_report_merges_forced_seat_runs(self):
+        cand_dir = self._temp_artifact_dir()
+        curr_dir = self._temp_artifact_dir()
+        try:
+            alternating = compute_seat_split_metrics(
+                [_make_game_entry(challenger_player=0)]
+                + [_make_game_entry(challenger_player=1, winner="current", margin=-5)]
+            )
+            starts_0 = compute_seat_split_metrics(
+                [_make_game_entry(challenger_player=0) for _ in range(60)]
+            )
+            starts_1 = compute_seat_split_metrics(
+                [
+                    _make_game_entry(challenger_player=1, winner="current", margin=-5)
+                    for _ in range(60)
+                ]
+            )
+            report = build_seat_aware_report(
+                candidate_path=str(cand_dir),
+                current_path=str(curr_dir),
+                arena_results=[
+                    {
+                        "budget_label": "standard",
+                        "arena_score": 0.5,
+                        "seat_metrics": alternating,
+                    },
+                    {
+                        "budget_label": "standard",
+                        "forced_starts": 0,
+                        "seat_metrics": starts_0,
+                    },
+                    {
+                        "budget_label": "standard",
+                        "forced_starts": 1,
+                        "seat_metrics": starts_1,
+                    },
+                ],
+            )
+
+            standard = report["budget_results"]["standard"]
+            self.assertEqual(60, standard["challenger_starts_0"]["games"])
+            self.assertEqual(60, standard["challenger_starts_1"]["games"])
+            self.assertEqual(0.0, standard["disadvantaged_seat_score"])
+        finally:
+            import shutil
+
+            shutil.rmtree(cand_dir)
+            shutil.rmtree(curr_dir)
+
 
 class BuildCandidateRankingTest(unittest.TestCase):
     def test_ranks_by_disadvantaged_seat_score(self):

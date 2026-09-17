@@ -541,6 +541,7 @@ def parse_search_options_override(text: str | None, *, base: dict) -> dict:
         "reuse_subtree",
         "normalize_values",
         "root_policy_mode",
+        "root_prior_transform",
         "tactical_root_bias",
         "root_temperature",
         "value_trust_schedule",
@@ -551,7 +552,11 @@ def parse_search_options_override(text: str | None, *, base: dict) -> dict:
         raise ValueError(
             f"unsupported search-options override fields: {sorted(unknown)}"
         )
-    return build_eval_search_options(**{**base, **override})
+    merged = {**base, **override}
+    root_prior_transform = merged.pop("root_prior_transform", None)
+    if root_prior_transform is not None:
+        raise ValueError("root_prior_transform must be supplied via its CLI option")
+    return build_eval_search_options(**merged)
 
 
 def partition_counts(total: int, workers: int) -> list[int]:
