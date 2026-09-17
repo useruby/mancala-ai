@@ -1,0 +1,24 @@
+{
+  "schema": "azlite_fresh_uniform1200_confirmation_extension_v1",
+  "base_config": "ml/alphazero_lite/configs/exp_v3_denoised_opening_min384_selected_w1_guard_w2_clean_root.json",
+  "parent_artifact": "model-artifact/current",
+  "parent_weights_path": "model-artifact/current/weights.json",
+  "expected_parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "exact_reference": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+  "inherited_results": "docs/data/alphazero-lite-fresh-uniform1200-confirmation-pr324.json",
+  "inherited_seeds": [47, 48, 49],
+  "seeds": [50, 51, 52],
+  "fixed_replay_sources": [
+    {"name": "generic_bootstrap", "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "weight": 4, "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"},
+    {"name": "random_teacher", "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "weight": 1, "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"},
+    {"name": "opening_puct_disagreement_replay", "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "weight": 8, "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"},
+    {"name": "equal_budget_stability_replay", "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "weight": 4, "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"}
+  ],
+  "lanes": {
+    "control": {"simulations": 192, "opening_min_simulations": 384, "opening_min_simulations_plies": 8},
+    "uniform1200": {"simulations": 1200, "opening_min_simulations": null, "opening_min_simulations_plies": null}
+  },
+  "arena": {"games": 120, "seed": 90417, "simulations": 384, "workers": 24, "seed_contract": "azlite_eval_seed_v1"},
+  "promotion": {"performed": false, "reason": "seed_confirmation_extension_only"},
+  "secondary_r61_panel": "docs/data/alphazero-lite-r61-expanded-exact-subcluster.json"
+}

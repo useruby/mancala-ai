@@ -33,8 +33,20 @@ from ml.alphazero_lite.run_phase_specific_selfplay_budget_ablation import (  # n
 )
 
 SCHEMA = "azlite_fresh_uniform1200_confirmation_v1"
+EXTENSION_SCHEMA = "azlite_fresh_uniform1200_confirmation_extension_v1"
 LANES = ("control", "uniform1200")
 SEEDS = (47, 48, 49)
+EXTENSION_SEEDS = (50, 51, 52)
+SIX_SEEDS = SEEDS + EXTENSION_SEEDS
+EXPECTED_PARENT_SHA256 = (
+    "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+)
+FIXED_REPLAY_SHA256S = {
+    "generic_bootstrap": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+    "random_teacher": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+    "opening_puct_disagreement_replay": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+    "equal_budget_stability_replay": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -166,6 +178,93 @@ def preflight(plan: dict[str, Any], base: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def extension_preflight(plan: dict[str, Any], base: dict[str, Any]) -> dict[str, Any]:
+    """Validate the frozen inputs for the registered 50--52 extension."""
+    if (
+        plan.get("schema") != EXTENSION_SCHEMA
+        or tuple(plan.get("seeds", ())) != EXTENSION_SEEDS
+        or tuple(plan.get("inherited_seeds", ())) != SEEDS
+        or plan.get("expected_parent_weights_sha256") != EXPECTED_PARENT_SHA256
+    ):
+        raise ValueError(
+            "extension seed contract must be inherited 47,48,49 plus 50,51,52"
+        )
+    if plan.get("promotion", {}).get("performed") is not False:
+        raise ValueError("seed extension must explicitly disable promotion")
+    parent = ROOT / str(plan["parent_weights_path"])
+    if not parent.is_file() or sha256_file(parent) != EXPECTED_PARENT_SHA256:
+        raise FileNotFoundError("uniform1200_seed_extension_artifact_missing")
+    sources = plan.get("fixed_replay_sources", [])
+    if [source.get("weight") for source in sources] != [4, 1, 8, 4]:
+        raise ValueError("fixed replay source weights must remain 4,1,8,4")
+    for source in sources:
+        name = source.get("name")
+        path = ROOT / str(source.get("path"))
+        if (
+            name not in FIXED_REPLAY_SHA256S
+            or source.get("sha256") != FIXED_REPLAY_SHA256S[name]
+            or not path.is_file()
+            or sha256_file(path) != FIXED_REPLAY_SHA256S[name]
+        ):
+            raise FileNotFoundError("uniform1200_seed_extension_artifact_missing")
+    inherited = ROOT / str(plan["inherited_results"])
+    if not inherited.is_file():
+        raise FileNotFoundError("uniform1200_seed_extension_artifact_missing")
+    configs = [
+        extension_lane_config(plan, base, EXTENSION_SEEDS[0], lane, ROOT / ".tmp")
+        for lane in LANES
+    ]
+    if non_budget_identity(configs[0]) != non_budget_identity(configs[1]):
+        raise ValueError("extension lanes differ outside self-play budget")
+    if plan.get("arena") != {
+        "games": 120,
+        "seed": 90417,
+        "simulations": 384,
+        "workers": 24,
+        "seed_contract": "azlite_eval_seed_v1",
+    }:
+        raise ValueError("extension arena must exactly match PR #324")
+    return {
+        "parent_weights_sha256": EXPECTED_PARENT_SHA256,
+        "fixed_replay_sha256s": FIXED_REPLAY_SHA256S,
+        "exact_reference_sha256": sha256_file(ROOT / str(plan["exact_reference"])),
+    }
+
+
+def extension_lane_config(
+    plan: dict[str, Any], base: dict[str, Any], seed: int, lane: str, workdir: Path
+) -> dict[str, Any]:
+    if seed not in EXTENSION_SEEDS or lane not in LANES:
+        raise ValueError("lane or seed is outside the registered extension")
+    config = copy.deepcopy(base)
+    config["run_id"] = f"fresh-uniform1200-s{seed}-{lane}"
+    config["seed"] = seed
+    config["versions_dir"] = str(workdir / "runs" / f"seed{seed}" / lane)
+    config["current_path"] = str(ROOT / plan["parent_artifact"])
+    config["parent_artifact_path"] = str(ROOT / plan["parent_artifact"])
+    config["fixed_replay_sources"] = [
+        {"path": str(ROOT / source["path"]), "weight": source["weight"]}
+        for source in plan["fixed_replay_sources"]
+    ]
+    settings = plan["lanes"][lane]
+    self_play = self_play_step(config)
+    command = replace_option(self_play["command"], "--seed", seed)
+    command = replace_option(command, "--seed-sweep", seed_sweep(seed))
+    command = replace_option(command, "--simulations", settings["simulations"])
+    command = replace_option(
+        command, "--opening-min-simulations", settings["opening_min_simulations"]
+    )
+    self_play["command"] = replace_option(
+        command,
+        "--opening-min-simulations-plies",
+        settings["opening_min_simulations_plies"],
+    )
+    train_step(config)["command"] = replace_option(
+        train_step(config)["command"], "--seed", seed
+    )
+    return config
+
+
 def outcome_name(row: dict[str, Any], action: int) -> str:
     utility = outcome_utilities(row)[action]
     return {1: "win", 0: "draw", -1: "loss"}[utility]
@@ -270,7 +369,7 @@ def paired_transitions(
 
 
 def repeated_changes(
-    rows: list[dict[str, Any]], *, worse: bool
+    rows: list[dict[str, Any]], *, worse: bool, threshold: int = 2
 ) -> list[dict[str, Any]]:
     grouped: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
@@ -295,8 +394,102 @@ def repeated_changes(
             "exact_outcome_optimal_set": items[0]["exact_outcome_optimal_set"],
         }
         for key, items in sorted(grouped.items())
-        if len({item["seed"] for item in items}) >= 2
+        if len({item["seed"] for item in items}) >= threshold
     ]
+
+
+def paired_metric_summary(
+    values: list[float], *, higher_is_better: bool
+) -> dict[str, Any]:
+    if len(values) != 6:
+        raise ValueError("six-seed paired metric summaries require exactly six values")
+    return {
+        "values": values,
+        "mean": statistics.fmean(values),
+        "median": statistics.median(values),
+        "min": min(values),
+        "max": max(values),
+        "number_improved": sum(
+            value > 0 if higher_is_better else value < 0 for value in values
+        ),
+    }
+
+
+def six_seed_aggregation(seed_results: list[dict[str, Any]]) -> dict[str, Any]:
+    """Aggregate paired training seeds, never individual arena games."""
+    if tuple(row["seed"] for row in seed_results) != SIX_SEEDS:
+        raise ValueError("six-seed aggregation must retain ordered seeds 47 through 52")
+    effects = [float(row["arena_score"]) - 0.5 for row in seed_results]
+    top1 = [
+        float(row["uniform1200"]["top1"]) - float(row["control"]["top1"])
+        for row in seed_results
+    ]
+    regret = [
+        float(row["uniform1200"]["mean_regret"]) - float(row["control"]["mean_regret"])
+        for row in seed_results
+    ]
+    blunder = [
+        float(row["uniform1200"]["blunder_rate"])
+        - float(row["control"]["blunder_rate"])
+        for row in seed_results
+    ]
+    return {
+        "experimental_unit": "matched_training_seed_pair",
+        "arena": {
+            "scores": [row["arena_score"] for row in seed_results],
+            "effects": effects,
+            "mean_effect": statistics.fmean(effects),
+            "median_effect": statistics.median(effects),
+            "number_positive": sum(effect > 0 for effect in effects),
+            "number_neutral": sum(effect == 0 for effect in effects),
+            "number_negative": sum(effect < 0 for effect in effects),
+        },
+        "exact_paired_deltas": {
+            "top1_accuracy": paired_metric_summary(top1, higher_is_better=True),
+            "mean_outcome_regret": paired_metric_summary(
+                regret, higher_is_better=False
+            ),
+            "true_outcome_blunder_rate": paired_metric_summary(
+                blunder, higher_is_better=False
+            ),
+        },
+    }
+
+
+def classify_six_seed(
+    seed_results: list[dict[str, Any]],
+    *,
+    exact_metrics_improved: int,
+    repeated_win_to_loss: bool,
+    shadow_passes: int,
+    production_misaligned: bool,
+    strongly_negative_seeds: int = 0,
+) -> str:
+    aggregate = six_seed_aggregation(seed_results)
+    arena = aggregate["arena"]
+    strength = (
+        arena["number_positive"] >= 4
+        and arena["mean_effect"] > 0
+        and strongly_negative_seeds < 2
+    )
+    exact_safe = exact_metrics_improved == 6
+    if strength and exact_safe and shadow_passes >= 4 and not repeated_win_to_loss:
+        return (
+            "uniform1200_six_seed_production_gate_misaligned"
+            if production_misaligned
+            else "uniform1200_six_seed_strength_confirmed"
+        )
+    if strength and repeated_win_to_loss:
+        return "uniform1200_six_seed_strength_with_repeated_outcome_regression"
+    if (
+        exact_metrics_improved >= 5
+        and arena["number_positive"] < 4
+        and arena["mean_effect"] >= 0
+    ):
+        return "uniform1200_six_seed_exact_gain_arena_uncertain"
+    if arena["mean_effect"] <= 0 or arena["number_positive"] < 4:
+        return "uniform1200_six_seed_no_strength_gain"
+    return "uniform1200_six_seed_inconclusive"
 
 
 def classify(
@@ -348,6 +541,52 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
     base = json.loads((ROOT / plan["base_config"]).read_text(encoding="utf-8"))
+    if plan.get("schema") == EXTENSION_SCHEMA:
+        try:
+            integrity = extension_preflight(plan, base)
+        except FileNotFoundError as error:
+            if str(error) != "uniform1200_seed_extension_artifact_missing":
+                raise
+            write_json(
+                args.out,
+                {
+                    "schema": EXTENSION_SCHEMA,
+                    "status": "uniform1200_seed_extension_artifact_missing",
+                    "promotion": plan["promotion"],
+                },
+            )
+            return 0
+        manifests = []
+        for seed in EXTENSION_SEEDS:
+            for lane in LANES:
+                config = extension_lane_config(plan, base, seed, lane, args.workdir)
+                path = args.workdir / "configs" / f"seed{seed}-{lane}.json"
+                write_json(path, config)
+                manifests.append(
+                    {
+                        "seed": seed,
+                        "lane": lane,
+                        "config": str(path),
+                        "config_sha256": sha256_file(path),
+                        "parent_weights_sha256": integrity["parent_weights_sha256"],
+                        "self_play_seed_sweep": seed_sweep(seed),
+                        "training_seed": seed,
+                        "promotion": False,
+                    }
+                )
+        write_json(
+            args.out,
+            {
+                "schema": EXTENSION_SCHEMA,
+                "status": "pre_registered_execution_pending",
+                "preflight": integrity,
+                "arena": plan["arena"],
+                "promotion": plan["promotion"],
+                "primary_excludes_r61": True,
+                "manifests": manifests,
+            },
+        )
+        return 0
     integrity = preflight(plan, base)
     manifests = []
     for seed in SEEDS:

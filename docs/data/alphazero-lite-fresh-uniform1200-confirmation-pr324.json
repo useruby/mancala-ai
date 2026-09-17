@@ -1,0 +1,15 @@
+{
+  "schema": "azlite_fresh_uniform1200_confirmation_pr324_frozen_v1",
+  "classification": "uniform1200_fresh_seed_heterogeneous",
+  "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+  "seeds": [
+    {"seed": 47, "arena_score": 0.5, "control": {"top1": 0.5634, "mean_regret": 2.723, "blunder_rate": 0.4366}, "uniform1200": {"top1": 0.662, "mean_regret": 1.9249, "blunder_rate": 0.338}},
+    {"seed": 48, "arena_score": 0.5, "control": {"top1": 0.5493, "mean_regret": 3.0892, "blunder_rate": 0.4507}, "uniform1200": {"top1": 0.6901, "mean_regret": 1.9249, "blunder_rate": 0.3099}},
+    {"seed": 49, "arena_score": 1.0, "control": {"top1": 0.5634, "mean_regret": 2.8545, "blunder_rate": 0.4366}, "uniform1200": {"top1": 0.6995, "mean_regret": 1.5023, "blunder_rate": 0.3005}}
+  ],
+  "source_artifacts": {
+    "seed47": {"arena": ".tmp/fresh-uniform1200/arena-seed47.json", "forensic": ".tmp/fresh-uniform1200/exact-seed47.json"},
+    "seed48": {"arena": ".tmp/fresh-uniform1200/arena-seed48.json", "forensic": ".tmp/fresh-uniform1200/exact-seed48.json"},
+    "seed49": {"arena": ".tmp/fresh-uniform1200/arena-seed49.json", "forensic": ".tmp/fresh-uniform1200/exact-seed49.json"}
+  }
+}
