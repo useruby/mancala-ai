@@ -26,7 +26,13 @@ def plan() -> dict:
                 "opening_min_simulations": None,
                 "opening_min_simulations_plies": None,
             },
-        }
+        },
+        "regenerated_replay_sources": [
+            {"path": "generic.jsonl", "weight": 4},
+            {"path": "teacher.jsonl", "weight": 1},
+            {"path": "disagreement.jsonl", "weight": 8},
+            {"path": "stability.jsonl", "weight": 4},
+        ],
     }
 
 

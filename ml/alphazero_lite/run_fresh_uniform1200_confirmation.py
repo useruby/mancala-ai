@@ -81,6 +81,10 @@ def lane_config(
     config["run_id"] = f"fresh-uniform1200-s{seed}-{lane}"
     config["seed"] = seed
     config["versions_dir"] = str(workdir / "runs" / f"seed{seed}" / lane)
+    config["fixed_replay_sources"] = [
+        {"path": source["path"], "weight": source["weight"]}
+        for source in plan["regenerated_replay_sources"]
+    ]
     self_play = self_play_step(config)
     command = replace_option(self_play["command"], "--seed", seed)
     command = replace_option(command, "--seed-sweep", seed_sweep(seed))
@@ -131,6 +135,15 @@ def preflight(plan: dict[str, Any], base: dict[str, Any]) -> dict[str, Any]:
         raise FileNotFoundError(
             "current parent or exact forensic v2 reference is unavailable"
         )
+    replay_sources = plan.get("regenerated_replay_sources", [])
+    if [source.get("weight") for source in replay_sources] != [4, 1, 8, 4]:
+        raise ValueError("current replay source weights must remain 4,1,8,4")
+    for source in replay_sources:
+        path = ROOT / str(source["path"])
+        if not path.is_file() or sha256_file(path) != source.get("sha256"):
+            raise ValueError(
+                f"regenerated replay source mismatch: {source.get('name')}"
+            )
     configs = [lane_config(plan, base, SEEDS[0], lane, ROOT / ".tmp") for lane in LANES]
     if non_budget_identity(configs[0]) != non_budget_identity(configs[1]):
         raise ValueError(

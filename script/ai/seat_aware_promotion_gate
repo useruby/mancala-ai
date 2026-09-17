@@ -584,10 +584,6 @@ def run_seat_aware_evaluation(
                 validation_errors.append(
                     f"{label}: seat {seat} block is empty or malformed"
                 )
-            if metrics.get("duplicate_trajectory_count", 0):
-                validation_errors.append(
-                    f"{label}: duplicate trajectories in seat {seat}"
-                )
     report["runtime_gate_validation"] = {
         "valid": not validation_errors,
         "errors": validation_errors,

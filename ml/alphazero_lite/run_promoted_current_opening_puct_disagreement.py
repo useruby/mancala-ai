@@ -901,6 +901,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-training", action="store_true")
     parser.add_argument("--skip-eval", action="store_true")
     parser.add_argument("--skip-gate", action="store_true")
+    parser.add_argument(
+        "--replay-only",
+        action="store_true",
+        help="Build the disagreement audit/replay without historical training references.",
+    )
     return parser.parse_args()
 
 
@@ -939,9 +944,13 @@ def main() -> int:
     require_existing_file(random_teacher, "random teacher replay")
     require_existing_file(fixed_large_suite, "fixed large suite")
     require_existing_file(medium_suite, "medium suite")
-    require_existing_file(iter2_ref_checkpoint, "iter2 reference checkpoint")
+    if not args.replay_only:
+        require_existing_file(iter2_ref_checkpoint, "iter2 reference checkpoint")
 
-    if not iter2_ref_artifact.joinpath("weights.json").is_file():
+    if (
+        not args.replay_only
+        and not iter2_ref_artifact.joinpath("weights.json").is_file()
+    ):
         export_checkpoint(
             checkpoint_path=str(iter2_ref_checkpoint),
             out_dir=str(iter2_ref_artifact),
@@ -971,9 +980,17 @@ def main() -> int:
         "heldout_suites": {
             path.stem: build_input_summary(path) for path in heldout_suite_paths
         },
-        "iter2_selfplay_e2_checkpoint": build_input_summary(iter2_ref_checkpoint),
-        "iter2_selfplay_e2_artifact_weights": build_input_summary(
-            iter2_ref_artifact / "weights.json"
+        **(
+            {}
+            if args.replay_only
+            else {
+                "iter2_selfplay_e2_checkpoint": build_input_summary(
+                    iter2_ref_checkpoint
+                ),
+                "iter2_selfplay_e2_artifact_weights": build_input_summary(
+                    iter2_ref_artifact / "weights.json"
+                ),
+            }
         ),
     }
 
@@ -1057,6 +1074,20 @@ def main() -> int:
                 replay_rows.extend(future.result())
         replay_rows.sort(key=lambda row: str(row["state_hash"]))
         write_jsonl(replay_path, replay_rows)
+
+    if args.replay_only:
+        write_json(
+            workdir / "summary_metrics.json",
+            {
+                "schema": "azlite_promoted_current_opening_puct_disagreement_v1",
+                "status": "replay_completed",
+                "mode": "replay_only",
+                "inputs": input_summary,
+                "opening_state_disagreement_audit": audit,
+                "replay": build_input_summary(replay_path),
+            },
+        )
+        return 0
 
     lane_specs = [
         {

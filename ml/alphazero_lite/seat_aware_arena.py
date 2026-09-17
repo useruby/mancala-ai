@@ -226,6 +226,17 @@ def build_seat_aware_report(
 
     for result in arena_results:
         budget_label = result.get("budget_label", "unknown")
+        forced_starts = result.get("forced_starts")
+        if forced_starts is not None:
+            existing = budget_results.setdefault(budget_label, {})
+            seat_metrics = result.get("seat_metrics", {})
+            seat_key = f"challenger_starts_{int(forced_starts)}"
+            if seat_key in seat_metrics:
+                existing[seat_key] = dict(seat_metrics[seat_key])
+            existing["disadvantaged_seat_score"] = existing.get(
+                "challenger_starts_1", {}
+            ).get("score", 0.0)
+            continue
         result_data = {}
         if "seat_metrics" in result:
             result_data = dict(result["seat_metrics"])
