@@ -605,10 +605,9 @@ def generate_random_opening_moves(
         if not legal_moves:
             break
         move = int(rng.choice(legal_moves))
-        relative_move = game.pit_index(move)
-        if not game.move(relative_move):
+        if not game.move(game.pit_index(move)):
             break
-        moves.append(relative_move)
+        moves.append(move)
     return moves
 
 
@@ -622,7 +621,9 @@ def apply_opening_moves(game: KalahGame, moves: list[int]) -> int:
             break
         if move not in legal_moves:
             break
-        if not game.move(move):
+        # Opening prefixes are stored in the same player-relative encoding as
+        # ``generate_random_opening_moves`` and arena policy actions.
+        if not game.move(game.pit_index(move)):
             break
         applied += 1
     return applied

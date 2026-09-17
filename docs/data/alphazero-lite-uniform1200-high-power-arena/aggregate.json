@@ -1,0 +1,43 @@
+{
+  "arena_executed": false,
+  "checkpoint_sha256": {
+    "47": {
+      "control": "4d2217c4509cd84ee408ed380c9a32616e698e11a8fea2841bcc1c4c32c38cc6",
+      "uniform1200": "8eb1ad896e4ab3d228275a65da137c425710ddba96dd5005b8cef0bac2984f56"
+    },
+    "48": {
+      "control": "e1516c4db1a7c7e7a733d8e982087231b5a2395549172a4d8991cd901da04598",
+      "uniform1200": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
+    },
+    "49": {
+      "control": "068e4b11a0b34c7de439d9b4c6af8979ff8ce858bf8bcc62baccd91c4cc29b2c",
+      "uniform1200": "1de880981885b174aa57166a0431a050565968e181a9931f15e93cd7180c205e"
+    },
+    "50": {
+      "control": "7a9a733d0b24c3e424a596e2b14781a691c57a795885e0a6b23ab7b697b214a8",
+      "uniform1200": "5da18b268aa1cc80b2e5a0a3342f5ae1a3e9a13f4867d0a2da87567c51fb0ecf"
+    },
+    "51": {
+      "control": "e462e6bfbad2a78a66d02c0cb66326d7e6360c89fc771ca2f209855edd983ea9",
+      "uniform1200": "e6f5ce2c184676b2c0306616b4a865e9ba2a599169b8013af69c680ac36d07bc"
+    },
+    "52": {
+      "control": "d2d7faacbea919c12af3461295f7f189db40ef1beb34b70a5b74cc270272f403",
+      "uniform1200": "78084a42915f75fa6b3d66d01cd7da386078c343711094a84f25033bb148ed4e"
+    }
+  },
+  "classification": "high_power_opening_suite_low_diversity",
+  "opening_suite": {
+    "canonical_unique_fraction": 0.91015625,
+    "canonical_unique_states": 233,
+    "opening_count": 256,
+    "opening_plies": 4,
+    "sha256": "bf087acb340904387f4cb2edb8197b950d91f3acc827ffc682e15a285837eb4d"
+  },
+  "promotion": {
+    "performed": false
+  },
+  "replay_mutation": false,
+  "schema": "azlite_uniform1200_high_power_arena_v1",
+  "training_invoked": false
+}
