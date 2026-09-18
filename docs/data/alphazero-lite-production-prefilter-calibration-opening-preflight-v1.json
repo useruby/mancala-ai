@@ -1,0 +1,22 @@
+{
+  "canonical_unique_fraction": 1.0,
+  "canonical_unique_states": 256,
+  "deterministic_reconstruction_sha": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+  "every_prefix_four_plies": true,
+  "every_prefix_legal": true,
+  "historical_suite_overlap": 0,
+  "model_or_checkpoint_input": false,
+  "no_terminal_resulting_state": true,
+  "opening_count": 256,
+  "pr327_overlap": 0,
+  "pr327_state_count": 256,
+  "pr329_overlap": 0,
+  "pr329_state_count": 256,
+  "remaining_population": 430,
+  "schema": "azlite_production_arena_prefilter_calibration_v1",
+  "selection_seed": 330,
+  "suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+  "suite_version": "production_prefilter_calibration_unique_v1",
+  "total_canonical_population": 942,
+  "total_legal_four_ply_prefixes": 942
+}
