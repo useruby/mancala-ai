@@ -28,16 +28,17 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.arena import (  # noqa: E402
     apply_opening_moves,
     canonical_game_state_hash,
-    generate_random_opening_moves,
 )
+from ml.alphazero_lite.evaluation_seed_contract import stable_hash  # noqa: E402
 from ml.alphazero_lite.kalah_rules import KalahGame  # noqa: E402
 from ml.alphazero_lite.seat_aware_arena import compute_seat_split_metrics  # noqa: E402
 
-SCHEMA = "azlite_uniform1200_high_power_arena_v1"
+SCHEMA = "azlite_uniform1200_high_power_arena_v2"
 SEEDS = (47, 48, 49, 50, 51, 52)
 OPENING_COUNT = 256
 OPENING_PLIES = 4
 BASE_SEED = 90417
+SUITE_VERSION = "uniform1200_high_power_unique_v2"
 GAMES_PER_OPENING = 2
 SIMULATIONS = 384
 WORKERS = 24
@@ -111,37 +112,101 @@ def initial_game() -> KalahGame:
     )
 
 
-def build_opening_suite() -> list[dict[str, Any]]:
-    suite = []
-    for opening_index in range(OPENING_COUNT):
-        game = initial_game()
-        prefix_moves = generate_random_opening_moves(
-            game=game,
-            opening_seed=BASE_SEED + opening_index,
-            opening_plies=OPENING_PLIES,
-        )
-        applied = apply_opening_moves(initial_game(), prefix_moves)
-        if len(prefix_moves) != OPENING_PLIES or applied != OPENING_PLIES:
-            raise ValueError(
-                "frozen opening generation did not produce four legal plies"
+def enumerate_four_ply_openings() -> tuple[list[dict[str, Any]], int]:
+    """Enumerate legal action sequences, preserving Kalah extra turns."""
+    openings: list[dict[str, Any]] = []
+    excluded = 0
+
+    def visit(game: KalahGame, prefix_moves: tuple[int, ...]) -> None:
+        nonlocal excluded
+        if len(prefix_moves) == OPENING_PLIES:
+            if game.over():
+                excluded += 1
+                return
+            openings.append(
+                {
+                    "prefix_moves": list(prefix_moves),
+                    "resulting_state": game.to_state(),
+                    "canonical_resulting_state_hash": canonical_game_state_hash(game),
+                    "current_player": game.current_player,
+                    "terminal": False,
+                    "legal_action_count": len(game.possible_moves()),
+                }
             )
+            return
         if game.over():
-            raise ValueError("frozen opening generation produced a terminal state")
-        suite.append(
+            excluded += 1
+            return
+        for move in game.possible_moves():
+            child = game.clone()
+            if not child.move(child.pit_index(move)):
+                raise ValueError("four-ply opening enumeration applied an illegal move")
+            visit(child, prefix_moves + (move,))
+
+    visit(initial_game(), ())
+    return openings, excluded
+
+
+def canonical_unique_opening_population(
+    openings: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for opening in openings:
+        grouped[str(opening["canonical_resulting_state_hash"])].append(opening)
+    population = []
+    for state_hash, prefixes in grouped.items():
+        representative = min(prefixes, key=lambda row: tuple(row["prefix_moves"]))
+        population.append(
             {
-                "opening_index": opening_index,
-                "prefix_moves": prefix_moves,
-                "canonical_resulting_state_hash": canonical_game_state_hash(game),
+                **representative,
+                "prefix_multiplicity": len(prefixes),
+                "canonical_resulting_state_hash": state_hash,
             }
         )
-    return suite
+    return sorted(population, key=lambda row: row["canonical_resulting_state_hash"])
+
+
+def select_unique_opening_suite(
+    population: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if len(population) < OPENING_COUNT:
+        raise ValueError("four_ply_unique_population_insufficient")
+    ranked = []
+    for row in population:
+        state_hash = row["canonical_resulting_state_hash"]
+        selection_key = stable_hash(
+            {
+                "suite_version": SUITE_VERSION,
+                "selection_seed": BASE_SEED,
+                "canonical_state_hash": state_hash,
+            }
+        )
+        ranked.append((selection_key, state_hash, row))
+    return [
+        {
+            "opening_index": opening_index,
+            "prefix_moves": row["prefix_moves"],
+            "canonical_resulting_state_hash": state_hash,
+            "prefix_multiplicity": row["prefix_multiplicity"],
+            "selection_key": selection_key,
+        }
+        for opening_index, (selection_key, state_hash, row) in enumerate(
+            sorted(ranked, key=lambda item: (item[0], item[1]))[:OPENING_COUNT]
+        )
+    ]
+
+
+def build_opening_suite() -> tuple[list[dict[str, Any]], list[dict[str, Any]], int]:
+    openings, excluded = enumerate_four_ply_openings()
+    population = canonical_unique_opening_population(openings)
+    return select_unique_opening_suite(population), openings, excluded
 
 
 def suite_preflight(suite: list[dict[str, Any]]) -> dict[str, Any]:
     if len(suite) != OPENING_COUNT or [row["opening_index"] for row in suite] != list(
         range(OPENING_COUNT)
     ):
-        raise ValueError("high_power_opening_suite_low_diversity")
+        raise ValueError("canonical_unique_suite_preflight_failed")
     hashes = []
     for row in suite:
         game = initial_game()
@@ -150,24 +215,39 @@ def suite_preflight(suite: list[dict[str, Any]]) -> dict[str, Any]:
             or apply_opening_moves(game, row["prefix_moves"]) != OPENING_PLIES
             or game.over()
         ):
-            raise ValueError("high_power_opening_suite_low_diversity")
+            raise ValueError("canonical_unique_suite_preflight_failed")
         state_hash = canonical_game_state_hash(game)
-        if state_hash != row["canonical_resulting_state_hash"]:
-            raise ValueError("frozen opening suite state hash mismatch")
+        if (
+            state_hash != row["canonical_resulting_state_hash"]
+            or row.get("selection_key")
+            != stable_hash(
+                {
+                    "suite_version": SUITE_VERSION,
+                    "selection_seed": BASE_SEED,
+                    "canonical_state_hash": state_hash,
+                }
+            )
+            or int(row.get("prefix_multiplicity", 0)) < 1
+        ):
+            raise ValueError("canonical_unique_suite_preflight_failed")
         hashes.append(state_hash)
     unique = len(set(hashes))
-    if unique / OPENING_COUNT < 0.95:
-        raise ValueError("high_power_opening_suite_low_diversity")
+    if (
+        unique != OPENING_COUNT
+        or len({tuple(row["prefix_moves"]) for row in suite}) != OPENING_COUNT
+    ):
+        raise ValueError("canonical_unique_suite_preflight_failed")
     return {
         "opening_count": OPENING_COUNT,
         "opening_plies": OPENING_PLIES,
         "canonical_unique_states": unique,
         "canonical_unique_fraction": unique / OPENING_COUNT,
+        "model_or_checkpoint_input": False,
     }
 
 
 def persist_suite(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    suite = build_opening_suite()
+    suite, _openings, _excluded = build_opening_suite()
     payload = "".join(
         json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in suite
     )
@@ -175,6 +255,56 @@ def persist_suite(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     path.write_text(payload, encoding="utf-8")
     preflight = suite_preflight(suite)
     return suite, {**preflight, "sha256": sha256_file(path)}
+
+
+def population_report(
+    openings: list[dict[str, Any]], population: list[dict[str, Any]], excluded: int
+) -> dict[str, Any]:
+    multiplicities = sorted(row["prefix_multiplicity"] for row in population)
+    return {
+        "schema": SCHEMA,
+        "suite_version": SUITE_VERSION,
+        "total_legal_four_ply_prefixes": len(openings),
+        "canonical_unique_population": len(population),
+        "terminal_or_short_prefixes_excluded": excluded,
+        "prefix_multiplicity": {
+            "min": min(multiplicities),
+            "median": statistics.median(multiplicities),
+            "p90": float(np.percentile(multiplicities, 90)),
+            "max": max(multiplicities),
+        },
+        "current_player_distribution": dict(
+            sorted(Counter(row["current_player"] for row in openings).items())
+        ),
+        "legal_action_count_distribution": dict(
+            sorted(Counter(row["legal_action_count"] for row in openings).items())
+        ),
+        "model_or_checkpoint_input": False,
+    }
+
+
+def persist_population_artifacts(
+    population_path: Path,
+    preflight_path: Path,
+    suite: list[dict[str, Any]],
+    suite_sha256: str,
+) -> dict[str, Any]:
+    _selected, openings, excluded = build_opening_suite()
+    population = canonical_unique_opening_population(openings)
+    population_path.parent.mkdir(parents=True, exist_ok=True)
+    population_path.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+            for row in openings
+        ),
+        encoding="utf-8",
+    )
+    report = population_report(openings, population, excluded)
+    report["population_sha256"] = sha256_file(population_path)
+    report["suite_preflight"] = suite_preflight(suite)
+    report["suite_sha256"] = suite_sha256
+    write_json(preflight_path, report)
+    return report
 
 
 def checkpoint_preflight() -> dict[str, dict[str, str]]:
@@ -384,19 +514,23 @@ def render_report(result: dict[str, Any]) -> str:
         "## Frozen Design",
         "",
         f"- Opening suite: {OPENING_COUNT} model-independent four-ply prefixes, SHA256 `{result['opening_suite']['sha256']}`, canonical uniqueness {result['opening_suite']['canonical_unique_states']}/{OPENING_COUNT}.",
+        f"- V1 failed before games: 233/256 canonical states (91.02%). V2 enumerates all legal four-ply prefixes, groups by canonical resulting-state hash, retains the lexicographically smallest prefix, then ranks states by stable hash of `{SUITE_VERSION}`, seed `{BASE_SEED}`, and state hash without replacement.",
+        f"- Four-ply population: {result['opening_population']['total_legal_four_ply_prefixes']} legal prefixes and {result['opening_population']['canonical_unique_population']} canonical states; multiplicity min/median/p90/max {result['opening_population']['prefix_multiplicity']['min']}/{result['opening_population']['prefix_multiplicity']['median']}/{result['opening_population']['prefix_multiplicity']['p90']}/{result['opening_population']['prefix_multiplicity']['max']}.",
+        f"- V1/V2 canonical-state overlap: {result['opening_population']['v1_v2_canonical_overlap']}.",
+        "- Checkpoint preflight: all 12 frozen control/uniform1200 weight SHA256 values match the PR #326 aggregate.",
         f"- Arena: {GAMES_PER_OPENING} seat-swapped games/opening, {SIMULATIONS}/{SIMULATIONS} simulations, c_puct 1.25, deterministic PUCT, zero FPU, seed `{BASE_SEED}`, contract `{SEED_CONTRACT}`, {WORKERS} workers.",
         "",
         "## Per-Seed Results",
         "",
-        "| Seed | W/D/L | Pair score | Pair CI95 | Old 120-game score |",
-        "| --- | --- | --- | --- | --- |",
+        "| Seed | W/D/L | Pair score | Pair CI95 | Median pair | Seat P0/P1 | Margin mean/median | Trajectories unique/duplicate |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for seed in SEEDS:
         row = result["seeds"][str(seed)]
         metric = row["metrics"]
         ci = metric["opening_pair_ci95"]
         lines.append(
-            f"| {seed} | {metric['wins']}/{metric['draws']}/{metric['losses']} | {metric['mean_opening_pair_score']:.4f} | [{ci['lower']:.4f}, {ci['upper']:.4f}] | {OLD_SCORES[seed]:.4f} |"
+            f"| {seed} | {metric['wins']}/{metric['draws']}/{metric['losses']} | {metric['mean_opening_pair_score']:.4f} | [{ci['lower']:.4f}, {ci['upper']:.4f}] | {metric['median_opening_pair_score']:.4f} | {metric['score_by_challenger_seat']['player_0']:.4f}/{metric['score_by_challenger_seat']['player_1']:.4f} | {metric['mean_stone_margin']:.2f}/{metric['median_stone_margin']:.2f} | {metric['unique_trajectory_count']}/{metric['duplicate_trajectory_count']} |"
         )
     aggregate = result["aggregate"]
     lines.extend(
@@ -406,21 +540,21 @@ def render_report(result: dict[str, Any]) -> str:
             "",
             f"Effects: {', '.join(f'{value:+.4f}' for value in aggregate['effects'])}. Mean `{aggregate['mean_effect']:+.4f}`, median `{aggregate['median_effect']:+.4f}`; positive/neutral/negative `{aggregate['positive']}/{aggregate['neutral']}/{aggregate['negative']}`.",
             f"Hierarchical 95% CI for grand score: `[{aggregate['hierarchical_ci95']['lower']:.4f}, {aggregate['hierarchical_ci95']['upper']:.4f}]`.",
-            f"Repeated strength openings: `{len(aggregate['repeated_strength_opening_ids'])}`. Repeated weakness openings: `{len(aggregate['repeated_weakness_opening_ids'])}`.",
+            f"Repeated strength openings: `{len(aggregate['repeated_strength_opening_ids'])}` IDs `{aggregate['repeated_strength_opening_ids']}`. Repeated weakness openings: `{len(aggregate['repeated_weakness_opening_ids'])}` IDs `{aggregate['repeated_weakness_opening_ids']}`.",
             "",
             "## Frozen Exact Context",
             "",
-            "PR #325 exact W/D/L improved in all six matched pairs; no true win-to-loss regression repeated at 4/6; the outcome-aligned shadow gate passed 6/6. These exact results were reused, not rerun.",
+            "PR #325 exact W/D/L improved in all six matched pairs; no true win-to-loss regression repeated at 4/6; the outcome-aligned shadow gate passed 6/6. These exact results were reused, not rerun. PR #326 did not execute arena games because V1 preflight failed.",
             "",
             "## Next Experiment",
             "",
         ]
     )
     next_experiment = {
-        "uniform1200_high_power_strength_confirmed": "Run ONE promotion-candidate confirmation using the best pre-registered selection rule from these six uniform1200 candidates against the unchanged incumbent with the full production battery.",
-        "uniform1200_high_power_positive_but_uncertain": "Increase only the frozen opening suite size using a second independently pre-registered 256-opening block and combine it with the first, preserving all search settings.",
-        "uniform1200_high_power_seed_heterogeneous": "Compare replay/teacher-transfer statistics between the strongest and weakest fresh seed pairs.",
-        "uniform1200_exact_gain_not_game_strength": "Audit exact-set coverage versus actual arena visitation states to determine whether the forensic benchmark is measuring strategically low-weight positions.",
+        "uniform1200_high_power_strength_confirmed": "Run ONE promotion-candidate confirmation using a pre-registered candidate-selection rule over the six frozen uniform1200 checkpoints against the unchanged incumbent with the full production battery.",
+        "uniform1200_high_power_positive_but_uncertain": "Create ONE second independently selected 256-state canonical-unique opening block using a pre-registered different selection-domain salt, then combine both blocks.",
+        "uniform1200_high_power_seed_heterogeneous": "Compare teacher/replay-transfer statistics between strongest and weakest fresh seed pairs.",
+        "uniform1200_exact_gain_not_game_strength": "Measure exact-reference coverage and error specifically on states actually visited by these high-power arena games.",
         "uniform1200_high_power_arena_inconclusive": "Reproduce the frozen high-power arena execution without changing search or checkpoints.",
     }
     lines.append(next_experiment[result["classification"]])
@@ -432,24 +566,51 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=ROOT / "docs/data/alphazero-lite-uniform1200-high-power-arena",
+        default=ROOT / "docs/data/alphazero-lite-uniform1200-high-power-arena-v2",
     )
     parser.add_argument(
         "--suite",
         type=Path,
-        default=ROOT / "docs/data/alphazero-lite-uniform1200-high-power-openings.jsonl",
+        default=ROOT
+        / "docs/data/alphazero-lite-uniform1200-high-power-openings-v2.jsonl",
     )
     parser.add_argument(
         "--report",
         type=Path,
-        default=ROOT / "docs/alphazero-lite-uniform1200-high-power-arena.md",
+        default=ROOT / "docs/alphazero-lite-uniform1200-high-power-arena-v2.md",
     )
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--summarize-existing", action="store_true")
     args = parser.parse_args(argv)
+    population_path = (
+        ROOT
+        / "docs/data/alphazero-lite-uniform1200-high-power-opening-population-v2.jsonl"
+    )
+    preflight_path = (
+        ROOT
+        / "docs/data/alphazero-lite-uniform1200-high-power-opening-preflight-v2.json"
+    )
     checkpoints: dict[str, dict[str, str]] = {}
     try:
+        suite, _openings, _excluded = build_opening_suite()
+        suite_info = persist_suite(args.suite)[1]
+        opening_population = persist_population_artifacts(
+            population_path, preflight_path, suite, suite_info["sha256"]
+        )
+        v1_hashes = {
+            json.loads(line)["canonical_resulting_state_hash"]
+            for line in (
+                ROOT / "docs/data/alphazero-lite-uniform1200-high-power-openings.jsonl"
+            )
+            .read_text(encoding="utf-8")
+            .splitlines()
+            if line
+        }
+        opening_population["v1_v2_canonical_overlap"] = len(
+            v1_hashes & {row["canonical_resulting_state_hash"] for row in suite}
+        )
+        write_json(preflight_path, opening_population)
         checkpoints = checkpoint_preflight()
-        _suite, suite_info = persist_suite(args.suite)
     except FileNotFoundError:
         write_json(
             args.output_dir / "aggregate.json",
@@ -457,46 +618,16 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     except ValueError as error:
-        if str(error) == "high_power_opening_suite_low_diversity":
-            suite = build_opening_suite()
-            write_json(
-                args.output_dir / "aggregate.json",
-                {
-                    "schema": SCHEMA,
-                    "classification": str(error),
-                    "opening_suite": {
-                        "opening_count": OPENING_COUNT,
-                        "opening_plies": OPENING_PLIES,
-                        "canonical_unique_states": len(
-                            {row["canonical_resulting_state_hash"] for row in suite}
-                        ),
-                        "canonical_unique_fraction": len(
-                            {row["canonical_resulting_state_hash"] for row in suite}
-                        )
-                        / OPENING_COUNT,
-                        "sha256": sha256_file(args.suite),
-                    },
-                    "checkpoint_sha256": checkpoints,
-                    "arena_executed": False,
-                    "training_invoked": False,
-                    "replay_mutation": False,
-                    "promotion": {"performed": False},
-                },
-            )
-            args.report.write_text(
-                "# Uniform1200 High-Power Paired Arena\n\n"
-                "Inherited PR #325 classification: "
-                "`uniform1200_six_seed_exact_gain_arena_uncertain`.\n\n"
-                "Hard classification: `high_power_opening_suite_low_diversity`.\n\n"
-                "The single pre-registered 256-prefix, four-ply suite at seed "
-                "`90417` produced 233 canonical resulting states (91.02%), below "
-                "the required 95%. The suite was persisted and SHA-pinned before "
-                "this preflight result; no arena, training, self-play, replay, "
-                "checkpoint, exact-evaluation, or promotion operation was run.\n",
-                encoding="utf-8",
-            )
-            return 0
-        raise
+        classification = str(error)
+        write_json(
+            args.output_dir / "aggregate.json",
+            {
+                "schema": SCHEMA,
+                "classification": classification,
+                "arena_executed": False,
+            },
+        )
+        return 0
     if args.dry_run:
         write_json(
             args.output_dir / "plan.json",
@@ -504,6 +635,7 @@ def main(argv: list[str] | None = None) -> int:
                 "schema": SCHEMA,
                 "checkpoints": checkpoints,
                 "opening_suite": suite_info,
+                "opening_population": opening_population,
                 "commands": [
                     arena_command(seed, args.suite, args.output_dir) for seed in SEEDS
                 ],
@@ -517,14 +649,16 @@ def main(argv: list[str] | None = None) -> int:
     all_pairs = []
     for seed in SEEDS:
         started = time.monotonic()
-        subprocess.run(
-            arena_command(seed, args.suite, args.output_dir), cwd=ROOT, check=True
-        )
+        game_path = args.output_dir / f"seed{seed}-games.jsonl"
+        if not args.summarize_existing:
+            subprocess.run(
+                arena_command(seed, args.suite, args.output_dir), cwd=ROOT, check=True
+            )
+        elif not game_path.is_file():
+            raise FileNotFoundError("high_power_arena_artifact_missing")
         entries = [
             json.loads(line)
-            for line in (args.output_dir / f"seed{seed}-games.jsonl")
-            .read_text(encoding="utf-8")
-            .splitlines()
+            for line in game_path.read_text(encoding="utf-8").splitlines()
             if line
         ]
         pairs = aggregate_opening_pairs(entries)
@@ -553,15 +687,24 @@ def main(argv: list[str] | None = None) -> int:
         all_pairs.append([float(row["pair_score"]) for row in pairs])
     effects = [statistics.fmean(values) - 0.5 for values in all_pairs]
     by_opening = list(zip(*all_pairs))
-    repeated_strength = [
-        index
+    opening_consistency = [
+        {
+            "opening_index": index,
+            "uniform_gt_0_5": sum(value > 0.5 for value in values),
+            "equal_0_5": sum(value == 0.5 for value in values),
+            "uniform_lt_0_5": sum(value < 0.5 for value in values),
+        }
         for index, values in enumerate(by_opening)
-        if sum(value > 0.5 for value in values) >= 4
+    ]
+    repeated_strength = [
+        row["opening_index"]
+        for row in opening_consistency
+        if row["uniform_gt_0_5"] >= 4
     ]
     repeated_weakness = [
-        index
-        for index, values in enumerate(by_opening)
-        if sum(value < 0.5 for value in values) >= 4
+        row["opening_index"]
+        for row in opening_consistency
+        if row["uniform_lt_0_5"] >= 4
     ]
     hierarchical = hierarchical_ci(all_pairs)
     aggregate = {
@@ -577,6 +720,7 @@ def main(argv: list[str] | None = None) -> int:
         "hierarchical_ci95": hierarchical,
         "repeated_strength_opening_ids": repeated_strength,
         "repeated_weakness_opening_ids": repeated_weakness,
+        "opening_cross_seed_consistency": opening_consistency,
         "opening_cross_seed_scores": [
             {"opening_index": index, "scores": list(values)}
             for index, values in enumerate(by_opening)
@@ -586,6 +730,7 @@ def main(argv: list[str] | None = None) -> int:
         "schema": SCHEMA,
         "inherited_classification": "uniform1200_six_seed_exact_gain_arena_uncertain",
         "opening_suite": suite_info,
+        "opening_population": opening_population,
         "checkpoint_sha256": checkpoints,
         "arena": {
             "games_per_pair": 512,
