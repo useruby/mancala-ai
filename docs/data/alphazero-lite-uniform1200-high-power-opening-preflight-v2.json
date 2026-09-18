@@ -1,0 +1,34 @@
+{
+  "canonical_unique_population": 942,
+  "current_player_distribution": {
+    "0": 512,
+    "1": 430
+  },
+  "legal_action_count_distribution": {
+    "3": 4,
+    "4": 194,
+    "5": 562,
+    "6": 182
+  },
+  "model_or_checkpoint_input": false,
+  "population_sha256": "a49758b5c91cef9e2aeda494ffd59ab248ef549b2c86b44206fc3a4de8b0cc89",
+  "prefix_multiplicity": {
+    "max": 1,
+    "median": 1.0,
+    "min": 1,
+    "p90": 1.0
+  },
+  "schema": "azlite_uniform1200_high_power_arena_v2",
+  "suite_preflight": {
+    "canonical_unique_fraction": 1.0,
+    "canonical_unique_states": 256,
+    "model_or_checkpoint_input": false,
+    "opening_count": 256,
+    "opening_plies": 4
+  },
+  "suite_sha256": "c4f74fe141cae1ea1aebe0fb97865f96864172cdd806ed9d7984184c6c8d9b9d",
+  "suite_version": "uniform1200_high_power_unique_v2",
+  "terminal_or_short_prefixes_excluded": 0,
+  "total_legal_four_ply_prefixes": 942,
+  "v1_v2_canonical_overlap": 76
+}
