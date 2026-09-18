@@ -1,0 +1,2004 @@
+{
+  "failure_reasons": [],
+  "metrics": {
+    "capture_available": {
+      "candidate": {
+        "mean_outcome_regret": 0.125,
+        "outcome_optimal_policy_mass": 0.38637867926930386,
+        "outcome_optimal_top1": 0.875,
+        "roots": 24,
+        "true_outcome_blunder_rate": 0.125,
+        "win_to_draw": 3,
+        "win_to_loss": 0
+      },
+      "incumbent": {
+        "mean_outcome_regret": 0.25,
+        "outcome_optimal_policy_mass": 0.28980143667043495,
+        "outcome_optimal_top1": 0.7916666666666666,
+        "roots": 24,
+        "true_outcome_blunder_rate": 0.20833333333333334,
+        "win_to_draw": 3,
+        "win_to_loss": 1
+      }
+    },
+    "overall": {
+      "candidate": {
+        "mean_outcome_regret": 0.11737089201877934,
+        "outcome_optimal_policy_mass": 0.40779834397862985,
+        "outcome_optimal_top1": 0.9295774647887324,
+        "roots": 213,
+        "true_outcome_blunder_rate": 0.07042253521126761,
+        "win_to_draw": 5,
+        "win_to_loss": 10
+      },
+      "incumbent": {
+        "mean_outcome_regret": 0.22065727699530516,
+        "outcome_optimal_policy_mass": 0.3577192490133391,
+        "outcome_optimal_top1": 0.8732394366197183,
+        "roots": 213,
+        "true_outcome_blunder_rate": 0.1267605633802817,
+        "win_to_draw": 5,
+        "win_to_loss": 20
+      }
+    },
+    "sparse_endgame": {
+      "candidate": {
+        "mean_outcome_regret": 0.0,
+        "outcome_optimal_policy_mass": 0.5122982741643985,
+        "outcome_optimal_top1": 1.0,
+        "roots": 24,
+        "true_outcome_blunder_rate": 0.0,
+        "win_to_draw": 0,
+        "win_to_loss": 0
+      },
+      "incumbent": {
+        "mean_outcome_regret": 0.0,
+        "outcome_optimal_policy_mass": 0.46226256938340765,
+        "outcome_optimal_top1": 1.0,
+        "roots": 24,
+        "true_outcome_blunder_rate": 0.0,
+        "win_to_draw": 0,
+        "win_to_loss": 0
+      }
+    }
+  },
+  "paired_state_transitions": [
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-001",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-001",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-002",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 1,
+      "outcome_transition": "0_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-003",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-001",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-002",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-003",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-001",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-002",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 2,
+      "id": "starvation_pressure-001",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-002",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-003",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 2,
+      "id": "high_imbalance-003",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-001",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-002",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-003",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-001",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-002",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-003",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-001",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-002",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-003",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-007",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-008",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-009",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-010",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-011",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-012",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-013",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-014",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-015",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-016",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-017",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-018",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-019",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-020",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-021",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-022",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-023",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-024",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 2,
+      "id": "incumbent_proxy_disagreement-025",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-026",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-027",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-028",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-029",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 2,
+      "id": "incumbent_proxy_disagreement-030",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_-1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-031",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-032",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-033",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-034",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "incumbent_proxy_disagreement",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "incumbent_proxy_disagreement-035",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-007",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-008",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-009",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-010",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-011",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-012",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-013",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 1,
+      "outcome_transition": "-1_to_0"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-014",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-015",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-016",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 1,
+      "id": "capture_available-017",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 1,
+      "outcome_transition": "0_to_0"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-018",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-019",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-020",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-021",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-022",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-023",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-024",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 1,
+      "id": "capture_available-025",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 1,
+      "outcome_transition": "0_to_0"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 1,
+      "id": "capture_available-026",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 1,
+      "outcome_transition": "0_to_0"
+    },
+    {
+      "bucket": "capture_available",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "capture_available-027",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-007",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-009",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-010",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-011",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-012",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-013",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-014",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-015",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-016",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-017",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-018",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-019",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-020",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-021",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-022",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-023",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-024",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-025",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-026",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-027",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "early_extra_turn",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "early_extra_turn-028",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-007",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-008",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-009",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-010",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-011",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-012",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-013",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-014",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-015",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-016",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-017",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-018",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-019",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-020",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-021",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-022",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-023",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-024",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-025",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-026",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_imbalance",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_imbalance-027",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-007",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-008",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-009",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-010",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-011",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-012",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-013",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-014",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 1,
+      "outcome_transition": "0_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-015",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 2,
+      "id": "high_value_swing-016",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 2,
+      "id": "high_value_swing-017",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-018",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-019",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 1,
+      "outcome_transition": "-1_to_0"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-020",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-021",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-022",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-023",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-024",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-025",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-026",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "high_value_swing",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "high_value_swing-027",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-005",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-006",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-007",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-008",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-010",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-013",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-015",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-016",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-017",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-019",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-020",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-021",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-022",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-023",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-024",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-025",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-007",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-008",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-009",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-010",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-011",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-012",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-013",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-014",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-015",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "0_to_0"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-016",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-017",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-018",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-019",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-020",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "0_to_0"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-021",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-022",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-023",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "0_to_0"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-024",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-025",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-026",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "sparse_endgame",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "sparse_endgame-027",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-007",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-008",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-009",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 1,
+      "id": "starvation_pressure-010",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_0"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-011",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-012",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-013",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-014",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-015",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-016",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-017",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-018",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-019",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-020",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 0,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-021",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-022",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-023",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-024",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 2,
+      "id": "starvation_pressure-025",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "starvation_pressure-026",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "starvation_pressure",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 2,
+      "id": "starvation_pressure-027",
+      "incumbent_action": 0,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-050",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-051",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-052",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 2,
+      "id": "opening_plies_1_8-053",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-054",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-055",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-056",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-057",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-058",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-059",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-060",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-061",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 1,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-062",
+      "incumbent_action": 1,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-065",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 4,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-066",
+      "incumbent_action": 5,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-067",
+      "incumbent_action": 4,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-068",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 2,
+      "candidate_outcome_regret": 2,
+      "id": "opening_plies_1_8-070",
+      "incumbent_action": 2,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_-1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 3,
+      "candidate_outcome_regret": 0,
+      "id": "opening_plies_1_8-071",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 0,
+      "outcome_transition": "1_to_1"
+    },
+    {
+      "bucket": "opening_plies_1_8",
+      "candidate_action": 5,
+      "candidate_outcome_regret": 1,
+      "id": "opening_plies_1_8-072",
+      "incumbent_action": 3,
+      "incumbent_outcome_regret": 2,
+      "outcome_transition": "-1_to_0"
+    }
+  ],
+  "passed": true,
+  "raw_report": "docs/data/alphazero-lite-uniform1200-promotion-confirmation/outcome_shadow_forensic_raw.json",
+  "schema": "azlite_uniform1200_outcome_shadow_v1",
+  "thresholds": {
+    "capture_available": {
+      "accuracy": -0.03,
+      "blunder": 0.02,
+      "regret": 0.03
+    },
+    "overall": {
+      "accuracy": -0.02,
+      "blunder": 0.01,
+      "regret": 0.02
+    },
+    "sparse_endgame": {
+      "accuracy": -0.03,
+      "blunder": 0.02,
+      "regret": 0.03
+    }
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "candidate_artifact": {
+    "architecture": {
+      "activation": "relu",
+      "hidden_layer_count": 7,
+      "hidden_sizes": [
+        96
+      ],
+      "model_type": "residual_v3",
+      "policy_hidden_size": 96,
+      "policy_size": 6,
+      "residual_block_count": 3,
+      "trunk_size": 96,
+      "type": "residual_policy_value",
+      "value_hidden_size": 48,
+      "value_size": 1
+    },
+    "checkpoint_sha256": "0e00bdc92ec9d363c92580c0115467ffc3bbd332cb1efe97eb5f2d780a4968e6",
+    "historical_export_manifest": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1/run_manifest.json",
+    "input_encoding": "kalah_v3",
+    "metadata_sha256": "ce226854584ac2518ddea22caa1f1faa7a2697f8aa96b1ad6d82388b23ca5f51",
+    "path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+    "version": "fresh-uniform1200-s48-uniform1200-iter1",
+    "weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
+  },
+  "classification": "uniform1200_promotion_arena_failed",
+  "gate_candidate_paths": [
+    ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1"
+  ],
+  "gate_passed": false,
+  "gate_returncode": 1,
+  "incumbent": {
+    "architecture": {
+      "activation": "relu",
+      "hidden_layer_count": 9,
+      "hidden_sizes": [
+        96
+      ],
+      "model_type": "residual_v3",
+      "policy_hidden_size": 96,
+      "policy_size": 6,
+      "residual_block_count": 3,
+      "trunk_size": 96,
+      "type": "residual_policy_value",
+      "value_hidden_size": 48,
+      "value_size": 1
+    },
+    "input_encoding": "kalah_v3",
+    "metadata_sha256": "eb87375b9aba39b270078a81fa3cff120240333d7b2b7993d1de072009be02d6",
+    "version": "azlite-balanced-w8s4-policy-head-e1",
+    "weights_json_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+  },
+  "production_gate_command": [
+    "/home/alex/Mancala/ai/script/ai/local_promotion_gate",
+    "--candidate-path",
+    "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+    "--current-path",
+    "model-artifact/current",
+    "--hard-path",
+    "model-artifact/current",
+    "--out",
+    "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/local_promotion_gate.json"
+  ],
+  "production_gate_defaults": {
+    "arena_games": 120,
+    "forensic_thresholds": {
+      "critical_buckets": {
+        "capture_available": {
+          "average_regret": 0.03,
+          "blunder_rate": 0.02,
+          "top1_agreement": -0.03
+        },
+        "sparse_endgame": {
+          "average_regret": 0.03,
+          "blunder_rate": 0.02,
+          "top1_agreement": -0.03
+        }
+      },
+      "overall": {
+        "average_regret": 0.02,
+        "blunder_rate": 0.01,
+        "top1_agreement": -0.02
+      }
+    },
+    "hard_arena_games": 120,
+    "hard_min_score": 0.55,
+    "mcts_games": 40,
+    "min_arena_games": 120,
+    "min_arena_score": 0.55,
+    "min_mcts_games": 40,
+    "skip_mcts_relative_check": false
+  },
+  "production_opening_suite_reused": false,
+  "promotion": {
+    "performed": false
+  },
+  "ranked_candidates": [
+    {
+      "checkpoint_weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "mean_opening_pair_score": 0.681640625,
+      "mean_wdl_outcome_regret": 0.1174,
+      "opening_pair_ci95_lower": 0.6494140625,
+      "outcome_optimal_top1_accuracy": 0.9296,
+      "seed": 48
+    },
+    {
+      "checkpoint_weights_json_sha256": "1de880981885b174aa57166a0431a050565968e181a9931f15e93cd7180c205e",
+      "mean_opening_pair_score": 0.6572265625,
+      "mean_wdl_outcome_regret": 0.0892,
+      "opening_pair_ci95_lower": 0.6240234375,
+      "outcome_optimal_top1_accuracy": 0.939,
+      "seed": 49
+    },
+    {
+      "checkpoint_weights_json_sha256": "8eb1ad896e4ab3d228275a65da137c425710ddba96dd5005b8cef0bac2984f56",
+      "mean_opening_pair_score": 0.6396484375,
+      "mean_wdl_outcome_regret": 0.1268,
+      "opening_pair_ci95_lower": 0.607421875,
+      "outcome_optimal_top1_accuracy": 0.9155,
+      "seed": 47
+    },
+    {
+      "checkpoint_weights_json_sha256": "78084a42915f75fa6b3d66d01cd7da386078c343711094a84f25033bb148ed4e",
+      "mean_opening_pair_score": 0.6357421875,
+      "mean_wdl_outcome_regret": 0.1596,
+      "opening_pair_ci95_lower": 0.603515625,
+      "outcome_optimal_top1_accuracy": 0.8967,
+      "seed": 52
+    },
+    {
+      "checkpoint_weights_json_sha256": "5da18b268aa1cc80b2e5a0a3342f5ae1a3e9a13f4867d0a2da87567c51fb0ecf",
+      "mean_opening_pair_score": 0.6328125,
+      "mean_wdl_outcome_regret": 0.1549,
+      "opening_pair_ci95_lower": 0.6005859375,
+      "outcome_optimal_top1_accuracy": 0.8967,
+      "seed": 50
+    },
+    {
+      "checkpoint_weights_json_sha256": "e6f5ce2c184676b2c0306616b4a865e9ba2a599169b8013af69c680ac36d07bc",
+      "mean_opening_pair_score": 0.6240234375,
+      "mean_wdl_outcome_regret": 0.1455,
+      "opening_pair_ci95_lower": 0.5888671875,
+      "outcome_optimal_top1_accuracy": 0.9108,
+      "seed": 51
+    }
+  ],
+  "schema": "azlite_uniform1200_promotion_confirmation_v1",
+  "selected": {
+    "checkpoint_weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "mean_opening_pair_score": 0.681640625,
+    "mean_wdl_outcome_regret": 0.1174,
+    "opening_pair_ci95_lower": 0.6494140625,
+    "outcome_optimal_top1_accuracy": 0.9296,
+    "seed": 48
+  },
+  "selection_frozen_before_holdout": true,
+  "selection_rule": [
+    "highest PR327 mean opening-pair score",
+    "highest PR327 opening-pair CI95 lower bound",
+    "highest PR325 outcome-optimal top1 accuracy",
+    "lowest PR325 mean W/D/L outcome regret",
+    "lower training seed"
+  ],
+  "shadow_passed": true
+}

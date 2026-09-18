@@ -1,0 +1,244 @@
+{
+  "schema": "azlite_local_promotion_gate_v1",
+  "candidate_path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+  "config_path": null,
+  "current_path": "model-artifact/current",
+  "hard_path": "model-artifact/current",
+  "regression_positions_path": "test/fixtures/ai/superhuman_regression_positions.json",
+  "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/local_promotion_gate.json",
+  "regression_report_path": null,
+  "forensic_report_path": null,
+  "arena_games": 120,
+  "mcts_games": 40,
+  "hard_arena_games": 120,
+  "min_arena_score": 0.55,
+  "hard_min_score": 0.55,
+  "min_arena_games": 120,
+  "min_mcts_games": 40,
+  "require_lossless": false,
+  "max_losses": 0,
+  "max_arena_move_time_mean_ms": null,
+  "max_arena_move_time_p95_ms": null,
+  "skip_mcts_relative_check": false,
+  "require_cumulative_lineage": false,
+  "cumulative_lineage_report_path": null,
+  "dry_run": false,
+  "evaluations": [
+    {
+      "id": "candidate_vs_current_arena",
+      "subject": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "opponent": "model-artifact/current",
+      "games": 120,
+      "mode": "executed",
+      "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/candidate_vs_current_arena.json"
+    },
+    {
+      "id": "candidate_vs_hard_arena",
+      "subject": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "opponent": "model-artifact/current",
+      "games": 120,
+      "mode": "not_produced",
+      "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/candidate_vs_hard_arena.json"
+    },
+    {
+      "id": "candidate_vs_mcts1200",
+      "subject": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "opponent": "mcts1200",
+      "games": 40,
+      "mode": "not_produced",
+      "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/candidate_vs_mcts1200.json"
+    },
+    {
+      "id": "current_vs_mcts1200",
+      "subject": "model-artifact/current",
+      "opponent": "mcts1200",
+      "games": 40,
+      "mode": "not_produced",
+      "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/current_vs_mcts1200.json"
+    },
+    {
+      "id": "candidate_forensic_suite",
+      "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/candidate_forensic_suite.json",
+      "command": [
+        "/home/alex/Mancala/ai/.venv/bin/python",
+        "ml/alphazero_lite/run_forensic_suite.py",
+        "--suite",
+        "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+        "--current-artifact",
+        "model-artifact/current",
+        "--challenger-artifact",
+        "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+        "--mcts-simulations",
+        "1200",
+        "--teacher-simulations",
+        "1800",
+        "--out",
+        "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/candidate_forensic_suite.json"
+      ],
+      "mode": "not_produced"
+    }
+  ],
+  "endgame_exact_solve": {
+    "status": "not_produced",
+    "scaffold_only": true,
+    "results_source": "skipped_due_to_arena_prefilter",
+    "thresholds": [
+      8,
+      10,
+      12
+    ],
+    "results": [],
+    "planned_evaluations": [
+      {
+        "threshold": 8,
+        "status": "not_produced",
+        "scaffold_only": true,
+        "mode": "not_produced",
+        "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_8.json",
+        "candidate_mcts_report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_8_candidate_vs_mcts1200.json",
+        "current_mcts_report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_8_current_vs_mcts1200.json",
+        "candidate_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "8",
+          "--out",
+          "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_8_candidate_vs_mcts1200.json"
+        ],
+        "current_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "model-artifact/current",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "8",
+          "--out",
+          "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_8_current_vs_mcts1200.json"
+        ]
+      },
+      {
+        "threshold": 10,
+        "status": "not_produced",
+        "scaffold_only": true,
+        "mode": "not_produced",
+        "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_10.json",
+        "candidate_mcts_report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_10_candidate_vs_mcts1200.json",
+        "current_mcts_report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_10_current_vs_mcts1200.json",
+        "candidate_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "10",
+          "--out",
+          "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_10_candidate_vs_mcts1200.json"
+        ],
+        "current_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "model-artifact/current",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "10",
+          "--out",
+          "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_10_current_vs_mcts1200.json"
+        ]
+      },
+      {
+        "threshold": 12,
+        "status": "not_produced",
+        "scaffold_only": true,
+        "mode": "not_produced",
+        "report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_12.json",
+        "candidate_mcts_report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_12_candidate_vs_mcts1200.json",
+        "current_mcts_report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_12_current_vs_mcts1200.json",
+        "candidate_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "12",
+          "--out",
+          "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_12_candidate_vs_mcts1200.json"
+        ],
+        "current_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "model-artifact/current",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "12",
+          "--out",
+          "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/endgame_exact_solve_threshold_12_current_vs_mcts1200.json"
+        ]
+      }
+    ],
+    "recommendation": {
+      "enabled": false,
+      "threshold": null,
+      "reason": "endgame exact solve threshold data is scaffold metadata only until threshold-specific evaluations run"
+    }
+  },
+  "arena_report_path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-uniform1200-promotion-confirmation/candidate_vs_current_arena.json",
+  "hard_report_path": null,
+  "candidate_mcts_report_path": null,
+  "current_mcts_report_path": null,
+  "arena_score": 0.5,
+  "hard_score": null,
+  "arena_losses": 60,
+  "candidate_mcts_score": null,
+  "current_mcts_score": null,
+  "dynamic_budget": null,
+  "hard_suite_buckets": null,
+  "forensic_quality": null,
+  "lossless_passed": false,
+  "passed": false,
+  "failure_reasons": [
+    {
+      "code": "arena_score_below_threshold"
+    }
+  ],
+  "dynamic_budget_recommendation": {
+    "decision": "drop",
+    "reason": "promotion safety checks failed for the dynamic budget candidate",
+    "evidence": {
+      "promotion_safety_passed": false,
+      "arena_score": 0.5,
+      "candidate_mcts_score": 0.0,
+      "current_mcts_score": 0.0,
+      "dynamic_budget": null,
+      "failure_reasons": [
+        "arena_score_below_threshold"
+      ]
+    }
+  },
+  "opening_cache_recommendation": {
+    "decision": "tune",
+    "reason": "opening memoization evidence is unavailable, so promotion odds impact is still unclear",
+    "evidence": {
+      "opening_cache_summary": null
+    }
+  }
+}
