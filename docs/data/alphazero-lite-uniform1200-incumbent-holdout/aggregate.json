@@ -1,0 +1,229 @@
+{
+  "arena": {
+    "base_seed": 42,
+    "c_puct": 1.25,
+    "challenger_simulations": 384,
+    "current_simulations": 256,
+    "games": 512,
+    "games_per_opening": 2,
+    "search_configuration_ledger_hash": "5d6cdae4358305bc7691e45594495849d839bd82004ab1a1fb783f0b5e41ec98",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "search_outcome_ledger_hash": "63a2702271b5579a0e9d01505315f51d3c8632d486d2310a93e14ef24f8d6948",
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_ledger_hash": "d07c57d5d892cbcd245f1e655dff721ac79e04621f1bc3944b6154a254da11b3",
+    "suite_sha256": "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c"
+  },
+  "candidate": {
+    "input_encoding": "kalah_v3",
+    "model_type": "residual_v3",
+    "path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+    "weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
+  },
+  "candidate_count": 1,
+  "classification": "production_start_state_arena_disagreement_confirmed",
+  "exact_reference_coverage": [
+    {
+      "candidate_selected_move": 0,
+      "candidate_selected_move_outcome": 1,
+      "exact_wdl_value": 1.0,
+      "incumbent_selected_move": 0,
+      "incumbent_selected_move_outcome": 1,
+      "opening_index": 79
+    },
+    {
+      "candidate_selected_move": 1,
+      "candidate_selected_move_outcome": -1,
+      "exact_wdl_value": 1.0,
+      "incumbent_selected_move": 1,
+      "incumbent_selected_move_outcome": -1,
+      "opening_index": 113
+    },
+    {
+      "candidate_selected_move": 1,
+      "candidate_selected_move_outcome": -1,
+      "exact_wdl_value": 1.0,
+      "incumbent_selected_move": 1,
+      "incumbent_selected_move_outcome": -1,
+      "opening_index": 116
+    },
+    {
+      "candidate_selected_move": 3,
+      "candidate_selected_move_outcome": -1,
+      "exact_wdl_value": 1.0,
+      "incumbent_selected_move": 1,
+      "incumbent_selected_move_outcome": -1,
+      "opening_index": 133
+    },
+    {
+      "candidate_selected_move": 0,
+      "candidate_selected_move_outcome": 1,
+      "exact_wdl_value": 1.0,
+      "incumbent_selected_move": 0,
+      "incumbent_selected_move_outcome": 1,
+      "opening_index": 148
+    }
+  ],
+  "frozen_pr328_start_state": {
+    "draws": 0,
+    "games": 120,
+    "losses": 60,
+    "score": 0.5,
+    "threshold_margin": -0.05,
+    "wins": 60
+  },
+  "incumbent": {
+    "path": "model-artifact/current",
+    "version": "azlite-balanced-w8s4-policy-head-e1",
+    "weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+  },
+  "metrics": {
+    "ci_lower_above_050": true,
+    "diversity_gain": 0.3837890625,
+    "draws": 19,
+    "duplicate_fraction": 0.0,
+    "duplicate_trajectories": 0,
+    "exceeds_050": true,
+    "exceeds_055": true,
+    "losses": 50,
+    "mean_opening_pair_score": 0.8837890625,
+    "mean_stone_margin": 11.0625,
+    "median_opening_pair_score": 1.0,
+    "median_stone_margin": 10.0,
+    "opening_difficulty_descriptors": {
+      "candidate_favored": {
+        "capture_available": 17,
+        "count": 209,
+        "current_player": {
+          "0": 113,
+          "1": 96
+        },
+        "extra_turn_available": 111,
+        "legal_action_count": {
+          "4": 41,
+          "5": 131,
+          "6": 37
+        },
+        "mean_pit_stones_max": 6.2727272727272725,
+        "mean_pit_stones_mean": 3.7328548644338118,
+        "mean_pit_stones_min": 0.0,
+        "mean_pit_stones_total": 44.79425837320574,
+        "mean_store_difference": 0.4019138755980861
+      },
+      "incumbent_favored": {
+        "capture_available": 0,
+        "count": 6,
+        "current_player": {
+          "0": 2,
+          "1": 4
+        },
+        "extra_turn_available": 4,
+        "legal_action_count": {
+          "4": 2,
+          "5": 4
+        },
+        "mean_pit_stones_max": 6.166666666666667,
+        "mean_pit_stones_mean": 3.75,
+        "mean_pit_stones_min": 0.0,
+        "mean_pit_stones_total": 45.0,
+        "mean_store_difference": -0.6666666666666666
+      },
+      "neutral": {
+        "capture_available": 5,
+        "count": 41,
+        "current_player": {
+          "0": 22,
+          "1": 19
+        },
+        "extra_turn_available": 21,
+        "legal_action_count": {
+          "3": 1,
+          "4": 9,
+          "5": 24,
+          "6": 7
+        },
+        "mean_pit_stones_max": 6.195121951219512,
+        "mean_pit_stones_mean": 3.7052845528455283,
+        "mean_pit_stones_min": 0.0,
+        "mean_pit_stones_total": 44.46341463414634,
+        "mean_store_difference": 0.7073170731707317
+      }
+    },
+    "opening_outcomes": {
+      "candidate_wins_both_seats": 193,
+      "incumbent_wins_both_seats": 3,
+      "one_or_both_draws": 19,
+      "one_win_each": 41
+    },
+    "opening_pair_ci95": {
+      "lower": 0.8564453125,
+      "method": "opening_pair_percentile_bootstrap",
+      "replicates": 20000,
+      "rng_seed": 42,
+      "upper": 0.91015625
+    },
+    "opening_strength_distribution": {
+      "candidate_favored": 209,
+      "incumbent_favored": 6,
+      "neutral": 41
+    },
+    "raw_score": 0.8837890625,
+    "score_by_challenger_seat": {
+      "player_0": 0.896484375,
+      "player_1": 0.87109375
+    },
+    "seat_pair_balance_distribution": {
+      "0": 3,
+      "0.5": 3,
+      "1": 41,
+      "1.5": 16,
+      "2": 193
+    },
+    "seat_wdl": {
+      "player_0": {
+        "draws": 9,
+        "losses": 22,
+        "wins": 225
+      },
+      "player_1": {
+        "draws": 10,
+        "losses": 28,
+        "wins": 218
+      }
+    },
+    "threshold_margin": 0.33378906249999996,
+    "unique_trajectories": 512,
+    "wins": 443
+  },
+  "promotion": {
+    "performed": false
+  },
+  "replay_mutation": false,
+  "schema": "azlite_uniform1200_incumbent_opening_holdout_v1",
+  "suite": {
+    "canonical_unique_fraction": 1.0,
+    "canonical_unique_states": 256,
+    "model_or_checkpoint_input": false,
+    "pr327_excluded_count": 256,
+    "pr327_overlap": 0,
+    "remaining_population_count": 686,
+    "repeated_construction_identical_suite_sha": true,
+    "schema": "azlite_uniform1200_incumbent_opening_holdout_v1",
+    "selected_count": 256,
+    "selection_salt": "uniform1200_incumbent_holdout_unique_v1",
+    "selection_seed": 42,
+    "suite_sha256": "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c",
+    "suite_version": "uniform1200_incumbent_holdout_unique_v1",
+    "terminal_or_short_excluded": 0,
+    "total_canonical_population": 942,
+    "total_legal_four_ply_prefixes": 942
+  },
+  "training_invoked": false,
+  "wdl_shadow_safety_remains_valid": true
+}
