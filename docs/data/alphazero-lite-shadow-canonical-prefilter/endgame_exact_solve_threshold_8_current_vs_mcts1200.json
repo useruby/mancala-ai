@@ -1,0 +1,51 @@
+{
+  "schema": "azlite_vs_mcts_v1",
+  "classic_mcts_mode": "fixed",
+  "games": 40,
+  "az_base_simulations": 640,
+  "mcts_simulations": 1200,
+  "search_option_notes": "PUCT-oriented search flags are recorded in search_profile for provenance but ignored by ClassicMCTS execution",
+  "search_profile": {
+    "version": "v1",
+    "kind": "mcts1200_baseline_eval",
+    "player_mode": "classic_mcts",
+    "classic_mcts_simulations": 1200,
+    "az_base_simulations": 640,
+    "mcts_simulations": 1200,
+    "simulation_budget_policy": "fixed_classic_mcts",
+    "simulation_budget_min": 1200,
+    "simulation_budget_max": 1200,
+    "simulation_budget_multipliers": "fixed:constant",
+    "dynamic_budget_enabled": false,
+    "dynamic_budget_probe_simulations": 0,
+    "dynamic_budget_min_simulations": 1200,
+    "dynamic_budget_max_simulations": 1200,
+    "dynamic_budget_entropy_weight": 0.0,
+    "dynamic_budget_low_margin_threshold": 0.0,
+    "dynamic_budget_low_margin_weight": 0.0,
+    "dynamic_budget_variance_weight": 0.0,
+    "exact_solve_enabled": true,
+    "exact_solve_stone_threshold": 8,
+    "hash": "de6230b20d267b52b1477a9678a5ef965fd9db1b9c5f84343b3beed6dd07f009"
+  },
+  "search_profile_hash": "de6230b20d267b52b1477a9678a5ef965fd9db1b9c5f84343b3beed6dd07f009",
+  "classic_mcts_dynamic_budget_config": {
+    "enabled": false,
+    "probe_simulations": 0,
+    "min_simulations": 1200,
+    "max_simulations": 1200,
+    "entropy_weight": 0.0,
+    "low_margin_threshold": 0.0,
+    "low_margin_weight": 0.0,
+    "variance_weight": 0.0
+  },
+  "az_wins": 28,
+  "mcts_wins": 10,
+  "draws": 2,
+  "score": 0.725,
+  "budget_summary": {
+    "source": "classic_mcts_fixed_runtime",
+    "mean_final_simulations": 1147.49,
+    "mean_root_latency_ms": 45.0
+  }
+}
