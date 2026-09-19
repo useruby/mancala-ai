@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import sys
@@ -51,12 +52,46 @@ def resolve_repo_path(path: str) -> Path:
     return resolved
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8192), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def candidate_identity(checkpoint_path: Path) -> dict[str, str]:
+    return {
+        "weights_json_sha256": sha256_file(checkpoint_path / "weights.json"),
+        "metadata_json_sha256": sha256_file(checkpoint_path / "metadata.json"),
+    }
+
+
+def validate_gate_identity(gate_report: dict, checkpoint_path: Path) -> None:
+    gate_identity = gate_report.get("candidate_identity")
+    if not isinstance(gate_identity, dict):
+        raise SystemExit("gate_candidate_identity_mismatch: missing candidate identity")
+
+    expected_identity = candidate_identity(checkpoint_path)
+    if any(
+        gate_identity.get(name) != value for name, value in expected_identity.items()
+    ):
+        raise SystemExit("gate_candidate_identity_mismatch")
+
+
 def main() -> None:
     args = parse_args()
     checkpoint_path = Path(args.checkpoint_path)
+    required_files = ["metadata.json", "arena_report.json", "weights.json"]
+    missing_files = [
+        str(checkpoint_path / filename)
+        for filename in required_files
+        if not (checkpoint_path / filename).is_file()
+    ]
+    if missing_files:
+        raise SystemExit(f"Missing required file: {missing_files[0]}")
+
     report_path = checkpoint_path / "arena_report.json"
-    if not report_path.exists():
-        raise SystemExit(f"Missing arena report: {report_path}")
 
     if args.gate_report:
         gate_report_path = resolve_repo_path(args.gate_report)
@@ -68,8 +103,9 @@ def main() -> None:
             raise SystemExit(
                 f"Malformed gate report JSON: {gate_report_path}: {error}"
             ) from error
-        if not gate_report.get("passed", False):
+        if not isinstance(gate_report, dict) or not gate_report.get("passed", False):
             raise SystemExit(f"Gate report did not pass: {gate_report_path}")
+        validate_gate_identity(gate_report, checkpoint_path)
 
     try:
         report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -95,22 +131,10 @@ def main() -> None:
             )
 
     targets_raw = args.target if args.target else ["model-artifact/current"]
-    targets = []
-    for raw in targets_raw:
-        t = resolve_repo_path(raw)
-        t.mkdir(parents=True, exist_ok=True)
-        targets.append(t)
-
-    required_files = ["metadata.json", "arena_report.json", "weights.json"]
-    missing_files = [
-        str(checkpoint_path / filename)
-        for filename in required_files
-        if not (checkpoint_path / filename).exists()
-    ]
-    if missing_files:
-        raise SystemExit(f"Missing required file: {missing_files[0]}")
+    targets = [resolve_repo_path(raw) for raw in targets_raw]
 
     for target in targets:
+        target.mkdir(parents=True, exist_ok=True)
         for entry in target.iterdir():
             if entry.is_dir():
                 shutil.rmtree(entry)
