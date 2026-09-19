@@ -1,0 +1,166 @@
+{
+  "schema": "missed_capture_f67bd4k0_move_28_audit_v1",
+  "classification": "fixture_expectation_stale",
+  "classification_reason": "Exact tablebase values make moves 1 and 5 equal: each is a forced loss by 6 seeds for root player 1. The fixture's singleton expectation for move 1 is therefore not justified.",
+  "scope": {
+    "training_eligible": false,
+    "fixture_modified": false,
+    "production_defaults_modified": false,
+    "mcts_parameters_modified": false
+  },
+  "position": {
+    "id": "missed_capture_f67bd4k0_move_28",
+    "token": "f67bd4k0",
+    "move_number": 28,
+    "state": {
+      "player_pits": [1, 8, 0, 1, 1, 0],
+      "opponent_pits": [1, 3, 5, 0, 0, 1],
+      "player_store": 20,
+      "opponent_store": 7,
+      "current_player": 1
+    },
+    "active_stones": 21,
+    "root_player": 1,
+    "legal_moves": [0, 1, 2, 5],
+    "fixture_expected_move": 1,
+    "fixture_acceptable_moves": [1]
+  },
+  "candidate_search": {
+    "artifact_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "simulations": 384,
+    "seed": 17,
+    "c_puct": 1.25,
+    "search_options": {
+      "fpu_mode": "zero",
+      "reuse_subtree": false,
+      "normalize_values": false,
+      "root_policy_mode": "deterministic",
+      "tactical_root_bias": 0.0
+    },
+    "selected_move": 5,
+    "raw_policy_top_move": 5,
+    "visit_top_move": 5,
+    "q_top_move": 1,
+    "rerun_report_sha256": "62f3ad7a14594a65d4757c98a3f6192b6cd2c1dea99c56e2f455308af8202ee7",
+    "committed_report_sha256": "62f3ad7a14594a65d4757c98a3f6192b6cd2c1dea99c56e2f455308af8202ee7",
+    "rerun_matches_committed_report": true
+  },
+  "exact_oracle": {
+    "implementation": "native/kalah_v1_tablebase KVTB1",
+    "tablebase_tier": 21,
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tablebase_bytes": 709635072,
+    "generator_revision": 2,
+    "coverage": "all pit states with at most 21 active stones; this root has 21",
+    "raw_value_convention": "The tablebase action value is the exact final player-0 seed margin contributed by the pits under optimal play. Add player_store - opponent_store for the final player-0 margin.",
+    "root_perspective_convention": "Root player is 1, so root-perspective score differential is the negation of the final player-0 margin. Positive is a root-player win, zero a draw, negative a root-player loss.",
+    "root_raw_pit_margin": -7,
+    "root_final_player_0_margin": 6,
+    "root_wdl": "L",
+    "root_action_values_raw_pit_margin_player_0": {
+      "0": 1,
+      "1": -7,
+      "2": 1,
+      "5": -7
+    },
+    "distance_to_terminal": null,
+    "distance_to_terminal_note": "KVTB1 stores exact final score margins, not distance-to-terminal.",
+    "native_binary_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+  },
+  "actions": [
+    {
+      "move": 0,
+      "raw_prior": 0.0878254696726799,
+      "visits": 28,
+      "visit_share": 0.07291666666666667,
+      "q_value": -0.7062725233180183,
+      "capture": false,
+      "capture_count": 0,
+      "extra_turn": false,
+      "resulting_state": {
+        "player_pits": [1, 8, 0, 1, 1, 0],
+        "opponent_pits": [0, 4, 5, 0, 0, 1],
+        "player_store": 20,
+        "opponent_store": 7,
+        "current_player": 0
+      },
+      "exact_raw_pit_margin_player_0": 1,
+      "exact_final_margin_player_0": 14,
+      "exact_score_differential_root_player": -14,
+      "exact_wdl_root_player": "L",
+      "outcome_rank": 3
+    },
+    {
+      "move": 1,
+      "raw_prior": 0.20803186297416687,
+      "visits": 127,
+      "visit_share": 0.3307291666666667,
+      "q_value": -0.6680683164497999,
+      "capture": true,
+      "capture_count": 9,
+      "extra_turn": false,
+      "resulting_state": {
+        "player_pits": [1, 0, 0, 1, 1, 0],
+        "opponent_pits": [1, 0, 6, 1, 0, 1],
+        "player_store": 20,
+        "opponent_store": 16,
+        "current_player": 0
+      },
+      "exact_raw_pit_margin_player_0": -7,
+      "exact_final_margin_player_0": 6,
+      "exact_score_differential_root_player": -6,
+      "exact_wdl_root_player": "L",
+      "outcome_rank": 1
+    },
+    {
+      "move": 2,
+      "raw_prior": 0.3356238305568695,
+      "visits": 66,
+      "visit_share": 0.171875,
+      "q_value": -0.7503585973472306,
+      "capture": false,
+      "capture_count": 0,
+      "extra_turn": false,
+      "resulting_state": {
+        "player_pits": [2, 8, 0, 1, 1, 0],
+        "opponent_pits": [1, 3, 0, 1, 1, 2],
+        "player_store": 20,
+        "opponent_store": 8,
+        "current_player": 0
+      },
+      "exact_raw_pit_margin_player_0": 1,
+      "exact_final_margin_player_0": 14,
+      "exact_score_differential_root_player": -14,
+      "exact_wdl_root_player": "L",
+      "outcome_rank": 3
+    },
+    {
+      "move": 5,
+      "raw_prior": 0.3685188293457031,
+      "visits": 163,
+      "visit_share": 0.4244791666666667,
+      "q_value": -0.6830030399506077,
+      "capture": false,
+      "capture_count": 0,
+      "extra_turn": true,
+      "resulting_state": {
+        "player_pits": [1, 8, 0, 1, 1, 0],
+        "opponent_pits": [1, 3, 5, 0, 0, 0],
+        "player_store": 20,
+        "opponent_store": 8,
+        "current_player": 1
+      },
+      "exact_raw_pit_margin_player_0": -7,
+      "exact_final_margin_player_0": 6,
+      "exact_score_differential_root_player": -6,
+      "exact_wdl_root_player": "L",
+      "outcome_rank": 1
+    }
+  ],
+  "reproduction": {
+    "build_native": "bash native/kalah_v1_tablebase/build.sh",
+    "exact_probe": "./.tmp/kalah_v1_tablebase_build/kalah_v1_tablebase probe .tmp/kalah_v1_21.kvtb <<< '{\"pits\":[1,8,0,1,1,0,1,3,5,0,0,1],\"player\":1}'",
+    "production_rerun": ".tmp/venv/bin/python script/ai/check_superhuman_regressions --artifact .tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1 --simulations 384 --out .tmp/missed_capture_f67bd4k0_move_28-rerun.json",
+    "identity_check": "cmp -s .tmp/missed_capture_f67bd4k0_move_28-rerun.json docs/data/alphazero-lite-shadow-canonical-hard-arena/candidate_regression_suite.json"
+  }
+}
