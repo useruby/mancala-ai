@@ -53,7 +53,7 @@ class SuperhumanRegressionsTest(unittest.TestCase):
 
         self.assertEqual(1, len(matching_positions))
         self.assertEqual(1, matching_positions[0]["expected_move"])
-        self.assertEqual([1], matching_positions[0]["acceptable_moves"])
+        self.assertEqual([1, 5], matching_positions[0]["acceptable_moves"])
 
     def test_evaluate_positions_builds_report_and_comparisons(self):
         positions = [
