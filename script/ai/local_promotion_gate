@@ -1250,6 +1250,10 @@ def build_decision_report(
 
     report.update(
         {
+            "arena_evidence": {
+                "path": str(arena_report_path),
+                "sha256": sha256_file(arena_report_path),
+            },
             "arena_report_path": str(arena_report_path),
             "hard_report_path": str(hard_report_path)
             if hard_report_path is not None
@@ -1488,6 +1492,10 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             planned_evaluation["scaffold_only"] = True
         report.update(
             {
+                "arena_evidence": {
+                    "path": str(arena_report_path),
+                    "sha256": sha256_file(arena_report_path),
+                },
                 "arena_report_path": str(arena_report_path),
                 "hard_report_path": None,
                 "candidate_mcts_report_path": None,

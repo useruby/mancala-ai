@@ -1,0 +1,10 @@
+{
+  "schema": "azlite_gate_arena_evidence_migration_v1",
+  "gate_report_path": ".tmp/missed_capture_f67bd4k0_move_28-corrected-gate.json",
+  "gate_report_sha256": "0d0d7176ee062ccb3f16ce3afc2bc72eb25a964a30f87485ba5b32631e69a577",
+  "arena_evidence": {
+    "path": "docs/data/alphazero-lite-shadow-canonical-hard-arena/candidate_vs_current_arena.json",
+    "sha256": "26d5709c291bbafd12ec08074d5493a392115b2a5a46ee22863b61dae7abac3a"
+  },
+  "derivation": "Hashes were computed from the immutable completed gate and its gate-referenced archived arena report. No evaluation was rerun and the gate was not modified."
+}

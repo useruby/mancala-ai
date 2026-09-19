@@ -46,8 +46,25 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             ).hexdigest()
             for filename in ("weights.json", "metadata.json")
         }
+        arena_path = checkpoint_dir / "arena_report.json"
+        arena = json.loads(arena_path.read_text(encoding="utf-8"))
         path.write_text(
-            json.dumps({"passed": passed, "candidate_identity": identity}),
+            json.dumps(
+                {
+                    "passed": passed,
+                    "candidate_identity": identity,
+                    "require_lossless": False,
+                    "max_losses": 0,
+                    "min_arena_score": 0.0,
+                    "min_arena_games": arena["games_played"],
+                    "arena_losses": arena["losses"],
+                    "arena_report_path": str(arena_path),
+                    "arena_evidence": {
+                        "path": str(arena_path),
+                        "sha256": hashlib.sha256(arena_path.read_bytes()).hexdigest(),
+                    },
+                }
+            ),
             encoding="utf-8",
         )
 
@@ -61,9 +78,6 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
                 str(checkpoint_dir),
                 "--target",
                 str(target_dir),
-                "--min-score",
-                "0.0",
-                "--require-lossless",
                 "--gate-report",
                 str(gate_report),
             ],
@@ -445,8 +459,6 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
                         str(checkpoint_dir),
                         "--target",
                         str(target_dir),
-                        "--min-score",
-                        "0.0",
                         "--gate-report",
                         relative_gate_path,
                     ],
@@ -673,3 +685,137 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
                         (target / "arena_report.json").read_text(encoding="utf-8")
                     ),
                 )
+
+    def test_gate_promotes_non_lossless_evidence_without_local_arena_report(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report, arena_path = tmp_path / "gate.json", tmp_path / "arena.json"
+            self.write_checkpoint(checkpoint_dir)
+            arena_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "arena_v1",
+                        "games_played": 120,
+                        "wins": 70,
+                        "losses": 20,
+                        "draws": 30,
+                        "promotion_decision": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.write_gate_report(gate_report, checkpoint_dir)
+            gate = json.loads(gate_report.read_text(encoding="utf-8"))
+            gate.update(
+                {
+                    "arena_report_path": str(arena_path),
+                    "arena_evidence": {
+                        "path": str(arena_path),
+                        "sha256": hashlib.sha256(arena_path.read_bytes()).hexdigest(),
+                    },
+                    "arena_losses": 20,
+                    "min_arena_games": 120,
+                }
+            )
+            gate_report.write_text(json.dumps(gate), encoding="utf-8")
+            (checkpoint_dir / "arena_report.json").unlink()
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertEqual(
+                arena_path.read_bytes(), (target_dir / "arena_report.json").read_bytes()
+            )
+
+    def test_gate_rejects_inconsistent_lossless_policy_before_target_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report = tmp_path / "gate.json"
+            self.write_checkpoint(checkpoint_dir)
+            arena_path = checkpoint_dir / "arena_report.json"
+            arena = json.loads(arena_path.read_text(encoding="utf-8"))
+            arena.update({"wins": 399, "losses": 1, "draws": 0})
+            arena_path.write_text(json.dumps(arena), encoding="utf-8")
+            self.write_gate_report(gate_report, checkpoint_dir)
+            gate = json.loads(gate_report.read_text(encoding="utf-8"))
+            gate["require_lossless"] = True
+            gate_report.write_text(json.dumps(gate), encoding="utf-8")
+            target_dir.mkdir()
+            (target_dir / "sentinel").write_bytes(b"unchanged")
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_policy_inconsistent", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
+
+    def test_gate_rejects_lossless_override_for_non_lossless_evidence(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report = tmp_path / "gate.json"
+            self.write_checkpoint(checkpoint_dir)
+            self.write_gate_report(gate_report, checkpoint_dir)
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/promote_checkpoint.py",
+                    str(checkpoint_dir),
+                    "--target",
+                    str(target_dir),
+                    "--gate-report",
+                    str(gate_report),
+                    "--require-lossless",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_policy_override_forbidden", result.stderr)
+            self.assertFalse(target_dir.exists())
+
+    def test_gate_rejects_arena_modified_after_gate_before_target_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report = tmp_path / "gate.json"
+            self.write_checkpoint(checkpoint_dir)
+            self.write_gate_report(gate_report, checkpoint_dir)
+            (checkpoint_dir / "arena_report.json").write_text("{}", encoding="utf-8")
+            target_dir.mkdir()
+            (target_dir / "sentinel").write_bytes(b"unchanged")
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_arena_evidence_hash_mismatch", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
+
+    def test_gate_rejects_wrong_arena_reference_before_target_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report, wrong_arena = tmp_path / "gate.json", tmp_path / "wrong.json"
+            self.write_checkpoint(checkpoint_dir)
+            self.write_gate_report(gate_report, checkpoint_dir)
+            wrong_arena.write_bytes((checkpoint_dir / "arena_report.json").read_bytes())
+            gate = json.loads(gate_report.read_text(encoding="utf-8"))
+            gate["arena_evidence"] = {
+                "path": str(wrong_arena),
+                "sha256": hashlib.sha256(wrong_arena.read_bytes()).hexdigest(),
+            }
+            gate_report.write_text(json.dumps(gate), encoding="utf-8")
+            target_dir.mkdir()
+            (target_dir / "sentinel").write_bytes(b"unchanged")
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_arena_evidence_path_mismatch", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
