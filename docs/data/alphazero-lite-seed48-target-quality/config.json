@@ -1,0 +1,12 @@
+{
+  "schema": "azlite_seed48_target_quality_audit_config_v1",
+  "command": "TMPDIR=\"$HOME/tmp\" .venv/bin/python ml/alphazero_lite/run_seed48_target_quality_audit.py --artifact model-artifact/current --tablebase .tmp/kalah_v1_21.kvtb --tablebase-binary .tmp/kalah_v1_tablebase_build/kalah_v1_tablebase --out-dir docs/data/alphazero-lite-seed48-target-quality --seed 340 --games 128 --target-per-bucket 50",
+  "test_command": ".venv/bin/python -m unittest ml.alphazero_lite.test_seed48_target_quality_audit",
+  "incumbent_weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+  "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+  "native_binary_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+  "corpus_sha256": "a2276fd7ec65284cc9676ca80bf78215e26892d4de8a56f4ed15d53ef1144cb6",
+  "results_sha256": "71eca63e41e2ac67b3396f9a2c12c03c4249b3cdb12f9699d1eff4b15fb9f217",
+  "disagreements_sha256": "c1ae1b5d0649a23262f19a9461c62254d10d3341037b0f912a8539dd428ed4ce",
+  "training_eligible": false
+}
