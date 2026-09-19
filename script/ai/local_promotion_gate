@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import argparse
+import hashlib
 import json
 import os
 import math
 from pathlib import Path
+import random
 import subprocess
 import sys
 
@@ -51,6 +53,13 @@ def parse_args() -> argparse.Namespace:
         default="test/fixtures/ai/superhuman_regression_positions.json",
     )
     parser.add_argument("--arena-games", default=120, type=positive_int)
+    parser.add_argument(
+        "--shadow-canonical-prefilter",
+        action="store_true",
+        help="Evaluation-only opt-in canonical equal-budget prefilter; does not change production defaults.",
+    )
+    parser.add_argument("--shadow-prefilter-opening-prefixes-jsonl", type=Path)
+    parser.add_argument("--shadow-prefilter-suite-sha256")
     parser.add_argument("--mcts-games", default=40, type=positive_int)
     parser.add_argument("--min-arena-score", default=0.55, type=float)
     parser.add_argument("--min-arena-games", default=120, type=positive_int)
@@ -266,6 +275,174 @@ def arena_score(report: dict) -> float:
     wins = int(report.get("wins", 0))
     draws = int(report.get("draws", 0))
     return (wins + (0.5 * draws)) / games_played
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def artifact_weights_sha256(path: Path) -> str | None:
+    metadata_path = path / "metadata.json"
+    if not metadata_path.is_file():
+        return None
+    metadata = load_json(metadata_path)
+    artifacts = metadata.get("artifacts", {})
+    if not isinstance(artifacts, dict):
+        return None
+    value = artifacts.get("weights_json_sha256", artifacts.get("weights_sha256"))
+    return value if isinstance(value, str) else None
+
+
+def validate_shadow_inputs(args: argparse.Namespace) -> None:
+    if not getattr(args, "shadow_canonical_prefilter", False):
+        return
+    suite_path = getattr(args, "shadow_prefilter_opening_prefixes_jsonl", None)
+    suite_sha = getattr(args, "shadow_prefilter_suite_sha256", None)
+    if suite_path is None or not suite_path.is_file() or not suite_sha:
+        raise SystemExit(
+            "shadow_gate_integration_invalid: shadow suite path and SHA are required"
+        )
+    if sha256_file(suite_path) != suite_sha:
+        raise SystemExit("shadow_gate_integration_invalid: shadow suite SHA mismatch")
+    candidate_sha = artifact_weights_sha256(args.candidate_path)
+    current_sha = artifact_weights_sha256(Path(args.current_path))
+    if (
+        candidate_sha
+        != "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
+        or current_sha
+        != "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+    ):
+        raise SystemExit("shadow_gate_artifact_mismatch")
+
+
+def build_standard_prefilter_command(
+    args: argparse.Namespace, arena_report_path: Path, search_flags: list[str]
+) -> list[str]:
+    return [
+        python_executable(),
+        "ml/alphazero_lite/arena.py",
+        "--challenger",
+        str(args.candidate_path),
+        "--current",
+        str(args.current_path),
+        "--games",
+        str(args.arena_games),
+        *search_flags,
+        "--min-score",
+        str(args.min_arena_score),
+        "--out",
+        str(arena_report_path),
+    ]
+
+
+def build_shadow_canonical_prefilter_command(
+    args: argparse.Namespace,
+    arena_report_path: Path,
+    report_dir: Path,
+    search_flags: list[str],
+) -> list[str]:
+    return [
+        python_executable(),
+        "ml/alphazero_lite/arena.py",
+        "--challenger",
+        str(args.candidate_path),
+        "--current",
+        str(args.current_path),
+        "--games",
+        "512",
+        "--games-per-opening",
+        "2",
+        "--opening-prefixes-jsonl",
+        str(args.shadow_prefilter_opening_prefixes_jsonl),
+        "--suite-sha256",
+        args.shadow_prefilter_suite_sha256,
+        "--challenger-simulations",
+        "384",
+        "--current-simulations",
+        "384",
+        "--game-jsonl",
+        str(report_dir / "shadow_prefilter_games.jsonl"),
+        "--seed-ledger-output",
+        str(report_dir / "shadow_prefilter_seed_ledger.jsonl"),
+        "--search-configuration-ledger-output",
+        str(report_dir / "shadow_prefilter_search_configuration_ledger.jsonl"),
+        "--search-outcome-ledger-output",
+        str(report_dir / "shadow_prefilter_search_outcome_ledger.jsonl"),
+        *search_flags,
+        "--min-score",
+        "0.0",
+        "--out",
+        str(arena_report_path),
+    ]
+
+
+def load_opening_pair_metrics(games_path: Path, arena_report: dict) -> dict:
+    rows = [
+        json.loads(line)
+        for line in games_path.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+    pairs: dict[int, dict[int, float]] = {}
+    for row in rows:
+        opening, seat = row.get("opening_index"), row.get("challenger_player")
+        winner = row.get("winner")
+        if (
+            not isinstance(opening, int)
+            or seat not in (0, 1)
+            or winner not in ("challenger", "current", "draw")
+        ):
+            raise ValueError("shadow pair accounting malformed")
+        if seat in pairs.setdefault(opening, {}):
+            raise ValueError("shadow pair accounting malformed")
+        pairs[opening][seat] = {"challenger": 1.0, "draw": 0.5, "current": 0.0}[winner]
+    if (
+        len(rows) != 512
+        or len(pairs) != 256
+        or any(set(seats) != {0, 1} for seats in pairs.values())
+    ):
+        raise ValueError("shadow pair accounting malformed")
+    scores = [sum(pairs[index].values()) / 2 for index in sorted(pairs)]
+    samples = random.Random(331)
+    bootstrap = sorted(
+        sum(samples.choice(scores) for _ in scores) / len(scores) for _ in range(20000)
+    )
+    seat_scores = {
+        seat: sum(pair[seat] for pair in pairs.values()) / len(pairs) for seat in (0, 1)
+    }
+    notes = arena_report.get("notes", {})
+    return {
+        "opening_count": 256,
+        "games_per_opening": 2,
+        "total_games": 512,
+        "wins": int(arena_report.get("wins", 0)),
+        "draws": int(arena_report.get("draws", 0)),
+        "losses": int(arena_report.get("losses", 0)),
+        "raw_game_score": arena_score(arena_report),
+        "opening_pair_mean": sum(scores) / len(scores),
+        "opening_pair_median": sorted(scores)[len(scores) // 2],
+        "candidate_p0_score": seat_scores[0],
+        "candidate_p1_score": seat_scores[1],
+        "favored_opening_counts": {
+            "challenger_favored": sum(score > 0.5 for score in scores),
+            "neutral": sum(score == 0.5 for score in scores),
+            "current_favored": sum(score < 0.5 for score in scores),
+        },
+        "pair_bootstrap_ci95": {
+            "method": "opening_pair_percentile_bootstrap",
+            "replicates": 20000,
+            "rng_seed": 331,
+            "lower": bootstrap[500],
+            "upper": bootstrap[19499],
+        },
+        "seed_ledger_hash": notes.get(
+            "seed_identity_ledger_sha256", notes.get("seed_ledger_hash")
+        ),
+        "search_configuration_ledger_hash": notes.get(
+            "search_configuration_ledger_sha256"
+        ),
+        "search_outcome_ledger_hash": notes.get("search_outcome_ledger_sha256"),
+        "pair_scores": scores,
+    }
 
 
 def mcts_score(report: dict) -> float:
@@ -1104,27 +1281,59 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     regression_report_path = Path(report["regression_report_path"])
     search_flag_map = load_search_flag_map(args.config_path)
 
-    run_command(
-        [
-            python_executable(),
-            "ml/alphazero_lite/arena.py",
-            "--challenger",
-            str(args.candidate_path),
-            "--current",
-            str(args.current_path),
-            "--games",
-            str(args.arena_games),
-            *search_flag_map.get("arena", []),
-            "--min-score",
-            str(args.min_arena_score),
-            "--out",
-            str(arena_report_path),
-        ]
+    shadow = getattr(args, "shadow_canonical_prefilter", False)
+    prefilter_command = (
+        build_shadow_canonical_prefilter_command(
+            args,
+            arena_report_path,
+            report_dir=arena_report_path.parent,
+            search_flags=search_flag_map.get("arena", []),
+        )
+        if shadow
+        else build_standard_prefilter_command(
+            args, arena_report_path, search_flag_map.get("arena", [])
+        )
     )
+    run_command(prefilter_command)
     arena_report = load_json(arena_report_path)
     prefilter_failure_reasons = computed_arena_prefilter_threshold_failures(
         args, arena_report
     )
+    if shadow:
+        try:
+            pair_metrics = load_opening_pair_metrics(
+                arena_report_path.parent / "shadow_prefilter_games.jsonl", arena_report
+            )
+        except (OSError, ValueError, json.JSONDecodeError):
+            report["shadow_classification"] = "shadow_gate_integration_invalid"
+            report["failure_reasons"] = [{"code": "shadow_gate_integration_invalid"}]
+            report["passed"] = False
+            return report
+        pair_path = arena_report_path.parent / "shadow_prefilter_opening_pairs.json"
+        pair_path.write_text(json.dumps(pair_metrics, indent=2), encoding="utf-8")
+        report["prefilter_mode"] = "shadow_canonical_equal_budget"
+        report["shadow_canonical_prefilter"] = {
+            "suite_path": str(args.shadow_prefilter_opening_prefixes_jsonl),
+            "suite_sha256": args.shadow_prefilter_suite_sha256,
+            "challenger_simulations": 384,
+            "current_simulations": 384,
+            "command": prefilter_command,
+            "opening_pairs_path": str(pair_path),
+            **pair_metrics,
+        }
+        expected = 0.8388671875
+        if abs(pair_metrics["opening_pair_mean"] - expected) > 1e-12:
+            report["shadow_classification"] = "shadow_prefilter_reproduction_failed"
+            report["failure_reasons"] = [
+                {"code": "shadow_prefilter_reproduction_failed"}
+            ]
+            report["passed"] = False
+            return report
+        prefilter_failure_reasons = (
+            []
+            if pair_metrics["opening_pair_mean"] >= args.min_arena_score
+            else [{"code": "arena_score_below_threshold"}]
+        )
     promotion_decision = arena_report.get("promotion_decision")
     promotion_decision_passed = (
         isinstance(promotion_decision, dict)
@@ -1132,6 +1341,12 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         and promotion_decision["passed"]
     )
     if prefilter_failure_reasons or not promotion_decision_passed:
+        if shadow:
+            report["shadow_classification"] = (
+                "shadow_prefilter_unexpected_failure"
+                if not prefilter_failure_reasons
+                else "shadow_prefilter_unexpected_failure"
+            )
         for evaluation in report["evaluations"]:
             evaluation["mode"] = (
                 "executed"
@@ -1273,7 +1488,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         evaluation["mode"] = "executed"
 
     hard_report = load_json(hard_report_path) if hard_report_path is not None else None
-    return build_decision_report(
+    decision = build_decision_report(
         args,
         report,
         arena_report=arena_report,
@@ -1288,10 +1503,30 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         current_mcts_report_path=current_mcts_report_path,
         regression_report_path=regression_report_path,
     )
+    if shadow:
+        codes = {reason["code"] for reason in decision["failure_reasons"]}
+        if (
+            "candidate_not_stronger_than_hard" in codes
+            or "hard_games_below_minimum" in codes
+        ):
+            classification = "shadow_canonical_hard_arena_blocker"
+        elif "candidate_mcts_below_current" in codes:
+            classification = "shadow_canonical_mcts_relative_blocker"
+        elif "regression_check_failed" in codes:
+            classification = "shadow_canonical_regression_blocker"
+        elif any(code.startswith("forensic_") for code in codes):
+            classification = "shadow_canonical_production_forensic_blocker"
+        elif codes:
+            classification = "shadow_canonical_other_downstream_blocker"
+        else:
+            classification = "shadow_canonical_full_gate_passed"
+        decision["shadow_classification"] = classification
+    return decision
 
 
 def main() -> int:
     args = parse_args()
+    validate_shadow_inputs(args)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if args.dry_run and args.config_path:
         load_threshold_planning_search_flag_map(args.config_path)
@@ -1416,6 +1651,8 @@ def main() -> int:
             results=[],
         ),
     }
+    if getattr(args, "shadow_canonical_prefilter", False):
+        report["prefilter_mode"] = "shadow_canonical_equal_budget"
 
     search_flag_map = (
         load_threshold_planning_search_flag_map(args.config_path)

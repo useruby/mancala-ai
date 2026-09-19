@@ -108,6 +108,90 @@ class LocalPromotionGateTest(unittest.TestCase):
             ):
                 self.assertEqual(str(shared_python), module.python_executable())
 
+    def test_shadow_prefilter_command_is_explicit_and_standard_command_is_unchanged(
+        self,
+    ):
+        module = self.load_gate_module()
+        args = argparse.Namespace(
+            candidate_path=Path("candidate"),
+            current_path="current",
+            arena_games=120,
+            min_arena_score=0.55,
+            shadow_prefilter_opening_prefixes_jsonl=Path("openings.jsonl"),
+            shadow_prefilter_suite_sha256="suite-sha",
+        )
+        with mock.patch.object(module, "python_executable", return_value="python"):
+            standard = module.build_standard_prefilter_command(
+                args, Path("arena.json"), ["--fpu-mode", "zero"]
+            )
+            shadow = module.build_shadow_canonical_prefilter_command(
+                args, Path("arena.json"), Path("reports"), ["--fpu-mode", "zero"]
+            )
+        self.assertEqual(
+            [
+                "python",
+                "ml/alphazero_lite/arena.py",
+                "--challenger",
+                "candidate",
+                "--current",
+                "current",
+                "--games",
+                "120",
+                "--fpu-mode",
+                "zero",
+                "--min-score",
+                "0.55",
+                "--out",
+                "arena.json",
+            ],
+            standard,
+        )
+        for flag, value in (
+            ("--games", "512"),
+            ("--games-per-opening", "2"),
+            ("--challenger-simulations", "384"),
+            ("--current-simulations", "384"),
+        ):
+            self.assertEqual(value, shadow[shadow.index(flag) + 1])
+        self.assertIn("--opening-prefixes-jsonl", shadow)
+        self.assertIn("--suite-sha256", shadow)
+
+    def test_shadow_pair_metrics_require_two_opposite_seats_and_are_deterministic(self):
+        module = self.load_gate_module()
+        with tempfile.TemporaryDirectory(prefix="azlite-shadow-pairs-") as tmp:
+            games = Path(tmp) / "games.jsonl"
+            rows = []
+            for opening in range(256):
+                rows.extend(
+                    [
+                        {
+                            "opening_index": opening,
+                            "challenger_player": 0,
+                            "winner": "challenger",
+                        },
+                        {
+                            "opening_index": opening,
+                            "challenger_player": 1,
+                            "winner": "current",
+                        },
+                    ]
+                )
+            games.write_text(
+                "\n".join(json.dumps(row) for row in rows), encoding="utf-8"
+            )
+            report = {
+                "games_played": 512,
+                "wins": 256,
+                "losses": 256,
+                "draws": 0,
+                "notes": {},
+            }
+            metrics = module.load_opening_pair_metrics(games, report)
+        self.assertEqual(0.5, metrics["opening_pair_mean"])
+        self.assertEqual(1.0, metrics["candidate_p0_score"])
+        self.assertEqual(0.0, metrics["candidate_p1_score"])
+        self.assertEqual(20000, metrics["pair_bootstrap_ci95"]["replicates"])
+
     def test_python_executable_does_not_use_shared_workspace_venv_outside_worktree_repo_root(
         self,
     ):
