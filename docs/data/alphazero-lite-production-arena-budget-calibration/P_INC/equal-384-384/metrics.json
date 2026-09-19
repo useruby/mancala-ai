@@ -1,0 +1,46 @@
+{
+  "canonical_pair_ci95": {
+    "lower": 0.8115234375,
+    "method": "opening_pair_percentile_bootstrap",
+    "replicates": 20000,
+    "rng_seed": 330,
+    "upper": 0.8662109375
+  },
+  "canonical_pair_score": 0.8388671875,
+  "canonical_positive_strength_evidence": true,
+  "canonical_threshold_pass": true,
+  "challenger_seats": {
+    "player_0": {
+      "draws": 9,
+      "losses": 33,
+      "score": 0.853515625,
+      "wins": 214
+    },
+    "player_1": {
+      "draws": 16,
+      "losses": 37,
+      "score": 0.82421875,
+      "wins": 203
+    }
+  },
+  "draws": 25,
+  "games": 512,
+  "losses": 70,
+  "mean_stone_margin": 9.1640625,
+  "median_pair_score": 1.0,
+  "opening_distribution": {
+    "challenger_favored": 186,
+    "challenger_wins_both_seats": 161,
+    "current_favored": 0,
+    "current_wins_both_seats": 0,
+    "draws": 25,
+    "neutral": 70,
+    "split_seats": 70
+  },
+  "raw_score": 0.8388671875,
+  "search_configuration_ledger_hash": "28c8f0988455c9d32a5bfe83caf97dc1ff080cb70f077c20f9687dab7ebfdd5e",
+  "search_outcome_ledger_hash": "4394ee8e6618058384333f78ba0b3c448cc0a61c1165eb7770aa68f81e3d8fd6",
+  "seed_ledger_hash": "fd2d314666f4abc977099ab42c4b11443729cc8aeb981b9a7a6d3887e78ae527",
+  "unique_trajectories": 512,
+  "wins": 417
+}
