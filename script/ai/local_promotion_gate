@@ -60,6 +60,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--shadow-prefilter-opening-prefixes-jsonl", type=Path)
     parser.add_argument("--shadow-prefilter-suite-sha256")
+    parser.add_argument(
+        "--shadow-canonical-hard-arena",
+        action="store_true",
+        help="Evaluation-only opt-in canonical equal-budget hard arena; does not change production defaults.",
+    )
+    parser.add_argument("--shadow-hard-opening-prefixes-jsonl", type=Path)
+    parser.add_argument("--shadow-hard-suite-sha256")
     parser.add_argument("--mcts-games", default=40, type=positive_int)
     parser.add_argument("--min-arena-score", default=0.55, type=float)
     parser.add_argument("--min-arena-games", default=120, type=positive_int)
@@ -293,26 +300,93 @@ def artifact_weights_sha256(path: Path) -> str | None:
     return value if isinstance(value, str) else None
 
 
+def artifact_version(path: Path) -> str | None:
+    metadata_path = path / "metadata.json"
+    if not metadata_path.is_file():
+        return None
+    value = load_json(metadata_path).get("version")
+    return value if isinstance(value, str) else None
+
+
 def validate_shadow_inputs(args: argparse.Namespace) -> None:
-    if not getattr(args, "shadow_canonical_prefilter", False):
+    shadow_prefilter = getattr(args, "shadow_canonical_prefilter", False)
+    shadow_hard = getattr(args, "shadow_canonical_hard_arena", False)
+    if not shadow_prefilter and not shadow_hard:
         return
-    suite_path = getattr(args, "shadow_prefilter_opening_prefixes_jsonl", None)
-    suite_sha = getattr(args, "shadow_prefilter_suite_sha256", None)
-    if suite_path is None or not suite_path.is_file() or not suite_sha:
+    if shadow_hard and not shadow_prefilter:
         raise SystemExit(
-            "shadow_gate_integration_invalid: shadow suite path and SHA are required"
+            "shadow_hard_gate_integration_invalid: shadow prefilter is required"
         )
-    if sha256_file(suite_path) != suite_sha:
-        raise SystemExit("shadow_gate_integration_invalid: shadow suite SHA mismatch")
+    suites = []
+    if shadow_prefilter:
+        suites.append(
+            (
+                getattr(args, "shadow_prefilter_opening_prefixes_jsonl", None),
+                getattr(args, "shadow_prefilter_suite_sha256", None),
+            )
+        )
+    if shadow_hard:
+        suites.append(
+            (
+                getattr(args, "shadow_hard_opening_prefixes_jsonl", None),
+                getattr(args, "shadow_hard_suite_sha256", None),
+            )
+        )
+    for suite_path, suite_sha in suites:
+        if suite_path is None or not suite_path.is_file() or not suite_sha:
+            raise SystemExit(
+                "shadow_hard_gate_integration_invalid: shadow suite path and SHA are required"
+            )
+        if sha256_file(suite_path) != suite_sha:
+            raise SystemExit(
+                "shadow_hard_gate_integration_invalid: shadow suite SHA mismatch"
+            )
+    if shadow_hard:
+        try:
+            if canonical_opening_hashes(
+                args.shadow_prefilter_opening_prefixes_jsonl
+            ) & canonical_opening_hashes(args.shadow_hard_opening_prefixes_jsonl):
+                raise SystemExit("shadow_hard_suite_independence_failed")
+        except ValueError as exc:
+            raise SystemExit(
+                "shadow_hard_gate_integration_invalid: malformed shadow suite"
+            ) from exc
     candidate_sha = artifact_weights_sha256(args.candidate_path)
     current_sha = artifact_weights_sha256(Path(args.current_path))
+    hard_sha = artifact_weights_sha256(Path(args.hard_path))
     if (
         candidate_sha
         != "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
         or current_sha
         != "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+        or (shadow_hard and hard_sha != current_sha)
+        or (
+            shadow_hard
+            and artifact_version(Path(args.current_path))
+            != "azlite-balanced-w8s4-policy-head-e1"
+        )
     ):
-        raise SystemExit("shadow_gate_artifact_mismatch")
+        raise SystemExit(
+            "shadow_hard_artifact_mismatch"
+            if shadow_hard
+            else "shadow_gate_artifact_mismatch"
+        )
+
+
+def canonical_opening_hashes(path: Path) -> set[str]:
+    rows = [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+    hashes = {row.get("canonical_resulting_state_hash") for row in rows}
+    if (
+        len(rows) != 256
+        or len(hashes) != 256
+        or not all(isinstance(value, str) for value in hashes)
+    ):
+        raise ValueError("shadow suite canonical hashes malformed")
+    return hashes
 
 
 def build_standard_prefilter_command(
@@ -376,7 +450,50 @@ def build_shadow_canonical_prefilter_command(
     ]
 
 
-def load_opening_pair_metrics(games_path: Path, arena_report: dict) -> dict:
+def build_shadow_canonical_hard_command(
+    args: argparse.Namespace,
+    arena_report_path: Path,
+    report_dir: Path,
+    search_flags: list[str],
+) -> list[str]:
+    return [
+        python_executable(),
+        "ml/alphazero_lite/arena.py",
+        "--challenger",
+        str(args.candidate_path),
+        "--current",
+        str(args.hard_path),
+        "--games",
+        "512",
+        "--games-per-opening",
+        "2",
+        "--opening-prefixes-jsonl",
+        str(args.shadow_hard_opening_prefixes_jsonl),
+        "--suite-sha256",
+        args.shadow_hard_suite_sha256,
+        "--challenger-simulations",
+        "384",
+        "--current-simulations",
+        "384",
+        "--game-jsonl",
+        str(report_dir / "shadow_hard_games.jsonl"),
+        "--seed-ledger-output",
+        str(report_dir / "shadow_hard_seed_ledger.jsonl"),
+        "--search-configuration-ledger-output",
+        str(report_dir / "shadow_hard_search_configuration_ledger.jsonl"),
+        "--search-outcome-ledger-output",
+        str(report_dir / "shadow_hard_search_outcome_ledger.jsonl"),
+        *search_flags,
+        "--min-score",
+        "0.0",
+        "--out",
+        str(arena_report_path),
+    ]
+
+
+def load_opening_pair_metrics(
+    games_path: Path, arena_report: dict, *, bootstrap_seed: int = 331
+) -> dict:
     rows = [
         json.loads(line)
         for line in games_path.read_text(encoding="utf-8").splitlines()
@@ -402,7 +519,7 @@ def load_opening_pair_metrics(games_path: Path, arena_report: dict) -> dict:
     ):
         raise ValueError("shadow pair accounting malformed")
     scores = [sum(pairs[index].values()) / 2 for index in sorted(pairs)]
-    samples = random.Random(331)
+    samples = random.Random(bootstrap_seed)
     bootstrap = sorted(
         sum(samples.choice(scores) for _ in scores) / len(scores) for _ in range(20000)
     )
@@ -430,7 +547,7 @@ def load_opening_pair_metrics(games_path: Path, arena_report: dict) -> dict:
         "pair_bootstrap_ci95": {
             "method": "opening_pair_percentile_bootstrap",
             "replicates": 20000,
-            "rng_seed": 331,
+            "rng_seed": bootstrap_seed,
             "lower": bootstrap[500],
             "upper": bootstrap[19499],
         },
@@ -1282,6 +1399,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     search_flag_map = load_search_flag_map(args.config_path)
 
     shadow = getattr(args, "shadow_canonical_prefilter", False)
+    shadow_hard = getattr(args, "shadow_canonical_hard_arena", False)
     prefilter_command = (
         build_shadow_canonical_prefilter_command(
             args,
@@ -1396,8 +1514,15 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         )
         return report
     if args.hard_path is not None:
-        run_command(
-            [
+        hard_command = (
+            build_shadow_canonical_hard_command(
+                args,
+                hard_report_path,
+                hard_report_path.parent,
+                search_flag_map.get("arena", []),
+            )
+            if shadow_hard
+            else [
                 python_executable(),
                 "ml/alphazero_lite/arena.py",
                 "--challenger",
@@ -1413,6 +1538,76 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
                 str(hard_report_path),
             ]
         )
+        run_command(hard_command)
+        if shadow_hard:
+            try:
+                hard_pair_metrics = load_opening_pair_metrics(
+                    hard_report_path.parent / "shadow_hard_games.jsonl",
+                    load_json(hard_report_path),
+                    bootstrap_seed=329,
+                )
+                prefilter_hashes = canonical_opening_hashes(
+                    args.shadow_prefilter_opening_prefixes_jsonl
+                )
+                hard_hashes = canonical_opening_hashes(
+                    args.shadow_hard_opening_prefixes_jsonl
+                )
+            except ValueError:
+                report["shadow_classification"] = "shadow_hard_pair_accounting_invalid"
+                report["failure_reasons"] = [
+                    {"code": "shadow_hard_pair_accounting_invalid"}
+                ]
+                report["passed"] = False
+                return report
+            except (OSError, json.JSONDecodeError):
+                report["shadow_classification"] = "shadow_hard_gate_integration_invalid"
+                report["failure_reasons"] = [
+                    {"code": "shadow_hard_gate_integration_invalid"}
+                ]
+                report["passed"] = False
+                return report
+            intersection_count = len(prefilter_hashes & hard_hashes)
+            if intersection_count:
+                report["shadow_classification"] = (
+                    "shadow_hard_suite_independence_failed"
+                )
+                report["failure_reasons"] = [
+                    {"code": "shadow_hard_suite_independence_failed"}
+                ]
+                report["passed"] = False
+                return report
+            raw_hard_score = arena_score(load_json(hard_report_path))
+            if not math.isclose(
+                raw_hard_score, hard_pair_metrics["opening_pair_mean"], abs_tol=1e-12
+            ):
+                report["shadow_classification"] = "shadow_hard_pair_accounting_invalid"
+                report["failure_reasons"] = [
+                    {"code": "shadow_hard_pair_accounting_invalid"}
+                ]
+                report["passed"] = False
+                return report
+            pair_path = hard_report_path.parent / "shadow_hard_opening_pairs.json"
+            pair_path.write_text(
+                json.dumps(hard_pair_metrics, indent=2), encoding="utf-8"
+            )
+            report["hard_arena_mode"] = "shadow_canonical_equal_budget"
+            report["shadow_canonical_hard_arena"] = {
+                "suite_path": str(args.shadow_hard_opening_prefixes_jsonl),
+                "suite_sha256": args.shadow_hard_suite_sha256,
+                "prefilter_suite_sha256": args.shadow_prefilter_suite_sha256,
+                "canonical_hash_intersection_count": intersection_count,
+                "prefilter_opening_count": len(prefilter_hashes),
+                "hard_opening_count": len(hard_hashes),
+                "shadow_prefilter_hard_evidence_independent": True,
+                "command": hard_command,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "opening_pairs_path": str(pair_path),
+                "frozen_pr329_asymmetric_score_384_256": 0.8837890625,
+                "budget_equalization_delta": hard_pair_metrics["opening_pair_mean"]
+                - 0.8837890625,
+                **hard_pair_metrics,
+            }
     run_command(
         [
             python_executable(),
@@ -1503,24 +1698,26 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
         current_mcts_report_path=current_mcts_report_path,
         regression_report_path=regression_report_path,
     )
-    if shadow:
+    if shadow_hard:
         codes = {reason["code"] for reason in decision["failure_reasons"]}
         if (
             "candidate_not_stronger_than_hard" in codes
             or "hard_games_below_minimum" in codes
         ):
-            classification = "shadow_canonical_hard_arena_blocker"
+            classification = "shadow_canonical_hard_arena_failed"
         elif "candidate_mcts_below_current" in codes:
-            classification = "shadow_canonical_mcts_relative_blocker"
+            classification = "shadow_canonical_hard_passed_mcts_blocker"
         elif "regression_check_failed" in codes:
-            classification = "shadow_canonical_regression_blocker"
+            classification = "shadow_canonical_hard_passed_regression_blocker"
         elif any(code.startswith("forensic_") for code in codes):
-            classification = "shadow_canonical_production_forensic_blocker"
+            classification = "shadow_canonical_hard_passed_forensic_blocker"
         elif codes:
-            classification = "shadow_canonical_other_downstream_blocker"
+            classification = "shadow_canonical_hard_other_downstream_blocker"
         else:
-            classification = "shadow_canonical_full_gate_passed"
+            classification = "shadow_canonical_hard_full_gate_passed"
         decision["shadow_classification"] = classification
+    elif shadow:
+        decision["shadow_classification"] = "shadow_canonical_hard_arena_blocker"
     return decision
 
 
@@ -1653,6 +1850,8 @@ def main() -> int:
     }
     if getattr(args, "shadow_canonical_prefilter", False):
         report["prefilter_mode"] = "shadow_canonical_equal_budget"
+    if getattr(args, "shadow_canonical_hard_arena", False):
+        report["hard_arena_mode"] = "shadow_canonical_equal_budget"
 
     search_flag_map = (
         load_threshold_planning_search_flag_map(args.config_path)
