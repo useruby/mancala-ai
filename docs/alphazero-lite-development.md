@@ -162,8 +162,10 @@ arena, candidate vs MCTS1200, current vs MCTS1200
 5. Candidate hard arena score >= minimum (default: 0.55)
 6. Candidate MCTS1200 score >= current MCTS1200 score
 
-**Lossless mode (for superhuman track):**
+**Optional lossless mode (for superhuman track):**
 - `--require-lossless --max-losses 0` enforces zero arena losses
+- promotion consumes the policy recorded by its passing local gate; it does not
+  add a separate lossless requirement
 - combine with `--arena-games 400 --min-arena-games 400` for the
   superhuman contract
 - compare against `model-artifact/current` for both hard and
