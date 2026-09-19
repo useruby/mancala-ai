@@ -288,6 +288,17 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def candidate_identity(path: Path) -> dict[str, str] | None:
+    weights_path = path / "weights.json"
+    metadata_path = path / "metadata.json"
+    if not weights_path.is_file() or not metadata_path.is_file():
+        return None
+    return {
+        "weights_json_sha256": sha256_file(weights_path),
+        "metadata_json_sha256": sha256_file(metadata_path),
+    }
+
+
 def artifact_weights_sha256(path: Path) -> str | None:
     metadata_path = path / "metadata.json"
     if not metadata_path.is_file():
@@ -1813,6 +1824,7 @@ def main() -> int:
     report = {
         "schema": "azlite_local_promotion_gate_v1",
         "candidate_path": candidate_path,
+        "candidate_identity": candidate_identity(args.candidate_path),
         "config_path": args.config_path,
         "current_path": current_path,
         "hard_path": args.hard_path,

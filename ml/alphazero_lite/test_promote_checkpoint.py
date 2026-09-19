@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import subprocess
@@ -8,6 +9,70 @@ from pathlib import Path
 
 
 class PromoteCheckpointScriptTest(unittest.TestCase):
+    def write_checkpoint(
+        self,
+        checkpoint_dir: Path,
+        *,
+        metadata: dict | None = None,
+        weights: dict | None = None,
+    ) -> None:
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        (checkpoint_dir / "metadata.json").write_text(
+            json.dumps(metadata or {"schema_version": 1}), encoding="utf-8"
+        )
+        (checkpoint_dir / "weights.json").write_text(
+            json.dumps(weights or {"w_input": [[0.1]]}), encoding="utf-8"
+        )
+        (checkpoint_dir / "arena_report.json").write_text(
+            json.dumps(
+                {
+                    "schema": "arena_v1",
+                    "games_played": 400,
+                    "wins": 200,
+                    "losses": 0,
+                    "draws": 200,
+                    "promotion_decision": {"passed": True},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    def write_gate_report(
+        self, path: Path, checkpoint_dir: Path, *, passed: bool = True
+    ) -> None:
+        identity = {
+            f"{filename.replace('.', '_')}_sha256": hashlib.sha256(
+                (checkpoint_dir / filename).read_bytes()
+            ).hexdigest()
+            for filename in ("weights.json", "metadata.json")
+        }
+        path.write_text(
+            json.dumps({"passed": passed, "candidate_identity": identity}),
+            encoding="utf-8",
+        )
+
+    def run_promotion(
+        self, checkpoint_dir: Path, target_dir: Path, gate_report: Path
+    ) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [
+                self.executable_python(),
+                "ml/alphazero_lite/promote_checkpoint.py",
+                str(checkpoint_dir),
+                "--target",
+                str(target_dir),
+                "--min-score",
+                "0.0",
+                "--require-lossless",
+                "--gate-report",
+                str(gate_report),
+            ],
+            cwd=Path(__file__).resolve().parents[2],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
     def executable_python(self) -> str:
         repo_root = Path(__file__).resolve().parents[2]
         candidates = [
@@ -289,7 +354,10 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
             checkpoint_dir = Path(tmp) / "checkpoint"
+            target_dir = Path(tmp) / "current"
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            (target_dir / "sentinel").write_bytes(b"unchanged")
 
             (checkpoint_dir / "metadata.json").write_text(
                 json.dumps({"schema_version": 1}), encoding="utf-8"
@@ -322,6 +390,8 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
                     str(checkpoint_dir),
                     "--gate-report",
                     str(checkpoint_dir / "local_promotion_gate.json"),
+                    "--target",
+                    str(target_dir),
                 ],
                 cwd=repo_root,
                 capture_output=True,
@@ -331,6 +401,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn("Gate report did not pass", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
 
     def test_cli_accepts_relative_gate_report_from_repo_root(self):
         repo_root = Path(__file__).resolve().parents[2]
@@ -363,7 +434,7 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
             gate_dir = repo_root / "tmp"
             gate_dir.mkdir(parents=True, exist_ok=True)
             gate_report_path = gate_dir / "local_promotion_gate_test.json"
-            gate_report_path.write_text(json.dumps({"passed": True}), encoding="utf-8")
+            self.write_gate_report(gate_report_path, checkpoint_dir)
 
             try:
                 relative_gate_path = gate_report_path.relative_to(repo_root).as_posix()
@@ -389,6 +460,94 @@ class PromoteCheckpointScriptTest(unittest.TestCase):
 
             self.assertEqual(0, result.returncode, msg=result.stderr)
             self.assertTrue((target_dir / "metadata.json").exists())
+
+    def test_cli_promotes_with_matching_gate_candidate_identity(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir = tmp_path / "checkpoint"
+            target_dir = tmp_path / "current"
+            gate_report = tmp_path / "gate.json"
+            self.write_checkpoint(checkpoint_dir)
+            self.write_gate_report(gate_report, checkpoint_dir)
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            self.assertEqual(
+                (checkpoint_dir / "weights.json").read_bytes(),
+                (target_dir / "weights.json").read_bytes(),
+            )
+
+    def test_cli_rejects_gate_for_different_candidate_without_changing_target(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            candidate_a, candidate_b = tmp_path / "a", tmp_path / "b"
+            target_dir, gate_report = tmp_path / "current", tmp_path / "gate.json"
+            self.write_checkpoint(candidate_a, weights={"w_input": [[0.1]]})
+            self.write_checkpoint(candidate_b, weights={"w_input": [[0.2]]})
+            self.write_gate_report(gate_report, candidate_a)
+            target_dir.mkdir()
+            (target_dir / "sentinel").write_bytes(b"unchanged")
+
+            result = self.run_promotion(candidate_b, target_dir, gate_report)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_candidate_identity_mismatch", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
+
+    def test_cli_rejects_weights_mutated_after_gate_without_changing_target(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report = tmp_path / "gate.json"
+            self.write_checkpoint(checkpoint_dir)
+            self.write_gate_report(gate_report, checkpoint_dir)
+            (checkpoint_dir / "weights.json").write_text(
+                '{"w_input":[[0.2]]}', encoding="utf-8"
+            )
+            target_dir.mkdir()
+            (target_dir / "sentinel").write_bytes(b"unchanged")
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_candidate_identity_mismatch", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
+
+    def test_cli_rejects_metadata_mutated_after_gate_without_changing_target(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report = tmp_path / "gate.json"
+            self.write_checkpoint(checkpoint_dir)
+            self.write_gate_report(gate_report, checkpoint_dir)
+            (checkpoint_dir / "metadata.json").write_text(
+                '{"schema_version":2}', encoding="utf-8"
+            )
+            target_dir.mkdir()
+            (target_dir / "sentinel").write_bytes(b"unchanged")
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_candidate_identity_mismatch", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
+
+    def test_cli_rejects_passing_gate_missing_candidate_identity(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-promote-") as tmp:
+            tmp_path = Path(tmp)
+            checkpoint_dir, target_dir = tmp_path / "checkpoint", tmp_path / "current"
+            gate_report = tmp_path / "gate.json"
+            self.write_checkpoint(checkpoint_dir)
+            gate_report.write_text(json.dumps({"passed": True}), encoding="utf-8")
+            target_dir.mkdir()
+            (target_dir / "sentinel").write_bytes(b"unchanged")
+
+            result = self.run_promotion(checkpoint_dir, target_dir, gate_report)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gate_candidate_identity_mismatch", result.stderr)
+            self.assertEqual(b"unchanged", (target_dir / "sentinel").read_bytes())
 
     def test_cli_promotes_when_lossless_requirement_is_met(self):
         repo_root = Path(__file__).resolve().parents[2]

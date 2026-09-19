@@ -108,6 +108,27 @@ class LocalPromotionGateTest(unittest.TestCase):
             ):
                 self.assertEqual(str(shared_python), module.python_executable())
 
+    def test_candidate_identity_hashes_artifact_files(self):
+        module = self.load_gate_module()
+
+        with tempfile.TemporaryDirectory(prefix="azlite-gate-") as tmp:
+            candidate = Path(tmp) / "candidate"
+            candidate.mkdir()
+            (candidate / "weights.json").write_bytes(b"weights")
+            (candidate / "metadata.json").write_bytes(b"metadata")
+
+            self.assertEqual(
+                {
+                    "weights_json_sha256": module.sha256_file(
+                        candidate / "weights.json"
+                    ),
+                    "metadata_json_sha256": module.sha256_file(
+                        candidate / "metadata.json"
+                    ),
+                },
+                module.candidate_identity(candidate),
+            )
+
     def test_shadow_prefilter_command_is_explicit_and_standard_command_is_unchanged(
         self,
     ):
