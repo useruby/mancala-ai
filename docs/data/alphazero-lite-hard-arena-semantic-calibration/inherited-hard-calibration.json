@@ -1,0 +1,149 @@
+{
+  "rows": [
+    {
+      "canonical_384_384_score": 0.61328125,
+      "canonical_ci95": {
+        "lower": 0.5810546875,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.6455078125
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": true,
+      "identity_control_status": null,
+      "pair_id": "P47",
+      "repeated_start_055_pass": false,
+      "repeated_start_384_256_score": 0.5
+    },
+    {
+      "canonical_384_384_score": 0.6806640625,
+      "canonical_ci95": {
+        "lower": 0.646484375,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.71484375
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": true,
+      "identity_control_status": null,
+      "pair_id": "P48",
+      "repeated_start_055_pass": true,
+      "repeated_start_384_256_score": 1.0
+    },
+    {
+      "canonical_384_384_score": 0.6953125,
+      "canonical_ci95": {
+        "lower": 0.662109375,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.7275390625
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": true,
+      "identity_control_status": null,
+      "pair_id": "P49",
+      "repeated_start_055_pass": false,
+      "repeated_start_384_256_score": 0.5
+    },
+    {
+      "canonical_384_384_score": 0.6552734375,
+      "canonical_ci95": {
+        "lower": 0.625,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.685546875
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": true,
+      "identity_control_status": null,
+      "pair_id": "P50",
+      "repeated_start_055_pass": true,
+      "repeated_start_384_256_score": 1.0
+    },
+    {
+      "canonical_384_384_score": 0.64453125,
+      "canonical_ci95": {
+        "lower": 0.6123046875,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.677734375
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": true,
+      "identity_control_status": null,
+      "pair_id": "P51",
+      "repeated_start_055_pass": true,
+      "repeated_start_384_256_score": 1.0
+    },
+    {
+      "canonical_384_384_score": 0.658203125,
+      "canonical_ci95": {
+        "lower": 0.623046875,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.6923828125
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": true,
+      "identity_control_status": null,
+      "pair_id": "P52",
+      "repeated_start_055_pass": true,
+      "repeated_start_384_256_score": 1.0
+    },
+    {
+      "canonical_384_384_score": 0.8388671875,
+      "canonical_ci95": {
+        "lower": 0.8115234375,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.8662109375
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": true,
+      "identity_control_status": null,
+      "pair_id": "P_INC",
+      "repeated_start_055_pass": false,
+      "repeated_start_384_256_score": 0.5
+    },
+    {
+      "canonical_384_384_score": 0.5,
+      "canonical_ci95": {
+        "lower": 0.5,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.5
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": null,
+      "identity_control_status": true,
+      "pair_id": "I_INC",
+      "repeated_start_055_pass": false,
+      "repeated_start_384_256_score": 0.5
+    },
+    {
+      "canonical_384_384_score": 0.5,
+      "canonical_ci95": {
+        "lower": 0.5,
+        "method": "opening_pair_percentile_bootstrap",
+        "replicates": 20000,
+        "rng_seed": 330,
+        "upper": 0.5
+      },
+      "data_source": "inherited_from_semantically_identical_evaluator",
+      "equal_budget_positive_evidence": null,
+      "identity_control_status": true,
+      "pair_id": "I_48",
+      "repeated_start_055_pass": false,
+      "repeated_start_384_256_score": 0.5
+    }
+  ],
+  "schema": "azlite_hard_arena_semantic_calibration_v1"
+}
