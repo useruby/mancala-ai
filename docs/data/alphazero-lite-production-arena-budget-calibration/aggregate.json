@@ -1,0 +1,2457 @@
+{
+  "asymmetry_dependent_055_pass_count": 0,
+  "budget_causal_rule": true,
+  "budget_shift_heterogeneity": {
+    "mean": 0.072265625,
+    "median": 0.072265625,
+    "range": [
+      0.0478515625,
+      0.103515625
+    ]
+  },
+  "classification": "production_prefilter_budget_asymmetry_confound_confirmed_strength_retained",
+  "equal_budget_055_pass_count": 7,
+  "equal_score_budget_shift_spearman": -0.9285714285714286,
+  "identity_budget_effect_material": true,
+  "identity_controls": [
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.5703125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.63671875
+        },
+        "canonical_pair_score": 0.603515625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 25,
+            "losses": 73,
+            "score": 0.666015625,
+            "wins": 158
+          },
+          "player_1": {
+            "draws": 29,
+            "losses": 103,
+            "score": 0.541015625,
+            "wins": 124
+          }
+        },
+        "draws": 54,
+        "games": 512,
+        "losses": 176,
+        "mean_stone_margin": 2.22265625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 88,
+          "challenger_wins_both_seats": 62,
+          "current_favored": 31,
+          "current_wins_both_seats": 13,
+          "draws": 49,
+          "neutral": 137,
+          "split_seats": 132
+        },
+        "raw_score": 0.603515625,
+        "search_configuration_ledger_hash": "f69750ba5f3d9e081fb84a33a98b9a309f01c88e6221990a6f82c5c3af97aed8",
+        "search_outcome_ledger_hash": "57c5f11f3e49fee39aa8df9b5f26c7d7255c949ba267fea4581edd73d9990623",
+        "seed_ledger_hash": "7e7f13c9e276858c15524991ba38699d99c64142e220632248e9e8af96fd9320",
+        "unique_trajectories": 489,
+        "wins": 282
+      },
+      "deterministic_trajectory_pairing": true,
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.5,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.5
+        },
+        "canonical_pair_score": 0.5,
+        "canonical_positive_strength_evidence": false,
+        "canonical_threshold_pass": false,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 35,
+            "losses": 95,
+            "score": 0.560546875,
+            "wins": 126
+          },
+          "player_1": {
+            "draws": 35,
+            "losses": 126,
+            "score": 0.439453125,
+            "wins": 95
+          }
+        },
+        "draws": 70,
+        "games": 512,
+        "losses": 221,
+        "mean_stone_margin": 0.0,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 0,
+          "challenger_wins_both_seats": 0,
+          "current_favored": 0,
+          "current_wins_both_seats": 0,
+          "draws": 35,
+          "neutral": 256,
+          "split_seats": 221
+        },
+        "raw_score": 0.5,
+        "search_configuration_ledger_hash": "03cc2b3a613107846cd33c7f72ed5cdcba7aa54281a5cbb8f63e6629a343c10b",
+        "search_outcome_ledger_hash": "cbc3c01739a706965981b6488b866c9250b708787050511a4284c1c6bc0c2b80",
+        "seed_ledger_hash": "e87db12c59c3debf5c80cd0a4f9e29fa38cb260fe7f38c444ec318fd5fcc23e7",
+        "unique_trajectories": 255,
+        "wins": 221
+      },
+      "identity_budget_bias_removed": true,
+      "pair_id": "I_INC",
+      "reverse_winners_by_seat": true
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.5517578125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.6083984375
+        },
+        "canonical_pair_score": 0.580078125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 16,
+            "losses": 91,
+            "score": 0.61328125,
+            "wins": 149
+          },
+          "player_1": {
+            "draws": 20,
+            "losses": 106,
+            "score": 0.546875,
+            "wins": 130
+          }
+        },
+        "draws": 36,
+        "games": 512,
+        "losses": 197,
+        "mean_stone_margin": 1.57421875,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 62,
+          "challenger_wins_both_seats": 46,
+          "current_favored": 17,
+          "current_wins_both_seats": 9,
+          "draws": 30,
+          "neutral": 177,
+          "split_seats": 171
+        },
+        "raw_score": 0.580078125,
+        "search_configuration_ledger_hash": "81f6255f836ff06aa4d55380ef79841619929e1b16633b529169f0229089f588",
+        "search_outcome_ledger_hash": "05f31cdd6365d3492620369b3d75c70f365d39800f3ffaf3990918839e46b8c6",
+        "seed_ledger_hash": "5b9c1abd08fd3a4c2b72cfbab83fe6a1a797362ab59718cdd42119ac1574af5c",
+        "unique_trajectories": 478,
+        "wins": 279
+      },
+      "deterministic_trajectory_pairing": true,
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.5,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.5
+        },
+        "canonical_pair_score": 0.5,
+        "canonical_positive_strength_evidence": false,
+        "canonical_threshold_pass": false,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 19,
+            "losses": 112,
+            "score": 0.525390625,
+            "wins": 125
+          },
+          "player_1": {
+            "draws": 19,
+            "losses": 125,
+            "score": 0.474609375,
+            "wins": 112
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 237,
+        "mean_stone_margin": 0.0,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 0,
+          "challenger_wins_both_seats": 0,
+          "current_favored": 0,
+          "current_wins_both_seats": 0,
+          "draws": 19,
+          "neutral": 256,
+          "split_seats": 237
+        },
+        "raw_score": 0.5,
+        "search_configuration_ledger_hash": "1ae7658c426cedf91673f9be616faf1457f3b3c1661cb6d7c503ac44be306655",
+        "search_outcome_ledger_hash": "2f62695f3b4e49604cb24a36bca9c449a6daac92e01f61f85b8065b6dbf79211",
+        "seed_ledger_hash": "2a1e064bd0cfbc19eaf7a3e84eb8c1e529c0fb9e7f143ecd8fbda0cf130a4516",
+        "unique_trajectories": 256,
+        "wins": 237
+      },
+      "identity_budget_bias_removed": true,
+      "pair_id": "I_48",
+      "reverse_winners_by_seat": true
+    }
+  ],
+  "identity_failed": false,
+  "known_positive": [
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.6640625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.73046875
+        },
+        "canonical_pair_score": 0.697265625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 15,
+            "losses": 58,
+            "score": 0.744140625,
+            "wins": 183
+          },
+          "player_1": {
+            "draws": 23,
+            "losses": 78,
+            "score": 0.650390625,
+            "wins": 155
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 136,
+        "mean_stone_margin": 5.3671875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 129,
+          "challenger_wins_both_seats": 95,
+          "current_favored": 13,
+          "current_wins_both_seats": 9,
+          "draws": 38,
+          "neutral": 114,
+          "split_seats": 114
+        },
+        "raw_score": 0.697265625,
+        "search_configuration_ledger_hash": "61398a16ce91b2bc547524d2112c60a5306127a301f6efe90079d434de4e9928",
+        "search_outcome_ledger_hash": "0146695e947e57e571a616d965182d533370a942bd4b99b7b64642348fce1bca",
+        "seed_ledger_hash": "2c8052a6cb20bae3581d3852ee2d4b40672f64039e7d01913b47557c9dd7171d",
+        "unique_trajectories": 509,
+        "wins": 338
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0517578125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.1162109375
+        },
+        "mean": 0.083984375,
+        "median": 0.0,
+        "negative": 24,
+        "p10": 0.0,
+        "p90": 0.5,
+        "positive": 74,
+        "zero": 158
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed47/uniform1200/fresh-uniform1200-s47-uniform1200-iter1",
+      "challenger_sha256": "8eb1ad896e4ab3d228275a65da137c425710ddba96dd5005b8cef0bac2984f56",
+      "current_path": ".tmp/fresh-uniform1200/runs/seed47/control/fresh-uniform1200-s47-control-iter1",
+      "current_sha256": "4d2217c4509cd84ee408ed380c9a32616e698e11a8fea2841bcc1c4c32c38cc6",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.5810546875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.6455078125
+        },
+        "canonical_pair_score": 0.61328125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 20,
+            "losses": 77,
+            "score": 0.66015625,
+            "wins": 159
+          },
+          "player_1": {
+            "draws": 24,
+            "losses": 99,
+            "score": 0.56640625,
+            "wins": 133
+          }
+        },
+        "draws": 44,
+        "games": 512,
+        "losses": 176,
+        "mean_stone_margin": 3.125,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 91,
+          "challenger_wins_both_seats": 59,
+          "current_favored": 21,
+          "current_wins_both_seats": 13,
+          "draws": 42,
+          "neutral": 144,
+          "split_seats": 142
+        },
+        "raw_score": 0.61328125,
+        "search_configuration_ledger_hash": "80512c2226114a3ac1546f587467db66decebc5b6dd0db112e02e4e9e5b42f84",
+        "search_outcome_ledger_hash": "1c1a6bf6b8d758fc8f27e7d95dbb6c2b18c2f6aed246f6cfffdca21bd105c023",
+        "seed_ledger_hash": "5f96ee7c20f3f499396214dbc79900d4ce902820d439cf582efb58d118ce6d87",
+        "unique_trajectories": 509,
+        "wins": 292
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6396484375,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_neutral": 13,
+        "current_favored_to_challenger_favored": 6,
+        "current_favored_to_neutral": 10,
+        "neutral_to_challenger_favored": 45,
+        "neutral_to_current_favored": 8,
+        "unchanged": 174
+      },
+      "pair_id": "P47",
+      "stone_margin_shift": 2.2421875
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.71875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.779296875
+        },
+        "canonical_pair_score": 0.7490234375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 17,
+            "losses": 42,
+            "score": 0.802734375,
+            "wins": 197
+          },
+          "player_1": {
+            "draws": 16,
+            "losses": 70,
+            "score": 0.6953125,
+            "wins": 170
+          }
+        },
+        "draws": 33,
+        "games": 512,
+        "losses": 112,
+        "mean_stone_margin": 6.7421875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 146,
+          "challenger_wins_both_seats": 117,
+          "current_favored": 6,
+          "current_wins_both_seats": 2,
+          "draws": 33,
+          "neutral": 104,
+          "split_seats": 104
+        },
+        "raw_score": 0.7490234375,
+        "search_configuration_ledger_hash": "bc1e202b441b8eb5115b289e68c872c47899b6ab47aeb15c927e3e9cad783f85",
+        "search_outcome_ledger_hash": "a5823f787d4efbd186e0b00b7cdabebddac85ece4d3efbb9d24d5a23b2497ae5",
+        "seed_ledger_hash": "07ccb5f36a18a2fa5f48f2bc444c07ccc9bebae0e6334832136127a9ed521264",
+        "unique_trajectories": 512,
+        "wins": 367
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.03515625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.1025390625
+        },
+        "mean": 0.068359375,
+        "median": 0.0,
+        "negative": 30,
+        "p10": -0.25,
+        "p90": 0.5,
+        "positive": 67,
+        "zero": 159
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "current_path": ".tmp/fresh-uniform1200/runs/seed48/control/fresh-uniform1200-s48-control-iter1",
+      "current_sha256": "e1516c4db1a7c7e7a733d8e982087231b5a2395549172a4d8991cd901da04598",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.646484375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.71484375
+        },
+        "canonical_pair_score": 0.6806640625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 15,
+            "losses": 60,
+            "score": 0.736328125,
+            "wins": 181
+          },
+          "player_1": {
+            "draws": 14,
+            "losses": 89,
+            "score": 0.625,
+            "wins": 153
+          }
+        },
+        "draws": 29,
+        "games": 512,
+        "losses": 149,
+        "mean_stone_margin": 4.37890625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 116,
+          "challenger_wins_both_seats": 95,
+          "current_favored": 16,
+          "current_wins_both_seats": 10,
+          "draws": 28,
+          "neutral": 124,
+          "split_seats": 123
+        },
+        "raw_score": 0.6806640625,
+        "search_configuration_ledger_hash": "3fbf705dfe148bf3dfe91574683d6936a5e7c218a50cfbd3ce07c0db264f42ad",
+        "search_outcome_ledger_hash": "fe9af3c82919527d64fc1d79c5fe4591c44194fd83ba4c6eeb23f9a6d82c6687",
+        "seed_ledger_hash": "69d5a8fa220e3b73c0976628538e9f67f946d0779d5d2364c82467ad40fb3b4a",
+        "unique_trajectories": 512,
+        "wins": 334
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.681640625,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 2,
+        "challenger_favored_to_neutral": 16,
+        "current_favored_to_challenger_favored": 6,
+        "current_favored_to_neutral": 8,
+        "neutral_to_challenger_favored": 42,
+        "neutral_to_current_favored": 2,
+        "unchanged": 180
+      },
+      "pair_id": "P48",
+      "stone_margin_shift": 2.36328125
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.712890625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7744140625
+        },
+        "canonical_pair_score": 0.7431640625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 13,
+            "losses": 49,
+            "score": 0.783203125,
+            "wins": 194
+          },
+          "player_1": {
+            "draws": 16,
+            "losses": 68,
+            "score": 0.703125,
+            "wins": 172
+          }
+        },
+        "draws": 29,
+        "games": 512,
+        "losses": 117,
+        "mean_stone_margin": 5.875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 141,
+          "challenger_wins_both_seats": 115,
+          "current_favored": 5,
+          "current_wins_both_seats": 2,
+          "draws": 29,
+          "neutral": 110,
+          "split_seats": 110
+        },
+        "raw_score": 0.7431640625,
+        "search_configuration_ledger_hash": "5807838062049259159e6493cc969e027a6b50b6c39a567f44bc58a4d4b51fc8",
+        "search_outcome_ledger_hash": "3f84387381d3a08dd1473aaf94877ff0805f29d338d4dd52f277772e778a8bf7",
+        "seed_ledger_hash": "5370673351769e6a6bccb4e2e59f9db253fee0d1c89a33a2476b1b2496bd6226",
+        "unique_trajectories": 511,
+        "wins": 366
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0185546875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.078125
+        },
+        "mean": 0.0478515625,
+        "median": 0.0,
+        "negative": 27,
+        "p10": -0.25,
+        "p90": 0.5,
+        "positive": 57,
+        "zero": 172
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed49/uniform1200/fresh-uniform1200-s49-uniform1200-iter1",
+      "challenger_sha256": "1de880981885b174aa57166a0431a050565968e181a9931f15e93cd7180c205e",
+      "current_path": ".tmp/fresh-uniform1200/runs/seed49/control/fresh-uniform1200-s49-control-iter1",
+      "current_sha256": "068e4b11a0b34c7de439d9b4c6af8979ff8ce858bf8bcc62baccd91c4cc29b2c",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.662109375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7275390625
+        },
+        "canonical_pair_score": 0.6953125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 18,
+            "losses": 56,
+            "score": 0.74609375,
+            "wins": 182
+          },
+          "player_1": {
+            "draws": 20,
+            "losses": 81,
+            "score": 0.64453125,
+            "wins": 155
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 137,
+        "mean_stone_margin": 4.48046875,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 125,
+          "challenger_wins_both_seats": 96,
+          "current_favored": 15,
+          "current_wins_both_seats": 6,
+          "draws": 38,
+          "neutral": 116,
+          "split_seats": 116
+        },
+        "raw_score": 0.6953125,
+        "search_configuration_ledger_hash": "cb99b1ecccde48acde4f9dd349e7df462fd13114c98f90fbede1ed85af9f08de",
+        "search_outcome_ledger_hash": "1c599bdd116bf598d01fd5177dc0c1cd10460812a801db070f36274a4fd69af1",
+        "seed_ledger_hash": "d35fba14531b6d2807850cd292423285c2f1c8f887a0e989c074aecd3a54d80e",
+        "unique_trajectories": 511,
+        "wins": 337
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6572265625,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_neutral": 17,
+        "current_favored_to_challenger_favored": 4,
+        "current_favored_to_neutral": 7,
+        "neutral_to_challenger_favored": 29,
+        "neutral_to_current_favored": 1,
+        "unchanged": 198
+      },
+      "pair_id": "P49",
+      "stone_margin_shift": 1.39453125
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.6943359375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7548828125
+        },
+        "canonical_pair_score": 0.724609375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 19,
+            "losses": 41,
+            "score": 0.802734375,
+            "wins": 196
+          },
+          "player_1": {
+            "draws": 15,
+            "losses": 83,
+            "score": 0.646484375,
+            "wins": 158
+          }
+        },
+        "draws": 34,
+        "games": 512,
+        "losses": 124,
+        "mean_stone_margin": 4.96484375,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 133,
+          "challenger_wins_both_seats": 105,
+          "current_favored": 5,
+          "current_wins_both_seats": 3,
+          "draws": 32,
+          "neutral": 118,
+          "split_seats": 116
+        },
+        "raw_score": 0.724609375,
+        "search_configuration_ledger_hash": "c6a1d3fdd4076acc9951fe96cee65b55a528aa88a6e255ce40d74658047d37ab",
+        "search_outcome_ledger_hash": "4760d1fb4be0ed72c694441c2b0ad758216f583582d8a4d96b19d4ac0222ba72",
+        "seed_ledger_hash": "aeb2ef971380892aad994662a0847dbd239a1cff8c43fa7e29e31bc1daae0326",
+        "unique_trajectories": 509,
+        "wins": 354
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.041015625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.0986328125
+        },
+        "mean": 0.0693359375,
+        "median": 0.0,
+        "negative": 24,
+        "p10": 0.0,
+        "p90": 0.5,
+        "positive": 67,
+        "zero": 165
+      },
+      "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed50/uniform1200/fresh-uniform1200-s50-uniform1200-iter1",
+      "challenger_sha256": "5da18b268aa1cc80b2e5a0a3342f5ae1a3e9a13f4867d0a2da87567c51fb0ecf",
+      "current_path": ".tmp/fresh-uniform1200-extension/runs/seed50/control/fresh-uniform1200-s50-control-iter1",
+      "current_sha256": "7a9a733d0b24c3e424a596e2b14781a691c57a795885e0a6b23ab7b697b214a8",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.685546875
+        },
+        "canonical_pair_score": 0.6552734375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 28,
+            "losses": 53,
+            "score": 0.73828125,
+            "wins": 175
+          },
+          "player_1": {
+            "draws": 23,
+            "losses": 98,
+            "score": 0.572265625,
+            "wins": 135
+          }
+        },
+        "draws": 51,
+        "games": 512,
+        "losses": 151,
+        "mean_stone_margin": 3.44921875,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 110,
+          "challenger_wins_both_seats": 69,
+          "current_favored": 12,
+          "current_wins_both_seats": 8,
+          "draws": 48,
+          "neutral": 134,
+          "split_seats": 131
+        },
+        "raw_score": 0.6552734375,
+        "search_configuration_ledger_hash": "2c0429a5b19d7ff81750c5b9e5b91ec54bb5735cef28909a0dcb848203735b17",
+        "search_outcome_ledger_hash": "2fd0c4b6c9c480497835c1fe17472fab78689f65b300a1260e97713355defe42",
+        "seed_ledger_hash": "151277bfc3acdc53bb748d3eb734a33a0ba6516f11b83530157c10a2f659b927",
+        "unique_trajectories": 509,
+        "wins": 310
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6328125,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_neutral": 20,
+        "current_favored_to_challenger_favored": 4,
+        "current_favored_to_neutral": 4,
+        "neutral_to_challenger_favored": 39,
+        "neutral_to_current_favored": 1,
+        "unchanged": 188
+      },
+      "pair_id": "P50",
+      "stone_margin_shift": 1.515625
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.6865234375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7509765625
+        },
+        "canonical_pair_score": 0.71875,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 23,
+            "losses": 52,
+            "score": 0.751953125,
+            "wins": 181
+          },
+          "player_1": {
+            "draws": 11,
+            "losses": 75,
+            "score": 0.685546875,
+            "wins": 170
+          }
+        },
+        "draws": 34,
+        "games": 512,
+        "losses": 127,
+        "mean_stone_margin": 5.4921875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 135,
+          "challenger_wins_both_seats": 105,
+          "current_favored": 10,
+          "current_wins_both_seats": 6,
+          "draws": 34,
+          "neutral": 111,
+          "split_seats": 111
+        },
+        "raw_score": 0.71875,
+        "search_configuration_ledger_hash": "47a6fa0a47836e21ae8162341c9ca909818ffbc37ae15da7032550bec7fe54d1",
+        "search_outcome_ledger_hash": "13ffb9bbcf441ab027b0ab344f782e32729762ed6ea082d3a43bbe06f63af9a6",
+        "seed_ledger_hash": "de088011c0012741885440a0df95cf5f7b987c20079a1d32cc02c0bc8f07e692",
+        "unique_trajectories": 509,
+        "wins": 351
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0400390625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.1083984375
+        },
+        "mean": 0.07421875,
+        "median": 0.0,
+        "negative": 26,
+        "p10": -0.125,
+        "p90": 0.5,
+        "positive": 73,
+        "zero": 157
+      },
+      "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed51/uniform1200/fresh-uniform1200-s51-uniform1200-iter1",
+      "challenger_sha256": "e6f5ce2c184676b2c0306616b4a865e9ba2a599169b8013af69c680ac36d07bc",
+      "current_path": ".tmp/fresh-uniform1200-extension/runs/seed51/control/fresh-uniform1200-s51-control-iter1",
+      "current_sha256": "e462e6bfbad2a78a66d02c0cb66326d7e6360c89fc771ca2f209855edd983ea9",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.6123046875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.677734375
+        },
+        "canonical_pair_score": 0.64453125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 24,
+            "losses": 67,
+            "score": 0.69140625,
+            "wins": 165
+          },
+          "player_1": {
+            "draws": 18,
+            "losses": 94,
+            "score": 0.59765625,
+            "wins": 144
+          }
+        },
+        "draws": 42,
+        "games": 512,
+        "losses": 161,
+        "mean_stone_margin": 3.5625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 105,
+          "challenger_wins_both_seats": 75,
+          "current_favored": 21,
+          "current_wins_both_seats": 11,
+          "draws": 41,
+          "neutral": 130,
+          "split_seats": 129
+        },
+        "raw_score": 0.64453125,
+        "search_configuration_ledger_hash": "8474254a7333a8c785b0fdf86f5594404d2c4c2e5067f4e6aeb3c013e4fd0eef",
+        "search_outcome_ledger_hash": "bce31fc153343e70cc5ddece42ac3b26ada12c642681c89fb3174bf9c94f9f27",
+        "seed_ledger_hash": "284ebd94cb018f497bb10765dd0e109342da789ea3d2b1c74dd6a8d3538e69b3",
+        "unique_trajectories": 510,
+        "wins": 309
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6240234375,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 4,
+        "challenger_favored_to_neutral": 16,
+        "current_favored_to_challenger_favored": 7,
+        "current_favored_to_neutral": 11,
+        "neutral_to_challenger_favored": 43,
+        "neutral_to_current_favored": 3,
+        "unchanged": 172
+      },
+      "pair_id": "P51",
+      "stone_margin_shift": 1.9296875
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.7001953125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7607421875
+        },
+        "canonical_pair_score": 0.73046875,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 14,
+            "losses": 47,
+            "score": 0.7890625,
+            "wins": 195
+          },
+          "player_1": {
+            "draws": 24,
+            "losses": 72,
+            "score": 0.671875,
+            "wins": 160
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 119,
+        "mean_stone_margin": 6.203125,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 139,
+          "challenger_wins_both_seats": 107,
+          "current_favored": 8,
+          "current_wins_both_seats": 2,
+          "draws": 38,
+          "neutral": 109,
+          "split_seats": 109
+        },
+        "raw_score": 0.73046875,
+        "search_configuration_ledger_hash": "17141cb0fd27d591d38400b63d00b9805bd269c62e7669a3525a3311dce598a4",
+        "search_outcome_ledger_hash": "a655609d6080094ea0cb8ef7a3312659aa64d17b58526299811d9031b95769b8",
+        "seed_ledger_hash": "b8040019d1fba9602668e3bed64e0a1a81dd576e12c8ec10fd6a0c36525e3aee",
+        "unique_trajectories": 510,
+        "wins": 355
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.041015625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.103515625
+        },
+        "mean": 0.072265625,
+        "median": 0.0,
+        "negative": 25,
+        "p10": 0.0,
+        "p90": 0.5,
+        "positive": 62,
+        "zero": 169
+      },
+      "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed52/uniform1200/fresh-uniform1200-s52-uniform1200-iter1",
+      "challenger_sha256": "78084a42915f75fa6b3d66d01cd7da386078c343711094a84f25033bb148ed4e",
+      "current_path": ".tmp/fresh-uniform1200-extension/runs/seed52/control/fresh-uniform1200-s52-control-iter1",
+      "current_sha256": "d2d7faacbea919c12af3461295f7f189db40ef1beb34b70a5b74cc270272f403",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.623046875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.6923828125
+        },
+        "canonical_pair_score": 0.658203125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 22,
+            "losses": 62,
+            "score": 0.71484375,
+            "wins": 172
+          },
+          "player_1": {
+            "draws": 24,
+            "losses": 90,
+            "score": 0.6015625,
+            "wins": 142
+          }
+        },
+        "draws": 46,
+        "games": 512,
+        "losses": 152,
+        "mean_stone_margin": 4.50390625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 116,
+          "challenger_wins_both_seats": 83,
+          "current_favored": 24,
+          "current_wins_both_seats": 13,
+          "draws": 45,
+          "neutral": 116,
+          "split_seats": 115
+        },
+        "raw_score": 0.658203125,
+        "search_configuration_ledger_hash": "76fe27be429af98868daf3354ccf5a6d94578383d110bad8a22fd789d8b7386d",
+        "search_outcome_ledger_hash": "604a21dcdc1f023f075f66739cbf4a44a9707591cd60bb76e3b2c14dcfa6f0b4",
+        "seed_ledger_hash": "449ae7c4ac64ac3d8ad4b17d399bd01cfad29cb58c0cf3c8fb0869c6963b85f1",
+        "unique_trajectories": 510,
+        "wins": 314
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6357421875,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 1,
+        "challenger_favored_to_neutral": 19,
+        "current_favored_to_challenger_favored": 10,
+        "current_favored_to_neutral": 8,
+        "neutral_to_challenger_favored": 33,
+        "neutral_to_current_favored": 1,
+        "unchanged": 184
+      },
+      "pair_id": "P52",
+      "stone_margin_shift": 1.69921875
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.865234375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.9130859375
+        },
+        "canonical_pair_score": 0.8896484375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 10,
+            "losses": 17,
+            "score": 0.9140625,
+            "wins": 229
+          },
+          "player_1": {
+            "draws": 15,
+            "losses": 27,
+            "score": 0.865234375,
+            "wins": 214
+          }
+        },
+        "draws": 25,
+        "games": 512,
+        "losses": 44,
+        "mean_stone_margin": 11.0546875,
+        "median_pair_score": 1.0,
+        "opening_distribution": {
+          "challenger_favored": 212,
+          "challenger_wins_both_seats": 188,
+          "current_favored": 1,
+          "current_wins_both_seats": 0,
+          "draws": 25,
+          "neutral": 43,
+          "split_seats": 43
+        },
+        "raw_score": 0.8896484375,
+        "search_configuration_ledger_hash": "2c454893d90996a44a415ea570ebbb0a5c758b2858c5369c1c9a740e825c5c1d",
+        "search_outcome_ledger_hash": "4350717d63b8759e5cdee420507c45d7d5888f80aed6c463e2596898f6ab4ecc",
+        "seed_ledger_hash": "fa7c94492615291ce190d76a15fd9d760415436577dd8f4d5ab40665b391e281",
+        "unique_trajectories": 512,
+        "wins": 443
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0283203125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.07421875
+        },
+        "mean": 0.05078125,
+        "median": 0.0,
+        "negative": 14,
+        "p10": 0.0,
+        "p90": 0.25,
+        "positive": 46,
+        "zero": 196
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "current_path": "model-artifact/current",
+      "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.8115234375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.8662109375
+        },
+        "canonical_pair_score": 0.8388671875,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 9,
+            "losses": 33,
+            "score": 0.853515625,
+            "wins": 214
+          },
+          "player_1": {
+            "draws": 16,
+            "losses": 37,
+            "score": 0.82421875,
+            "wins": 203
+          }
+        },
+        "draws": 25,
+        "games": 512,
+        "losses": 70,
+        "mean_stone_margin": 9.1640625,
+        "median_pair_score": 1.0,
+        "opening_distribution": {
+          "challenger_favored": 186,
+          "challenger_wins_both_seats": 161,
+          "current_favored": 0,
+          "current_wins_both_seats": 0,
+          "draws": 25,
+          "neutral": 70,
+          "split_seats": 70
+        },
+        "raw_score": 0.8388671875,
+        "search_configuration_ledger_hash": "28c8f0988455c9d32a5bfe83caf97dc1ff080cb70f077c20f9687dab7ebfdd5e",
+        "search_outcome_ledger_hash": "4394ee8e6618058384333f78ba0b3c448cc0a61c1165eb7770aa68f81e3d8fd6",
+        "seed_ledger_hash": "fd2d314666f4abc977099ab42c4b11443729cc8aeb981b9a7a6d3887e78ae527",
+        "unique_trajectories": 512,
+        "wins": 417
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #329 production_start_state_arena_disagreement_confirmed",
+      "historical_independent_strength_score": 0.8837890625,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 1,
+        "challenger_favored_to_neutral": 5,
+        "neutral_to_challenger_favored": 32,
+        "unchanged": 218
+      },
+      "pair_id": "P_INC",
+      "stone_margin_shift": 1.890625
+    }
+  ],
+  "manifest": {
+    "frozen_before_calibration_results": true,
+    "pairs": [
+      {
+        "challenger_path": ".tmp/fresh-uniform1200/runs/seed47/uniform1200/fresh-uniform1200-s47-uniform1200-iter1",
+        "challenger_sha256": "8eb1ad896e4ab3d228275a65da137c425710ddba96dd5005b8cef0bac2984f56",
+        "current_path": ".tmp/fresh-uniform1200/runs/seed47/control/fresh-uniform1200-s47-control-iter1",
+        "current_sha256": "4d2217c4509cd84ee408ed380c9a32616e698e11a8fea2841bcc1c4c32c38cc6",
+        "frozen_label": "known_positive",
+        "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+        "historical_independent_strength_score": 0.6396484375,
+        "identity_control": false,
+        "pair_id": "P47"
+      },
+      {
+        "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+        "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+        "current_path": ".tmp/fresh-uniform1200/runs/seed48/control/fresh-uniform1200-s48-control-iter1",
+        "current_sha256": "e1516c4db1a7c7e7a733d8e982087231b5a2395549172a4d8991cd901da04598",
+        "frozen_label": "known_positive",
+        "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+        "historical_independent_strength_score": 0.681640625,
+        "identity_control": false,
+        "pair_id": "P48"
+      },
+      {
+        "challenger_path": ".tmp/fresh-uniform1200/runs/seed49/uniform1200/fresh-uniform1200-s49-uniform1200-iter1",
+        "challenger_sha256": "1de880981885b174aa57166a0431a050565968e181a9931f15e93cd7180c205e",
+        "current_path": ".tmp/fresh-uniform1200/runs/seed49/control/fresh-uniform1200-s49-control-iter1",
+        "current_sha256": "068e4b11a0b34c7de439d9b4c6af8979ff8ce858bf8bcc62baccd91c4cc29b2c",
+        "frozen_label": "known_positive",
+        "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+        "historical_independent_strength_score": 0.6572265625,
+        "identity_control": false,
+        "pair_id": "P49"
+      },
+      {
+        "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed50/uniform1200/fresh-uniform1200-s50-uniform1200-iter1",
+        "challenger_sha256": "5da18b268aa1cc80b2e5a0a3342f5ae1a3e9a13f4867d0a2da87567c51fb0ecf",
+        "current_path": ".tmp/fresh-uniform1200-extension/runs/seed50/control/fresh-uniform1200-s50-control-iter1",
+        "current_sha256": "7a9a733d0b24c3e424a596e2b14781a691c57a795885e0a6b23ab7b697b214a8",
+        "frozen_label": "known_positive",
+        "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+        "historical_independent_strength_score": 0.6328125,
+        "identity_control": false,
+        "pair_id": "P50"
+      },
+      {
+        "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed51/uniform1200/fresh-uniform1200-s51-uniform1200-iter1",
+        "challenger_sha256": "e6f5ce2c184676b2c0306616b4a865e9ba2a599169b8013af69c680ac36d07bc",
+        "current_path": ".tmp/fresh-uniform1200-extension/runs/seed51/control/fresh-uniform1200-s51-control-iter1",
+        "current_sha256": "e462e6bfbad2a78a66d02c0cb66326d7e6360c89fc771ca2f209855edd983ea9",
+        "frozen_label": "known_positive",
+        "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+        "historical_independent_strength_score": 0.6240234375,
+        "identity_control": false,
+        "pair_id": "P51"
+      },
+      {
+        "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed52/uniform1200/fresh-uniform1200-s52-uniform1200-iter1",
+        "challenger_sha256": "78084a42915f75fa6b3d66d01cd7da386078c343711094a84f25033bb148ed4e",
+        "current_path": ".tmp/fresh-uniform1200-extension/runs/seed52/control/fresh-uniform1200-s52-control-iter1",
+        "current_sha256": "d2d7faacbea919c12af3461295f7f189db40ef1beb34b70a5b74cc270272f403",
+        "frozen_label": "known_positive",
+        "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+        "historical_independent_strength_score": 0.6357421875,
+        "identity_control": false,
+        "pair_id": "P52"
+      },
+      {
+        "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+        "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+        "current_path": "model-artifact/current",
+        "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+        "frozen_label": "known_positive",
+        "historical_evidence_source": "PR #329 production_start_state_arena_disagreement_confirmed",
+        "historical_independent_strength_score": 0.8837890625,
+        "identity_control": false,
+        "pair_id": "P_INC"
+      },
+      {
+        "challenger_path": "model-artifact/current",
+        "challenger_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+        "current_path": "model-artifact/current",
+        "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+        "frozen_label": null,
+        "historical_evidence_source": "model_identity_control",
+        "identity_control": true,
+        "pair_id": "I_INC"
+      },
+      {
+        "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+        "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+        "current_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+        "current_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+        "frozen_label": null,
+        "historical_evidence_source": "model_identity_control",
+        "identity_control": true,
+        "pair_id": "I_48"
+      }
+    ],
+    "pr327_aggregate_path": "docs/data/alphazero-lite-uniform1200-high-power-arena-v2/aggregate.json",
+    "pr327_aggregate_sha256": "9604009d4d8fe8133608f970fdf0337cb7fef0e2d5609d5e30634e7b75aa4cb3",
+    "schema": "azlite_production_arena_prefilter_calibration_v1",
+    "verified_pair_ids": [
+      "P47",
+      "P48",
+      "P49",
+      "P50",
+      "P51",
+      "P52",
+      "P_INC",
+      "I_INC",
+      "I_48"
+    ]
+  },
+  "next_experiment": "Implement an evaluation-only SHADOW canonical-opening prefilter in local_promotion_gate, disabled by default, using equal 384/384 search, the frozen calibration methodology, and opening-pair scoring. Run seed48 once through the complete downstream shadow gate.",
+  "opening_budget_sensitivity_histogram": {
+    "0": 47,
+    "1": 68,
+    "2": 73,
+    "3": 47,
+    "4": 15,
+    "5": 5,
+    "6": 1,
+    "7": 0
+  },
+  "pairs": [
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.6640625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.73046875
+        },
+        "canonical_pair_score": 0.697265625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 15,
+            "losses": 58,
+            "score": 0.744140625,
+            "wins": 183
+          },
+          "player_1": {
+            "draws": 23,
+            "losses": 78,
+            "score": 0.650390625,
+            "wins": 155
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 136,
+        "mean_stone_margin": 5.3671875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 129,
+          "challenger_wins_both_seats": 95,
+          "current_favored": 13,
+          "current_wins_both_seats": 9,
+          "draws": 38,
+          "neutral": 114,
+          "split_seats": 114
+        },
+        "raw_score": 0.697265625,
+        "search_configuration_ledger_hash": "61398a16ce91b2bc547524d2112c60a5306127a301f6efe90079d434de4e9928",
+        "search_outcome_ledger_hash": "0146695e947e57e571a616d965182d533370a942bd4b99b7b64642348fce1bca",
+        "seed_ledger_hash": "2c8052a6cb20bae3581d3852ee2d4b40672f64039e7d01913b47557c9dd7171d",
+        "unique_trajectories": 509,
+        "wins": 338
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0517578125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.1162109375
+        },
+        "mean": 0.083984375,
+        "median": 0.0,
+        "negative": 24,
+        "p10": 0.0,
+        "p90": 0.5,
+        "positive": 74,
+        "zero": 158
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed47/uniform1200/fresh-uniform1200-s47-uniform1200-iter1",
+      "challenger_sha256": "8eb1ad896e4ab3d228275a65da137c425710ddba96dd5005b8cef0bac2984f56",
+      "current_path": ".tmp/fresh-uniform1200/runs/seed47/control/fresh-uniform1200-s47-control-iter1",
+      "current_sha256": "4d2217c4509cd84ee408ed380c9a32616e698e11a8fea2841bcc1c4c32c38cc6",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.5810546875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.6455078125
+        },
+        "canonical_pair_score": 0.61328125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 20,
+            "losses": 77,
+            "score": 0.66015625,
+            "wins": 159
+          },
+          "player_1": {
+            "draws": 24,
+            "losses": 99,
+            "score": 0.56640625,
+            "wins": 133
+          }
+        },
+        "draws": 44,
+        "games": 512,
+        "losses": 176,
+        "mean_stone_margin": 3.125,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 91,
+          "challenger_wins_both_seats": 59,
+          "current_favored": 21,
+          "current_wins_both_seats": 13,
+          "draws": 42,
+          "neutral": 144,
+          "split_seats": 142
+        },
+        "raw_score": 0.61328125,
+        "search_configuration_ledger_hash": "80512c2226114a3ac1546f587467db66decebc5b6dd0db112e02e4e9e5b42f84",
+        "search_outcome_ledger_hash": "1c1a6bf6b8d758fc8f27e7d95dbb6c2b18c2f6aed246f6cfffdca21bd105c023",
+        "seed_ledger_hash": "5f96ee7c20f3f499396214dbc79900d4ce902820d439cf582efb58d118ce6d87",
+        "unique_trajectories": 509,
+        "wins": 292
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6396484375,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_neutral": 13,
+        "current_favored_to_challenger_favored": 6,
+        "current_favored_to_neutral": 10,
+        "neutral_to_challenger_favored": 45,
+        "neutral_to_current_favored": 8,
+        "unchanged": 174
+      },
+      "pair_id": "P47",
+      "stone_margin_shift": 2.2421875
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.71875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.779296875
+        },
+        "canonical_pair_score": 0.7490234375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 17,
+            "losses": 42,
+            "score": 0.802734375,
+            "wins": 197
+          },
+          "player_1": {
+            "draws": 16,
+            "losses": 70,
+            "score": 0.6953125,
+            "wins": 170
+          }
+        },
+        "draws": 33,
+        "games": 512,
+        "losses": 112,
+        "mean_stone_margin": 6.7421875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 146,
+          "challenger_wins_both_seats": 117,
+          "current_favored": 6,
+          "current_wins_both_seats": 2,
+          "draws": 33,
+          "neutral": 104,
+          "split_seats": 104
+        },
+        "raw_score": 0.7490234375,
+        "search_configuration_ledger_hash": "bc1e202b441b8eb5115b289e68c872c47899b6ab47aeb15c927e3e9cad783f85",
+        "search_outcome_ledger_hash": "a5823f787d4efbd186e0b00b7cdabebddac85ece4d3efbb9d24d5a23b2497ae5",
+        "seed_ledger_hash": "07ccb5f36a18a2fa5f48f2bc444c07ccc9bebae0e6334832136127a9ed521264",
+        "unique_trajectories": 512,
+        "wins": 367
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.03515625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.1025390625
+        },
+        "mean": 0.068359375,
+        "median": 0.0,
+        "negative": 30,
+        "p10": -0.25,
+        "p90": 0.5,
+        "positive": 67,
+        "zero": 159
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "current_path": ".tmp/fresh-uniform1200/runs/seed48/control/fresh-uniform1200-s48-control-iter1",
+      "current_sha256": "e1516c4db1a7c7e7a733d8e982087231b5a2395549172a4d8991cd901da04598",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.646484375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.71484375
+        },
+        "canonical_pair_score": 0.6806640625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 15,
+            "losses": 60,
+            "score": 0.736328125,
+            "wins": 181
+          },
+          "player_1": {
+            "draws": 14,
+            "losses": 89,
+            "score": 0.625,
+            "wins": 153
+          }
+        },
+        "draws": 29,
+        "games": 512,
+        "losses": 149,
+        "mean_stone_margin": 4.37890625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 116,
+          "challenger_wins_both_seats": 95,
+          "current_favored": 16,
+          "current_wins_both_seats": 10,
+          "draws": 28,
+          "neutral": 124,
+          "split_seats": 123
+        },
+        "raw_score": 0.6806640625,
+        "search_configuration_ledger_hash": "3fbf705dfe148bf3dfe91574683d6936a5e7c218a50cfbd3ce07c0db264f42ad",
+        "search_outcome_ledger_hash": "fe9af3c82919527d64fc1d79c5fe4591c44194fd83ba4c6eeb23f9a6d82c6687",
+        "seed_ledger_hash": "69d5a8fa220e3b73c0976628538e9f67f946d0779d5d2364c82467ad40fb3b4a",
+        "unique_trajectories": 512,
+        "wins": 334
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.681640625,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 2,
+        "challenger_favored_to_neutral": 16,
+        "current_favored_to_challenger_favored": 6,
+        "current_favored_to_neutral": 8,
+        "neutral_to_challenger_favored": 42,
+        "neutral_to_current_favored": 2,
+        "unchanged": 180
+      },
+      "pair_id": "P48",
+      "stone_margin_shift": 2.36328125
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.712890625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7744140625
+        },
+        "canonical_pair_score": 0.7431640625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 13,
+            "losses": 49,
+            "score": 0.783203125,
+            "wins": 194
+          },
+          "player_1": {
+            "draws": 16,
+            "losses": 68,
+            "score": 0.703125,
+            "wins": 172
+          }
+        },
+        "draws": 29,
+        "games": 512,
+        "losses": 117,
+        "mean_stone_margin": 5.875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 141,
+          "challenger_wins_both_seats": 115,
+          "current_favored": 5,
+          "current_wins_both_seats": 2,
+          "draws": 29,
+          "neutral": 110,
+          "split_seats": 110
+        },
+        "raw_score": 0.7431640625,
+        "search_configuration_ledger_hash": "5807838062049259159e6493cc969e027a6b50b6c39a567f44bc58a4d4b51fc8",
+        "search_outcome_ledger_hash": "3f84387381d3a08dd1473aaf94877ff0805f29d338d4dd52f277772e778a8bf7",
+        "seed_ledger_hash": "5370673351769e6a6bccb4e2e59f9db253fee0d1c89a33a2476b1b2496bd6226",
+        "unique_trajectories": 511,
+        "wins": 366
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0185546875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.078125
+        },
+        "mean": 0.0478515625,
+        "median": 0.0,
+        "negative": 27,
+        "p10": -0.25,
+        "p90": 0.5,
+        "positive": 57,
+        "zero": 172
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed49/uniform1200/fresh-uniform1200-s49-uniform1200-iter1",
+      "challenger_sha256": "1de880981885b174aa57166a0431a050565968e181a9931f15e93cd7180c205e",
+      "current_path": ".tmp/fresh-uniform1200/runs/seed49/control/fresh-uniform1200-s49-control-iter1",
+      "current_sha256": "068e4b11a0b34c7de439d9b4c6af8979ff8ce858bf8bcc62baccd91c4cc29b2c",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.662109375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7275390625
+        },
+        "canonical_pair_score": 0.6953125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 18,
+            "losses": 56,
+            "score": 0.74609375,
+            "wins": 182
+          },
+          "player_1": {
+            "draws": 20,
+            "losses": 81,
+            "score": 0.64453125,
+            "wins": 155
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 137,
+        "mean_stone_margin": 4.48046875,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 125,
+          "challenger_wins_both_seats": 96,
+          "current_favored": 15,
+          "current_wins_both_seats": 6,
+          "draws": 38,
+          "neutral": 116,
+          "split_seats": 116
+        },
+        "raw_score": 0.6953125,
+        "search_configuration_ledger_hash": "cb99b1ecccde48acde4f9dd349e7df462fd13114c98f90fbede1ed85af9f08de",
+        "search_outcome_ledger_hash": "1c599bdd116bf598d01fd5177dc0c1cd10460812a801db070f36274a4fd69af1",
+        "seed_ledger_hash": "d35fba14531b6d2807850cd292423285c2f1c8f887a0e989c074aecd3a54d80e",
+        "unique_trajectories": 511,
+        "wins": 337
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6572265625,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_neutral": 17,
+        "current_favored_to_challenger_favored": 4,
+        "current_favored_to_neutral": 7,
+        "neutral_to_challenger_favored": 29,
+        "neutral_to_current_favored": 1,
+        "unchanged": 198
+      },
+      "pair_id": "P49",
+      "stone_margin_shift": 1.39453125
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.6943359375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7548828125
+        },
+        "canonical_pair_score": 0.724609375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 19,
+            "losses": 41,
+            "score": 0.802734375,
+            "wins": 196
+          },
+          "player_1": {
+            "draws": 15,
+            "losses": 83,
+            "score": 0.646484375,
+            "wins": 158
+          }
+        },
+        "draws": 34,
+        "games": 512,
+        "losses": 124,
+        "mean_stone_margin": 4.96484375,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 133,
+          "challenger_wins_both_seats": 105,
+          "current_favored": 5,
+          "current_wins_both_seats": 3,
+          "draws": 32,
+          "neutral": 118,
+          "split_seats": 116
+        },
+        "raw_score": 0.724609375,
+        "search_configuration_ledger_hash": "c6a1d3fdd4076acc9951fe96cee65b55a528aa88a6e255ce40d74658047d37ab",
+        "search_outcome_ledger_hash": "4760d1fb4be0ed72c694441c2b0ad758216f583582d8a4d96b19d4ac0222ba72",
+        "seed_ledger_hash": "aeb2ef971380892aad994662a0847dbd239a1cff8c43fa7e29e31bc1daae0326",
+        "unique_trajectories": 509,
+        "wins": 354
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.041015625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.0986328125
+        },
+        "mean": 0.0693359375,
+        "median": 0.0,
+        "negative": 24,
+        "p10": 0.0,
+        "p90": 0.5,
+        "positive": 67,
+        "zero": 165
+      },
+      "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed50/uniform1200/fresh-uniform1200-s50-uniform1200-iter1",
+      "challenger_sha256": "5da18b268aa1cc80b2e5a0a3342f5ae1a3e9a13f4867d0a2da87567c51fb0ecf",
+      "current_path": ".tmp/fresh-uniform1200-extension/runs/seed50/control/fresh-uniform1200-s50-control-iter1",
+      "current_sha256": "7a9a733d0b24c3e424a596e2b14781a691c57a795885e0a6b23ab7b697b214a8",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.685546875
+        },
+        "canonical_pair_score": 0.6552734375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 28,
+            "losses": 53,
+            "score": 0.73828125,
+            "wins": 175
+          },
+          "player_1": {
+            "draws": 23,
+            "losses": 98,
+            "score": 0.572265625,
+            "wins": 135
+          }
+        },
+        "draws": 51,
+        "games": 512,
+        "losses": 151,
+        "mean_stone_margin": 3.44921875,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 110,
+          "challenger_wins_both_seats": 69,
+          "current_favored": 12,
+          "current_wins_both_seats": 8,
+          "draws": 48,
+          "neutral": 134,
+          "split_seats": 131
+        },
+        "raw_score": 0.6552734375,
+        "search_configuration_ledger_hash": "2c0429a5b19d7ff81750c5b9e5b91ec54bb5735cef28909a0dcb848203735b17",
+        "search_outcome_ledger_hash": "2fd0c4b6c9c480497835c1fe17472fab78689f65b300a1260e97713355defe42",
+        "seed_ledger_hash": "151277bfc3acdc53bb748d3eb734a33a0ba6516f11b83530157c10a2f659b927",
+        "unique_trajectories": 509,
+        "wins": 310
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6328125,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_neutral": 20,
+        "current_favored_to_challenger_favored": 4,
+        "current_favored_to_neutral": 4,
+        "neutral_to_challenger_favored": 39,
+        "neutral_to_current_favored": 1,
+        "unchanged": 188
+      },
+      "pair_id": "P50",
+      "stone_margin_shift": 1.515625
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.6865234375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7509765625
+        },
+        "canonical_pair_score": 0.71875,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 23,
+            "losses": 52,
+            "score": 0.751953125,
+            "wins": 181
+          },
+          "player_1": {
+            "draws": 11,
+            "losses": 75,
+            "score": 0.685546875,
+            "wins": 170
+          }
+        },
+        "draws": 34,
+        "games": 512,
+        "losses": 127,
+        "mean_stone_margin": 5.4921875,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 135,
+          "challenger_wins_both_seats": 105,
+          "current_favored": 10,
+          "current_wins_both_seats": 6,
+          "draws": 34,
+          "neutral": 111,
+          "split_seats": 111
+        },
+        "raw_score": 0.71875,
+        "search_configuration_ledger_hash": "47a6fa0a47836e21ae8162341c9ca909818ffbc37ae15da7032550bec7fe54d1",
+        "search_outcome_ledger_hash": "13ffb9bbcf441ab027b0ab344f782e32729762ed6ea082d3a43bbe06f63af9a6",
+        "seed_ledger_hash": "de088011c0012741885440a0df95cf5f7b987c20079a1d32cc02c0bc8f07e692",
+        "unique_trajectories": 509,
+        "wins": 351
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0400390625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.1083984375
+        },
+        "mean": 0.07421875,
+        "median": 0.0,
+        "negative": 26,
+        "p10": -0.125,
+        "p90": 0.5,
+        "positive": 73,
+        "zero": 157
+      },
+      "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed51/uniform1200/fresh-uniform1200-s51-uniform1200-iter1",
+      "challenger_sha256": "e6f5ce2c184676b2c0306616b4a865e9ba2a599169b8013af69c680ac36d07bc",
+      "current_path": ".tmp/fresh-uniform1200-extension/runs/seed51/control/fresh-uniform1200-s51-control-iter1",
+      "current_sha256": "e462e6bfbad2a78a66d02c0cb66326d7e6360c89fc771ca2f209855edd983ea9",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.6123046875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.677734375
+        },
+        "canonical_pair_score": 0.64453125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 24,
+            "losses": 67,
+            "score": 0.69140625,
+            "wins": 165
+          },
+          "player_1": {
+            "draws": 18,
+            "losses": 94,
+            "score": 0.59765625,
+            "wins": 144
+          }
+        },
+        "draws": 42,
+        "games": 512,
+        "losses": 161,
+        "mean_stone_margin": 3.5625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 105,
+          "challenger_wins_both_seats": 75,
+          "current_favored": 21,
+          "current_wins_both_seats": 11,
+          "draws": 41,
+          "neutral": 130,
+          "split_seats": 129
+        },
+        "raw_score": 0.64453125,
+        "search_configuration_ledger_hash": "8474254a7333a8c785b0fdf86f5594404d2c4c2e5067f4e6aeb3c013e4fd0eef",
+        "search_outcome_ledger_hash": "bce31fc153343e70cc5ddece42ac3b26ada12c642681c89fb3174bf9c94f9f27",
+        "seed_ledger_hash": "284ebd94cb018f497bb10765dd0e109342da789ea3d2b1c74dd6a8d3538e69b3",
+        "unique_trajectories": 510,
+        "wins": 309
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6240234375,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 4,
+        "challenger_favored_to_neutral": 16,
+        "current_favored_to_challenger_favored": 7,
+        "current_favored_to_neutral": 11,
+        "neutral_to_challenger_favored": 43,
+        "neutral_to_current_favored": 3,
+        "unchanged": 172
+      },
+      "pair_id": "P51",
+      "stone_margin_shift": 1.9296875
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.7001953125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.7607421875
+        },
+        "canonical_pair_score": 0.73046875,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 14,
+            "losses": 47,
+            "score": 0.7890625,
+            "wins": 195
+          },
+          "player_1": {
+            "draws": 24,
+            "losses": 72,
+            "score": 0.671875,
+            "wins": 160
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 119,
+        "mean_stone_margin": 6.203125,
+        "median_pair_score": 0.75,
+        "opening_distribution": {
+          "challenger_favored": 139,
+          "challenger_wins_both_seats": 107,
+          "current_favored": 8,
+          "current_wins_both_seats": 2,
+          "draws": 38,
+          "neutral": 109,
+          "split_seats": 109
+        },
+        "raw_score": 0.73046875,
+        "search_configuration_ledger_hash": "17141cb0fd27d591d38400b63d00b9805bd269c62e7669a3525a3311dce598a4",
+        "search_outcome_ledger_hash": "a655609d6080094ea0cb8ef7a3312659aa64d17b58526299811d9031b95769b8",
+        "seed_ledger_hash": "b8040019d1fba9602668e3bed64e0a1a81dd576e12c8ec10fd6a0c36525e3aee",
+        "unique_trajectories": 510,
+        "wins": 355
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.041015625,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.103515625
+        },
+        "mean": 0.072265625,
+        "median": 0.0,
+        "negative": 25,
+        "p10": 0.0,
+        "p90": 0.5,
+        "positive": 62,
+        "zero": 169
+      },
+      "challenger_path": ".tmp/fresh-uniform1200-extension/runs/seed52/uniform1200/fresh-uniform1200-s52-uniform1200-iter1",
+      "challenger_sha256": "78084a42915f75fa6b3d66d01cd7da386078c343711094a84f25033bb148ed4e",
+      "current_path": ".tmp/fresh-uniform1200-extension/runs/seed52/control/fresh-uniform1200-s52-control-iter1",
+      "current_sha256": "d2d7faacbea919c12af3461295f7f189db40ef1beb34b70a5b74cc270272f403",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.623046875,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.6923828125
+        },
+        "canonical_pair_score": 0.658203125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 22,
+            "losses": 62,
+            "score": 0.71484375,
+            "wins": 172
+          },
+          "player_1": {
+            "draws": 24,
+            "losses": 90,
+            "score": 0.6015625,
+            "wins": 142
+          }
+        },
+        "draws": 46,
+        "games": 512,
+        "losses": 152,
+        "mean_stone_margin": 4.50390625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 116,
+          "challenger_wins_both_seats": 83,
+          "current_favored": 24,
+          "current_wins_both_seats": 13,
+          "draws": 45,
+          "neutral": 116,
+          "split_seats": 115
+        },
+        "raw_score": 0.658203125,
+        "search_configuration_ledger_hash": "76fe27be429af98868daf3354ccf5a6d94578383d110bad8a22fd789d8b7386d",
+        "search_outcome_ledger_hash": "604a21dcdc1f023f075f66739cbf4a44a9707591cd60bb76e3b2c14dcfa6f0b4",
+        "seed_ledger_hash": "449ae7c4ac64ac3d8ad4b17d399bd01cfad29cb58c0cf3c8fb0869c6963b85f1",
+        "unique_trajectories": 510,
+        "wins": 314
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #327 uniform1200_high_power_strength_confirmed",
+      "historical_independent_strength_score": 0.6357421875,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 1,
+        "challenger_favored_to_neutral": 19,
+        "current_favored_to_challenger_favored": 10,
+        "current_favored_to_neutral": 8,
+        "neutral_to_challenger_favored": 33,
+        "neutral_to_current_favored": 1,
+        "unchanged": 184
+      },
+      "pair_id": "P52",
+      "stone_margin_shift": 1.69921875
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.865234375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.9130859375
+        },
+        "canonical_pair_score": 0.8896484375,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 10,
+            "losses": 17,
+            "score": 0.9140625,
+            "wins": 229
+          },
+          "player_1": {
+            "draws": 15,
+            "losses": 27,
+            "score": 0.865234375,
+            "wins": 214
+          }
+        },
+        "draws": 25,
+        "games": 512,
+        "losses": 44,
+        "mean_stone_margin": 11.0546875,
+        "median_pair_score": 1.0,
+        "opening_distribution": {
+          "challenger_favored": 212,
+          "challenger_wins_both_seats": 188,
+          "current_favored": 1,
+          "current_wins_both_seats": 0,
+          "draws": 25,
+          "neutral": 43,
+          "split_seats": 43
+        },
+        "raw_score": 0.8896484375,
+        "search_configuration_ledger_hash": "2c454893d90996a44a415ea570ebbb0a5c758b2858c5369c1c9a740e825c5c1d",
+        "search_outcome_ledger_hash": "4350717d63b8759e5cdee420507c45d7d5888f80aed6c463e2596898f6ab4ecc",
+        "seed_ledger_hash": "fa7c94492615291ce190d76a15fd9d760415436577dd8f4d5ab40665b391e281",
+        "unique_trajectories": 512,
+        "wins": 443
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0283203125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.07421875
+        },
+        "mean": 0.05078125,
+        "median": 0.0,
+        "negative": 14,
+        "p10": 0.0,
+        "p90": 0.25,
+        "positive": 46,
+        "zero": 196
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "current_path": "model-artifact/current",
+      "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+      "direction": "direction_statistically_supported",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.8115234375,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.8662109375
+        },
+        "canonical_pair_score": 0.8388671875,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 9,
+            "losses": 33,
+            "score": 0.853515625,
+            "wins": 214
+          },
+          "player_1": {
+            "draws": 16,
+            "losses": 37,
+            "score": 0.82421875,
+            "wins": 203
+          }
+        },
+        "draws": 25,
+        "games": 512,
+        "losses": 70,
+        "mean_stone_margin": 9.1640625,
+        "median_pair_score": 1.0,
+        "opening_distribution": {
+          "challenger_favored": 186,
+          "challenger_wins_both_seats": 161,
+          "current_favored": 0,
+          "current_wins_both_seats": 0,
+          "draws": 25,
+          "neutral": 70,
+          "split_seats": 70
+        },
+        "raw_score": 0.8388671875,
+        "search_configuration_ledger_hash": "28c8f0988455c9d32a5bfe83caf97dc1ff080cb70f077c20f9687dab7ebfdd5e",
+        "search_outcome_ledger_hash": "4394ee8e6618058384333f78ba0b3c448cc0a61c1165eb7770aa68f81e3d8fd6",
+        "seed_ledger_hash": "fd2d314666f4abc977099ab42c4b11443729cc8aeb981b9a7a6d3887e78ae527",
+        "unique_trajectories": 512,
+        "wins": 417
+      },
+      "equal_budget_positive_evidence": true,
+      "frozen_label": "known_positive",
+      "historical_evidence_source": "PR #329 production_start_state_arena_disagreement_confirmed",
+      "historical_independent_strength_score": 0.8837890625,
+      "identity_control": false,
+      "outcome_transitions": {
+        "challenger_favored_to_current_favored": 1,
+        "challenger_favored_to_neutral": 5,
+        "neutral_to_challenger_favored": 32,
+        "unchanged": 218
+      },
+      "pair_id": "P_INC",
+      "stone_margin_shift": 1.890625
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.5703125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.63671875
+        },
+        "canonical_pair_score": 0.603515625,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 25,
+            "losses": 73,
+            "score": 0.666015625,
+            "wins": 158
+          },
+          "player_1": {
+            "draws": 29,
+            "losses": 103,
+            "score": 0.541015625,
+            "wins": 124
+          }
+        },
+        "draws": 54,
+        "games": 512,
+        "losses": 176,
+        "mean_stone_margin": 2.22265625,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 88,
+          "challenger_wins_both_seats": 62,
+          "current_favored": 31,
+          "current_wins_both_seats": 13,
+          "draws": 49,
+          "neutral": 137,
+          "split_seats": 132
+        },
+        "raw_score": 0.603515625,
+        "search_configuration_ledger_hash": "f69750ba5f3d9e081fb84a33a98b9a309f01c88e6221990a6f82c5c3af97aed8",
+        "search_outcome_ledger_hash": "57c5f11f3e49fee39aa8df9b5f26c7d7255c949ba267fea4581edd73d9990623",
+        "seed_ledger_hash": "7e7f13c9e276858c15524991ba38699d99c64142e220632248e9e8af96fd9320",
+        "unique_trajectories": 489,
+        "wins": 282
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0703125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.13671875
+        },
+        "mean": 0.103515625,
+        "median": 0.0,
+        "negative": 31,
+        "p10": -0.25,
+        "p90": 0.5,
+        "positive": 88,
+        "zero": 137
+      },
+      "challenger_path": "model-artifact/current",
+      "challenger_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+      "current_path": "model-artifact/current",
+      "current_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.5,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.5
+        },
+        "canonical_pair_score": 0.5,
+        "canonical_positive_strength_evidence": false,
+        "canonical_threshold_pass": false,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 35,
+            "losses": 95,
+            "score": 0.560546875,
+            "wins": 126
+          },
+          "player_1": {
+            "draws": 35,
+            "losses": 126,
+            "score": 0.439453125,
+            "wins": 95
+          }
+        },
+        "draws": 70,
+        "games": 512,
+        "losses": 221,
+        "mean_stone_margin": 0.0,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 0,
+          "challenger_wins_both_seats": 0,
+          "current_favored": 0,
+          "current_wins_both_seats": 0,
+          "draws": 35,
+          "neutral": 256,
+          "split_seats": 221
+        },
+        "raw_score": 0.5,
+        "search_configuration_ledger_hash": "03cc2b3a613107846cd33c7f72ed5cdcba7aa54281a5cbb8f63e6629a343c10b",
+        "search_outcome_ledger_hash": "cbc3c01739a706965981b6488b866c9250b708787050511a4284c1c6bc0c2b80",
+        "seed_ledger_hash": "e87db12c59c3debf5c80cd0a4f9e29fa38cb260fe7f38c444ec318fd5fcc23e7",
+        "unique_trajectories": 255,
+        "wins": 221
+      },
+      "frozen_label": null,
+      "historical_evidence_source": "model_identity_control",
+      "identity_control": true,
+      "outcome_transitions": {
+        "neutral_to_challenger_favored": 88,
+        "neutral_to_current_favored": 31,
+        "unchanged": 137
+      },
+      "pair_id": "I_INC",
+      "stone_margin_shift": 2.22265625
+    },
+    {
+      "asymmetric": {
+        "canonical_pair_ci95": {
+          "lower": 0.5517578125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.6083984375
+        },
+        "canonical_pair_score": 0.580078125,
+        "canonical_positive_strength_evidence": true,
+        "canonical_threshold_pass": true,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 16,
+            "losses": 91,
+            "score": 0.61328125,
+            "wins": 149
+          },
+          "player_1": {
+            "draws": 20,
+            "losses": 106,
+            "score": 0.546875,
+            "wins": 130
+          }
+        },
+        "draws": 36,
+        "games": 512,
+        "losses": 197,
+        "mean_stone_margin": 1.57421875,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 62,
+          "challenger_wins_both_seats": 46,
+          "current_favored": 17,
+          "current_wins_both_seats": 9,
+          "draws": 30,
+          "neutral": 177,
+          "split_seats": 171
+        },
+        "raw_score": 0.580078125,
+        "search_configuration_ledger_hash": "81f6255f836ff06aa4d55380ef79841619929e1b16633b529169f0229089f588",
+        "search_outcome_ledger_hash": "05f31cdd6365d3492620369b3d75c70f365d39800f3ffaf3990918839e46b8c6",
+        "seed_ledger_hash": "5b9c1abd08fd3a4c2b72cfbab83fe6a1a797362ab59718cdd42119ac1574af5c",
+        "unique_trajectories": 478,
+        "wins": 279
+      },
+      "budget_effect": {
+        "budget_effect_ci95": {
+          "lower": 0.0517578125,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 331,
+          "upper": 0.109375
+        },
+        "mean": 0.080078125,
+        "median": 0.0,
+        "negative": 17,
+        "p10": 0.0,
+        "p90": 0.5,
+        "positive": 62,
+        "zero": 177
+      },
+      "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "challenger_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "current_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+      "current_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "equal": {
+        "canonical_pair_ci95": {
+          "lower": 0.5,
+          "method": "opening_pair_percentile_bootstrap",
+          "replicates": 20000,
+          "rng_seed": 330,
+          "upper": 0.5
+        },
+        "canonical_pair_score": 0.5,
+        "canonical_positive_strength_evidence": false,
+        "canonical_threshold_pass": false,
+        "challenger_seats": {
+          "player_0": {
+            "draws": 19,
+            "losses": 112,
+            "score": 0.525390625,
+            "wins": 125
+          },
+          "player_1": {
+            "draws": 19,
+            "losses": 125,
+            "score": 0.474609375,
+            "wins": 112
+          }
+        },
+        "draws": 38,
+        "games": 512,
+        "losses": 237,
+        "mean_stone_margin": 0.0,
+        "median_pair_score": 0.5,
+        "opening_distribution": {
+          "challenger_favored": 0,
+          "challenger_wins_both_seats": 0,
+          "current_favored": 0,
+          "current_wins_both_seats": 0,
+          "draws": 19,
+          "neutral": 256,
+          "split_seats": 237
+        },
+        "raw_score": 0.5,
+        "search_configuration_ledger_hash": "1ae7658c426cedf91673f9be616faf1457f3b3c1661cb6d7c503ac44be306655",
+        "search_outcome_ledger_hash": "2f62695f3b4e49604cb24a36bca9c449a6daac92e01f61f85b8065b6dbf79211",
+        "seed_ledger_hash": "2a1e064bd0cfbc19eaf7a3e84eb8c1e529c0fb9e7f143ecd8fbda0cf130a4516",
+        "unique_trajectories": 256,
+        "wins": 237
+      },
+      "frozen_label": null,
+      "historical_evidence_source": "model_identity_control",
+      "identity_control": true,
+      "outcome_transitions": {
+        "neutral_to_challenger_favored": 62,
+        "neutral_to_current_favored": 17,
+        "unchanged": 177
+      },
+      "pair_id": "I_48",
+      "stone_margin_shift": 1.57421875
+    }
+  ],
+  "positive_evidence_count": 7,
+  "promotion": {
+    "performed": false
+  },
+  "repeated_budget_sensitive_opening": {
+    "count": 6,
+    "opening_ids": [
+      9,
+      74,
+      78,
+      87,
+      191,
+      208
+    ]
+  },
+  "schema": "azlite_production_arena_budget_calibration_v1",
+  "search_contract_proof": {
+    "asymmetric_current_simulations": 256,
+    "equal_current_simulations": 384,
+    "only_semantic_change": "current_simulations: 256 -> 384",
+    "unchanged_options": {
+      "--c-puct": "1.25",
+      "--challenger": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed47/uniform1200/fresh-uniform1200-s47-uniform1200-iter1",
+      "--challenger-simulations": "384",
+      "--current": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/runs/seed47/control/fresh-uniform1200-s47-control-iter1",
+      "--fpu-mode": "zero",
+      "--games": "512",
+      "--games-per-opening": "2",
+      "--min-score": "0.0",
+      "--opening-prefixes-jsonl": "/home/alex/Mancala/ai/docs/data/alphazero-lite-production-prefilter-calibration-openings-v1.jsonl",
+      "--root-policy-mode": "deterministic",
+      "--seed": "42",
+      "--seed-contract": "azlite_eval_seed_v2",
+      "--suite-sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+      "--tactical-root-bias": "0.0"
+    }
+  },
+  "seed48_incumbent_equal_budget_confirmed": true,
+  "strength_retention_rule": true,
+  "suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+  "training_invoked": false
+}
