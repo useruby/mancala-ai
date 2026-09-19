@@ -1,0 +1,60 @@
+{
+  "equal": true,
+  "pr328": {
+    "challenger_simulations": 384,
+    "challenger_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "current_simulations": 256,
+    "draws": 0,
+    "games": 120,
+    "losses": 60,
+    "opponent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "random_opening_plies": 0,
+    "root_prior_transforms": [
+      null,
+      null,
+      null
+    ],
+    "score": 0.5,
+    "search_configuration_ledger_sha256": "657c1b8030bc690378a31eaad38151d70343e24334a49e1f397cc7c8e07dc911",
+    "search_outcome_ledger_sha256": "172b8cc92d07edaf73205f011b60f410b791612624b4e849416a077d6310ecce",
+    "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+    "seed": 42,
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_identity_ledger_sha256": "1562786deeb1fb02dd0c9dce52768328bcdb3b5b10e8aeb5ee4a7bba07b81c42",
+    "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+    "threshold": 0.55,
+    "value_transform": null,
+    "wins": 60
+  },
+  "pr332": {
+    "challenger_simulations": 384,
+    "challenger_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "current_simulations": 256,
+    "draws": 0,
+    "games": 120,
+    "losses": 60,
+    "opponent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+    "random_opening_plies": 0,
+    "root_prior_transforms": [
+      null,
+      null,
+      null
+    ],
+    "score": 0.5,
+    "search_configuration_ledger_sha256": "657c1b8030bc690378a31eaad38151d70343e24334a49e1f397cc7c8e07dc911",
+    "search_outcome_ledger_sha256": "172b8cc92d07edaf73205f011b60f410b791612624b4e849416a077d6310ecce",
+    "search_profile_hash": "bef9390c802eb626f3481789f3982f195dac6c70ef6676cdf2ddd82e36c67aca",
+    "seed": 42,
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_identity_ledger_sha256": "1562786deeb1fb02dd0c9dce52768328bcdb3b5b10e8aeb5ee4a7bba07b81c42",
+    "suite_sha256": "ae5c732f8de9cf1aa2e3957f4ac3f8de85f16b76f7bcd282dcdfbc3deb2159c2",
+    "threshold": 0.55,
+    "value_transform": null,
+    "wins": 60
+  },
+  "recomputed_pr328_ledger_hashes": {
+    "search_configuration_ledger_sha256": "657c1b8030bc690378a31eaad38151d70343e24334a49e1f397cc7c8e07dc911",
+    "search_outcome_ledger_sha256": "172b8cc92d07edaf73205f011b60f410b791612624b4e849416a077d6310ecce",
+    "seed_identity_ledger_sha256": "1562786deeb1fb02dd0c9dce52768328bcdb3b5b10e8aeb5ee4a7bba07b81c42"
+  }
+}
