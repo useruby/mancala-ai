@@ -192,6 +192,85 @@ class LocalPromotionGateTest(unittest.TestCase):
         self.assertEqual(0.0, metrics["candidate_p1_score"])
         self.assertEqual(20000, metrics["pair_bootstrap_ci95"]["replicates"])
 
+    def test_shadow_hard_command_is_equal_budget_and_preserves_arena_flags(self):
+        module = self.load_gate_module()
+        args = argparse.Namespace(
+            candidate_path=Path("candidate"),
+            hard_path="current",
+            shadow_hard_opening_prefixes_jsonl=Path("hard-openings.jsonl"),
+            shadow_hard_suite_sha256="hard-suite-sha",
+        )
+        with mock.patch.object(module, "python_executable", return_value="python"):
+            command = module.build_shadow_canonical_hard_command(
+                args, Path("hard.json"), Path("reports"), ["--fpu-mode", "zero"]
+            )
+        self.assertEqual("512", command[command.index("--games") + 1])
+        self.assertEqual("2", command[command.index("--games-per-opening") + 1])
+        self.assertEqual("384", command[command.index("--challenger-simulations") + 1])
+        self.assertEqual("384", command[command.index("--current-simulations") + 1])
+        self.assertEqual("0.0", command[command.index("--min-score") + 1])
+        self.assertIn("--fpu-mode", command)
+
+    def test_shadow_hard_pair_metrics_use_registered_bootstrap_seed(self):
+        module = self.load_gate_module()
+        with tempfile.TemporaryDirectory(prefix="azlite-shadow-hard-pairs-") as tmp:
+            games = Path(tmp) / "games.jsonl"
+            games.write_text(
+                "\n".join(
+                    json.dumps(
+                        {
+                            "opening_index": opening,
+                            "challenger_player": seat,
+                            "winner": "challenger" if seat == 0 else "current",
+                        }
+                    )
+                    for opening in range(256)
+                    for seat in (0, 1)
+                ),
+                encoding="utf-8",
+            )
+            metrics = module.load_opening_pair_metrics(
+                games,
+                {"games_played": 512, "wins": 256, "losses": 256, "draws": 0},
+                bootstrap_seed=329,
+            )
+        self.assertEqual(0.5, metrics["raw_game_score"])
+        self.assertEqual(metrics["raw_game_score"], metrics["opening_pair_mean"])
+        self.assertEqual(329, metrics["pair_bootstrap_ci95"]["rng_seed"])
+
+    def test_frozen_shadow_suites_are_disjoint(self):
+        module = self.load_gate_module()
+        root = Path(__file__).resolve().parents[2]
+        self.assertFalse(
+            module.canonical_opening_hashes(
+                root
+                / "docs/data/alphazero-lite-production-prefilter-calibration-openings-v1.jsonl"
+            )
+            & module.canonical_opening_hashes(
+                root
+                / "docs/data/alphazero-lite-uniform1200-incumbent-holdout-openings-v1.jsonl"
+            )
+        )
+
+    def test_shadow_hard_requires_prefilter_and_its_suite_inputs(self):
+        module = self.load_gate_module()
+        args = argparse.Namespace(
+            shadow_canonical_prefilter=False,
+            shadow_canonical_hard_arena=True,
+        )
+        with self.assertRaisesRegex(SystemExit, "shadow prefilter is required"):
+            module.validate_shadow_inputs(args)
+
+        args.shadow_canonical_prefilter = True
+        args.shadow_prefilter_opening_prefixes_jsonl = None
+        args.shadow_prefilter_suite_sha256 = None
+        args.shadow_hard_opening_prefixes_jsonl = None
+        args.shadow_hard_suite_sha256 = None
+        with self.assertRaisesRegex(
+            SystemExit, "shadow suite path and SHA are required"
+        ):
+            module.validate_shadow_inputs(args)
+
     def test_python_executable_does_not_use_shared_workspace_venv_outside_worktree_repo_root(
         self,
     ):

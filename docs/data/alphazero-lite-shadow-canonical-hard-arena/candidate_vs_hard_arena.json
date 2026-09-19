@@ -1,0 +1,134 @@
+{
+  "schema": "arena_v1",
+  "games_played": 512,
+  "wins": 424,
+  "losses": 66,
+  "draws": 22,
+  "promotion_decision": {
+    "passed": true
+  },
+  "notes": {
+    "challenger_path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1",
+    "current_path": "model-artifact/current",
+    "challenger_simulations": 384,
+    "current_simulations": 384,
+    "seed": 42,
+    "workers_requested": 1,
+    "workers_used": 1,
+    "worker_game_counts": [
+      512
+    ],
+    "search_options": {
+      "fpu_mode": "zero",
+      "reuse_subtree": false,
+      "normalize_values": false,
+      "root_policy_mode": "deterministic",
+      "tactical_root_bias": 0.0,
+      "root_temperature": 0.0
+    },
+    "search_profile": {
+      "version": "v1",
+      "kind": "arena_eval",
+      "player_mode": "puct",
+      "simulations": 384,
+      "c_puct": 1.25,
+      "search_options": {
+        "fpu_mode": "zero",
+        "reuse_subtree": false,
+        "normalize_values": false,
+        "root_policy_mode": "deterministic",
+        "tactical_root_bias": 0.0,
+        "root_temperature": 0.0
+      },
+      "challenger_simulations": 384,
+      "current_simulations": 384,
+      "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a"
+    },
+    "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+    "value_transform_summary": null,
+    "value_transform_hash": null,
+    "root_prior_transform": null,
+    "challenger_root_prior_transform": null,
+    "current_root_prior_transform": null,
+    "random_opening_plies": 0,
+    "move_time_mean_ms": 28.59,
+    "move_time_p95_ms": 39.41,
+    "seed_contract": "azlite_eval_seed_v2",
+    "base_seed": 42,
+    "suite_sha256": "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c",
+    "seed_identity_ledger_sha256": "8e92b1ee51458bbb37d1da1d634c4e7d58ab39bcb93face2deeabb88e323c9ba",
+    "search_configuration_ledger_sha256": "0bee6035d2cbccf90027e189d91cee28bf1936c1896cb4ced9bb45e207b00b28",
+    "search_outcome_ledger_sha256": "b9a5a0c4b64b922c91462ce485fb862add66f080d15582222b1a4d323bb67e13",
+    "seed_ledger_hash": "8e92b1ee51458bbb37d1da1d634c4e7d58ab39bcb93face2deeabb88e323c9ba",
+    "seed_ledger_records": 17295,
+    "seed_ledger_output": "docs/data/alphazero-lite-shadow-canonical-hard-arena/shadow_hard_seed_ledger.jsonl",
+    "search_configuration_ledger_output": "docs/data/alphazero-lite-shadow-canonical-hard-arena/shadow_hard_search_configuration_ledger.jsonl",
+    "search_outcome_ledger_output": "docs/data/alphazero-lite-shadow-canonical-hard-arena/shadow_hard_search_outcome_ledger.jsonl"
+  },
+  "hard_suite_buckets": {
+    "opening": {
+      "games": 8,
+      "score": null
+    },
+    "midgame": {
+      "games": 51,
+      "score": null
+    },
+    "late": {
+      "games": 453,
+      "score": null
+    }
+  },
+  "root_prior_telemetry": {
+    "challenger": {
+      "root_states_evaluated": 9841,
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "seed4_extra_turn_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "legal_move_count": 0
+      },
+      "top_changed_move_feature_patterns": []
+    },
+    "current": {
+      "root_states_evaluated": 7454,
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "seed4_extra_turn_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "legal_move_count": 0
+      },
+      "top_changed_move_feature_patterns": []
+    }
+  },
+  "opening_cache_summary": {
+    "runtime_hit_rate": null,
+    "training_hit_rate": null,
+    "opening_bucket_quality_delta": null,
+    "latency_delta_ms": null
+  },
+  "budget_summary": {
+    "mean_final_simulations": 384.0,
+    "p95_root_latency_ms": 39.41,
+    "trigger_counts": {
+      "fixed_budget": 512
+    }
+  },
+  "score": 0.849609375,
+  "games": 512,
+  "confidence_interval_95": {
+    "lower": 0.8160487105554286,
+    "upper": 0.8779627844461378,
+    "method": "wilson_score",
+    "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0."
+  },
+  "threshold": 0.0,
+  "threshold_margin": 0.849609375,
+  "unstable_decision": false
+}

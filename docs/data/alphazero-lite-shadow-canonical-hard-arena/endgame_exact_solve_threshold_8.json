@@ -1,0 +1,9 @@
+{
+  "threshold": 8,
+  "mode": "executed",
+  "score": 0.725,
+  "candidate_mcts_score": 0.725,
+  "current_mcts_score": 0.725,
+  "candidate_mcts_report_path": "docs/data/alphazero-lite-shadow-canonical-hard-arena/endgame_exact_solve_threshold_8_candidate_vs_mcts1200.json",
+  "current_mcts_report_path": "docs/data/alphazero-lite-shadow-canonical-hard-arena/endgame_exact_solve_threshold_8_current_vs_mcts1200.json"
+}
