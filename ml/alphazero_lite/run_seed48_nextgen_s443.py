@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -71,6 +72,8 @@ def rendered_config(
     config["run_id"] = plan["run_id"]
     config["seed"] = seed
     config["versions_dir"] = str(workdir / "runs")
+    # Pipeline otherwise applies its machine-default worker count.
+    config["preserve_config_workers"] = True
     config["current_path"] = str(ROOT / plan["parent_artifact"])
     config["parent_artifact_path"] = str(ROOT / plan["parent_artifact"])
     config["fixed_replay_sources"] = [
@@ -164,6 +167,21 @@ def preflight(
     }
 
 
+def completed_selfplay_contract(run_dir: Path) -> dict[str, Any]:
+    manifest = json.loads((run_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    step = next(item for item in manifest["steps"] if item.get("name") == "self_play")
+    command = step["command"]
+    return {
+        "workers": option_value(command, "--workers"),
+        "games": option_value(command, "--games"),
+        "simulations": option_value(command, "--simulations"),
+        "opening_minimum_present": any(
+            flag in command
+            for flag in ("--opening-min-simulations", "--opening-min-simulations-plies")
+        ),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -180,9 +198,53 @@ def main(argv: list[str] | None = None) -> int:
         default=ROOT / "docs/data/alphazero-lite-seed48-nextgen-s443/results.json",
     )
     parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--finalize", action="store_true")
     args = parser.parse_args(argv)
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
     base = json.loads((ROOT / plan["base_config"]).read_text(encoding="utf-8"))
+    if args.finalize:
+        existing = json.loads(args.out.read_text(encoding="utf-8"))
+        run_dir = Path(existing["candidate_path"])
+        contract = completed_selfplay_contract(run_dir)
+        manifest = existing["run_manifest"]
+        durations = {step["name"]: step["duration_s"] for step in manifest["steps"]}
+        losses = {
+            key: float(value)
+            for key, value in re.findall(
+                r"^(policy_loss|value_loss|total_loss|best_val_loss)=([0-9.]+)$",
+                (run_dir / "train.log").read_text(encoding="utf-8"),
+                flags=re.MULTILINE,
+            )
+        }
+        existing["registered_inputs"] = {
+            "parent_artifact": plan["parent_artifact"],
+            "parent_version": plan["expected_parent_version"],
+            "training_seed": plan["training_seed"],
+            "self_play_seed_sweep": plan["self_play_seed_sweep"],
+            "replay_sources": plan["fixed_replay_sources"],
+        }
+        existing["training_losses"] = losses
+        existing["durations_s"] = {
+            "self_play": durations["self_play"],
+            "training": durations["train"],
+        }
+        existing["completed_selfplay_contract"] = contract
+        if contract != {
+            "workers": "6",
+            "games": "1600",
+            "simulations": "1200",
+            "opening_minimum_present": False,
+        }:
+            existing["classification"] = "self_play_worker_contract_failed"
+            existing["gate_status"] = "not_run_invalid_training_contract"
+            existing["unrun_evaluations"] = [
+                "artifact_sanity",
+                "superhuman_regressions",
+                "pr340_exact_corpus_diagnostic",
+                "local_promotion_gate",
+            ]
+        write_json(args.out, existing)
+        return 0
     try:
         integrity = preflight(plan, base, args.workdir)
     except (FileNotFoundError, ValueError) as error:
@@ -222,6 +284,7 @@ def main(argv: list[str] | None = None) -> int:
     result.update(
         {
             "status": "candidate_generated",
+            "classification": "candidate_generated",
             "candidate_path": str(run_dir),
             "self_play_sha256": sha256_file(selfplay),
             "search_work": search_work(selfplay, audit_set),

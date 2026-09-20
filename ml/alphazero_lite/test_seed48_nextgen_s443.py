@@ -32,6 +32,7 @@ class Seed48NextgenS443Test(unittest.TestCase):
     def test_seed_and_opening_budget_pins(self) -> None:
         config = rendered_config(self.plan, self.base, ROOT / ".tmp/test-nextgen")
         command = config["steps"][0]["command"]
+        self.assertTrue(config["preserve_config_workers"])
         self.assertIn("443", command)
         self.assertIn("442,443,444", command)
         self.assertEqual("1200", command[command.index("--simulations") + 1])
