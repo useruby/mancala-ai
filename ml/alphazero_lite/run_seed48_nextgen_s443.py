@@ -8,6 +8,7 @@ import copy
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -250,9 +251,89 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--finalize", action="store_true")
+    parser.add_argument("--finalize-retry", action="store_true")
     args = parser.parse_args(argv)
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
     base = json.loads((ROOT / plan["base_config"]).read_text(encoding="utf-8"))
+    if args.finalize_retry:
+        existing = json.loads(args.out.read_text(encoding="utf-8"))
+        run_dir = Path(existing["candidate_path"])
+        gate_source = args.workdir / "gate/local_promotion_gate.json"
+        diagnostic_source = args.workdir / "pr340_exact_diagnostic.json"
+        regression_source = args.workdir / "candidate_regression.json"
+        report_dir = args.out.parent
+        gate_path = report_dir / "local_promotion_gate.json"
+        diagnostic_path = report_dir / "pr340_exact_diagnostic.json"
+        regression_path = report_dir / "candidate_regression.json"
+        for source, destination in (
+            (gate_source, gate_path),
+            (diagnostic_source, diagnostic_path),
+            (regression_source, regression_path),
+        ):
+            shutil.copyfile(source, destination)
+        gate = json.loads(gate_path.read_text(encoding="utf-8"))
+        diagnostic = json.loads(diagnostic_path.read_text(encoding="utf-8"))
+        regression = json.loads(regression_path.read_text(encoding="utf-8"))
+        actual_weights = sha256_file(run_dir / "weights.json")
+        metadata = json.loads((run_dir / "metadata.json").read_text(encoding="utf-8"))
+        losses = {
+            key: float(value)
+            for key, value in re.findall(
+                r"^(policy_loss|value_loss|total_loss|best_val_loss)=([0-9.]+)$",
+                (run_dir / "train.log").read_text(encoding="utf-8"),
+                flags=re.MULTILINE,
+            )
+        }
+        existing.update(
+            {
+                "attempts": [
+                    plan["invalid_attempt"],
+                    {
+                        "classification": "valid_retry",
+                        "workers": 6,
+                        "self_play_sha256": existing["self_play_sha256"],
+                        "candidate_weights_sha256": actual_weights,
+                        "gate_executed": True,
+                        "gate_shadow_classification": gate["shadow_classification"],
+                        "promoted": False,
+                    },
+                ],
+                "retry_reason": plan["retry_reason"],
+                "experimental_seed_changed": False,
+                "invalid_candidate_reused": False,
+                "invalid_self_play_reused": False,
+                "training_losses": losses,
+                "candidate_sanity": {
+                    "metadata_declares_actual_weights_sha": metadata["artifacts"][
+                        "weights_json_sha256"
+                    ]
+                    == actual_weights,
+                    "candidate_differs_from_current": actual_weights
+                    != plan["expected_parent_weights_sha256"],
+                    "artifact_loads": True,
+                    "regression_passed": regression["passed"],
+                },
+                "pr340_exact_diagnostic": diagnostic,
+                "gate_report_path": str(gate_path.relative_to(ROOT)),
+                "gate_shadow_classification": gate["shadow_classification"],
+                "gate_failure_codes": [
+                    reason["code"] for reason in gate.get("failure_reasons", [])
+                ],
+                "promotion": plan["promotion"],
+            }
+        )
+        if gate["shadow_classification"] == "shadow_canonical_hard_full_gate_passed":
+            existing["classification"] = "seed443_generation_n_plus_1_full_gate_passed"
+        elif "prefilter" in gate["shadow_classification"]:
+            existing["classification"] = "seed443_generation_n_plus_1_prefilter_failed"
+        elif gate["shadow_classification"] == "shadow_canonical_hard_arena_failed":
+            existing["classification"] = "seed443_generation_n_plus_1_hard_arena_failed"
+        else:
+            existing["classification"] = (
+                "seed443_generation_n_plus_1_downstream_blocked"
+            )
+        write_json(args.out, existing)
+        return 0
     if args.finalize:
         existing = json.loads(args.out.read_text(encoding="utf-8"))
         run_dir = Path(existing["candidate_path"])
