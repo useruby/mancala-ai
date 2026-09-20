@@ -18,15 +18,16 @@ class Seed48NextgenS443Test(unittest.TestCase):
         )
         self.base = json.loads((ROOT / self.plan["base_config"]).read_text())
 
-    def test_registered_replay_unavailability_stops_before_execution(self) -> None:
+    def test_pinned_recipe_preflight(self) -> None:
         with mock.patch(
             "ml.alphazero_lite.run_seed48_nextgen_s443.seed_conflict",
             return_value=False,
         ):
-            with self.assertRaisesRegex(
-                FileNotFoundError, "generation_n_plus_1_replay_provenance_unavailable"
-            ):
-                preflight(self.plan, self.base, ROOT / ".tmp/test-nextgen")
+            integrity = preflight(self.plan, self.base, ROOT / ".tmp/test-nextgen")
+        self.assertEqual(
+            self.plan["expected_parent_weights_sha256"],
+            integrity["parent_weights_sha256"],
+        )
 
     def test_seed_and_opening_budget_pins(self) -> None:
         config = rendered_config(self.plan, self.base, ROOT / ".tmp/test-nextgen")
@@ -61,6 +62,14 @@ class Seed48NextgenS443Test(unittest.TestCase):
             "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c",
             self.plan["canonical_gate"]["hard_suite_sha256"],
         )
+        plan = copy.deepcopy(self.plan)
+        plan["canonical_gate"]["hard_suite_sha256"] = "0" * 64
+        with mock.patch(
+            "ml.alphazero_lite.run_seed48_nextgen_s443.seed_conflict",
+            return_value=False,
+        ):
+            with self.assertRaisesRegex(ValueError, "frozen_suite"):
+                preflight(plan, self.base, ROOT / ".tmp/test-nextgen")
 
     def test_conflicting_seed_is_blocked(self) -> None:
         with mock.patch(

@@ -98,8 +98,11 @@ def rendered_config(
 
 def seed_conflict() -> bool:
     """Only registered descendant identifiers constitute comparable provenance."""
+    registered_plan = ROOT / "ml/alphazero_lite/configs/seed48_nextgen_s443.json"
     for directory in (ROOT / "docs", ROOT / "ml" / "alphazero_lite" / "configs"):
         for path in directory.rglob("*"):
+            if path == registered_plan:
+                continue
             if not path.is_file() or path.suffix not in {".json", ".md"}:
                 continue
             text = path.read_text(encoding="utf-8", errors="ignore")

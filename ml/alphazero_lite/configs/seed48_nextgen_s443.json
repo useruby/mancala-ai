@@ -26,7 +26,7 @@
   },
   "fixed_replay_sources": [
     {"name": "generic_bootstrap", "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "weight": 4, "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"},
-    {"name": "random_teacher", "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "weight": 1, "sha256": "69c16f2ad4950fcaf31ab87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"},
+    {"name": "random_teacher", "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "weight": 1, "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"},
     {"name": "opening_puct_disagreement_replay", "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "weight": 8, "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"},
     {"name": "equal_budget_stability_replay", "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "weight": 4, "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"}
   ],
