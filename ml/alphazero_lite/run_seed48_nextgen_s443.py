@@ -25,6 +25,11 @@ from ml.alphazero_lite.run_seed48_uniform384_vs_1200 import (  # noqa: E402
     jsonl_audit_collisions,
     search_work,
 )
+from ml.alphazero_lite.pipeline import (  # noqa: E402
+    build_step_command,
+    render_command,
+    resolve_step_command,
+)
 
 SCHEMA = "azlite_seed48_generation_n_plus_1_v1"
 EXPECTED_REPLAY_WEIGHTS = (4, 1, 8, 4)
@@ -102,9 +107,10 @@ def rendered_config(
 def seed_conflict() -> bool:
     """Only registered descendant identifiers constitute comparable provenance."""
     registered_plan = ROOT / "ml/alphazero_lite/configs/seed48_nextgen_s443.json"
+    own_results = ROOT / "docs/data/alphazero-lite-seed48-nextgen-s443"
     for directory in (ROOT / "docs", ROOT / "ml" / "alphazero_lite" / "configs"):
         for path in directory.rglob("*"):
-            if path == registered_plan:
+            if path == registered_plan or own_results in path.parents:
                 continue
             if not path.is_file() or path.suffix not in {".json", ".md"}:
                 continue
@@ -112,6 +118,49 @@ def seed_conflict() -> bool:
             if "seed443" in text or "s443-" in text:
                 return True
     return False
+
+
+def effective_selfplay_command(config: dict[str, Any], workdir: Path) -> list[str]:
+    step = self_play_step(config)
+    command = build_step_command(
+        step, preserve_config_workers=bool(config["preserve_config_workers"])
+    )
+    if not isinstance(command, list):
+        raise ValueError("final self-play command is not a command list")
+    run_id = str(config["run_id"])
+    iter_dir = workdir / "runs" / f"{run_id}-iter1"
+    rendered = render_command(
+        command,
+        iteration=1,
+        iter_dir=iter_dir,
+        run_id=run_id,
+        versions_dir=workdir / "runs",
+        current_path=str(config["current_path"]),
+        parent_model_dir=ROOT / "model-artifact/current",
+        parent_checkpoint=iter_dir / "parent_init_checkpoint.npz",
+        replay_data="",
+        replay_weights="",
+    )
+    return resolve_step_command(rendered, repo_root=ROOT)
+
+
+def assert_effective_selfplay_contract(command: list[str]) -> None:
+    expected = {
+        "--games": "1600",
+        "--workers": "6",
+        "--simulations": "1200",
+        "--seed": "443",
+        "--seed-sweep": "442,443,444",
+    }
+    if option_value(command, "--workers") != "6":
+        raise ValueError("self_play_worker_preflight_failed")
+    if any(
+        flag in command
+        for flag in ("--opening-min-simulations", "--opening-min-simulations-plies")
+    ):
+        raise ValueError("uniform1200_no_opening_min_contract_failed")
+    if any(option_value(command, flag) != value for flag, value in expected.items()):
+        raise ValueError("final_self_play_contract_failed")
 
 
 def preflight(
@@ -148,12 +197,8 @@ def preflight(
         if jsonl_audit_collisions(path, audit_set):
             raise ValueError("audit_corpus_isolation_failed")
     config = rendered_config(plan, base, workdir)
-    command = self_play_step(config)["command"]
-    if option_value(command, "--simulations") != "1200" or any(
-        flag in command
-        for flag in ("--opening-min-simulations", "--opening-min-simulations-plies")
-    ):
-        raise ValueError("uniform1200_no_opening_min_contract_failed")
+    command = effective_selfplay_command(config, workdir)
+    assert_effective_selfplay_contract(command)
     for name, expected in (
         ("prefilter_suite", "prefilter_suite_sha256"),
         ("hard_suite", "hard_suite_sha256"),
@@ -164,6 +209,7 @@ def preflight(
     return {
         "parent_weights_sha256": sha256_file(parent / "weights.json"),
         "audit_hash_count": len(audit_set),
+        "effective_selfplay_command": command,
     }
 
 
@@ -175,6 +221,8 @@ def completed_selfplay_contract(run_dir: Path) -> dict[str, Any]:
         "workers": option_value(command, "--workers"),
         "games": option_value(command, "--games"),
         "simulations": option_value(command, "--simulations"),
+        "seed": option_value(command, "--seed"),
+        "seed_sweep": option_value(command, "--seed-sweep"),
         "opening_minimum_present": any(
             flag in command
             for flag in ("--opening-min-simulations", "--opening-min-simulations-plies")
@@ -190,12 +238,15 @@ def main(argv: list[str] | None = None) -> int:
         default=ROOT / "ml/alphazero_lite/configs/seed48_nextgen_s443.json",
     )
     parser.add_argument(
-        "--workdir", type=Path, default=ROOT / ".tmp/seed48-nextgen-s443-uniform1200"
+        "--workdir",
+        type=Path,
+        default=ROOT / ".tmp/seed48-nextgen-s443-uniform1200-rerun6",
     )
     parser.add_argument(
         "--out",
         type=Path,
-        default=ROOT / "docs/data/alphazero-lite-seed48-nextgen-s443/results.json",
+        default=ROOT
+        / "docs/data/alphazero-lite-seed48-nextgen-s443/retry_results.json",
     )
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--finalize", action="store_true")
@@ -274,12 +325,57 @@ def main(argv: list[str] | None = None) -> int:
         write_json(args.out, result)
         return 0
     subprocess.run(
-        [sys.executable, "ml/alphazero_lite/pipeline.py", "--config", str(config_path)],
+        [
+            sys.executable,
+            "ml/alphazero_lite/pipeline.py",
+            "--config",
+            str(config_path),
+            "--skip-step",
+            "train",
+            "--skip-step",
+            "export_artifact",
+        ],
         cwd=ROOT,
         check=True,
     )
     run_dir = args.workdir / "runs" / f"{plan['run_id']}-iter1"
     selfplay = run_dir / "self_play.jsonl"
+    selfplay_contract = completed_selfplay_contract(run_dir)
+    expected_selfplay_contract = {
+        "workers": "6",
+        "games": "1600",
+        "simulations": "1200",
+        "seed": "443",
+        "seed_sweep": "442,443,444",
+        "opening_minimum_present": False,
+    }
+    if selfplay_contract != expected_selfplay_contract:
+        result.update(
+            {
+                "classification": "self_play_worker_contract_failed",
+                "status": "self_play_contract_failed",
+                "completed_selfplay_contract": selfplay_contract,
+                "gate_status": "not_run_invalid_training_contract",
+            }
+        )
+        write_json(args.out, result)
+        return 0
+    result["completed_selfplay_contract"] = selfplay_contract
+    result["self_play_worker_contract_status"] = "self_play_worker_contract_passed"
+    subprocess.run(
+        [
+            sys.executable,
+            "ml/alphazero_lite/pipeline.py",
+            "--config",
+            str(config_path),
+            "--skip-step",
+            "self_play",
+            "--skip-step",
+            "perspective_audit",
+        ],
+        cwd=ROOT,
+        check=True,
+    )
     audit_set = audit_hashes(plan)
     result.update(
         {

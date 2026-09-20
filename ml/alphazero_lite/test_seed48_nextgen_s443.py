@@ -6,7 +6,12 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from ml.alphazero_lite.run_seed48_nextgen_s443 import preflight, rendered_config
+from ml.alphazero_lite.run_seed48_nextgen_s443 import (
+    assert_effective_selfplay_contract,
+    effective_selfplay_command,
+    preflight,
+    rendered_config,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -37,6 +42,15 @@ class Seed48NextgenS443Test(unittest.TestCase):
         self.assertIn("442,443,444", command)
         self.assertEqual("1200", command[command.index("--simulations") + 1])
         self.assertNotIn("--opening-min-simulations", command)
+
+    def test_final_effective_worker_contract_blocks_before_execution(self) -> None:
+        config = rendered_config(self.plan, self.base, ROOT / ".tmp/test-nextgen")
+        command = effective_selfplay_command(config, ROOT / ".tmp/test-nextgen")
+        assert_effective_selfplay_contract(command)
+        invalid = list(command)
+        invalid[invalid.index("--workers") + 1] = "24"
+        with self.assertRaisesRegex(ValueError, "self_play_worker_preflight_failed"):
+            assert_effective_selfplay_contract(invalid)
 
     def test_preflight_rejects_parent_seed_replay_and_suite_changes(self) -> None:
         for key, value, message in (
