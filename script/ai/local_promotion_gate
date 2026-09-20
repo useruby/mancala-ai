@@ -45,6 +45,10 @@ def parse_args() -> argparse.Namespace:
         default="model-artifact/current",
     )
     parser.add_argument(
+        "--expected-current-weights-sha256",
+        help="required for canonical shadow evaluation to pin the intended incumbent",
+    )
+    parser.add_argument(
         "--hard-path",
         default="model-artifact/current",
     )
@@ -299,31 +303,37 @@ def candidate_identity(path: Path) -> dict[str, str] | None:
     }
 
 
-def artifact_weights_sha256(path: Path) -> str | None:
+def verified_artifact_identity(path: Path, role: str) -> dict[str, str]:
+    weights_path = path / "weights.json"
     metadata_path = path / "metadata.json"
-    if not metadata_path.is_file():
-        return None
-    metadata = load_json(metadata_path)
-    artifacts = metadata.get("artifacts", {})
-    if not isinstance(artifacts, dict):
-        return None
-    value = artifacts.get("weights_json_sha256", artifacts.get("weights_sha256"))
-    return value if isinstance(value, str) else None
+    if not weights_path.is_file() or not metadata_path.is_file():
+        raise SystemExit(f"{role}_artifact_invalid")
+    try:
+        metadata = load_json(metadata_path)
+    except (OSError, SystemExit):
+        raise SystemExit(f"{role}_artifact_invalid") from None
+    artifacts = metadata.get("artifacts")
+    declared_weights_sha = (
+        artifacts.get("weights_json_sha256") if isinstance(artifacts, dict) else None
+    )
+    version = metadata.get("version")
+    if not isinstance(declared_weights_sha, str) or not isinstance(version, str):
+        raise SystemExit(f"{role}_artifact_invalid")
+    actual_weights_sha = sha256_file(weights_path)
+    if actual_weights_sha != declared_weights_sha:
+        raise SystemExit(f"{role}_artifact_integrity_mismatch")
+    return {
+        "version": version,
+        "weights_json_sha256": actual_weights_sha,
+        "metadata_json_sha256": sha256_file(metadata_path),
+    }
 
 
-def artifact_version(path: Path) -> str | None:
-    metadata_path = path / "metadata.json"
-    if not metadata_path.is_file():
-        return None
-    value = load_json(metadata_path).get("version")
-    return value if isinstance(value, str) else None
-
-
-def validate_shadow_inputs(args: argparse.Namespace) -> None:
+def validate_shadow_inputs(args: argparse.Namespace) -> dict[str, dict[str, str]]:
     shadow_prefilter = getattr(args, "shadow_canonical_prefilter", False)
     shadow_hard = getattr(args, "shadow_canonical_hard_arena", False)
     if not shadow_prefilter and not shadow_hard:
-        return
+        return {}
     if shadow_hard and not shadow_prefilter:
         raise SystemExit(
             "shadow_hard_gate_integration_invalid: shadow prefilter is required"
@@ -362,26 +372,21 @@ def validate_shadow_inputs(args: argparse.Namespace) -> None:
             raise SystemExit(
                 "shadow_hard_gate_integration_invalid: malformed shadow suite"
             ) from exc
-    candidate_sha = artifact_weights_sha256(args.candidate_path)
-    current_sha = artifact_weights_sha256(Path(args.current_path))
-    hard_sha = artifact_weights_sha256(Path(args.hard_path))
-    if (
-        candidate_sha
-        != "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
-        or current_sha
-        != "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
-        or (shadow_hard and hard_sha != current_sha)
-        or (
-            shadow_hard
-            and artifact_version(Path(args.current_path))
-            != "azlite-balanced-w8s4-policy-head-e1"
-        )
-    ):
-        raise SystemExit(
-            "shadow_hard_artifact_mismatch"
-            if shadow_hard
-            else "shadow_gate_artifact_mismatch"
-        )
+    candidate = verified_artifact_identity(args.candidate_path, "candidate")
+    current = verified_artifact_identity(Path(args.current_path), "current")
+    expected_current_sha = getattr(args, "expected_current_weights_sha256", None)
+    if current["weights_json_sha256"] != expected_current_sha:
+        raise SystemExit("current_artifact_identity_mismatch")
+    if candidate["weights_json_sha256"] == current["weights_json_sha256"]:
+        raise SystemExit("candidate_matches_current")
+
+    identities = {"candidate": candidate, "current": current}
+    if shadow_hard:
+        hard = verified_artifact_identity(Path(args.hard_path), "hard_opponent")
+        if hard["weights_json_sha256"] != current["weights_json_sha256"]:
+            raise SystemExit("hard_opponent_identity_mismatch")
+        identities["hard_opponent"] = hard
+    return identities
 
 
 def canonical_opening_hashes(path: Path) -> set[str]:
@@ -1742,7 +1747,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
 
 def main() -> int:
     args = parse_args()
-    validate_shadow_inputs(args)
+    shadow_identities = validate_shadow_inputs(args)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if args.dry_run and args.config_path:
         load_threshold_planning_search_flag_map(args.config_path)
@@ -1832,7 +1837,13 @@ def main() -> int:
     report = {
         "schema": "azlite_local_promotion_gate_v1",
         "candidate_path": candidate_path,
-        "candidate_identity": candidate_identity(args.candidate_path),
+        "candidate_identity": shadow_identities.get("candidate")
+        or candidate_identity(args.candidate_path),
+        "current_identity": shadow_identities.get("current"),
+        "hard_opponent_identity": shadow_identities.get("hard_opponent"),
+        "expected_current_weights_sha256": getattr(
+            args, "expected_current_weights_sha256", None
+        ),
         "config_path": args.config_path,
         "current_path": current_path,
         "hard_path": args.hard_path,
