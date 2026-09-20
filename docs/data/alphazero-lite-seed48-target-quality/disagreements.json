@@ -1,0 +1,3907 @@
+{
+  "rows": [
+    {
+      "active_stones": 14,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          1,
+          4,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          1,
+          0,
+          2,
+          0,
+          0
+        ],
+        "player_store": 25
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 18,
+        "exact_optimal_moves": [
+          3
+        ],
+        "exact_rank_by_move": {
+          "1": 1,
+          "3": 2
+        },
+        "exact_regret_by_move": {
+          "1": 14,
+          "3": 0
+        },
+        "exact_score_by_move": {
+          "1": 4,
+          "3": 18
+        },
+        "exact_wdl_by_move": {
+          "1": "W",
+          "3": "W"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -12,
+          "3": 2
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        3
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 2.006666666666667,
+          "optimal_mass": 0.8566666666666667,
+          "policy": [
+            0.0,
+            0.14333333333333334,
+            0.0,
+            0.8566666666666667,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.7411943931392458,
+            "3": 0.8476480502301849
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            172,
+            0,
+            1028,
+            0,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 3.9375,
+          "optimal_mass": 0.71875,
+          "policy": [
+            0.0,
+            0.28125,
+            0.0,
+            0.71875,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.7473639103549498,
+            "3": 0.8166848957214666
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            108,
+            0,
+            276,
+            0,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 4.229166666666666,
+          "optimal_mass": 0.6979166666666666,
+          "policy": [
+            0.0,
+            0.3020833333333333,
+            0.0,
+            0.6979166666666666,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.7263429072396509,
+            "3": 0.845305860042572
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            29,
+            0,
+            67,
+            0,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 7.026115836269607,
+          "optimal_mass": 0.4981345831235995,
+          "policy": [
+            0.0,
+            0.5018654168764005,
+            0.0,
+            0.4981345831235995,
+            0.0,
+            0.0
+          ],
+          "renormalized": true,
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 14
+        }
+      },
+      "ply": 21,
+      "side_to_move": 0,
+      "source_game_id": 2,
+      "state_hash": "6e051f377c1c786163ea36c68e3e74aa45b6e7a034c78de0d554187d3b1e3b22",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 21,
+      "bucket": "20-21",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          0,
+          1,
+          0,
+          2,
+          10,
+          3
+        ],
+        "player_store": 20
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 12,
+        "exact_optimal_moves": [
+          5
+        ],
+        "exact_rank_by_move": {
+          "1": 3,
+          "3": 2,
+          "4": 1,
+          "5": 4
+        },
+        "exact_regret_by_move": {
+          "1": 6,
+          "3": 8,
+          "4": 12,
+          "5": 0
+        },
+        "exact_score_by_move": {
+          "1": 6,
+          "3": 4,
+          "4": 0,
+          "5": 12
+        },
+        "exact_wdl_by_move": {
+          "1": "W",
+          "3": "W",
+          "4": "D",
+          "5": "W"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -7,
+          "3": -9,
+          "4": -13,
+          "5": -1
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 0.83,
+          "optimal_mass": 0.9133333333333333,
+          "policy": [
+            0.0,
+            0.008333333333333333,
+            0.0,
+            0.04,
+            0.03833333333333333,
+            0.9133333333333333
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.5735579341650009,
+            "3": 0.618376866603891,
+            "4": 0.3275748037748322,
+            "5": 0.7887818721483333
+          },
+          "top_move": 5,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            10,
+            0,
+            48,
+            46,
+            1096
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 1.375,
+          "optimal_mass": 0.8567708333333334,
+          "policy": [
+            0.0,
+            0.015625,
+            0.0,
+            0.0625,
+            0.06510416666666667,
+            0.8567708333333334
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.6276605228583018,
+            "3": 0.6079784122606119,
+            "4": 0.3162487407028675,
+            "5": 0.7872996121010882
+          },
+          "top_move": 5,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            6,
+            0,
+            24,
+            25,
+            329
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 3.0,
+          "optimal_mass": 0.6979166666666666,
+          "policy": [
+            0.0,
+            0.0,
+            0.0,
+            0.15625,
+            0.14583333333333334,
+            0.6979166666666666
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.0,
+            "3": 0.6301006893316905,
+            "4": 0.3605239359395845,
+            "5": 0.7407121983037066
+          },
+          "top_move": 5,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            0,
+            0,
+            15,
+            14,
+            67
+          ]
+        },
+        "raw": {
+          "expected_regret": 7.963774354345371,
+          "optimal_mass": 0.24617471557334913,
+          "policy": [
+            0.0,
+            0.046422405647563766,
+            0.0,
+            0.20089865622226427,
+            0.5065042225568228,
+            0.24617471557334913
+          ],
+          "renormalized": true,
+          "top_move": 4,
+          "top_move_optimal": false,
+          "top_move_regret": 12
+        }
+      },
+      "ply": 14,
+      "side_to_move": 0,
+      "source_game_id": 20,
+      "state_hash": "933ea7ebef84d0b187db2b4ccdd768334e293b5851b07b1ee244022aa35ce80c",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 20,
+      "bucket": "20-21",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          5,
+          7,
+          1,
+          1,
+          1
+        ],
+        "player_store": 20
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 28,
+        "exact_optimal_moves": [
+          1,
+          5
+        ],
+        "exact_rank_by_move": {
+          "0": 2,
+          "1": 5,
+          "2": 1,
+          "3": 3,
+          "4": 3,
+          "5": 5
+        },
+        "exact_regret_by_move": {
+          "0": 12,
+          "1": 0,
+          "2": 16,
+          "3": 10,
+          "4": 10,
+          "5": 0
+        },
+        "exact_score_by_move": {
+          "0": 16,
+          "1": 28,
+          "2": 12,
+          "3": 18,
+          "4": 18,
+          "5": 28
+        },
+        "exact_wdl_by_move": {
+          "0": "W",
+          "1": "W",
+          "2": "W",
+          "3": "W",
+          "4": "W",
+          "5": "W"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": 4,
+          "1": 16,
+          "2": 0,
+          "3": 6,
+          "4": 6,
+          "5": 16
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 7.76,
+          "optimal_mass": 0.24416666666666667,
+          "policy": [
+            0.0033333333333333335,
+            0.016666666666666666,
+            0.0325,
+            0.6091666666666666,
+            0.11083333333333334,
+            0.2275
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.6226490288972855,
+            "1": 0.6907994046807289,
+            "2": 0.6865835518409045,
+            "3": 0.9609961274466012,
+            "4": 0.9432634354982161,
+            "5": 0.9035861656997667
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            4,
+            20,
+            39,
+            731,
+            133,
+            273
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 9.114583333333332,
+          "optimal_mass": 0.11979166666666666,
+          "policy": [
+            0.0,
+            0.028645833333333332,
+            0.052083333333333336,
+            0.8072916666666666,
+            0.020833333333333332,
+            0.09114583333333333
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.0,
+            "1": 0.6706657247109846,
+            "2": 0.6470168277621269,
+            "3": 0.9423386381037774,
+            "4": 0.770356934517622,
+            "5": 0.6668184101581573
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            0,
+            11,
+            20,
+            310,
+            8,
+            35
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 6.333333333333333,
+          "optimal_mass": 0.47916666666666663,
+          "policy": [
+            0.0,
+            0.11458333333333333,
+            0.1875,
+            0.3333333333333333,
+            0.0,
+            0.3645833333333333
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.0,
+            "1": 0.6706657247109846,
+            "2": 0.6339560664362378,
+            "3": 0.8032614383846521,
+            "4": 0.0,
+            "5": 0.6668184101581573
+          },
+          "top_move": 5,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            11,
+            18,
+            32,
+            0,
+            35
+          ]
+        },
+        "raw": {
+          "expected_regret": 6.283696242733658,
+          "optimal_mass": 0.5311358739850516,
+          "policy": [
+            0.031746711700211136,
+            0.12619905220791344,
+            0.2552602598639587,
+            0.11779700263513998,
+            0.06406015181563851,
+            0.4049368217771382
+          ],
+          "renormalized": false,
+          "top_move": 5,
+          "top_move_optimal": true,
+          "top_move_regret": 0
+        }
+      },
+      "ply": 25,
+      "side_to_move": 0,
+      "source_game_id": 36,
+      "state_hash": "232f412fb320e6f1f39f541105cd1898d36b32f8b4c7084106954aa9579ac70c",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 15,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          1,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          0,
+          1,
+          2,
+          1,
+          0
+        ],
+        "player_store": 20
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 0,
+        "exact_optimal_moves": [
+          0,
+          4
+        ],
+        "exact_rank_by_move": {
+          "0": 5,
+          "1": 1,
+          "2": 2,
+          "3": 4,
+          "4": 5,
+          "5": 2
+        },
+        "exact_regret_by_move": {
+          "0": 0,
+          "1": 12,
+          "2": 10,
+          "3": 6,
+          "4": 0,
+          "5": 10
+        },
+        "exact_score_by_move": {
+          "0": 0,
+          "1": -12,
+          "2": -10,
+          "3": -6,
+          "4": 0,
+          "5": -10
+        },
+        "exact_wdl_by_move": {
+          "0": "D",
+          "1": "L",
+          "2": "L",
+          "3": "L",
+          "4": "D",
+          "5": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": -7,
+          "1": 5,
+          "2": 3,
+          "3": -1,
+          "4": -7,
+          "5": 3
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 0.4433333333333333,
+          "optimal_mass": 0.9525,
+          "policy": [
+            0.041666666666666664,
+            0.0025,
+            0.0075,
+            0.009166666666666667,
+            0.9108333333333334,
+            0.028333333333333332
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.5637767806649208,
+            "1": -0.7055425941944122,
+            "2": -0.7206041183736589,
+            "3": -0.7532130479812622,
+            "4": -0.26857416000117507,
+            "5": -0.8292380781734691
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            50,
+            3,
+            9,
+            11,
+            1093,
+            34
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 1.2552083333333333,
+          "optimal_mass": 0.8645833333333334,
+          "policy": [
+            0.13020833333333334,
+            0.0078125,
+            0.0234375,
+            0.028645833333333332,
+            0.734375,
+            0.07552083333333333
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.5637767806649208,
+            "1": -0.7055425941944122,
+            "2": -0.7206041183736589,
+            "3": -0.7532130479812622,
+            "4": -0.4016286976493446,
+            "5": -0.8314262566895321
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            50,
+            3,
+            9,
+            11,
+            282,
+            29
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 2.7083333333333335,
+          "optimal_mass": 0.7083333333333333,
+          "policy": [
+            0.28125,
+            0.020833333333333332,
+            0.052083333333333336,
+            0.0625,
+            0.4270833333333333,
+            0.15625
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.5056199503165705,
+            "1": -0.620592787861824,
+            "2": -0.6409424126148224,
+            "3": -0.6932681004206339,
+            "4": -0.5249575826271278,
+            "5": -0.8126803000768026
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            27,
+            2,
+            5,
+            6,
+            41,
+            15
+          ]
+        },
+        "raw": {
+          "expected_regret": 6.466849753509647,
+          "optimal_mass": 0.3092307087377858,
+          "policy": [
+            0.09111083332863015,
+            0.028782371538811816,
+            0.08755739065839868,
+            0.12460197554752966,
+            0.21811987540915562,
+            0.44982755351747405
+          ],
+          "renormalized": false,
+          "top_move": 5,
+          "top_move_optimal": false,
+          "top_move_regret": 10
+        }
+      },
+      "ply": 28,
+      "side_to_move": 1,
+      "source_game_id": 4,
+      "state_hash": "3d454911f16af2ed9fa9e486c8916ae4d59aef4db01695866493b045d2796d07",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 12,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          5,
+          0,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          0,
+          4,
+          0,
+          0,
+          0,
+          1
+        ],
+        "player_store": 19
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 8,
+        "exact_optimal_moves": [
+          1
+        ],
+        "exact_rank_by_move": {
+          "0": 1,
+          "1": 3,
+          "4": 2
+        },
+        "exact_regret_by_move": {
+          "0": 12,
+          "1": 0,
+          "4": 10
+        },
+        "exact_score_by_move": {
+          "0": -4,
+          "1": 8,
+          "4": -2
+        },
+        "exact_wdl_by_move": {
+          "0": "L",
+          "1": "W",
+          "4": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": 2,
+          "1": -10,
+          "4": 0
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        1,
+        4
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 0.18833333333333335,
+          "optimal_mass": 0.9816666666666667,
+          "policy": [
+            0.0025,
+            0.9816666666666667,
+            0.0,
+            0.0,
+            0.015833333333333335,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.45796943704287213,
+            "1": 0.9525241773624067,
+            "4": -0.37499540544262056
+          },
+          "top_move": 1,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            3,
+            1178,
+            0,
+            0,
+            19,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 0.3229166666666667,
+          "optimal_mass": 0.96875,
+          "policy": [
+            0.005208333333333333,
+            0.96875,
+            0.0,
+            0.0,
+            0.026041666666666668,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.45895540714263916,
+            "1": 0.9180367341819307,
+            "4": -0.40407566744834184
+          },
+          "top_move": 1,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            2,
+            372,
+            0,
+            0,
+            10,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 0.6458333333333334,
+          "optimal_mass": 0.9375,
+          "policy": [
+            0.010416666666666666,
+            0.9375,
+            0.0,
+            0.0,
+            0.052083333333333336,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.39036959409713745,
+            "1": 0.8437368866981059,
+            "4": -0.4298557698726654
+          },
+          "top_move": 1,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            1,
+            90,
+            0,
+            0,
+            5,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 7.3984044283866215,
+          "optimal_mass": 0.2849421756723199,
+          "policy": [
+            0.12391309255491059,
+            0.2849421756723199,
+            0.0,
+            0.0,
+            0.5911447317727695,
+            0.0
+          ],
+          "renormalized": true,
+          "top_move": 4,
+          "top_move_optimal": false,
+          "top_move_regret": 10
+        }
+      },
+      "ply": 34,
+      "side_to_move": 1,
+      "source_game_id": 7,
+      "state_hash": "575d403315788fe260b8622af564d3f711a83dd19e9fa8bc806dbb7b05c3654e",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 16,
+      "bucket": "16-19",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          3,
+          1,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          9,
+          0,
+          0,
+          0,
+          2,
+          0
+        ],
+        "player_store": 25
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -6,
+        "exact_optimal_moves": [
+          4
+        ],
+        "exact_rank_by_move": {
+          "1": 1,
+          "3": 1,
+          "4": 3
+        },
+        "exact_regret_by_move": {
+          "1": 10,
+          "3": 10,
+          "4": 0
+        },
+        "exact_score_by_move": {
+          "1": -16,
+          "3": -16,
+          "4": -6
+        },
+        "exact_wdl_by_move": {
+          "1": "L",
+          "3": "L",
+          "4": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -2,
+          "3": -2,
+          "4": -12
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        3,
+        4
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 8.641666666666667,
+          "optimal_mass": 0.13583333333333333,
+          "policy": [
+            0.0,
+            0.1125,
+            0.0,
+            0.7516666666666667,
+            0.13583333333333333,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.861003213679349,
+            "3": -0.8299820278740246,
+            "4": -0.99558425498155
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            0,
+            135,
+            0,
+            902,
+            163,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 7.760416666666668,
+          "optimal_mass": 0.22395833333333334,
+          "policy": [
+            0.0,
+            0.16145833333333334,
+            0.0,
+            0.6145833333333334,
+            0.22395833333333334,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.854891725605534,
+            "3": -0.8255582396256722,
+            "4": -0.9916306228138679
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            0,
+            62,
+            0,
+            236,
+            86,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 6.458333333333333,
+          "optimal_mass": 0.3541666666666667,
+          "policy": [
+            0.0,
+            0.1875,
+            0.0,
+            0.4583333333333333,
+            0.3541666666666667,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.8306115650468402,
+            "3": -0.7969983545216647,
+            "4": -0.9788303988821366
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            0,
+            18,
+            0,
+            44,
+            34,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 3.3601052582342366,
+          "optimal_mass": 0.6639894741765763,
+          "policy": [
+            0.0,
+            0.12736321444535362,
+            0.0,
+            0.20864731137807008,
+            0.6639894741765763,
+            0.0
+          ],
+          "renormalized": true,
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0
+        }
+      },
+      "ply": 20,
+      "side_to_move": 1,
+      "source_game_id": 3,
+      "state_hash": "8592c309db651513c5011a905a9caf47dcd52198d1ad9098835fac4954cafa6c",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 18,
+      "bucket": "16-19",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          2,
+          2,
+          0,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          9,
+          0,
+          0,
+          2,
+          1,
+          0
+        ],
+        "player_store": 23
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -6,
+        "exact_optimal_moves": [
+          3
+        ],
+        "exact_rank_by_move": {
+          "0": 1,
+          "1": 3,
+          "2": 2,
+          "3": 4
+        },
+        "exact_regret_by_move": {
+          "0": 12,
+          "1": 4,
+          "2": 10,
+          "3": 0
+        },
+        "exact_score_by_move": {
+          "0": -18,
+          "1": -10,
+          "2": -16,
+          "3": -6
+        },
+        "exact_wdl_by_move": {
+          "0": "L",
+          "1": "L",
+          "2": "L",
+          "3": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": 2,
+          "1": -6,
+          "2": 0,
+          "3": -10
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 9.171666666666667,
+          "optimal_mass": 0.11916666666666667,
+          "policy": [
+            0.3491666666666667,
+            0.05583333333333333,
+            0.47583333333333333,
+            0.11916666666666667,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.82931487722798,
+            "1": -0.8899118153016958,
+            "2": -0.8418726200554292,
+            "3": -0.9409942322677666
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            419,
+            67,
+            571,
+            143,
+            0,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 7.59375,
+          "optimal_mass": 0.21354166666666666,
+          "policy": [
+            0.20052083333333334,
+            0.11197916666666667,
+            0.4739583333333333,
+            0.21354166666666666,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.8376578603472028,
+            "1": -0.8554800748825073,
+            "2": -0.8337497032441936,
+            "3": -0.9166720683981733
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            77,
+            43,
+            182,
+            82,
+            0,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 6.020833333333334,
+          "optimal_mass": 0.3645833333333333,
+          "policy": [
+            0.14583333333333334,
+            0.10416666666666667,
+            0.3854166666666667,
+            0.3645833333333333,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.8214809106928962,
+            "1": -0.8371089339256287,
+            "2": -0.8085803993650384,
+            "3": -0.8425485713141305
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 10,
+          "visit_counts": [
+            14,
+            10,
+            37,
+            35,
+            0,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 5.419627785682678,
+          "optimal_mass": 0.42038029432296753,
+          "policy": [
+            0.14831261336803436,
+            0.1121990829706192,
+            0.3191080093383789,
+            0.42038029432296753,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0
+        }
+      },
+      "ply": 18,
+      "side_to_move": 1,
+      "source_game_id": 3,
+      "state_hash": "e170dc79680bee835129174a6253d3d1e56df3698f3d97eee30c472c3549d715",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 13,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          0,
+          3,
+          2,
+          3
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          2,
+          0
+        ],
+        "player_store": 21
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 0,
+        "exact_optimal_moves": [
+          3,
+          4
+        ],
+        "exact_rank_by_move": {
+          "1": 2,
+          "3": 3,
+          "4": 3,
+          "5": 1
+        },
+        "exact_regret_by_move": {
+          "1": 4,
+          "3": 0,
+          "4": 0,
+          "5": 10
+        },
+        "exact_score_by_move": {
+          "1": -4,
+          "3": 0,
+          "4": 0,
+          "5": -10
+        },
+        "exact_wdl_by_move": {
+          "1": "L",
+          "3": "D",
+          "4": "D",
+          "5": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -3,
+          "3": -7,
+          "4": -7,
+          "5": 3
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 0.24666666666666667,
+          "optimal_mass": 0.9683333333333334,
+          "policy": [
+            0.0,
+            0.011666666666666667,
+            0.0,
+            0.016666666666666666,
+            0.9516666666666667,
+            0.02
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.5137682237795421,
+            "3": -0.5035556476563215,
+            "4": -0.058345380682932886,
+            "5": -0.8005939659972986
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            14,
+            0,
+            20,
+            1142,
+            24
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 0.48958333333333337,
+          "optimal_mass": 0.9322916666666666,
+          "policy": [
+            0.0,
+            0.03125,
+            0.0,
+            0.046875,
+            0.8854166666666666,
+            0.036458333333333336
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.481859249373277,
+            "3": -0.48644952434632516,
+            "4": -0.11316313364488237,
+            "5": -0.7986206454890115
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            12,
+            0,
+            18,
+            340,
+            14
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 1.4375,
+          "optimal_mass": 0.78125,
+          "policy": [
+            0.0,
+            0.125,
+            0.0,
+            0.1875,
+            0.59375,
+            0.09375
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.481859249373277,
+            "3": -0.48644952434632516,
+            "4": -0.34418021299337087,
+            "5": -0.8524167537689209
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            12,
+            0,
+            18,
+            57,
+            9
+          ]
+        },
+        "raw": {
+          "expected_regret": 4.864157604215181,
+          "optimal_mass": 0.42011994987547474,
+          "policy": [
+            0.0,
+            0.15577381617167865,
+            0.0,
+            0.2076036452114039,
+            0.21251630466407084,
+            0.42410623395284663
+          ],
+          "renormalized": true,
+          "top_move": 5,
+          "top_move_optimal": false,
+          "top_move_regret": 10
+        }
+      },
+      "ply": 34,
+      "side_to_move": 1,
+      "source_game_id": 4,
+      "state_hash": "ec2bf1a2728684ff896d3a135472718041d25664838bef9e78af976347115a0b",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 17,
+      "bucket": "16-19",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          0,
+          2,
+          0,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          5,
+          0,
+          1,
+          0,
+          6
+        ],
+        "player_store": 18
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -4,
+        "exact_optimal_moves": [
+          3
+        ],
+        "exact_rank_by_move": {
+          "0": 1,
+          "3": 2
+        },
+        "exact_regret_by_move": {
+          "0": 10,
+          "3": 0
+        },
+        "exact_score_by_move": {
+          "0": -14,
+          "3": -4
+        },
+        "exact_wdl_by_move": {
+          "0": "L",
+          "3": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": 9,
+          "3": -1
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        3
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 1.5583333333333331,
+          "optimal_mass": 0.8441666666666666,
+          "policy": [
+            0.15583333333333332,
+            0.0,
+            0.0,
+            0.8441666666666666,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.5818626566187424,
+            "3": -0.4432298163842016
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            187,
+            0,
+            0,
+            1013,
+            0,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 3.880208333333333,
+          "optimal_mass": 0.6119791666666666,
+          "policy": [
+            0.3880208333333333,
+            0.0,
+            0.0,
+            0.6119791666666666,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.5387950202937695,
+            "3": -0.48383296120792946
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            149,
+            0,
+            0,
+            235,
+            0,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 3.75,
+          "optimal_mass": 0.625,
+          "policy": [
+            0.375,
+            0.0,
+            0.0,
+            0.625,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.49273778022163445,
+            "3": -0.3801716910364727
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            36,
+            0,
+            0,
+            60,
+            0,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 6.000805497169495,
+          "optimal_mass": 0.39991945028305054,
+          "policy": [
+            0.6000805497169495,
+            0.0,
+            0.0,
+            0.39991945028305054,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "top_move": 0,
+          "top_move_optimal": false,
+          "top_move_regret": 10
+        }
+      },
+      "ply": 25,
+      "side_to_move": 1,
+      "source_game_id": 4,
+      "state_hash": "f2aa6f6c3bcceacec6ca928a20e1e436834677e740afb932bd519fa491775af3",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 15,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          3,
+          1,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          7,
+          1,
+          0,
+          0,
+          0
+        ],
+        "player_store": 25
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -6,
+        "exact_optimal_moves": [
+          3
+        ],
+        "exact_rank_by_move": {
+          "0": 2,
+          "1": 3,
+          "2": 1,
+          "3": 4
+        },
+        "exact_regret_by_move": {
+          "0": 6,
+          "1": 2,
+          "2": 8,
+          "3": 0
+        },
+        "exact_score_by_move": {
+          "0": -12,
+          "1": -8,
+          "2": -14,
+          "3": -6
+        },
+        "exact_wdl_by_move": {
+          "0": "L",
+          "1": "L",
+          "2": "L",
+          "3": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": -5,
+          "1": -9,
+          "2": -3,
+          "3": -11
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 7.151666666666666,
+          "optimal_mass": 0.059166666666666666,
+          "policy": [
+            0.055,
+            0.04416666666666667,
+            0.8416666666666667,
+            0.059166666666666666,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.9013591011365255,
+            "1": -0.9867645693275163,
+            "2": -0.8053100888479021,
+            "3": -0.9876914637189516
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 8,
+          "visit_counts": [
+            66,
+            53,
+            1010,
+            71,
+            0,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 6.442708333333333,
+          "optimal_mass": 0.109375,
+          "policy": [
+            0.09895833333333333,
+            0.08072916666666667,
+            0.7109375,
+            0.109375,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.8985899373104698,
+            "1": -0.9773716830438183,
+            "2": -0.815499624687728,
+            "3": -0.9791927124772754
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 8,
+          "visit_counts": [
+            38,
+            31,
+            273,
+            42,
+            0,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 5.0,
+          "optimal_mass": 0.20833333333333334,
+          "policy": [
+            0.19791666666666666,
+            0.15625,
+            0.4375,
+            0.20833333333333334,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.8774901346156472,
+            "1": -0.9532348116238912,
+            "2": -0.8457803648142588,
+            "3": -0.9563046962022781
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 8,
+          "visit_counts": [
+            19,
+            15,
+            42,
+            20,
+            0,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 3.677281564271567,
+          "optimal_mass": 0.3207200408518345,
+          "policy": [
+            0.16531096140376936,
+            0.23772269768436982,
+            0.2762463000600264,
+            0.3207200408518345,
+            0.0,
+            0.0
+          ],
+          "renormalized": true,
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0
+        }
+      },
+      "ply": 23,
+      "side_to_move": 1,
+      "source_game_id": 5,
+      "state_hash": "163dd2561c0b437a937bca0ef04142fda062fc7fd1fc12573d3c3e6ed6959547",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 20,
+      "bucket": "20-21",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          3,
+          2,
+          0,
+          3
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          4,
+          0,
+          1,
+          3,
+          1,
+          0
+        ],
+        "player_store": 16
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 12,
+        "exact_optimal_moves": [
+          3
+        ],
+        "exact_rank_by_move": {
+          "0": 1,
+          "2": 2,
+          "3": 4,
+          "4": 3
+        },
+        "exact_regret_by_move": {
+          "0": 16,
+          "2": 14,
+          "3": 0,
+          "4": 8
+        },
+        "exact_score_by_move": {
+          "0": -4,
+          "2": -2,
+          "3": 12,
+          "4": 4
+        },
+        "exact_wdl_by_move": {
+          "0": "L",
+          "2": "L",
+          "3": "W",
+          "4": "W"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": -8,
+          "2": -6,
+          "3": 8,
+          "4": 0
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 0.5650000000000001,
+          "optimal_mass": 0.9358333333333333,
+          "policy": [
+            0.005833333333333334,
+            0.0,
+            0.0008333333333333334,
+            0.9358333333333333,
+            0.0575,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.28788451318229946,
+            "2": -0.025009429082274437,
+            "3": 0.8047671175113185,
+            "4": 0.44889611154254794
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            7,
+            0,
+            1,
+            1123,
+            69,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 1.2239583333333333,
+          "optimal_mass": 0.8567708333333334,
+          "policy": [
+            0.0078125,
+            0.0,
+            0.0026041666666666665,
+            0.8567708333333334,
+            0.1328125,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.29499706129233044,
+            "2": -0.025009429082274437,
+            "3": 0.7623568156615217,
+            "4": 0.4968999165165074
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            3,
+            0,
+            1,
+            329,
+            51,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 1.6666666666666667,
+          "optimal_mass": 0.8020833333333334,
+          "policy": [
+            0.010416666666666666,
+            0.0,
+            0.0,
+            0.8020833333333334,
+            0.1875,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.09348924458026886,
+            "2": 0.0,
+            "3": 0.7059804468185871,
+            "4": 0.3828622755698032
+          },
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            1,
+            0,
+            0,
+            77,
+            18,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 6.334748152659254,
+          "optimal_mass": 0.313476953433569,
+          "policy": [
+            0.08010126739853547,
+            0.0,
+            0.03362560682325371,
+            0.313476953433569,
+            0.5727961723446419,
+            0.0
+          ],
+          "renormalized": true,
+          "top_move": 4,
+          "top_move_optimal": false,
+          "top_move_regret": 8
+        }
+      },
+      "ply": 18,
+      "side_to_move": 0,
+      "source_game_id": 35,
+      "state_hash": "36fac005e304be8d26176d556d87d451982d93a0b7e8ff3334858ee7b4c1b604",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 18,
+      "bucket": "16-19",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          10
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          1,
+          0,
+          1,
+          2,
+          0
+        ],
+        "player_store": 15
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 8,
+        "exact_optimal_moves": [
+          1,
+          4
+        ],
+        "exact_rank_by_move": {
+          "1": 4,
+          "2": 2,
+          "3": 1,
+          "4": 4,
+          "5": 3
+        },
+        "exact_regret_by_move": {
+          "1": 0,
+          "2": 10,
+          "3": 12,
+          "4": 0,
+          "5": 8
+        },
+        "exact_score_by_move": {
+          "1": 8,
+          "2": -2,
+          "3": -4,
+          "4": 8,
+          "5": 0
+        },
+        "exact_wdl_by_move": {
+          "1": "W",
+          "2": "L",
+          "3": "L",
+          "4": "W",
+          "5": "D"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -8,
+          "2": 2,
+          "3": 4,
+          "4": -8,
+          "5": 0
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 0.6683333333333333,
+          "optimal_mass": 0.9375,
+          "policy": [
+            0.0,
+            0.0125,
+            0.0175,
+            0.03333333333333333,
+            0.925,
+            0.011666666666666667
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.08327212979396184,
+            "2": 0.06624990675066199,
+            "3": 0.17967955255880952,
+            "4": 0.9116226659315798,
+            "5": -0.2507028175251825
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            15,
+            21,
+            40,
+            1110,
+            14
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 1.984375,
+          "optimal_mass": 0.8177083333333334,
+          "policy": [
+            0.0,
+            0.0390625,
+            0.0546875,
+            0.10416666666666667,
+            0.7786458333333334,
+            0.0234375
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.08327212979396184,
+            "2": 0.06624990675066199,
+            "3": 0.17967955255880952,
+            "4": 0.7937216650146406,
+            "5": -0.2796139435635673
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            15,
+            21,
+            40,
+            299,
+            9
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 7.9375,
+          "optimal_mass": 0.2708333333333333,
+          "policy": [
+            0.0,
+            0.15625,
+            0.21875,
+            0.4166666666666667,
+            0.11458333333333333,
+            0.09375
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": 0.08327212979396184,
+            "2": 0.06624990675066199,
+            "3": 0.17967955255880952,
+            "4": 0.33532923968000844,
+            "5": -0.2796139435635673
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 12,
+          "visit_counts": [
+            0,
+            15,
+            21,
+            40,
+            11,
+            9
+          ]
+        },
+        "raw": {
+          "expected_regret": 6.657597332990109,
+          "optimal_mass": 0.27719122045914574,
+          "policy": [
+            0.0,
+            0.18166815150532464,
+            0.25820527057808496,
+            0.08967913887677652,
+            0.09552306895382111,
+            0.3749243700859927
+          ],
+          "renormalized": true,
+          "top_move": 5,
+          "top_move_optimal": false,
+          "top_move_regret": 8
+        }
+      },
+      "ply": 29,
+      "side_to_move": 1,
+      "source_game_id": 8,
+      "state_hash": "8f3753e97e125f40034164e83500049a15b2d5a697a97f3e8b153376b365dab7",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 19,
+      "bucket": "16-19",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          5,
+          3,
+          0,
+          1,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          5,
+          0,
+          0,
+          0,
+          1
+        ],
+        "player_store": 25
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -4,
+        "exact_optimal_moves": [
+          1
+        ],
+        "exact_rank_by_move": {
+          "0": 1,
+          "1": 5,
+          "2": 1,
+          "4": 3,
+          "5": 4
+        },
+        "exact_regret_by_move": {
+          "0": 22,
+          "1": 0,
+          "2": 22,
+          "4": 20,
+          "5": 12
+        },
+        "exact_score_by_move": {
+          "0": -26,
+          "1": -4,
+          "2": -26,
+          "4": -24,
+          "5": -16
+        },
+        "exact_wdl_by_move": {
+          "0": "L",
+          "1": "L",
+          "2": "L",
+          "4": "L",
+          "5": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": 5,
+          "1": -17,
+          "2": 5,
+          "4": 3,
+          "5": -5
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 11.221666666666668,
+          "optimal_mass": 0.29083333333333333,
+          "policy": [
+            0.021666666666666667,
+            0.29083333333333333,
+            0.030833333333333334,
+            0.0,
+            0.2733333333333333,
+            0.38333333333333336
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.8361532711065732,
+            "1": -0.8377223961418201,
+            "2": -0.8625014472652126,
+            "4": -0.843421337018698,
+            "5": -0.817070887365338
+          },
+          "top_move": 5,
+          "top_move_optimal": false,
+          "top_move_regret": 12,
+          "visit_counts": [
+            26,
+            349,
+            37,
+            0,
+            328,
+            460
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 10.791666666666666,
+          "optimal_mass": 0.359375,
+          "policy": [
+            0.0234375,
+            0.359375,
+            0.0390625,
+            0.0,
+            0.3098958333333333,
+            0.2682291666666667
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.8251275420188904,
+            "1": -0.8241412021975586,
+            "2": -0.8544730385144551,
+            "4": -0.8387136022333338,
+            "5": -0.819642271810365
+          },
+          "top_move": 1,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            9,
+            138,
+            15,
+            0,
+            119,
+            103
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 9.9375,
+          "optimal_mass": 0.4270833333333333,
+          "policy": [
+            0.03125,
+            0.4270833333333333,
+            0.041666666666666664,
+            0.0,
+            0.2916666666666667,
+            0.20833333333333334
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": -0.7968368530273438,
+            "1": -0.8073617815971375,
+            "2": -0.849724218249321,
+            "4": -0.8599181047507695,
+            "5": -0.8551663368940353
+          },
+          "top_move": 1,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            3,
+            41,
+            4,
+            0,
+            28,
+            20
+          ]
+        },
+        "raw": {
+          "expected_regret": 11.659538191210206,
+          "optimal_mass": 0.33363966269569495,
+          "policy": [
+            0.024211550641159492,
+            0.33363966269569495,
+            0.056168135842226304,
+            0.0,
+            0.35742715984058604,
+            0.22855349098033323
+          ],
+          "renormalized": true,
+          "top_move": 4,
+          "top_move_optimal": false,
+          "top_move_regret": 20
+        }
+      },
+      "ply": 18,
+      "side_to_move": 1,
+      "source_game_id": 15,
+      "state_hash": "e502e2f225781329a9eb04980f87dab6d6bd372297e324bd80d47eedef1831b0",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 17,
+      "bucket": "16-19",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          5,
+          1,
+          3,
+          0,
+          1
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          4,
+          1,
+          0,
+          0,
+          1
+        ],
+        "player_store": 17
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -4,
+        "exact_optimal_moves": [
+          5
+        ],
+        "exact_rank_by_move": {
+          "1": 1,
+          "2": 2,
+          "5": 3
+        },
+        "exact_regret_by_move": {
+          "1": 6,
+          "2": 4,
+          "5": 0
+        },
+        "exact_score_by_move": {
+          "1": -10,
+          "2": -8,
+          "5": -4
+        },
+        "exact_wdl_by_move": {
+          "1": "L",
+          "2": "L",
+          "5": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -13,
+          "2": -11,
+          "5": -7
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        2,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 2.7933333333333334,
+          "optimal_mass": 0.47,
+          "policy": [
+            0.0,
+            0.33666666666666667,
+            0.19333333333333333,
+            0.0,
+            0.0,
+            0.47
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.7069893029799666,
+            "2": -0.6834688381859451,
+            "5": -0.6826830119945617
+          },
+          "top_move": 5,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            404,
+            232,
+            0,
+            0,
+            564
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 2.4270833333333335,
+          "optimal_mass": 0.5182291666666666,
+          "policy": [
+            0.0,
+            0.25,
+            0.23177083333333334,
+            0.0,
+            0.0,
+            0.5182291666666666
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.4426161598627611,
+            "2": -0.36634280838156014,
+            "5": -0.3626077518056629
+          },
+          "top_move": 5,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            96,
+            89,
+            0,
+            0,
+            199
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 2.645833333333333,
+          "optimal_mass": 0.40625,
+          "policy": [
+            0.0,
+            0.13541666666666666,
+            0.4583333333333333,
+            0.0,
+            0.0,
+            0.40625
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.30893376655876637,
+            "2": 0.10976114936850288,
+            "5": 0.06032831300623142
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 4,
+          "visit_counts": [
+            0,
+            13,
+            44,
+            0,
+            0,
+            39
+          ]
+        },
+        "raw": {
+          "expected_regret": 3.532446310891101,
+          "optimal_mass": 0.36052105905178367,
+          "policy": [
+            0.0,
+            0.48726527354911786,
+            0.1522136673990985,
+            0.0,
+            0.0,
+            0.36052105905178367
+          ],
+          "renormalized": true,
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 6
+        }
+      },
+      "ply": 30,
+      "side_to_move": 0,
+      "source_game_id": 7,
+      "state_hash": "0b35f24b66f0b13314f0ecd689fb91d149a84cedac4665df0b4fac42ea609179",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 14,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          2,
+          2,
+          1,
+          3
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          0,
+          1,
+          0,
+          2,
+          1
+        ],
+        "player_store": 20
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 0,
+        "exact_optimal_moves": [
+          2
+        ],
+        "exact_rank_by_move": {
+          "1": 1,
+          "2": 5,
+          "3": 3,
+          "4": 3,
+          "5": 1
+        },
+        "exact_regret_by_move": {
+          "1": 6,
+          "2": 0,
+          "3": 4,
+          "4": 4,
+          "5": 6
+        },
+        "exact_score_by_move": {
+          "1": -6,
+          "2": 0,
+          "3": -4,
+          "4": -4,
+          "5": -6
+        },
+        "exact_wdl_by_move": {
+          "1": "L",
+          "2": "D",
+          "3": "L",
+          "4": "L",
+          "5": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": 0,
+          "2": -6,
+          "3": -2,
+          "4": -2,
+          "5": 0
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 0.29,
+          "optimal_mass": 0.9466666666666667,
+          "policy": [
+            0.0,
+            0.024166666666666666,
+            0.9466666666666667,
+            0.009166666666666667,
+            0.005833333333333334,
+            0.014166666666666666
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.7611642793334764,
+            "2": -0.19377729052150602,
+            "3": -0.616935983300209,
+            "4": -0.6851498016289302,
+            "5": -0.7451476840411916
+          },
+          "top_move": 2,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            29,
+            1136,
+            11,
+            7,
+            17
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 0.7864583333333334,
+          "optimal_mass": 0.8541666666666666,
+          "policy": [
+            0.0,
+            0.06510416666666667,
+            0.8541666666666666,
+            0.026041666666666668,
+            0.018229166666666668,
+            0.036458333333333336
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.7282062822580337,
+            "2": -0.34687982136440443,
+            "3": -0.5786295816302299,
+            "4": -0.6851498016289302,
+            "5": -0.7297803461551666
+          },
+          "top_move": 2,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            25,
+            328,
+            10,
+            7,
+            14
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 2.4791666666666665,
+          "optimal_mass": 0.53125,
+          "policy": [
+            0.0,
+            0.19791666666666666,
+            0.53125,
+            0.10416666666666667,
+            0.0625,
+            0.10416666666666667
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.7023303171521739,
+            "2": -0.44971730625804734,
+            "3": -0.5786295816302299,
+            "4": -0.6326747685670853,
+            "5": -0.7302730202674865
+          },
+          "top_move": 2,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            19,
+            51,
+            10,
+            6,
+            10
+          ]
+        },
+        "raw": {
+          "expected_regret": 4.543930793282276,
+          "optimal_mass": 0.17781402965548768,
+          "policy": [
+            0.0,
+            0.3954717395665529,
+            0.17781402965548768,
+            0.10629225252385076,
+            0.08830026186854818,
+            0.23212171638556048
+          ],
+          "renormalized": true,
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 6
+        }
+      },
+      "ply": 31,
+      "side_to_move": 1,
+      "source_game_id": 4,
+      "state_hash": "2c2054f8323cf9aa675e170756e3170b3c41d99004786bf68deaa78fdfebeef8",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 20,
+      "bucket": "20-21",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          3,
+          0,
+          2,
+          1,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          3,
+          6,
+          2,
+          0,
+          0,
+          0
+        ],
+        "player_store": 22
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 16,
+        "exact_optimal_moves": [
+          2
+        ],
+        "exact_rank_by_move": {
+          "0": 2,
+          "1": 1,
+          "2": 3
+        },
+        "exact_regret_by_move": {
+          "0": 2,
+          "1": 6,
+          "2": 0
+        },
+        "exact_score_by_move": {
+          "0": 14,
+          "1": 10,
+          "2": 16
+        },
+        "exact_wdl_by_move": {
+          "0": "W",
+          "1": "W",
+          "2": "W"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "0": -2,
+          "1": -6,
+          "2": 0
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        0,
+        1,
+        2
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 2.02,
+          "optimal_mass": 0.6066666666666667,
+          "policy": [
+            0.085,
+            0.30833333333333335,
+            0.6066666666666667,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.777943506252532,
+            "1": 0.7921302544506821,
+            "2": 0.8381849448094246
+          },
+          "top_move": 2,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            102,
+            370,
+            728,
+            0,
+            0,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 2.7604166666666665,
+          "optimal_mass": 0.4583333333333333,
+          "policy": [
+            0.12239583333333333,
+            0.4192708333333333,
+            0.4583333333333333,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.7827253043651581,
+            "1": 0.7997481269495827,
+            "2": 0.8410696578423746
+          },
+          "top_move": 2,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            47,
+            161,
+            176,
+            0,
+            0,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 3.1458333333333335,
+          "optimal_mass": 0.40625,
+          "policy": [
+            0.10416666666666667,
+            0.4895833333333333,
+            0.40625,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "0": 0.7465116292238235,
+            "1": 0.8080583848851792,
+            "2": 0.8556948365309299
+          },
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            10,
+            47,
+            39,
+            0,
+            0,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 3.553905450610898,
+          "optimal_mass": 0.2885915381996563,
+          "policy": [
+            0.17863633004779114,
+            0.5327721317525526,
+            0.2885915381996563,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "renormalized": true,
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 6
+        }
+      },
+      "ply": 20,
+      "side_to_move": 0,
+      "source_game_id": 30,
+      "state_hash": "36873816561bae4960da9724237e3230814b28162929c835bd0ca212ea6d8938",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 13,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          1,
+          3,
+          1,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          0,
+          2,
+          1,
+          1,
+          0
+        ],
+        "player_store": 27
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": 16,
+        "exact_optimal_moves": [
+          4
+        ],
+        "exact_rank_by_move": {
+          "2": 2,
+          "3": 1,
+          "4": 3
+        },
+        "exact_regret_by_move": {
+          "2": 2,
+          "3": 6,
+          "4": 0
+        },
+        "exact_score_by_move": {
+          "2": 14,
+          "3": 10,
+          "4": 16
+        },
+        "exact_wdl_by_move": {
+          "2": "W",
+          "3": "W",
+          "4": "W"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "2": -5,
+          "3": -9,
+          "4": -3
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        2,
+        3,
+        4
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 3.421666666666667,
+          "optimal_mass": 0.28583333333333333,
+          "policy": [
+            0.0,
+            0.0,
+            0.21583333333333332,
+            0.49833333333333335,
+            0.28583333333333333,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "2": 0.7848164516741151,
+            "3": 0.8029711893594195,
+            "4": 0.7720892018215655
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            0,
+            259,
+            598,
+            343,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 3.2395833333333335,
+          "optimal_mass": 0.2864583333333333,
+          "policy": [
+            0.0,
+            0.0,
+            0.2604166666666667,
+            0.453125,
+            0.2864583333333333,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "2": 0.8080036560632289,
+            "3": 0.8248297528460108,
+            "4": 0.7622000160542401
+          },
+          "top_move": 3,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            0,
+            100,
+            174,
+            110,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 2.3958333333333335,
+          "optimal_mass": 0.3854166666666667,
+          "policy": [
+            0.0,
+            0.0,
+            0.3229166666666667,
+            0.2916666666666667,
+            0.3854166666666667,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "2": 0.8480232319524211,
+            "3": 0.8076087087392807,
+            "4": 0.7763169351461772
+          },
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            0,
+            31,
+            28,
+            37,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 2.2549113631248474,
+          "optimal_mass": 0.4681185781955719,
+          "policy": [
+            0.0,
+            0.0,
+            0.2340942919254303,
+            0.2977871298789978,
+            0.4681185781955719,
+            0.0
+          ],
+          "renormalized": false,
+          "top_move": 4,
+          "top_move_optimal": true,
+          "top_move_regret": 0
+        }
+      },
+      "ply": 27,
+      "side_to_move": 0,
+      "source_game_id": 5,
+      "state_hash": "568715a245f378103762bebbd3a7629b75ea3de81ad84f0e59f04230e07c3892",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 15,
+      "bucket": "11-15",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          1,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          0,
+          2,
+          6,
+          0,
+          0
+        ],
+        "player_store": 25
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -10,
+        "exact_optimal_moves": [
+          1,
+          5
+        ],
+        "exact_rank_by_move": {
+          "1": 2,
+          "2": 1,
+          "5": 2
+        },
+        "exact_regret_by_move": {
+          "1": 0,
+          "2": 6,
+          "5": 0
+        },
+        "exact_score_by_move": {
+          "1": -10,
+          "2": -16,
+          "5": -10
+        },
+        "exact_wdl_by_move": {
+          "1": "L",
+          "2": "L",
+          "5": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -7,
+          "2": -1,
+          "5": -7
+        }
+      },
+      "extra_turn_available": true,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        2,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 2.98,
+          "optimal_mass": 0.5033333333333333,
+          "policy": [
+            0.0,
+            0.25666666666666665,
+            0.49666666666666665,
+            0.0,
+            0.0,
+            0.24666666666666667
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.8666637185719106,
+            "2": -0.8373964310392438,
+            "5": -0.8516865916348793
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            308,
+            596,
+            0,
+            0,
+            296
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 2.640625,
+          "optimal_mass": 0.5598958333333333,
+          "policy": [
+            0.0,
+            0.2890625,
+            0.4401041666666667,
+            0.0,
+            0.0,
+            0.2708333333333333
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.8552221615572233,
+            "2": -0.8185231832004863,
+            "5": -0.8319412756424683
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            111,
+            169,
+            0,
+            0,
+            104
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 2.3125,
+          "optimal_mass": 0.6145833333333333,
+          "policy": [
+            0.0,
+            0.3020833333333333,
+            0.3854166666666667,
+            0.0,
+            0.0,
+            0.3125
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.8519449932821865,
+            "2": -0.8078034181852598,
+            "5": -0.8016801019509633
+          },
+          "top_move": 2,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            29,
+            37,
+            0,
+            0,
+            30
+          ]
+        },
+        "raw": {
+          "expected_regret": 2.047999620437622,
+          "optimal_mass": 0.658666729927063,
+          "policy": [
+            0.0,
+            0.3897489309310913,
+            0.341333270072937,
+            0.0,
+            0.0,
+            0.2689177989959717
+          ],
+          "renormalized": false,
+          "top_move": 1,
+          "top_move_optimal": true,
+          "top_move_regret": 0
+        }
+      },
+      "ply": 23,
+      "side_to_move": 1,
+      "source_game_id": 0,
+      "state_hash": "5919b6cac84a65b9473f0578f8a4f882451e5a804cdda1de4df524b72294c852",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 8,
+      "bucket": "0-10",
+      "canonical_state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          2,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          2
+        ],
+        "player_store": 26
+      },
+      "capture_available": true,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -6,
+        "exact_optimal_moves": [
+          2,
+          3
+        ],
+        "exact_rank_by_move": {
+          "1": 1,
+          "2": 2,
+          "3": 2
+        },
+        "exact_regret_by_move": {
+          "1": 6,
+          "2": 0,
+          "3": 0
+        },
+        "exact_score_by_move": {
+          "1": -12,
+          "2": -6,
+          "3": -6
+        },
+        "exact_wdl_by_move": {
+          "1": "L",
+          "2": "L",
+          "3": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": 0,
+          "2": -6,
+          "3": -6
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        2,
+        3
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 2.2199999999999998,
+          "optimal_mass": 0.63,
+          "policy": [
+            0.0,
+            0.37,
+            0.2916666666666667,
+            0.3383333333333333,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.9840694848481599,
+            "2": -0.9977576535088676,
+            "3": -0.9982910965170179
+          },
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            444,
+            350,
+            406,
+            0,
+            0
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 2.140625,
+          "optimal_mass": 0.6432291666666667,
+          "policy": [
+            0.0,
+            0.3567708333333333,
+            0.2994791666666667,
+            0.34375,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.972847485194241,
+            "2": -0.9931754672009012,
+            "3": -0.9947438271659793
+          },
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            137,
+            115,
+            132,
+            0,
+            0
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 2.0625,
+          "optimal_mass": 0.65625,
+          "policy": [
+            0.0,
+            0.34375,
+            0.3125,
+            0.34375,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.9409913980599606,
+            "2": -0.9738392909367879,
+            "3": -0.9789753086639174
+          },
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 6,
+          "visit_counts": [
+            0,
+            33,
+            30,
+            33,
+            0,
+            0
+          ]
+        },
+        "raw": {
+          "expected_regret": 1.6781455278396606,
+          "optimal_mass": 0.7203090786933899,
+          "policy": [
+            0.0,
+            0.2796909213066101,
+            0.3313664495944977,
+            0.3889426290988922,
+            0.0,
+            0.0
+          ],
+          "renormalized": false,
+          "top_move": 3,
+          "top_move_optimal": true,
+          "top_move_regret": 0
+        }
+      },
+      "ply": 30,
+      "side_to_move": 1,
+      "source_game_id": 0,
+      "state_hash": "85c52648211ba52a022c399b36bccbeb3d2196b164faec0eca059469f1765224",
+      "training_eligible": false
+    },
+    {
+      "active_stones": 21,
+      "bucket": "20-21",
+      "canonical_state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          7,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          4,
+          5,
+          0,
+          0,
+          3
+        ],
+        "player_store": 12
+      },
+      "capture_available": false,
+      "corpus_generation": {
+        "c_puct": 1.25,
+        "search_options": {
+          "fpu_mode": "zero",
+          "normalize_values": false,
+          "reuse_subtree": false,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "tactical_root_bias": 0.0
+        },
+        "seed": 340,
+        "standard_start": true,
+        "trajectory_simulations": 384
+      },
+      "exact": {
+        "best_exact_score": -2,
+        "exact_optimal_moves": [
+          2
+        ],
+        "exact_rank_by_move": {
+          "1": 2,
+          "2": 3,
+          "5": 1
+        },
+        "exact_regret_by_move": {
+          "1": 4,
+          "2": 0,
+          "5": 6
+        },
+        "exact_score_by_move": {
+          "1": -6,
+          "2": -2,
+          "5": -8
+        },
+        "exact_wdl_by_move": {
+          "1": "L",
+          "2": "L",
+          "5": "L"
+        },
+        "raw_pit_margin_player0_by_move": {
+          "1": -3,
+          "2": 1,
+          "5": -5
+        }
+      },
+      "extra_turn_available": false,
+      "incumbent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "legal_moves": [
+        1,
+        2,
+        5
+      ],
+      "methods": {
+        "mcts_1200": {
+          "expected_regret": 1.1216666666666666,
+          "optimal_mass": 0.7566666666666667,
+          "policy": [
+            0.0,
+            0.16916666666666666,
+            0.7566666666666667,
+            0.0,
+            0.0,
+            0.07416666666666667
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.26127211539891404,
+            "2": -0.2280030546440396,
+            "5": -0.47272627419279367
+          },
+          "top_move": 2,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            203,
+            908,
+            0,
+            0,
+            89
+          ]
+        },
+        "mcts_384": {
+          "expected_regret": 2.333333333333333,
+          "optimal_mass": 0.4869791666666667,
+          "policy": [
+            0.0,
+            0.3723958333333333,
+            0.4869791666666667,
+            0.0,
+            0.0,
+            0.140625
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.2435106422517683,
+            "2": -0.20870697414589656,
+            "5": -0.435498497483355
+          },
+          "top_move": 2,
+          "top_move_optimal": true,
+          "top_move_regret": 0,
+          "visit_counts": [
+            0,
+            143,
+            187,
+            0,
+            0,
+            54
+          ]
+        },
+        "mcts_96": {
+          "expected_regret": 3.375,
+          "optimal_mass": 0.2604166666666667,
+          "policy": [
+            0.0,
+            0.53125,
+            0.2604166666666667,
+            0.0,
+            0.0,
+            0.20833333333333334
+          ],
+          "renormalized": false,
+          "root_q_by_move": {
+            "1": -0.1937964149184671,
+            "2": -0.2702289491146803,
+            "5": -0.46407117280177773
+          },
+          "top_move": 1,
+          "top_move_optimal": false,
+          "top_move_regret": 4,
+          "visit_counts": [
+            0,
+            51,
+            25,
+            0,
+            0,
+            20
+          ]
+        },
+        "raw": {
+          "expected_regret": 4.018325091227521,
+          "optimal_mass": 0.2611804721287104,
+          "policy": [
+            0.0,
+            0.2072960380001085,
+            0.2611804721287104,
+            0.0,
+            0.0,
+            0.5315234898711811
+          ],
+          "renormalized": true,
+          "top_move": 5,
+          "top_move_optimal": false,
+          "top_move_regret": 6
+        }
+      },
+      "ply": 20,
+      "side_to_move": 0,
+      "source_game_id": 1,
+      "state_hash": "9aabaf48688ed1cc152500efeb93d6b1f0a9846e1ad6af718af708284dc4dd48",
+      "training_eligible": false
+    }
+  ],
+  "schema": "azlite_seed48_target_quality_audit_v1",
+  "training_eligible": false
+}
