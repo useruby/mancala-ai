@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 import json
 import importlib.machinery
 import importlib.util
@@ -85,6 +86,59 @@ class LocalPromotionGateTest(unittest.TestCase):
                 }
             ),
             encoding="utf-8",
+        )
+
+    def write_artifact(self, path: Path, *, version: str, weights: bytes) -> str:
+        path.mkdir()
+        weights_sha = hashlib.sha256(weights).hexdigest()
+        (path / "weights.json").write_bytes(weights)
+        (path / "metadata.json").write_text(
+            json.dumps(
+                {
+                    "version": version,
+                    "artifacts": {"weights_json_sha256": weights_sha},
+                }
+            ),
+            encoding="utf-8",
+        )
+        return weights_sha
+
+    def write_shadow_suite(self, path: Path, *, prefix: str) -> str:
+        path.write_text(
+            "\n".join(
+                json.dumps({"canonical_resulting_state_hash": f"{prefix}-{index}"})
+                for index in range(256)
+            ),
+            encoding="utf-8",
+        )
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    def shadow_args(
+        self,
+        *,
+        candidate: Path,
+        current: Path,
+        hard: Path,
+        expected_current_sha: str | None,
+        prefilter: Path,
+        hard_suite: Path,
+        shadow_hard: bool = True,
+    ) -> argparse.Namespace:
+        return argparse.Namespace(
+            candidate_path=candidate,
+            current_path=str(current),
+            hard_path=str(hard),
+            expected_current_weights_sha256=expected_current_sha,
+            shadow_canonical_prefilter=True,
+            shadow_canonical_hard_arena=shadow_hard,
+            shadow_prefilter_opening_prefixes_jsonl=prefilter,
+            shadow_prefilter_suite_sha256=hashlib.sha256(
+                prefilter.read_bytes()
+            ).hexdigest(),
+            shadow_hard_opening_prefixes_jsonl=hard_suite,
+            shadow_hard_suite_sha256=hashlib.sha256(
+                hard_suite.read_bytes()
+            ).hexdigest(),
         )
 
     def test_python_executable_uses_shared_workspace_venv_only_for_worktree_repo_root(
@@ -291,6 +345,253 @@ class LocalPromotionGateTest(unittest.TestCase):
             SystemExit, "shadow suite path and SHA are required"
         ):
             module.validate_shadow_inputs(args)
+
+    def test_shadow_preflight_is_generation_neutral_and_verifies_artifacts(self):
+        module = self.load_gate_module()
+        with tempfile.TemporaryDirectory(prefix="azlite-shadow-preflight-") as tmp:
+            tmp_path = Path(tmp)
+            candidate = tmp_path / "candidate-next-generation"
+            current = tmp_path / "current-seed48"
+            hard = tmp_path / "hard-seed48"
+            candidate_sha = self.write_artifact(
+                candidate,
+                version="uniform1200-generation-n-plus-1",
+                weights=b"candidate",
+            )
+            current_sha = self.write_artifact(
+                current,
+                version="fresh-uniform1200-s48-uniform1200-iter1",
+                weights=b"seed48",
+            )
+            self.write_artifact(
+                hard,
+                version="fresh-uniform1200-s48-uniform1200-iter1",
+                weights=b"seed48",
+            )
+            prefilter = tmp_path / "prefilter.jsonl"
+            hard_suite = tmp_path / "hard.jsonl"
+            self.write_shadow_suite(prefilter, prefix="prefilter")
+            self.write_shadow_suite(hard_suite, prefix="hard")
+
+            identities = module.validate_shadow_inputs(
+                self.shadow_args(
+                    candidate=candidate,
+                    current=current,
+                    hard=hard,
+                    expected_current_sha=current_sha,
+                    prefilter=prefilter,
+                    hard_suite=hard_suite,
+                )
+            )
+
+        self.assertEqual(candidate_sha, identities["candidate"]["weights_json_sha256"])
+        self.assertEqual(current_sha, identities["current"]["weights_json_sha256"])
+        self.assertEqual(
+            current_sha, identities["hard_opponent"]["weights_json_sha256"]
+        )
+        self.assertIn("metadata_json_sha256", identities["candidate"])
+
+    def test_shadow_dry_run_records_next_generation_identity_topology(self):
+        root = Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory(prefix="azlite-shadow-dry-run-") as tmp:
+            tmp_path = Path(tmp)
+            candidate = tmp_path / "candidate"
+            current = tmp_path / "current"
+            hard = tmp_path / "hard"
+            self.write_artifact(
+                candidate,
+                version="uniform1200-generation-n-plus-1",
+                weights=b"candidate",
+            )
+            current_sha = self.write_artifact(
+                current,
+                version="fresh-uniform1200-s48-uniform1200-iter1",
+                weights=b"seed48",
+            )
+            self.write_artifact(
+                hard,
+                version="fresh-uniform1200-s48-uniform1200-iter1",
+                weights=b"seed48",
+            )
+            prefilter = (
+                root
+                / "docs/data/alphazero-lite-production-prefilter-calibration-openings-v1.jsonl"
+            )
+            hard_suite = (
+                root
+                / "docs/data/alphazero-lite-uniform1200-incumbent-holdout-openings-v1.jsonl"
+            )
+            out = tmp_path / "gate.json"
+
+            result = self.run_gate(
+                "--candidate-path",
+                str(candidate),
+                "--current-path",
+                str(current),
+                "--hard-path",
+                str(hard),
+                "--expected-current-weights-sha256",
+                current_sha,
+                "--shadow-canonical-prefilter",
+                "--shadow-prefilter-opening-prefixes-jsonl",
+                str(prefilter),
+                "--shadow-prefilter-suite-sha256",
+                hashlib.sha256(prefilter.read_bytes()).hexdigest(),
+                "--shadow-canonical-hard-arena",
+                "--shadow-hard-opening-prefixes-jsonl",
+                str(hard_suite),
+                "--shadow-hard-suite-sha256",
+                hashlib.sha256(hard_suite.read_bytes()).hexdigest(),
+                "--dry-run",
+                "--out",
+                str(out),
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            report = json.loads(out.read_text(encoding="utf-8"))
+        self.assertEqual(current_sha, report["expected_current_weights_sha256"])
+        self.assertEqual(
+            "uniform1200-generation-n-plus-1", report["candidate_identity"]["version"]
+        )
+        self.assertEqual(current_sha, report["current_identity"]["weights_json_sha256"])
+        self.assertEqual(
+            current_sha, report["hard_opponent_identity"]["weights_json_sha256"]
+        )
+
+    def test_shadow_preflight_rejects_identity_and_integrity_wiring_errors(self):
+        module = self.load_gate_module()
+        with tempfile.TemporaryDirectory(prefix="azlite-shadow-preflight-") as tmp:
+            tmp_path = Path(tmp)
+            candidate = tmp_path / "candidate"
+            current = tmp_path / "current"
+            hard = tmp_path / "hard"
+            candidate_sha = self.write_artifact(
+                candidate, version="candidate", weights=b"candidate"
+            )
+            current_sha = self.write_artifact(
+                current, version="current", weights=b"current"
+            )
+            self.write_artifact(hard, version="current", weights=b"current")
+            prefilter = tmp_path / "prefilter.jsonl"
+            hard_suite = tmp_path / "hard.jsonl"
+            self.write_shadow_suite(prefilter, prefix="prefilter")
+            self.write_shadow_suite(hard_suite, prefix="hard")
+
+            def args():
+                return self.shadow_args(
+                    candidate=candidate,
+                    current=current,
+                    hard=hard,
+                    expected_current_sha=current_sha,
+                    prefilter=prefilter,
+                    hard_suite=hard_suite,
+                )
+
+            mismatched_suite = args()
+            mismatched_suite.shadow_prefilter_suite_sha256 = "bad"
+            with self.assertRaisesRegex(SystemExit, "shadow suite SHA mismatch"):
+                module.validate_shadow_inputs(mismatched_suite)
+
+            overlapping_suites = args()
+            overlapping_suites.shadow_hard_opening_prefixes_jsonl = prefilter
+            overlapping_suites.shadow_hard_suite_sha256 = hashlib.sha256(
+                prefilter.read_bytes()
+            ).hexdigest()
+            with self.assertRaisesRegex(
+                SystemExit, "shadow_hard_suite_independence_failed"
+            ):
+                module.validate_shadow_inputs(overlapping_suites)
+
+            with self.assertRaisesRegex(
+                SystemExit, "current_artifact_identity_mismatch"
+            ):
+                module.validate_shadow_inputs(
+                    self.shadow_args(
+                        candidate=candidate,
+                        current=current,
+                        hard=hard,
+                        expected_current_sha=candidate_sha,
+                        prefilter=prefilter,
+                        hard_suite=hard_suite,
+                    )
+                )
+
+            (candidate / "metadata.json").write_text(
+                json.dumps(
+                    {
+                        "version": "candidate",
+                        "artifacts": {"weights_json_sha256": "bad"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                SystemExit, "candidate_artifact_integrity_mismatch"
+            ):
+                module.validate_shadow_inputs(args())
+            self.write_artifact(
+                tmp_path / "replacement", version="candidate", weights=b"candidate"
+            )
+            (candidate / "metadata.json").write_text(
+                (tmp_path / "replacement" / "metadata.json").read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
+
+            (current / "metadata.json").write_text(
+                json.dumps(
+                    {"version": "current", "artifacts": {"weights_json_sha256": "bad"}}
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                SystemExit, "current_artifact_integrity_mismatch"
+            ):
+                module.validate_shadow_inputs(args())
+            self.write_artifact(
+                tmp_path / "replacement-current", version="current", weights=b"current"
+            )
+            (current / "metadata.json").write_text(
+                (tmp_path / "replacement-current" / "metadata.json").read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
+
+            (candidate / "weights.json").write_bytes(b"current")
+            (candidate / "metadata.json").write_text(
+                (tmp_path / "replacement-current" / "metadata.json").read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(SystemExit, "candidate_matches_current"):
+                module.validate_shadow_inputs(args())
+            (candidate / "weights.json").write_bytes(b"candidate")
+            (candidate / "metadata.json").write_text(
+                (tmp_path / "replacement" / "metadata.json").read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
+
+            (hard / "weights.json").write_bytes(b"different-hard")
+            (hard / "metadata.json").write_text(
+                json.dumps(
+                    {
+                        "version": "hard",
+                        "artifacts": {
+                            "weights_json_sha256": hashlib.sha256(
+                                b"different-hard"
+                            ).hexdigest()
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(SystemExit, "hard_opponent_identity_mismatch"):
+                module.validate_shadow_inputs(args())
 
     def test_python_executable_does_not_use_shared_workspace_venv_outside_worktree_repo_root(
         self,
