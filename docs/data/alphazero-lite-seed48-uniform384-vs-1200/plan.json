@@ -1,0 +1,7 @@
+{
+  "plan": "ml/alphazero_lite/configs/seed48_uniform384_vs_1200.json",
+  "classification": "execution_pending",
+  "promotion": {"performed": false},
+  "experimental_unit": "matched_training_seed_pair",
+  "training_eligible_exact_corpus": false
+}

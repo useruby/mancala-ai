@@ -182,12 +182,17 @@ def append_step_search_option_flags(step: dict, command: list[str]) -> list[str]
 
 
 def build_step_command(
-    step: dict, *, memory_speed_profile: str | None = None
+    step: dict,
+    *,
+    memory_speed_profile: str | None = None,
+    preserve_config_workers: bool = False,
 ) -> list[str] | object:
     command = step.get("command", [])
     if not isinstance(command, list) or not command:
         return command
     command = append_step_search_option_flags(step, command)
+    if preserve_config_workers:
+        return command
     return normalize_memory_speed_profile(
         command, memory_speed_profile=memory_speed_profile
     )
@@ -636,10 +641,15 @@ def run_step(
     replay_data: str,
     replay_weights: str,
     memory_speed_profile: str | None = None,
+    preserve_config_workers: bool = False,
     hard_state_validation_path: str = "",
 ) -> dict:
     name = step.get("name", "unnamed_step")
-    command = build_step_command(step, memory_speed_profile=memory_speed_profile)
+    command = build_step_command(
+        step,
+        memory_speed_profile=memory_speed_profile,
+        preserve_config_workers=preserve_config_workers,
+    )
     if not isinstance(command, list) or not command:
         return {
             "name": name,
@@ -698,6 +708,7 @@ def build_planned_step_result(
     replay_data: str,
     replay_weights: str,
     memory_speed_profile: str | None = None,
+    preserve_config_workers: bool = False,
     hard_state_validation_path: str = "",
 ) -> dict:
     name = step.get("name", "unnamed_step")
@@ -708,7 +719,11 @@ def build_planned_step_result(
             "reason": "skip_before_final_iteration",
         }
 
-    command = build_step_command(step, memory_speed_profile=memory_speed_profile)
+    command = build_step_command(
+        step,
+        memory_speed_profile=memory_speed_profile,
+        preserve_config_workers=preserve_config_workers,
+    )
     if not isinstance(command, list) or not command:
         return {
             "name": name,
@@ -941,6 +956,7 @@ def main() -> None:
     steps = config.get("steps", [])
     gates = config.get("gates", {})
     memory_speed_profile = config.get("memory_speed_profile")
+    preserve_config_workers = bool(config.get("preserve_config_workers", False))
     replay_window = max(1, int(config.get("replay_window", 1)))
     include_current_iteration = has_self_play_step(steps)
     validate_pipeline_step_config(steps)
@@ -1057,6 +1073,7 @@ def main() -> None:
                     replay_data=replay_data,
                     replay_weights=replay_weights,
                     memory_speed_profile=memory_speed_profile,
+                    preserve_config_workers=preserve_config_workers,
                     hard_state_validation_path=hard_state_validation_path,
                 )
                 manifest["steps"].append(step_result)
@@ -1102,6 +1119,7 @@ def main() -> None:
                     replay_data=replay_data,
                     replay_weights=replay_weights,
                     memory_speed_profile=memory_speed_profile,
+                    preserve_config_workers=preserve_config_workers,
                     hard_state_validation_path=hard_state_validation_path,
                 )
                 manifest["steps"].append(step_result)
