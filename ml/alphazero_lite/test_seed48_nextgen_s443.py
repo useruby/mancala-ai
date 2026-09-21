@@ -46,11 +46,11 @@ class Seed48NextgenS443Test(unittest.TestCase):
     def test_final_effective_worker_contract_blocks_before_execution(self) -> None:
         config = rendered_config(self.plan, self.base, ROOT / ".tmp/test-nextgen")
         command = effective_selfplay_command(config, ROOT / ".tmp/test-nextgen")
-        assert_effective_selfplay_contract(command)
+        assert_effective_selfplay_contract(command, self.plan)
         invalid = list(command)
         invalid[invalid.index("--workers") + 1] = "24"
         with self.assertRaisesRegex(ValueError, "self_play_worker_preflight_failed"):
-            assert_effective_selfplay_contract(invalid)
+            assert_effective_selfplay_contract(invalid, self.plan)
 
     def test_preflight_rejects_parent_seed_replay_and_suite_changes(self) -> None:
         for key, value, message in (
