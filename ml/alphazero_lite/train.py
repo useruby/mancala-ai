@@ -584,6 +584,7 @@ def train_one_epoch(
     loss_observer: Callable[[dict[str, Any]], None] | None = None,
     permutation_callback: Callable[[int | None, list[int]], None] | None = None,
     epoch: int | None = None,
+    max_optimizer_updates: int | None = None,
 ) -> dict[str, float | None]:
     model.train()
     use_supervised = compact_x.shape[0] > 0 and replay_indexes.size > 0
@@ -683,8 +684,14 @@ def train_one_epoch(
     total_losses: list[float] = []
     grad_norms: list[float] = []
     audit_samples = 0
+    examples_sampled = 0
     total_primary_rows = int(permutation.size(0))
     for start in range(0, total_primary_rows, batch_size):
+        if (
+            max_optimizer_updates is not None
+            and len(policy_losses) >= max_optimizer_updates
+        ):
+            break
         indexes = permutation[start : start + batch_size]
         primary_replay_tensor = (
             replay_tensor if use_supervised else pairwise_replay_tensor
@@ -697,6 +704,7 @@ def train_one_epoch(
                 for index in batch_primary_replay_indexes.detach().cpu().tolist()
             )
         batch_size_actual = int(batch_primary_replay_indexes.size(0))
+        examples_sampled += batch_size_actual
 
         policy_loss = torch.zeros((), device=device)
         value_component = torch.zeros((), device=device)
@@ -872,6 +880,8 @@ def train_one_epoch(
         "total_loss": float(np.mean(total_losses)) if total_losses else 0.0,
         "gradient_norm": float(np.mean(grad_norms)) if grad_norms else None,
         "audit_source_samples": float(audit_samples),
+        "optimizer_updates": len(policy_losses),
+        "examples_sampled": examples_sampled,
     }
 
 
@@ -1114,7 +1124,13 @@ def train(
     permutation_callback: Callable[[int | None, list[int]], None] | None = None,
     epoch_callback: Callable[[int, torch.optim.Optimizer, nn.Module], None]
     | None = None,
+    max_optimizer_updates: int | None = None,
+    final_checkpoint: str = "best_validation",
 ) -> tuple[float, float, float]:
+    if max_optimizer_updates is not None and max_optimizer_updates <= 0:
+        raise ValueError("max_optimizer_updates must be positive")
+    if final_checkpoint not in {"best_validation", "final"}:
+        raise ValueError("final_checkpoint must be best_validation or final")
     model.to(device)
     model.train()
 
@@ -1265,6 +1281,10 @@ def train(
     best_val_loss = float("inf")
     best_state = None
     top_states: list[tuple[float, dict[str, torch.Tensor]]] = []
+    optimizer_updates = 0
+    examples_sampled = 0
+    full_epochs_completed = 0
+    partial_final_epoch_batches = 0
 
     def maybe_record_top_state(loss_value: float):
         nonlocal top_states
@@ -1276,6 +1296,11 @@ def train(
         top_states = top_states[:save_top_k]
 
     for epoch_idx in range(1, epochs + 1):
+        if (
+            max_optimizer_updates is not None
+            and optimizer_updates >= max_optimizer_updates
+        ):
+            break
         epoch_metrics = train_one_epoch(
             model=model,
             optimizer=optimizer,
@@ -1308,7 +1333,21 @@ def train(
             loss_observer=loss_observer,
             permutation_callback=permutation_callback,
             epoch=epoch_idx,
+            max_optimizer_updates=(
+                None
+                if max_optimizer_updates is None
+                else max_optimizer_updates - optimizer_updates
+            ),
         )
+        epoch_updates = int(epoch_metrics["optimizer_updates"] or 0)
+        optimizer_updates += epoch_updates
+        examples_sampled += int(epoch_metrics["examples_sampled"] or 0)
+        batches_per_epoch = (len(train_replay_indexes) + batch_size - 1) // batch_size
+        partial_epoch = epoch_updates < batches_per_epoch
+        if partial_epoch:
+            partial_final_epoch_batches = epoch_updates
+            break
+        full_epochs_completed += 1
         policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
         value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
         pairwise_loss_value = float(epoch_metrics["pairwise_loss"] or 0.0)
@@ -1415,9 +1454,14 @@ def train(
             model.train()
 
         if epoch_history is not None:
-            epoch_history.append(
-                {"epoch": epoch_idx, **epoch_metrics, **validation_metrics}
-            )
+            history_metrics = {
+                "epoch": epoch_idx,
+                **epoch_metrics,
+                **validation_metrics,
+            }
+            if max_optimizer_updates is not None:
+                history_metrics["cumulative_optimizer_updates"] = optimizer_updates
+            epoch_history.append(history_metrics)
 
         if epoch_callback is not None:
             epoch_callback(epoch_idx, optimizer, model)
@@ -1438,7 +1482,7 @@ def train(
             np.savez(epoch_path, **epoch_checkpoint)
             print(f"saved_epoch_checkpoint_epoch={epoch_idx} path={epoch_path}")
 
-    if best_state is not None:
+    if final_checkpoint == "best_validation" and best_state is not None:
         model.load_state_dict(best_state)
 
     if best_val_loss == float("inf"):
@@ -1454,6 +1498,14 @@ def train(
         "pairwise_loss_weight": float(pairwise_loss_weight),
         "pairwise_margin": float(pairwise_margin),
         "behavior_loss_weight": float(behavior_loss_weight),
+        "optimizer_updates": optimizer_updates,
+        "examples_sampled": examples_sampled,
+        "full_epochs_completed": full_epochs_completed,
+        "partial_final_epoch_batches": partial_final_epoch_batches,
+        "max_optimizer_updates": max_optimizer_updates,
+        "train_split_count": int(len(train_replay_indexes)),
+        "validation_count": val_count,
+        "final_checkpoint": final_checkpoint,
     }
 
     return policy_loss_value, value_loss_value, best_val_loss
@@ -1896,6 +1948,18 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out", required=True, help="Checkpoint .npz output path")
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument(
+        "--max-optimizer-updates",
+        type=int,
+        default=None,
+        help="Optional exact cap on successful optimizer.step() calls",
+    )
+    parser.add_argument(
+        "--final-checkpoint",
+        choices=["best_validation", "final"],
+        default="best_validation",
+        help="Choose the final optimizer state or the best validation-loss state",
+    )
+    parser.add_argument(
         "--steps", type=int, default=None, help="Deprecated alias for --epochs"
     )
     parser.add_argument("--batch-size", type=int, default=512)
@@ -1987,6 +2051,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--epoch-metrics-out",
         default=None,
         help="Optional JSON output for per-epoch training metrics",
+    )
+    parser.add_argument(
+        "--training-metrics-out",
+        default=None,
+        help="Optional JSON output for final machine-readable training metrics",
     )
     parser.add_argument(
         "--audit-source-indexes",
@@ -2158,6 +2227,8 @@ def main() -> None:
         behavior_anchor_v=behavior_anchor_v,
         behavior_anchor_replay_indexes=behavior_anchor_replay_indexes,
         behavior_loss_weight=args.behavior_loss_weight,
+        max_optimizer_updates=args.max_optimizer_updates,
+        final_checkpoint=args.final_checkpoint,
     )
 
     checkpoint = checkpoint_from_model(model)
@@ -2178,11 +2249,22 @@ def main() -> None:
     )
     print(f"total_loss={float(last_train_metrics.get('total_loss', 0.0)):.6f}")
     print(f"best_val_loss={best_val_loss:.6f}")
+    if args.max_optimizer_updates is not None:
+        print(
+            f"optimizer_updates={int(last_train_metrics.get('optimizer_updates', 0))}"
+        )
     if args.epoch_metrics_out:
         epoch_metrics_path = Path(args.epoch_metrics_out)
         epoch_metrics_path.parent.mkdir(parents=True, exist_ok=True)
         epoch_metrics_path.write_text(
             json.dumps(epoch_history, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    if args.training_metrics_out:
+        training_metrics_path = Path(args.training_metrics_out)
+        training_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        training_metrics_path.write_text(
+            json.dumps(last_train_metrics, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
         )
 
     if args.save_top_k > 0:
