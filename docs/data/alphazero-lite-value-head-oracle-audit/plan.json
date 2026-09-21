@@ -1,0 +1,189 @@
+{
+  "corpus_sha256": "a2276fd7ec65284cc9676ca80bf78215e26892d4de8a56f4ed15d53ef1144cb6",
+  "models": [
+    {
+      "arm": "fresh_w1",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s401-fresh_w1",
+      "checkpoint_sha256": "22d4fe03f6e705fc4100c2f7c0bf2113c206445b15dee203bf3b1fcc2e862e04",
+      "pr351_mcts_384": {
+        "expected_regret": 1.4947135416666666,
+        "optimal_mass": 0.7204427083333332,
+        "top_move_optimal": 0.775,
+        "top_move_regret": 1.12
+      },
+      "source": 401,
+      "weights_sha256": "347875b8c04845d889ce4f0836743d33e32c06943ef263369d94d819fcd7764b"
+    },
+    {
+      "arm": "fresh_w4",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s401-fresh_w4",
+      "checkpoint_sha256": "5ceca35756e5383ef2e548e499b113a9351635b5ca1a604a703a4a9bc44664a1",
+      "pr351_mcts_384": {
+        "expected_regret": 1.6936979166666666,
+        "optimal_mass": 0.6849479166666668,
+        "top_move_optimal": 0.725,
+        "top_move_regret": 1.33
+      },
+      "source": 401,
+      "weights_sha256": "d22d478b7fd309783f27db158b8b97384ca27792006bc9b60fed81fcdce3ca99"
+    },
+    {
+      "arm": "fresh_w1",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s407-fresh_w1",
+      "checkpoint_sha256": "54dcc03f10963e70ea7896deca806dd0c5eb09a9ee1b1d9df87430ff0ee0813c",
+      "pr351_mcts_384": {
+        "expected_regret": 1.7373958333333335,
+        "optimal_mass": 0.684765625,
+        "top_move_optimal": 0.72,
+        "top_move_regret": 1.38
+      },
+      "source": 407,
+      "weights_sha256": "5c027da370b222ff8b4126f277fa1e2c437a642157b0adf059fb0773ec0d9c61"
+    },
+    {
+      "arm": "fresh_w4",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s407-fresh_w4",
+      "checkpoint_sha256": "70ca714fc53bbc84d81e9fd8e041aaf52126143204342c6f4b2397b9aca71af3",
+      "pr351_mcts_384": {
+        "expected_regret": 1.6765885416666666,
+        "optimal_mass": 0.6870703125,
+        "top_move_optimal": 0.715,
+        "top_move_regret": 1.35
+      },
+      "source": 407,
+      "weights_sha256": "f93c74cb50728fbdd249181cc84781de861fc1177c594ed0c46e4f157285e7a7"
+    },
+    {
+      "arm": "fresh_w1",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s413-fresh_w1",
+      "checkpoint_sha256": "e6525abbfdc7272e8dac0cc5cbcb5311b3ba485b84e7f48fbff55ce817e017be",
+      "pr351_mcts_384": {
+        "expected_regret": 1.6309635416666666,
+        "optimal_mass": 0.6967838541666667,
+        "top_move_optimal": 0.77,
+        "top_move_regret": 1.12
+      },
+      "source": 413,
+      "weights_sha256": "724f9f309090d62cac7dbb8e24774a7123c75ce7f5819f1a7047c04321ce2b3d"
+    },
+    {
+      "arm": "fresh_w4",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s413-fresh_w4",
+      "checkpoint_sha256": "c68a0fa857567c0b46fdad4f205ab56ad94f75f93c3db807ce9f566e61729a1e",
+      "pr351_mcts_384": {
+        "expected_regret": 1.7076822916666665,
+        "optimal_mass": 0.6881119791666667,
+        "top_move_optimal": 0.735,
+        "top_move_regret": 1.2
+      },
+      "source": 413,
+      "weights_sha256": "29578a00c21d8eda630356d8eab6598b09f8e4a63207b353d199d1d5044a92ba"
+    },
+    {
+      "arm": "fresh_w1",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s419-fresh_w1",
+      "checkpoint_sha256": "2d8ffb548632c845b93cd375b5f6407fe619123af208a81b82c2e368fc8cb7b1",
+      "pr351_mcts_384": {
+        "expected_regret": 1.6090104166666666,
+        "optimal_mass": 0.6994140625,
+        "top_move_optimal": 0.715,
+        "top_move_regret": 1.46
+      },
+      "source": 419,
+      "weights_sha256": "8a646cd3e96091810c02f0412388a53d2af10983356c88cb39a94fff0a2685db"
+    },
+    {
+      "arm": "fresh_w4",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s419-fresh_w4",
+      "checkpoint_sha256": "0ddc4c4c98bbf5e2a5cf211971816fc6d4c3c20636c44b8bc248e13b41734080",
+      "pr351_mcts_384": {
+        "expected_regret": 1.58296875,
+        "optimal_mass": 0.7029947916666667,
+        "top_move_optimal": 0.755,
+        "top_move_regret": 1.23
+      },
+      "source": 419,
+      "weights_sha256": "29f406d24c4a870015684b28556bd4d838b8ebab3f7f1c6ef39a0f3f172685dc"
+    },
+    {
+      "arm": "fresh_w1",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s443-fresh_w1",
+      "checkpoint_sha256": "abf8b59a612d2a2115dcb5b35c5c1fa68a8e71672947331c910c01ce3958b1ba",
+      "pr351_mcts_384": {
+        "expected_regret": 1.66734375,
+        "optimal_mass": 0.6889973958333333,
+        "top_move_optimal": 0.735,
+        "top_move_regret": 1.14
+      },
+      "source": 443,
+      "weights_sha256": "6de7a6ace4a81e7c12c9fafb4945010381e4e15d9dfbfc78f6420e2f1521f5c9"
+    },
+    {
+      "arm": "fresh_w4",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s443-fresh_w4",
+      "checkpoint_sha256": "8c4be9a653b550cdc9666f51a53be5338a13ab9da42cb98d61487b629baf08ef",
+      "pr351_mcts_384": {
+        "expected_regret": 1.7744791666666666,
+        "optimal_mass": 0.6698307291666667,
+        "top_move_optimal": 0.685,
+        "top_move_regret": 1.53
+      },
+      "source": 443,
+      "weights_sha256": "2e05cfe17eca0d9c3f06f2e3d3f03c578f0398f02842d6d98e25e9978b60f6c9"
+    },
+    {
+      "arm": "fresh_w1",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s449-fresh_w1",
+      "checkpoint_sha256": "b38a85e828c180e639e795bea48e9574e7f610f244e3b6d008c15cf19b5fcd69",
+      "pr351_mcts_384": {
+        "expected_regret": 1.6915625,
+        "optimal_mass": 0.6888802083333333,
+        "top_move_optimal": 0.715,
+        "top_move_regret": 1.42
+      },
+      "source": 449,
+      "weights_sha256": "b4279ce089f325fd27d7b16ff2701b577bb0d4016f9dc8c0b12459d824edd3f1"
+    },
+    {
+      "arm": "fresh_w4",
+      "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s449-fresh_w4",
+      "checkpoint_sha256": "a1a966727964f8c551ac749c137a8616cfd72f3281f03ea2ab63bcda94e01359",
+      "pr351_mcts_384": {
+        "expected_regret": 1.7540625,
+        "optimal_mass": 0.6785677083333332,
+        "top_move_optimal": 0.705,
+        "top_move_regret": 1.57
+      },
+      "source": 449,
+      "weights_sha256": "c1a1f90408faea07fa64e63dc3b17385fb607427987da42788705f59f09e1091"
+    }
+  ],
+  "schema": "azlite_value_head_oracle_audit_v1",
+  "scope": {
+    "canonical_gate": false,
+    "promotion": false,
+    "self_play": false,
+    "training": false
+  },
+  "search_profile": {
+    "c_puct": 1.25,
+    "options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "seed": 341,
+    "sha256": "8761ecdaeae3189d8e26089714a428d360e9cc837a8e88b92b5c6f2af5f57723",
+    "simulations": 384
+  },
+  "tablebase": {
+    "path": "/home/alex/Mancala/ai/.tmp/kalah_v1_21.kvtb",
+    "perspective": "KVTB1 final player-0 margin plus stores, converted to current-player WDL",
+    "probe_sha256": "6ff6e9573c9108bb11f8406b58a25dde452a9a6e2c63f08bd78d153944f29b17",
+    "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tier": 21
+  }
+}
