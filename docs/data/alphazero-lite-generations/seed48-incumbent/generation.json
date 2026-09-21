@@ -1,0 +1,20 @@
+{
+  "artifacts": [
+    {"path": "docs/data/alphazero-lite-promotion-provenance/seed48-corrected-gate-arena-evidence.json", "required": false, "role": "gate_arena_evidence_migration", "schema": "azlite_gate_arena_evidence_migration_v1", "sha256": "d7bf33688d3628fcafb6ebf7f500d9e00a1b710f442bee9f740400b161d6b899", "size_bytes": 780},
+    {"path": "docs/data/alphazero-lite-shadow-canonical-hard-arena/candidate_vs_current_arena.json", "required": false, "role": "canonical_hard_arena", "schema": "arena_v1", "sha256": "26d5709c291bbafd12ec08074d5493a392115b2a5a46ee22863b61dae7abac3a", "size_bytes": 2732},
+    {"path": "docs/data/alphazero-lite-seed48-promotion/promotion_receipt.json", "required": false, "role": "promotion_receipt", "schema": "azlite_seed48_promotion_receipt_v1", "sha256": "ca58f815e5f977ce8d8c9198894a690c222f2bcfaf60114598e5d44a0c5a55f9", "size_bytes": 2579}
+  ],
+  "candidate": {"checkpoint": null, "metadata": {"path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1/metadata.json", "required": false, "role": "metadata", "schema": "azlite_model_v1", "sha256": "ce226854584ac2518ddea22caa1f1faa7a2697f8aa96b1ad6d82388b23ca5f51", "size_bytes": null}, "version": "fresh-uniform1200-s48-uniform1200-iter1", "weights": {"path": ".tmp/fresh-uniform1200/runs/seed48/uniform1200/fresh-uniform1200-s48-uniform1200-iter1/weights.json", "required": false, "role": "weights", "schema": "azlite_model_weights_v1", "sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c", "size_bytes": null}},
+  "canonical_evaluation": {"downstream": {"reason": null, "status": "not_run"}, "hard_arena": {"artifact": {"path": "docs/data/alphazero-lite-shadow-canonical-hard-arena/candidate_vs_current_arena.json", "required": false, "role": "canonical_hard_arena", "schema": "arena_v1", "sha256": "26d5709c291bbafd12ec08074d5493a392115b2a5a46ee22863b61dae7abac3a", "size_bytes": 2732}, "config": {}, "status": "complete", "summary": {"promotion_evidence": true}, "tool": "local_promotion_gate"}, "prefilter": {"reason": "historical gate report is unavailable; corrected hard-arena evidence was preserved", "status": "not_recorded"}},
+  "compute": {},
+  "diagnostics": {"diagnostic_arena": {"reason": null, "status": "not_run"}, "exact_oracle": {"reason": null, "status": "not_run"}, "policy": {"reason": null, "status": "not_run"}, "regressions": {"reason": null, "status": "not_run"}, "value": {"reason": null, "status": "not_run"}},
+  "generation_id": "seed48-incumbent",
+  "parent": {"metadata_sha256": "eb87375b9aba39b270078a81fa3cff120240333d7b2b7993d1de072009be02d6", "version": "azlite-balanced-w8s4-policy-head-e1", "weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"},
+  "promotion": {"decision": "promoted", "failure_reasons": [], "gate_report": {"path": ".tmp/missed_capture_f67bd4k0_move_28-corrected-gate.json", "required": false, "role": "gate_report", "schema": "azlite_local_promotion_gate_v1", "sha256": "0d0d7176ee062ccb3f16ce3afc2bc72eb25a964a30f87485ba5b32631e69a577", "size_bytes": null}},
+  "provenance_notes": ["Historical self-play, replay, training configuration, checkpoint hash, and detailed diagnostics were not recoverable from committed evidence. The promotion receipt and immutable evidence migration are authoritative."],
+  "replay": {"sources": []},
+  "schema": "azlite_generation_record_v1",
+  "self_play": {"artifact": null, "compute": {}, "config": {}, "seeds": [], "status": "not_recorded"},
+  "status": "promoted",
+  "training": {"checkpoint_policy": null, "compute": {}, "config": {}, "metrics": {}, "optimizer_updates": null, "seed": null, "status": "not_recorded"}
+}

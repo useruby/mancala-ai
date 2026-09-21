@@ -5,6 +5,37 @@ For repo-wide setup, shared dev tooling, linting, and `pre-commit` usage, start 
 This folder contains a manual, language-agnostic training workflow for Mancala
 (`kalah`) model artifacts consumed by Rails runtime code.
 
+## Canonical generation records
+
+The project-level provenance contract is `azlite_generation_record_v1`, implemented by `generation_record.py`. One record represents one lineage step: parent -> self-play -> replay/training -> candidate -> diagnostics -> canonical gate -> promoted or rejected. It stores compact summaries plus SHA256-addressed artifacts; detailed telemetry remains in the immutable artifact it references.
+
+Records explicitly use `not_run`/`not_recorded` for absent stages, so a prefilter rejection is not confused with a failed hard arena. Standard diagnostic envelopes live under `diagnostics` (`policy`, `value`, `exact_oracle`, `regressions`, `diagnostic_arena`), while `canonical_evaluation` is reserved for promotion-gating prefilter, hard arena, and downstream checks.
+
+`azlite_run_manifest_v1` remains the legacy execution log. `generation_record.py migrate-manifest` imports its available fields, but it cannot recover hashes the old manifest never recorded. New pipeline work may create/update a record with `--generation-record`; `local_promotion_gate --generation-record ...` appends canonical gate evidence and the promotion decision.
+
+```bash
+.venv/bin/python ml/alphazero_lite/generation_record.py init \
+  --generation-id value-target-default-vs-sharpened-treatment \
+  --out /path/to/generation.json
+.venv/bin/python ml/alphazero_lite/pipeline.py --config config.json \
+  --generation-record /path/to/generation.json
+script/ai/local_promotion_gate --candidate-path /path/to/candidate --out /path/to/gate.json \
+  --generation-record /path/to/generation.json
+.venv/bin/python ml/alphazero_lite/generation_record.py validate /path/to/generation.json
+```
+
+The committed historical examples and compact lineage index are under [`docs/data/alphazero-lite-generations/`](../../docs/data/alphazero-lite-generations/). Historical result bytes and runners remain frozen evidence.
+
+Mental model:
+
+```text
+incumbent -> generation -> self-play -> training -> candidate -> diagnostics -> gate -> rejected/promoted
+```
+
+For an ablation, create two records and a small comparison metadata file that names their controlled configuration difference, for example `training.value_target_mode: ["default", "sharpened"]`. Do not create another runner/result schema merely to record that comparison.
+
+Create an experiment-specific runner only when existing pipeline configuration cannot express execution, standardized diagnostics cannot express measurement, and the capability is reusable or execution semantics are genuinely unique. Otherwise use pipeline configuration, generation records, generic diagnostics, and comparison metadata. Current `run_*.py` files are historical/reproduction or forensic tools (category A); their reusable primitives should be extracted only when needed. `pipeline.py` and `local_promotion_gate` are the normal operational workflow (category C).
+
 The workflow is intentionally simple:
 
 1. Generate MCTS-supervised training records from real Kalah games.
