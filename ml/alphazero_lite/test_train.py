@@ -35,6 +35,15 @@ class TrainScriptTest(unittest.TestCase):
 
         self.assertEqual("hybrid", args.value_target_mode)
 
+    def test_argument_parser_accepts_final_checkpoint_mode(self):
+        parser = train_module.build_argument_parser()
+
+        args = parser.parse_args(
+            ["--out", "checkpoint.npz", "--final-checkpoint", "final"]
+        )
+
+        self.assertEqual("final", args.final_checkpoint)
+
     def test_argument_parser_accepts_phase_aware_value_target_mode(self):
         parser = train_module.build_argument_parser()
 
@@ -1476,6 +1485,115 @@ class TrainScriptTest(unittest.TestCase):
                 rtol=1e-6,
                 atol=1e-6,
             )
+
+    def test_optimizer_update_cap_preserves_natural_full_epoch_checkpoint(self):
+        x = np.ones((8, 15), dtype=np.float32)
+        p = np.tile(
+            np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32), (8, 1)
+        )
+        v = np.zeros((8, 1), dtype=np.float32)
+        uncapped = train_module.PolicyValueNet((8, 8), "mlp_v1", 15)
+        capped = train_module.PolicyValueNet((8, 8), "mlp_v1", 15)
+        capped.load_state_dict(uncapped.state_dict())
+        kwargs = {
+            "epochs": 1,
+            "batch_size": 4,
+            "lr": 0.01,
+            "device": torch.device("cpu"),
+            "value_loss_weight": 0.5,
+            "value_loss": "mse",
+            "huber_delta": 1.0,
+            "val_split": 0.0,
+            "grad_clip": None,
+            "save_top_k": 0,
+        }
+
+        train_module.set_seed(19)
+        train_module.train(uncapped, x, p, v, **kwargs)
+        train_module.set_seed(19)
+        train_module.train(capped, x, p, v, max_optimizer_updates=2, **kwargs)
+
+        for key, parameter in uncapped.state_dict().items():
+            np.testing.assert_array_equal(
+                parameter.detach().cpu().numpy(),
+                capped.state_dict()[key].detach().cpu().numpy(),
+            )
+
+    def test_optimizer_update_cap_stops_mid_epoch_and_is_deterministic(self):
+        x = np.ones((10, 15), dtype=np.float32)
+        p = np.tile(
+            np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32), (10, 1)
+        )
+        v = np.zeros((10, 1), dtype=np.float32)
+        kwargs = {
+            "epochs": 4,
+            "batch_size": 4,
+            "lr": 0.01,
+            "device": torch.device("cpu"),
+            "value_loss_weight": 0.5,
+            "value_loss": "mse",
+            "huber_delta": 1.0,
+            "val_split": 0.0,
+            "grad_clip": None,
+            "save_top_k": 0,
+            "max_optimizer_updates": 5,
+        }
+        first = train_module.PolicyValueNet((8, 8), "mlp_v1", 15)
+        second = train_module.PolicyValueNet((8, 8), "mlp_v1", 15)
+        second.load_state_dict(first.state_dict())
+
+        train_module.set_seed(23)
+        train_module.train(first, x, p, v, **kwargs)
+        train_module.set_seed(23)
+        train_module.train(second, x, p, v, **kwargs)
+
+        self.assertEqual(5, first.last_train_metrics["optimizer_updates"])
+        self.assertEqual(18, first.last_train_metrics["examples_sampled"])
+        self.assertEqual(1, first.last_train_metrics["full_epochs_completed"])
+        self.assertEqual(2, first.last_train_metrics["partial_final_epoch_batches"])
+        for key, parameter in first.state_dict().items():
+            np.testing.assert_array_equal(
+                parameter.detach().cpu().numpy(),
+                second.state_dict()[key].detach().cpu().numpy(),
+            )
+
+    def test_cli_writes_optimizer_update_metrics(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            tmp_path = Path(tmp)
+            data_path = tmp_path / "data.jsonl"
+            out_path = tmp_path / "checkpoint.npz"
+            metrics_path = tmp_path / "metrics.json"
+            self._write_dataset(data_path, rows=64)
+
+            result = subprocess.run(
+                [
+                    self.executable_python(),
+                    "ml/alphazero_lite/train.py",
+                    "--data",
+                    str(data_path),
+                    "--out",
+                    str(out_path),
+                    "--epochs",
+                    "4",
+                    "--batch-size",
+                    "32",
+                    "--device",
+                    "cpu",
+                    "--max-optimizer-updates",
+                    "3",
+                    "--training-metrics-out",
+                    str(metrics_path),
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, msg=result.stderr)
+            metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+            self.assertEqual(3, metrics["optimizer_updates"])
+            self.assertEqual(90, metrics["examples_sampled"])
 
     def test_split_replay_positions_by_source_row_keeps_source_rows_disjoint(self):
         replay_indexes = np.array([0, 1, 1, 1], dtype=np.int64)

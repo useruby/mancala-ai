@@ -1,0 +1,25 @@
+{
+  "schema": "azlite_seed48_update_matched_fixed_volume_v1",
+  "parent_artifact": "model-artifact/current",
+  "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+  "parent_init_checkpoint": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/parent_init_checkpoint.npz",
+  "fixed_pool_path": ".tmp/seed48-fixed-volume-selfplay-pooling/pooled5_fixed71115.jsonl",
+  "fixed_pool_sha256": "a7016fe0e360f81ba98613c52f04510e1449352bcc6d9f20cbfbfa647706e400",
+  "fixed_pool_row_count": 71115,
+  "training": {"epochs": 20, "max_optimizer_updates": 3068, "final_checkpoint": "final", "batch_size": 512, "model_type": "residual_v3", "hidden_sizes": "96,3", "input_encoding": "kalah_v3", "value_loss": "huber", "huber_delta": 1.0, "value_loss_weight": 0.3, "val_split": 0.1, "grad_clip": 1.0, "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "lr_scheduler": "none"},
+  "replay_weights": [1, 4, 1, 8, 4],
+  "replay_sources": [
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"}
+  ],
+  "training_seed_group": [443, 1001, 1003, 1009, 1013],
+  "baseline_a_results": "docs/data/alphazero-lite-seed48-fixed-volume-selfplay-pooling/results.json",
+  "baseline_c_results": "docs/data/alphazero-lite-seed48-full-volume-selfplay-pooling/results.json",
+  "exact_corpus": "docs/data/alphazero-lite-seed48-target-quality/results.json",
+  "evaluation": {"suite": ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl", "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04", "games_per_opening": 1, "simulations": 384, "seed": 341, "workers": 8, "seed_contract": "azlite_eval_seed_v1"},
+  "canonical_gate_run": false,
+  "promotion_performed": false,
+  "candidate_selection_performed": false
+}
