@@ -313,6 +313,83 @@ class LocalPromotionGateTest(unittest.TestCase):
         self.assertEqual(metrics["raw_game_score"], metrics["opening_pair_mean"])
         self.assertEqual(329, metrics["pair_bootstrap_ci95"]["rng_seed"])
 
+    def test_canonical_prefilter_uses_pair_accounting_and_registered_threshold(self):
+        module = self.load_gate_module()
+        args = argparse.Namespace(min_arena_score=0.55)
+
+        for score, arena_report, expected in (
+            (0.60, {"games_played": 10, "wins": 6, "draws": 0}, []),
+            (
+                0.5458984375,
+                {"games_played": 512, "wins": 257, "draws": 45},
+                [{"code": "arena_score_below_threshold"}],
+            ),
+            (
+                0.50,
+                {"games_played": 2, "wins": 1, "draws": 0},
+                [{"code": "arena_score_below_threshold"}],
+            ),
+            (0.55, {"games_played": 20, "wins": 11, "draws": 0}, []),
+        ):
+            with self.subTest(score=score):
+                self.assertEqual(
+                    expected,
+                    module.canonical_prefilter_failure_reasons(
+                        args,
+                        arena_report,
+                        {"opening_pair_mean": score},
+                    ),
+                )
+
+        self.assertEqual(
+            [{"code": "shadow_prefilter_pair_accounting_invalid"}],
+            module.canonical_prefilter_failure_reasons(
+                args,
+                {"games_played": 512, "wins": 256, "draws": 0},
+                {"opening_pair_mean": 0.60},
+            ),
+        )
+
+    def test_historical_prefilter_fixture_reproduces_pair_score(self):
+        module = self.load_gate_module()
+        root = Path(__file__).resolve().parents[2]
+        fixture_dir = root / "docs/data/alphazero-lite-shadow-canonical-prefilter"
+        metrics = module.load_opening_pair_metrics(
+            fixture_dir / "shadow_prefilter_games.jsonl",
+            json.loads(
+                (fixture_dir / "candidate_vs_current_arena.json").read_text(
+                    encoding="utf-8"
+                )
+            ),
+        )
+
+        self.assertEqual(0.8388671875, metrics["opening_pair_mean"])
+        self.assertEqual(metrics["raw_game_score"], metrics["opening_pair_mean"])
+
+    def test_shadow_pair_metrics_reject_incomplete_opening_pairs(self):
+        module = self.load_gate_module()
+        with tempfile.TemporaryDirectory(prefix="azlite-shadow-pairs-") as tmp:
+            games = Path(tmp) / "games.jsonl"
+            games.write_text(
+                "\n".join(
+                    json.dumps(
+                        {
+                            "opening_index": opening,
+                            "challenger_player": seat,
+                            "winner": "draw",
+                        }
+                    )
+                    for opening in range(256)
+                    for seat in ((0,) if opening == 255 else (0, 1))
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "shadow pair accounting malformed"):
+                module.load_opening_pair_metrics(
+                    games,
+                    {"games_played": 511, "wins": 0, "losses": 0, "draws": 511},
+                )
+
     def test_frozen_shadow_suites_are_disjoint(self):
         module = self.load_gate_module()
         root = Path(__file__).resolve().parents[2]

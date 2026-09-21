@@ -578,6 +578,19 @@ def load_opening_pair_metrics(
     }
 
 
+def canonical_prefilter_failure_reasons(
+    args: argparse.Namespace, arena_report: dict, pair_metrics: dict
+) -> list[dict]:
+    raw_prefilter_score = arena_score(arena_report)
+    if not math.isclose(
+        raw_prefilter_score, pair_metrics["opening_pair_mean"], abs_tol=1e-12
+    ):
+        return [{"code": "shadow_prefilter_pair_accounting_invalid"}]
+    if pair_metrics["opening_pair_mean"] < args.min_arena_score:
+        return [{"code": "arena_score_below_threshold"}]
+    return []
+
+
 def mcts_score(report: dict) -> float:
     games = int(report.get("games", 0))
     if games <= 0:
@@ -1459,19 +1472,18 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             "opening_pairs_path": str(pair_path),
             **pair_metrics,
         }
-        expected = 0.8388671875
-        if abs(pair_metrics["opening_pair_mean"] - expected) > 1e-12:
-            report["shadow_classification"] = "shadow_prefilter_reproduction_failed"
+        prefilter_failure_reasons = canonical_prefilter_failure_reasons(
+            args, arena_report, pair_metrics
+        )
+        if prefilter_failure_reasons == [
+            {"code": "shadow_prefilter_pair_accounting_invalid"}
+        ]:
+            report["shadow_classification"] = "shadow_prefilter_pair_accounting_invalid"
             report["failure_reasons"] = [
-                {"code": "shadow_prefilter_reproduction_failed"}
+                {"code": "shadow_prefilter_pair_accounting_invalid"}
             ]
             report["passed"] = False
             return report
-        prefilter_failure_reasons = (
-            []
-            if pair_metrics["opening_pair_mean"] >= args.min_arena_score
-            else [{"code": "arena_score_below_threshold"}]
-        )
     promotion_decision = arena_report.get("promotion_decision")
     promotion_decision_passed = (
         isinstance(promotion_decision, dict)
@@ -1481,8 +1493,8 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     if prefilter_failure_reasons or not promotion_decision_passed:
         if shadow:
             report["shadow_classification"] = (
-                "shadow_prefilter_unexpected_failure"
-                if not prefilter_failure_reasons
+                "shadow_canonical_prefilter_failed"
+                if prefilter_failure_reasons
                 else "shadow_prefilter_unexpected_failure"
             )
         for evaluation in report["evaluations"]:
@@ -1518,7 +1530,9 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
                 "lossless_passed": int(arena_report.get("losses", 0))
                 <= args.max_losses,
                 "passed": False,
-                "failure_reasons": arena_prefilter_failure_reasons(args, arena_report),
+                "failure_reasons": prefilter_failure_reasons
+                if shadow and prefilter_failure_reasons
+                else arena_prefilter_failure_reasons(args, arena_report),
             }
         )
         report["endgame_exact_solve"]["status"] = "not_produced"

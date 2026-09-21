@@ -1,0 +1,44 @@
+{
+  "schema": "azlite_prefilter_reclassification_v1",
+  "classification": "canonical_prefilter_generation_neutralized",
+  "candidate_weights_sha256": "2e517e21097dba818b362aa43b7c6917c17438e1ad0c8a16136ba10a20500a8b",
+  "candidate_metadata_sha256": "af71438f6de690d50f1bb02db08f9b213b243fbf4edfadc97ea7c6a966fb08af",
+  "original_pr": 343,
+  "evidence_path": "docs/data/alphazero-lite-seed48-nextgen-s443/local_promotion_gate.json",
+  "frozen_prefilter_suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+  "original_failure_code": "shadow_prefilter_reproduction_failed",
+  "original_score": 0.5458984375,
+  "opening_pair_mean": 0.5458984375,
+  "pair_bootstrap_ci95": [
+    0.513671875,
+    0.578125
+  ],
+  "configured_threshold": 0.55,
+  "pair_accounting_status": "passed",
+  "threshold_comparison": "0.5458984375 >= 0.55",
+  "threshold_passed": false,
+  "corrected_failure_reason": "arena_score_below_threshold",
+  "arena_rerun": false,
+  "hard_arena_run": false,
+  "promoted": false,
+  "incumbent_unchanged": true,
+  "seed443_candidate_status": "rejected_below_prefilter_threshold",
+  "reclassified_gate_outcome": "seed443_generation_n_plus_1_prefilter_failed",
+  "runtime_historical_score_audit": [
+    {
+      "value": 0.8388671875,
+      "location": "script/ai/local_promotion_gate canonical prefilter",
+      "status": "removed as runtime requirement; retained only in frozen-fixture test code"
+    },
+    {
+      "value": 0.8837890625,
+      "location": "script/ai/local_promotion_gate frozen_pr329_asymmetric_score_384_256",
+      "status": "descriptive hard-arena telemetry only; does not control pass/fail"
+    },
+    {
+      "value": 0.8837890625,
+      "location": "ml/alphazero_lite/run_production_arena_prefilter_calibration.py historical_independent_strength_score",
+      "status": "frozen calibration-fixture manifest and descriptive correlation input; not a future-candidate promotion decision"
+    }
+  ]
+}
