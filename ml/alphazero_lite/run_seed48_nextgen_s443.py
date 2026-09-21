@@ -105,10 +105,10 @@ def rendered_config(
     return config
 
 
-def seed_conflict() -> bool:
+def seed_conflict(training_seed: int, registered_plan: Path, own_results: Path) -> bool:
     """Only registered descendant identifiers constitute comparable provenance."""
-    registered_plan = ROOT / "ml/alphazero_lite/configs/seed48_nextgen_s443.json"
-    own_results = ROOT / "docs/data/alphazero-lite-seed48-nextgen-s443"
+    seed_marker = f"seed{training_seed}"
+    run_marker = f"s{training_seed}-"
     for directory in (ROOT / "docs", ROOT / "ml" / "alphazero_lite" / "configs"):
         for path in directory.rglob("*"):
             if path == registered_plan or own_results in path.parents:
@@ -116,7 +116,7 @@ def seed_conflict() -> bool:
             if not path.is_file() or path.suffix not in {".json", ".md"}:
                 continue
             text = path.read_text(encoding="utf-8", errors="ignore")
-            if "seed443" in text or "s443-" in text:
+            if seed_marker in text or run_marker in text:
                 return True
     return False
 
@@ -145,13 +145,15 @@ def effective_selfplay_command(config: dict[str, Any], workdir: Path) -> list[st
     return resolve_step_command(rendered, repo_root=ROOT)
 
 
-def assert_effective_selfplay_contract(command: list[str]) -> None:
+def assert_effective_selfplay_contract(
+    command: list[str], plan: dict[str, Any]
+) -> None:
     expected = {
         "--games": "1600",
         "--workers": "6",
         "--simulations": "1200",
-        "--seed": "443",
-        "--seed-sweep": "442,443,444",
+        "--seed": str(plan["training_seed"]),
+        "--seed-sweep": ",".join(map(str, plan["self_play_seed_sweep"])),
     }
     if option_value(command, "--workers") != "6":
         raise ValueError("self_play_worker_preflight_failed")
@@ -169,14 +171,24 @@ def preflight(
 ) -> dict[str, Any]:
     if plan.get("schema") != SCHEMA:
         raise ValueError("registered experiment schema mismatch")
-    if plan.get("training_seed") != 443 or plan.get("self_play_seed_sweep") != [
-        442,
-        443,
-        444,
-    ]:
+    if (
+        plan.get("training_seed") not in (443, 449)
+        or len(plan.get("self_play_seed_sweep", [])) != 3
+    ):
         raise ValueError("registered seed/sweep pin mismatch")
-    if seed_conflict():
-        raise ValueError("registered_training_seed_conflict")
+    if plan["training_seed"] == 449 and plan["self_play_seed_sweep"] != [448, 449, 450]:
+        raise ValueError("registered seed/sweep pin mismatch")
+    if seed_conflict(
+        plan["training_seed"],
+        ROOT
+        / f"ml/alphazero_lite/configs/seed48_nextgen_s{plan['training_seed']}.json",
+        ROOT / f"docs/data/alphazero-lite-seed48-nextgen-s{plan['training_seed']}",
+    ):
+        raise ValueError(
+            "seed449_registration_conflict"
+            if plan["training_seed"] == 449
+            else "registered_training_seed_conflict"
+        )
     parent = ROOT / plan["parent_artifact"]
     metadata = json.loads((parent / "metadata.json").read_text(encoding="utf-8"))
     if (
@@ -184,7 +196,11 @@ def preflight(
         or sha256_file(parent / "weights.json")
         != plan["expected_parent_weights_sha256"]
     ):
-        raise ValueError("parent_weights_sha_preflight_failed")
+        raise ValueError(
+            "seed449_parent_identity_mismatch"
+            if plan["training_seed"] == 449
+            else "parent_weights_sha_preflight_failed"
+        )
     if (
         tuple(source["weight"] for source in plan["fixed_replay_sources"])
         != EXPECTED_REPLAY_WEIGHTS
@@ -194,12 +210,16 @@ def preflight(
     for source in plan["fixed_replay_sources"]:
         path = ROOT / source["path"]
         if not path.is_file() or sha256_file(path) != source["sha256"]:
-            raise FileNotFoundError("generation_n_plus_1_replay_provenance_unavailable")
+            raise FileNotFoundError("seed449_replay_provenance_unavailable")
         if jsonl_audit_collisions(path, audit_set):
             raise ValueError("audit_corpus_isolation_failed")
     config = rendered_config(plan, base, workdir)
     command = effective_selfplay_command(config, workdir)
-    assert_effective_selfplay_contract(command)
+    assert_effective_selfplay_contract(command, plan)
+    train_command = train_step(config)["command"]
+    forbidden_train_flags = ("--max-optimizer-updates", "--final-checkpoint")
+    if any(flag in train_command for flag in forbidden_train_flags):
+        raise ValueError("seed449_training_recipe_mismatch")
     for name, expected in (
         ("prefilter_suite", "prefilter_suite_sha256"),
         ("hard_suite", "hard_suite_sha256"),
@@ -211,6 +231,7 @@ def preflight(
         "parent_weights_sha256": sha256_file(parent / "weights.json"),
         "audit_hash_count": len(audit_set),
         "effective_selfplay_command": command,
+        "effective_train_command": train_command,
     }
 
 
@@ -426,8 +447,8 @@ def main(argv: list[str] | None = None) -> int:
         "workers": "6",
         "games": "1600",
         "simulations": "1200",
-        "seed": "443",
-        "seed_sweep": "442,443,444",
+        "seed": str(plan["training_seed"]),
+        "seed_sweep": ",".join(map(str, plan["self_play_seed_sweep"])),
         "opening_minimum_present": False,
     }
     if selfplay_contract != expected_selfplay_contract:
