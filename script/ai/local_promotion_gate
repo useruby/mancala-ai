@@ -93,6 +93,11 @@ def parse_args() -> argparse.Namespace:
         help="Canonical cumulative-lineage JSON with candidate_vs_p0 arena entries.",
     )
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument(
+        "--generation-record",
+        type=Path,
+        help="canonical generation record to update after writing this gate report",
+    )
     parser.add_argument("--stub-arena-report", type=Path)
     parser.add_argument("--stub-hard-report", type=Path)
     parser.add_argument("--stub-candidate-mcts-report", type=Path)
@@ -1971,6 +1976,16 @@ def main() -> int:
             report["seat_aware"] = {"error": str(exc)}
 
     args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    if getattr(args, "generation_record", None) is not None:
+        from ml.alphazero_lite.generation_record import (
+            load_record,
+            merge_gate_report,
+            write_record,
+        )
+
+        generation_record = load_record(args.generation_record)
+        merge_gate_report(generation_record, args.out)
+        write_record(args.generation_record, generation_record)
     print(json.dumps({"report_path": str(args.out), "dry_run": args.dry_run}))
     if not args.dry_run and not report.get("passed", True):
         return 1

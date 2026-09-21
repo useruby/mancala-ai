@@ -1,0 +1,8 @@
+{
+  "schema": "azlite_generation_index_v1",
+  "generations": [
+    {"candidate_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c", "decision": "promoted", "generation_id": "seed48-incumbent", "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a", "reason": null, "record": "docs/data/alphazero-lite-generations/seed48-incumbent/generation.json"},
+    {"candidate_weights_sha256": "2e517e21097dba818b362aa43b7c6917c17438e1ad0c8a16136ba10a20500a8b", "decision": "rejected", "generation_id": "seed48-nextgen-s443", "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c", "reason": "arena_score_below_threshold", "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s443/generation.json"},
+    {"candidate_weights_sha256": "19c3637d35c20ca419b6df635956e49fb3e3aceadc79141e4af028cfca1cd727", "decision": "rejected", "generation_id": "seed48-nextgen-s449", "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c", "reason": "arena_score_below_threshold", "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s449/generation.json"}
+  ]
+}

@@ -27,6 +27,13 @@ from ml.alphazero_lite.report_validation import (
     validate_arena_report,
 )
 from ml.alphazero_lite.run_manifest import build_manifest, write_manifest
+from ml.alphazero_lite.generation_record import (
+    artifact_ref,
+    load_record,
+    new_record,
+    record_pipeline_step,
+    write_record,
+)
 from ml.alphazero_lite.self_play import normalize_value_trust_schedule
 from ml.alphazero_lite.worker_config import (
     SUPPORTED_MEMORY_SPEED_PROFILES,
@@ -41,6 +48,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--iterations", type=int, default=None)
     parser.add_argument("--skip-step", action="append", default=[])
     parser.add_argument("--start-iteration", type=int, default=None)
+    parser.add_argument("--generation-record", type=Path)
     return parser.parse_args()
 
 
@@ -1043,6 +1051,32 @@ def main() -> None:
 
         manifest["steps"] = []
         manifest["gate_failures"] = []
+        generation_record_path = (
+            args.generation_record
+            if args.generation_record and total_iterations == 1
+            else iter_dir / "generation_record.json"
+        )
+        if generation_record_path.exists():
+            generation_record = load_record(generation_record_path)
+        else:
+            parent_weights = parent_model_dir / "weights.json"
+            parent_metadata = parent_model_dir / "metadata.json"
+            generation_record = new_record(
+                generation_id=f"{run_id}-iter{iteration}",
+                parent={
+                    "version": parent_model_dir.name,
+                    "weights_sha256": artifact_ref(
+                        "parent_weights", parent_weights
+                    ).get("sha256"),
+                    "metadata_sha256": artifact_ref(
+                        "parent_metadata", parent_metadata
+                    ).get("sha256"),
+                },
+                notes=[
+                    "Created by pipeline.py; azlite_run_manifest_v1 remains the execution log."
+                ],
+            )
+        write_record(generation_record_path, generation_record)
         replay_data, replay_weights = resolve_replay_context(
             iteration=iteration,
             iter_dir=iter_dir,
@@ -1077,6 +1111,8 @@ def main() -> None:
                     hard_state_validation_path=hard_state_validation_path,
                 )
                 manifest["steps"].append(step_result)
+                generation_record = record_pipeline_step(generation_record, step_result)
+                write_record(generation_record_path, generation_record)
                 if step_result["status"] == "failed":
                     manifest["status"] = "failed"
                     write_manifest(iter_dir / "run_manifest.json", manifest)
@@ -1123,6 +1159,8 @@ def main() -> None:
                     hard_state_validation_path=hard_state_validation_path,
                 )
                 manifest["steps"].append(step_result)
+                generation_record = record_pipeline_step(generation_record, step_result)
+                write_record(generation_record_path, generation_record)
                 if step_result["status"] == "failed":
                     manifest["status"] = "failed"
                     write_manifest(iter_dir / "run_manifest.json", manifest)
