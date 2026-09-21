@@ -1,0 +1,49 @@
+{
+  "schema": "azlite_seed48_generation_n_plus_1_v1",
+  "run_id": "seed48-nextgen-s443-uniform1200-rerun6",
+  "base_config": "ml/alphazero_lite/configs/exp_v3_denoised_opening_min384_selected_w1_guard_w2_clean_root.json",
+  "parent_artifact": "model-artifact/current",
+  "expected_parent_version": "fresh-uniform1200-s48-uniform1200-iter1",
+  "expected_parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+  "training_seed": 443,
+  "self_play_seed_sweep": [442, 443, 444],
+  "self_play": {
+    "games": 1600,
+    "workers": 6,
+    "simulations": 1200,
+    "temperature_threshold": 12,
+    "temperature": 1.1,
+    "temperature_late": 0.15,
+    "dirichlet_alpha": 0.3,
+    "dirichlet_epsilon": 0.3,
+    "schedule_progress_mode": "linear",
+    "tree_reuse_enabled": true,
+    "input_encoding": "kalah_v3",
+    "policy_target_mode": "sharpened",
+    "policy_target_noise_mode": "denoised",
+    "write_root_target_telemetry": true,
+    "value_target_mode": "sharpened"
+  },
+  "fixed_replay_sources": [
+    {"name": "generic_bootstrap", "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "weight": 4, "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"},
+    {"name": "random_teacher", "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "weight": 1, "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"},
+    {"name": "opening_puct_disagreement_replay", "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "weight": 8, "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"},
+    {"name": "equal_budget_stability_replay", "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "weight": 4, "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"}
+  ],
+  "exact_corpus": {"path": "docs/data/alphazero-lite-seed48-target-quality/results.json", "training_eligible": false},
+  "canonical_gate": {
+    "current_path": "model-artifact/current",
+    "hard_path": "model-artifact/current",
+    "expected_current_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "prefilter_suite": "docs/data/alphazero-lite-production-prefilter-calibration-openings-v1.jsonl",
+    "prefilter_suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+    "hard_suite": "docs/data/alphazero-lite-uniform1200-incumbent-holdout-openings-v1.jsonl",
+    "hard_suite_sha256": "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c"
+  },
+  "retry_reason": "infrastructure_contract_violation",
+  "experimental_seed_changed": false,
+  "invalid_candidate_reused": false,
+  "invalid_self_play_reused": false,
+  "invalid_attempt": {"classification": "self_play_worker_contract_failed", "workers": 24, "candidate_weights_sha256": "0f32dc75194df45a586976836e0d3326fd4212968f8f670b208f0dc9d9218586", "gate_executed": false, "promoted": false},
+  "promotion": {"performed": false, "reason": "generation_n_plus_1_candidate_evaluation_only"}
+}

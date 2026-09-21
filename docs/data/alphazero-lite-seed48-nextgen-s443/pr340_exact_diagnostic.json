@@ -1,0 +1,14 @@
+{
+  "mcts_384": {
+    "expected_regret": 1.5029166666666667,
+    "optimal_mass": 0.7139453125,
+    "top_move_optimal": 0.755,
+    "top_move_regret": 1.13
+  },
+  "raw": {
+    "expected_regret": 2.268299667194916,
+    "optimal_mass": 0.6303161127542122,
+    "top_move_optimal": 0.73,
+    "top_move_regret": 1.51
+  }
+}

@@ -1,0 +1,465 @@
+{
+  "passed": true,
+  "artifact_path": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1",
+  "positions_path": "test/fixtures/ai/superhuman_regression_positions.json",
+  "results": [
+    {
+      "id": "missed_capture_f67bd4k0_move_28",
+      "description": "Either exact-optimal continuation from pit B or pit F is acceptable.",
+      "expected_move": 1,
+      "acceptable_moves": [
+        1,
+        5
+      ],
+      "token": "f67bd4k0",
+      "move_number": 28,
+      "selected_move": 5,
+      "passed": true,
+      "summary": {
+        "selected_move": 5,
+        "legal_moves": [
+          0,
+          1,
+          2,
+          5
+        ],
+        "policy": [
+          0.11654768139123917,
+          0.2090902477502823,
+          0.3366473317146301,
+          0.0,
+          0.0,
+          0.3377147614955902
+        ],
+        "value": -0.505925178527832,
+        "child_stats": [
+          {
+            "move": 0,
+            "visits": 23,
+            "q_value": -0.7438697309597678
+          },
+          {
+            "move": 1,
+            "visits": 125,
+            "q_value": -0.6622646290659905
+          },
+          {
+            "move": 2,
+            "visits": 65,
+            "q_value": -0.7477085099770473
+          },
+          {
+            "move": 5,
+            "visits": 171,
+            "q_value": -0.6707357069346727
+          }
+        ],
+        "visits": [
+          23.0,
+          125.0,
+          65.0,
+          0.0,
+          0.0,
+          171.0
+        ],
+        "selection_breakdown": {
+          "fpu_mode": "zero",
+          "value_trust_multiplier": 1.0,
+          "parent_q_value": -0.685387868436616,
+          "selected_move": 5,
+          "reference_move": 5,
+          "reference_move_kind": "highest_prior_move",
+          "highest_prior_move": 5,
+          "policy_top_move": 5,
+          "visit_top_move": 5,
+          "q_top_move": 1,
+          "next_simulation_move": 1,
+          "next_simulation_move_kind": "highest current PUCT selection score using deterministic telemetry ordering",
+          "moves": [
+            {
+              "move": 0,
+              "prior": 0.11654768139123917,
+              "visit_count": 23,
+              "q_value": -0.7438697309597678,
+              "stored_q_value": -0.7438697309597678,
+              "selection_q_value": -0.7438697309597678,
+              "selection_q_overridden": false,
+              "q_component": -0.7438697309597678,
+              "u_component": 0.11895097921375092,
+              "selection_score": -0.6249187517460169,
+              "used_fpu": false,
+              "fpu_value": null
+            },
+            {
+              "move": 1,
+              "prior": 0.2090902477502823,
+              "visit_count": 125,
+              "q_value": -0.6622646290659905,
+              "stored_q_value": -0.6622646290659905,
+              "selection_q_value": -0.6622646290659905,
+              "selection_q_overridden": false,
+              "q_component": -0.6622646290659905,
+              "u_component": 0.04064796961748491,
+              "selection_score": -0.6216166594485055,
+              "used_fpu": false,
+              "fpu_value": null
+            },
+            {
+              "move": 2,
+              "prior": 0.3366473317146301,
+              "visit_count": 65,
+              "q_value": -0.7477085099770473,
+              "stored_q_value": -0.7477085099770473,
+              "selection_q_value": -0.7477085099770473,
+              "selection_q_overridden": false,
+              "q_component": -0.7477085099770473,
+              "u_component": 0.12494154332883523,
+              "selection_score": -0.6227669666482121,
+              "used_fpu": false,
+              "fpu_value": null
+            },
+            {
+              "move": 5,
+              "prior": 0.3377147614955902,
+              "visit_count": 171,
+              "q_value": -0.6707357069346727,
+              "stored_q_value": -0.6707357069346727,
+              "selection_q_value": -0.6707357069346727,
+              "selection_q_overridden": false,
+              "q_component": -0.6707357069346727,
+              "u_component": 0.0480947002482509,
+              "selection_score": -0.6226410066864217,
+              "used_fpu": false,
+              "fpu_value": null
+            }
+          ]
+        },
+        "visit_snapshots": [
+          {
+            "simulation": 1,
+            "visits": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "moves": [
+              {
+                "move": 0,
+                "prior": 0.11654768139123917,
+                "visit_count": 0,
+                "q_value": 0.0,
+                "stored_q_value": 0.0,
+                "selection_q_value": 0.0,
+                "selection_q_overridden": false,
+                "q_component": 0.0,
+                "u_component": 0.14568460173904896,
+                "selection_score": 0.14568460173904896,
+                "used_fpu": true,
+                "fpu_value": 0.0
+              },
+              {
+                "move": 1,
+                "prior": 0.2090902477502823,
+                "visit_count": 0,
+                "q_value": 0.0,
+                "stored_q_value": 0.0,
+                "selection_q_value": 0.0,
+                "selection_q_overridden": false,
+                "q_component": 0.0,
+                "u_component": 0.26136280968785286,
+                "selection_score": 0.26136280968785286,
+                "used_fpu": true,
+                "fpu_value": 0.0
+              },
+              {
+                "move": 2,
+                "prior": 0.3366473317146301,
+                "visit_count": 0,
+                "q_value": 0.0,
+                "stored_q_value": 0.0,
+                "selection_q_value": 0.0,
+                "selection_q_overridden": false,
+                "q_component": 0.0,
+                "u_component": 0.42080916464328766,
+                "selection_score": 0.42080916464328766,
+                "used_fpu": true,
+                "fpu_value": 0.0
+              },
+              {
+                "move": 5,
+                "prior": 0.3377147614955902,
+                "visit_count": 1,
+                "q_value": -0.4991760551929474,
+                "stored_q_value": -0.4991760551929474,
+                "selection_q_value": -0.4991760551929474,
+                "selection_q_overridden": false,
+                "q_component": -0.4991760551929474,
+                "u_component": 0.21107172593474388,
+                "selection_score": -0.2881043292582035,
+                "used_fpu": false,
+                "fpu_value": null
+              }
+            ],
+            "selected_move": 5,
+            "reference_move_by_prior": 5,
+            "reference_move_rank_by_visits": 1,
+            "reference_move_rank_by_q": 4,
+            "reference_move_rank_by_selection_score": 4
+          },
+          {
+            "simulation": 2,
+            "visits": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "moves": [
+              {
+                "move": 0,
+                "prior": 0.11654768139123917,
+                "visit_count": 0,
+                "q_value": 0.0,
+                "stored_q_value": 0.0,
+                "selection_q_value": 0.0,
+                "selection_q_overridden": false,
+                "q_component": 0.0,
+                "u_component": 0.20602913960828603,
+                "selection_score": 0.20602913960828603,
+                "used_fpu": true,
+                "fpu_value": 0.0
+              },
+              {
+                "move": 1,
+                "prior": 0.2090902477502823,
+                "visit_count": 0,
+                "q_value": 0.0,
+                "stored_q_value": 0.0,
+                "selection_q_value": 0.0,
+                "selection_q_overridden": false,
+                "q_component": 0.0,
+                "u_component": 0.3696228301604997,
+                "selection_score": 0.3696228301604997,
+                "used_fpu": true,
+                "fpu_value": 0.0
+              },
+              {
+                "move": 2,
+                "prior": 0.3366473317146301,
+                "visit_count": 1,
+                "q_value": -0.7162737846374512,
+                "stored_q_value": -0.7162737846374512,
+                "selection_q_value": -0.7162737846374512,
+                "selection_q_overridden": false,
+                "q_component": -0.7162737846374512,
+                "u_component": 0.29755701390471506,
+                "selection_score": -0.4187167707327361,
+                "used_fpu": false,
+                "fpu_value": null
+              },
+              {
+                "move": 5,
+                "prior": 0.3377147614955902,
+                "visit_count": 1,
+                "q_value": -0.4991760551929474,
+                "stored_q_value": -0.4991760551929474,
+                "selection_q_value": -0.4991760551929474,
+                "selection_q_overridden": false,
+                "q_component": -0.4991760551929474,
+                "u_component": 0.29850049745041174,
+                "selection_score": -0.20067555774253565,
+                "used_fpu": false,
+                "fpu_value": null
+              }
+            ],
+            "selected_move": 5,
+            "reference_move_by_prior": 5,
+            "reference_move_rank_by_visits": 1,
+            "reference_move_rank_by_q": 3,
+            "reference_move_rank_by_selection_score": 3
+          },
+          {
+            "simulation": 192,
+            "visits": [
+              12.0,
+              76.0,
+              30.0,
+              0.0,
+              0.0,
+              74.0
+            ],
+            "moves": [
+              {
+                "move": 0,
+                "prior": 0.11654768139123917,
+                "visit_count": 12,
+                "q_value": -0.7037646348277727,
+                "stored_q_value": -0.7037646348277727,
+                "selection_q_value": -0.7037646348277727,
+                "selection_q_overridden": false,
+                "q_component": -0.7037646348277727,
+                "u_component": 0.15528192744152,
+                "selection_score": -0.5484827073862527,
+                "used_fpu": false,
+                "fpu_value": null
+              },
+              {
+                "move": 1,
+                "prior": 0.2090902477502823,
+                "visit_count": 76,
+                "q_value": -0.590363582302081,
+                "stored_q_value": -0.590363582302081,
+                "selection_q_value": -0.590363582302081,
+                "selection_q_overridden": false,
+                "q_component": -0.590363582302081,
+                "u_component": 0.04703310811307183,
+                "selection_score": -0.5433304741890091,
+                "used_fpu": false,
+                "fpu_value": null
+              },
+              {
+                "move": 2,
+                "prior": 0.3366473317146301,
+                "visit_count": 30,
+                "q_value": -0.7348826577266058,
+                "stored_q_value": -0.7348826577266058,
+                "selection_q_value": -0.7348826577266058,
+                "selection_q_overridden": false,
+                "q_component": -0.7348826577266058,
+                "u_component": 0.18809363960072026,
+                "selection_score": -0.5467890181258855,
+                "used_fpu": false,
+                "fpu_value": null
+              },
+              {
+                "move": 5,
+                "prior": 0.3377147614955902,
+                "visit_count": 74,
+                "q_value": -0.6221874457079213,
+                "stored_q_value": -0.6221874457079213,
+                "selection_q_value": -0.6221874457079213,
+                "selection_q_overridden": false,
+                "q_component": -0.6221874457079213,
+                "u_component": 0.0779918833835157,
+                "selection_score": -0.5441955623244056,
+                "used_fpu": false,
+                "fpu_value": null
+              }
+            ],
+            "selected_move": 1,
+            "reference_move_by_prior": 5,
+            "reference_move_rank_by_visits": 2,
+            "reference_move_rank_by_q": 2,
+            "reference_move_rank_by_selection_score": 2
+          },
+          {
+            "simulation": 384,
+            "visits": [
+              23.0,
+              125.0,
+              65.0,
+              0.0,
+              0.0,
+              171.0
+            ],
+            "moves": [
+              {
+                "move": 0,
+                "prior": 0.11654768139123917,
+                "visit_count": 23,
+                "q_value": -0.7438697309597678,
+                "stored_q_value": -0.7438697309597678,
+                "selection_q_value": -0.7438697309597678,
+                "selection_q_overridden": false,
+                "q_component": -0.7438697309597678,
+                "u_component": 0.11895097921375092,
+                "selection_score": -0.6249187517460169,
+                "used_fpu": false,
+                "fpu_value": null
+              },
+              {
+                "move": 1,
+                "prior": 0.2090902477502823,
+                "visit_count": 125,
+                "q_value": -0.6622646290659905,
+                "stored_q_value": -0.6622646290659905,
+                "selection_q_value": -0.6622646290659905,
+                "selection_q_overridden": false,
+                "q_component": -0.6622646290659905,
+                "u_component": 0.04064796961748491,
+                "selection_score": -0.6216166594485055,
+                "used_fpu": false,
+                "fpu_value": null
+              },
+              {
+                "move": 2,
+                "prior": 0.3366473317146301,
+                "visit_count": 65,
+                "q_value": -0.7477085099770473,
+                "stored_q_value": -0.7477085099770473,
+                "selection_q_value": -0.7477085099770473,
+                "selection_q_overridden": false,
+                "q_component": -0.7477085099770473,
+                "u_component": 0.12494154332883523,
+                "selection_score": -0.6227669666482121,
+                "used_fpu": false,
+                "fpu_value": null
+              },
+              {
+                "move": 5,
+                "prior": 0.3377147614955902,
+                "visit_count": 171,
+                "q_value": -0.6707357069346727,
+                "stored_q_value": -0.6707357069346727,
+                "selection_q_value": -0.6707357069346727,
+                "selection_q_overridden": false,
+                "q_component": -0.6707357069346727,
+                "u_component": 0.0480947002482509,
+                "selection_score": -0.6226410066864217,
+                "used_fpu": false,
+                "fpu_value": null
+              }
+            ],
+            "selected_move": 5,
+            "reference_move_by_prior": 5,
+            "reference_move_rank_by_visits": 1,
+            "reference_move_rank_by_q": 2,
+            "reference_move_rank_by_selection_score": 2
+          }
+        ],
+        "search_root_value": -0.685387868436616,
+        "root_evaluation_raw_value": -0.505925178527832,
+        "root_evaluation_transformed_value": -0.505925178527832,
+        "terminal_leaf_count": 24,
+        "nonterminal_leaf_count": 360,
+        "backed_up_value_range": {
+          "min": -1.0,
+          "max": 0.7595479488372803
+        },
+        "root_prior_telemetry": {
+          "before": [
+            0.11654768139123917,
+            0.2090902477502823,
+            0.3366473317146301,
+            0.0,
+            0.0,
+            0.3377147614955902
+          ],
+          "after": [
+            0.11654768139123917,
+            0.2090902477502823,
+            0.3366473317146301,
+            0.0,
+            0.0,
+            0.3377147614955902
+          ]
+        }
+      }
+    }
+  ]
+}

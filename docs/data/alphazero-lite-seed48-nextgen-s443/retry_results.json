@@ -1,0 +1,248 @@
+{
+  "attempts": [
+    {
+      "candidate_weights_sha256": "0f32dc75194df45a586976836e0d3326fd4212968f8f670b208f0dc9d9218586",
+      "classification": "self_play_worker_contract_failed",
+      "gate_executed": false,
+      "promoted": false,
+      "workers": 24
+    },
+    {
+      "candidate_weights_sha256": "2e517e21097dba818b362aa43b7c6917c17438e1ad0c8a16136ba10a20500a8b",
+      "classification": "valid_retry",
+      "gate_executed": true,
+      "gate_shadow_classification": "shadow_prefilter_reproduction_failed",
+      "promoted": false,
+      "self_play_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+      "workers": 6
+    }
+  ],
+  "candidate_path": "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1",
+  "candidate_sanity": {
+    "artifact_loads": true,
+    "candidate_differs_from_current": true,
+    "metadata_declares_actual_weights_sha": true,
+    "regression_passed": true
+  },
+  "checkpoint_sha256": "f65f466ebbfc807a7e561ba383c101dd02f83a40cfc55ab621692ee44dcf2cf5",
+  "classification": "seed443_generation_n_plus_1_prefilter_failed",
+  "completed_selfplay_contract": {
+    "games": "1600",
+    "opening_minimum_present": false,
+    "seed": "443",
+    "seed_sweep": "442,443,444",
+    "simulations": "1200",
+    "workers": "6"
+  },
+  "config_path": "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/config.json",
+  "config_sha256": "1e4f44d9fed0878d3be198b20843894bdd2ccfa9044984091a3c9270d5909944",
+  "experimental_seed_changed": false,
+  "gate_failure_codes": [
+    "shadow_prefilter_reproduction_failed"
+  ],
+  "gate_report_path": "docs/data/alphazero-lite-seed48-nextgen-s443/local_promotion_gate.json",
+  "gate_shadow_classification": "shadow_prefilter_reproduction_failed",
+  "invalid_candidate_reused": false,
+  "invalid_self_play_reused": false,
+  "metadata_json_sha256": "af71438f6de690d50f1bb02db08f9b213b243fbf4edfadc97ea7c6a966fb08af",
+  "perspective_audit": {
+    "checks": {
+      "player_feature_consistency": 71115,
+      "policy_legal_support": 71115,
+      "policy_non_negative": 71115,
+      "policy_sum": 71115,
+      "rows": 71115,
+      "value_perspective": 71115,
+      "value_range": 71115
+    },
+    "errors": [],
+    "passed": true,
+    "rows": 71115,
+    "schema": "perspective_audit_v1"
+  },
+  "plan_sha256": "1f12093d71bb7bb797962d3d1c068bd785deff521378222ccf11d3ee13238355",
+  "pr340_exact_diagnostic": {
+    "mcts_384": {
+      "expected_regret": 1.5029166666666667,
+      "optimal_mass": 0.7139453125,
+      "top_move_optimal": 0.755,
+      "top_move_regret": 1.13
+    },
+    "raw": {
+      "expected_regret": 2.268299667194916,
+      "optimal_mass": 0.6303161127542122,
+      "top_move_optimal": 0.73,
+      "top_move_regret": 1.51
+    }
+  },
+  "preflight": {
+    "audit_hash_count": 200,
+    "effective_selfplay_command": [
+      ".venv/bin/python",
+      "ml/alphazero_lite/self_play.py",
+      "--out",
+      "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+      "--games",
+      "1600",
+      "--workers",
+      "6",
+      "--seed",
+      "443",
+      "--seed-sweep",
+      "442,443,444",
+      "--simulations",
+      "1200",
+      "--temperature-threshold",
+      "12",
+      "--temperature",
+      "1.1",
+      "--temperature-late",
+      "0.15",
+      "--dirichlet-alpha",
+      "0.3",
+      "--dirichlet-epsilon",
+      "0.3",
+      "--schedule-progress-mode",
+      "linear",
+      "--iteration",
+      "1",
+      "--total-iterations",
+      "1",
+      "--tree-reuse-enabled",
+      "--input-encoding",
+      "kalah_v3",
+      "--policy-target-mode",
+      "sharpened",
+      "--policy-target-noise-mode",
+      "denoised",
+      "--write-root-target-telemetry",
+      "--value-target-mode",
+      "sharpened",
+      "--write-game-metadata"
+    ],
+    "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
+  },
+  "promotion": {
+    "performed": false,
+    "reason": "generation_n_plus_1_candidate_evaluation_only"
+  },
+  "retry_reason": "infrastructure_contract_violation",
+  "run_manifest": {
+    "config_path": "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/config.json",
+    "created_at": "2026-09-20T21:38:25.881269+00:00",
+    "gate_failures": [],
+    "iteration": 1,
+    "notes": {
+      "dry_run": false,
+      "parent_artifact_path": "/home/alex/Mancala/ai/model-artifact/current",
+      "phase": "phase_1_scaffold"
+    },
+    "parent_version": "/home/alex/Mancala/ai/model-artifact/current",
+    "run_id": "seed48-nextgen-s443-uniform1200-rerun6",
+    "schema": "azlite_run_manifest_v1",
+    "seed": 443,
+    "status": "completed",
+    "steps": [
+      {
+        "command": [
+          ".venv/bin/python",
+          "ml/alphazero_lite/train.py",
+          "--data",
+          "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+          "--data-files",
+          "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "--replay-weights",
+          "1,4,1,8,4",
+          "--init-checkpoint",
+          "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/parent_init_checkpoint.npz",
+          "--out",
+          "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/checkpoint.npz",
+          "--epochs",
+          "4",
+          "--batch-size",
+          "512",
+          "--device",
+          "auto",
+          "--lr-scheduler",
+          "none",
+          "--hidden-sizes",
+          "96,3",
+          "--model-type",
+          "residual_v3",
+          "--input-encoding",
+          "kalah_v3",
+          "--value-loss",
+          "huber",
+          "--huber-delta",
+          "1.0",
+          "--value-loss-weight",
+          "0.3",
+          "--val-split",
+          "0.1",
+          "--grad-clip",
+          "1.0",
+          "--save-top-k",
+          "3",
+          "--policy-target-mode",
+          "sharpened",
+          "--value-target-mode",
+          "sharpened",
+          "--seed",
+          "443"
+        ],
+        "duration_s": 21.4214,
+        "log_path": "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/train.log",
+        "name": "train",
+        "returncode": 0,
+        "status": "completed"
+      },
+      {
+        "command": [
+          ".venv/bin/python",
+          "ml/alphazero_lite/export_artifact.py",
+          "--checkpoint",
+          "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/checkpoint.npz",
+          "--out-dir",
+          "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1",
+          "--version",
+          "seed48-nextgen-s443-uniform1200-rerun6-iter1",
+          "--model-type",
+          "residual_v3",
+          "--rules-version",
+          "kalah_v1",
+          "--input-encoding",
+          "kalah_v3"
+        ],
+        "duration_s": 0.1275,
+        "log_path": "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/export_artifact.log",
+        "name": "export_artifact",
+        "returncode": 0,
+        "status": "completed"
+      }
+    ]
+  },
+  "schema": "azlite_seed48_generation_n_plus_1_v1",
+  "search_work": {
+    "audit_corpus_state_collisions": [],
+    "games_completed": 1600,
+    "generated_rows": 71115,
+    "search_profile_hashes": [
+      "4f2f81ca1dc03b292e0eaa7bda68053421504a277ddb9491dd57baa2d32385e1"
+    ],
+    "searched_roots": 71115,
+    "simulations_per_game": 106672.5,
+    "simulations_per_generated_row": 2400.0,
+    "teacher_searches_per_root": 2,
+    "total_requested_simulations_across_roots": 170676000
+  },
+  "self_play_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+  "self_play_worker_contract_status": "self_play_worker_contract_passed",
+  "status": "candidate_generated",
+  "training_losses": {
+    "best_val_loss": 1.000658,
+    "policy_loss": 0.911263,
+    "total_loss": 0.951281,
+    "value_loss": 0.133393
+  },
+  "weights_json_sha256": "2e517e21097dba818b362aa43b7c6917c17438e1ad0c8a16136ba10a20500a8b"
+}
