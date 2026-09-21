@@ -1,0 +1,35 @@
+{
+  "schema": "azlite_value_target_default_vs_sharpened_v1",
+  "parent_artifact": "model-artifact/current",
+  "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+  "parent_init_checkpoint": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/parent_init_checkpoint.npz",
+  "replay_weights": [1, 4, 1, 8, 4],
+  "replay_sources": [
+    {"name": "generic_bootstrap", "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"},
+    {"name": "random_teacher", "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"},
+    {"name": "opening_disagreement", "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"},
+    {"name": "equal_budget_stability", "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"}
+  ],
+  "selfplay_datasets": [
+    {"seed": 401, "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed401/uniform1200/seed48-uniform384-vs-1200-s401-uniform1200-iter1/self_play.jsonl", "sha256": "ee5fedce1fe4fea1fa2bdf51dce8b26a54014e665115a5578b7af440de9c8b44"},
+    {"seed": 407, "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed407/uniform1200/seed48-uniform384-vs-1200-s407-uniform1200-iter1/self_play.jsonl", "sha256": "f3a27c48185ed527b2c0c817b49479bb0ff401a9617d7945ee96e42400163baa"},
+    {"seed": 413, "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed413/uniform1200/seed48-uniform384-vs-1200-s413-uniform1200-iter1/self_play.jsonl", "sha256": "2fe9549255f17698d227864511be5acb2dc167c322612a546cb399217f168c85"},
+    {"seed": 419, "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed419/uniform1200/seed48-uniform384-vs-1200-s419-uniform1200-iter1/self_play.jsonl", "sha256": "83befab937e2b8eebe27577f428a9fc8cdc8498eb639ddaf22415b690fdaddca"},
+    {"seed": 443, "path": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl", "sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895"},
+    {"seed": 449, "path": ".tmp/seed48-nextgen-s449-uniform1200/runs/seed48-nextgen-s449-uniform1200-iter1/self_play.jsonl", "sha256": "feb6ce5ebb748599a64bba2956e29b37716ddc540ea939fe4d50dbd3ce45ddc0"}
+  ],
+  "sharpened_baselines": [
+    {"source": 401, "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s401-fresh_w1", "checkpoint_sha256": "22d4fe03f6e705fc4100c2f7c0bf2113c206445b15dee203bf3b1fcc2e862e04"},
+    {"source": 407, "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s407-fresh_w1", "checkpoint_sha256": "54dcc03f10963e70ea7896deca806dd0c5eb09a9ee1b1d9df87430ff0ee0813c"},
+    {"source": 413, "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s413-fresh_w1", "checkpoint_sha256": "e6525abbfdc7272e8dac0cc5cbcb5311b3ba485b84e7f48fbff55ce817e017be"},
+    {"source": 419, "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s419-fresh_w1", "checkpoint_sha256": "2d8ffb548632c845b93cd375b5f6407fe619123af208a81b82c2e368fc8cb7b1"},
+    {"source": 443, "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s443-fresh_w1", "checkpoint_sha256": "abf8b59a612d2a2115dcb5b35c5c1fa68a8e71672947331c910c01ce3958b1ba"},
+    {"source": 449, "artifact": "/home/alex/Mancala/ai/.tmp/fresh-replay-weight-ablation/cells/s449-fresh_w1", "checkpoint_sha256": "b38a85e828c180e639e795bea48e9574e7f610f244e3b6d008c15cf19b5fcd69"}
+  ],
+  "training": {"training_seed": 443, "epochs": 10, "max_optimizer_updates": 1084, "final_checkpoint": "final", "batch_size": 512, "model_type": "residual_v3", "hidden_sizes": "96,3", "input_encoding": "kalah_v3", "value_loss": "huber", "huber_delta": 1.0, "value_loss_weight": 0.3, "val_split": 0.1, "grad_clip": 1.0, "policy_target_mode": "sharpened", "value_target_mode": "sharpened", "lr_scheduler": "none"},
+  "exact_corpus": "docs/data/alphazero-lite-seed48-target-quality/results.json",
+  "evaluation": {"suite": ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl", "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04", "games_per_opening": 1, "simulations": 384, "seed": 341, "workers": 8, "seed_contract": "azlite_eval_seed_v1"},
+  "canonical_gate_run": false,
+  "promotion_performed": false,
+  "candidate_selection_performed": false
+}

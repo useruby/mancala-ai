@@ -367,6 +367,7 @@ def load_jsonl_replay(
     *,
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
+    replay_value_target_modes: list[str] | None = None,
     exclude_buckets: frozenset[str] | set[str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     if not paths:
@@ -381,6 +382,13 @@ def load_jsonl_replay(
         raise ValueError("replay weights must match replay path count")
     if any(weight <= 0 for weight in weights):
         raise ValueError("replay weights must be positive integers")
+    if replay_value_target_modes is None:
+        replay_value_target_modes = [value_target_mode] * len(paths)
+    if len(replay_value_target_modes) != len(paths):
+        raise ValueError("replay value target modes must match replay paths")
+    replay_value_target_modes = [
+        normalize_value_target_mode(mode) for mode in replay_value_target_modes
+    ]
 
     x_chunks: list[np.ndarray] = []
     p_chunks: list[np.ndarray] = []
@@ -388,11 +396,13 @@ def load_jsonl_replay(
     replay_index_chunks: list[np.ndarray] = []
     row_offset = 0
 
-    for path, weight in zip(paths, weights):
+    for path, weight, source_value_target_mode in zip(
+        paths, weights, replay_value_target_modes
+    ):
         x, p, v = load_jsonl(
             path,
             policy_target_mode=policy_target_mode,
-            value_target_mode=value_target_mode,
+            value_target_mode=source_value_target_mode,
             exclude_buckets=exclude_buckets,
         )
         x_chunks.append(x)
@@ -1991,6 +2001,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
         choices=SUPPORTED_VALUE_TARGET_MODES,
         default=DEFAULT_VALUE_TARGET_MODE,
     )
+    parser.add_argument(
+        "--replay-value-target-modes",
+        default=None,
+        help="Optional comma-separated target modes, one for each --data-files source",
+    )
     parser.add_argument("--save-top-k", type=int, default=0)
     parser.add_argument(
         "--save-epochs",
@@ -2083,6 +2098,11 @@ def main() -> None:
 
     replay_paths = parse_replay_paths(args.data_files)
     replay_weights = parse_replay_weights(args.replay_weights)
+    replay_value_target_modes = (
+        None
+        if args.replay_value_target_modes is None
+        else [mode.strip() for mode in args.replay_value_target_modes.split(",")]
+    )
     replay_indexes = None
     pairwise_target_paths = parse_replay_paths(args.pairwise_target_files)
     pairwise_target_replay_indexes = None
@@ -2118,6 +2138,7 @@ def main() -> None:
             replay_weights,
             policy_target_mode=policy_target_mode,
             value_target_mode=value_target_mode,
+            replay_value_target_modes=replay_value_target_modes,
             exclude_buckets=exclude_buckets,
         )
     else:
