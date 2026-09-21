@@ -1,0 +1,82 @@
+{
+  "diagnostics": {
+    "duplicate_state_rate": 0.3899223380628368,
+    "source_contribution_by_ply_bucket": {
+      "401": {
+        "ply_0_9": 15952,
+        "ply_10_29": 31505,
+        "ply_30_plus": 23234
+      },
+      "407": {
+        "ply_0_9": 16000,
+        "ply_10_29": 31534,
+        "ply_30_plus": 23157
+      },
+      "413": {
+        "ply_0_9": 15929,
+        "ply_10_29": 31479,
+        "ply_30_plus": 23283
+      },
+      "419": {
+        "ply_0_9": 15875,
+        "ply_10_29": 31271,
+        "ply_30_plus": 23545
+      },
+      "443": {
+        "ply_0_9": 15900,
+        "ply_10_29": 31434,
+        "ply_30_plus": 23357
+      }
+    },
+    "states_shared_across_more_than_one_source": 24973,
+    "unique_canonical_state_count": 215635
+  },
+  "pool_path": ".tmp/alphazero-lite-seed48-full-volume-selfplay-pooling/pooled5_full353455.jsonl",
+  "pool_row_count": 353455,
+  "pool_seed": 347,
+  "pool_sha256": "a815b29353e98a3f625e056cec2013b227201a34292b482e44e273db36662d21",
+  "sampling_algorithm": "sha256(pool_seed|source_seed|row_index|canonical_row_bytes), lowest per source; sha256(final|pool_seed|source_seed|row_index|canonical_row_bytes) final shuffle",
+  "schema": "azlite_full_volume_pool_v1",
+  "sources": [
+    {
+      "seed": 401,
+      "selected_row_count": 70691,
+      "selected_subset_sha256": "eafdb792c326bc1b7292062b4a99a842ad1a46024a5471d6e1d5e962115f8079",
+      "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed401/uniform1200/seed48-uniform384-vs-1200-s401-uniform1200-iter1/self_play.jsonl",
+      "source_row_count": 70868,
+      "source_sha256": "ee5fedce1fe4fea1fa2bdf51dce8b26a54014e665115a5578b7af440de9c8b44"
+    },
+    {
+      "seed": 407,
+      "selected_row_count": 70691,
+      "selected_subset_sha256": "664560c7b445e9a25039d77e485455bf4cc17faf5a85ac5ce7d9f05f4083a9c0",
+      "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed407/uniform1200/seed48-uniform384-vs-1200-s407-uniform1200-iter1/self_play.jsonl",
+      "source_row_count": 70691,
+      "source_sha256": "f3a27c48185ed527b2c0c817b49479bb0ff401a9617d7945ee96e42400163baa"
+    },
+    {
+      "seed": 413,
+      "selected_row_count": 70691,
+      "selected_subset_sha256": "3338fedcaebbf06dea10aff5bcd197eaea015f90a1c209501bfbdb8405090815",
+      "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed413/uniform1200/seed48-uniform384-vs-1200-s413-uniform1200-iter1/self_play.jsonl",
+      "source_row_count": 71021,
+      "source_sha256": "2fe9549255f17698d227864511be5acb2dc167c322612a546cb399217f168c85"
+    },
+    {
+      "seed": 419,
+      "selected_row_count": 70691,
+      "selected_subset_sha256": "d6afccad1567b061407d198d8c5f152cee6b1cb91f69f05c5f7f45fb3d96d733",
+      "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed419/uniform1200/seed48-uniform384-vs-1200-s419-uniform1200-iter1/self_play.jsonl",
+      "source_row_count": 71284,
+      "source_sha256": "83befab937e2b8eebe27577f428a9fc8cdc8498eb639ddaf22415b690fdaddca"
+    },
+    {
+      "seed": 443,
+      "selected_row_count": 70691,
+      "selected_subset_sha256": "3dbceeda2df5f6dbbe4bb5e392bbbc40ad42c16a828f579b3bb8486e86aed5e0",
+      "source_path": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+      "source_row_count": 71115,
+      "source_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895"
+    }
+  ]
+}

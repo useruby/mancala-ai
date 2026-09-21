@@ -10,9 +10,12 @@ import random
 import statistics
 import subprocess
 import sys
+import time
 from collections import Counter
 from pathlib import Path
 from typing import Any
+
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 if __package__ in (None, ""):
@@ -34,6 +37,12 @@ POOL_SEED = 346
 ROWS_PER_SOURCE = 14_223
 SOURCE_SEEDS = (401, 407, 413, 419, 443)
 TRAINING_SEEDS = (443, 1001, 1003, 1009, 1013)
+CLASSIFICATION_PREFIX = "fixed_volume_pooling"
+EXPERIMENT_DIRECTORY = "alphazero-lite-seed48-fixed-volume-selfplay-pooling"
+POOL_FILENAME = "pooled5_fixed71115.jsonl"
+PROVENANCE_UNAVAILABLE_CLASSIFICATION = (
+    "fixed_volume_pool_source_provenance_unavailable"
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -81,14 +90,14 @@ def final_shuffle_key(source_seed: int, row_index: int, row_bytes: bytes) -> str
 def source_rows(source: dict[str, Any]) -> list[tuple[int, bytes, dict[str, Any]]]:
     path = ROOT / source["path"]
     if not path.is_file() or sha256_file(path) != source["sha256"]:
-        raise FileNotFoundError("pooled_selfplay_source_provenance_unavailable")
+        raise FileNotFoundError(PROVENANCE_UNAVAILABLE_CLASSIFICATION)
     rows = [
         (index, canonical_row_bytes(row := json.loads(line)), row)
         for index, line in enumerate(path.read_text(encoding="utf-8").splitlines())
         if line
     ]
     if len(rows) < ROWS_PER_SOURCE:
-        raise FileNotFoundError("pooled_selfplay_source_provenance_unavailable")
+        raise FileNotFoundError(PROVENANCE_UNAVAILABLE_CLASSIFICATION)
     return rows
 
 
@@ -110,7 +119,7 @@ def bucket(row: dict[str, Any]) -> str:
 def construct_pool(plan: dict[str, Any], output: Path) -> dict[str, Any]:
     sources = plan.get("selfplay_sources", [])
     if tuple(source.get("seed") for source in sources) != SOURCE_SEEDS:
-        raise ValueError("pooled_selfplay_source_provenance_unavailable")
+        raise ValueError(PROVENANCE_UNAVAILABLE_CLASSIFICATION)
     selected: list[tuple[int, int, bytes, dict[str, Any]]] = []
     source_manifest = []
     source_states: dict[int, set[str]] = {}
@@ -205,6 +214,9 @@ def validate_plan(plan: dict[str, Any]) -> None:
         != plan["evaluation"]["suite_sha256"]
     ):
         raise ValueError("pooled_selfplay_diagnostic_suite_unavailable")
+    corpus = json.loads((ROOT / plan["exact_corpus"]).read_text(encoding="utf-8"))
+    if corpus.get("scope", {}).get("training_eligible") is not False:
+        raise ValueError("pooled_selfplay_exact_corpus_not_evaluation_only")
     baseline_plan = json.loads(
         (ROOT / plan["baseline_results"]).read_text(encoding="utf-8")
     )["plan"]
@@ -225,23 +237,131 @@ def validate_plan(plan: dict[str, Any]) -> None:
 
 def baseline_cells(plan: dict[str, Any]) -> dict[int, dict[str, Any]]:
     results = json.loads((ROOT / plan["baseline_results"]).read_text(encoding="utf-8"))
-    cells = results["training_variance_group"]["cells"]
+    cells = results[
+        plan.get("baseline_cells_key", "training_variance_group.cells").split(".")[0]
+    ]
+    for key in plan.get("baseline_cells_key", "training_variance_group.cells").split(
+        "."
+    )[1:]:
+        cells = cells[key]
     by_seed = {int(cell["training_seed"]): cell for cell in cells}
-    if tuple(sorted(by_seed)) != TRAINING_SEEDS or any(
-        cell["self_play_sha256"] != plan["single443_sha256"]
-        for cell in by_seed.values()
+    if tuple(sorted(by_seed)) != TRAINING_SEEDS:
+        raise ValueError("pooled_selfplay_baseline_provenance_invalid")
+    expected_pool_sha = plan.get("baseline_pool_sha256")
+    if (
+        expected_pool_sha
+        and results.get("pool_manifest", {}).get("pool_sha256") != expected_pool_sha
     ):
         raise ValueError("pooled_selfplay_baseline_provenance_invalid")
     return by_seed
 
 
+def training_cost(pool_path: Path, plan: dict[str, Any], seed: int) -> dict[str, int]:
+    fresh_rows = sum(
+        1 for line in pool_path.read_text(encoding="utf-8").splitlines() if line
+    )
+    replay_rows = [
+        sum(
+            1
+            for line in (ROOT / source["path"]).read_text(encoding="utf-8").splitlines()
+            if line
+        )
+        for source in plan["replay_sources"]
+    ]
+    source_rows = [fresh_rows, *replay_rows]
+    weights = plan["replay_weights"]
+    compact_rows = sum(source_rows)
+    weighted = sum(rows * weight for rows, weight in zip(source_rows, weights))
+    validation_source_count = max(1, int(compact_rows * plan["training"]["val_split"]))
+    validation_source_rows = set(
+        np.random.RandomState(seed).permutation(compact_rows)[-validation_source_count:]
+    )
+    validation = 0
+    offset = 0
+    for rows, weight in zip(source_rows, weights):
+        validation += weight * sum(
+            index in validation_source_rows for index in range(offset, offset + rows)
+        )
+        offset += rows
+    train = weighted - validation
+    batches_per_epoch = (train + plan["training"]["batch_size"] - 1) // plan[
+        "training"
+    ]["batch_size"]
+    epochs = plan["training"]["epochs"]
+    return {
+        "fresh_row_count": fresh_rows,
+        "compact_replay_row_count": compact_rows,
+        "weighted_training_index_count": weighted,
+        "train_split_count": train,
+        "validation_count": validation,
+        "batches_per_epoch": batches_per_epoch,
+        "total_optimizer_updates": batches_per_epoch * epochs,
+        "examples_processed": train * epochs,
+    }
+
+
+def cached_arena_pair(
+    challenger: Path, plan: dict[str, Any], out_dir: Path, label: str
+) -> dict[str, Any] | None:
+    reports = []
+    for challenger_starts in (0, 1):
+        path = out_dir / f"{label}-starts-{challenger_starts}.json"
+        if not path.is_file():
+            return None
+        reports.append(json.loads(path.read_text(encoding="utf-8")))
+    wins = sum(int(report["wins"]) for report in reports)
+    draws = sum(int(report["draws"]) for report in reports)
+    losses = sum(int(report["losses"]) for report in reports)
+    total = wins + draws + losses
+    evaluation = plan["evaluation"]
+    contract = {
+        "suite_sha256": evaluation["suite_sha256"],
+        "games_per_opening": evaluation["games_per_opening"],
+        "simulations": evaluation["simulations"],
+        "seed": evaluation["seed"],
+        "seed_contract": evaluation["seed_contract"],
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+    }
+    return {
+        "wins": wins,
+        "draws": draws,
+        "losses": losses,
+        "games": total,
+        "score": (wins + (0.5 * draws)) / total,
+        "seat_reports": reports,
+        "evaluation_config": contract,
+        "evaluation_config_sha256": hashlib.sha256(
+            json.dumps(contract, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+    }
+
+
+def cached_regression(path: Path) -> dict[str, Any] | None:
+    if not path.is_file():
+        return None
+    report = json.loads(path.read_text(encoding="utf-8"))
+    failures = [item["id"] for item in report["results"] if not item["passed"]]
+    return {
+        "passed": report["passed"],
+        "pass_count": len(report["results"]) - len(failures),
+        "failure_ids": failures,
+        "selected_moves": {
+            item["id"]: item["selected_move"] for item in report["results"]
+        },
+        "report_sha256": sha256_file(path),
+    }
+
+
 def train_pooled(
     seed: int, pool_path: Path, plan: dict[str, Any], workdir: Path
 ) -> dict[str, Any]:
-    artifact = workdir / "cells" / f"pooled5-fixed71115-train{seed}"
+    label = f"{CLASSIFICATION_PREFIX.replace('_pooling', '')}-train{seed}"
+    artifact = workdir / "cells" / label
     artifact.mkdir(parents=True, exist_ok=True)
     checkpoint, log = artifact / "checkpoint.npz", artifact / "train.log"
     if not (checkpoint.is_file() and (artifact / "weights.json").is_file()):
+        started = time.monotonic()
         with log.open("w", encoding="utf-8") as handle:
             subprocess.run(
                 training_command(pool_path, checkpoint, plan, seed),
@@ -250,6 +370,7 @@ def train_pooled(
                 stderr=subprocess.STDOUT,
                 check=True,
             )
+        duration = time.monotonic() - started
         subprocess.run(
             [
                 str(ROOT / ".venv/bin/python"),
@@ -259,7 +380,7 @@ def train_pooled(
                 "--out-dir",
                 str(artifact),
                 "--version",
-                f"pooled5-fixed71115-train{seed}",
+                label,
                 "--model-type",
                 "residual_v3",
                 "--rules-version",
@@ -270,27 +391,35 @@ def train_pooled(
             cwd=ROOT,
             check=True,
         )
+    else:
+        duration = None
+    arena = cached_arena_pair(artifact, plan, workdir / "evaluations", label)
+    regression_path = workdir / "regressions" / f"train{seed}.json"
+    regression = cached_regression(regression_path)
     return {
         "training_seed": seed,
         "artifact": str(artifact),
         "checkpoint_sha256": sha256_file(checkpoint),
         "weights_sha256": sha256_file(artifact / "weights.json"),
         "training_losses": losses(log),
+        "training_cost": {
+            **training_cost(pool_path, plan, seed),
+            "wall_clock_training_duration_seconds": duration,
+        },
         "exact": evaluate_exact(
             artifact,
             {"exact_corpus": {"path": plan["exact_corpus"]}},
             int(plan["evaluation"]["seed"]),
         ),
-        "diagnostic_arena": run_arena_pair(
+        "diagnostic_arena": arena
+        or run_arena_pair(
             challenger=artifact,
             current=ROOT / plan["parent_artifact"],
             plan={"evaluation": plan["evaluation"]},
             out_dir=workdir / "evaluations",
-            label=f"pooled5-train{seed}",
+            label=label,
         ),
-        "regression": run_regressions(
-            artifact, workdir / "regressions" / f"train{seed}.json"
-        ),
+        "regression": regression or run_regressions(artifact, regression_path),
     }
 
 
@@ -367,16 +496,16 @@ def classify(
         or exact_regret > 0.1
         or regression_failures >= 3
     ):
-        return "fixed_volume_pooling_hurts"
+        return f"{CLASSIFICATION_PREFIX}_hurts"
     stronger = interval["lower"] > 0
     stable = pooled_sd <= 0.75 * single_sd
     if stronger and stable:
-        return "fixed_volume_pooling_improves_stability_and_strength"
+        return f"{CLASSIFICATION_PREFIX}_improves_strength_and_stability"
     if stable:
-        return "fixed_volume_pooling_improves_stability_only"
+        return f"{CLASSIFICATION_PREFIX}_improves_stability_only"
     if stronger:
-        return "fixed_volume_pooling_improves_strength_only"
-    return "fixed_volume_pooling_no_clear_benefit"
+        return f"{CLASSIFICATION_PREFIX}_improves_strength_only"
+    return f"{CLASSIFICATION_PREFIX}_no_clear_benefit"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -384,19 +513,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--plan",
         type=Path,
-        default=ROOT
-        / "docs/data/alphazero-lite-seed48-fixed-volume-selfplay-pooling/plan.json",
+        default=ROOT / f"docs/data/{EXPERIMENT_DIRECTORY}/plan.json",
     )
     parser.add_argument(
         "--workdir",
         type=Path,
-        default=ROOT / ".tmp/seed48-fixed-volume-selfplay-pooling",
+        default=ROOT / f".tmp/{EXPERIMENT_DIRECTORY}",
     )
     parser.add_argument(
         "--out",
         type=Path,
-        default=ROOT
-        / "docs/data/alphazero-lite-seed48-fixed-volume-selfplay-pooling/results.json",
+        default=ROOT / f"docs/data/{EXPERIMENT_DIRECTORY}/results.json",
     )
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--finalize", action="store_true")
@@ -411,7 +538,7 @@ def main(argv: list[str] | None = None) -> int:
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
     try:
         validate_plan(plan)
-        manifest = construct_pool(plan, args.workdir / "pooled5_fixed71115.jsonl")
+        manifest = construct_pool(plan, args.workdir / POOL_FILENAME)
         baseline = baseline_cells(plan)
     except (FileNotFoundError, ValueError) as error:
         write_json(
@@ -439,9 +566,7 @@ def main(argv: list[str] | None = None) -> int:
         write_json(args.out, result)
         return 0
     pooled = [
-        train_pooled(
-            seed, args.workdir / "pooled5_fixed71115.jsonl", plan, args.workdir
-        )
+        train_pooled(seed, args.workdir / POOL_FILENAME, plan, args.workdir)
         for seed in TRAINING_SEEDS
     ]
     single = [baseline[seed] for seed in TRAINING_SEEDS]
