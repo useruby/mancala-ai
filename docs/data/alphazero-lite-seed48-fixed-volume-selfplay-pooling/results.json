@@ -1,0 +1,4207 @@
+{
+  "candidate_selection_performed": false,
+  "canonical_gate_run": false,
+  "classification": "fixed_volume_pooling_no_clear_benefit",
+  "paired_arena_delta_mean": -0.0078125,
+  "paired_arena_delta_median": -0.0625,
+  "paired_arena_deltas": {
+    "1001": -0.0625,
+    "1003": 0.291015625,
+    "1009": -0.0546875,
+    "1013": -0.134765625,
+    "443": -0.078125
+  },
+  "paired_bootstrap_95": {
+    "lower": -0.105859375,
+    "samples": 10000,
+    "seed": 346,
+    "upper": 0.146484375
+  },
+  "paired_exact_deltas": {
+    "mcts_384_expected_regret": {
+      "1001": -0.003932291666666643,
+      "1003": -0.06346354166666668,
+      "1009": 0.038619791666666625,
+      "1013": 0.04955729166666667,
+      "443": 0.10510416666666678
+    },
+    "mcts_384_optimal_mass": {
+      "1001": 0.005533854166666741,
+      "1003": 0.009856770833333361,
+      "1009": -0.0011979166666664653,
+      "1013": -0.004348958333333264,
+      "443": -0.01579427083333329
+    },
+    "raw_expected_regret": {
+      "1001": 0.11666211760238143,
+      "1003": 0.05239270788494199,
+      "1009": 0.13181848760965975,
+      "1013": 0.04453018216090321,
+      "443": 0.11910004471736624
+    },
+    "raw_optimal_mass": {
+      "1001": -0.007667427168672414,
+      "1003": -0.0008080028039205711,
+      "1009": -0.009393003890737495,
+      "1013": -0.009456002259359053,
+      "443": -0.014674310264727097
+    }
+  },
+  "plan": {
+    "baseline_results": "docs/data/alphazero-lite-seed48-challenger-variance/results.json",
+    "candidate_selection_performed": false,
+    "canonical_gate_run": false,
+    "evaluation": {
+      "games_per_opening": 1,
+      "seed": 341,
+      "seed_contract": "azlite_eval_seed_v1",
+      "simulations": 384,
+      "suite": ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+      "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+      "workers": 8
+    },
+    "exact_corpus": "docs/data/alphazero-lite-seed48-target-quality/results.json",
+    "parent_artifact": "model-artifact/current",
+    "parent_init_checkpoint": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/parent_init_checkpoint.npz",
+    "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "promotion_performed": false,
+    "replay_sources": [
+      {
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+        "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+      },
+      {
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+        "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+      },
+      {
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+        "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+      },
+      {
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+        "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+      }
+    ],
+    "replay_weights": [
+      1,
+      4,
+      1,
+      8,
+      4
+    ],
+    "schema": "azlite_seed48_fixed_volume_selfplay_pooling_v1",
+    "selfplay_sources": [
+      {
+        "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed401/uniform1200/seed48-uniform384-vs-1200-s401-uniform1200-iter1/self_play.jsonl",
+        "seed": 401,
+        "sha256": "ee5fedce1fe4fea1fa2bdf51dce8b26a54014e665115a5578b7af440de9c8b44"
+      },
+      {
+        "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed407/uniform1200/seed48-uniform384-vs-1200-s407-uniform1200-iter1/self_play.jsonl",
+        "seed": 407,
+        "sha256": "f3a27c48185ed527b2c0c817b49479bb0ff401a9617d7945ee96e42400163baa"
+      },
+      {
+        "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed413/uniform1200/seed48-uniform384-vs-1200-s413-uniform1200-iter1/self_play.jsonl",
+        "seed": 413,
+        "sha256": "2fe9549255f17698d227864511be5acb2dc167c322612a546cb399217f168c85"
+      },
+      {
+        "path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed419/uniform1200/seed48-uniform384-vs-1200-s419-uniform1200-iter1/self_play.jsonl",
+        "seed": 419,
+        "sha256": "83befab937e2b8eebe27577f428a9fc8cdc8498eb639ddaf22415b690fdaddca"
+      },
+      {
+        "path": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+        "seed": 443,
+        "sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895"
+      }
+    ],
+    "single443_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+    "training": {
+      "batch_size": 512,
+      "epochs": 4,
+      "grad_clip": 1.0,
+      "hidden_sizes": "96,3",
+      "huber_delta": 1.0,
+      "input_encoding": "kalah_v3",
+      "lr_scheduler": "none",
+      "model_type": "residual_v3",
+      "policy_target_mode": "sharpened",
+      "val_split": 0.1,
+      "value_loss": "huber",
+      "value_loss_weight": 0.3,
+      "value_target_mode": "sharpened"
+    },
+    "training_seed_group": [
+      443,
+      1001,
+      1003,
+      1009,
+      1013
+    ]
+  },
+  "pool_manifest": {
+    "diagnostics": {
+      "duplicate_state_rate": 0.2747099767981439,
+      "source_contribution_by_ply_bucket": {
+        "401": {
+          "ply_0_9": 3223,
+          "ply_10_29": 6361,
+          "ply_30_plus": 4639
+        },
+        "407": {
+          "ply_0_9": 3137,
+          "ply_10_29": 6437,
+          "ply_30_plus": 4649
+        },
+        "413": {
+          "ply_0_9": 3259,
+          "ply_10_29": 6230,
+          "ply_30_plus": 4734
+        },
+        "419": {
+          "ply_0_9": 3314,
+          "ply_10_29": 6209,
+          "ply_30_plus": 4700
+        },
+        "443": {
+          "ply_0_9": 3245,
+          "ply_10_29": 6272,
+          "ply_30_plus": 4706
+        }
+      },
+      "states_shared_across_more_than_one_source": 3834,
+      "unique_canonical_state_count": 51579
+    },
+    "pool_path": ".tmp/seed48-fixed-volume-selfplay-pooling/pooled5_fixed71115.jsonl",
+    "pool_row_count": 71115,
+    "pool_seed": 346,
+    "pool_sha256": "a7016fe0e360f81ba98613c52f04510e1449352bcc6d9f20cbfbfa647706e400",
+    "sampling_algorithm": "sha256(pool_seed|source_seed|row_index|canonical_row_bytes), lowest per source; sha256(final|pool_seed|source_seed|row_index|canonical_row_bytes) final shuffle",
+    "schema": "azlite_fixed_volume_pool_v1",
+    "sources": [
+      {
+        "seed": 401,
+        "selected_row_count": 14223,
+        "selected_subset_sha256": "e3f0b6e9a6cd74ced56f57f171fd1cef927920687db51909b25fb605e2595624",
+        "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed401/uniform1200/seed48-uniform384-vs-1200-s401-uniform1200-iter1/self_play.jsonl",
+        "source_row_count": 70868,
+        "source_sha256": "ee5fedce1fe4fea1fa2bdf51dce8b26a54014e665115a5578b7af440de9c8b44"
+      },
+      {
+        "seed": 407,
+        "selected_row_count": 14223,
+        "selected_subset_sha256": "126aa104d4873583dd77a01dbaf74ad98c86a15fddcb8ff6c007a80f779ee970",
+        "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed407/uniform1200/seed48-uniform384-vs-1200-s407-uniform1200-iter1/self_play.jsonl",
+        "source_row_count": 70691,
+        "source_sha256": "f3a27c48185ed527b2c0c817b49479bb0ff401a9617d7945ee96e42400163baa"
+      },
+      {
+        "seed": 413,
+        "selected_row_count": 14223,
+        "selected_subset_sha256": "508cc330321ed766d459676229224d51518a44067ad63b5eeb9d13bb9d4d88f6",
+        "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed413/uniform1200/seed48-uniform384-vs-1200-s413-uniform1200-iter1/self_play.jsonl",
+        "source_row_count": 71021,
+        "source_sha256": "2fe9549255f17698d227864511be5acb2dc167c322612a546cb399217f168c85"
+      },
+      {
+        "seed": 419,
+        "selected_row_count": 14223,
+        "selected_subset_sha256": "7f62e18ed0062f60fa6bbcf737f2da64da01a40e85d7958e810372e5870ea04c",
+        "source_path": ".tmp/seed48-uniform384-vs-1200-workers6/runs/seed419/uniform1200/seed48-uniform384-vs-1200-s419-uniform1200-iter1/self_play.jsonl",
+        "source_row_count": 71284,
+        "source_sha256": "83befab937e2b8eebe27577f428a9fc8cdc8498eb639ddaf22415b690fdaddca"
+      },
+      {
+        "seed": 443,
+        "selected_row_count": 14223,
+        "selected_subset_sha256": "f414d58744e0ce83eb8a35415a4bdee969819fbd0c7b10a1e81eab418f384850",
+        "source_path": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+        "source_row_count": 71115,
+        "source_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895"
+      }
+    ]
+  },
+  "pooled_cells": [
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train443",
+      "checkpoint_sha256": "8fdfd3c16a280509cf581ffd12c18de8df56c758a85ea37fbeb8dbd80efa00a3",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 0,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 133,
+        "score": 0.48046875,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.5,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.2599524974619113,
+              "method": "wilson_score",
+              "upper": 0.4214834074421554
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 128,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 85,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 42.69,
+              "move_time_p95_ms": 57.5,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "cba52e4c99171b676395589e4f3136f4c323264587b0999559d4e7c8ed51c4cb",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "f6e81315dda5d1a94340171a694bdb8a2b9c0dbdaa7bd0182614d9b1108287ba",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "2f3f0f336f43a764c72b79d33927b5b42412d54bd16f6971bd4f66913db986e3",
+              "seed_ledger_hash": "2f3f0f336f43a764c72b79d33927b5b42412d54bd16f6971bd4f66913db986e3",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5374,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2384,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2990,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.3359375,
+            "threshold": 0.0,
+            "threshold_margin": 0.3359375,
+            "unstable_decision": false,
+            "wins": 43
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 58.12,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.5386384433955553,
+              "method": "wilson_score",
+              "upper": 0.7040770576299177
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 72,
+                "score": null
+              },
+              "midgame": {
+                "games": 56,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 48,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 40.26,
+              "move_time_p95_ms": 58.12,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "92763ccb3aa1cd70055d29f1e81dc79e12b5e56c281c958812c0a8e0103cf448",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "a41fcc577036f1f3c1be9fc0cee4ac147108a8d27ddfeb9692dc52a2962dbd86",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "d18a3f4b84583d844e931633dc9898c6f904b27c3ba90fbb062626873fba3d59",
+              "seed_ledger_hash": "d18a3f4b84583d844e931633dc9898c6f904b27c3ba90fbb062626873fba3d59",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 3653,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1977,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1676,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.625,
+            "threshold": 0.0,
+            "threshold_margin": 0.625,
+            "unstable_decision": false,
+            "wins": 80
+          }
+        ],
+        "wins": 123
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.6080208333333335,
+          "optimal_mass": 0.6981510416666667,
+          "top_move_optimal": 0.745,
+          "top_move_regret": 1.24
+        },
+        "raw": {
+          "expected_regret": 2.3873997119122823,
+          "optimal_mass": 0.6156418024894851,
+          "top_move_optimal": 0.695,
+          "top_move_regret": 1.78
+        }
+      },
+      "regression": {
+        "failure_ids": [],
+        "pass_count": 1,
+        "passed": true,
+        "report_sha256": "c5d27cf344787af762a2f45f33707fa4775795d8b6f4370674012f867021a570",
+        "selected_moves": {
+          "missed_capture_f67bd4k0_move_28": 1
+        }
+      },
+      "training_losses": {
+        "best_val_loss": 1.004679,
+        "policy_loss": 0.914592,
+        "total_loss": 0.954658,
+        "value_loss": 0.133555
+      },
+      "training_seed": 443,
+      "weights_sha256": "a5f0b94984383b8c594c09a632f612fd90829d7a534944a6118664ea3fc384af"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1001",
+      "checkpoint_sha256": "23aec1d3ced6ec3cc8cd9dd847bc3d97c4da96d5d05aa7a8c293b254d7f66609",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 0,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 127,
+        "score": 0.50390625,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.22,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.3031848964440972,
+              "method": "wilson_score",
+              "upper": 0.46926932134452193
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 128,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 79,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1001",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 41.53,
+              "move_time_p95_ms": 57.22,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "353c223db3c5fdf668f1bd41faf8fc1ba3e960aa1a391ff6bc145b940520a597",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "bfca6bce5379c88081bcc748b6df5351c1d85f8ba868a87dd687cb1ec992b7f7",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "b46bbe4bea440036f03e155395e5d1bc86ca1d89aa78fae053720ab0908e685a",
+              "seed_ledger_hash": "b46bbe4bea440036f03e155395e5d1bc86ca1d89aa78fae053720ab0908e685a",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5797,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2688,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 3109,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.3828125,
+            "threshold": 0.0,
+            "threshold_margin": 0.3828125,
+            "unstable_decision": false,
+            "wins": 49
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 58.84,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.5386384433955553,
+              "method": "wilson_score",
+              "upper": 0.7040770576299177
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 47,
+                "score": null
+              },
+              "midgame": {
+                "games": 41,
+                "score": null
+              },
+              "opening": {
+                "games": 40,
+                "score": null
+              }
+            },
+            "losses": 48,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1001",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 41.35,
+              "move_time_p95_ms": 58.84,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "21b07d39e2e569ee1dec6511a63b9e01d55e72aafd00a62b2ea3788f2c5c04bc",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "dbd138a76b38715ebe164dd8732c06c8c1c9a9b6d0b62d10633ba3aa1fa2f569",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "eb2dfb2d570f593237a23f1776492a000afcc14278e92c1b5818a217f3113835",
+              "seed_ledger_hash": "eb2dfb2d570f593237a23f1776492a000afcc14278e92c1b5818a217f3113835",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 3599,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1934,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1665,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.625,
+            "threshold": 0.0,
+            "threshold_margin": 0.625,
+            "unstable_decision": false,
+            "wins": 80
+          }
+        ],
+        "wins": 129
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.6398958333333333,
+          "optimal_mass": 0.6974479166666667,
+          "top_move_optimal": 0.75,
+          "top_move_regret": 1.29
+        },
+        "raw": {
+          "expected_regret": 2.3782377616049777,
+          "optimal_mass": 0.6182807347692737,
+          "top_move_optimal": 0.695,
+          "top_move_regret": 1.69
+        }
+      },
+      "regression": {
+        "failure_ids": [],
+        "pass_count": 1,
+        "passed": true,
+        "report_sha256": "1af6e57f68bfce507c6163c332ce8c3a0b900cd6862055ff86e669f75fceeb76",
+        "selected_moves": {
+          "missed_capture_f67bd4k0_move_28": 5
+        }
+      },
+      "training_losses": {
+        "best_val_loss": 1.007925,
+        "policy_loss": 0.914358,
+        "total_loss": 0.954298,
+        "value_loss": 0.133131
+      },
+      "training_seed": 1001,
+      "weights_sha256": "197229261f97405cb70881871249d6adc7d805651cc46ad3a6363a2509ab1067"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1003",
+      "checkpoint_sha256": "f44d2f1f7fc1ef18836a7c5da2a0786d96cad3080c51018149e4df2050854956",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 0,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 75,
+        "score": 0.70703125,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.08,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.5149808076118778,
+              "method": "wilson_score",
+              "upper": 0.682225536971319
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 124,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 4,
+                "score": null
+              }
+            },
+            "losses": 51,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1003",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 42.1,
+              "move_time_p95_ms": 57.08,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "af7c55805029dae5d114006e1a4faaa80358fae7a72d91cca4b2064468366e09",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "a910c1d43a7fcdab95df912ddc6fa0a482c69c7b70631377b574ac368f6046de",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "bb653302cc20d2b94917f14531b5b861c2bfa9a52cb60f8632191770c77ed920",
+              "seed_ledger_hash": "bb653302cc20d2b94917f14531b5b861c2bfa9a52cb60f8632191770c77ed920",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5128,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2384,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2744,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.6015625,
+            "threshold": 0.0,
+            "threshold_margin": 0.6015625,
+            "unstable_decision": false,
+            "wins": 77
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 58.41,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.7361492727731166,
+              "method": "wilson_score",
+              "upper": 0.8706394797905659
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 97,
+                "score": null
+              },
+              "midgame": {
+                "games": 31,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 24,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1003",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 42.63,
+              "move_time_p95_ms": 58.41,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "2dde0390b397300bbe77aa7b9618d9ea2cb0008d118ab34d81223813f7fe0d48",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "1662799fa23238da8947372c0bc250b95c41035c4a8f667d74d84e204b8974c2",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "9e612df3f5b90ee73392871f0ecf5b299dd953cbced4997f381271c7d72e3bf5",
+              "seed_ledger_hash": "9e612df3f5b90ee73392871f0ecf5b299dd953cbced4997f381271c7d72e3bf5",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 4257,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2280,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1977,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.8125,
+            "threshold": 0.0,
+            "threshold_margin": 0.8125,
+            "unstable_decision": false,
+            "wins": 104
+          }
+        ],
+        "wins": 181
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.6562239583333334,
+          "optimal_mass": 0.6939973958333333,
+          "top_move_optimal": 0.76,
+          "top_move_regret": 1.11
+        },
+        "raw": {
+          "expected_regret": 2.435976656397465,
+          "optimal_mass": 0.6123739087419059,
+          "top_move_optimal": 0.69,
+          "top_move_regret": 1.62
+        }
+      },
+      "regression": {
+        "failure_ids": [],
+        "pass_count": 1,
+        "passed": true,
+        "report_sha256": "309f2087545da105f068a75d677c87a6c5b1d2ded0235d5eda66cabf646c98c9",
+        "selected_moves": {
+          "missed_capture_f67bd4k0_move_28": 5
+        }
+      },
+      "training_losses": {
+        "best_val_loss": 1.018116,
+        "policy_loss": 0.914182,
+        "total_loss": 0.953842,
+        "value_loss": 0.132197
+      },
+      "training_seed": 1003,
+      "weights_sha256": "d576b05167bda5e5d7745954bc51a21fe7ede376b3abb3cac871356407718406"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1009",
+      "checkpoint_sha256": "48d61ff10163258fae767fb9821334bffa5a13e055dac747d84fa2612d41b087",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 0,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 132,
+        "score": 0.484375,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.28,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.1492121185502459,
+              "method": "wilson_score",
+              "upper": 0.2895082853283478
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 112,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 16,
+                "score": null
+              }
+            },
+            "losses": 101,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1009",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 42.6,
+              "move_time_p95_ms": 57.28,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "ea0671617f2859db0f5103f2c4a37d652498126268121804ce97487619474923",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "4625a42c39fe7a1a5c50d32a46b99b2112b18c199850098816e03c88cc8b6850",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "c7485ee0210d27a9df4477086eea4cc098eb97c0b0371475fdf99c058ce23971",
+              "seed_ledger_hash": "c7485ee0210d27a9df4477086eea4cc098eb97c0b0371475fdf99c058ce23971",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5178,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2322,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2856,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.2109375,
+            "threshold": 0.0,
+            "threshold_margin": 0.2109375,
+            "unstable_decision": false,
+            "wins": 27
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.61,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.6767870437261758,
+              "method": "wilson_score",
+              "upper": 0.8238136771388622
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 116,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 12,
+                "score": null
+              }
+            },
+            "losses": 31,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1009",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 40.45,
+              "move_time_p95_ms": 57.61,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "559c4af755fa47e10d21ce2ac1145c1b18e0cc9b77fe446a82d7ac423fd58037",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "0254ca8d5b354d3f450618637e1d5688e440f285da4debf9deecc52af240fadd",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "72e50fbe541eb395dbcee85062a0cc2fba55620408e4d64d59d70d310c393225",
+              "seed_ledger_hash": "72e50fbe541eb395dbcee85062a0cc2fba55620408e4d64d59d70d310c393225",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 4548,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2375,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2173,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.7578125,
+            "threshold": 0.0,
+            "threshold_margin": 0.7578125,
+            "unstable_decision": false,
+            "wins": 97
+          }
+        ],
+        "wins": 124
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.5694791666666665,
+          "optimal_mass": 0.7015494791666668,
+          "top_move_optimal": 0.75,
+          "top_move_regret": 1.19
+        },
+        "raw": {
+          "expected_regret": 2.3468337885209367,
+          "optimal_mass": 0.6217171217974321,
+          "top_move_optimal": 0.72,
+          "top_move_regret": 1.51
+        }
+      },
+      "regression": {
+        "failure_ids": [],
+        "pass_count": 1,
+        "passed": true,
+        "report_sha256": "6785180f857756d1ecae74c79063c283865e188149052ff0d852def99db07940",
+        "selected_moves": {
+          "missed_capture_f67bd4k0_move_28": 5
+        }
+      },
+      "training_losses": {
+        "best_val_loss": 1.007955,
+        "policy_loss": 0.915553,
+        "total_loss": 0.955494,
+        "value_loss": 0.133137
+      },
+      "training_seed": 1009,
+      "weights_sha256": "58f89c0e66e0b599cfdf160fbe33e10083d78cf650d254dd846a9dc4eb224c83"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1013",
+      "checkpoint_sha256": "52f48bd520874d54d1a384d859cac15a4703bbc8056584220b17e77d74026207",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 12,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 175,
+        "score": 0.29296875,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.14,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.032006542069386565,
+              "method": "wilson_score",
+              "upper": 0.11848920434145796
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 112,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 16,
+                "score": null
+              }
+            },
+            "losses": 120,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1013",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 40.99,
+              "move_time_p95_ms": 57.14,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "bf40c14e031884da6323680c373a4caaaa92f07d1b0fb415cd044f4ef029847b",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "620e321ac2083b3c0ade2c61c5e3c38b54be893e9b3b13ea5ae6757175f5fa7b",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "ee0875d65b6903d2cdb82ff5e52a70319fc4f5820de4b17d9da9242b8b76aec2",
+              "seed_ledger_hash": "ee0875d65b6903d2cdb82ff5e52a70319fc4f5820de4b17d9da9242b8b76aec2",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5128,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2314,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2814,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.0625,
+            "threshold": 0.0,
+            "threshold_margin": 0.0625,
+            "unstable_decision": false,
+            "wins": 8
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 58.5,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.4374963857849213,
+              "method": "wilson_score",
+              "upper": 0.6080127706573549
+            },
+            "draws": 12,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 65,
+                "score": null
+              },
+              "midgame": {
+                "games": 35,
+                "score": null
+              },
+              "opening": {
+                "games": 28,
+                "score": null
+              }
+            },
+            "losses": 55,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-fixed-volume-selfplay-pooling/cells/pooled5-fixed71115-train1013",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 41.37,
+              "move_time_p95_ms": 58.5,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "01f2376d856636effd82585bf20c2a689066a20aec0ce5bd11769aba08973f08",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "d6deca38b9ecc52fdd2efb2a7a977c04c2b075bf9b663a4a3c65bcf1bf236c3a",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "28bfae46f3ee8c2f48c2a1e25dde98982f5bc892c54b066b033c44c062ea7732",
+              "seed_ledger_hash": "28bfae46f3ee8c2f48c2a1e25dde98982f5bc892c54b066b033c44c062ea7732",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 3926,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2003,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1923,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5234375,
+            "threshold": 0.0,
+            "threshold_margin": 0.5234375,
+            "unstable_decision": false,
+            "wins": 61
+          }
+        ],
+        "wins": 69
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.6877604166666667,
+          "optimal_mass": 0.6902213541666667,
+          "top_move_optimal": 0.71,
+          "top_move_regret": 1.49
+        },
+        "raw": {
+          "expected_regret": 2.2905713058197885,
+          "optimal_mass": 0.6210242104107149,
+          "top_move_optimal": 0.65,
+          "top_move_regret": 1.92
+        }
+      },
+      "regression": {
+        "failure_ids": [],
+        "pass_count": 1,
+        "passed": true,
+        "report_sha256": "421fd0b8c27f6d59ce7688e48cad9d3c2a06770d00841016a13cfd0c34f71423",
+        "selected_moves": {
+          "missed_capture_f67bd4k0_move_28": 5
+        }
+      },
+      "training_losses": {
+        "best_val_loss": 1.029431,
+        "policy_loss": 0.911421,
+        "total_loss": 0.951303,
+        "value_loss": 0.132939
+      },
+      "training_seed": 1013,
+      "weights_sha256": "c01c0e4296d0d9eeed767fa3bb8edeef903dd9c5d8cbcee673058764c61b9679"
+    }
+  ],
+  "pooled_summary": {
+    "arena": {
+      "max": 0.70703125,
+      "mean": 0.49375,
+      "min": 0.29296875,
+      "range": 0.4140625,
+      "sd": 0.14677315285309334
+    },
+    "mcts_384_expected_regret": {
+      "max": 1.6877604166666667,
+      "mean": 1.6322760416666668,
+      "min": 1.5694791666666665,
+      "range": 0.11828125000000012,
+      "sd": 0.04539229683524694
+    },
+    "mcts_384_optimal_mass": {
+      "max": 0.7015494791666668,
+      "mean": 0.6962734375,
+      "min": 0.6902213541666667,
+      "range": 0.011328125000000022,
+      "sd": 0.004317102405839923
+    },
+    "raw_expected_regret": {
+      "max": 2.435976656397465,
+      "mean": 2.36780384485109,
+      "min": 2.2905713058197885,
+      "range": 0.14540535057767645,
+      "sd": 0.05372384295300329
+    },
+    "raw_optimal_mass": {
+      "max": 0.6217171217974321,
+      "mean": 0.6178075556417623,
+      "min": 0.6123739087419059,
+      "range": 0.009343213055526212,
+      "sd": 0.003875257387058775
+    }
+  },
+  "promotion_performed": false,
+  "schema": "azlite_seed48_fixed_volume_selfplay_pooling_v1",
+  "single443_cells": [
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s443-selfplay443",
+      "checkpoint_sha256": "f65f466ebbfc807a7e561ba383c101dd02f83a40cfc55ab621692ee44dcf2cf5",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 0,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 113,
+        "score": 0.55859375,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.93,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.4759794350375457,
+              "method": "wilson_score",
+              "upper": 0.6453783154751908
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 128,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 56,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s443-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 43.69,
+              "move_time_p95_ms": 57.93,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "7e926f689604e9cf91ddb825d307c855bea69765dd575a3a0ef3099eba3cf022",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "3dc8a2143dbb37e40bc00fd8070d064a795f160e0122c17119f07d0e9cb19ad5",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "ba0448ac2a1b3e627d6973b1b2b9a0c9e38d6138c48bcfe6082e5b97efe7f4d2",
+              "seed_ledger_hash": "ba0448ac2a1b3e627d6973b1b2b9a0c9e38d6138c48bcfe6082e5b97efe7f4d2",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5419,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2587,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2832,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5625,
+            "threshold": 0.0,
+            "threshold_margin": 0.5625,
+            "unstable_decision": false,
+            "wins": 72
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 58.0,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.4682418237634646,
+              "method": "wilson_score",
+              "upper": 0.6379462079351799
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 65,
+                "score": null
+              },
+              "midgame": {
+                "games": 35,
+                "score": null
+              },
+              "opening": {
+                "games": 28,
+                "score": null
+              }
+            },
+            "losses": 57,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s443-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 39.89,
+              "move_time_p95_ms": 58.0,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "b818d235dba089074abefc72335552173c87a913f8d35c87f473ea31f956d68b",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "771c242d364cd80e172d44d7f25d78cc23067f46e9339964070c998c5639fa10",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "cf32842c440da6849008c5c5051784ed7ff740d1c02d0704114a9803fe30e244",
+              "seed_ledger_hash": "cf32842c440da6849008c5c5051784ed7ff740d1c02d0704114a9803fe30e244",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 3959,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2152,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1807,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5546875,
+            "threshold": 0.0,
+            "threshold_margin": 0.5546875,
+            "unstable_decision": false,
+            "wins": 71
+          }
+        ],
+        "wins": 143
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.5029166666666667,
+          "optimal_mass": 0.7139453125,
+          "top_move_optimal": 0.755,
+          "top_move_regret": 1.13
+        },
+        "raw": {
+          "expected_regret": 2.268299667194916,
+          "optimal_mass": 0.6303161127542122,
+          "top_move_optimal": 0.73,
+          "top_move_regret": 1.51
+        }
+      },
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "replay_sources": [
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+          "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+          "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+          "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+        }
+      ],
+      "replay_weights": [
+        1,
+        4,
+        1,
+        8,
+        4
+      ],
+      "self_play_seed": 443,
+      "self_play_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+      "self_play_source": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+      "training_losses": {
+        "best_val_loss": 1.000658,
+        "policy_loss": 0.911263,
+        "total_loss": 0.951281,
+        "value_loss": 0.133393
+      },
+      "training_seed": 443,
+      "weights_sha256": "2e517e21097dba818b362aa43b7c6917c17438e1ad0c8a16136ba10a20500a8b"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1001-selfplay443",
+      "checkpoint_sha256": "aca93c776301ef7f99c272e3c03103fee7f9e6de475846d6440232e923222a19",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 0,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 111,
+        "score": 0.56640625,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.64,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.2671002859293398,
+              "method": "wilson_score",
+              "upper": 0.42950533778881894
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 103,
+                "score": null
+              },
+              "midgame": {
+                "games": 21,
+                "score": null
+              },
+              "opening": {
+                "games": 4,
+                "score": null
+              }
+            },
+            "losses": 84,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1001-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 43.21,
+              "move_time_p95_ms": 57.64,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "f89c4e79e611fca94e50f4662561434be540938a2618e0822fddb09eaebc8d24",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "d70597dfd49e12fe8d1e6ede608259b0d9559dac024dc02a8fc3f40b5df29a4e",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "a68dc64a51dfd7c5583d899d1722b4cd2f25ad7023f1882bb60d4a852ed94f8f",
+              "seed_ledger_hash": "a68dc64a51dfd7c5583d899d1722b4cd2f25ad7023f1882bb60d4a852ed94f8f",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 4906,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2049,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2857,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.34375,
+            "threshold": 0.0,
+            "threshold_margin": 0.34375,
+            "unstable_decision": false,
+            "wins": 44
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.57,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.7104917146716522,
+              "method": "wilson_score",
+              "upper": 0.8507878814497541
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 72,
+                "score": null
+              },
+              "midgame": {
+                "games": 56,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 27,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1001-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 39.93,
+              "move_time_p95_ms": 57.57,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "fa8f85dfb6df5a76f881231b6aca213e19ce24857f9f8563c2a9c2fcbafc35b9",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "cf49dfda085dc199f241da79403b23a6cfbf395c9be75b36c809d4b6386c1ad9",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "bace99b24e1cfbccb49d303f487b8a1a197bc03f9ee3815f7ea9b17c86a1d0ab",
+              "seed_ledger_hash": "bace99b24e1cfbccb49d303f487b8a1a197bc03f9ee3815f7ea9b17c86a1d0ab",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 3727,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1889,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 1838,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.7890625,
+            "threshold": 0.0,
+            "threshold_margin": 0.7890625,
+            "unstable_decision": false,
+            "wins": 101
+          }
+        ],
+        "wins": 145
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.643828125,
+          "optimal_mass": 0.6919140625,
+          "top_move_optimal": 0.72,
+          "top_move_regret": 1.41
+        },
+        "raw": {
+          "expected_regret": 2.2615756440025963,
+          "optimal_mass": 0.6259481619379461,
+          "top_move_optimal": 0.71,
+          "top_move_regret": 1.6
+        }
+      },
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "replay_sources": [
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+          "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+          "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+          "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+        }
+      ],
+      "replay_weights": [
+        1,
+        4,
+        1,
+        8,
+        4
+      ],
+      "self_play_seed": 443,
+      "self_play_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+      "self_play_source": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+      "training_losses": {
+        "best_val_loss": 0.996399,
+        "policy_loss": 0.911805,
+        "total_loss": 0.951866,
+        "value_loss": 0.133534
+      },
+      "training_seed": 1001,
+      "weights_sha256": "7b5c07a020abcddc6cf2221e949ec28283803a93b6f6fce672997b63795299af"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1003-selfplay443",
+      "checkpoint_sha256": "5e4fb45e27f914cf1a99daf8443f142d87de4681b49db37260f382236e04c797",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 31,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 134,
+        "score": 0.416015625,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.1,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.20713698074493694,
+              "method": "wilson_score",
+              "upper": 0.3605260330534393
+            },
+            "draws": 31,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 124,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 4,
+                "score": null
+              }
+            },
+            "losses": 77,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1003-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 41.76,
+              "move_time_p95_ms": 57.1,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "d63e36f01a59dc763df68ae2718605f71e32b3a32f8f00369fff209270b3dfc8",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "5674228d752b424f259af2bbd79b3ef444cfb4392115b7ca51d176915afe1e26",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "30dca3b7fb821c8bab80a5a9946e304bb68c56c7464bbd54c9fa17a6f5b64838",
+              "seed_ledger_hash": "30dca3b7fb821c8bab80a5a9946e304bb68c56c7464bbd54c9fa17a6f5b64838",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5456,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2548,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2908,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.27734375,
+            "threshold": 0.0,
+            "threshold_margin": 0.27734375,
+            "unstable_decision": false,
+            "wins": 20
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 58.01,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.4682418237634646,
+              "method": "wilson_score",
+              "upper": 0.6379462079351799
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 88,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 40,
+                "score": null
+              }
+            },
+            "losses": 57,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1003-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 41.39,
+              "move_time_p95_ms": 58.01,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "d36da0d0a99e074c3b097c40abc74a58281348169ae271f9593b3310248f0119",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "6b34fdcbecead799dd79787d5316cb6109a9ee4be729c684c7a95b241eff258f",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "2ab291acfc6cb28d801259f7664665f47aa9429415e48e60b470e49c53bf49b0",
+              "seed_ledger_hash": "2ab291acfc6cb28d801259f7664665f47aa9429415e48e60b470e49c53bf49b0",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 4547,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2327,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2220,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5546875,
+            "threshold": 0.0,
+            "threshold_margin": 0.5546875,
+            "unstable_decision": false,
+            "wins": 71
+          }
+        ],
+        "wins": 91
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.7196875,
+          "optimal_mass": 0.684140625,
+          "top_move_optimal": 0.725,
+          "top_move_regret": 1.34
+        },
+        "raw": {
+          "expected_regret": 2.383583948512523,
+          "optimal_mass": 0.6131819115458265,
+          "top_move_optimal": 0.69,
+          "top_move_regret": 1.72
+        }
+      },
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "replay_sources": [
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+          "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+          "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+          "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+        }
+      ],
+      "replay_weights": [
+        1,
+        4,
+        1,
+        8,
+        4
+      ],
+      "self_play_seed": 443,
+      "self_play_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+      "self_play_source": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+      "training_losses": {
+        "best_val_loss": 1.00796,
+        "policy_loss": 0.910608,
+        "total_loss": 0.950504,
+        "value_loss": 0.132987
+      },
+      "training_seed": 1003,
+      "weights_sha256": "1828d342a7b9cffaacdbb016bb20dbc7173c6e87c6cba399c252d90f884bc49a"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1009-selfplay443",
+      "checkpoint_sha256": "9dd505a82f24fa661a6d74bd702a5588fe2781ea644b74507c4a2e48e9112722",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 0,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 118,
+        "score": 0.5390625,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 56.71,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.34721027760971723,
+              "method": "wilson_score",
+              "upper": 0.5162622530634542
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 124,
+                "score": null
+              },
+              "midgame": {
+                "games": 4,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 73,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1009-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 42.45,
+              "move_time_p95_ms": 56.71,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "563790a04e01f099072d94b733323046c9bb5847936259b7ec56524dd74865a7",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "a459d74231165fd97d82b8bb69c0cfd1bd8280b391773bf2d7b4cd28887adf61",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "07fb9591cf51e0d562bdc9b1ef9bd2ff3a5c53ed02a7646d6777d98d8e441330",
+              "seed_ledger_hash": "07fb9591cf51e0d562bdc9b1ef9bd2ff3a5c53ed02a7646d6777d98d8e441330",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5723,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2810,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2913,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.4296875,
+            "threshold": 0.0,
+            "threshold_margin": 0.4296875,
+            "unstable_decision": false,
+            "wins": 55
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 59.67,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.5624962244946202,
+              "method": "wilson_score",
+              "upper": 0.725728432973129
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 128,
+                "score": null
+              },
+              "midgame": {
+                "games": 0,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 45,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1009-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 41.72,
+              "move_time_p95_ms": 59.67,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "dbeddd44c5535ae71de829a68dfa9dd2fa8876762645da7cffa575dc6cfe0d1c",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "f62a9e9f549d37f9b74ff67ef5628cee49bf1c2f44f8ab9b8976e21dda92c492",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "c09eeb26e0babedfcc2d57bb3c3ed01e93f4b9eac14fb02c7aded32b495c5c1a",
+              "seed_ledger_hash": "c09eeb26e0babedfcc2d57bb3c3ed01e93f4b9eac14fb02c7aded32b495c5c1a",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5472,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2950,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2522,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.6484375,
+            "threshold": 0.0,
+            "threshold_margin": 0.6484375,
+            "unstable_decision": false,
+            "wins": 83
+          }
+        ],
+        "wins": 138
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.530859375,
+          "optimal_mass": 0.7027473958333332,
+          "top_move_optimal": 0.72,
+          "top_move_regret": 1.31
+        },
+        "raw": {
+          "expected_regret": 2.215015300911277,
+          "optimal_mass": 0.6311101256881696,
+          "top_move_optimal": 0.69,
+          "top_move_regret": 1.61
+        }
+      },
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "replay_sources": [
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+          "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+          "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+          "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+        }
+      ],
+      "replay_weights": [
+        1,
+        4,
+        1,
+        8,
+        4
+      ],
+      "self_play_seed": 443,
+      "self_play_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+      "self_play_source": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+      "training_losses": {
+        "best_val_loss": 1.003088,
+        "policy_loss": 0.910706,
+        "total_loss": 0.95082,
+        "value_loss": 0.133715
+      },
+      "training_seed": 1009,
+      "weights_sha256": "0e9ddadb67fe254a9fd655be7af2b0cff44025bcbb76e7f975dd9e6868dd28aa"
+    },
+    {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1013-selfplay443",
+      "checkpoint_sha256": "fb9b28f3284e53f1d648224abfb94fce6a8ddaa74e41166c7e1432a1abe72b7e",
+      "diagnostic_arena": {
+        "commands": [
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "0",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ],
+          [
+            "arena.py",
+            "--challenger-simulations",
+            "384",
+            "--current-simulations",
+            "384",
+            "--seed",
+            "341",
+            "--seed-contract",
+            "azlite_eval_seed_v1",
+            "--opening-prefixes-jsonl",
+            ".tmp/seed48-challenger-variance/pr341-suite-reconstruction/medium_eval.jsonl",
+            "--games-per-opening",
+            "1",
+            "--challenger-starts",
+            "1",
+            "--root-policy-mode",
+            "deterministic",
+            "--root-temperature",
+            "0.0"
+          ]
+        ],
+        "draws": 5,
+        "evaluation_config": {
+          "games_per_opening": 1,
+          "root_policy_mode": "deterministic",
+          "root_temperature": 0.0,
+          "seed": 341,
+          "seed_contract": "azlite_eval_seed_v1",
+          "simulations": 384,
+          "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "evaluation_config_sha256": "d6a85f4d1e8227b8ea4b9c340e234c3f4694d74d7d36b23948c3bf7ce1f081b1",
+        "games": 256,
+        "losses": 144,
+        "score": 0.427734375,
+        "seat_reports": [
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 57.68,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.27786590518624804,
+              "method": "wilson_score",
+              "upper": 0.4414942967530488
+            },
+            "draws": 5,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 108,
+                "score": null
+              },
+              "midgame": {
+                "games": 16,
+                "score": null
+              },
+              "opening": {
+                "games": 4,
+                "score": null
+              }
+            },
+            "losses": 80,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1013-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 42.03,
+              "move_time_p95_ms": 57.68,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "8ca50623696afc4bbc22819bbb55187ff059d064f6c2a6d261facd14142a3918",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "431c8b1100aaf61de7b18baa3351484bb976da98ad086c7a3f57c7d8ba57aa7e",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "5650a8111e8646ecdb0809cc0b9a71bbd3ac4e4190c38159ea145625922ec35a",
+              "seed_ledger_hash": "5650a8111e8646ecdb0809cc0b9a71bbd3ac4e4190c38159ea145625922ec35a",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 5334,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2474,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2860,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.35546875,
+            "threshold": 0.0,
+            "threshold_margin": 0.35546875,
+            "unstable_decision": false,
+            "wins": 43
+          },
+          {
+            "budget_summary": {
+              "mean_final_simulations": 384.0,
+              "p95_root_latency_ms": 58.36,
+              "trigger_counts": {
+                "fixed_budget": 128
+              }
+            },
+            "confidence_interval_95": {
+              "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+              "lower": 0.4146507236438,
+              "method": "wilson_score",
+              "upper": 0.5853492763562
+            },
+            "draws": 0,
+            "games": 128,
+            "games_played": 128,
+            "hard_suite_buckets": {
+              "late": {
+                "games": 97,
+                "score": null
+              },
+              "midgame": {
+                "games": 31,
+                "score": null
+              },
+              "opening": {
+                "games": 0,
+                "score": null
+              }
+            },
+            "losses": 64,
+            "notes": {
+              "base_seed": 341,
+              "challenger_path": "/home/alex/Mancala/ai/.tmp/seed48-challenger-variance/cells/train-s1013-selfplay443",
+              "challenger_root_prior_transform": null,
+              "challenger_simulations": 384,
+              "current_path": "/home/alex/Mancala/ai/model-artifact/current",
+              "current_root_prior_transform": null,
+              "current_simulations": 384,
+              "move_time_mean_ms": 39.36,
+              "move_time_p95_ms": 58.36,
+              "random_opening_plies": 0,
+              "root_prior_transform": null,
+              "search_configuration_ledger_output": null,
+              "search_configuration_ledger_sha256": "98641dae1d553ad315be2333ab5125edb34bfa99067166ec96953325cbf5b6bf",
+              "search_options": {
+                "fpu_mode": "zero",
+                "normalize_values": false,
+                "reuse_subtree": false,
+                "root_policy_mode": "deterministic",
+                "root_temperature": 0.0,
+                "tactical_root_bias": 0.0
+              },
+              "search_outcome_ledger_output": null,
+              "search_outcome_ledger_sha256": "a3540177a20aae4b1e0604ab7e623403f253cc69b5363f5cf29a2d3d315fa929",
+              "search_profile": {
+                "c_puct": 1.25,
+                "challenger_simulations": 384,
+                "current_simulations": 384,
+                "hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+                "kind": "arena_eval",
+                "player_mode": "puct",
+                "search_options": {
+                  "fpu_mode": "zero",
+                  "normalize_values": false,
+                  "reuse_subtree": false,
+                  "root_policy_mode": "deterministic",
+                  "root_temperature": 0.0,
+                  "tactical_root_bias": 0.0
+                },
+                "simulations": 384,
+                "version": "v1"
+              },
+              "search_profile_hash": "390620b7fd3bf163ad1a23a1076382f681ccf93fce263e225c10b64416635f6a",
+              "seed": 341,
+              "seed_contract": "azlite_eval_seed_v2",
+              "seed_identity_ledger_sha256": "6abe39b4b10a99af922bb6359ce5278f73c7d786dba99ec87b1846f42c9bc11d",
+              "seed_ledger_hash": "6abe39b4b10a99af922bb6359ce5278f73c7d786dba99ec87b1846f42c9bc11d",
+              "seed_ledger_output": null,
+              "seed_ledger_records": 4467,
+              "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04",
+              "value_transform_hash": null,
+              "value_transform_summary": null,
+              "worker_game_counts": [
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16,
+                16
+              ],
+              "workers_requested": 8,
+              "workers_used": 8
+            },
+            "opening_cache_summary": {
+              "latency_delta_ms": null,
+              "opening_bucket_quality_delta": null,
+              "runtime_hit_rate": null,
+              "training_hit_rate": null
+            },
+            "promotion_decision": {
+              "passed": true
+            },
+            "root_prior_telemetry": {
+              "challenger": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2099,
+                "top_changed_move_feature_patterns": []
+              },
+              "current": {
+                "activation_count": 0,
+                "activation_rate": 0.0,
+                "average_mass_shift": null,
+                "legal_move_context_counts": {
+                  "legal_move_count": 0,
+                  "no_extra_turn_capture_count": 0,
+                  "no_extra_turn_noncapture_seed5_count": 0,
+                  "seed4_extra_turn_count": 0
+                },
+                "root_states_evaluated": 2368,
+                "top_changed_move_feature_patterns": []
+              }
+            },
+            "schema": "arena_v1",
+            "score": 0.5,
+            "threshold": 0.0,
+            "threshold_margin": 0.5,
+            "unstable_decision": false,
+            "wins": 64
+          }
+        ],
+        "wins": 107
+      },
+      "exact": {
+        "mcts_384": {
+          "expected_regret": 1.638203125,
+          "optimal_mass": 0.6945703125,
+          "top_move_optimal": 0.735,
+          "top_move_regret": 1.26
+        },
+        "raw": {
+          "expected_regret": 2.2460411236588853,
+          "optimal_mass": 0.6304802126700739,
+          "top_move_optimal": 0.67,
+          "top_move_regret": 1.82
+        }
+      },
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "replay_sources": [
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+          "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+          "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+          "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+        },
+        {
+          "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+        }
+      ],
+      "replay_weights": [
+        1,
+        4,
+        1,
+        8,
+        4
+      ],
+      "self_play_seed": 443,
+      "self_play_sha256": "a8046517cd6da07a7ddff8efa03fea27b5a53f5a9146bcf0632150a651e74895",
+      "self_play_source": ".tmp/seed48-nextgen-s443-uniform1200-rerun6/runs/seed48-nextgen-s443-uniform1200-rerun6-iter1/self_play.jsonl",
+      "training_losses": {
+        "best_val_loss": 1.030942,
+        "policy_loss": 0.90771,
+        "total_loss": 0.947718,
+        "value_loss": 0.133359
+      },
+      "training_seed": 1013,
+      "weights_sha256": "406ea20377bf3548e3df87a7e4e798810dc2df9e7c6e37aec43e7d87c5111d09"
+    }
+  ],
+  "single443_summary": {
+    "arena": {
+      "max": 0.56640625,
+      "mean": 0.5015625,
+      "min": 0.416015625,
+      "range": 0.150390625,
+      "sd": 0.07353976008579687
+    },
+    "mcts_384_expected_regret": {
+      "max": 1.7196875,
+      "mean": 1.6070989583333333,
+      "min": 1.5029166666666667,
+      "range": 0.21677083333333336,
+      "sd": 0.08896502760416729
+    },
+    "mcts_384_optimal_mass": {
+      "max": 0.7139453125,
+      "mean": 0.6974635416666667,
+      "min": 0.684140625,
+      "range": 0.029804687500000093,
+      "sd": 0.011360408082417004
+    },
+    "raw_expected_regret": {
+      "max": 2.383583948512523,
+      "mean": 2.2749031368560395,
+      "min": 2.215015300911277,
+      "range": 0.168568647601246,
+      "sd": 0.06413328971675998
+    },
+    "raw_optimal_mass": {
+      "max": 0.6311101256881696,
+      "mean": 0.6262073049192456,
+      "min": 0.6131819115458265,
+      "range": 0.017928214142343135,
+      "sd": 0.0075648152915492916
+    }
+  }
+}
