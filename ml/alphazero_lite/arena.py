@@ -14,6 +14,7 @@ import statistics
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -1001,6 +1002,8 @@ def evaluate_artifact_position(
     endgame_tablebase=None,
     exact_solve_stone_threshold: int | None = None,
     exact_solve_fail_closed: bool = False,
+    root_child_telemetry: dict[str, Any] | None = None,
+    root_snapshot_checkpoints: set[int] | None = None,
 ) -> dict:
     game = KalahGame.from_state(state)
     normalized_mode = build_mode_config(ablation_mode)
@@ -1108,6 +1111,10 @@ def evaluate_artifact_position(
         def telemetry(self):
             return getattr(evaluator, "telemetry", None)
 
+        @property
+        def last_evaluation(self):
+            return getattr(evaluator, "last_evaluation", None)
+
         def evaluate(self, position_game):
             nonlocal root_value
             policy, value = evaluator.evaluate(position_game)
@@ -1135,6 +1142,8 @@ def evaluate_artifact_position(
         ablation_mode=str(normalized_mode["name"]),
         root_prior_override=root_prior_override,
         prior_override=prior_override,
+        root_child_telemetry=root_child_telemetry,
+        root_snapshot_checkpoints=root_snapshot_checkpoints,
         **puct_kwargs,
     )
     visits, root = search.run(game)
@@ -1158,6 +1167,7 @@ def evaluate_artifact_position(
     nonterminal_leaf_count = None
     backed_up_value_range = None
     exact_leaf_value_telemetry = None
+    root_child_timing = None
     root_latency_ms = None
     if isinstance(root_summary, dict):
         candidate_value_trust = root_summary.get("value_trust")
@@ -1201,6 +1211,8 @@ def evaluate_artifact_position(
         )
         if isinstance(candidate_exact_leaf_value_telemetry, dict):
             exact_leaf_value_telemetry = candidate_exact_leaf_value_telemetry
+        if root_child_telemetry is not None:
+            root_child_timing = dict(root_child_telemetry)
         candidate_root_latency_ms = root_summary.get("root_latency_ms")
         if isinstance(candidate_root_latency_ms, (int, float)):
             root_latency_ms = float(candidate_root_latency_ms)
@@ -1253,6 +1265,8 @@ def evaluate_artifact_position(
         result["backed_up_value_range"] = backed_up_value_range
     if exact_leaf_value_telemetry is not None:
         result["exact_leaf_value_telemetry"] = exact_leaf_value_telemetry
+    if root_child_timing is not None:
+        result["root_child_timing"] = root_child_timing
     if root_latency_ms is not None:
         result["root_latency_ms"] = root_latency_ms
     if isinstance(root_prior_telemetry, dict):

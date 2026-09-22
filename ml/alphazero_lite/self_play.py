@@ -696,6 +696,13 @@ class ExactLeafValueEvaluator(Evaluator):
         self.minimum_exact_solved_active_stones: int | None = None
         self.maximum_exact_solved_active_stones: int | None = None
         self.coverage_gaps: list[dict[str, Any]] = []
+        self.exact_solved_active_stones: dict[int, int] = {}
+        self.exact_leaf_values: dict[str, int] = {}
+        self.boundary_value_buckets: dict[int, dict[str, float | int]] = {}
+        self.fixed_wdl_margin_stats: dict[str, dict[str, float | int]] = {}
+        # This is intentionally only the most recent leaf. PUCT consumes it
+        # synchronously to build bounded root-child telemetry without a tree trace.
+        self.last_evaluation: dict[str, Any] | None = None
 
     @property
     def telemetry(self) -> dict[str, Any]:
@@ -722,12 +729,30 @@ class ExactLeafValueEvaluator(Evaluator):
             "minimum_exact_solved_active_stones": self.minimum_exact_solved_active_stones,
             "maximum_exact_solved_active_stones": self.maximum_exact_solved_active_stones,
             "coverage_gaps": list(self.coverage_gaps),
+            "exact_solved_active_stones": dict(self.exact_solved_active_stones),
+            "exact_leaf_values": dict(self.exact_leaf_values),
+            "boundary_value_buckets": {
+                str(stones): dict(values)
+                for stones, values in self.boundary_value_buckets.items()
+            },
+            "fixed_wdl_margin_stats": {
+                outcome: dict(values)
+                for outcome, values in self.fixed_wdl_margin_stats.items()
+            },
         }
 
     def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
         priors, network_value = self.evaluator.evaluate(game)
+        active_stones = int(sum(game.pits))
         if not self.enabled or game.over() or sum(game.pits) > self.stone_threshold:
             self.network_leaf_value_count += 1
+            self._record_boundary_value(active_stones, float(network_value), None)
+            self.last_evaluation = {
+                "active_stones": active_stones,
+                "network_value": float(network_value),
+                "exact_value": None,
+                "exact_value_applied": False,
+            }
             return priors, network_value
 
         self.qualifying_leaf_evaluations += 1
@@ -751,9 +776,14 @@ class ExactLeafValueEvaluator(Evaluator):
             if self.fail_closed:
                 raise ExactSolveCoverageGap("puct_exact_solve_coverage_gap")
             self.network_leaf_value_count += 1
+            self.last_evaluation = {
+                "active_stones": int(sum(game.pits)),
+                "network_value": float(network_value),
+                "exact_value": None,
+                "exact_value_applied": False,
+            }
             return priors, network_value
 
-        active_stones = sum(game.pits)
         self.successful_exact_lookups += 1
         self.exact_leaf_value_count += 1
         self.minimum_exact_solved_active_stones = (
@@ -767,7 +797,94 @@ class ExactLeafValueEvaluator(Evaluator):
             else max(self.maximum_exact_solved_active_stones, active_stones)
         )
         # Tablebase values are [0, 1] from current_player; PUCT values are [-1, 1].
-        return priors, (2.0 * float(exact_probability)) - 1.0
+        exact_value = (2.0 * float(exact_probability)) - 1.0
+        exact_margin = None
+        margin_lookup = getattr(self.endgame_tablebase, "final_margin", None)
+        if callable(margin_lookup):
+            exact_margin = margin_lookup(game, game.current_player)
+            if exact_margin is not None:
+                self._record_fixed_wdl_margin(
+                    exact_value, float(network_value), int(exact_margin)
+                )
+        self._record_boundary_value(active_stones, float(network_value), exact_value)
+        self.exact_solved_active_stones[active_stones] = (
+            self.exact_solved_active_stones.get(active_stones, 0) + 1
+        )
+        value_key = str(int(exact_value))
+        self.exact_leaf_values[value_key] = self.exact_leaf_values.get(value_key, 0) + 1
+        self.last_evaluation = {
+            "active_stones": int(active_stones),
+            "network_value": float(network_value),
+            "exact_value": float(exact_value),
+            "exact_margin": exact_margin,
+            "exact_value_applied": True,
+        }
+        return priors, exact_value
+
+    def _record_fixed_wdl_margin(
+        self, exact_value: float, network_value: float, margin: int
+    ) -> None:
+        outcome = "W" if exact_value > 0 else "D" if exact_value == 0 else "L"
+        stats = self.fixed_wdl_margin_stats.setdefault(
+            outcome,
+            {
+                "count": 0,
+                "network_sum": 0.0,
+                "margin_sum": 0.0,
+                "network_square_sum": 0.0,
+                "margin_square_sum": 0.0,
+                "network_margin_product_sum": 0.0,
+            },
+        )
+        stats["count"] = int(stats["count"]) + 1
+        stats["network_sum"] = float(stats["network_sum"]) + network_value
+        stats["margin_sum"] = float(stats["margin_sum"]) + margin
+        stats["network_square_sum"] = (
+            float(stats["network_square_sum"]) + network_value**2
+        )
+        stats["margin_square_sum"] = float(stats["margin_square_sum"]) + margin**2
+        stats["network_margin_product_sum"] = (
+            float(stats["network_margin_product_sum"]) + network_value * margin
+        )
+
+    def _record_boundary_value(
+        self, active_stones: int, network_value: float, exact_value: float | None
+    ) -> None:
+        """Accumulate sufficient statistics rather than retaining leaf states."""
+        if active_stones not in {8, 9, 10, 11, 12}:
+            return
+        bucket = self.boundary_value_buckets.setdefault(
+            active_stones,
+            {
+                "count": 0,
+                "network_value_sum": 0.0,
+                "network_value_square_sum": 0.0,
+                "exact_count": 0,
+                "exact_value_sum": 0.0,
+                "exact_value_square_sum": 0.0,
+                "delta_sum": 0.0,
+                "absolute_delta_sum": 0.0,
+                "sign_disagreement_count": 0,
+            },
+        )
+        bucket["count"] = int(bucket["count"]) + 1
+        bucket["network_value_sum"] = float(bucket["network_value_sum"]) + network_value
+        bucket["network_value_square_sum"] = (
+            float(bucket["network_value_square_sum"]) + network_value**2
+        )
+        if exact_value is None:
+            return
+        delta = exact_value - network_value
+        bucket["exact_count"] = int(bucket["exact_count"]) + 1
+        bucket["exact_value_sum"] = float(bucket["exact_value_sum"]) + exact_value
+        bucket["exact_value_square_sum"] = (
+            float(bucket["exact_value_square_sum"]) + exact_value**2
+        )
+        bucket["delta_sum"] = float(bucket["delta_sum"]) + delta
+        bucket["absolute_delta_sum"] = float(bucket["absolute_delta_sum"]) + abs(delta)
+        bucket["sign_disagreement_count"] = int(
+            bucket["sign_disagreement_count"]
+        ) + int(network_value * exact_value < 0.0)
 
 
 class HeuristicEvaluator(Evaluator):
@@ -1081,6 +1198,7 @@ class PUCT:
         record_root_trajectory: bool = False,
         root_backup_history: list[dict[str, int | float]] | None = None,
         root_audit_trace: list[dict[str, Any]] | None = None,
+        root_child_telemetry: dict[str, Any] | None = None,
     ):
         self.evaluator = evaluator
         self.simulations = simulations
@@ -1126,6 +1244,7 @@ class PUCT:
         # Root-only audit data is deliberately separate from full selection traces.
         # It records the evidence used for each root decision, not tree internals.
         self.root_audit_trace = root_audit_trace
+        self.root_child_telemetry = root_child_telemetry
         self._last_trace_root_snapshots: list[dict] = []
         self._last_root_snapshots: list[dict] = []
         self._last_root_trajectory: list[dict] = []
@@ -1143,6 +1262,7 @@ class PUCT:
         self._last_backed_up_value_min: float | None = None
         self._last_backed_up_value_max: float | None = None
         self._last_root_latency_ms: float | None = None
+        self._last_leaf_evaluation: dict[str, Any] | None = None
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -1198,6 +1318,9 @@ class PUCT:
             self.root_backup_history.clear()
         if self.root_audit_trace is not None:
             self.root_audit_trace.clear()
+        if self.root_child_telemetry is not None:
+            self.root_child_telemetry.clear()
+            self.root_child_telemetry["checkpoints"] = []
         visit_snapshot_checkpoints = self._visit_snapshot_checkpoints()
         self._expand(
             root,
@@ -1207,9 +1330,15 @@ class PUCT:
             is_root=True,
             depth=0,
         )
+        if self.root_child_telemetry is not None:
+            self.root_child_telemetry["children"] = {
+                str(move): {"first_exact_backup": None, "exact_backup_count": 0}
+                for move in sorted(root.children)
+            }
 
         for simulation_index in range(1, self.simulations + 1):
             self._active_simulation_index = simulation_index
+            self._last_leaf_evaluation = None
             if self.pre_simulation_hook is not None:
                 # The observer sees exactly the tree evidence available before t.
                 self.pre_simulation_hook(simulation_index, root)
@@ -1233,8 +1362,15 @@ class PUCT:
                 []
                 if self.backup_override is not None
                 or self.root_backup_history is not None
+                or self.root_child_telemetry is not None
                 else None
             )
+            root_child_before = None
+            if self.root_child_telemetry is not None:
+                root_child_before = {
+                    move: (int(child.visit_count), float(child.q_value))
+                    for move, child in root.children.items()
+                }
             raw_value = self._search(
                 root, trace_record=trace_record, selected_edges=selected_edges
             )
@@ -1292,6 +1428,25 @@ class PUCT:
                         "root_value": float(value),
                     }
                 )
+            if self.root_child_telemetry is not None:
+                assert selected_edges is not None and selected_edges
+                root_child = selected_edges[0][1]
+                root_action = next(
+                    move for move, child in root.children.items() if child is root_child
+                )
+                leaf_event = self._last_leaf_evaluation_event()
+                child_record = self.root_child_telemetry["children"][str(root_action)]
+                if leaf_event is not None and leaf_event.get("exact_value_applied"):
+                    child_record["exact_backup_count"] += 1
+                    if child_record["first_exact_backup"] is None:
+                        visits, q_value = root_child_before[root_action]
+                        child_record["first_exact_backup"] = {
+                            "simulation": int(simulation_index),
+                            "visits_before": visits,
+                            "q_before": q_value,
+                            "q_after": float(root_child.q_value),
+                            "exact_value": float(leaf_event["exact_value"]),
+                        }
             if trace_record is not None:
                 trace_record["backed_up_value"] = float(value)
                 if self.backup_override is not None:
@@ -1317,6 +1472,10 @@ class PUCT:
                         root, simulation_index=simulation_index
                     )
                 )
+                if self.root_child_telemetry is not None:
+                    self.root_child_telemetry["checkpoints"].append(
+                        self._root_child_telemetry_snapshot(root, simulation_index)
+                    )
             if self.record_root_trajectory:
                 legal_moves = sorted(root.children)
                 self._last_root_trajectory.append(
@@ -1362,6 +1521,22 @@ class PUCT:
                     self.select_root_move(root, sorted(root.children))
                 )
         return visits, root
+
+    def _last_leaf_evaluation_event(self) -> dict[str, Any] | None:
+        return self._last_leaf_evaluation
+
+    def _root_child_telemetry_snapshot(self, root: Node, simulation_index: int) -> dict:
+        return {
+            "simulation": int(simulation_index),
+            "children": [
+                {
+                    "move": int(move),
+                    "visits": int(child.visit_count),
+                    "q_value": float(child.q_value) if child.visit_count else 0.0,
+                }
+                for move, child in sorted(root.children.items())
+            ],
+        }
 
     def root_summary(self) -> dict:
         if self._last_root is None:
@@ -1703,6 +1878,8 @@ class PUCT:
                 is_root=False,
                 depth=depth,
             )
+            event = getattr(self.evaluator, "last_evaluation", None)
+            self._last_leaf_evaluation = event if isinstance(event, dict) else None
             if trace_record is not None:
                 trace_record.update(
                     {

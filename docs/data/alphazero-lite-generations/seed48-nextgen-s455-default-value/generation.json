@@ -90,6 +90,22 @@
       "size_bytes": 28984
     },
     {
+      "path": ".tmp/puct_exact_leaf_propagation_seed455.json",
+      "required": true,
+      "role": "puct_exact_leaf_propagation",
+      "schema": "azlite_seed48_target_quality_audit_v1",
+      "sha256": "18a7add5dc81043cb573838c550b08eee32f21cd6d9327ca159bca2946851d91",
+      "size_bytes": 2812954
+    },
+    {
+      "path": "docs/alphazero-lite-puct-exact-leaf-propagation.md",
+      "required": true,
+      "role": "puct_exact_leaf_propagation_report",
+      "schema": "markdown",
+      "sha256": "5c51f5d8c9114df983080e778f14407b1ff127f18205eb5cf6a0a8539114e7af",
+      "size_bytes": 2638
+    },
+    {
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/metadata.json",
       "required": true,
       "role": "metadata",
@@ -677,6 +693,31 @@
         "threshold_adopted": false
       },
       "tool": "run_forensic_suite_and_arena"
+    },
+    "puct_exact_leaf_propagation": {
+      "artifact": {
+        "path": ".tmp/puct_exact_leaf_propagation_seed455.json",
+        "required": true,
+        "role": "puct_exact_leaf_propagation",
+        "schema": "azlite_seed48_target_quality_audit_v1",
+        "sha256": "18a7add5dc81043cb573838c550b08eee32f21cd6d9327ca159bca2946851d91",
+        "size_bytes": 2812954
+      },
+      "config": {
+        "corpus": "docs/data/alphazero-lite-seed48-target-quality/results.json",
+        "c_puct": 1.25,
+        "exact_solve_stone_threshold": 10,
+        "simulations": 384
+      },
+      "status": "complete",
+      "summary": {
+        "primary_classification": "exact_wdl_margin_collapse_primary",
+        "seed455_expected_regret_delta": 0.10625,
+        "seed455_outcome_regressions": 0,
+        "seed455_same_outcome_margin_regressions": 6,
+        "seed455_unchanged_selection_redistribution_delta": 0.07947916666666666
+      },
+      "tool": "run_seed48_target_quality_audit"
     },
     "policy": {
       "artifact": {

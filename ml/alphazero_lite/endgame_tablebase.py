@@ -31,6 +31,7 @@ class EndgameTablebase:
         self._values: dict[
             tuple[int, tuple[int, ...], tuple[int, int], int], float
         ] = {}
+        self._margins: dict[tuple[int, tuple[int, ...], tuple[int, int], int], int] = {}
 
     def lookup(self, game: KalahGame, perspective_player: int) -> float | None:
         cached = self.lookup_cached(game, perspective_player)
@@ -59,6 +60,19 @@ class EndgameTablebase:
 
     def clear_cache(self) -> None:
         self._values.clear()
+        self._margins.clear()
+
+    def final_margin(self, game: KalahGame, perspective_player: int) -> int | None:
+        """Return exact final score margin for diagnostics without changing WDL lookup."""
+        if not self._should_solve(game):
+            return None
+        key = self._key(game, perspective_player)
+        cached = self._margins.get(key)
+        if cached is not None:
+            return cached
+        margin = self._solve_margin(game.clone(), perspective_player)
+        self._margins[key] = margin
+        return margin
 
     def record(self, game: KalahGame, perspective_player: int, value: float) -> None:
         self._values[self._key(game, perspective_player)] = float(value)
@@ -91,6 +105,31 @@ class EndgameTablebase:
 
         self._values[key] = value
         return value
+
+    def _solve_margin(self, game: KalahGame, perspective_player: int) -> int:
+        key = self._key(game, perspective_player)
+        cached = self._margins.get(key)
+        if cached is not None:
+            return cached
+        if self._is_terminal(game):
+            scores = game.captured_seeds.copy()
+            for player in (0, 1):
+                scores[player] += sum(game.pits[player * 6 : (player + 1) * 6])
+            margin = scores[perspective_player] - scores[1 - perspective_player]
+        else:
+            margins = []
+            offset = game.current_player * 6
+            for move in game.possible_moves():
+                child = game.clone()
+                child.move(offset + move)
+                margins.append(self._solve_margin(child, perspective_player))
+            margin = (
+                max(margins)
+                if game.current_player == perspective_player
+                else min(margins)
+            )
+        self._margins[key] = margin
+        return margin
 
     def _is_terminal(self, game: KalahGame) -> bool:
         return game.over()

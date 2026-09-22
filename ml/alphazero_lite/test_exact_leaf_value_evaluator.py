@@ -114,3 +114,44 @@ class ExactLeafValueEvaluatorTest(unittest.TestCase):
         self.assertEqual(
             telemetry["successful_exact_lookups"], telemetry["exact_leaf_value_count"]
         )
+
+    def test_bounded_root_child_telemetry_preserves_search_and_checkpoints(self):
+        position = game(pits=[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+        baseline = PUCT(
+            ExactLeafValueEvaluator(
+                FixedEvaluator(),
+                endgame_tablebase=EndgameTablebase(),
+                stone_threshold=2,
+            ),
+            8,
+            1.25,
+            random.Random(4),
+        )
+        telemetry = {}
+        observed = PUCT(
+            ExactLeafValueEvaluator(
+                FixedEvaluator(),
+                endgame_tablebase=EndgameTablebase(),
+                stone_threshold=2,
+            ),
+            8,
+            1.25,
+            random.Random(4),
+            root_child_telemetry=telemetry,
+            root_snapshot_checkpoints={2, 8},
+        )
+        baseline_visits, baseline_root = baseline.run(position)
+        observed_visits, observed_root = observed.run(position)
+        np.testing.assert_array_equal(baseline_visits, observed_visits)
+        self.assertEqual(
+            baseline.select_root_move(baseline_root, position.possible_moves()),
+            observed.select_root_move(observed_root, position.possible_moves()),
+        )
+        self.assertEqual(
+            [2, 8], [row["simulation"] for row in telemetry["checkpoints"]]
+        )
+        self.assertEqual({"0"}, set(telemetry["children"]))
+        self.assertEqual(
+            8, sum(row["visits"] for row in telemetry["checkpoints"][-1]["children"])
+        )
+        self.assertEqual(4, telemetry["children"]["0"]["exact_backup_count"])
