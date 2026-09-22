@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from ml.alphazero_lite.run_seed48_target_quality_audit import (
+    _selection_change_class,
     canonical_key,
     exact_action_summary,
     paired_bootstrap,
@@ -47,6 +48,17 @@ class Seed48TargetQualityAuditTest(unittest.TestCase):
             first,
             paired_bootstrap([0.5, 0.7, 0.2], [0.4, 0.2, 0.3], seed=340, samples=100),
         )
+
+    def test_selection_change_classifier_preserves_tied_optimal_moves(self) -> None:
+        exact = exact_action_summary({0: 4, 1: 4, 2: 2}, root_player=0, stores=[0, 0])
+        self.assertEqual("exact_tie", _selection_change_class(exact, 0, 1))
+
+    def test_selection_change_classifier_distinguishes_wdl_and_margin(self) -> None:
+        exact = exact_action_summary({0: 4, 1: 2, 2: -1}, root_player=0, stores=[0, 0])
+        self.assertEqual(
+            "same_outcome_margin_regression", _selection_change_class(exact, 0, 1)
+        )
+        self.assertEqual("outcome_regression", _selection_change_class(exact, 1, 2))
 
 
 if __name__ == "__main__":

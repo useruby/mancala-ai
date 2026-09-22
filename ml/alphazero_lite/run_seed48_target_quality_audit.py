@@ -8,6 +8,7 @@ import hashlib
 import json
 import random
 import statistics
+import math
 import subprocess
 import sys
 from pathlib import Path
@@ -19,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[2]
 if __package__ in (None, ""):
     sys.path.append(str(ROOT))
 
-from ml.alphazero_lite.arena import ArtifactEvaluator  # noqa: E402
+from ml.alphazero_lite.arena import ArtifactEvaluator, evaluate_artifact_position  # noqa: E402
+from ml.alphazero_lite.endgame_tablebase import EndgameTablebase  # noqa: E402
 from ml.alphazero_lite.kalah_rules import KalahGame, move_consequence_for_state  # noqa: E402
 from ml.alphazero_lite.self_play import PUCT, build_eval_search_options, state_hash  # noqa: E402
 
@@ -350,6 +352,281 @@ def classify(comparisons: dict[str, Any], metrics: dict[str, Any]) -> str:
     return "search_targets_not_improving"
 
 
+def _wdl(score: int) -> str:
+    return "W" if score > 0 else "D" if score == 0 else "L"
+
+
+def _selection_change_class(
+    exact: dict[str, Any], disabled: int, threshold: int
+) -> str:
+    scores = {
+        int(move): int(score) for move, score in exact["exact_score_by_move"].items()
+    }
+    left, right = scores[disabled], scores[threshold]
+    if left == right:
+        return "exact_tie"
+    if _wdl(left) != _wdl(right):
+        return "outcome_improvement" if right > left else "outcome_regression"
+    return (
+        "same_outcome_margin_improvement"
+        if right > left
+        else "same_outcome_margin_regression"
+    )
+
+
+def _pearson(pairs: list[tuple[float, float]]) -> float | None:
+    if len(pairs) < 2:
+        return None
+    left = statistics.fmean(pair[0] for pair in pairs)
+    right = statistics.fmean(pair[1] for pair in pairs)
+    covariance = sum((a - left) * (b - right) for a, b in pairs)
+    left_variance = sum((a - left) ** 2 for a, _ in pairs)
+    right_variance = sum((b - right) ** 2 for _, b in pairs)
+    if left_variance <= 0 or right_variance <= 0:
+        return None
+    return covariance / math.sqrt(left_variance * right_variance)
+
+
+def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
+    frozen = json.loads(args.replay_corpus.read_text(encoding="utf-8"))
+    rows = frozen["states"]
+    evaluator = ArtifactEvaluator(args.artifact)
+    options = build_eval_search_options(
+        fpu_mode="zero",
+        reuse_subtree=False,
+        normalize_values=False,
+        root_policy_mode="deterministic",
+        tactical_root_bias=0.0,
+    )
+    tablebase = EndgameTablebase()
+
+    def compact(result: dict[str, Any], timing: dict[str, Any]) -> dict[str, Any]:
+        return {
+            key: result.get(key)
+            for key in (
+                "selected_move",
+                "legal_moves",
+                "policy",
+                "visit_policy",
+                "value",
+                "search_root_value",
+                "child_stats",
+                "visits",
+                "terminal_leaf_count",
+                "nonterminal_leaf_count",
+                "backed_up_value_range",
+                "exact_leaf_value_telemetry",
+            )
+        } | {"root_child_timing": timing}
+
+    audit_rows = []
+    for index, row in enumerate(rows):
+        state = row["canonical_state"]
+        exact = {
+            **row["exact"],
+            "exact_score_by_move": {
+                int(move): int(score)
+                for move, score in row["exact"]["exact_score_by_move"].items()
+            },
+            "exact_regret_by_move": {
+                int(move): int(score)
+                for move, score in row["exact"]["exact_regret_by_move"].items()
+            },
+            "exact_wdl_by_move": {
+                int(move): value
+                for move, value in row["exact"]["exact_wdl_by_move"].items()
+            },
+            "exact_optimal_moves": [
+                int(move) for move in row["exact"]["exact_optimal_moves"]
+            ],
+        }
+        outputs = {}
+        for name, threshold in (("disabled", None), ("threshold10", 10)):
+            timing: dict[str, Any] = {}
+            result = evaluate_artifact_position(
+                evaluator=evaluator,
+                state=state,
+                simulations=384,
+                seed=args.seed + index,
+                c_puct=1.25,
+                search_options=options,
+                endgame_tablebase=tablebase,
+                exact_solve_stone_threshold=threshold,
+                exact_solve_fail_closed=True,
+                root_child_telemetry=timing,
+                root_snapshot_checkpoints={32, 64, 128, 256, 384},
+            )
+            visit_policy, _ = normalize_legal(result["visits"], row["legal_moves"])
+            result["visit_policy"] = visit_policy
+            outputs[name] = compact(result, timing)
+        disabled, threshold10 = outputs["disabled"], outputs["threshold10"]
+        change = None
+        if disabled["selected_move"] != threshold10["selected_move"]:
+            change = _selection_change_class(
+                exact, disabled["selected_move"], threshold10["selected_move"]
+            )
+        audit_rows.append(
+            {
+                "state_hash": row["state_hash"],
+                "bucket": row["bucket"],
+                "legal_moves": row["legal_moves"],
+                "exact": exact,
+                "disabled": disabled,
+                "threshold10": threshold10,
+                "selection_change_class": change,
+            }
+        )
+
+    def summary(name: str) -> dict[str, float]:
+        qualities = [
+            quality(row[name]["visit_policy"], row["exact"], row["legal_moves"])
+            for row in audit_rows
+        ]
+        wdl_optimal = [
+            select_top(row[name]["visit_policy"], row["legal_moves"])
+            in {
+                int(move)
+                for move, score in row["exact"]["exact_score_by_move"].items()
+                if _wdl(int(score))
+                == _wdl(max(map(int, row["exact"]["exact_score_by_move"].values())))
+            }
+            for row in audit_rows
+        ]
+        return {
+            "optimal_mass": statistics.fmean(x["optimal_mass"] for x in qualities),
+            "expected_regret": statistics.fmean(
+                x["expected_regret"] for x in qualities
+            ),
+            "top_move_optimal": statistics.fmean(
+                x["top_move_optimal"] for x in qualities
+            ),
+            "top_move_regret": statistics.fmean(
+                x["top_move_regret"] for x in qualities
+            ),
+            "wdl_optimal_top1": statistics.fmean(wdl_optimal),
+        }
+
+    aggregate = {name: summary(name) for name in ("disabled", "threshold10")}
+    aggregate["delta"] = {
+        key: aggregate["threshold10"][key] - aggregate["disabled"][key]
+        for key in aggregate["disabled"]
+    }
+    counts = {
+        name: sum(row["selection_change_class"] == name for row in audit_rows)
+        for name in (
+            "outcome_improvement",
+            "outcome_regression",
+            "same_outcome_margin_improvement",
+            "same_outcome_margin_regression",
+            "exact_tie",
+        )
+    }
+    boundary_totals: dict[str, dict[str, float | int]] = {}
+    for row in audit_rows:
+        telemetry = row["threshold10"].get("exact_leaf_value_telemetry") or {}
+        for stones, bucket in (telemetry.get("boundary_value_buckets") or {}).items():
+            total = boundary_totals.setdefault(stones, {key: 0 for key in bucket})
+            for key, value in bucket.items():
+                total[key] = float(total[key]) + float(value)
+    boundary_summary = {}
+    for stones, bucket in boundary_totals.items():
+        count, exact_count = int(bucket["count"]), int(bucket["exact_count"])
+        network_mean = float(bucket["network_value_sum"]) / count
+        boundary_summary[stones] = {
+            "count": count,
+            "network_value_mean": network_mean,
+            "network_value_sd": math.sqrt(
+                max(
+                    0.0,
+                    float(bucket["network_value_square_sum"]) / count - network_mean**2,
+                )
+            ),
+            "exact_count": exact_count,
+            "exact_value_mean": None
+            if not exact_count
+            else float(bucket["exact_value_sum"]) / exact_count,
+            "exact_minus_network_mean": None
+            if not exact_count
+            else float(bucket["delta_sum"]) / exact_count,
+            "absolute_delta_mean": None
+            if not exact_count
+            else float(bucket["absolute_delta_sum"]) / exact_count,
+            "sign_disagreement_rate": None
+            if not exact_count
+            else int(bucket["sign_disagreement_count"]) / exact_count,
+        }
+    root_q_margin_correlation = {}
+    for name in ("disabled", "threshold10"):
+        pairs = []
+        for row in audit_rows:
+            margins = row["exact"]["exact_score_by_move"]
+            pairs.extend(
+                (float(child["q_value"]), float(margins[int(child["move"])]))
+                for child in row[name]["child_stats"]
+                if int(child["move"]) in margins
+            )
+        root_q_margin_correlation[name] = {
+            "pairs": len(pairs),
+            "pearson": _pearson(pairs),
+        }
+    ranked = []
+    for row in audit_rows:
+        disabled_quality = quality(
+            row["disabled"]["visit_policy"], row["exact"], row["legal_moves"]
+        )
+        threshold_quality = quality(
+            row["threshold10"]["visit_policy"], row["exact"], row["legal_moves"]
+        )
+        ranked.append(
+            {
+                "state_hash": row["state_hash"],
+                "visit_weighted_expected_regret_delta": (
+                    threshold_quality["expected_regret"]
+                    - disabled_quality["expected_regret"]
+                ),
+                "selection_change_class": row["selection_change_class"],
+            }
+        )
+    report = {
+        "schema": SCHEMA,
+        "diagnostic": "puct_exact_leaf_propagation",
+        "training_eligible": False,
+        "aggregate": aggregate,
+        "changed_selection_counts": counts,
+        "states": audit_rows,
+        "boundary_value_summary": boundary_summary,
+        "root_q_vs_exact_action_margin": root_q_margin_correlation,
+        "largest_harmful_states": sorted(
+            ranked,
+            key=lambda row: (
+                -row["visit_weighted_expected_regret_delta"],
+                row["state_hash"],
+            ),
+        )[:20],
+        "largest_improving_states": sorted(
+            ranked,
+            key=lambda row: (
+                row["visit_weighted_expected_regret_delta"],
+                row["state_hash"],
+            ),
+        )[:20],
+    }
+    args.replay_out.parent.mkdir(parents=True, exist_ok=True)
+    args.replay_out.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    print(
+        json.dumps(
+            {
+                "states": len(audit_rows),
+                "aggregate": aggregate,
+                "out": str(args.replay_out),
+            }
+        )
+    )
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -371,7 +648,13 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=340)
     parser.add_argument("--games", type=int, default=128)
     parser.add_argument("--target-per-bucket", type=int, default=50)
+    parser.add_argument("--replay-corpus", type=Path)
+    parser.add_argument("--replay-out", type=Path)
     args = parser.parse_args()
+    if args.replay_corpus is not None:
+        if args.artifact is None or args.replay_out is None:
+            raise ValueError("--replay-corpus requires --artifact and --replay-out")
+        return _replay_exact_leaf_audit(args)
     if args.games > 128:
         raise ValueError("corpus collection is capped at 128 games")
     metadata = json.loads((args.artifact / "metadata.json").read_text(encoding="utf-8"))
