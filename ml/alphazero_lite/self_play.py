@@ -661,7 +661,9 @@ class ExactSolveCoverageGap(RuntimeError):
 
 
 class ExactLeafValueEvaluator(Evaluator):
-    """Keep network priors while replacing eligible leaf values with exact W/D/L."""
+    """Keep network priors while replacing eligible leaf values with exact values."""
+
+    VALUE_MODES = frozenset({"wdl", "wdl_margin"})
 
     def __init__(
         self,
@@ -670,15 +672,19 @@ class ExactLeafValueEvaluator(Evaluator):
         endgame_tablebase: EndgameTablebaseContract | None = None,
         stone_threshold: int | None = None,
         fail_closed: bool = False,
+        value_mode: str = "wdl",
     ) -> None:
         if stone_threshold is not None and stone_threshold < 0:
             raise ValueError("stone_threshold must be non-negative")
         if stone_threshold is not None and endgame_tablebase is None:
             raise ValueError("stone_threshold requires an endgame tablebase")
+        if value_mode not in self.VALUE_MODES:
+            raise ValueError(f"unsupported exact leaf value_mode: {value_mode}")
         self.evaluator = evaluator
         self.endgame_tablebase = endgame_tablebase
         self.stone_threshold = stone_threshold
         self.fail_closed = bool(fail_closed)
+        self.value_mode = value_mode
         self.reset_telemetry()
 
     @property
@@ -690,6 +696,7 @@ class ExactLeafValueEvaluator(Evaluator):
         self.successful_exact_lookups = 0
         self.tablebase_lookup_count = 0
         self.tablebase_cache_hits = 0
+        self.margin_lookup_count = 0
         self.exact_lookup_latency_seconds = 0.0
         self.network_leaf_value_count = 0
         self.exact_leaf_value_count = 0
@@ -709,6 +716,7 @@ class ExactLeafValueEvaluator(Evaluator):
         return {
             "enabled": self.enabled,
             "stone_threshold": self.stone_threshold,
+            "value_mode": self.value_mode,
             "qualifying_leaf_evaluations": self.qualifying_leaf_evaluations,
             "successful_exact_lookups": self.successful_exact_lookups,
             "exact_lookup_rate": (
@@ -718,6 +726,7 @@ class ExactLeafValueEvaluator(Evaluator):
             ),
             "tablebase_lookup_count": self.tablebase_lookup_count,
             "tablebase_cache_hits": self.tablebase_cache_hits,
+            "margin_lookup_count": self.margin_lookup_count,
             "average_exact_lookup_latency_ms": (
                 0.0
                 if self.tablebase_lookup_count == 0
@@ -797,15 +806,22 @@ class ExactLeafValueEvaluator(Evaluator):
             else max(self.maximum_exact_solved_active_stones, active_stones)
         )
         # Tablebase values are [0, 1] from current_player; PUCT values are [-1, 1].
-        exact_value = (2.0 * float(exact_probability)) - 1.0
+        wdl_value = (2.0 * float(exact_probability)) - 1.0
         exact_margin = None
         margin_lookup = getattr(self.endgame_tablebase, "final_margin", None)
         if callable(margin_lookup):
+            self.margin_lookup_count += 1
             exact_margin = margin_lookup(game, game.current_player)
             if exact_margin is not None:
                 self._record_fixed_wdl_margin(
-                    exact_value, float(network_value), int(exact_margin)
+                    wdl_value, float(network_value), int(exact_margin)
                 )
+        if self.value_mode == "wdl_margin":
+            if exact_margin is None:
+                raise ExactSolveCoverageGap("exact_margin_coverage_gap")
+            exact_value = self._wdl_margin_value(wdl_value, int(exact_margin), game)
+        else:
+            exact_value = wdl_value
         self._record_boundary_value(active_stones, float(network_value), exact_value)
         self.exact_solved_active_stones[active_stones] = (
             self.exact_solved_active_stones.get(active_stones, 0) + 1
@@ -820,6 +836,22 @@ class ExactLeafValueEvaluator(Evaluator):
             "exact_value_applied": True,
         }
         return priors, exact_value
+
+    @staticmethod
+    def _wdl_margin_value(wdl_value: float, margin: int, game: KalahGame) -> float:
+        """Map a verified exact margin into lexicographically ordered PUCT value."""
+        total_stones = int(sum(game.pits) + sum(game.captured_seeds))
+        if total_stones <= 0 or abs(margin) > total_stones:
+            raise ExactSolveCoverageGap("exact_wdl_margin_inconsistent")
+        expected_wdl = 1.0 if margin > 0 else 0.5 if margin == 0 else 0.0
+        if wdl_value != (2.0 * expected_wdl) - 1.0:
+            raise ExactSolveCoverageGap("exact_wdl_margin_inconsistent")
+        if margin == 0:
+            return 0.0
+        value = (0.5 + 0.5 * abs(margin) / total_stones) * (1.0 if margin > 0 else -1.0)
+        if not -1.0 <= value <= 1.0:
+            raise ExactSolveCoverageGap("exact_wdl_margin_inconsistent")
+        return value
 
     def _record_fixed_wdl_margin(
         self, exact_value: float, network_value: float, margin: int
