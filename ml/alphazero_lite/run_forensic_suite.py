@@ -55,6 +55,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--exact-solve-stone-threshold", type=int, default=None)
+    parser.add_argument(
+        "--exact-solve-value-mode",
+        choices=("wdl", "wdl_margin"),
+        default="wdl",
+    )
     parser.add_argument("--out", required=True)
     return parser.parse_args()
 
@@ -547,6 +552,7 @@ def main() -> None:
                         args, "exact_solve_stone_threshold", None
                     ),
                     exact_solve_fail_closed=exact_tablebases is not None,
+                    exact_solve_value_mode=args.exact_solve_value_mode,
                 )
             rows.append(
                 build_row(
@@ -568,6 +574,7 @@ def main() -> None:
             "exact_solve_stone_threshold": getattr(
                 args, "exact_solve_stone_threshold", None
             ),
+            "exact_solve_value_mode": args.exact_solve_value_mode,
             "exact_solve_fail_closed": getattr(
                 args, "exact_solve_stone_threshold", None
             )

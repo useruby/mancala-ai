@@ -6,6 +6,8 @@ import numpy as np
 from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.self_play import (
+    build_eval_search_options,
+    build_search_profile,
     Evaluator,
     ExactLeafValueEvaluator,
     ExactSolveCoverageGap,
@@ -24,6 +26,21 @@ class MissingTablebase:
 
     def lookup(self, _game, _perspective_player):
         return None
+
+
+class FixedTablebase:
+    def __init__(self, value, margin):
+        self.value = value
+        self.margin = margin
+
+    def lookup_cached(self, _game, _perspective_player):
+        return self.value
+
+    def lookup(self, _game, _perspective_player):
+        return self.value
+
+    def final_margin(self, _game, _perspective_player):
+        return self.margin
 
 
 def game(*, pits, stores=(20, 19), current_player=0):
@@ -84,6 +101,87 @@ class ExactLeafValueEvaluatorTest(unittest.TestCase):
         ):
             wrapped.evaluate(position)
         self.assertEqual(1, len(wrapped.telemetry["coverage_gaps"]))
+
+    def test_default_mode_remains_flat_wdl(self):
+        position = game(pits=[1] + [0] * 11, stores=(20, 27))
+        value = ExactLeafValueEvaluator(
+            FixedEvaluator(),
+            endgame_tablebase=FixedTablebase(1.0, 1),
+            stone_threshold=1,
+        ).evaluate(position)[1]
+        self.assertEqual(1.0, value)
+
+    def test_wdl_margin_mapping_is_lexicographic_and_bounded(self):
+        position = game(pits=[1] + [0] * 11, stores=(20, 27))
+        cases = (
+            (48, 1.0),
+            (1, 0.5104166666666666),
+            (0, 0.0),
+            (-1, -0.5104166666666666),
+            (-48, -1.0),
+        )
+        values = []
+        for margin, expected in cases:
+            wdl = 1.0 if margin > 0 else 0.5 if margin == 0 else 0.0
+            value = ExactLeafValueEvaluator(
+                FixedEvaluator(),
+                endgame_tablebase=FixedTablebase(wdl, margin),
+                stone_threshold=1,
+                value_mode="wdl_margin",
+            ).evaluate(position)[1]
+            self.assertAlmostEqual(expected, value)
+            self.assertGreaterEqual(value, -1.0)
+            self.assertLessEqual(value, 1.0)
+            values.append(value)
+        self.assertGreater(values[0], values[1])
+        self.assertGreater(values[1], 0.5)
+        self.assertEqual(0.0, values[2])
+        self.assertLess(values[3], -0.5)
+        self.assertGreater(values[3], values[4])
+
+    def test_wdl_margin_fails_closed_for_missing_or_inconsistent_margin(self):
+        position = game(pits=[1] + [0] * 11, stores=(20, 27))
+        for tablebase, error in (
+            (FixedTablebase(1.0, None), "exact_margin_coverage_gap"),
+            (FixedTablebase(1.0, -1), "exact_wdl_margin_inconsistent"),
+        ):
+            evaluator = ExactLeafValueEvaluator(
+                FixedEvaluator(),
+                endgame_tablebase=tablebase,
+                stone_threshold=1,
+                value_mode="wdl_margin",
+            )
+            with self.assertRaisesRegex(ExactSolveCoverageGap, error):
+                evaluator.evaluate(position)
+
+    def test_wdl_margin_preserves_priors_and_profile_identity(self):
+        position = game(pits=[1] + [0] * 11, stores=(20, 27))
+        priors, _ = FixedEvaluator().evaluate(position)
+        wrapped_priors, _ = ExactLeafValueEvaluator(
+            FixedEvaluator(),
+            endgame_tablebase=FixedTablebase(1.0, 1),
+            stone_threshold=1,
+            value_mode="wdl_margin",
+        ).evaluate(position)
+        np.testing.assert_array_equal(priors, wrapped_priors)
+        options = build_eval_search_options()
+        wdl = build_search_profile(
+            kind="test",
+            player_mode="puct",
+            simulations=384,
+            c_puct=1.25,
+            search_options=options,
+            extra_fields={"exact_solve_value_mode": "wdl"},
+        )
+        margin = build_search_profile(
+            kind="test",
+            player_mode="puct",
+            simulations=384,
+            c_puct=1.25,
+            search_options=options,
+            extra_fields={"exact_solve_value_mode": "wdl_margin"},
+        )
+        self.assertNotEqual(wdl["hash"], margin["hash"])
 
     def test_disabled_wrapper_reproduces_puct_output(self):
         position = game(pits=[1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0])

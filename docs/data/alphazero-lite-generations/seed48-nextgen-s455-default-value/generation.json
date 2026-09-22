@@ -106,6 +106,30 @@
       "size_bytes": 2638
     },
     {
+      "path": ".tmp/puct_exact_margin_leaf_ablation_seed455.json",
+      "required": true,
+      "role": "puct_exact_margin_leaf_ablation",
+      "schema": "azlite_seed48_target_quality_audit_v1",
+      "sha256": "0ea1b0f9191bd68bba486bed9d04370f290348ae47d0279945840be719f09470",
+      "size_bytes": 4603277
+    },
+    {
+      "path": ".tmp/puct_exact_margin_leaf_forensic.json",
+      "required": true,
+      "role": "puct_exact_margin_leaf_forensic",
+      "schema": "azlite_forensic_suite_v1",
+      "sha256": "5a10d684ed87be48c722068c9b0d17f9c4bdcd9fc69732488735ad1dea6bf181",
+      "size_bytes": 871874
+    },
+    {
+      "path": "docs/alphazero-lite-puct-exact-margin-leaf-ablation.md",
+      "required": true,
+      "role": "puct_exact_margin_leaf_ablation_report",
+      "schema": "markdown",
+      "sha256": "11b2139588776bfe29077ed7a7dbe14eacdfd95ec4637e7d5f7db343372f6249",
+      "size_bytes": 1078
+    },
+    {
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/metadata.json",
       "required": true,
       "role": "metadata",
@@ -718,6 +742,32 @@
         "seed455_unchanged_selection_redistribution_delta": 0.07947916666666666
       },
       "tool": "run_seed48_target_quality_audit"
+    },
+    "puct_exact_margin_leaf_ablation": {
+      "artifact": {
+        "path": ".tmp/puct_exact_margin_leaf_ablation_seed455.json",
+        "required": true,
+        "role": "puct_exact_margin_leaf_ablation",
+        "schema": "azlite_seed48_target_quality_audit_v1",
+        "sha256": "0ea1b0f9191bd68bba486bed9d04370f290348ae47d0279945840be719f09470",
+        "size_bytes": 4603277
+      },
+      "config": {
+        "conditions": ["disabled", "threshold10_wdl", "threshold10_wdl_margin"],
+        "c_puct": 1.25,
+        "exact_solve_stone_threshold": 10,
+        "simulations": 384
+      },
+      "status": "complete",
+      "summary": {
+        "primary_classification": "exact_margin_leaf_loses_tactical_fix",
+        "pr340_expected_regret_wdl": 1.6358333333333335,
+        "pr340_expected_regret_wdl_margin": 1.5128385416666665,
+        "pr340_optimal_mass_wdl": 0.6877994791666667,
+        "pr340_optimal_mass_wdl_margin": 0.6977604166666667,
+        "sparse_endgame_023_wdl_margin_selected_move": 5
+      },
+      "tool": "run_seed48_target_quality_audit_and_forensic_suite"
     },
     "policy": {
       "artifact": {

@@ -11,6 +11,7 @@ import statistics
 import math
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +24,12 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.arena import ArtifactEvaluator, evaluate_artifact_position  # noqa: E402
 from ml.alphazero_lite.endgame_tablebase import EndgameTablebase  # noqa: E402
 from ml.alphazero_lite.kalah_rules import KalahGame, move_consequence_for_state  # noqa: E402
-from ml.alphazero_lite.self_play import PUCT, build_eval_search_options, state_hash  # noqa: E402
+from ml.alphazero_lite.self_play import (  # noqa: E402
+    PUCT,
+    build_eval_search_options,
+    build_search_profile,
+    state_hash,
+)
 
 
 SCHEMA = "azlite_seed48_target_quality_audit_v1"
@@ -416,6 +422,7 @@ def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
                 "nonterminal_leaf_count",
                 "backed_up_value_range",
                 "exact_leaf_value_telemetry",
+                "budget",
             )
         } | {"root_child_timing": timing}
 
@@ -441,8 +448,13 @@ def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
             ],
         }
         outputs = {}
-        for name, threshold in (("disabled", None), ("threshold10", 10)):
+        for name, threshold, value_mode in (
+            ("disabled", None, "wdl"),
+            ("threshold10_wdl", 10, "wdl"),
+            ("threshold10_wdl_margin", 10, "wdl_margin"),
+        ):
             timing: dict[str, Any] = {}
+            started = time.perf_counter()
             result = evaluate_artifact_position(
                 evaluator=evaluator,
                 state=state,
@@ -453,27 +465,32 @@ def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
                 endgame_tablebase=tablebase,
                 exact_solve_stone_threshold=threshold,
                 exact_solve_fail_closed=True,
+                exact_solve_value_mode=value_mode,
                 root_child_telemetry=timing,
                 root_snapshot_checkpoints={32, 64, 128, 256, 384},
             )
+            timing["root_latency_ms"] = (time.perf_counter() - started) * 1000.0
             visit_policy, _ = normalize_legal(result["visits"], row["legal_moves"])
             result["visit_policy"] = visit_policy
             outputs[name] = compact(result, timing)
-        disabled, threshold10 = outputs["disabled"], outputs["threshold10"]
-        change = None
-        if disabled["selected_move"] != threshold10["selected_move"]:
-            change = _selection_change_class(
-                exact, disabled["selected_move"], threshold10["selected_move"]
-            )
+        selection_changes = {}
+        for name in ("threshold10_wdl", "threshold10_wdl_margin"):
+            if outputs["disabled"]["selected_move"] != outputs[name]["selected_move"]:
+                selection_changes[name] = _selection_change_class(
+                    exact,
+                    outputs["disabled"]["selected_move"],
+                    outputs[name]["selected_move"],
+                )
         audit_rows.append(
             {
                 "state_hash": row["state_hash"],
                 "bucket": row["bucket"],
                 "legal_moves": row["legal_moves"],
                 "exact": exact,
-                "disabled": disabled,
-                "threshold10": threshold10,
-                "selection_change_class": change,
+                "disabled": outputs["disabled"],
+                "threshold10_wdl": outputs["threshold10_wdl"],
+                "threshold10_wdl_margin": outputs["threshold10_wdl_margin"],
+                "selection_change_class": selection_changes,
             }
         )
 
@@ -506,24 +523,34 @@ def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
             "wdl_optimal_top1": statistics.fmean(wdl_optimal),
         }
 
-    aggregate = {name: summary(name) for name in ("disabled", "threshold10")}
-    aggregate["delta"] = {
-        key: aggregate["threshold10"][key] - aggregate["disabled"][key]
-        for key in aggregate["disabled"]
+    condition_names = ("disabled", "threshold10_wdl", "threshold10_wdl_margin")
+    aggregate = {name: summary(name) for name in condition_names}
+    aggregate["delta_vs_disabled"] = {
+        name: {
+            key: aggregate[name][key] - aggregate["disabled"][key]
+            for key in aggregate["disabled"]
+        }
+        for name in condition_names[1:]
     }
     counts = {
-        name: sum(row["selection_change_class"] == name for row in audit_rows)
-        for name in (
-            "outcome_improvement",
-            "outcome_regression",
-            "same_outcome_margin_improvement",
-            "same_outcome_margin_regression",
-            "exact_tie",
-        )
+        condition: {
+            name: sum(
+                row["selection_change_class"].get(condition) == name
+                for row in audit_rows
+            )
+            for name in (
+                "outcome_improvement",
+                "outcome_regression",
+                "same_outcome_margin_improvement",
+                "same_outcome_margin_regression",
+                "exact_tie",
+            )
+        }
+        for condition in condition_names[1:]
     }
     boundary_totals: dict[str, dict[str, float | int]] = {}
     for row in audit_rows:
-        telemetry = row["threshold10"].get("exact_leaf_value_telemetry") or {}
+        telemetry = row["threshold10_wdl"].get("exact_leaf_value_telemetry") or {}
         for stones, bucket in (telemetry.get("boundary_value_buckets") or {}).items():
             total = boundary_totals.setdefault(stones, {key: 0 for key in bucket})
             for key, value in bucket.items():
@@ -556,7 +583,7 @@ def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
             else int(bucket["sign_disagreement_count"]) / exact_count,
         }
     root_q_margin_correlation = {}
-    for name in ("disabled", "threshold10"):
+    for name in condition_names:
         pairs = []
         for row in audit_rows:
             margins = row["exact"]["exact_score_by_move"]
@@ -575,7 +602,12 @@ def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
             row["disabled"]["visit_policy"], row["exact"], row["legal_moves"]
         )
         threshold_quality = quality(
-            row["threshold10"]["visit_policy"], row["exact"], row["legal_moves"]
+            row["threshold10_wdl"]["visit_policy"], row["exact"], row["legal_moves"]
+        )
+        margin_quality = quality(
+            row["threshold10_wdl_margin"]["visit_policy"],
+            row["exact"],
+            row["legal_moves"],
         )
         ranked.append(
             {
@@ -584,15 +616,101 @@ def _replay_exact_leaf_audit(args: argparse.Namespace) -> int:
                     threshold_quality["expected_regret"]
                     - disabled_quality["expected_regret"]
                 ),
+                "wdl_margin_minus_wdl_expected_regret_delta": (
+                    margin_quality["expected_regret"]
+                    - threshold_quality["expected_regret"]
+                ),
                 "selection_change_class": row["selection_change_class"],
             }
         )
+    bootstrap = {}
+    for left, right, label in (
+        ("threshold10_wdl_margin", "threshold10_wdl", "wdl_margin_minus_wdl"),
+        ("threshold10_wdl_margin", "disabled", "wdl_margin_minus_disabled"),
+    ):
+        bootstrap[label] = {
+            metric: paired_bootstrap(
+                [
+                    quality(
+                        row[left]["visit_policy"], row["exact"], row["legal_moves"]
+                    )[metric]
+                    for row in audit_rows
+                ],
+                [
+                    quality(
+                        row[right]["visit_policy"], row["exact"], row["legal_moves"]
+                    )[metric]
+                    for row in audit_rows
+                ],
+                seed=360,
+            )
+            for metric in ("optimal_mass", "expected_regret", "top_move_regret")
+        }
+    runtime = {}
+    for name in condition_names:
+        telemetries = [
+            row[name].get("exact_leaf_value_telemetry") or {} for row in audit_rows
+        ]
+        latencies = [
+            float(row[name]["root_child_timing"]["root_latency_ms"])
+            for row in audit_rows
+        ]
+        runtime[name] = {
+            "tablebase_wdl_lookup_count": sum(
+                int(telemetry.get("tablebase_lookup_count", 0))
+                for telemetry in telemetries
+            ),
+            "margin_lookup_count": sum(
+                int(telemetry.get("margin_lookup_count", 0))
+                for telemetry in telemetries
+            ),
+            "tablebase_cache_hit_rate": (
+                0.0
+                if not sum(
+                    int(telemetry.get("tablebase_lookup_count", 0))
+                    for telemetry in telemetries
+                )
+                else sum(
+                    int(telemetry.get("tablebase_cache_hits", 0))
+                    for telemetry in telemetries
+                )
+                / sum(
+                    int(telemetry.get("tablebase_lookup_count", 0))
+                    for telemetry in telemetries
+                )
+            ),
+            "mean_root_latency_ms": statistics.fmean(latencies),
+            "p95_root_latency_ms": sorted(latencies)[int(0.95 * (len(latencies) - 1))],
+        }
+    runtime["latency_ratio_vs_disabled"] = {
+        name: (
+            None
+            if runtime["disabled"]["mean_root_latency_ms"] == 0.0
+            else runtime[name]["mean_root_latency_ms"]
+            / runtime["disabled"]["mean_root_latency_ms"]
+        )
+        for name in condition_names
+    }
+    search_profile = build_search_profile(
+        kind="puct_exact_margin_leaf_ablation",
+        player_mode="puct",
+        simulations=384,
+        c_puct=1.25,
+        search_options=options,
+        extra_fields={
+            "exact_solve_stone_threshold": 10,
+            "exact_solve_value_modes": "disabled,wdl,wdl_margin",
+        },
+    )
     report = {
         "schema": SCHEMA,
         "diagnostic": "puct_exact_leaf_propagation",
         "training_eligible": False,
         "aggregate": aggregate,
         "changed_selection_counts": counts,
+        "paired_bootstrap": bootstrap,
+        "runtime": runtime,
+        "search_profile": search_profile,
         "states": audit_rows,
         "boundary_value_summary": boundary_summary,
         "root_q_vs_exact_action_margin": root_q_margin_correlation,

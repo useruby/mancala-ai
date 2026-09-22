@@ -508,6 +508,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--current-value-transform-json", default=None)
     parser.add_argument("--exact-solve-stone-threshold", type=int, default=None)
     parser.add_argument(
+        "--exact-solve-value-mode",
+        choices=("wdl", "wdl_margin"),
+        default="wdl",
+    )
+    parser.add_argument(
         "--challenger-search-options-json",
         default=None,
         help="Optional JSON object overriding search options for the challenger only.",
@@ -1002,6 +1007,7 @@ def evaluate_artifact_position(
     endgame_tablebase=None,
     exact_solve_stone_threshold: int | None = None,
     exact_solve_fail_closed: bool = False,
+    exact_solve_value_mode: str = "wdl",
     root_child_telemetry: dict[str, Any] | None = None,
     root_snapshot_checkpoints: set[int] | None = None,
 ) -> dict:
@@ -1091,6 +1097,7 @@ def evaluate_artifact_position(
             endgame_tablebase=endgame_tablebase,
             stone_threshold=int(exact_solve_stone_threshold),
             fail_closed=exact_solve_fail_closed,
+            value_mode=exact_solve_value_mode,
         )
     if root_prior_override is not None and root_prior_transform is not None:
         raise ValueError(
@@ -1754,6 +1761,7 @@ def run_arena_worker(
     challenger_prior_override_mode: str | None = None,
     challenger_prior_tail_threshold: float | None = None,
     exact_solve_stone_threshold: int | None = None,
+    exact_solve_value_mode: str = "wdl",
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1797,12 +1805,14 @@ def run_arena_worker(
             endgame_tablebase=EndgameTablebase(),
             stone_threshold=exact_solve_stone_threshold,
             fail_closed=True,
+            value_mode=exact_solve_value_mode,
         )
         current = ExactLeafValueEvaluator(
             current,
             endgame_tablebase=EndgameTablebase(),
             stone_threshold=exact_solve_stone_threshold,
             fail_closed=True,
+            value_mode=exact_solve_value_mode,
         )
     challenger_artifact_hash = artifact_weights_hash(challenger_path)
     current_artifact_hash = artifact_weights_hash(current_path)
@@ -1864,6 +1874,7 @@ def run_arena_worker(
             "challenger_simulations": int(challenger_simulations),
             "current_simulations": int(current_simulations),
             "exact_solve_stone_threshold": exact_solve_stone_threshold,
+            "exact_solve_value_mode": exact_solve_value_mode,
             "exact_solve_semantics": "network_priors_exact_leaf_value",
             **(
                 {"challenger_value_transform": effective_challenger_value_transform}
@@ -2685,6 +2696,7 @@ def main() -> None:
                     seed_contract=args.seed_contract,
                     suite_sha256_override=args.suite_sha256,
                     exact_solve_stone_threshold=args.exact_solve_stone_threshold,
+                    exact_solve_value_mode=args.exact_solve_value_mode,
                 )
             )
         results = [future.result() for future in futures]
@@ -2765,6 +2777,7 @@ def main() -> None:
             "search_configuration_ledger_output": args.search_configuration_ledger_output,
             "search_outcome_ledger_output": args.search_outcome_ledger_output,
             "exact_solve_stone_threshold": args.exact_solve_stone_threshold,
+            "exact_solve_value_mode": args.exact_solve_value_mode,
             "exact_solve_semantics": "network_priors_exact_leaf_value",
         }
     )
