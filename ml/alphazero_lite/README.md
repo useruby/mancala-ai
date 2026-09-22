@@ -32,7 +32,7 @@ Mental model:
 incumbent -> generation -> self-play -> training -> candidate -> diagnostics -> gate -> rejected/promoted
 ```
 
-For an ablation, create two records and a small comparison metadata file that names their controlled configuration difference, for example `training.value_target_mode: ["default", "sharpened"]`. Do not create another runner/result schema merely to record that comparison.
+For an ablation, create two records and a small comparison metadata file that names their controlled configuration difference, for example `training.value_target_mode: ["default", "sharpened"]`. `comparison_record.py` validates paired record controls and supplies deterministic paired-bootstrap intervals. Use `dataset_transform.py relabel-value-targets` for immutable outcome-label derivatives; its audit records source and output hashes, row counts, changed rows, state/policy equality, and target magnitudes. Do not create another runner/result schema merely to record that comparison.
 
 Create an experiment-specific runner only when existing pipeline configuration cannot express execution, standardized diagnostics cannot express measurement, and the capability is reusable or execution semantics are genuinely unique. Otherwise use pipeline configuration, generation records, generic diagnostics, and comparison metadata. Current `run_*.py` files are historical/reproduction or forensic tools (category A); their reusable primitives should be extracted only when needed. `pipeline.py` and `local_promotion_gate` are the normal operational workflow (category C).
 
