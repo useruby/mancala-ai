@@ -27,12 +27,14 @@ if os.environ.get("AZLITE_FORENSIC_SUITE_STUB") != "1":
         evaluate_artifact_position,
     )
     from ml.alphazero_lite.classic_mcts import MCTS
+    from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
     from ml.alphazero_lite.kalah_rules import KalahGame
 else:
     ArtifactEvaluator = None
     build_eval_search_options = lambda: {}  # noqa: E731
     evaluate_artifact_position = None
     MCTS = None
+    EndgameTablebase = None
     KalahGame = None
 
 
@@ -52,6 +54,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--artifact-simulations", type=int, default=384)
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--exact-solve-stone-threshold", type=int, default=None)
     parser.add_argument("--out", required=True)
     return parser.parse_args()
 
@@ -506,11 +509,19 @@ def main() -> None:
         "challenger": str(Path(args.challenger_artifact)),
     }
     evaluators = None
+    exact_tablebases = None
     if not stub_mode:
         evaluators = {
             system_name: ArtifactEvaluator(Path(artifact_path))
             for system_name, artifact_path in systems.items()
         }
+        exact_solve_stone_threshold = getattr(args, "exact_solve_stone_threshold", None)
+        if exact_solve_stone_threshold is not None:
+            if exact_solve_stone_threshold < 0:
+                raise SystemExit("--exact-solve-stone-threshold must be non-negative")
+            exact_tablebases = {
+                system_name: EndgameTablebase() for system_name in systems
+            }
 
     system_rows: dict[str, list[dict]] = {}
     for system_name, artifact_path in systems.items():
@@ -527,6 +538,15 @@ def main() -> None:
                     seed=args.seed + 1000 + index,
                     c_puct=args.c_puct,
                     search_options=search_options,
+                    endgame_tablebase=(
+                        None
+                        if exact_tablebases is None
+                        else exact_tablebases[system_name]
+                    ),
+                    exact_solve_stone_threshold=getattr(
+                        args, "exact_solve_stone_threshold", None
+                    ),
+                    exact_solve_fail_closed=exact_tablebases is not None,
                 )
             rows.append(
                 build_row(
@@ -542,6 +562,17 @@ def main() -> None:
         "stub": stub_mode,
         "suite_path": str(suite_path),
         "positions": len(suite),
+        "search_policy": {
+            "engine": "puct",
+            "exact_solve_semantics": "network_priors_exact_leaf_value",
+            "exact_solve_stone_threshold": getattr(
+                args, "exact_solve_stone_threshold", None
+            ),
+            "exact_solve_fail_closed": getattr(
+                args, "exact_solve_stone_threshold", None
+            )
+            is not None,
+        },
         "reference": {
             "kind": "shared_artifact",
             "artifact_path": str(Path(reference_artifact_path)),

@@ -11,6 +11,7 @@ import math
 import random
 import sys
 import tempfile
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
@@ -26,6 +27,7 @@ from ml.alphazero_lite.input_encodings import (
     feature_count_for,
 )
 from ml.alphazero_lite.eval_cache import EvalCache
+from ml.alphazero_lite.endgame_tablebase import EndgameTablebaseContract
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
 from ml.alphazero_lite.opening_cache import load_opening_cache
@@ -654,6 +656,120 @@ class Evaluator:
         raise NotImplementedError
 
 
+class ExactSolveCoverageGap(RuntimeError):
+    """A diagnostic exact-leaf evaluation was eligible but not tablebase-covered."""
+
+
+class ExactLeafValueEvaluator(Evaluator):
+    """Keep network priors while replacing eligible leaf values with exact W/D/L."""
+
+    def __init__(
+        self,
+        evaluator: Evaluator,
+        *,
+        endgame_tablebase: EndgameTablebaseContract | None = None,
+        stone_threshold: int | None = None,
+        fail_closed: bool = False,
+    ) -> None:
+        if stone_threshold is not None and stone_threshold < 0:
+            raise ValueError("stone_threshold must be non-negative")
+        if stone_threshold is not None and endgame_tablebase is None:
+            raise ValueError("stone_threshold requires an endgame tablebase")
+        self.evaluator = evaluator
+        self.endgame_tablebase = endgame_tablebase
+        self.stone_threshold = stone_threshold
+        self.fail_closed = bool(fail_closed)
+        self.reset_telemetry()
+
+    @property
+    def enabled(self) -> bool:
+        return self.endgame_tablebase is not None and self.stone_threshold is not None
+
+    def reset_telemetry(self) -> None:
+        self.qualifying_leaf_evaluations = 0
+        self.successful_exact_lookups = 0
+        self.tablebase_lookup_count = 0
+        self.tablebase_cache_hits = 0
+        self.exact_lookup_latency_seconds = 0.0
+        self.network_leaf_value_count = 0
+        self.exact_leaf_value_count = 0
+        self.minimum_exact_solved_active_stones: int | None = None
+        self.maximum_exact_solved_active_stones: int | None = None
+        self.coverage_gaps: list[dict[str, Any]] = []
+
+    @property
+    def telemetry(self) -> dict[str, Any]:
+        return {
+            "enabled": self.enabled,
+            "stone_threshold": self.stone_threshold,
+            "qualifying_leaf_evaluations": self.qualifying_leaf_evaluations,
+            "successful_exact_lookups": self.successful_exact_lookups,
+            "exact_lookup_rate": (
+                0.0
+                if self.qualifying_leaf_evaluations == 0
+                else self.successful_exact_lookups / self.qualifying_leaf_evaluations
+            ),
+            "tablebase_lookup_count": self.tablebase_lookup_count,
+            "tablebase_cache_hits": self.tablebase_cache_hits,
+            "average_exact_lookup_latency_ms": (
+                0.0
+                if self.tablebase_lookup_count == 0
+                else (self.exact_lookup_latency_seconds * 1000.0)
+                / self.tablebase_lookup_count
+            ),
+            "network_leaf_value_count": self.network_leaf_value_count,
+            "exact_leaf_value_count": self.exact_leaf_value_count,
+            "minimum_exact_solved_active_stones": self.minimum_exact_solved_active_stones,
+            "maximum_exact_solved_active_stones": self.maximum_exact_solved_active_stones,
+            "coverage_gaps": list(self.coverage_gaps),
+        }
+
+    def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
+        priors, network_value = self.evaluator.evaluate(game)
+        if not self.enabled or game.over() or sum(game.pits) > self.stone_threshold:
+            self.network_leaf_value_count += 1
+            return priors, network_value
+
+        self.qualifying_leaf_evaluations += 1
+        assert self.endgame_tablebase is not None
+        started = time.perf_counter()
+        cached = self.endgame_tablebase.lookup_cached(game, game.current_player)
+        exact_probability = (
+            cached
+            if cached is not None
+            else self.endgame_tablebase.lookup(game, game.current_player)
+        )
+        self.exact_lookup_latency_seconds += time.perf_counter() - started
+        self.tablebase_lookup_count += 1
+        if cached is not None:
+            self.tablebase_cache_hits += 1
+        if exact_probability is None:
+            state = game.to_state()
+            self.coverage_gaps.append(
+                {"active_pit_stones": sum(game.pits), "state": state}
+            )
+            if self.fail_closed:
+                raise ExactSolveCoverageGap("puct_exact_solve_coverage_gap")
+            self.network_leaf_value_count += 1
+            return priors, network_value
+
+        active_stones = sum(game.pits)
+        self.successful_exact_lookups += 1
+        self.exact_leaf_value_count += 1
+        self.minimum_exact_solved_active_stones = (
+            active_stones
+            if self.minimum_exact_solved_active_stones is None
+            else min(self.minimum_exact_solved_active_stones, active_stones)
+        )
+        self.maximum_exact_solved_active_stones = (
+            active_stones
+            if self.maximum_exact_solved_active_stones is None
+            else max(self.maximum_exact_solved_active_stones, active_stones)
+        )
+        # Tablebase values are [0, 1] from current_player; PUCT values are [-1, 1].
+        return priors, (2.0 * float(exact_probability)) - 1.0
+
+
 class HeuristicEvaluator(Evaluator):
     def evaluate(self, game: KalahGame) -> tuple[np.ndarray, float]:
         legal_moves = game.possible_moves()
@@ -1026,6 +1142,7 @@ class PUCT:
         self._last_nonterminal_leaf_count = 0
         self._last_backed_up_value_min: float | None = None
         self._last_backed_up_value_max: float | None = None
+        self._last_root_latency_ms: float | None = None
         self.search_options = build_search_options(
             fpu_mode=self.fpu_mode,
             reuse_subtree=self.reuse_subtree,
@@ -1054,6 +1171,10 @@ class PUCT:
         dirichlet_alpha: float | None = None,
         dirichlet_epsilon: float = 0.25,
     ) -> tuple[np.ndarray, Node]:
+        reset_telemetry = getattr(self.evaluator, "reset_telemetry", None)
+        if callable(reset_telemetry):
+            reset_telemetry()
+        started = time.perf_counter()
         root = self._root_for(root_game)
         self._active_root = root
         self._last_visit_snapshots = []
@@ -1067,6 +1188,7 @@ class PUCT:
         self._last_nonterminal_leaf_count = 0
         self._last_backed_up_value_min = None
         self._last_backed_up_value_max = None
+        self._last_root_latency_ms = None
         self._last_trace_root_snapshots = []
         self._last_root_snapshots = []
         self._last_root_trajectory = []
@@ -1230,6 +1352,7 @@ class PUCT:
         self._last_root = root
         self._active_root = None
         self._active_simulation_index = None
+        self._last_root_latency_ms = (time.perf_counter() - started) * 1000.0
         if self.selection_trace is not None:
             for trace_record in self.selection_trace:
                 trace_record["final_root_visits"] = [
@@ -1276,6 +1399,8 @@ class PUCT:
                 "min": self._last_backed_up_value_min,
                 "max": self._last_backed_up_value_max,
             },
+            "root_latency_ms": self._last_root_latency_ms,
+            "exact_leaf_value_telemetry": getattr(self.evaluator, "telemetry", None),
             "root_prior_telemetry": {
                 "before": None
                 if self._last_root_prior_before is None

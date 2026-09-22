@@ -651,6 +651,33 @@
       },
       "tool": "run_forensic_suite"
     },
+    "puct_exact_leaf_value": {
+      "artifact": {
+        "path": "docs/alphazero-lite-seed455-puct-exact-leaf-diagnostic.md",
+        "required": true,
+        "role": "puct_exact_leaf_diagnostic",
+        "schema": "markdown",
+        "sha256": "d32a4bfdfaee5ae4c05e54f5c11601e281e2a26c1f8c15a74c2e3c8f9df23f15",
+        "size_bytes": 3059
+      },
+      "configurations": [
+        "disabled",
+        "exact_threshold_8",
+        "exact_threshold_10",
+        "exact_threshold_12"
+      ],
+      "primary_classification": "puct_exact_endgame_repairs_tactic_but_hurts_globally",
+      "promotion_decision_unchanged": "rejected",
+      "selected_threshold": null,
+      "summary": {
+        "decisive_row": "sparse_endgame-023",
+        "smallest_tactical_repair_threshold": 10,
+        "pr340_expected_regret_disabled": 1.5296,
+        "pr340_expected_regret_threshold_10": 1.6358,
+        "threshold_adopted": false
+      },
+      "tool": "run_forensic_suite_and_arena"
+    },
     "policy": {
       "artifact": {
         "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/perspective_audit.json",

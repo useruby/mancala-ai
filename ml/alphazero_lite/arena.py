@@ -72,6 +72,7 @@ if not ARENA_STUB_MODE:
         )
         from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
         from ml.alphazero_lite.kalah_rules import KalahGame
+        from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
         from ml.alphazero_lite.opening_cache import (
             load_opening_cache,
             state_qualifies_for_opening_cache,
@@ -80,6 +81,7 @@ if not ARENA_STUB_MODE:
         from ml.alphazero_lite.self_play import (
             ClassicMCTS,
             PUCT,
+            ExactLeafValueEvaluator,
             DEFAULT_EVAL_SEARCH_OPTIONS,
             DEFAULT_SEARCH_OPTIONS,
             add_search_option_args,
@@ -106,11 +108,13 @@ if not ARENA_STUB_MODE:
         )
         from input_encodings import DEFAULT_INPUT_ENCODING
         from kalah_rules import KalahGame
+        from endgame_tablebase import EndgameTablebase
         from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
         from search_ablation import build_mode_config, neutral_value
         from self_play import (
             ClassicMCTS,
             PUCT,
+            ExactLeafValueEvaluator,
             DEFAULT_EVAL_SEARCH_OPTIONS,
             DEFAULT_SEARCH_OPTIONS,
             add_search_option_args,
@@ -501,6 +505,7 @@ def parse_args() -> argparse.Namespace:
         help="Fixed root-Q blend weight: 0 keeps challenger Q and 1 uses shadow Q.",
     )
     parser.add_argument("--current-value-transform-json", default=None)
+    parser.add_argument("--exact-solve-stone-threshold", type=int, default=None)
     parser.add_argument(
         "--challenger-search-options-json",
         default=None,
@@ -993,6 +998,9 @@ def evaluate_artifact_position(
     root_prior_transform: str | None = None,
     prior_override=None,
     teacher: str | None = None,
+    endgame_tablebase=None,
+    exact_solve_stone_threshold: int | None = None,
+    exact_solve_fail_closed: bool = False,
 ) -> dict:
     game = KalahGame.from_state(state)
     normalized_mode = build_mode_config(ablation_mode)
@@ -1074,6 +1082,13 @@ def evaluate_artifact_position(
         if artifact_path is None:
             raise ValueError("artifact_path is required when evaluator is not provided")
         evaluator = ArtifactEvaluator(Path(artifact_path))
+    if exact_solve_stone_threshold is not None:
+        evaluator = ExactLeafValueEvaluator(
+            evaluator,
+            endgame_tablebase=endgame_tablebase,
+            stone_threshold=int(exact_solve_stone_threshold),
+            fail_closed=exact_solve_fail_closed,
+        )
     if root_prior_override is not None and root_prior_transform is not None:
         raise ValueError(
             "root_prior_override and root_prior_transform cannot both be provided"
@@ -1084,6 +1099,15 @@ def evaluate_artifact_position(
     root_value: float | None = None
 
     class RootValueEvaluator:
+        def reset_telemetry(self):
+            reset = getattr(evaluator, "reset_telemetry", None)
+            if callable(reset):
+                reset()
+
+        @property
+        def telemetry(self):
+            return getattr(evaluator, "telemetry", None)
+
         def evaluate(self, position_game):
             nonlocal root_value
             policy, value = evaluator.evaluate(position_game)
@@ -1133,6 +1157,8 @@ def evaluate_artifact_position(
     terminal_leaf_count = None
     nonterminal_leaf_count = None
     backed_up_value_range = None
+    exact_leaf_value_telemetry = None
+    root_latency_ms = None
     if isinstance(root_summary, dict):
         candidate_value_trust = root_summary.get("value_trust")
         if (
@@ -1170,6 +1196,14 @@ def evaluate_artifact_position(
         candidate_backed_up_value_range = root_summary.get("backed_up_value_range")
         if isinstance(candidate_backed_up_value_range, dict):
             backed_up_value_range = candidate_backed_up_value_range
+        candidate_exact_leaf_value_telemetry = root_summary.get(
+            "exact_leaf_value_telemetry"
+        )
+        if isinstance(candidate_exact_leaf_value_telemetry, dict):
+            exact_leaf_value_telemetry = candidate_exact_leaf_value_telemetry
+        candidate_root_latency_ms = root_summary.get("root_latency_ms")
+        if isinstance(candidate_root_latency_ms, (int, float)):
+            root_latency_ms = float(candidate_root_latency_ms)
         root_prior_telemetry = root_summary.get("root_prior_telemetry")
     else:
         root_prior_telemetry = None
@@ -1217,6 +1251,10 @@ def evaluate_artifact_position(
         result["nonterminal_leaf_count"] = nonterminal_leaf_count
     if backed_up_value_range is not None:
         result["backed_up_value_range"] = backed_up_value_range
+    if exact_leaf_value_telemetry is not None:
+        result["exact_leaf_value_telemetry"] = exact_leaf_value_telemetry
+    if root_latency_ms is not None:
+        result["root_latency_ms"] = root_latency_ms
     if isinstance(root_prior_telemetry, dict):
         result["root_prior_telemetry"] = root_prior_telemetry
     return result
@@ -1701,6 +1739,7 @@ def run_arena_worker(
     opening_state_override: dict | None = None,
     challenger_prior_override_mode: str | None = None,
     challenger_prior_tail_threshold: float | None = None,
+    exact_solve_stone_threshold: int | None = None,
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1730,6 +1769,26 @@ def run_arena_worker(
             ArtifactEvaluator(Path(challenger_value_artifact or challenger_path)),
             policy_source="current",
             value_source="candidate",
+        )
+    if exact_solve_stone_threshold is not None:
+        if exact_solve_stone_threshold < 0:
+            raise ValueError("exact_solve_stone_threshold must be non-negative")
+        if challenger_shadow_artifact is not None:
+            raise ValueError(
+                "exact_solve_stone_threshold is incompatible with challenger shadow search"
+            )
+        # Each side receives the same leaf-value policy but keeps an independent cache.
+        challenger = ExactLeafValueEvaluator(
+            challenger,
+            endgame_tablebase=EndgameTablebase(),
+            stone_threshold=exact_solve_stone_threshold,
+            fail_closed=True,
+        )
+        current = ExactLeafValueEvaluator(
+            current,
+            endgame_tablebase=EndgameTablebase(),
+            stone_threshold=exact_solve_stone_threshold,
+            fail_closed=True,
         )
     challenger_artifact_hash = artifact_weights_hash(challenger_path)
     current_artifact_hash = artifact_weights_hash(current_path)
@@ -1790,6 +1849,8 @@ def run_arena_worker(
         extra_fields={
             "challenger_simulations": int(challenger_simulations),
             "current_simulations": int(current_simulations),
+            "exact_solve_stone_threshold": exact_solve_stone_threshold,
+            "exact_solve_semantics": "network_priors_exact_leaf_value",
             **(
                 {"challenger_value_transform": effective_challenger_value_transform}
                 if effective_challenger_value_transform is not None
@@ -2609,6 +2670,7 @@ def main() -> None:
                     ),
                     seed_contract=args.seed_contract,
                     suite_sha256_override=args.suite_sha256,
+                    exact_solve_stone_threshold=args.exact_solve_stone_threshold,
                 )
             )
         results = [future.result() for future in futures]
@@ -2688,6 +2750,8 @@ def main() -> None:
             "seed_ledger_output": args.seed_ledger_output,
             "search_configuration_ledger_output": args.search_configuration_ledger_output,
             "search_outcome_ledger_output": args.search_outcome_ledger_output,
+            "exact_solve_stone_threshold": args.exact_solve_stone_threshold,
+            "exact_solve_semantics": "network_priors_exact_leaf_value",
         }
     )
 
