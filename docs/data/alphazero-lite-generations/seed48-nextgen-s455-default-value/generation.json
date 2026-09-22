@@ -49,6 +49,38 @@
       "size_bytes": 11315
     },
     {
+      "path": "docs/alphazero-lite-seed455-forensic-exact-adjudication.md",
+      "required": true,
+      "role": "forensic_exact_adjudication_report",
+      "schema": "markdown",
+      "sha256": "b23406aced2d6ef47ffaf27fd891a8475e2d181902a89c19e42a59cea705d0bd",
+      "size_bytes": 8545
+    },
+    {
+      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/forensic_exact_evaluation.json",
+      "required": true,
+      "role": "forensic_exact_evaluation",
+      "schema": "azlite_forensic_suite_v1",
+      "sha256": "6cbaef3e41f72dd89611b0d4156c3267c419d62e20b53d43b8255f0645788c43",
+      "size_bytes": 871643
+    },
+    {
+      "path": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+      "required": true,
+      "role": "forensic_exact_reference",
+      "schema": "azlite_forensic_references_v2",
+      "sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
+      "size_bytes": 262623
+    },
+    {
+      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/forensic_mcts_reference_replay.json",
+      "required": true,
+      "role": "forensic_mcts_reference_replay",
+      "schema": "azlite_forensic_suite_v1",
+      "sha256": "6f596abe3652cf9bb746d79a7c154f2378104d457dc831c4067614ef7a69697a",
+      "size_bytes": 855327
+    },
+    {
       "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/local_promotion_gate.json",
       "required": true,
@@ -575,6 +607,49 @@
         }
       },
       "tool": "shared_exact_diagnostic"
+    },
+    "forensic_exact_adjudication": {
+      "artifact": {
+        "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/forensic_exact_evaluation.json",
+        "required": true,
+        "role": "forensic_exact_evaluation",
+        "schema": "azlite_forensic_suite_v1",
+        "sha256": "6cbaef3e41f72dd89611b0d4156c3267c419d62e20b53d43b8255f0645788c43",
+        "size_bytes": 871643
+      },
+      "config": {
+        "artifact_simulations": 384,
+        "c_puct": 1.25,
+        "mcts_reference_replay": {
+          "policy_simulations": 1200,
+          "teacher_simulations": 1800
+        },
+        "reference_artifact": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+        "seed": 42,
+        "suite": "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+      },
+      "status": "complete",
+      "summary": {
+        "overall": {
+          "exact_covered_rows": 213,
+          "rows": 224,
+          "seed455_mean_margin_regret": 1.4272,
+          "seed48_mean_margin_regret": 1.9249,
+          "unresolved_rows": 11
+        },
+        "primary_classification": "forensic_sparse_endgame_outcome_regression_confirmed",
+        "promotion_decision_unchanged": "rejected",
+        "sparse_endgame": {
+          "decisive_row": "sparse_endgame-023",
+          "exact_covered_rows": 24,
+          "rows": 24,
+          "seed455_mean_margin_regret": 0.6667,
+          "seed455_wdl_regression_rate": 0.0417,
+          "seed48_mean_margin_regret": 0.4167,
+          "seed48_wdl_regression_rate": 0.0
+        }
+      },
+      "tool": "run_forensic_suite"
     },
     "policy": {
       "artifact": {
