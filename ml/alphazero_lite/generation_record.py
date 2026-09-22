@@ -297,7 +297,9 @@ def validate(record: dict[str, Any], *, base_dir: Path | None = None) -> None:
                 f"required artifact lacks SHA256: {artifact.get('role')}"
             )
         local_path = Path(artifact["path"])
-        if base_dir and not local_path.is_absolute():
+        # Pipeline artifacts use repository-relative paths while records live under
+        # docs/. Resolve an existing working-directory path before the record path.
+        if not local_path.is_absolute() and not local_path.exists() and base_dir:
             local_path = base_dir / local_path
         if (
             local_path.is_file()
@@ -412,14 +414,20 @@ def merge_gate_report(record: dict[str, Any], report_path: Path) -> dict[str, An
         )
     arena_path = report.get("arena_report_path")
     if arena_path:
+        prefilter_score = report.get("arena_score")
+        prefilter_threshold = report.get("min_arena_score")
         attach_evaluation(
             record,
             "prefilter",
             status="complete",
             tool="local_promotion_gate",
             summary={
-                "score": report.get("arena_score"),
-                "passed": report.get("passed"),
+                "score": prefilter_score,
+                "passed": (
+                    None
+                    if prefilter_score is None or prefilter_threshold is None
+                    else float(prefilter_score) >= float(prefilter_threshold)
+                ),
             },
             artifact=artifact_ref("canonical_prefilter", arena_path, schema="arena_v1"),
         )
@@ -430,7 +438,11 @@ def merge_gate_report(record: dict[str, Any], report_path: Path) -> dict[str, An
             "hard_arena",
             status="complete",
             tool="local_promotion_gate",
-            summary={"score": report.get("hard_score")},
+            summary={
+                "score": report.get("hard_score"),
+                "passed": float(report["hard_score"])
+                >= float(report.get("hard_min_score", 0.0)),
+            },
             artifact=artifact_ref("canonical_hard_arena", hard_path, schema="arena_v1"),
         )
     elif report.get("passed") is False:
@@ -503,7 +515,9 @@ def record_pipeline_step(
             record,
             config=options,
             seed=int(options["seed"]),
-            checkpoint_policy=options.get("final_checkpoint"),
+            checkpoint_policy=options.get(
+                "final_checkpoint", "production_default_best_validation"
+            ),
             compute=duration,
         )
         paths = str(options.get("data_files", options.get("data", ""))).split(",")
