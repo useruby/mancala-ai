@@ -11,6 +11,7 @@ from ml.alphazero_lite.generation_record import (
     new_record,
     record_candidate,
     record_promotion,
+    merge_gate_report,
     validate,
     validate_index,
     write_record,
@@ -48,6 +49,16 @@ class GenerationRecordTest(unittest.TestCase):
             ]
             with self.assertRaisesRegex(GenerationRecordError, "lacks SHA256"):
                 validate(record, base_dir=Path(temporary))
+
+    def test_repository_relative_artifact_takes_precedence_over_record_directory(self):
+        root = Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory() as temporary:
+            record = new_record(generation_id="repository-relative")
+            record["artifacts"].append(
+                artifact_ref("config", root / "pyproject.toml", required=True)
+            )
+            record["artifacts"][0]["path"] = "pyproject.toml"
+            validate(record, base_dir=Path(temporary))
 
     def test_lifecycle_and_gate_identity(self):
         record = new_record(
@@ -95,12 +106,31 @@ class GenerationRecordTest(unittest.TestCase):
         )
         self.assertEqual("x-iter2", migrated["generation_id"])
 
+    def test_gate_merge_keeps_prefilter_pass_distinct_from_downstream_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "gate.json"
+            path.write_text(
+                '{"arena_report_path":"arena.json","arena_score":0.6,'
+                '"min_arena_score":0.55,"hard_report_path":"hard.json",'
+                '"hard_score":0.5,"hard_min_score":0.55,"passed":false}',
+                encoding="utf-8",
+            )
+            record = new_record(generation_id="gate")
+            merge_gate_report(record, path)
+            self.assertTrue(
+                record["canonical_evaluation"]["prefilter"]["summary"]["passed"]
+            )
+            self.assertFalse(
+                record["canonical_evaluation"]["hard_arena"]["summary"]["passed"]
+            )
+
     def test_historical_records_and_registry(self):
         root = Path(__file__).resolve().parents[2]
         for generation_id in (
             "seed48-incumbent",
             "seed48-nextgen-s443",
             "seed48-nextgen-s449",
+            "seed48-nextgen-s455-default-value",
             "value-target-s401-sharpened",
             "value-target-s401-default",
             "value-target-s407-sharpened",

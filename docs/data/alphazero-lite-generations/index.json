@@ -119,6 +119,14 @@
       "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
       "reason": "diagnostic_only",
       "record": "docs/data/alphazero-lite-generations/value-target-s449-sharpened/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "decision": "rejected",
+      "generation_id": "seed48-nextgen-s455-default-value",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "seed455_default_value_downstream_blocked",
+      "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s455-default-value/generation.json"
     }
   ],
   "schema": "azlite_generation_index_v1"
