@@ -455,7 +455,7 @@ class ForensicSuiteTest(unittest.TestCase):
             self.assertEqual(
                 {
                     "positions": 2,
-                    "top1_agreement": 0.0,
+                    "top1_agreement": 0.5,
                     "average_regret": 0.2,
                     "blunder_rate": 0.5,
                     "value_calibration_mae": 0.2,
@@ -465,7 +465,7 @@ class ForensicSuiteTest(unittest.TestCase):
             self.assertEqual(
                 {
                     "positions": 2,
-                    "top1_agreement": 0.0,
+                    "top1_agreement": 0.5,
                     "average_regret": 0.4,
                     "blunder_rate": 0.5,
                     "value_calibration_mae": 0.5,
@@ -475,7 +475,7 @@ class ForensicSuiteTest(unittest.TestCase):
             self.assertEqual(
                 {
                     "positions": 1,
-                    "top1_agreement": 0.0,
+                    "top1_agreement": 1.0,
                     "average_regret": 0.0,
                     "blunder_rate": 0.0,
                     "value_calibration_mae": 0.0,
@@ -494,7 +494,7 @@ class ForensicSuiteTest(unittest.TestCase):
             )
             self.assertEqual(1, report["buckets"]["opening_plies_1_8"]["positions"])
             self.assertEqual(
-                0.0,
+                1.0,
                 report["buckets"]["opening_plies_1_8"]["systems"]["current"][
                     "top1_agreement"
                 ],

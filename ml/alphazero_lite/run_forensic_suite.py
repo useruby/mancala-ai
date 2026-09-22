@@ -268,6 +268,8 @@ def _load_shared_references(
 def _reference_move(reference: dict[str, Any]) -> int | None:
     if reference.get("reference_move") is not None:
         return int(reference["reference_move"])
+    if reference.get("selected_move") is not None:
+        return int(reference["selected_move"])
     return None
 
 
@@ -358,9 +360,18 @@ def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> d
         selected_move = system["selected_move"]
         solved = reference.get("exact_status") == "exact_solved"
         optimal_actions = reference.get("exact_optimal_actions") or []
-        from ml.alphazero_lite.forensic_exact_references import exact_regret
+        from ml.alphazero_lite.forensic_exact_references import (
+            exact_regret,
+            outcome_optimal_actions,
+            outcome_regret,
+            outcome_regression,
+            outcome_utilities,
+            same_outcome_margin_regression,
+        )
 
         regret = exact_regret(reference, selected_move)
+        utilities = outcome_utilities(reference) if solved else {}
+        selected_outcome_regret = outcome_regret(reference, selected_move)
         exact_root_value = reference.get("exact_root_value") if solved else None
         row = {
             "id": position.id,
@@ -378,10 +389,27 @@ def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> d
             "exact_action_values": reference.get("exact_action_values")
             if solved
             else None,
+            "exact_action_utilities": {
+                str(action): utility for action, utility in sorted(utilities.items())
+            }
+            if solved
+            else None,
+            "exact_outcome_optimal_actions": outcome_optimal_actions(reference)
+            if solved
+            else None,
             "reference_move": None,
             "selected_move": selected_move,
             "agrees_top1": (selected_move in optimal_actions) if solved else None,
             "regret": None if regret is None else round(regret, 4),
+            "outcome_regret": selected_outcome_regret,
+            "outcome_regression": outcome_regression(reference, selected_move)
+            if solved
+            else None,
+            "same_outcome_margin_regression": (
+                same_outcome_margin_regression(reference, selected_move)
+                if solved
+                else None
+            ),
             "teacher_value": exact_root_value,
             "system_value": round(float(system["value"]), 4),
             # Native exact_root_value is already the tested root-training domain.
@@ -409,6 +437,7 @@ def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> d
         "tags": list(position.tags),
         "source": position.source,
         "reference_move": reference_move,
+        "reference_child_stats": _reference_child_stats(reference),
         "selected_move": system["selected_move"],
         "agrees_top1": agrees_top1,
         "regret": None if regret is None else round(regret, 4),
