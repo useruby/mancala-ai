@@ -1,8 +1,125 @@
 {
-  "schema": "azlite_generation_index_v1",
   "generations": [
-    {"candidate_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c", "decision": "promoted", "generation_id": "seed48-incumbent", "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a", "reason": null, "record": "docs/data/alphazero-lite-generations/seed48-incumbent/generation.json"},
-    {"candidate_weights_sha256": "2e517e21097dba818b362aa43b7c6917c17438e1ad0c8a16136ba10a20500a8b", "decision": "rejected", "generation_id": "seed48-nextgen-s443", "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c", "reason": "arena_score_below_threshold", "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s443/generation.json"},
-    {"candidate_weights_sha256": "19c3637d35c20ca419b6df635956e49fb3e3aceadc79141e4af028cfca1cd727", "decision": "rejected", "generation_id": "seed48-nextgen-s449", "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c", "reason": "arena_score_below_threshold", "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s449/generation.json"}
-  ]
+    {
+      "candidate_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "decision": "promoted",
+      "generation_id": "seed48-incumbent",
+      "parent_weights_sha256": "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a",
+      "reason": null,
+      "record": "docs/data/alphazero-lite-generations/seed48-incumbent/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "2e517e21097dba818b362aa43b7c6917c17438e1ad0c8a16136ba10a20500a8b",
+      "decision": "rejected",
+      "generation_id": "seed48-nextgen-s443",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "arena_score_below_threshold",
+      "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s443/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "19c3637d35c20ca419b6df635956e49fb3e3aceadc79141e4af028cfca1cd727",
+      "decision": "rejected",
+      "generation_id": "seed48-nextgen-s449",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "arena_score_below_threshold",
+      "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s449/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "dc9fcae09ec50556c12bb41cb1378cc64f83b6ef9408b85a02e03ddf2c15f556",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s401-default",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s401-default/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "347875b8c04845d889ce4f0836743d33e32c06943ef263369d94d819fcd7764b",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s401-sharpened",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s401-sharpened/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "37d40d257f5227cb2ab1398506cfc10bd6d7a2eeffb28aa049968af14bad52c5",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s407-default",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s407-default/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "5c027da370b222ff8b4126f277fa1e2c437a642157b0adf059fb0773ec0d9c61",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s407-sharpened",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s407-sharpened/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "fea898250fd4eee8c2e4fb8a9d735589df3abf3384314139eb69c8f341d910b2",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s413-default",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s413-default/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "724f9f309090d62cac7dbb8e24774a7123c75ce7f5819f1a7047c04321ce2b3d",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s413-sharpened",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s413-sharpened/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "f3d91c3379066ad97808a2c19f6b04faf1c2fa0cc6c16171f3004a039a8eb751",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s419-default",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s419-default/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "8a646cd3e96091810c02f0412388a53d2af10983356c88cb39a94fff0a2685db",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s419-sharpened",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s419-sharpened/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "88aad2d66ab083ba1cbde489844aa28311a2c82e7417658c35c3f11419da223c",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s443-default",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s443-default/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "6de7a6ace4a81e7c12c9fafb4945010381e4e15d9dfbfc78f6420e2f1521f5c9",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s443-sharpened",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s443-sharpened/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "edb847bfb5ed750f80d80a8f6297e8e600ad43de730dc4795af9e398e3c057b0",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s449-default",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s449-default/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "b4279ce089f325fd27d7b16ff2701b577bb0d4016f9dc8c0b12459d824edd3f1",
+      "decision": "not_evaluated",
+      "generation_id": "value-target-s449-sharpened",
+      "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+      "reason": "diagnostic_only",
+      "record": "docs/data/alphazero-lite-generations/value-target-s449-sharpened/generation.json"
+    }
+  ],
+  "schema": "azlite_generation_index_v1"
 }

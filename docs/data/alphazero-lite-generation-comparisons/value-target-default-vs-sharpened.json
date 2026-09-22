@@ -1,0 +1,188 @@
+{
+  "allowed_record_differences": [
+    "replay",
+    "training.config.value_target_mode",
+    "transform"
+  ],
+  "comparison_id": "value-target-default-vs-sharpened",
+  "conclusion": {
+    "classification": "default_value_targets_improve_calibration_and_search",
+    "next_step": "one genuine fresh forward generation using value_target_mode=default"
+  },
+  "controlled_difference": {
+    "replay.sources.fresh.value_target_mode": {
+      "baseline": "sharpened",
+      "treatment": "default"
+    }
+  },
+  "description": "Paired diagnostic comparison of fresh replay value target semantics.",
+  "evidence": {
+    "path": "/home/alex/Mancala/ai/docs/data/alphazero-lite-value-target-default-vs-sharpened/results.json",
+    "required": true,
+    "role": "historical_diagnostic_evidence",
+    "schema": "azlite_value_target_default_vs_sharpened_v1",
+    "sha256": "66c0fe9509f8063ee3e56daffa99b5c20fd8722992fd6dc5baa5852976b796f4",
+    "size_bytes": 364796
+  },
+  "pairs": [
+    {
+      "baseline_record": "../alphazero-lite-generations/value-target-s401-sharpened/generation.json",
+      "pair_id": "401",
+      "treatment_record": "../alphazero-lite-generations/value-target-s401-default/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/value-target-s407-sharpened/generation.json",
+      "pair_id": "407",
+      "treatment_record": "../alphazero-lite-generations/value-target-s407-default/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/value-target-s413-sharpened/generation.json",
+      "pair_id": "413",
+      "treatment_record": "../alphazero-lite-generations/value-target-s413-default/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/value-target-s419-sharpened/generation.json",
+      "pair_id": "419",
+      "treatment_record": "../alphazero-lite-generations/value-target-s419-default/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/value-target-s443-sharpened/generation.json",
+      "pair_id": "443",
+      "treatment_record": "../alphazero-lite-generations/value-target-s443-default/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/value-target-s449-sharpened/generation.json",
+      "pair_id": "449",
+      "treatment_record": "../alphazero-lite-generations/value-target-s449-default/generation.json"
+    }
+  ],
+  "schema": "azlite_generation_comparison_v1",
+  "scope": {
+    "candidate_selection_performed": false,
+    "canonical_gate_run": false,
+    "promotion_performed": false,
+    "self_play_generated": false
+  },
+  "statistics": {
+    "n": 6,
+    "paired_bootstrap": {
+      "samples": 10000,
+      "seed": 353
+    },
+    "results": {
+      "arena_score": {
+        "default": 0.5696614583333334,
+        "metric": "arena score",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": -0.0283203125,
+            "samples": 10000,
+            "seed": 353,
+            "upper": 0.19986979166666666
+          },
+          "mean": 0.08821614583333333
+        },
+        "sharpened": 0.4814453125
+      },
+      "mcts_expected_regret": {
+        "default": 1.532712673611111,
+        "metric": "MCTS expected regret",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": -0.11751736111111111,
+            "samples": 10000,
+            "seed": 353,
+            "upper": -0.09180121527777785
+          },
+          "mean": -0.10578559027777779
+        },
+        "sharpened": 1.6384982638888888
+      },
+      "mcts_optimal_mass": {
+        "default": 0.7030620659722221,
+        "metric": "MCTS optimal mass",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": 0.004155815972222217,
+            "samples": 10000,
+            "seed": 353,
+            "upper": 0.009361979166666645
+          },
+          "mean": 0.006514756944444422
+        },
+        "sharpened": 0.6965473090277777
+      },
+      "one_ply_ranking_regret": {
+        "default": 1.745,
+        "metric": "one-ply ranking regret",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": -0.42833333333333323,
+            "samples": 10000,
+            "seed": 353,
+            "upper": 0.03666666666666677
+          },
+          "mean": -0.19166666666666662
+        },
+        "sharpened": 1.9366666666666665
+      },
+      "raw_expected_regret": {
+        "default": 2.28923381391648,
+        "metric": "raw expected regret",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": -0.02926159936833539,
+            "samples": 10000,
+            "seed": 353,
+            "upper": 0.0063837460159413455
+          },
+          "mean": -0.011245024574648191
+        },
+        "sharpened": 2.300478838491128
+      },
+      "raw_optimal_mass": {
+        "default": 0.624689765473068,
+        "metric": "raw optimal mass",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": -0.0007957639226077359,
+            "samples": 10000,
+            "seed": 353,
+            "upper": 0.0038701775690072973
+          },
+          "mean": 0.0015372068231997809
+        },
+        "sharpened": 0.6231525586498682
+      },
+      "root_mae": {
+        "default": 0.26121240726662415,
+        "metric": "root MAE",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": -0.1660308469986194,
+            "samples": 10000,
+            "seed": 353,
+            "upper": -0.14826483710620475
+          },
+          "mean": -0.15684714339707476
+        },
+        "sharpened": 0.4180595506636989
+      },
+      "sign_accuracy": {
+        "default": 0.8766666666666666,
+        "metric": "sign accuracy",
+        "paired_delta": {
+          "bootstrap_95": {
+            "lower": -0.00416666666666667,
+            "samples": 10000,
+            "seed": 353,
+            "upper": 0.013333333333333345
+          },
+          "mean": 0.00416666666666667
+        },
+        "sharpened": 0.8725
+      }
+    },
+    "unit": "self_play_dataset"
+  }
+}

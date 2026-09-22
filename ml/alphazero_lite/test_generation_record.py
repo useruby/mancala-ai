@@ -101,6 +101,18 @@ class GenerationRecordTest(unittest.TestCase):
             "seed48-incumbent",
             "seed48-nextgen-s443",
             "seed48-nextgen-s449",
+            "value-target-s401-sharpened",
+            "value-target-s401-default",
+            "value-target-s407-sharpened",
+            "value-target-s407-default",
+            "value-target-s413-sharpened",
+            "value-target-s413-default",
+            "value-target-s419-sharpened",
+            "value-target-s419-default",
+            "value-target-s443-sharpened",
+            "value-target-s443-default",
+            "value-target-s449-sharpened",
+            "value-target-s449-default",
         ):
             load_record(
                 root
