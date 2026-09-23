@@ -56,6 +56,7 @@ SUPPORTED_TRAINABLE_SCOPES = [
     "policy_detached_trunk",
 ]
 DEFAULT_POLICY_TARGET_MODE = "default"
+EXACT_ROOT_ONE_HOT_POLICY_TARGET_MODE = "exact_root_one_hot"
 SUPPORTED_POLICY_TARGET_MODES = [DEFAULT_POLICY_TARGET_MODE, "sharpened"]
 DEFAULT_VALUE_TARGET_MODE = "default"
 PHASE_AWARE_VALUE_TARGET_MODE = "phase_aware_sharpened"
@@ -218,6 +219,16 @@ def validate_policy_target(
         if policy_target_mode != DEFAULT_POLICY_TARGET_MODE:
             raise ValueError(
                 f"{path}:{row_number} must declare policy_target_mode={policy_target_mode}"
+            )
+        return
+
+    if declared_mode == EXACT_ROOT_ONE_HOT_POLICY_TARGET_MODE:
+        if (
+            not np.isclose(float(np.max(policy)), 1.0, atol=1e-6)
+            or np.count_nonzero(policy > 1e-6) != 1
+        ):
+            raise ValueError(
+                f"{path}:{row_number} exact_root_one_hot policy must select one legal move"
             )
         return
 

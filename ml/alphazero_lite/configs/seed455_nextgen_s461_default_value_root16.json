@@ -1,0 +1,69 @@
+{
+  "run_id": "seed455-nextgen-s461-default-value-root16",
+  "seed": 461,
+  "iterations": 1,
+  "start_iteration": 1,
+  "replay_window": 1,
+  "versions_dir": ".tmp/seed455-nextgen-s461-default-value-root16/runs",
+  "current_path": "model-artifact/current",
+  "parent_artifact_path": "model-artifact/current",
+  "inherit_parent_runtime_search_policy": true,
+  "preserve_config_workers": true,
+  "fixed_replay_sources": [
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "weight": 4},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "weight": 1},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "weight": 8},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "weight": 4}
+  ],
+  "steps": [
+    {
+      "name": "self_play",
+      "command": [
+        ".venv/bin/python", "ml/alphazero_lite/self_play.py",
+        "--out", "{iter_dir}/self_play.jsonl",
+        "--games", "1600", "--workers", "6", "--seed", "461",
+        "--seed-sweep", "460,461,462", "--simulations", "1200",
+        "--temperature-threshold", "12", "--temperature", "1.1",
+        "--temperature-late", "0.15", "--dirichlet-alpha", "0.3",
+        "--dirichlet-epsilon", "0.3", "--schedule-progress-mode", "linear",
+        "--iteration", "{iteration}", "--total-iterations", "1",
+        "--tree-reuse-enabled", "--input-encoding", "kalah_v3",
+        "--policy-target-mode", "sharpened", "--policy-target-noise-mode", "denoised",
+        "--write-root-target-telemetry", "--write-game-metadata",
+        "--value-target-mode", "default"
+      ]
+    },
+    {
+      "name": "perspective_audit",
+      "command": [
+        ".venv/bin/python", "ml/alphazero_lite/perspective_audit.py",
+        "--data", "{iter_dir}/self_play.jsonl", "--out", "{iter_dir}/perspective_audit.json"
+      ]
+    },
+    {
+      "name": "train",
+      "command": [
+        ".venv/bin/python", "ml/alphazero_lite/train.py", "--data", "{iter_dir}/self_play.jsonl",
+        "--data-files", "{replay_data}", "--replay-weights", "{replay_weights}",
+        "--init-checkpoint", "{parent_checkpoint}", "--out", "{iter_dir}/checkpoint.npz",
+        "--epochs", "4", "--batch-size", "512", "--device", "auto",
+        "--lr-scheduler", "none", "--hidden-sizes", "96,3", "--model-type", "residual_v3",
+        "--input-encoding", "kalah_v3", "--value-loss", "huber", "--huber-delta", "1.0",
+        "--value-loss-weight", "0.3", "--val-split", "0.1", "--grad-clip", "1.0",
+        "--save-top-k", "3", "--policy-target-mode", "sharpened",
+        "--value-target-mode", "default",
+        "--replay-value-target-modes", "default,sharpened,sharpened,sharpened,sharpened",
+        "--seed", "461"
+      ]
+    },
+    {
+      "name": "export_artifact",
+      "command": [
+        ".venv/bin/python", "ml/alphazero_lite/export_artifact.py",
+        "--checkpoint", "{iter_dir}/checkpoint.npz", "--out-dir", "{iter_dir}",
+        "--version", "{run_id}-iter{iteration}", "--model-type", "residual_v3",
+        "--rules-version", "kalah_v1", "--input-encoding", "kalah_v3"
+      ]
+    }
+  ]
+}

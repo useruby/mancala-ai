@@ -28,8 +28,13 @@ from ml.alphazero_lite.input_encodings import (
 )
 from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite.endgame_tablebase import EndgameTablebaseContract
+from ml.alphazero_lite.exact_root_decision import (
+    exact_root_decision,
+    exact_root_profile_fields,
+)
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.classic_mcts import MCTS as ClassicMCTS
+from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
 from ml.alphazero_lite.opening_cache import load_opening_cache
 from ml.alphazero_lite.opponent_pool import (
     load_opponent_checkpoints,
@@ -40,6 +45,7 @@ from ml.alphazero_lite.search_ablation import (
     flat_legal_priors,
     neutral_value,
 )
+from ml.alphazero_lite.runtime_search_policy import load_runtime_search_policy
 from ml.alphazero_lite.value_transforms import (
     apply_value_transform,
     normalize_value_transform_config,
@@ -1403,9 +1409,12 @@ class PUCT:
                     move: (int(child.visit_count), float(child.q_value))
                     for move, child in root.children.items()
                 }
-            raw_value = self._search(
-                root, trace_record=trace_record, selected_edges=selected_edges
-            )
+            if trace_record is None and selected_edges is None:
+                raw_value = self._search(root)
+            else:
+                raw_value = self._search(
+                    root, trace_record=trace_record, selected_edges=selected_edges
+                )
             value = raw_value
             if self.backup_override is not None:
                 hook_record = (
@@ -1977,9 +1986,51 @@ class PUCT:
             child.value_sum += perspective_sign * delta_root
 
     def _select_child(self, node: Node) -> Node:
-        _entries, _move, best_child, _value_trust = self._selection_entries(
-            node, sort_moves=False
+        total_visits = max(
+            1, sum(child.visit_count for child in node.children.values())
         )
+        items = list(node.children.items())
+        raw_q_values = [self._child_q_value(node, child) for _move, child in items]
+        if (
+            self.selection_q_override is not None
+            and self._active_simulation_index is not None
+        ):
+            state_hash = self._state_hash(node.game)
+            for index, ((move, child), raw_q_value) in enumerate(
+                zip(items, raw_q_values, strict=True)
+            ):
+                if child.visit_count == 0:
+                    continue
+                overridden = self.selection_q_override(
+                    self._active_simulation_index,
+                    state_hash,
+                    int(move),
+                    float(raw_q_value),
+                    int(child.visit_count),
+                )
+                if overridden is not None:
+                    raw_q_values[index] = float(overridden)
+        selection_q_values = (
+            self._normalize_child_values(raw_q_values)
+            if self.normalize_values
+            else raw_q_values
+        )
+        value_trust = self._effective_value_trust_multiplier_for(node.game)
+        best_child = None
+        best_score = -float("inf")
+        for (_move, child), selection_q_value in zip(
+            items, selection_q_values, strict=True
+        ):
+            score = (
+                selection_q_value * value_trust
+                + self.c_puct
+                * child.prior
+                * math.sqrt(total_visits)
+                / (1 + child.visit_count)
+            )
+            if score > best_score:
+                best_score = score
+                best_child = child
         assert best_child is not None
         return best_child
 
@@ -2688,10 +2739,14 @@ def teacher_targets_for_state(
         list(gameplay_policy),
         list(policy_target),
         float(value),
-        str(player_mode),
+        str((teacher_target_metadata or {}).get("teacher_source", player_mode)),
         dict(search_profile),
         str(search_profile["hash"]),
-        str(policy_target_mode),
+        str(
+            (teacher_target_metadata or {}).get(
+                "policy_target_actual_mode", policy_target_mode
+            )
+        ),
         teacher_root_summary,
         teacher_target_metadata,
     )
@@ -2704,6 +2759,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--checkpoint", default=None, help="Optional model checkpoint .npz"
+    )
+    parser.add_argument(
+        "--runtime-search-policy-artifact",
+        default=None,
+        help="Parent artifact directory whose optional runtime policy is inherited",
     )
     parser.add_argument(
         "--shadow-checkpoint",
@@ -2901,6 +2961,7 @@ def run_self_play_worker(
     start_state_pool_path: str | None = None,
     shadow_checkpoint: str | None = None,
     shadow_q_weight: float = 0.0,
+    runtime_search_policy_artifact: str | None = None,
 ) -> dict:
     shard = Path(shard_path)
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
@@ -2946,6 +3007,19 @@ def run_self_play_worker(
                 cache_size=evaluator_cache_size,
             )
 
+    runtime_search_policy = (
+        load_runtime_search_policy(runtime_search_policy_artifact)
+        if runtime_search_policy_artifact is not None
+        else None
+    )
+    native_exact_root: NativeExactRootTablebase | None = None
+    if runtime_search_policy is not None:
+        native_exact_root = NativeExactRootTablebase(
+            runtime_search_policy["native_probe"]["resolved_path"],
+            runtime_search_policy["tablebase"]["resolved_path"],
+            warm_on_start=True,
+        )
+
     effective_reuse_subtree = bool(reuse_subtree or tree_reuse_enabled)
     normalized_search_options = build_search_options(
         fpu_mode=fpu_mode,
@@ -2955,7 +3029,7 @@ def run_self_play_worker(
         tactical_root_bias=tactical_root_bias,
         value_trust_schedule=value_trust_schedule,
     )
-    profile_extra_fields: dict[str, str] = {}
+    profile_extra_fields: dict[str, Any] = {}
     if opponent_checkpoints:
         profile_extra_fields["opponent_pool_fingerprint"] = opponent_pool_fingerprint(
             opponent_checkpoints
@@ -2964,6 +3038,24 @@ def run_self_play_worker(
         profile_extra_fields["opening_min_simulations"] = str(opening_min_simulations)
         profile_extra_fields["opening_min_simulations_plies"] = str(
             opening_min_simulations_plies
+        )
+    if runtime_search_policy is not None:
+        profile_extra_fields.update(
+            {
+                **exact_root_profile_fields(
+                    runtime_search_policy["exact_root_threshold"],
+                    solver_identity=runtime_search_policy[
+                        "solver_implementation_identity"
+                    ],
+                ),
+                "runtime_search_policy_mode": runtime_search_policy["mode"],
+                "runtime_search_policy_native_probe_sha256": runtime_search_policy[
+                    "native_probe"
+                ]["sha256"],
+                "runtime_search_policy_tablebase_sha256": runtime_search_policy[
+                    "tablebase"
+                ]["sha256"],
+            }
         )
 
     search_profile = build_search_profile(
@@ -3031,6 +3123,12 @@ def run_self_play_worker(
         return metadata
 
     rows_written = 0
+    puct_searched_roots = 0
+    exact_root_handoffs = 0
+    requested_puct_simulations = 0
+    skipped_puct_simulations = 0
+    exact_solver_calls = 0
+    native_solve_time_ms = 0.0
     with shard.open("w", encoding="utf-8") as handle:
         for local_index in range(games):
             global_index = start_index + local_index
@@ -3098,7 +3196,12 @@ def run_self_play_worker(
                     dict | None,
                     dict[str, Any] | None,
                 ]:
-                    nonlocal puct_root
+                    nonlocal \
+                        exact_root_handoffs, \
+                        exact_solver_calls, \
+                        native_solve_time_ms
+                    nonlocal puct_root, puct_searched_roots, requested_puct_simulations
+                    nonlocal skipped_puct_simulations
                     if player_mode == "classic_mcts":
                         mcts_seed = search_seed_for_classic_mcts(
                             seed, global_index, ply
@@ -3167,6 +3270,54 @@ def run_self_play_worker(
                                 selected_evaluator
                             )
 
+                    if native_exact_root is not None:
+                        decision = exact_root_decision(
+                            game,
+                            selected_evaluator,
+                            tablebase=native_exact_root,
+                            threshold=runtime_search_policy["exact_root_threshold"],
+                        )
+                        if decision is not None:
+                            exact_root_handoffs += 1
+                            skipped_puct_simulations += 2 * effective_simulations
+                            exact_solver_calls += decision.solver_calls
+                            native_solve_time_ms += decision.root_latency_ms
+                            exact_policy = [0.0] * PITS_PER_PLAYER
+                            exact_policy[decision.selected_move] = 1.0
+                            metadata = root_target_metadata(
+                                legal_moves=legal_moves,
+                                stored_policy_target=exact_policy,
+                                simulations_used=0,
+                                dirichlet_alpha_used=0.0,
+                                sampling_dirichlet_epsilon=0.0,
+                                target_dirichlet_epsilon=0.0,
+                                action_sampling_noise_enabled=False,
+                            )
+                            metadata.update(
+                                {
+                                    "policy_target_actual_mode": "exact_root_one_hot",
+                                    "teacher_source": "exact_root_tablebase",
+                                    "active_pit_stones": decision.active_pit_stones,
+                                    "exact_action_margins": decision.action_margins,
+                                    "exact_optimal_actions": decision.optimal_moves,
+                                    "exact_selected_action": decision.selected_move,
+                                    "exact_root_tie_rule": runtime_search_policy[
+                                        "exact_root_tie_rule"
+                                    ],
+                                    "solver_implementation_identity": runtime_search_policy[
+                                        "solver_implementation_identity"
+                                    ],
+                                    "native_probe_sha256": runtime_search_policy[
+                                        "native_probe"
+                                    ]["sha256"],
+                                    "tablebase_sha256": runtime_search_policy[
+                                        "tablebase"
+                                    ]["sha256"],
+                                    "puct_simulations_executed": 0,
+                                }
+                            )
+                            return exact_policy, exact_policy, 0.0, None, metadata
+
                     puct_kwargs = {}
                     if "value_trust_schedule" in normalized_search_options:
                         puct_kwargs["value_trust_schedule"] = normalized_search_options[
@@ -3205,6 +3356,8 @@ def run_self_play_worker(
                     )
                     shadow_main_summary: dict | None = None
                     if shadow_evaluator is None:
+                        puct_searched_roots += 1
+                        requested_puct_simulations += effective_simulations
                         visits, puct_root = search.run(
                             game,
                             dirichlet_alpha=main_dirichlet_alpha,
@@ -3280,6 +3433,8 @@ def run_self_play_worker(
                         )
                         shadow_target_summary: dict | None = None
                         if shadow_evaluator is None:
+                            puct_searched_roots += 1
+                            requested_puct_simulations += effective_simulations
                             target_visits, _ = target_search.run(
                                 game,
                                 dirichlet_alpha=None,
@@ -3390,7 +3545,11 @@ def run_self_play_worker(
                 )
 
                 move = sample_move(gameplay_policy, legal_moves=legal_moves, rng=rng)
-                if player_mode == "classic_mcts" or teacher_source == "opening_cache":
+                if teacher_source in {
+                    "classic_mcts",
+                    "opening_cache",
+                    "exact_root_tablebase",
+                }:
                     reusable_root = None
                 else:
                     reusable_root = (
@@ -3478,6 +3637,20 @@ def run_self_play_worker(
                         "top_target_move"
                     )
                     row["legal_moves"] = teacher_target_metadata.get("legal_moves")
+                    for exact_key in (
+                        "teacher_source",
+                        "active_pit_stones",
+                        "exact_action_margins",
+                        "exact_optimal_actions",
+                        "exact_selected_action",
+                        "exact_root_tie_rule",
+                        "solver_implementation_identity",
+                        "native_probe_sha256",
+                        "tablebase_sha256",
+                        "puct_simulations_executed",
+                    ):
+                        if exact_key in teacher_target_metadata:
+                            row[exact_key] = teacher_target_metadata[exact_key]
                     if write_root_target_telemetry:
                         for telemetry_key in (
                             "root_visit_counts",
@@ -3499,6 +3672,8 @@ def run_self_play_worker(
                 handle.write(json.dumps(row) + "\n")
                 rows_written += 1
 
+    if native_exact_root is not None:
+        native_exact_root.close()
     return {
         "worker_id": worker_id,
         "rows_written": rows_written,
@@ -3506,6 +3681,12 @@ def run_self_play_worker(
         **cache_metrics_for(
             [evaluator, shadow_evaluator, *opponent_evaluator_cache.values()]
         ),
+        "puct_searched_roots": puct_searched_roots,
+        "exact_root_handoffs": exact_root_handoffs,
+        "requested_puct_simulations": requested_puct_simulations,
+        "skipped_puct_simulations": skipped_puct_simulations,
+        "exact_solver_calls": exact_solver_calls,
+        "native_solve_time_ms": native_solve_time_ms,
     }
 
 
@@ -3594,6 +3775,7 @@ def main() -> None:
                     "start_state_pool_path": args.start_state_pool,
                     "shadow_checkpoint": args.shadow_checkpoint,
                     "shadow_q_weight": args.shadow_q_weight,
+                    "runtime_search_policy_artifact": args.runtime_search_policy_artifact,
                 }
                 if "value_trust_schedule" in search_options:
                     worker_kwargs["value_trust_schedule"] = search_options[
