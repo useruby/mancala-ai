@@ -481,6 +481,33 @@ class SelfPlayScriptTest(unittest.TestCase):
 
         self.assertNotEqual(baseline["hash"], changed["hash"])
 
+    def test_hybrid_runtime_policy_changes_self_play_profile_identity(self):
+        options = self_play.build_search_options(reuse_subtree=True)
+        plain = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=1200,
+            c_puct=1.25,
+            search_options=options,
+        )
+        hybrid = self_play.build_search_profile(
+            kind="self_play",
+            player_mode="puct",
+            simulations=1200,
+            c_puct=1.25,
+            search_options=options,
+            extra_fields={
+                "exact_root_solve_enabled": True,
+                "exact_root_solve_threshold": 16,
+                "exact_leaf_solve_mode": "disabled",
+                "runtime_search_policy_native_probe_sha256": "probe",
+                "runtime_search_policy_tablebase_sha256": "tablebase",
+            },
+        )
+
+        self.assertNotEqual(plain["hash"], hybrid["hash"])
+        self.assertTrue(hybrid["exact_root_solve_enabled"])
+
     def test_build_search_profile_hash_changes_when_value_transform_changes(self):
         baseline = self_play.build_search_profile(
             kind="self_play",

@@ -1,0 +1,365 @@
+{
+  "artifacts": [
+    {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/candidate_vs_current_arena.json",
+      "required": false,
+      "role": "canonical_prefilter",
+      "schema": "arena_v1",
+      "sha256": "7c65b13a42cebc409765fec06a813d0f3f748918a20873b880ead4cecaa6cb3b",
+      "size_bytes": 5405
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/checkpoint.npz",
+      "required": true,
+      "role": "checkpoint",
+      "schema": "npz",
+      "sha256": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+      "size_bytes": 298302
+    },
+    {
+      "candidate_weights_sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/local_promotion_gate.json",
+      "required": true,
+      "role": "gate_report",
+      "schema": "azlite_local_promotion_gate_v1",
+      "sha256": "aa73f4e282015ecda0d91922938870245765aa7816408d6482606b660e45303b",
+      "size_bytes": 25693
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/metadata.json",
+      "required": true,
+      "role": "metadata",
+      "schema": "azlite_model_v1",
+      "sha256": "ff7bc947933bf6b6431104bc433dce0524a691a49e26391ce1c050ad645e5cdd",
+      "size_bytes": 1915
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "required": true,
+      "role": "self_play",
+      "schema": "azlite_self_play_jsonl_v1",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "size_bytes": 746904456
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/weights.json",
+      "required": true,
+      "role": "weights",
+      "schema": "azlite_model_weights_v1",
+      "sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+      "size_bytes": 1583251
+    }
+  ],
+  "candidate": {
+    "checkpoint": {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/checkpoint.npz",
+      "required": true,
+      "role": "checkpoint",
+      "schema": "npz",
+      "sha256": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+      "size_bytes": 298302
+    },
+    "metadata": {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/metadata.json",
+      "required": true,
+      "role": "metadata",
+      "schema": "azlite_model_v1",
+      "sha256": "ff7bc947933bf6b6431104bc433dce0524a691a49e26391ce1c050ad645e5cdd",
+      "size_bytes": 1915
+    },
+    "version": "seed455-nextgen-s461-default-value-root16-iter1",
+    "weights": {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/weights.json",
+      "required": true,
+      "role": "weights",
+      "schema": "azlite_model_weights_v1",
+      "sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+      "size_bytes": 1583251
+    }
+  },
+  "canonical_evaluation": {
+    "downstream": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "hard_arena": {
+      "artifact": null,
+      "config": {},
+      "status": "not_run",
+      "summary": {
+        "reason": "prefilter_failed"
+      },
+      "tool": "local_promotion_gate"
+    },
+    "prefilter": {
+      "artifact": {
+        "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/candidate_vs_current_arena.json",
+        "required": false,
+        "role": "canonical_prefilter",
+        "schema": "arena_v1",
+        "sha256": "7c65b13a42cebc409765fec06a813d0f3f748918a20873b880ead4cecaa6cb3b",
+        "size_bytes": 5405
+      },
+      "config": {},
+      "status": "complete",
+      "summary": {
+        "passed": false,
+        "score": 0.5254
+      },
+      "tool": "local_promotion_gate"
+    }
+  },
+  "canonical_evaluation_attempts": [
+    {
+      "canonical_evaluation": {
+        "hard_arena": {
+          "artifact": null,
+          "config": {},
+          "status": "not_run",
+          "summary": {
+            "reason": "prefilter_failed"
+          },
+          "tool": "local_promotion_gate"
+        },
+        "prefilter": {
+          "artifact": {
+            "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/candidate_vs_current_arena.json",
+            "required": false,
+            "role": "canonical_prefilter",
+            "schema": "arena_v1",
+            "sha256": "7c65b13a42cebc409765fec06a813d0f3f748918a20873b880ead4cecaa6cb3b",
+            "size_bytes": 5405
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": false,
+            "score": 0.5254
+          },
+          "tool": "local_promotion_gate"
+        }
+      },
+      "classification": "seed461_generation_n_plus_2_prefilter_failed",
+      "gate_report": {
+        "candidate_weights_sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+        "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/local_promotion_gate.json",
+        "required": true,
+        "role": "gate_report",
+        "schema": "azlite_local_promotion_gate_v1",
+        "sha256": "aa73f4e282015ecda0d91922938870245765aa7816408d6482606b660e45303b",
+        "size_bytes": 25693
+      },
+      "runtime_search_policy": {
+        "exact_leaf_solve": "disabled",
+        "exact_root_enabled": true,
+        "mode": "puct_exact_root_hybrid",
+        "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "objective": "final_score_margin",
+        "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+        "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "threshold": 16,
+        "tie_rule": "highest_legal_network_prior_then_lowest_move_index"
+      }
+    }
+  ],
+  "compute": {},
+  "diagnostics": {
+    "diagnostic_arena": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "exact_oracle": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "policy": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "regressions": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "value": {
+      "reason": null,
+      "status": "not_run"
+    }
+  },
+  "generation_id": "seed455-nextgen-s461-default-value-root16-iter1",
+  "parent": {
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "runtime_search_policy": {
+      "path": "/home/alex/Mancala/ai/model-artifact/current/search_policy.json",
+      "required": true,
+      "role": "parent_runtime_search_policy",
+      "schema": "azlite_runtime_search_policy_v1",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "size_bytes": 700
+    },
+    "version": "seed48-nextgen-s455-default-value-iter1",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "promotion": {
+    "decision": "rejected",
+    "failure_reasons": [
+      {
+        "code": "arena_score_below_threshold"
+      }
+    ],
+    "gate_report": {
+      "candidate_weights_sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/local_promotion_gate.json",
+      "required": true,
+      "role": "gate_report",
+      "schema": "azlite_local_promotion_gate_v1",
+      "sha256": "aa73f4e282015ecda0d91922938870245765aa7816408d6482606b660e45303b",
+      "size_bytes": 25693
+    }
+  },
+  "provenance_notes": [
+    "Created by pipeline.py; azlite_run_manifest_v1 remains the execution log."
+  ],
+  "replay": {
+    "sources": [
+      {
+        "artifact": {
+          "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+          "size_bytes": 746904456
+        },
+        "weight": 1
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+          "size_bytes": 8012548
+        },
+        "weight": 4
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+          "size_bytes": 2610481
+        },
+        "weight": 1
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+          "size_bytes": 2414727
+        },
+        "weight": 8
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+          "size_bytes": 2526874
+        },
+        "weight": 4
+      }
+    ]
+  },
+  "schema": "azlite_generation_record_v1",
+  "self_play": {
+    "artifact": {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "required": true,
+      "role": "self_play",
+      "schema": "azlite_self_play_jsonl_v1",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "size_bytes": 746904456
+    },
+    "compute": {
+      "exact_root_handoffs": 19848,
+      "exact_solver_calls": 56211,
+      "puct_searched_roots": 93770,
+      "requested_puct_simulations": 112524000,
+      "skipped_puct_simulations": 47635200,
+      "wall_clock_duration_seconds": 1333.6377
+    },
+    "config": {
+      "dirichlet_alpha": "0.3",
+      "dirichlet_epsilon": "0.3",
+      "games": "1600",
+      "input_encoding": "kalah_v3",
+      "iteration": "1",
+      "out": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "policy_target_mode": "sharpened",
+      "policy_target_noise_mode": "denoised",
+      "runtime_search_policy_artifact": "/home/alex/Mancala/ai/model-artifact/current",
+      "schedule_progress_mode": "linear",
+      "seed": "461",
+      "seed_sweep": "460,461,462",
+      "simulations": "1200",
+      "temperature": "1.1",
+      "temperature_late": "0.15",
+      "temperature_threshold": "12",
+      "total_iterations": "1",
+      "tree_reuse_enabled": true,
+      "value_target_mode": "default",
+      "workers": "6",
+      "write_game_metadata": true,
+      "write_root_target_telemetry": true
+    },
+    "seeds": [
+      460,
+      461,
+      462
+    ],
+    "status": "complete"
+  },
+  "status": "rejected",
+  "training": {
+    "checkpoint_policy": "production_default_best_validation",
+    "compute": {
+      "wall_clock_duration_seconds": 18.8213
+    },
+    "config": {
+      "batch_size": "512",
+      "data": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "data_files": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+      "device": "auto",
+      "epochs": "4",
+      "grad_clip": "1.0",
+      "hidden_sizes": "96,3",
+      "huber_delta": "1.0",
+      "init_checkpoint": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz",
+      "input_encoding": "kalah_v3",
+      "lr_scheduler": "none",
+      "model_type": "residual_v3",
+      "out": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/checkpoint.npz",
+      "policy_target_mode": "sharpened",
+      "replay_value_target_modes": "default,sharpened,sharpened,sharpened,sharpened",
+      "replay_weights": "1,4,1,8,4",
+      "save_top_k": "3",
+      "seed": "461",
+      "val_split": "0.1",
+      "value_loss": "huber",
+      "value_loss_weight": "0.3",
+      "value_target_mode": "default"
+    },
+    "metrics": {},
+    "optimizer_updates": null,
+    "seed": 461,
+    "status": "complete"
+  }
+}

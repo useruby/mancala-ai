@@ -18,10 +18,34 @@ from ml.alphazero_lite.pipeline import (
     render_command,
     resolve_step_command,
     run_step,
+    inherit_parent_runtime_search_policy,
 )
 
 
 class PipelineScriptTest(unittest.TestCase):
+    def test_inherits_parent_runtime_policy_only_for_self_play(self):
+        command = [sys.executable, "ml/alphazero_lite/self_play.py", "--games", "1"]
+        inherited = inherit_parent_runtime_search_policy(
+            command,
+            step={"name": "self_play"},
+            parent_model_dir=Path("parent-artifact"),
+            enabled=True,
+        )
+
+        self.assertEqual(
+            [*command, "--runtime-search-policy-artifact", "parent-artifact"],
+            inherited,
+        )
+        self.assertEqual(
+            command,
+            inherit_parent_runtime_search_policy(
+                command,
+                step={"name": "train"},
+                parent_model_dir=Path("parent-artifact"),
+                enabled=True,
+            ),
+        )
+
     ISSUE_263_HARD_STATE_FINETUNE_CONFIG = (
         "aggressive_v3_incumbent_hard_state_finetune.json"
     )

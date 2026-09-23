@@ -1235,6 +1235,48 @@ class TrainScriptTest(unittest.TestCase):
             ):
                 train_module.load_jsonl(data_path, policy_target_mode="sharpened")
 
+    def test_load_jsonl_accepts_exact_root_one_hot_with_sharpened_recipe(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            data_path = Path(tmp) / "exact-root-one-hot.jsonl"
+            self._write_rows(
+                data_path,
+                [
+                    {
+                        "state": [1.0] * 15,
+                        "policy": [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+                        "value": 1.0,
+                        "policy_target_mode": "sharpened",
+                        "policy_target_actual_mode": "exact_root_one_hot",
+                    }
+                ],
+            )
+
+            _x, policy, _value = train_module.load_jsonl(
+                data_path, policy_target_mode="sharpened"
+            )
+
+            np.testing.assert_array_equal(
+                policy, np.array([[0.0, 1.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+            )
+
+    def test_load_jsonl_rejects_non_one_hot_exact_root_target(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            data_path = Path(tmp) / "invalid-exact-root-target.jsonl"
+            self._write_rows(
+                data_path,
+                [
+                    {
+                        "state": [1.0] * 15,
+                        "policy": [0.5, 0.5, 0.0, 0.0, 0.0, 0.0],
+                        "value": 1.0,
+                        "policy_target_actual_mode": "exact_root_one_hot",
+                    }
+                ],
+            )
+
+            with self.assertRaisesRegex(ValueError, "exact_root_one_hot"):
+                train_module.load_jsonl(data_path, policy_target_mode="sharpened")
+
     def test_load_jsonl_rejects_missing_sharpened_value_target_metadata(self):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
