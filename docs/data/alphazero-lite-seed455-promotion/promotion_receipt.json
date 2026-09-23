@@ -1,0 +1,68 @@
+{
+  "schema": "azlite_promotion_receipt_v2",
+  "promotion_date": "2026-09-23",
+  "classification": "seed455_exact_root16_incumbent_promotion_completed",
+  "previous_incumbent": {
+    "version": "fresh-uniform1200-s48-uniform1200-iter1",
+    "weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "metadata_json_sha256": "ce226854584ac2518ddea22caa1f1faa7a2697f8aa96b1ad6d82388b23ca5f51",
+    "runtime_search_policy": null
+  },
+  "promoted_generation": {
+    "generation_id": "seed48-nextgen-s455-default-value",
+    "version": "seed48-nextgen-s455-default-value-iter1",
+    "source_path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+    "source_weights_json_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "source_metadata_json_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1"
+  },
+  "gate": {
+    "path": "docs/data/alphazero-lite-seed455-promotion/corrected_local_promotion_gate_v2.json",
+    "sha256": "9fc9f8af7525b8657519862078bd94b5a0a3e41440ebe8b88dcc6e43426ac80a",
+    "passed": true,
+    "failure_reasons": [],
+    "classification": "seed455_exact_root16_forensic_v2_full_gate_passed",
+    "forensic_policy_identity": "forensic_policy_v2_exact_top1",
+    "exact_reference_sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626"
+  },
+  "canonical_evidence": {
+    "prefilter": {
+      "path": "docs/data/alphazero-lite-seed455-promotion/candidate_vs_current_arena.json",
+      "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae",
+      "score": 0.5918
+    },
+    "hard_arena": {
+      "path": "docs/data/alphazero-lite-seed455-promotion/candidate_vs_hard_arena.json",
+      "sha256": "8ddff32bcfa796168236c73355d324a570ea7ce867634ac845cadded6ec834fb",
+      "score": 0.5586
+    }
+  },
+  "runtime_policy": {
+    "path": "model-artifact/current/search_policy.json",
+    "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "mode": "puct_exact_root_hybrid",
+    "exact_root_threshold": 16,
+    "exact_root_objective": "final_score_margin",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_leaf_solve": "disabled",
+    "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "installed_incumbent": {
+    "version": "seed48-nextgen-s455-default-value-iter1",
+    "weights_json_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "metadata_json_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "arena_report_json_sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae"
+  },
+  "verification": {
+    "source_current_weights_exact_equal": true,
+    "source_current_raw_inference_exact_equal": true,
+    "root16_smoke_passed": true,
+    "above16_puct_smoke_passed": true,
+    "evaluation_rerun": false,
+    "training_runs": 0,
+    "self_play_games": 0,
+    "forensic_decision": "offline_top1_reclassification"
+  }
+}

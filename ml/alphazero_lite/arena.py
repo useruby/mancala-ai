@@ -81,6 +81,7 @@ if not ARENA_STUB_MODE:
         from ml.alphazero_lite.native_exact_root_tablebase import (
             NativeExactRootTablebase,
         )
+        from ml.alphazero_lite.runtime_search_policy import load_runtime_search_policy
         from ml.alphazero_lite.opening_cache import (
             load_opening_cache,
             state_qualifies_for_opening_cache,
@@ -122,6 +123,7 @@ if not ARENA_STUB_MODE:
             exact_root_profile_fields,
         )
         from native_exact_root_tablebase import NativeExactRootTablebase
+        from runtime_search_policy import load_runtime_search_policy
         from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
         from search_ablation import build_mode_config, neutral_value
         from self_play import (
@@ -690,6 +692,7 @@ def write_ledger(path: Path, records: list[dict]) -> None:
 
 class ArtifactEvaluator:
     def __init__(self, artifact_dir: Path):
+        self.artifact_dir = artifact_dir.resolve()
         metadata_path = artifact_dir / "metadata.json"
         weights_path = artifact_dir / "weights.json"
         if not weights_path.exists():
@@ -1112,14 +1115,33 @@ def evaluate_artifact_position(
         and exact_solve_stone_threshold is not None
     ):
         raise ValueError("exact root handoff and exact leaf solving cannot be combined")
+    policy = None
+    policy_owner = artifact_path or getattr(evaluator, "artifact_dir", None)
+    if exact_root_solve_threshold is None and policy_owner is not None:
+        policy = load_runtime_search_policy(policy_owner)
+        if policy is not None:
+            exact_root_solve_threshold = policy["exact_root_threshold"]
+    native_root_tablebase = None
+    if policy is not None and int(sum(game.pits)) <= exact_root_solve_threshold:
+        native_root_tablebase = NativeExactRootTablebase(
+            policy["native_probe"]["resolved_path"],
+            policy["tablebase"]["resolved_path"],
+            warm_on_start=True,
+        )
     root_decision = exact_root_decision(
         game,
         evaluator,
         tablebase=(
-            endgame_tablebase if endgame_tablebase is not None else EndgameTablebase()
+            native_root_tablebase
+            if native_root_tablebase is not None
+            else endgame_tablebase
+            if endgame_tablebase is not None
+            else EndgameTablebase()
         ),
         threshold=exact_root_solve_threshold,
     )
+    if native_root_tablebase is not None:
+        native_root_tablebase.close()
     if root_decision is not None:
         policy = np.asarray(root_decision.network_priors, dtype=np.float32)
         visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
