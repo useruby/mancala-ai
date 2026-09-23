@@ -112,6 +112,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stub-current-mcts-report", type=Path)
     parser.add_argument("--stub-regression-report", type=Path)
     parser.add_argument("--stub-forensic-report", type=Path)
+    parser.add_argument(
+        "--decision-identity",
+        help="semantic identity for an immutable frozen-evidence decision replay",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
         "--seat-aware",
@@ -539,6 +543,7 @@ def validate_exact_root_arena_profile(report: dict, policy: dict) -> None:
     expected = {
         "exact_root_solve_enabled": True,
         "exact_root_solve_threshold": policy["threshold"],
+        "exact_root_solver": policy["solver_implementation_identity"],
         "exact_root_objective": policy["objective"],
         "exact_root_tie_rule": policy["tie_rule"],
         "exact_leaf_solve_mode": "disabled",
@@ -547,6 +552,34 @@ def validate_exact_root_arena_profile(report: dict, policy: dict) -> None:
     }
     if any(profile.get(key) != value for key, value in expected.items()):
         raise SystemExit("exact_root_policy_asymmetry")
+
+
+def validate_frozen_canonical_arena_report(
+    report: dict,
+    *,
+    args: argparse.Namespace,
+    suite_sha256: str,
+) -> None:
+    """Bind a reused canonical arena report to its inputs, policy, and pairing."""
+    notes = report.get("notes") if isinstance(report.get("notes"), dict) else {}
+    if (
+        report.get("schema") != "arena_v1"
+        or int(report.get("games_played", 0)) != 512
+        or int(report.get("games", 0)) != 512
+        or notes.get("challenger_path") != str(args.candidate_path)
+        or notes.get("current_path") != str(args.current_path)
+        or notes.get("challenger_simulations") != 384
+        or notes.get("current_simulations") != 384
+        or notes.get("suite_sha256") != suite_sha256
+        or not isinstance(notes.get("seed_identity_ledger_sha256"), str)
+        or not isinstance(notes.get("search_configuration_ledger_sha256"), str)
+        or not isinstance(notes.get("search_outcome_ledger_sha256"), str)
+    ):
+        raise SystemExit("seed455_corrected_gate_evidence_invalid")
+    try:
+        validate_exact_root_arena_profile(report, runtime_search_policy(args))
+    except SystemExit:
+        raise SystemExit("seed455_corrected_gate_solver_provenance_mismatch") from None
 
 
 def exact_root_preflight(args: argparse.Namespace) -> dict | None:
@@ -1532,9 +1565,22 @@ def build_decision_report(
 
 
 def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
+    arena_report = load_json(args.stub_arena_report)
     hard_report = (
         load_json(args.stub_hard_report) if args.stub_hard_report is not None else None
     )
+    if getattr(args, "shadow_canonical_prefilter", False):
+        validate_frozen_canonical_arena_report(
+            arena_report,
+            args=args,
+            suite_sha256=args.shadow_prefilter_suite_sha256,
+        )
+    if hard_report is not None and getattr(args, "shadow_canonical_hard_arena", False):
+        validate_frozen_canonical_arena_report(
+            hard_report,
+            args=args,
+            suite_sha256=args.shadow_hard_suite_sha256,
+        )
     regression_report = (
         load_json(args.stub_regression_report)
         if args.stub_regression_report is not None
@@ -1548,10 +1594,10 @@ def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
     regression_report_path = args.stub_regression_report or Path(
         report["regression_report_path"]
     )
-    return build_decision_report(
+    decision = build_decision_report(
         args,
         report,
-        arena_report=load_json(args.stub_arena_report),
+        arena_report=arena_report,
         hard_report=hard_report,
         candidate_mcts_report=load_json(args.stub_candidate_mcts_report),
         current_mcts_report=load_json(args.stub_current_mcts_report),
@@ -1563,6 +1609,30 @@ def build_stub_decision_report(args: argparse.Namespace, report: dict) -> dict:
         current_mcts_report_path=args.stub_current_mcts_report,
         regression_report_path=regression_report_path,
     )
+    stub_evidence = (
+        ("canonical_prefilter", args.stub_arena_report, "arena_v1"),
+        ("canonical_hard_arena", args.stub_hard_report, "arena_v1"),
+        (
+            "candidate_mcts_relative",
+            args.stub_candidate_mcts_report,
+            "azlite_vs_mcts_v1",
+        ),
+        ("current_mcts_relative", args.stub_current_mcts_report, "azlite_vs_mcts_v1"),
+        ("regression", args.stub_regression_report, "regression_v1"),
+        ("corrected_forensic", args.stub_forensic_report, "azlite_forensic_suite_v1"),
+    )
+    decision["reused_evidence"] = [
+        {
+            "role": role,
+            "path": str(path),
+            "schema": schema,
+            "sha256": sha256_file(path),
+            "size_bytes": path.stat().st_size,
+        }
+        for role, path, schema in stub_evidence
+        if path is not None
+    ]
+    return decision
 
 
 def run_command(command: list[str]) -> None:
@@ -2222,6 +2292,7 @@ def main() -> int:
     if (
         not args.dry_run
         and getattr(args, "exact_root_solve_threshold", None) is not None
+        and not stub_reports_provided
     ):
         try:
             report["exact_root_gate_preflight"] = exact_root_preflight(args)
@@ -2233,6 +2304,15 @@ def main() -> int:
             report["regression_report_path"] = str(args.stub_regression_report)
         report["forensic_report_path"] = str(args.stub_forensic_report)
         report = build_stub_decision_report(args, report)
+        report["execution_accounting"] = {
+            "canonical_arena_commands_executed": 0,
+            "hard_arena_commands_executed": 0,
+            "training_commands_executed": 0,
+            "self_play_games_executed": 0,
+        }
+        if args.decision_identity:
+            suffix = "full_gate_passed" if report.get("passed") else "still_blocked"
+            report["shadow_classification"] = f"{args.decision_identity}_{suffix}"
     elif not args.dry_run:
         report = build_real_decision_report(args, report)
 

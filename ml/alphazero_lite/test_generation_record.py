@@ -124,6 +124,12 @@ class GenerationRecordTest(unittest.TestCase):
                 record["canonical_evaluation"]["hard_arena"]["summary"]["passed"]
             )
 
+    def test_promotion_ready_does_not_mark_the_generation_promoted(self):
+        record = new_record(generation_id="ready")
+        record_promotion(record, decision="promotion_ready")
+        self.assertEqual("promotion_ready", record["promotion"]["decision"])
+        self.assertEqual("promotion_ready", record["status"])
+
     def test_historical_records_and_registry(self):
         root = Path(__file__).resolve().parents[2]
         for generation_id in (

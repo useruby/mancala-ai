@@ -49,8 +49,8 @@ EXACT_REFERENCE_SCHEMA = "azlite_forensic_references_v2"
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--suite", default=str(DEFAULT_SUITE_PATH))
-    parser.add_argument("--current-artifact", required=True)
-    parser.add_argument("--challenger-artifact", required=True)
+    parser.add_argument("--current-artifact")
+    parser.add_argument("--challenger-artifact")
     parser.add_argument("--reference-artifact")
     parser.add_argument("--exact-top1-reference-artifact")
     parser.add_argument("--mcts-simulations", type=int, default=1200)
@@ -68,6 +68,11 @@ def parse_args() -> argparse.Namespace:
         default="wdl",
     )
     parser.add_argument("--out", required=True)
+    parser.add_argument(
+        "--reclassify-existing-report",
+        type=Path,
+        help="offline-only source report; reclassifies top-1 with --exact-top1-reference-artifact",
+    )
     return parser.parse_args()
 
 
@@ -533,6 +538,84 @@ def _top1_reference_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def reclassify_exact_top1_report(
+    source_report: dict[str, Any], exact_reference_path: Path
+) -> dict[str, Any]:
+    """Apply v2 top-1 labels to frozen rows without executing any search."""
+    if source_report.get("schema") != "azlite_forensic_suite_v1":
+        raise SystemExit("forensic_corrected_decision_scope_violation")
+    suite_path = Path(source_report.get("suite_path", ""))
+    artifact, references = _load_exact_top1_references(exact_reference_path, suite_path)
+    corrected = json.loads(json.dumps(source_report))
+    systems = corrected.get("systems")
+    if not isinstance(systems, dict):
+        raise SystemExit("forensic_corrected_decision_scope_violation")
+
+    for system in systems.values():
+        rows = system.get("rows") if isinstance(system, dict) else None
+        if not isinstance(rows, list) or len(rows) != len(references):
+            raise SystemExit("forensic_corrected_decision_scope_violation")
+        for row in rows:
+            if (
+                not isinstance(row, dict)
+                or row.get("canonical_state") not in references
+            ):
+                raise SystemExit("forensic_corrected_decision_scope_violation")
+            apply_exact_top1_reference(row, references[row["canonical_state"]])
+        refreshed = summarize_system(rows)
+        # The correction may only replace top-1 fields and their summaries.
+        for key in ("top1_agreement",):
+            system["overall"][key] = refreshed["overall"][key]
+            for bucket, summary in refreshed["buckets"].items():
+                system["buckets"][bucket][key] = summary[key]
+        system["top1_reference_summary"] = _top1_reference_summary(rows)
+        system["top1_reference_buckets"] = {
+            bucket: _top1_reference_summary(
+                [row for row in rows if row["bucket"] == bucket]
+            )
+            for bucket in corrected["buckets"]
+        }
+
+    system_rows = {name: system["rows"] for name, system in systems.items()}
+    refreshed_buckets = summarize_bucket_matrix(system_rows)
+    for bucket, summary in refreshed_buckets.items():
+        for system_name, metrics in summary["systems"].items():
+            corrected["buckets"][bucket]["systems"][system_name]["top1_agreement"] = (
+                metrics["top1_agreement"]
+            )
+    corrected["policy_top1_reference"] = {
+        "mode": "hybrid_exact_optimal_set",
+        "exact_reference_artifact": str(exact_reference_path),
+        "exact_reference_sha256": hashlib.sha256(
+            exact_reference_path.read_bytes()
+        ).hexdigest(),
+        "solved_rows": sum(
+            row.get("exact_status") == "exact_solved" for row in references.values()
+        ),
+        "unresolved_rows": sum(
+            row.get("exact_status") != "exact_solved" for row in references.values()
+        ),
+        "unavailable_rows_excluded_from_top1_denominator": True,
+    }
+    corrected["regret_reference"] = {
+        "mode": "classic_mcts",
+        "policy_simulations": source_report["reference"]["policy_reference"][
+            "simulations"
+        ],
+        "teacher_simulations": source_report["reference"]["value_reference"][
+            "simulations"
+        ],
+    }
+    corrected["offline_reclassification"] = {
+        "policy_identity": "forensic_policy_v2_exact_top1",
+        "source_report_sha256": hashlib.sha256(
+            json.dumps(source_report, sort_keys=True).encode()
+        ).hexdigest(),
+        "search_executed": False,
+    }
+    return corrected
+
+
 def main() -> None:
     args = parse_args()
     reference_artifact_path = getattr(args, "reference_artifact", None)
@@ -541,6 +624,22 @@ def main() -> None:
     )
     suite_path = Path(args.suite)
     out_path = Path(args.out)
+    if getattr(args, "reclassify_existing_report", None):
+        if not exact_top1_reference_artifact_path:
+            raise SystemExit("forensic_exact_reference_provenance_invalid")
+        source = json.loads(args.reclassify_existing_report.read_text(encoding="utf-8"))
+        corrected = reclassify_exact_top1_report(
+            source, Path(exact_top1_reference_artifact_path)
+        )
+        corrected["offline_reclassification"]["source_report_sha256"] = hashlib.sha256(
+            args.reclassify_existing_report.read_bytes()
+        ).hexdigest()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(corrected, indent=2), encoding="utf-8")
+        print(f"wrote forensic report to {out_path}")
+        return
+    if not args.current_artifact or not args.challenger_artifact:
+        raise SystemExit("--current-artifact and --challenger-artifact are required")
     suite = load_suite(suite_path)
     search_options = build_eval_search_options()
     value_reference_simulations = (

@@ -122,12 +122,12 @@
     },
     {
       "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
-      "path": ".tmp/seed455-exact-root16-canonical/local_promotion_gate.json",
+      "path": ".tmp/seed455-exact-root16-forensic-v2/corrected_local_promotion_gate_v2.json",
       "required": true,
       "role": "gate_report",
       "schema": "azlite_local_promotion_gate_v1",
-      "sha256": "c4d332a8c48d3b6a20360e661ab276f859c2470d4bca0e13de50cf9469345668",
-      "size_bytes": 31764
+      "sha256": "9fc9f8af7525b8657519862078bd94b5a0a3e41440ebe8b88dcc6e43426ac80a",
+      "size_bytes": 22257
     },
     {
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/metadata.json",
@@ -429,33 +429,64 @@
         "threshold": 16,
         "tie_rule": "highest_legal_network_prior_then_lowest_move_index"
       }
-    }
-  ],
-  "forensic_policy_evaluation_attempts": [
+    },
     {
-      "classification": "forensic_exact_top1_semantics_removes_seed455_blocker",
-      "policy_identity": "forensic_policy_v2_exact_top1",
-      "search_reused": true,
-      "promotion_decision": "rejected",
-      "report": {
-        "path": "docs/alphazero-lite-seed455-forensic-policy-v2.md",
+      "canonical_evaluation": {
+        "hard_arena": {
+          "artifact": {
+            "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_hard_arena.json",
+            "required": false,
+            "role": "canonical_hard_arena",
+            "schema": "arena_v1",
+            "sha256": "8ddff32bcfa796168236c73355d324a570ea7ce867634ac845cadded6ec834fb",
+            "size_bytes": 5180
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": true,
+            "score": 0.5586
+          },
+          "tool": "local_promotion_gate"
+        },
+        "prefilter": {
+          "artifact": {
+            "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
+            "required": false,
+            "role": "canonical_prefilter",
+            "schema": "arena_v1",
+            "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae",
+            "size_bytes": 5195
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": true,
+            "score": 0.5918
+          },
+          "tool": "local_promotion_gate"
+        }
+      },
+      "classification": "seed455_exact_root16_forensic_v2_full_gate_passed",
+      "gate_report": {
+        "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+        "path": ".tmp/seed455-exact-root16-forensic-v2/corrected_local_promotion_gate_v2.json",
         "required": true,
-        "role": "forensic_policy_reclassification",
-        "schema": "markdown",
-        "sha256": "3926eea4be6f08346cb5992e8b77f9096f7ac0eb8a8f8814f255e0505be3e9ee",
-        "size_bytes": 2338
+        "role": "gate_report",
+        "schema": "azlite_local_promotion_gate_v1",
+        "sha256": "9fc9f8af7525b8657519862078bd94b5a0a3e41440ebe8b88dcc6e43426ac80a",
+        "size_bytes": 22257
       },
-      "source_forensic_report": {
-        "path": ".tmp/seed455-exact-root16-canonical/candidate_forensic_suite.json",
-        "sha256": "125634ad5f54ecd5964b4a56c712c843d58d13d96b66e1a1636770cf402da35c"
-      },
-      "exact_reference": {
-        "path": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
-        "schema": "azlite_forensic_references_v2",
-        "sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
-        "solved_rows": 213,
-        "unresolved_rows": 11,
-        "sparse_endgame_exact_covered_rows": 24
+      "runtime_search_policy": {
+        "exact_leaf_solve": "disabled",
+        "exact_root_enabled": true,
+        "mode": "puct_exact_root_hybrid",
+        "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "objective": "final_score_margin",
+        "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+        "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "threshold": 16,
+        "tie_rule": "highest_legal_network_prior_then_lowest_move_index"
       }
     }
   ],
@@ -1135,6 +1166,34 @@
       "tool": "shared_exact_diagnostic"
     }
   },
+  "forensic_policy_evaluation_attempts": [
+    {
+      "classification": "forensic_exact_top1_semantics_removes_seed455_blocker",
+      "exact_reference": {
+        "path": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+        "schema": "azlite_forensic_references_v2",
+        "sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
+        "solved_rows": 213,
+        "sparse_endgame_exact_covered_rows": 24,
+        "unresolved_rows": 11
+      },
+      "policy_identity": "forensic_policy_v2_exact_top1",
+      "promotion_decision": "rejected",
+      "report": {
+        "path": "docs/alphazero-lite-seed455-forensic-policy-v2.md",
+        "required": true,
+        "role": "forensic_policy_reclassification",
+        "schema": "markdown",
+        "sha256": "3926eea4be6f08346cb5992e8b77f9096f7ac0eb8a8f8814f255e0505be3e9ee",
+        "size_bytes": 2338
+      },
+      "search_reused": true,
+      "source_forensic_report": {
+        "path": ".tmp/seed455-exact-root16-canonical/candidate_forensic_suite.json",
+        "sha256": "125634ad5f54ecd5964b4a56c712c843d58d13d96b66e1a1636770cf402da35c"
+      }
+    }
+  ],
   "generation_id": "seed48-nextgen-s455-default-value",
   "parent": {
     "metadata_sha256": null,
@@ -1142,20 +1201,16 @@
     "weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
   },
   "promotion": {
-    "decision": "rejected",
-    "failure_reasons": [
-      {
-        "code": "forensic_bucket_sparse_endgame_regressed"
-      }
-    ],
+    "decision": "promotion_ready",
+    "failure_reasons": [],
     "gate_report": {
       "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
-      "path": ".tmp/seed455-exact-root16-canonical/local_promotion_gate.json",
+      "path": ".tmp/seed455-exact-root16-forensic-v2/corrected_local_promotion_gate_v2.json",
       "required": true,
       "role": "gate_report",
       "schema": "azlite_local_promotion_gate_v1",
-      "sha256": "c4d332a8c48d3b6a20360e661ab276f859c2470d4bca0e13de50cf9469345668",
-      "size_bytes": 31764
+      "sha256": "9fc9f8af7525b8657519862078bd94b5a0a3e41440ebe8b88dcc6e43426ac80a",
+      "size_bytes": 22257
     }
   },
   "provenance_notes": [
@@ -1283,7 +1338,7 @@
     ],
     "status": "complete"
   },
-  "status": "rejected",
+  "status": "promotion_ready",
   "training": {
     "checkpoint_policy": "production_default_best_validation",
     "compute": {
