@@ -183,6 +183,59 @@ class LocalPromotionGateTest(unittest.TestCase):
                 module.candidate_identity(candidate),
             )
 
+    def test_forensic_command_adds_exact_top1_reference_only_when_configured(self):
+        module = self.load_gate_module()
+        args = argparse.Namespace(
+            exact_root_solve_threshold=16,
+            exact_root_native_probe=Path("probe"),
+            exact_root_tablebase=Path("tablebase"),
+            forensic_exact_top1_reference=Path("references-v2.json"),
+        )
+        command = module.forensic_evaluation(
+            Path("reports"),
+            candidate_path=Path("candidate"),
+            current_path="current",
+            args=args,
+        )["command"]
+        self.assertIn("--exact-top1-reference-artifact", command)
+        self.assertIn("references-v2.json", command)
+        self.assertIn("--exact-root-solve-threshold", command)
+        legacy = module.forensic_evaluation(
+            Path("reports"), candidate_path=Path("candidate"), current_path="current"
+        )["command"]
+        self.assertNotIn("--exact-top1-reference-artifact", legacy)
+
+    def test_exact_root_requires_exact_top1_reference(self):
+        module = self.load_gate_module()
+        args = argparse.Namespace(
+            exact_root_solve_threshold=16,
+            exact_root_native_probe=Path("probe"),
+            exact_root_tablebase=Path("tablebase"),
+            forensic_exact_top1_reference=None,
+        )
+        with self.assertRaisesRegex(
+            SystemExit, "exact_root_forensic_reference_missing"
+        ):
+            module.validate_exact_root_policy(args)
+
+    def test_frozen_exact_reference_records_sha_and_sparse_coverage(self):
+        module = self.load_gate_module()
+        reference = (
+            Path(__file__).resolve().parents[2]
+            / "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json"
+        )
+        details = module.validate_forensic_exact_top1_reference(
+            argparse.Namespace(forensic_exact_top1_reference=reference)
+        )
+        self.assertEqual("hybrid_exact_optimal_set", details["mode"])
+        self.assertEqual(213, details["solved_rows"])
+        self.assertEqual(11, details["unresolved_rows"])
+        self.assertEqual(24, details["sparse_endgame_exact_covered_rows"])
+        self.assertEqual(
+            "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
+            details["sha256"],
+        )
+
     def test_shadow_prefilter_command_is_explicit_and_standard_command_is_unchanged(
         self,
     ):

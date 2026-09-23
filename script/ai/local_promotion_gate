@@ -86,6 +86,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--exact-root-solve-threshold", type=int)
     parser.add_argument("--exact-root-native-probe", type=Path)
     parser.add_argument("--exact-root-tablebase", type=Path)
+    parser.add_argument("--forensic-exact-top1-reference", type=Path)
     parser.add_argument("--require-lossless", action="store_true")
     parser.add_argument("--max-losses", default=0, type=non_negative_int)
     parser.add_argument("--skip-mcts-relative-check", action="store_true")
@@ -153,6 +154,15 @@ def exact_root_flags(args: argparse.Namespace | None) -> list[str]:
     ]
 
 
+def forensic_exact_top1_flags(args: argparse.Namespace | None) -> list[str]:
+    reference = (
+        None if args is None else getattr(args, "forensic_exact_top1_reference", None)
+    )
+    return (
+        [] if reference is None else ["--exact-top1-reference-artifact", str(reference)]
+    )
+
+
 def forensic_evaluation(
     report_dir: Path,
     *,
@@ -176,6 +186,7 @@ def forensic_evaluation(
             "1200",
             "--teacher-simulations",
             "1800",
+            *forensic_exact_top1_flags(args),
             *exact_root_flags(args),
             "--out",
             str(report_dir / "candidate_forensic_suite.json"),
@@ -453,6 +464,8 @@ def validate_exact_root_policy(args: argparse.Namespace) -> None:
         if probe is not None or tablebase is not None:
             raise SystemExit("exact_root16_solver_provenance_unavailable")
         return
+    if getattr(args, "forensic_exact_top1_reference", None) is None:
+        raise SystemExit("exact_root_forensic_reference_missing")
     if str(repo_root()) not in sys.path:
         sys.path.insert(0, str(repo_root()))
     from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
@@ -466,6 +479,57 @@ def validate_exact_root_policy(args: argparse.Namespace) -> None:
         or not tablebase.is_file()
     ):
         raise SystemExit("exact_root16_solver_provenance_unavailable")
+
+
+def validate_forensic_exact_top1_reference(args: argparse.Namespace) -> dict | None:
+    path = getattr(args, "forensic_exact_top1_reference", None)
+    if path is None:
+        return None
+    try:
+        from ml.alphazero_lite.forensic_exact_references import sha256_file, validate_v2
+        from ml.alphazero_lite.forensic_suite import load_suite
+
+        payload = load_json(path)
+        suite_path = (
+            repo_root() / "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+        )
+        if (
+            payload.get("schema") != "azlite_forensic_references_v2"
+            or payload.get("suite_path")
+            != "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+            or validate_v2(payload, suite_path)
+        ):
+            raise ValueError("invalid exact reference")
+        rows = payload["rows"]
+        solved = [row for row in rows if row.get("exact_status") == "exact_solved"]
+        sparse = [
+            row for row in solved if row.get("id", "").startswith("sparse_endgame-")
+        ]
+        tablebase_shas = {
+            row.get("oracle_provenance", {}).get("tablebase_sha256") for row in solved
+        }
+        tablebase_shas.discard(None)
+        if (
+            len(rows) != 224
+            or len(solved) != 213
+            or len(rows) - len(solved) != 11
+            or len(sparse) != 24
+            or "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+            not in tablebase_shas
+            or len(load_suite(suite_path)) != len(rows)
+        ):
+            raise ValueError("frozen exact reference provenance mismatch")
+        return {
+            "mode": "hybrid_exact_optimal_set",
+            "artifact": str(path),
+            "sha256": sha256_file(path),
+            "solved_rows": len(solved),
+            "unresolved_rows": len(rows) - len(solved),
+            "sparse_endgame_exact_covered_rows": len(sparse),
+            "approximate_fallback_rows": len(rows) - len(solved),
+        }
+    except (OSError, ValueError, KeyError, TypeError):
+        raise SystemExit("forensic_exact_reference_provenance_invalid") from None
 
 
 def validate_exact_root_arena_profile(report: dict, policy: dict) -> None:
@@ -1941,6 +2005,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
 def main() -> int:
     args = parse_args()
     validate_exact_root_policy(args)
+    forensic_exact_top1_reference = validate_forensic_exact_top1_reference(args)
     shadow_identities = validate_shadow_inputs(args)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if args.dry_run and args.config_path:
@@ -2071,6 +2136,11 @@ def main() -> int:
         else None,
         "dry_run": args.dry_run,
         "runtime_search_policy": runtime_search_policy(args),
+        "forensic_policy": (
+            {"mode": "classic_mcts"}
+            if forensic_exact_top1_reference is None
+            else forensic_exact_top1_reference
+        ),
         "mcts_relative_exact_root_policy_applied": False,
         "mcts_relative_exact_root_policy_reason": "classic_mcts_gate_component_unchanged",
         "evaluations": evaluations,

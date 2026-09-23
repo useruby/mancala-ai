@@ -52,6 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--current-artifact", required=True)
     parser.add_argument("--challenger-artifact", required=True)
     parser.add_argument("--reference-artifact")
+    parser.add_argument("--exact-top1-reference-artifact")
     parser.add_argument("--mcts-simulations", type=int, default=1200)
     parser.add_argument("--teacher-simulations", type=int, default=0)
     parser.add_argument("--artifact-simulations", type=int, default=384)
@@ -279,6 +280,20 @@ def _load_shared_references(
     return artifact, references_by_canonical_state
 
 
+def _load_exact_top1_references(
+    reference_artifact_path: str | Path, suite_path: Path
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    """Load exact labels used only to classify policy top-1 correctness."""
+    from ml.alphazero_lite.forensic_exact_references import validate_v2
+
+    artifact, references = _load_shared_references(reference_artifact_path)
+    if artifact.get("schema") != EXACT_REFERENCE_SCHEMA:
+        raise SystemExit("forensic_exact_reference_provenance_invalid")
+    if validate_v2(artifact, suite_path):
+        raise SystemExit("forensic_exact_reference_provenance_invalid")
+    return artifact, references
+
+
 def _reference_move(reference: dict[str, Any]) -> int | None:
     if reference.get("reference_move") is not None:
         return int(reference["reference_move"])
@@ -473,9 +488,57 @@ def build_row(*, position: ForensicPosition, reference: dict, system: dict) -> d
     return row
 
 
+def apply_exact_top1_reference(row: dict, exact_reference: dict[str, Any]) -> dict:
+    """Apply exact policy classification without changing classic regret metrics."""
+    solved = exact_reference.get("exact_status") == "exact_solved"
+    row["exact_status"] = exact_reference.get("exact_status")
+    row["exact_optimal_actions"] = (
+        exact_reference.get("exact_optimal_actions") if solved else None
+    )
+    if solved:
+        row["top1_reference_kind"] = "exact_optimal_set"
+        row["agrees_top1"] = row["selected_move"] in row["exact_optimal_actions"]
+    else:
+        # Unresolved exact rows intentionally retain the classic MCTS label.
+        row["top1_reference_kind"] = (
+            "classic_mcts_move" if row.get("reference_move") is not None else None
+        )
+    return row
+
+
+def _top1_reference_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    exact_rows = [
+        row for row in rows if row.get("top1_reference_kind") == "exact_optimal_set"
+    ]
+    approximate_rows = [
+        row for row in rows if row.get("top1_reference_kind") == "classic_mcts_move"
+    ]
+
+    def agreement(source_rows: list[dict[str, Any]]) -> float | None:
+        available = [row for row in source_rows if row.get("agrees_top1") is not None]
+        if not available:
+            return None
+        return round(
+            sum(bool(row["agrees_top1"]) for row in available) / len(available), 4
+        )
+
+    available = [row for row in rows if row.get("agrees_top1") is not None]
+    return {
+        "exact_reference_rows": len(exact_rows),
+        "approximate_reference_rows": len(approximate_rows),
+        "top1_unavailable_rows": len(rows) - len(available),
+        "exact_top1_agreement": agreement(exact_rows),
+        "approximate_top1_agreement": agreement(approximate_rows),
+        "combined_hybrid_top1_agreement": agreement(rows),
+    }
+
+
 def main() -> None:
     args = parse_args()
     reference_artifact_path = getattr(args, "reference_artifact", None)
+    exact_top1_reference_artifact_path = getattr(
+        args, "exact_top1_reference_artifact", None
+    )
     suite_path = Path(args.suite)
     out_path = Path(args.out)
     suite = load_suite(suite_path)
@@ -514,6 +577,13 @@ def main() -> None:
             )
             for index, position in enumerate(suite)
         ]
+
+    exact_top1_reference_artifact = None
+    exact_top1_references: dict[str, dict[str, Any]] = {}
+    if exact_top1_reference_artifact_path:
+        exact_top1_reference_artifact, exact_top1_references = (
+            _load_exact_top1_references(exact_top1_reference_artifact_path, suite_path)
+        )
 
     systems = {
         "current": str(Path(args.current_artifact)),
@@ -595,13 +665,16 @@ def main() -> None:
                         args, "exact_solve_value_mode", "wdl"
                     ),
                 )
-            rows.append(
-                build_row(
-                    position=position,
-                    reference=references[index],
-                    system=system,
-                )
+            row = build_row(
+                position=position,
+                reference=references[index],
+                system=system,
             )
+            if exact_top1_reference_artifact is not None:
+                row = apply_exact_top1_reference(
+                    row, exact_top1_references[position.canonical_key]
+                )
+            rows.append(row)
         system_rows[system_name] = rows
 
     report = {
@@ -677,6 +750,37 @@ def main() -> None:
         },
         "buckets": summarize_bucket_matrix(system_rows),
     }
+
+    if exact_top1_reference_artifact is not None:
+        exact_rows = list(exact_top1_references.values())
+        solved_rows = sum(
+            row.get("exact_status") == "exact_solved" for row in exact_rows
+        )
+        report["policy_top1_reference"] = {
+            "mode": "hybrid_exact_optimal_set",
+            "exact_reference_artifact": str(Path(exact_top1_reference_artifact_path)),
+            "exact_reference_sha256": hashlib.sha256(
+                Path(exact_top1_reference_artifact_path).read_bytes()
+            ).hexdigest(),
+            "solved_rows": solved_rows,
+            "unresolved_rows": len(exact_rows) - solved_rows,
+            "unavailable_rows_excluded_from_top1_denominator": True,
+        }
+        report["regret_reference"] = {
+            "mode": "classic_mcts",
+            "policy_simulations": int(args.mcts_simulations),
+            "teacher_simulations": value_reference_simulations,
+        }
+        for system_name, system_summary in report["systems"].items():
+            system_summary["top1_reference_summary"] = _top1_reference_summary(
+                system_rows[system_name]
+            )
+            system_summary["top1_reference_buckets"] = {
+                bucket: _top1_reference_summary(
+                    [row for row in system_rows[system_name] if row["bucket"] == bucket]
+                )
+                for bucket in report["buckets"]
+            }
 
     if reference_artifact_path:
         for system_summary in report["systems"].values():

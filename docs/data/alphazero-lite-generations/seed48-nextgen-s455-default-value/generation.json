@@ -431,6 +431,34 @@
       }
     }
   ],
+  "forensic_policy_evaluation_attempts": [
+    {
+      "classification": "forensic_exact_top1_semantics_removes_seed455_blocker",
+      "policy_identity": "forensic_policy_v2_exact_top1",
+      "search_reused": true,
+      "promotion_decision": "rejected",
+      "report": {
+        "path": "docs/alphazero-lite-seed455-forensic-policy-v2.md",
+        "required": true,
+        "role": "forensic_policy_reclassification",
+        "schema": "markdown",
+        "sha256": "3926eea4be6f08346cb5992e8b77f9096f7ac0eb8a8f8814f255e0505be3e9ee",
+        "size_bytes": 2338
+      },
+      "source_forensic_report": {
+        "path": ".tmp/seed455-exact-root16-canonical/candidate_forensic_suite.json",
+        "sha256": "125634ad5f54ecd5964b4a56c712c843d58d13d96b66e1a1636770cf402da35c"
+      },
+      "exact_reference": {
+        "path": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+        "schema": "azlite_forensic_references_v2",
+        "sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
+        "solved_rows": 213,
+        "unresolved_rows": 11,
+        "sparse_endgame_exact_covered_rows": 24
+      }
+    }
+  ],
   "compute": {
     "training_wall_clock_duration_seconds": 19.8894
   },
