@@ -1277,6 +1277,54 @@ class TrainScriptTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "exact_root_one_hot"):
                 train_module.load_jsonl(data_path, policy_target_mode="sharpened")
 
+    def test_load_jsonl_accepts_uniform_optimal_set_exact_root_target(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            data_path = Path(tmp) / "exact-root-optimal-set-uniform.jsonl"
+            self._write_rows(
+                data_path,
+                [
+                    {
+                        "state": [1.0] * 15,
+                        "policy": [0.0, 0.5, 0.0, 0.0, 0.5, 0.0],
+                        "value": 1.0,
+                        "policy_target_mode": "sharpened",
+                        "policy_target_actual_mode": "exact_root_optimal_set_uniform",
+                        "exact_selected_action": 4,
+                        "exact_optimal_actions": [1, 4],
+                        "exact_action_margins": {"1": 6, "4": 6, "5": 2},
+                    }
+                ],
+            )
+
+            _x, policy, _value = train_module.load_jsonl(
+                data_path, policy_target_mode="sharpened"
+            )
+
+            np.testing.assert_array_equal(
+                policy, np.array([[0.0, 0.5, 0.0, 0.0, 0.5, 0.0]], dtype=np.float32)
+            )
+
+    def test_load_jsonl_rejects_exact_uniform_mass_outside_optimal_set(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            data_path = Path(tmp) / "invalid-exact-root-optimal-set-uniform.jsonl"
+            self._write_rows(
+                data_path,
+                [
+                    {
+                        "state": [1.0] * 15,
+                        "policy": [0.0, 0.4, 0.0, 0.2, 0.4, 0.0],
+                        "value": 1.0,
+                        "policy_target_actual_mode": "exact_root_optimal_set_uniform",
+                        "exact_selected_action": 4,
+                        "exact_optimal_actions": [1, 4],
+                        "exact_action_margins": {"1": 6, "4": 6, "5": 2},
+                    }
+                ],
+            )
+
+            with self.assertRaisesRegex(ValueError, "exact_root_optimal_set_uniform"):
+                train_module.load_jsonl(data_path, policy_target_mode="sharpened")
+
     def test_load_jsonl_rejects_missing_sharpened_value_target_metadata(self):
         with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
             tmp_path = Path(tmp)
