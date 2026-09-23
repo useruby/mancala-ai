@@ -1,6 +1,6 @@
 {
   "schema_version": "azlite_model_v1",
-  "version": "fresh-uniform1200-s48-uniform1200-iter1",
+  "version": "seed48-nextgen-s455-default-value-iter1",
   "game": "kalah",
   "rules_version": "kalah_v1",
   "input_encoding": "kalah_v3",
@@ -65,9 +65,9 @@
   "artifacts": {
     "weights_file": "weights.json",
     "weights_fallback_file": "model.npz",
-    "weights_sha256": "0e00bdc92ec9d363c92580c0115467ffc3bbd332cb1efe97eb5f2d780a4968e6",
-    "weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
+    "weights_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+    "weights_json_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
   },
   "framework": "numpy",
-  "created_at": "2026-09-16T21:45:43.119851+00:00"
+  "created_at": "2026-09-22T08:53:58.866075+00:00"
 }

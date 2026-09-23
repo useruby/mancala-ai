@@ -1,8 +1,8 @@
 {
   "schema": "arena_v1",
   "games_played": 512,
-  "wins": 284,
-  "losses": 190,
+  "wins": 267,
+  "losses": 207,
   "draws": 38,
   "promotion_decision": {
     "passed": true
@@ -63,40 +63,40 @@
     "challenger_root_prior_transform": null,
     "current_root_prior_transform": null,
     "random_opening_plies": 0,
-    "move_time_mean_ms": 23.13,
-    "move_time_p95_ms": 40.0,
+    "move_time_mean_ms": 23.05,
+    "move_time_p95_ms": 39.93,
     "seed_contract": "azlite_eval_seed_v2",
     "base_seed": 42,
-    "suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
-    "seed_identity_ledger_sha256": "f36fae7d981ec286890efc595fc432f24f227a42ca67d1ab5cb1326db5201050",
-    "search_configuration_ledger_sha256": "8ebf8c23ae385a5f983084b51bce48959cd6f063d3661122b50372c3e83c6ae2",
-    "search_outcome_ledger_sha256": "7a6c5dbb608c2d26faf1da8936684863f840de62050d5b1c03b013f5516d62dc",
-    "seed_ledger_hash": "f36fae7d981ec286890efc595fc432f24f227a42ca67d1ab5cb1326db5201050",
-    "seed_ledger_records": 18108,
-    "seed_ledger_output": ".tmp/seed455-exact-root16-canonical/shadow_prefilter_seed_ledger.jsonl",
-    "search_configuration_ledger_output": ".tmp/seed455-exact-root16-canonical/shadow_prefilter_search_configuration_ledger.jsonl",
-    "search_outcome_ledger_output": ".tmp/seed455-exact-root16-canonical/shadow_prefilter_search_outcome_ledger.jsonl",
+    "suite_sha256": "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c",
+    "seed_identity_ledger_sha256": "edc9ab88de7c7a62fc1fe49471892b687355009efc0c100d029da6683b0c9df4",
+    "search_configuration_ledger_sha256": "2e99d3b5af1cac790881f87e40f1405313c70b88803538c7fd07d012dc7cb1bc",
+    "search_outcome_ledger_sha256": "41f60099637a9b75ecfd0cffdb421e34fb9e9c809c550f04f7e6bb830efde016",
+    "seed_ledger_hash": "edc9ab88de7c7a62fc1fe49471892b687355009efc0c100d029da6683b0c9df4",
+    "seed_ledger_records": 18222,
+    "seed_ledger_output": ".tmp/seed455-exact-root16-canonical/shadow_hard_seed_ledger.jsonl",
+    "search_configuration_ledger_output": ".tmp/seed455-exact-root16-canonical/shadow_hard_search_configuration_ledger.jsonl",
+    "search_outcome_ledger_output": ".tmp/seed455-exact-root16-canonical/shadow_hard_search_outcome_ledger.jsonl",
     "exact_solve_stone_threshold": null,
     "exact_solve_value_mode": "wdl",
     "exact_solve_semantics": "network_priors_exact_leaf_value"
   },
   "hard_suite_buckets": {
     "opening": {
-      "games": 7,
+      "games": 12,
       "score": null
     },
     "midgame": {
-      "games": 67,
+      "games": 55,
       "score": null
     },
     "late": {
-      "games": 438,
+      "games": 445,
       "score": null
     }
   },
   "root_prior_telemetry": {
     "challenger": {
-      "root_states_evaluated": 6041,
+      "root_states_evaluated": 5973,
       "activation_count": 0,
       "activation_rate": 0.0,
       "average_mass_shift": null,
@@ -109,7 +109,7 @@
       "top_changed_move_feature_patterns": []
     },
     "current": {
-      "root_states_evaluated": 5649,
+      "root_states_evaluated": 5754,
       "activation_count": 0,
       "activation_rate": 0.0,
       "average_mass_shift": null,
@@ -130,20 +130,20 @@
   },
   "budget_summary": {
     "mean_final_simulations": 384.0,
-    "p95_root_latency_ms": 40.0,
+    "p95_root_latency_ms": 39.93,
     "trigger_counts": {
       "fixed_budget": 512
     }
   },
-  "score": 0.591796875,
+  "score": 0.55859375,
   "games": 512,
   "confidence_interval_95": {
-    "lower": 0.5486924473556584,
-    "upper": 0.6335340345721272,
+    "lower": 0.5153037513621295,
+    "upper": 0.601011024336457,
     "method": "wilson_score",
     "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0."
   },
   "threshold": 0.0,
-  "threshold_margin": 0.591796875,
+  "threshold_margin": 0.55859375,
   "unstable_decision": false
 }

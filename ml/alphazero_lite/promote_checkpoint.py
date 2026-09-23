@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 if __package__ in (None, ""):
@@ -15,6 +17,10 @@ if __package__ in (None, ""):
 from ml.alphazero_lite.report_validation import (
     ArenaReportValidationError,
     validate_arena_report,
+)
+from ml.alphazero_lite.runtime_search_policy import (
+    RuntimeSearchPolicyError,
+    load_runtime_search_policy,
 )
 
 
@@ -40,6 +46,18 @@ def parse_args() -> argparse.Namespace:
         help="Destination directory (repeatable). Defaults to model-artifact/current",
     )
     parser.add_argument("--gate-report")
+    parser.add_argument("--expected-gate-sha256")
+    parser.add_argument("--expected-current-weights-sha256")
+    parser.add_argument("--expected-candidate-weights-sha256")
+    parser.add_argument("--expected-candidate-metadata-sha256")
+    parser.add_argument("--runtime-policy")
+    parser.add_argument("--expected-native-probe-sha256")
+    parser.add_argument("--expected-tablebase-sha256")
+    parser.add_argument("--expected-forensic-reference-sha256")
+    parser.add_argument("--expected-prefilter-evidence-sha256")
+    parser.add_argument("--expected-hard-evidence-sha256")
+    parser.add_argument("--generation-record")
+    parser.add_argument("--require-promotion-ready", action="store_true")
     parser.add_argument(
         "--gate-arena-evidence",
         help="Explicit immutable migration record for a gate written before arena_evidence existed.",
@@ -167,6 +185,166 @@ def arena_evidence_for_gate(
     return arena_path, expected_hash
 
 
+def require_equal(actual: object, expected: object, failure: str) -> None:
+    if expected is not None and actual != expected:
+        raise SystemExit(failure)
+
+
+def validate_runtime_policy(
+    policy_path: Path, gate_report: dict, args: argparse.Namespace
+) -> dict:
+    try:
+        policy = load_runtime_search_policy(policy_path.parent)
+    except RuntimeSearchPolicyError as error:
+        raise SystemExit("seed455_promotion_solver_artifact_missing") from error
+    if policy is None or policy_path.name != "search_policy.json":
+        raise SystemExit("seed455_promotion_runtime_policy_mismatch")
+    expected_policy = gate_report.get("runtime_search_policy")
+    if not isinstance(expected_policy, dict):
+        raise SystemExit("seed455_promotion_runtime_policy_mismatch")
+    gate_to_policy = {
+        "mode": "mode",
+        "exact_root_enabled": "exact_root_enabled",
+        "threshold": "exact_root_threshold",
+        "objective": "exact_root_objective",
+        "tie_rule": "exact_root_tie_rule",
+        "exact_leaf_solve": "exact_leaf_solve",
+        "solver_implementation_identity": "solver_implementation_identity",
+    }
+    if any(
+        expected_policy.get(gate_name) != policy.get(policy_name)
+        for gate_name, policy_name in gate_to_policy.items()
+    ):
+        raise SystemExit("seed455_promotion_runtime_policy_mismatch")
+    require_equal(
+        policy["native_probe"]["sha256"],
+        expected_policy.get("native_probe_sha256"),
+        "seed455_promotion_runtime_policy_mismatch",
+    )
+    require_equal(
+        policy["tablebase"]["sha256"],
+        expected_policy.get("tablebase_sha256"),
+        "seed455_promotion_runtime_policy_mismatch",
+    )
+    require_equal(
+        policy["native_probe"]["sha256"],
+        args.expected_native_probe_sha256,
+        "seed455_promotion_runtime_policy_mismatch",
+    )
+    require_equal(
+        policy["tablebase"]["sha256"],
+        args.expected_tablebase_sha256,
+        "seed455_promotion_runtime_policy_mismatch",
+    )
+    return policy
+
+
+def validate_promotion_contract(
+    *,
+    args: argparse.Namespace,
+    gate_report: dict,
+    gate_report_path: Path,
+    checkpoint_path: Path,
+    targets: list[Path],
+) -> Path | None:
+    require_equal(
+        sha256_file(gate_report_path),
+        args.expected_gate_sha256,
+        "seed455_promotion_gate_identity_mismatch",
+    )
+    identity = candidate_identity(checkpoint_path)
+    require_equal(
+        identity["weights_json_sha256"],
+        args.expected_candidate_weights_sha256,
+        "seed455_promotion_source_target_mismatch",
+    )
+    require_equal(
+        identity["metadata_json_sha256"],
+        args.expected_candidate_metadata_sha256,
+        "seed455_promotion_source_target_mismatch",
+    )
+    if args.expected_current_weights_sha256:
+        for target in targets:
+            current_weights = target / "weights.json"
+            if (
+                not current_weights.is_file()
+                or sha256_file(current_weights) != args.expected_current_weights_sha256
+            ):
+                raise SystemExit("seed455_promotion_current_identity_mismatch")
+    if args.require_promotion_ready:
+        if args.generation_record is None:
+            raise SystemExit("seed455_promotion_gate_identity_mismatch")
+        record = load_json(
+            resolve_repo_path(args.generation_record), description="generation record"
+        )
+        if (
+            record.get("status") != "promotion_ready"
+            or record.get("promotion", {}).get("decision") != "promotion_ready"
+        ):
+            raise SystemExit("seed455_promotion_gate_identity_mismatch")
+    forensic = gate_report.get("forensic_policy")
+    if args.expected_forensic_reference_sha256 and (
+        not isinstance(forensic, dict)
+        or forensic.get("sha256") != args.expected_forensic_reference_sha256
+        or forensic.get("solved_rows") != 213
+        or forensic.get("unresolved_rows") != 11
+        or forensic.get("sparse_endgame_exact_covered_rows") != 24
+    ):
+        raise SystemExit("seed455_promotion_gate_identity_mismatch")
+    evidence = {
+        item.get("role"): item
+        for item in gate_report.get("reused_evidence", [])
+        if isinstance(item, dict)
+    }
+    require_equal(
+        evidence.get("canonical_prefilter", {}).get("sha256"),
+        args.expected_prefilter_evidence_sha256,
+        "seed455_promotion_gate_identity_mismatch",
+    )
+    require_equal(
+        evidence.get("canonical_hard_arena", {}).get("sha256"),
+        args.expected_hard_evidence_sha256,
+        "seed455_promotion_gate_identity_mismatch",
+    )
+    if args.runtime_policy is None:
+        return None
+    policy_path = resolve_repo_path(args.runtime_policy)
+    if not policy_path.is_file():
+        raise SystemExit("seed455_promotion_solver_artifact_missing")
+    validate_runtime_policy(policy_path, gate_report, args)
+    return policy_path
+
+
+def install_target(
+    *,
+    target: Path,
+    checkpoint_path: Path,
+    report_path: Path,
+    policy_path: Path | None,
+) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=f".{target.name}.promote-", dir=target.parent))
+    backup = target.parent / f".{target.name}.previous-{os.getpid()}"
+    try:
+        for filename in ("metadata.json", "weights.json"):
+            shutil.copy2(checkpoint_path / filename, stage / filename)
+        shutil.copy2(report_path, stage / "arena_report.json")
+        if policy_path is not None:
+            shutil.copy2(policy_path, stage / "search_policy.json")
+        if target.exists():
+            os.replace(target, backup)
+        os.replace(stage, target)
+        if backup.exists():
+            shutil.rmtree(backup)
+    except Exception:
+        if not target.exists() and backup.exists():
+            os.replace(backup, target)
+        raise
+    finally:
+        if stage.exists():
+            shutil.rmtree(stage)
+
+
 def main() -> None:
     args = parse_args()
     checkpoint_path = Path(args.checkpoint_path)
@@ -186,7 +364,10 @@ def main() -> None:
         if not gate_report_path.is_file():
             raise SystemExit(f"Missing gate report: {gate_report_path}")
         gate_report = load_json(gate_report_path, description="gate report")
-        if not gate_report.get("passed", False):
+        if (
+            not gate_report.get("passed", False)
+            or gate_report.get("failure_reasons", []) != []
+        ):
             raise SystemExit(f"Gate report did not pass: {gate_report_path}")
         validate_gate_identity(gate_report, checkpoint_path)
         report_path, _ = arena_evidence_for_gate(
@@ -219,17 +400,22 @@ def main() -> None:
     targets_raw = args.target if args.target else ["model-artifact/current"]
     targets = [resolve_repo_path(raw) for raw in targets_raw]
 
+    policy_path = None
+    if args.gate_report:
+        policy_path = validate_promotion_contract(
+            args=args,
+            gate_report=gate_report,
+            gate_report_path=gate_report_path,
+            checkpoint_path=checkpoint_path,
+            targets=targets,
+        )
     for target in targets:
-        target.mkdir(parents=True, exist_ok=True)
-        for entry in target.iterdir():
-            if entry.is_dir():
-                shutil.rmtree(entry)
-            else:
-                entry.unlink()
-
-        for filename in required_files:
-            shutil.copy2(checkpoint_path / filename, target / filename)
-        shutil.copy2(report_path, target / "arena_report.json")
+        install_target(
+            target=target,
+            checkpoint_path=checkpoint_path,
+            report_path=report_path,
+            policy_path=policy_path,
+        )
 
         print(f"Promoted checkpoint from {checkpoint_path} to {target}")
     print(f"MinScore={min_score}")

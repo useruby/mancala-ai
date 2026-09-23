@@ -1,6 +1,22 @@
 {
   "artifacts": [
     {
+      "path": "docs/data/alphazero-lite-seed455-promotion/promotion_receipt.json",
+      "required": true,
+      "role": "promotion_receipt",
+      "schema": "azlite_promotion_receipt_v2",
+      "sha256": "e2f8f08500dec1dbca85e48929739943b71658ea777ee594f3aed84b9dc70d3a",
+      "size_bytes": 3355
+    },
+    {
+      "path": "docs/data/alphazero-lite-seed455-promotion/search_policy.json",
+      "required": true,
+      "role": "incumbent_runtime_search_policy",
+      "schema": "azlite_runtime_search_policy_v1",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "size_bytes": 700
+    },
+    {
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/candidate_regression.json",
       "required": true,
       "role": "candidate_regression",
@@ -1201,7 +1217,7 @@
     "weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
   },
   "promotion": {
-    "decision": "promotion_ready",
+    "decision": "promoted",
     "failure_reasons": [],
     "gate_report": {
       "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
@@ -1211,6 +1227,18 @@
       "schema": "azlite_local_promotion_gate_v1",
       "sha256": "9fc9f8af7525b8657519862078bd94b5a0a3e41440ebe8b88dcc6e43426ac80a",
       "size_bytes": 22257
+    },
+    "receipt": {
+      "path": "docs/data/alphazero-lite-seed455-promotion/promotion_receipt.json",
+      "sha256": "e2f8f08500dec1dbca85e48929739943b71658ea777ee594f3aed84b9dc70d3a"
+    },
+    "incumbent_runtime_search_policy": {
+      "path": "model-artifact/current/search_policy.json",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "mode": "puct_exact_root_hybrid",
+      "threshold": 16,
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
     }
   },
   "provenance_notes": [
@@ -1338,7 +1366,7 @@
     ],
     "status": "complete"
   },
-  "status": "promotion_ready",
+  "status": "promoted",
   "training": {
     "checkpoint_policy": "production_default_best_validation",
     "compute": {

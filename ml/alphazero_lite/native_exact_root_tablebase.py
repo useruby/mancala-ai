@@ -40,6 +40,10 @@ class NativeExactRootTablebase:
         if self.process.poll() is None:
             self.process.terminate()
             self.process.wait(timeout=5)
+        if self.process.stdin is not None and hasattr(self.process.stdin, "close"):
+            self.process.stdin.close()
+        if self.process.stdout is not None and hasattr(self.process.stdout, "close"):
+            self.process.stdout.close()
 
     def __enter__(self) -> NativeExactRootTablebase:
         return self

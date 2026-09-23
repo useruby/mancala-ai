@@ -1,0 +1,599 @@
+{
+  "schema": "azlite_local_promotion_gate_v1",
+  "candidate_path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+  "candidate_identity": {
+    "version": "seed48-nextgen-s455-default-value-iter1",
+    "weights_json_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "metadata_json_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac"
+  },
+  "current_identity": {
+    "version": "fresh-uniform1200-s48-uniform1200-iter1",
+    "weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "metadata_json_sha256": "ce226854584ac2518ddea22caa1f1faa7a2697f8aa96b1ad6d82388b23ca5f51"
+  },
+  "hard_opponent_identity": {
+    "version": "fresh-uniform1200-s48-uniform1200-iter1",
+    "weights_json_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+    "metadata_json_sha256": "ce226854584ac2518ddea22caa1f1faa7a2697f8aa96b1ad6d82388b23ca5f51"
+  },
+  "expected_current_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
+  "expected_candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+  "config_path": null,
+  "current_path": "model-artifact/current",
+  "hard_path": "model-artifact/current",
+  "regression_positions_path": "test/fixtures/ai/superhuman_regression_positions.json",
+  "report_path": ".tmp/seed455-exact-root16-forensic-v2/corrected_local_promotion_gate_v2.json",
+  "regression_report_path": ".tmp/seed455-exact-root16-canonical/candidate_regression_suite.json",
+  "forensic_report_path": ".tmp/seed455-exact-root16-forensic-v2/candidate_forensic_suite.json",
+  "arena_games": 512,
+  "mcts_games": 40,
+  "hard_arena_games": 512,
+  "min_arena_score": 0.55,
+  "hard_min_score": 0.55,
+  "min_arena_games": 512,
+  "min_mcts_games": 40,
+  "require_lossless": false,
+  "max_losses": 0,
+  "max_arena_move_time_mean_ms": 200.0,
+  "max_arena_move_time_p95_ms": 350.0,
+  "skip_mcts_relative_check": false,
+  "require_cumulative_lineage": false,
+  "cumulative_lineage_report_path": null,
+  "dry_run": false,
+  "runtime_search_policy": {
+    "mode": "puct_exact_root_hybrid",
+    "exact_root_enabled": true,
+    "threshold": 16,
+    "objective": "final_score_margin",
+    "tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_leaf_solve": "disabled"
+  },
+  "forensic_policy": {
+    "mode": "hybrid_exact_optimal_set",
+    "artifact": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+    "sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
+    "solved_rows": 213,
+    "unresolved_rows": 11,
+    "sparse_endgame_exact_covered_rows": 24,
+    "approximate_fallback_rows": 11
+  },
+  "mcts_relative_exact_root_policy_applied": false,
+  "mcts_relative_exact_root_policy_reason": "classic_mcts_gate_component_unchanged",
+  "evaluations": [
+    {
+      "id": "candidate_vs_current_arena",
+      "subject": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+      "opponent": "model-artifact/current",
+      "games": 512,
+      "mode": "planned",
+      "report_path": ".tmp/seed455-exact-root16-forensic-v2/candidate_vs_current_arena.json"
+    },
+    {
+      "id": "candidate_vs_hard_arena",
+      "subject": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+      "opponent": "model-artifact/current",
+      "games": 512,
+      "mode": "planned",
+      "report_path": ".tmp/seed455-exact-root16-forensic-v2/candidate_vs_hard_arena.json"
+    },
+    {
+      "id": "candidate_vs_mcts1200",
+      "subject": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+      "opponent": "mcts1200",
+      "games": 40,
+      "mode": "planned",
+      "report_path": ".tmp/seed455-exact-root16-forensic-v2/candidate_vs_mcts1200.json"
+    },
+    {
+      "id": "current_vs_mcts1200",
+      "subject": "model-artifact/current",
+      "opponent": "mcts1200",
+      "games": 40,
+      "mode": "planned",
+      "report_path": ".tmp/seed455-exact-root16-forensic-v2/current_vs_mcts1200.json"
+    },
+    {
+      "id": "candidate_forensic_suite",
+      "report_path": ".tmp/seed455-exact-root16-forensic-v2/candidate_forensic_suite.json",
+      "command": [
+        "/home/alex/Mancala/ai/.venv/bin/python",
+        "ml/alphazero_lite/run_forensic_suite.py",
+        "--suite",
+        "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+        "--current-artifact",
+        "model-artifact/current",
+        "--challenger-artifact",
+        ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+        "--mcts-simulations",
+        "1200",
+        "--teacher-simulations",
+        "1800",
+        "--exact-top1-reference-artifact",
+        "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+        "--exact-root-solve-threshold",
+        "16",
+        "--exact-root-native-probe",
+        ".tmp/kalah_v1_tablebase_build/kalah_v1_tablebase",
+        "--exact-root-tablebase",
+        ".tmp/kalah_v1_21.kvtb",
+        "--out",
+        ".tmp/seed455-exact-root16-forensic-v2/candidate_forensic_suite.json"
+      ],
+      "mode": "planned"
+    }
+  ],
+  "endgame_exact_solve": {
+    "status": "planned_only",
+    "scaffold_only": true,
+    "results_source": "planned_evaluation_metadata_only",
+    "thresholds": [
+      8,
+      10,
+      12
+    ],
+    "results": [],
+    "planned_evaluations": [
+      {
+        "threshold": 8,
+        "status": "planned",
+        "scaffold_only": true,
+        "mode": "planned",
+        "report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_8.json",
+        "candidate_mcts_report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_8_candidate_vs_mcts1200.json",
+        "current_mcts_report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_8_current_vs_mcts1200.json",
+        "candidate_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "8",
+          "--out",
+          ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_8_candidate_vs_mcts1200.json"
+        ],
+        "current_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "model-artifact/current",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "8",
+          "--out",
+          ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_8_current_vs_mcts1200.json"
+        ]
+      },
+      {
+        "threshold": 10,
+        "status": "planned",
+        "scaffold_only": true,
+        "mode": "planned",
+        "report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_10.json",
+        "candidate_mcts_report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_10_candidate_vs_mcts1200.json",
+        "current_mcts_report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_10_current_vs_mcts1200.json",
+        "candidate_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "10",
+          "--out",
+          ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_10_candidate_vs_mcts1200.json"
+        ],
+        "current_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "model-artifact/current",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "10",
+          "--out",
+          ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_10_current_vs_mcts1200.json"
+        ]
+      },
+      {
+        "threshold": 12,
+        "status": "planned",
+        "scaffold_only": true,
+        "mode": "planned",
+        "report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_12.json",
+        "candidate_mcts_report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_12_candidate_vs_mcts1200.json",
+        "current_mcts_report_path": ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_12_current_vs_mcts1200.json",
+        "candidate_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "12",
+          "--out",
+          ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_12_candidate_vs_mcts1200.json"
+        ],
+        "current_mcts_command": [
+          "/home/alex/Mancala/ai/.venv/bin/python",
+          "ml/alphazero_lite/mcts1200_baseline.py",
+          "--challenger-path",
+          "model-artifact/current",
+          "--games",
+          "40",
+          "--exact-solve-enabled",
+          "--exact-solve-stone-threshold",
+          "12",
+          "--out",
+          ".tmp/seed455-exact-root16-forensic-v2/endgame_exact_solve_threshold_12_current_vs_mcts1200.json"
+        ]
+      }
+    ],
+    "recommendation": {
+      "enabled": false,
+      "threshold": null,
+      "reason": "endgame exact solve threshold data is scaffold metadata only until threshold-specific evaluations run"
+    }
+  },
+  "prefilter_mode": "shadow_canonical_equal_budget",
+  "hard_arena_mode": "shadow_canonical_equal_budget",
+  "command_preflight": {
+    "prefilter": [
+      "/home/alex/Mancala/ai/.venv/bin/python",
+      "ml/alphazero_lite/arena.py",
+      "--challenger",
+      ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+      "--current",
+      "model-artifact/current",
+      "--games",
+      "512",
+      "--games-per-opening",
+      "2",
+      "--opening-prefixes-jsonl",
+      "docs/data/alphazero-lite-production-prefilter-calibration-openings-v1.jsonl",
+      "--suite-sha256",
+      "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+      "--challenger-simulations",
+      "384",
+      "--current-simulations",
+      "384",
+      "--exact-root-solve-threshold",
+      "16",
+      "--exact-root-native-probe",
+      ".tmp/kalah_v1_tablebase_build/kalah_v1_tablebase",
+      "--exact-root-tablebase",
+      ".tmp/kalah_v1_21.kvtb",
+      "--game-jsonl",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_prefilter_games.jsonl",
+      "--seed-ledger-output",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_prefilter_seed_ledger.jsonl",
+      "--search-configuration-ledger-output",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_prefilter_search_configuration_ledger.jsonl",
+      "--search-outcome-ledger-output",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_prefilter_search_outcome_ledger.jsonl",
+      "--min-score",
+      "0.0",
+      "--out",
+      ".tmp/seed455-exact-root16-forensic-v2/candidate_vs_current_arena.json"
+    ],
+    "hard": [
+      "/home/alex/Mancala/ai/.venv/bin/python",
+      "ml/alphazero_lite/arena.py",
+      "--challenger",
+      ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+      "--current",
+      "model-artifact/current",
+      "--games",
+      "512",
+      "--games-per-opening",
+      "2",
+      "--opening-prefixes-jsonl",
+      "docs/data/alphazero-lite-uniform1200-incumbent-holdout-openings-v1.jsonl",
+      "--suite-sha256",
+      "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c",
+      "--challenger-simulations",
+      "384",
+      "--current-simulations",
+      "384",
+      "--exact-root-solve-threshold",
+      "16",
+      "--exact-root-native-probe",
+      ".tmp/kalah_v1_tablebase_build/kalah_v1_tablebase",
+      "--exact-root-tablebase",
+      ".tmp/kalah_v1_21.kvtb",
+      "--game-jsonl",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_hard_games.jsonl",
+      "--seed-ledger-output",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_hard_seed_ledger.jsonl",
+      "--search-configuration-ledger-output",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_hard_search_configuration_ledger.jsonl",
+      "--search-outcome-ledger-output",
+      ".tmp/seed455-exact-root16-forensic-v2/shadow_hard_search_outcome_ledger.jsonl",
+      "--min-score",
+      "0.0",
+      "--out",
+      ".tmp/seed455-exact-root16-forensic-v2/candidate_vs_hard_arena.json"
+    ],
+    "forensic": [
+      "/home/alex/Mancala/ai/.venv/bin/python",
+      "ml/alphazero_lite/run_forensic_suite.py",
+      "--suite",
+      "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+      "--current-artifact",
+      "model-artifact/current",
+      "--challenger-artifact",
+      ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+      "--mcts-simulations",
+      "1200",
+      "--teacher-simulations",
+      "1800",
+      "--exact-top1-reference-artifact",
+      "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+      "--exact-root-solve-threshold",
+      "16",
+      "--exact-root-native-probe",
+      ".tmp/kalah_v1_tablebase_build/kalah_v1_tablebase",
+      "--exact-root-tablebase",
+      ".tmp/kalah_v1_21.kvtb",
+      "--out",
+      ".tmp/seed455-exact-root16-forensic-v2/candidate_forensic_suite.json"
+    ],
+    "regression": [
+      "/home/alex/Mancala/ai/.venv/bin/python",
+      "script/ai/check_superhuman_regressions",
+      "--artifact",
+      ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+      "--positions",
+      "test/fixtures/ai/superhuman_regression_positions.json",
+      "--exact-root-solve-threshold",
+      "16",
+      "--exact-root-native-probe",
+      ".tmp/kalah_v1_tablebase_build/kalah_v1_tablebase",
+      "--exact-root-tablebase",
+      ".tmp/kalah_v1_21.kvtb"
+    ],
+    "mcts_relative_exact_root_policy_applied": false
+  },
+  "exact_root_handoff": {
+    "status": "enabled",
+    "runtime_search_policy": {
+      "mode": "puct_exact_root_hybrid",
+      "exact_root_enabled": true,
+      "threshold": 16,
+      "objective": "final_score_margin",
+      "tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_leaf_solve": "disabled"
+    }
+  },
+  "arena_evidence": {
+    "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
+    "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae"
+  },
+  "arena_report_path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
+  "hard_report_path": ".tmp/seed455-exact-root16-canonical/candidate_vs_hard_arena.json",
+  "candidate_mcts_report_path": ".tmp/seed455-exact-root16-canonical/candidate_vs_mcts1200.json",
+  "current_mcts_report_path": ".tmp/seed455-exact-root16-canonical/current_vs_mcts1200.json",
+  "arena_score": 0.5918,
+  "hard_score": 0.5586,
+  "arena_losses": 190,
+  "candidate_mcts_score": 0.6625,
+  "current_mcts_score": 0.6625,
+  "dynamic_budget": {
+    "candidate_mean_final_simulations": 1151.53,
+    "candidate_mean_root_latency_ms": 41.69,
+    "current_mean_final_simulations": 1151.53,
+    "current_mean_root_latency_ms": 42.31,
+    "arena_trigger_counts": {
+      "fixed_budget": 512
+    },
+    "dynamic_budget_comparison": null,
+    "opening_cache_summary": {
+      "runtime_hit_rate": null,
+      "training_hit_rate": null,
+      "opening_bucket_quality_delta": null,
+      "latency_delta_ms": null
+    }
+  },
+  "hard_suite_buckets": {
+    "opening": {
+      "games": 12,
+      "score": null
+    },
+    "midgame": {
+      "games": 55,
+      "score": null
+    },
+    "late": {
+      "games": 445,
+      "score": null
+    }
+  },
+  "forensic_quality": {
+    "passed": true,
+    "overall": {
+      "top1_agreement": {
+        "challenger": 0.7321,
+        "current": 0.692,
+        "delta": 0.0401,
+        "threshold": -0.02,
+        "passed": true
+      },
+      "average_regret": {
+        "challenger": 0.0789,
+        "current": 0.0793,
+        "delta": -0.0004,
+        "threshold": 0.02,
+        "passed": true
+      },
+      "blunder_rate": {
+        "challenger": 0.4732,
+        "current": 0.4643,
+        "delta": 0.0089,
+        "threshold": 0.01,
+        "passed": true
+      },
+      "passed": true
+    },
+    "critical_buckets": {
+      "sparse_endgame": {
+        "top1_agreement": {
+          "challenger": 1.0,
+          "current": 1.0,
+          "delta": 0.0,
+          "threshold": -0.03,
+          "passed": true
+        },
+        "average_regret": {
+          "challenger": 0.1087,
+          "current": 0.1087,
+          "delta": 0.0,
+          "threshold": 0.03,
+          "passed": true
+        },
+        "blunder_rate": {
+          "challenger": 0.2917,
+          "current": 0.2917,
+          "delta": 0.0,
+          "threshold": 0.02,
+          "passed": true
+        },
+        "passed": true
+      },
+      "capture_available": {
+        "top1_agreement": {
+          "challenger": 0.7083,
+          "current": 0.5,
+          "delta": 0.2083,
+          "threshold": -0.03,
+          "passed": true
+        },
+        "average_regret": {
+          "challenger": 0.029,
+          "current": 0.057,
+          "delta": -0.028,
+          "threshold": 0.03,
+          "passed": true
+        },
+        "blunder_rate": {
+          "challenger": 0.5,
+          "current": 0.5833,
+          "delta": -0.0833,
+          "threshold": 0.02,
+          "passed": true
+        },
+        "passed": true
+      }
+    },
+    "failure_reasons": []
+  },
+  "cumulative_lineage": null,
+  "lossless_passed": false,
+  "passed": true,
+  "failure_reasons": [],
+  "dynamic_budget_recommendation": {
+    "decision": "tune",
+    "reason": "promotion safety passed, but dynamic budget evidence is incomplete or mixed",
+    "evidence": {
+      "promotion_safety_passed": true,
+      "arena_score": 0.5918,
+      "candidate_mcts_score": 0.6625,
+      "current_mcts_score": 0.6625,
+      "dynamic_budget": {
+        "candidate_mean_final_simulations": 1151.53,
+        "candidate_mean_root_latency_ms": 41.69,
+        "current_mean_final_simulations": 1151.53,
+        "current_mean_root_latency_ms": 42.31,
+        "arena_trigger_counts": {
+          "fixed_budget": 512
+        },
+        "dynamic_budget_comparison": null,
+        "opening_cache_summary": {
+          "runtime_hit_rate": null,
+          "training_hit_rate": null,
+          "opening_bucket_quality_delta": null,
+          "latency_delta_ms": null
+        }
+      },
+      "failure_reasons": []
+    }
+  },
+  "opening_cache_recommendation": {
+    "decision": "tune",
+    "reason": "opening memoization runtime evidence is unavailable, so promotion odds impact is still unclear",
+    "evidence": {
+      "opening_cache_summary": {
+        "runtime_hit_rate": null,
+        "training_hit_rate": null,
+        "opening_bucket_quality_delta": null,
+        "latency_delta_ms": null
+      }
+    }
+  },
+  "reused_evidence": [
+    {
+      "role": "canonical_prefilter",
+      "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
+      "schema": "arena_v1",
+      "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae",
+      "size_bytes": 5195
+    },
+    {
+      "role": "canonical_hard_arena",
+      "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_hard_arena.json",
+      "schema": "arena_v1",
+      "sha256": "8ddff32bcfa796168236c73355d324a570ea7ce867634ac845cadded6ec834fb",
+      "size_bytes": 5180
+    },
+    {
+      "role": "candidate_mcts_relative",
+      "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_mcts1200.json",
+      "schema": "azlite_vs_mcts_v1",
+      "sha256": "933861550384435c032bc6fdf59b28c74998accfc14bc0bd45caf37851e55e50",
+      "size_bytes": 1756
+    },
+    {
+      "role": "current_mcts_relative",
+      "path": ".tmp/seed455-exact-root16-canonical/current_vs_mcts1200.json",
+      "schema": "azlite_vs_mcts_v1",
+      "sha256": "e549d7e6ad064ee4a07e2d3c5c19dc8877fee518dde5a7e87221618c0c093dfe",
+      "size_bytes": 1756
+    },
+    {
+      "role": "regression",
+      "path": ".tmp/seed455-exact-root16-canonical/candidate_regression_suite.json",
+      "schema": "regression_v1",
+      "sha256": "bd6077cca75a9b15cae77b0a24ed520b5a0c9aee00b7056d9efcee4dd4909350",
+      "size_bytes": 16020
+    },
+    {
+      "role": "corrected_forensic",
+      "path": ".tmp/seed455-exact-root16-forensic-v2/candidate_forensic_suite.json",
+      "schema": "azlite_forensic_suite_v1",
+      "sha256": "65c13085989a93df8f7db1ded46e1acff10b34a689633f23cf1b3611b91ba346",
+      "size_bytes": 934779
+    }
+  ],
+  "execution_accounting": {
+    "canonical_arena_commands_executed": 0,
+    "hard_arena_commands_executed": 0,
+    "training_commands_executed": 0,
+    "self_play_games_executed": 0
+  },
+  "shadow_classification": "seed455_exact_root16_forensic_v2_full_gate_passed"
+}

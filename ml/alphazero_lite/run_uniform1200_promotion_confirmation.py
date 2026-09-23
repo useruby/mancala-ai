@@ -26,9 +26,9 @@ EXPECTED_CANDIDATE_SHA256 = (
     "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c"
 )
 EXPECTED_CURRENT_SHA256 = (
-    "8d70e90a684caf946ab3f3e5d81a24e65be939b5be932930c389945fd9bb4e7a"
+    "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
 )
-EXPECTED_CURRENT_VERSION = "azlite-balanced-w8s4-policy-head-e1"
+EXPECTED_CURRENT_VERSION = "seed48-nextgen-s455-default-value-iter1"
 SHADOW_THRESHOLDS = {
     "overall": {"accuracy": -0.02, "regret": 0.02, "blunder": 0.01},
     "capture_available": {"accuracy": -0.03, "regret": 0.03, "blunder": 0.02},
