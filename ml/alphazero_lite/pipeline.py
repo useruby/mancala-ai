@@ -206,6 +206,19 @@ def build_step_command(
     )
 
 
+def inherit_parent_runtime_search_policy(
+    command: list[str], *, step: dict, parent_model_dir: Path, enabled: bool
+) -> list[str]:
+    """Pass the actual parent artifact to self-play without hard-coding a policy."""
+    if not enabled or step.get("name") != "self_play":
+        return command
+    if "--runtime-search-policy-artifact" in command:
+        raise SystemExit(
+            "inherit_parent_runtime_search_policy cannot be combined with an explicit runtime policy artifact"
+        )
+    return [*command, "--runtime-search-policy-artifact", str(parent_model_dir)]
+
+
 def has_explicit_value_trust_flag(command: list[str]) -> bool:
     explicit_value_trust_flags = (
         "--value-trust-enabled",
@@ -651,6 +664,7 @@ def run_step(
     memory_speed_profile: str | None = None,
     preserve_config_workers: bool = False,
     hard_state_validation_path: str = "",
+    inherit_parent_runtime_policy: bool = False,
 ) -> dict:
     name = step.get("name", "unnamed_step")
     command = build_step_command(
@@ -677,6 +691,12 @@ def run_step(
         replay_data=replay_data,
         replay_weights=replay_weights,
         hard_state_validation_path=hard_state_validation_path,
+    )
+    rendered = inherit_parent_runtime_search_policy(
+        rendered,
+        step=step,
+        parent_model_dir=parent_model_dir,
+        enabled=inherit_parent_runtime_policy,
     )
     rendered = resolve_step_command(rendered, repo_root=repo_root)
     started = time.time()
@@ -718,6 +738,7 @@ def build_planned_step_result(
     memory_speed_profile: str | None = None,
     preserve_config_workers: bool = False,
     hard_state_validation_path: str = "",
+    inherit_parent_runtime_policy: bool = False,
 ) -> dict:
     name = step.get("name", "unnamed_step")
     if step.get("skip_before_final_iteration") and iteration < final_iteration:
@@ -751,6 +772,12 @@ def build_planned_step_result(
         replay_data=replay_data,
         replay_weights=replay_weights,
         hard_state_validation_path=hard_state_validation_path,
+    )
+    rendered = inherit_parent_runtime_search_policy(
+        rendered,
+        step=step,
+        parent_model_dir=parent_model_dir,
+        enabled=inherit_parent_runtime_policy,
     )
     rendered = resolve_step_command(rendered, repo_root=repo_root)
     return {
@@ -965,6 +992,9 @@ def main() -> None:
     gates = config.get("gates", {})
     memory_speed_profile = config.get("memory_speed_profile")
     preserve_config_workers = bool(config.get("preserve_config_workers", False))
+    inherit_parent_runtime_policy = bool(
+        config.get("inherit_parent_runtime_search_policy", False)
+    )
     replay_window = max(1, int(config.get("replay_window", 1)))
     include_current_iteration = has_self_play_step(steps)
     validate_pipeline_step_config(steps)
@@ -1061,17 +1091,29 @@ def main() -> None:
         else:
             parent_weights = parent_model_dir / "weights.json"
             parent_metadata = parent_model_dir / "metadata.json"
+            parent = {
+                "version": json.loads(parent_metadata.read_text(encoding="utf-8")).get(
+                    "version", parent_model_dir.name
+                )
+                if parent_metadata.is_file()
+                else parent_model_dir.name,
+                "weights_sha256": artifact_ref("parent_weights", parent_weights).get(
+                    "sha256"
+                ),
+                "metadata_sha256": artifact_ref("parent_metadata", parent_metadata).get(
+                    "sha256"
+                ),
+            }
+            if inherit_parent_runtime_policy:
+                parent["runtime_search_policy"] = artifact_ref(
+                    "parent_runtime_search_policy",
+                    parent_model_dir / "search_policy.json",
+                    schema="azlite_runtime_search_policy_v1",
+                    required=True,
+                )
             generation_record = new_record(
                 generation_id=f"{run_id}-iter{iteration}",
-                parent={
-                    "version": parent_model_dir.name,
-                    "weights_sha256": artifact_ref(
-                        "parent_weights", parent_weights
-                    ).get("sha256"),
-                    "metadata_sha256": artifact_ref(
-                        "parent_metadata", parent_metadata
-                    ).get("sha256"),
-                },
+                parent=parent,
                 notes=[
                     "Created by pipeline.py; azlite_run_manifest_v1 remains the execution log."
                 ],
@@ -1109,6 +1151,7 @@ def main() -> None:
                     memory_speed_profile=memory_speed_profile,
                     preserve_config_workers=preserve_config_workers,
                     hard_state_validation_path=hard_state_validation_path,
+                    inherit_parent_runtime_policy=inherit_parent_runtime_policy,
                 )
                 manifest["steps"].append(step_result)
                 generation_record = record_pipeline_step(generation_record, step_result)
@@ -1157,6 +1200,7 @@ def main() -> None:
                     memory_speed_profile=memory_speed_profile,
                     preserve_config_workers=preserve_config_workers,
                     hard_state_validation_path=hard_state_validation_path,
+                    inherit_parent_runtime_policy=inherit_parent_runtime_policy,
                 )
                 manifest["steps"].append(step_result)
                 generation_record = record_pipeline_step(generation_record, step_result)
