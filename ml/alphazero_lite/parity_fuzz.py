@@ -50,13 +50,13 @@ def parse_args() -> argparse.Namespace:
 
 def generate_python_trace(rng: random.Random, max_moves: int) -> dict:
     game = KalahGame.from_state(
-      {
-          "player_pits": [4, 4, 4, 4, 4, 4],
-          "opponent_pits": [4, 4, 4, 4, 4, 4],
-          "player_store": 0,
-          "opponent_store": 0,
-          "current_player": 0,
-      }
+        {
+            "player_pits": [4, 4, 4, 4, 4, 4],
+            "opponent_pits": [4, 4, 4, 4, 4, 4],
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
     )
     moves = []
     steps = []
@@ -100,7 +100,9 @@ def generate_python_trace(rng: random.Random, max_moves: int) -> dict:
 
 def ruby_trace_for(initial_state: dict, moves: list[int]) -> list[dict]:
     payload = {"initial_state": initial_state, "moves": moves}
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as handle:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False, encoding="utf-8"
+    ) as handle:
         json.dump(payload, handle)
         payload_path = handle.name
 
@@ -139,7 +141,9 @@ def main() -> None:
             )
             continue
 
-        for step_index, (py_step, rb_step) in enumerate(zip(python_steps, ruby_steps, strict=True)):
+        for step_index, (py_step, rb_step) in enumerate(
+            zip(python_steps, ruby_steps, strict=True)
+        ):
             if py_step != rb_step:
                 mismatches.append(
                     {
@@ -166,7 +170,9 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"wrote parity fuzz report to {out_path}")
-    print(f"parity_passed={report['parity_passed']} mismatch_count={report['mismatch_count']}")
+    print(
+        f"parity_passed={report['parity_passed']} mismatch_count={report['mismatch_count']}"
+    )
 
 
 if __name__ == "__main__":
