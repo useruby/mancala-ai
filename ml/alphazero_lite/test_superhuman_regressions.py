@@ -37,6 +37,73 @@ class SuperhumanRegressionsTest(unittest.TestCase):
         self.assertTrue(results[0]["passed"])
         self.assertEqual(384, evaluate_position.call_args.kwargs["simulations"])
 
+    def test_evaluate_regression_positions_reuses_warmed_exact_root_tablebase(self):
+        positions = [
+            {"id": f"position-{index}", "state": {}, "expected_move": 1}
+            for index in range(2)
+        ]
+        tablebase = mock.MagicMock()
+        tablebase.__enter__.return_value = tablebase
+
+        with (
+            mock.patch(
+                "ml.alphazero_lite.superhuman_regressions.NativeExactRootTablebase",
+                return_value=tablebase,
+            ) as native_tablebase,
+            mock.patch(
+                "ml.alphazero_lite.superhuman_regressions.arena.evaluate_artifact_position",
+                return_value={"selected_move": 1},
+            ) as evaluate_position,
+        ):
+            results = superhuman_regressions.evaluate_regression_positions(
+                positions=positions,
+                artifact_path="candidate-artifact",
+                simulations=384,
+                seed=17,
+                c_puct=1.25,
+                exact_root_solve_threshold=16,
+                exact_root_native_probe="native_probe",
+                exact_root_tablebase="tablebase.kvtb",
+            )
+
+        self.assertEqual(2, len(results))
+        native_tablebase.assert_called_once_with(
+            "native_probe", "tablebase.kvtb", warm_on_start=True
+        )
+        self.assertEqual(2, evaluate_position.call_count)
+        for call in evaluate_position.call_args_list:
+            self.assertIs(tablebase, call.kwargs["endgame_tablebase"])
+            self.assertEqual(16, call.kwargs["exact_root_solve_threshold"])
+
+    def test_evaluate_regression_positions_validates_exact_root_handoff(self):
+        common = {
+            "positions": [],
+            "artifact_path": "candidate-artifact",
+            "simulations": 384,
+            "seed": 17,
+            "c_puct": 1.25,
+        }
+
+        with self.assertRaisesRegex(ValueError, "must be supplied together"):
+            superhuman_regressions.evaluate_regression_positions(
+                **common, exact_root_native_probe="native_probe"
+            )
+        with self.assertRaisesRegex(ValueError, "must equal"):
+            superhuman_regressions.evaluate_regression_positions(
+                **common,
+                exact_root_solve_threshold=15,
+                exact_root_native_probe="native_probe",
+                exact_root_tablebase="tablebase.kvtb",
+            )
+        with self.assertRaisesRegex(ValueError, "cannot be combined"):
+            superhuman_regressions.evaluate_regression_positions(
+                **common,
+                exact_solve_stone_threshold=16,
+                exact_root_solve_threshold=16,
+                exact_root_native_probe="native_probe",
+                exact_root_tablebase="tablebase.kvtb",
+            )
+
     def test_load_regression_positions_reads_fixture(self):
         fixture_path = (
             Path(__file__).resolve().parents[2]

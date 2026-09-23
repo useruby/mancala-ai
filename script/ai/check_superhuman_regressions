@@ -52,6 +52,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--root-policy-mode")
     parser.add_argument("--tactical-root-bias", type=float)
+    parser.add_argument("--exact-root-solve-threshold", type=int)
+    parser.add_argument("--exact-root-native-probe", type=Path)
+    parser.add_argument("--exact-root-tablebase", type=Path)
     return parser
 
 
@@ -109,6 +112,9 @@ def main(argv: list[str] | None = None) -> int:
             if overrides
             else None
         ),
+        exact_root_solve_threshold=args.exact_root_solve_threshold,
+        exact_root_native_probe=args.exact_root_native_probe,
+        exact_root_tablebase=args.exact_root_tablebase,
     )
     payload = superhuman_regressions.build_regression_report(
         artifact_path=args.artifact,

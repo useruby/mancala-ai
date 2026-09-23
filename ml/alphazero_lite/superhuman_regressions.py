@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 
 from ml.alphazero_lite import arena
+from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
 
 DEFAULT_SIMULATIONS = 384
 
@@ -37,19 +39,30 @@ def evaluate_regression_position(
     seed: int,
     c_puct: float,
     search_options: dict | None = None,
+    endgame_tablebase: object | None = None,
+    exact_solve_stone_threshold: int | None = None,
+    exact_root_solve_threshold: int | None = None,
 ) -> dict:
     effective_simulations = (
         DEFAULT_SIMULATIONS if simulations is None else int(simulations)
     )
-    summary = arena.evaluate_artifact_position(
-        artifact_path=artifact_path,
-        state=position["state"],
-        simulations=effective_simulations,
-        seed=seed,
-        c_puct=c_puct,
-        search_options=build_search_options()
+    evaluation_kwargs = {
+        "artifact_path": artifact_path,
+        "state": position["state"],
+        "simulations": effective_simulations,
+        "seed": seed,
+        "c_puct": c_puct,
+        "search_options": build_search_options()
         if search_options is None
         else dict(search_options),
+    }
+    if exact_root_solve_threshold is not None:
+        evaluation_kwargs.update(
+            endgame_tablebase=endgame_tablebase,
+            exact_root_solve_threshold=exact_root_solve_threshold,
+        )
+    summary = arena.evaluate_artifact_position(
+        **evaluation_kwargs,
     )
     expected_move = int(position["expected_move"])
     acceptable_moves = [int(move) for move in position.get("acceptable_moves", [])]
@@ -76,7 +89,44 @@ def evaluate_regression_positions(
     seed: int,
     c_puct: float,
     search_options: dict | None = None,
+    exact_solve_stone_threshold: int | None = None,
+    exact_root_solve_threshold: int | None = None,
+    exact_root_native_probe: str | Path | None = None,
+    exact_root_tablebase: str | Path | None = None,
 ) -> list[dict]:
+    if (exact_root_native_probe is None) != (exact_root_tablebase is None):
+        raise ValueError(
+            "exact_root_native_probe and exact_root_tablebase must be supplied together"
+        )
+    if exact_root_solve_threshold is not None:
+        if exact_root_solve_threshold != EndgameTablebase.MAX_SOLVED_SEEDS:
+            raise ValueError(
+                "exact_root_solve_threshold must equal EndgameTablebase.MAX_SOLVED_SEEDS"
+            )
+        if exact_solve_stone_threshold is not None:
+            raise ValueError(
+                "exact root handoff and exact leaf solving cannot be combined"
+            )
+        if exact_root_native_probe is None:
+            raise ValueError("exact root handoff requires native probe and tablebase")
+
+        with NativeExactRootTablebase(
+            exact_root_native_probe, exact_root_tablebase, warm_on_start=True
+        ) as native_root_tablebase:
+            return [
+                evaluate_regression_position(
+                    position=position,
+                    artifact_path=artifact_path,
+                    simulations=simulations,
+                    seed=seed,
+                    c_puct=c_puct,
+                    search_options=search_options,
+                    endgame_tablebase=native_root_tablebase,
+                    exact_root_solve_threshold=exact_root_solve_threshold,
+                )
+                for position in positions
+            ]
+
     return [
         evaluate_regression_position(
             position=position,
