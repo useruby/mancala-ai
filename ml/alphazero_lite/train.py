@@ -24,6 +24,11 @@ from ml.alphazero_lite.input_encodings import (
     feature_count_for,
 )
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.exact_root_policy_targets import (
+    EXACT_ROOT_ONE_HOT_POLICY_TARGET_MODE,
+    EXACT_ROOT_OPTIMAL_SET_UNIFORM_POLICY_TARGET_MODE,
+    validate_exact_root_metadata,
+)
 
 
 POLICY_SIZE = 6
@@ -56,7 +61,6 @@ SUPPORTED_TRAINABLE_SCOPES = [
     "policy_detached_trunk",
 ]
 DEFAULT_POLICY_TARGET_MODE = "default"
-EXACT_ROOT_ONE_HOT_POLICY_TARGET_MODE = "exact_root_one_hot"
 SUPPORTED_POLICY_TARGET_MODES = [DEFAULT_POLICY_TARGET_MODE, "sharpened"]
 DEFAULT_VALUE_TARGET_MODE = "default"
 PHASE_AWARE_VALUE_TARGET_MODE = "phase_aware_sharpened"
@@ -183,6 +187,7 @@ def validate_policy_target(
     row_number: int,
     policy_target_mode: str,
     declared_mode: str | None,
+    row: dict[str, object] | None = None,
 ) -> None:
     if policy.shape != (POLICY_SIZE,):
         raise ValueError(f"{path}:{row_number} policy must contain {POLICY_SIZE} moves")
@@ -229,6 +234,21 @@ def validate_policy_target(
         ):
             raise ValueError(
                 f"{path}:{row_number} exact_root_one_hot policy must select one legal move"
+            )
+        return
+
+    if declared_mode == EXACT_ROOT_OPTIMAL_SET_UNIFORM_POLICY_TARGET_MODE:
+        if row is None:
+            raise ValueError(f"{path}:{row_number} exact-root row metadata is required")
+        try:
+            _selected, optimal = validate_exact_root_metadata(row)
+        except ValueError as error:
+            raise ValueError(f"{path}:{row_number} {error}") from error
+        expected = np.zeros((POLICY_SIZE,), dtype=np.float32)
+        expected[optimal] = 1.0 / len(optimal)
+        if not np.allclose(policy, expected, atol=1e-6):
+            raise ValueError(
+                f"{path}:{row_number} exact_root_optimal_set_uniform policy must distribute mass uniformly over exact-optimal moves"
             )
         return
 
@@ -333,6 +353,7 @@ def load_jsonl(
                 row_number=row_number,
                 policy_target_mode=policy_target_mode,
                 declared_mode=declared_policy_target_mode_for_row(row),
+                row=row,
             )
             validate_value_target_mode(
                 path=path,

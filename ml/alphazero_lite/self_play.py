@@ -28,6 +28,13 @@ from ml.alphazero_lite.input_encodings import (
 )
 from ml.alphazero_lite.eval_cache import EvalCache
 from ml.alphazero_lite.endgame_tablebase import EndgameTablebaseContract
+from ml.alphazero_lite.exact_root_policy_targets import (
+    SELECTED_ONE_HOT,
+    SUPPORTED_EXACT_ROOT_POLICY_TARGET_MODES,
+    exact_root_actual_policy_target_mode,
+    exact_root_policy_target,
+    normalize_exact_root_policy_target_mode,
+)
 from ml.alphazero_lite.exact_root_decision import (
     exact_root_decision,
     exact_root_profile_fields,
@@ -84,6 +91,7 @@ DEFAULT_EVAL_SEARCH_OPTIONS = {
 }
 DEFAULT_POLICY_TARGET_MODE = "default"
 SUPPORTED_POLICY_TARGET_MODES = frozenset({DEFAULT_POLICY_TARGET_MODE, "sharpened"})
+DEFAULT_EXACT_ROOT_POLICY_TARGET_MODE = SELECTED_ONE_HOT
 DEFAULT_POLICY_TARGET_NOISE_MODE = "noisy"
 SUPPORTED_POLICY_TARGET_NOISE_MODES = frozenset(
     {DEFAULT_POLICY_TARGET_NOISE_MODE, "denoised"}
@@ -2818,6 +2826,12 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_POLICY_TARGET_MODE,
     )
     parser.add_argument(
+        "--exact-root-policy-target-mode",
+        choices=sorted(SUPPORTED_EXACT_ROOT_POLICY_TARGET_MODES),
+        default=DEFAULT_EXACT_ROOT_POLICY_TARGET_MODE,
+        help="Training target for exact-root rows; gameplay keeps the runtime tie rule",
+    )
+    parser.add_argument(
         "--policy-target-noise-mode",
         choices=sorted(SUPPORTED_POLICY_TARGET_NOISE_MODES),
         default=DEFAULT_POLICY_TARGET_NOISE_MODE,
@@ -2948,6 +2962,7 @@ def run_self_play_worker(
     root_policy_mode: str = DEFAULT_SEARCH_OPTIONS["root_policy_mode"],
     tactical_root_bias: float = DEFAULT_SEARCH_OPTIONS["tactical_root_bias"],
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
+    exact_root_policy_target_mode: str = DEFAULT_EXACT_ROOT_POLICY_TARGET_MODE,
     policy_target_noise_mode: str = DEFAULT_POLICY_TARGET_NOISE_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
     write_root_target_telemetry: bool = False,
@@ -2965,6 +2980,9 @@ def run_self_play_worker(
 ) -> dict:
     shard = Path(shard_path)
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
+    exact_root_policy_target_mode = normalize_exact_root_policy_target_mode(
+        exact_root_policy_target_mode
+    )
     policy_target_noise_mode = normalize_policy_target_noise_mode(
         policy_target_noise_mode
     )
@@ -3282,11 +3300,19 @@ def run_self_play_worker(
                             skipped_puct_simulations += 2 * effective_simulations
                             exact_solver_calls += decision.solver_calls
                             native_solve_time_ms += decision.root_latency_ms
-                            exact_policy = [0.0] * PITS_PER_PLAYER
-                            exact_policy[decision.selected_move] = 1.0
+                            gameplay_exact_policy = exact_root_policy_target(
+                                selected_action=decision.selected_move,
+                                optimal_actions=decision.optimal_moves,
+                                mode=SELECTED_ONE_HOT,
+                            )
+                            exact_policy_target = exact_root_policy_target(
+                                selected_action=decision.selected_move,
+                                optimal_actions=decision.optimal_moves,
+                                mode=exact_root_policy_target_mode,
+                            )
                             metadata = root_target_metadata(
                                 legal_moves=legal_moves,
-                                stored_policy_target=exact_policy,
+                                stored_policy_target=exact_policy_target,
                                 simulations_used=0,
                                 dirichlet_alpha_used=0.0,
                                 sampling_dirichlet_epsilon=0.0,
@@ -3295,7 +3321,9 @@ def run_self_play_worker(
                             )
                             metadata.update(
                                 {
-                                    "policy_target_actual_mode": "exact_root_one_hot",
+                                    "policy_target_actual_mode": exact_root_actual_policy_target_mode(
+                                        exact_root_policy_target_mode
+                                    ),
                                     "teacher_source": "exact_root_tablebase",
                                     "active_pit_stones": decision.active_pit_stones,
                                     "exact_action_margins": decision.action_margins,
@@ -3316,7 +3344,13 @@ def run_self_play_worker(
                                     "puct_simulations_executed": 0,
                                 }
                             )
-                            return exact_policy, exact_policy, 0.0, None, metadata
+                            return (
+                                gameplay_exact_policy,
+                                exact_policy_target,
+                                0.0,
+                                None,
+                                metadata,
+                            )
 
                     puct_kwargs = {}
                     if "value_trust_schedule" in normalized_search_options:
@@ -3765,6 +3799,7 @@ def main() -> None:
                     "root_policy_mode": str(search_options["root_policy_mode"]),
                     "tactical_root_bias": float(search_options["tactical_root_bias"]),
                     "policy_target_mode": args.policy_target_mode,
+                    "exact_root_policy_target_mode": args.exact_root_policy_target_mode,
                     "policy_target_noise_mode": args.policy_target_noise_mode,
                     "value_target_mode": args.value_target_mode,
                     "write_root_target_telemetry": args.write_root_target_telemetry,
