@@ -54,6 +54,17 @@ def evaluate_regression_positions(**kwargs):
             \"c_puct\": kwargs[\"c_puct\"],
             \"evaluate_search_options\": kwargs[\"search_options\"],
             \"positions\": kwargs[\"positions\"],
+            \"exact_root_solve_threshold\": kwargs[\"exact_root_solve_threshold\"],
+            \"exact_root_native_probe\": (
+                None
+                if kwargs[\"exact_root_native_probe\"] is None
+                else str(kwargs[\"exact_root_native_probe\"])
+            ),
+            \"exact_root_tablebase\": (
+                None
+                if kwargs[\"exact_root_tablebase\"] is None
+                else str(kwargs[\"exact_root_tablebase\"])
+            ),
         }
     )
     return [
@@ -194,6 +205,12 @@ def build_regression_report(*, artifact_path, positions_path, results):
                     "deterministic",
                     "--tactical-root-bias",
                     "0.1",
+                    "--exact-root-solve-threshold",
+                    "16",
+                    "--exact-root-native-probe",
+                    "native_probe",
+                    "--exact-root-tablebase",
+                    "tablebase.kvtb",
                     "--out",
                     str(out_path),
                 ],
@@ -279,6 +296,12 @@ def build_regression_report(*, artifact_path, positions_path, results):
                     "deterministic",
                     "--tactical-root-bias",
                     "0.1",
+                    "--exact-root-solve-threshold",
+                    "16",
+                    "--exact-root-native-probe",
+                    "native_probe",
+                    "--exact-root-tablebase",
+                    "tablebase.kvtb",
                     "--out",
                     str(out_path),
                 ],
@@ -332,6 +355,9 @@ def build_regression_report(*, artifact_path, positions_path, results):
                 seen["normalized_search_options"], seen["evaluate_search_options"]
             )
             self.assertEqual([{"id": "capture-1"}], seen["positions"])
+            self.assertEqual(16, seen["exact_root_solve_threshold"])
+            self.assertEqual("native_probe", seen["exact_root_native_probe"])
+            self.assertEqual("tablebase.kvtb", seen["exact_root_tablebase"])
 
             report = json.loads(out_path.read_text(encoding="utf-8"))
             self.assert_report_contract(report)

@@ -17,20 +17,20 @@
       "size_bytes": 555643
     },
     {
-      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/candidate_vs_hard_arena.json",
+      "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_hard_arena.json",
       "required": false,
       "role": "canonical_hard_arena",
       "schema": "arena_v1",
-      "sha256": "332ee411ec26856d49ee472830bf1e51aaf131a3558b7ac8a48e1eb41692715f",
-      "size_bytes": 4457
+      "sha256": "8ddff32bcfa796168236c73355d324a570ea7ce867634ac845cadded6ec834fb",
+      "size_bytes": 5180
     },
     {
-      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/candidate_vs_current_arena.json",
+      "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
       "required": false,
       "role": "canonical_prefilter",
       "schema": "arena_v1",
-      "sha256": "eef9844ffb906eab75c5fadeaffc1d4801a8e43cde2f897426b1c49445e0a859",
-      "size_bytes": 4471
+      "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae",
+      "size_bytes": 5195
     },
     {
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/checkpoint.npz",
@@ -122,12 +122,12 @@
     },
     {
       "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
-      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/local_promotion_gate.json",
+      "path": ".tmp/seed455-exact-root16-canonical/local_promotion_gate.json",
       "required": true,
       "role": "gate_report",
       "schema": "azlite_local_promotion_gate_v1",
-      "sha256": "ab291bea826b99357f92f47ce8cae909b2ca90bc95311b73ea274c7d4b8903a3",
-      "size_bytes": 28984
+      "sha256": "c4d332a8c48d3b6a20360e661ab276f859c2470d4bca0e13de50cf9469345668",
+      "size_bytes": 31764
     },
     {
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/metadata.json",
@@ -261,45 +261,176 @@
     },
     "hard_arena": {
       "artifact": {
-        "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/candidate_vs_hard_arena.json",
+        "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_hard_arena.json",
         "required": false,
         "role": "canonical_hard_arena",
         "schema": "arena_v1",
-        "sha256": "332ee411ec26856d49ee472830bf1e51aaf131a3558b7ac8a48e1eb41692715f",
-        "size_bytes": 4457
+        "sha256": "8ddff32bcfa796168236c73355d324a570ea7ce867634ac845cadded6ec834fb",
+        "size_bytes": 5180
       },
-      "config": {
-        "suite_sha256": "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c",
-        "threshold": 0.55
-      },
+      "config": {},
       "status": "complete",
       "summary": {
         "passed": true,
-        "score": 0.5576
+        "score": 0.5586
       },
       "tool": "local_promotion_gate"
     },
     "prefilter": {
       "artifact": {
-        "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/candidate_vs_current_arena.json",
+        "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
         "required": false,
         "role": "canonical_prefilter",
         "schema": "arena_v1",
-        "sha256": "eef9844ffb906eab75c5fadeaffc1d4801a8e43cde2f897426b1c49445e0a859",
-        "size_bytes": 4471
+        "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae",
+        "size_bytes": 5195
       },
-      "config": {
-        "suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
-        "threshold": 0.55
-      },
+      "config": {},
       "status": "complete",
       "summary": {
         "passed": true,
-        "score": 0.5869
+        "score": 0.5918
       },
       "tool": "local_promotion_gate"
     }
   },
+  "canonical_evaluation_attempts": [
+    {
+      "canonical_evaluation": {
+        "downstream": {
+          "artifact": {
+            "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/candidate_forensic_suite.json",
+            "required": false,
+            "role": "canonical_forensic",
+            "schema": "forensic_suite_v1",
+            "sha256": "45710b01f3e8578acb8ddb8aa758f19aa6b093cb5ce085ae2f3422a638aea983",
+            "size_bytes": 555643
+          },
+          "config": {
+            "forensic_check": true,
+            "mcts_relative_check": true
+          },
+          "status": "complete",
+          "summary": {
+            "candidate_mcts_score": 0.6625,
+            "current_mcts_score": 0.6625,
+            "failure_reasons": [
+              {
+                "code": "forensic_overall_regressed"
+              },
+              {
+                "code": "forensic_bucket_sparse_endgame_regressed"
+              }
+            ],
+            "forensic_passed": false
+          },
+          "tool": "local_promotion_gate"
+        },
+        "hard_arena": {
+          "artifact": {
+            "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_hard_arena.json",
+            "required": false,
+            "role": "canonical_hard_arena",
+            "schema": "arena_v1",
+            "sha256": "8ddff32bcfa796168236c73355d324a570ea7ce867634ac845cadded6ec834fb",
+            "size_bytes": 5180
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": true,
+            "score": 0.5586
+          },
+          "tool": "local_promotion_gate"
+        },
+        "prefilter": {
+          "artifact": {
+            "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
+            "required": false,
+            "role": "canonical_prefilter",
+            "schema": "arena_v1",
+            "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae",
+            "size_bytes": 5195
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": true,
+            "score": 0.5918
+          },
+          "tool": "local_promotion_gate"
+        }
+      },
+      "gate_report": {
+        "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+        "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/local_promotion_gate.json",
+        "required": true,
+        "role": "gate_report",
+        "schema": "azlite_local_promotion_gate_v1",
+        "sha256": "ab291bea826b99357f92f47ce8cae909b2ca90bc95311b73ea274c7d4b8903a3",
+        "size_bytes": 28984
+      }
+    },
+    {
+      "canonical_evaluation": {
+        "hard_arena": {
+          "artifact": {
+            "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_hard_arena.json",
+            "required": false,
+            "role": "canonical_hard_arena",
+            "schema": "arena_v1",
+            "sha256": "8ddff32bcfa796168236c73355d324a570ea7ce867634ac845cadded6ec834fb",
+            "size_bytes": 5180
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": true,
+            "score": 0.5586
+          },
+          "tool": "local_promotion_gate"
+        },
+        "prefilter": {
+          "artifact": {
+            "path": ".tmp/seed455-exact-root16-canonical/candidate_vs_current_arena.json",
+            "required": false,
+            "role": "canonical_prefilter",
+            "schema": "arena_v1",
+            "sha256": "05fe409caf71a193f5dcf2bf969e6794faa076a9d68d8edc7b6796ffffe15cae",
+            "size_bytes": 5195
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": true,
+            "score": 0.5918
+          },
+          "tool": "local_promotion_gate"
+        }
+      },
+      "classification": "seed455_exact_root16_downstream_blocked",
+      "gate_report": {
+        "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+        "path": ".tmp/seed455-exact-root16-canonical/local_promotion_gate.json",
+        "required": true,
+        "role": "gate_report",
+        "schema": "azlite_local_promotion_gate_v1",
+        "sha256": "c4d332a8c48d3b6a20360e661ab276f859c2470d4bca0e13de50cf9469345668",
+        "size_bytes": 31764
+      },
+      "runtime_search_policy": {
+        "exact_leaf_solve": "disabled",
+        "exact_root_enabled": true,
+        "mode": "puct_exact_root_hybrid",
+        "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "objective": "final_score_margin",
+        "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+        "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "threshold": 16,
+        "tie_rule": "highest_legal_network_prior_then_lowest_move_index"
+      }
+    }
+  ],
   "compute": {
     "training_wall_clock_duration_seconds": 19.8894
   },
@@ -986,23 +1117,17 @@
     "decision": "rejected",
     "failure_reasons": [
       {
-        "code": "forensic_overall_regressed"
-      },
-      {
         "code": "forensic_bucket_sparse_endgame_regressed"
-      },
-      {
-        "code": "seed455_default_value_downstream_blocked"
       }
     ],
     "gate_report": {
       "candidate_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
-      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/local_promotion_gate.json",
+      "path": ".tmp/seed455-exact-root16-canonical/local_promotion_gate.json",
       "required": true,
       "role": "gate_report",
       "schema": "azlite_local_promotion_gate_v1",
-      "sha256": "ab291bea826b99357f92f47ce8cae909b2ca90bc95311b73ea274c7d4b8903a3",
-      "size_bytes": 28984
+      "sha256": "c4d332a8c48d3b6a20360e661ab276f859c2470d4bca0e13de50cf9469345668",
+      "size_bytes": 31764
     }
   },
   "provenance_notes": [

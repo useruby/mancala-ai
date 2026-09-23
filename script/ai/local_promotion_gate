@@ -49,6 +49,10 @@ def parse_args() -> argparse.Namespace:
         help="required for canonical shadow evaluation to pin the intended incumbent",
     )
     parser.add_argument(
+        "--expected-candidate-weights-sha256",
+        help="optional candidate weights pin; required by frozen canonical evaluations",
+    )
+    parser.add_argument(
         "--hard-path",
         default="model-artifact/current",
     )
@@ -79,6 +83,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hard-min-score", default=0.55, type=float)
     parser.add_argument("--max-arena-move-time-mean-ms", default=None, type=float)
     parser.add_argument("--max-arena-move-time-p95-ms", default=None, type=float)
+    parser.add_argument("--exact-root-solve-threshold", type=int)
+    parser.add_argument("--exact-root-native-probe", type=Path)
+    parser.add_argument("--exact-root-tablebase", type=Path)
     parser.add_argument("--require-lossless", action="store_true")
     parser.add_argument("--max-losses", default=0, type=non_negative_int)
     parser.add_argument("--skip-mcts-relative-check", action="store_true")
@@ -133,8 +140,25 @@ def build_evaluation(
     }
 
 
+def exact_root_flags(args: argparse.Namespace | None) -> list[str]:
+    if args is None or getattr(args, "exact_root_solve_threshold", None) is None:
+        return []
+    return [
+        "--exact-root-solve-threshold",
+        str(args.exact_root_solve_threshold),
+        "--exact-root-native-probe",
+        str(args.exact_root_native_probe),
+        "--exact-root-tablebase",
+        str(args.exact_root_tablebase),
+    ]
+
+
 def forensic_evaluation(
-    report_dir: Path, *, candidate_path: Path, current_path: str
+    report_dir: Path,
+    *,
+    candidate_path: Path,
+    current_path: str,
+    args: argparse.Namespace | None = None,
 ) -> dict:
     return {
         "id": "candidate_forensic_suite",
@@ -152,6 +176,7 @@ def forensic_evaluation(
             "1200",
             "--teacher-simulations",
             "1800",
+            *exact_root_flags(args),
             "--out",
             str(report_dir / "candidate_forensic_suite.json"),
         ],
@@ -384,6 +409,12 @@ def validate_shadow_inputs(args: argparse.Namespace) -> dict[str, dict[str, str]
         raise SystemExit("current_artifact_identity_mismatch")
     if candidate["weights_json_sha256"] == current["weights_json_sha256"]:
         raise SystemExit("candidate_matches_current")
+    expected_candidate_sha = getattr(args, "expected_candidate_weights_sha256", None)
+    if (
+        expected_candidate_sha is not None
+        and candidate["weights_json_sha256"] != expected_candidate_sha
+    ):
+        raise SystemExit("candidate_artifact_identity_mismatch")
 
     identities = {"candidate": candidate, "current": current}
     if shadow_hard:
@@ -392,6 +423,107 @@ def validate_shadow_inputs(args: argparse.Namespace) -> dict[str, dict[str, str]
             raise SystemExit("hard_opponent_identity_mismatch")
         identities["hard_opponent"] = hard
     return identities
+
+
+def runtime_search_policy(args: argparse.Namespace) -> dict:
+    if getattr(args, "exact_root_solve_threshold", None) is None:
+        return {
+            "mode": "puct",
+            "exact_root_enabled": False,
+            "exact_leaf_solve": "disabled",
+        }
+    return {
+        "mode": "puct_exact_root_hybrid",
+        "exact_root_enabled": True,
+        "threshold": int(args.exact_root_solve_threshold),
+        "objective": "final_score_margin",
+        "tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+        "native_probe_sha256": sha256_file(args.exact_root_native_probe),
+        "tablebase_sha256": sha256_file(args.exact_root_tablebase),
+        "exact_leaf_solve": "disabled",
+    }
+
+
+def validate_exact_root_policy(args: argparse.Namespace) -> None:
+    threshold = getattr(args, "exact_root_solve_threshold", None)
+    probe = getattr(args, "exact_root_native_probe", None)
+    tablebase = getattr(args, "exact_root_tablebase", None)
+    if threshold is None:
+        if probe is not None or tablebase is not None:
+            raise SystemExit("exact_root16_solver_provenance_unavailable")
+        return
+    if str(repo_root()) not in sys.path:
+        sys.path.insert(0, str(repo_root()))
+    from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+
+    if threshold != EndgameTablebase.MAX_SOLVED_SEEDS:
+        raise SystemExit("exact_root16_solver_provenance_unavailable")
+    if (
+        probe is None
+        or tablebase is None
+        or not probe.is_file()
+        or not tablebase.is_file()
+    ):
+        raise SystemExit("exact_root16_solver_provenance_unavailable")
+
+
+def validate_exact_root_arena_profile(report: dict, policy: dict) -> None:
+    if not policy["exact_root_enabled"]:
+        return
+    profile = report.get("notes", {}).get("search_profile", {})
+    expected = {
+        "exact_root_solve_enabled": True,
+        "exact_root_solve_threshold": policy["threshold"],
+        "exact_root_objective": policy["objective"],
+        "exact_root_tie_rule": policy["tie_rule"],
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe_sha256": policy["native_probe_sha256"],
+        "exact_root_tablebase_sha256": policy["tablebase_sha256"],
+    }
+    if any(profile.get(key) != value for key, value in expected.items()):
+        raise SystemExit("exact_root_policy_asymmetry")
+
+
+def exact_root_preflight(args: argparse.Namespace) -> dict | None:
+    if args.exact_root_solve_threshold is None:
+        return None
+    from ml.alphazero_lite.arena import ArtifactEvaluator, evaluate_artifact_position
+    from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
+
+    suite = load_json(
+        repo_root() / "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json"
+    )
+    fixture = next(row for row in suite if row["id"] == "sparse_endgame-023")
+    with NativeExactRootTablebase(
+        args.exact_root_native_probe, args.exact_root_tablebase, warm_on_start=True
+    ) as tablebase:
+        result = evaluate_artifact_position(
+            artifact_path=args.candidate_path,
+            evaluator=ArtifactEvaluator(args.candidate_path),
+            state=fixture["state"],
+            simulations=384,
+            seed=42,
+            c_puct=1.25,
+            search_options={
+                "fpu_mode": "zero",
+                "reuse_subtree": False,
+                "normalize_values": False,
+                "root_policy_mode": "deterministic",
+                "tactical_root_bias": 0.0,
+            },
+            endgame_tablebase=tablebase,
+            exact_root_solve_threshold=args.exact_root_solve_threshold,
+        )
+    if result.get("selected_move") != 4:
+        raise SystemExit("exact_root16_gate_preflight_failed")
+    return {
+        "fixture": "sparse_endgame-023",
+        "candidate_selected_move": result["selected_move"],
+        "puct_simulations_executed": result["exact_root_decision"][
+            "puct_simulations_executed"
+        ],
+    }
 
 
 def canonical_opening_hashes(path: Path) -> set[str]:
@@ -422,6 +554,7 @@ def build_standard_prefilter_command(
         str(args.current_path),
         "--games",
         str(args.arena_games),
+        *exact_root_flags(args),
         *search_flags,
         "--min-score",
         str(args.min_arena_score),
@@ -455,6 +588,7 @@ def build_shadow_canonical_prefilter_command(
         "384",
         "--current-simulations",
         "384",
+        *exact_root_flags(args),
         "--game-jsonl",
         str(report_dir / "shadow_prefilter_games.jsonl"),
         "--seed-ledger-output",
@@ -496,6 +630,7 @@ def build_shadow_canonical_hard_command(
         "384",
         "--current-simulations",
         "384",
+        *exact_root_flags(args),
         "--game-jsonl",
         str(report_dir / "shadow_hard_games.jsonl"),
         "--seed-ledger-output",
@@ -1452,6 +1587,9 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     )
     run_command(prefilter_command)
     arena_report = load_json(arena_report_path)
+    validate_exact_root_arena_profile(
+        arena_report, report.get("runtime_search_policy", runtime_search_policy(args))
+    )
     prefilter_failure_reasons = computed_arena_prefilter_threshold_failures(
         args, arena_report
     )
@@ -1498,7 +1636,9 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
     if prefilter_failure_reasons or not promotion_decision_passed:
         if shadow:
             report["shadow_classification"] = (
-                "shadow_canonical_prefilter_failed"
+                "seed455_exact_root16_prefilter_failed"
+                if getattr(args, "exact_root_solve_threshold", None) is not None
+                else "shadow_canonical_prefilter_failed"
                 if prefilter_failure_reasons
                 else "shadow_prefilter_unexpected_failure"
             )
@@ -1574,6 +1714,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
                 str(args.hard_path),
                 "--games",
                 str(args.hard_arena_games),
+                *exact_root_flags(args),
                 *search_flag_map.get("arena", []),
                 "--min-score",
                 str(args.hard_min_score),
@@ -1582,6 +1723,10 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             ]
         )
         run_command(hard_command)
+        validate_exact_root_arena_profile(
+            load_json(hard_report_path),
+            report.get("runtime_search_policy", runtime_search_policy(args)),
+        )
         if shadow_hard:
             try:
                 hard_pair_metrics = load_opening_pair_metrics(
@@ -1686,6 +1831,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             str(args.candidate_path),
             "--positions",
             str(args.regression_positions_path),
+            *exact_root_flags(args),
             *search_flag_map.get("arena", []),
         ],
         regression_report_path,
@@ -1693,6 +1839,10 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
 
     threshold_results = []
     for planned_evaluation in report["endgame_exact_solve"]["planned_evaluations"]:
+        if getattr(args, "exact_root_solve_threshold", None) is not None:
+            planned_evaluation["status"] = "not_run"
+            planned_evaluation["mode"] = "legacy_exact_leaf_planning"
+            continue
         run_command(planned_evaluation["candidate_mcts_command"])
         run_command(planned_evaluation["current_mcts_command"])
         candidate_threshold_report = load_json(
@@ -1747,17 +1897,41 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
             "candidate_not_stronger_than_hard" in codes
             or "hard_games_below_minimum" in codes
         ):
-            classification = "shadow_canonical_hard_arena_failed"
+            classification = (
+                "seed455_exact_root16_hard_arena_failed"
+                if getattr(args, "exact_root_solve_threshold", None) is not None
+                else "shadow_canonical_hard_arena_failed"
+            )
         elif "candidate_mcts_below_current" in codes:
-            classification = "shadow_canonical_hard_passed_mcts_blocker"
+            classification = (
+                "seed455_exact_root16_downstream_blocked"
+                if getattr(args, "exact_root_solve_threshold", None) is not None
+                else "shadow_canonical_hard_passed_mcts_blocker"
+            )
         elif "regression_check_failed" in codes:
-            classification = "shadow_canonical_hard_passed_regression_blocker"
+            classification = (
+                "seed455_exact_root16_downstream_blocked"
+                if getattr(args, "exact_root_solve_threshold", None) is not None
+                else "shadow_canonical_hard_passed_regression_blocker"
+            )
         elif any(code.startswith("forensic_") for code in codes):
-            classification = "shadow_canonical_hard_passed_forensic_blocker"
+            classification = (
+                "seed455_exact_root16_downstream_blocked"
+                if getattr(args, "exact_root_solve_threshold", None) is not None
+                else "shadow_canonical_hard_passed_forensic_blocker"
+            )
         elif codes:
-            classification = "shadow_canonical_hard_other_downstream_blocker"
+            classification = (
+                "seed455_exact_root16_downstream_blocked"
+                if getattr(args, "exact_root_solve_threshold", None) is not None
+                else "shadow_canonical_hard_other_downstream_blocker"
+            )
         else:
-            classification = "shadow_canonical_hard_full_gate_passed"
+            classification = (
+                "seed455_exact_root16_full_gate_passed"
+                if getattr(args, "exact_root_solve_threshold", None) is not None
+                else "shadow_canonical_hard_full_gate_passed"
+            )
         decision["shadow_classification"] = classification
     elif shadow:
         decision["shadow_classification"] = "shadow_canonical_hard_arena_blocker"
@@ -1766,6 +1940,7 @@ def build_real_decision_report(args: argparse.Namespace, report: dict) -> dict:
 
 def main() -> int:
     args = parse_args()
+    validate_exact_root_policy(args)
     shadow_identities = validate_shadow_inputs(args)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if args.dry_run and args.config_path:
@@ -1849,6 +2024,7 @@ def main() -> int:
             args.out.parent,
             candidate_path=args.candidate_path,
             current_path=current_path,
+            args=args,
         )
     )
     evaluations[-1]["mode"] = mode
@@ -1862,6 +2038,9 @@ def main() -> int:
         "hard_opponent_identity": shadow_identities.get("hard_opponent"),
         "expected_current_weights_sha256": getattr(
             args, "expected_current_weights_sha256", None
+        ),
+        "expected_candidate_weights_sha256": getattr(
+            args, "expected_candidate_weights_sha256", None
         ),
         "config_path": args.config_path,
         "current_path": current_path,
@@ -1891,6 +2070,9 @@ def main() -> int:
         if getattr(args, "cumulative_lineage_report", None) is not None
         else None,
         "dry_run": args.dry_run,
+        "runtime_search_policy": runtime_search_policy(args),
+        "mcts_relative_exact_root_policy_applied": False,
+        "mcts_relative_exact_root_policy_reason": "classic_mcts_gate_component_unchanged",
         "evaluations": evaluations,
         "endgame_exact_solve": build_endgame_exact_solve_section(
             status="planned_only",
@@ -1908,6 +2090,49 @@ def main() -> int:
         if args.config_path
         else {}
     )
+    prefilter_report_path = Path(evaluations[0]["report_path"])
+    hard_evaluation = next(
+        (item for item in evaluations if item["id"] == "candidate_vs_hard_arena"),
+        None,
+    )
+    report["command_preflight"] = {
+        "prefilter": (
+            build_shadow_canonical_prefilter_command(
+                args,
+                prefilter_report_path,
+                prefilter_report_path.parent,
+                search_flag_map.get("arena", []),
+            )
+            if getattr(args, "shadow_canonical_prefilter", False)
+            else build_standard_prefilter_command(
+                args, prefilter_report_path, search_flag_map.get("arena", [])
+            )
+        ),
+        "hard": (
+            None
+            if hard_evaluation is None
+            else build_shadow_canonical_hard_command(
+                args,
+                Path(hard_evaluation["report_path"]),
+                Path(hard_evaluation["report_path"]).parent,
+                search_flag_map.get("arena", []),
+            )
+            if getattr(args, "shadow_canonical_hard_arena", False)
+            else None
+        ),
+        "forensic": evaluations[-1]["command"],
+        "regression": [
+            python_executable(),
+            "script/ai/check_superhuman_regressions",
+            "--artifact",
+            str(args.candidate_path),
+            "--positions",
+            str(args.regression_positions_path),
+            *exact_root_flags(args),
+            *search_flag_map.get("arena", []),
+        ],
+        "mcts_relative_exact_root_policy_applied": False,
+    }
     report["endgame_exact_solve"]["planned_evaluations"] = (
         build_endgame_exact_solve_plans(
             args,
@@ -1915,8 +2140,23 @@ def main() -> int:
             search_flag_map=search_flag_map,
         )
     )
+    if getattr(args, "exact_root_solve_threshold", None) is not None:
+        report["endgame_exact_solve"]["label"] = "legacy_exact_leaf_planning"
+        report["exact_root_handoff"] = {
+            "status": "enabled",
+            "runtime_search_policy": report["runtime_search_policy"],
+        }
 
     stub_reports_provided = all(path is not None for path in required_stub_paths)
+
+    if (
+        not args.dry_run
+        and getattr(args, "exact_root_solve_threshold", None) is not None
+    ):
+        try:
+            report["exact_root_gate_preflight"] = exact_root_preflight(args)
+        except (OSError, RuntimeError, StopIteration, KeyError) as exc:
+            raise SystemExit("exact_root16_gate_preflight_failed") from exc
 
     if stub_reports_provided:
         if args.stub_regression_report is not None:

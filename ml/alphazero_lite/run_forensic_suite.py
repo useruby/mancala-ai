@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -521,6 +522,8 @@ def main() -> None:
     evaluators = None
     exact_tablebases = None
     exact_root_tablebase = None
+    exact_root_native_probe = None
+    exact_root_tablebase_path = None
     if not stub_mode:
         evaluators = {
             system_name: ArtifactEvaluator(Path(artifact_path))
@@ -624,6 +627,16 @@ def main() -> None:
                 None
                 if exact_root_tablebase is None
                 else exact_root_tablebase.implementation_identity
+            ),
+            "exact_root_native_probe_sha256": (
+                None
+                if exact_root_native_probe is None
+                else hashlib.sha256(exact_root_native_probe.read_bytes()).hexdigest()
+            ),
+            "exact_root_tablebase_sha256": (
+                None
+                if exact_root_tablebase_path is None
+                else hashlib.sha256(exact_root_tablebase_path.read_bytes()).hexdigest()
             ),
         },
         "reference": {

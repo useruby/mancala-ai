@@ -412,6 +412,23 @@ def merge_gate_report(record: dict[str, Any], report_path: Path) -> dict[str, An
         report_ref = artifact_ref(
             "gate_report", report_path, schema=report.get("schema"), required=True
         )
+    # Canonical gate attempts are immutable evidence.  Keep prior attempts when a
+    # frozen candidate is evaluated under a new runtime policy.
+    attempts = record.setdefault("canonical_evaluation_attempts", [])
+    if not attempts and record.get("promotion", {}).get("gate_report"):
+        attempts.append(
+            {
+                "gate_report": record["promotion"]["gate_report"],
+                "canonical_evaluation": record.get("canonical_evaluation", {}),
+            }
+        )
+    attempt = {
+        "gate_report": report_ref,
+        "runtime_search_policy": report.get("runtime_search_policy", {}),
+        "classification": report.get("shadow_classification"),
+        "canonical_evaluation": {},
+    }
+    attempts.append(attempt)
     arena_path = report.get("arena_report_path")
     if arena_path:
         prefilter_score = report.get("arena_score")
@@ -431,6 +448,9 @@ def merge_gate_report(record: dict[str, Any], report_path: Path) -> dict[str, An
             },
             artifact=artifact_ref("canonical_prefilter", arena_path, schema="arena_v1"),
         )
+        attempt["canonical_evaluation"]["prefilter"] = record["canonical_evaluation"][
+            "prefilter"
+        ]
     hard_path = report.get("hard_report_path")
     if hard_path:
         attach_evaluation(
@@ -445,6 +465,9 @@ def merge_gate_report(record: dict[str, Any], report_path: Path) -> dict[str, An
             },
             artifact=artifact_ref("canonical_hard_arena", hard_path, schema="arena_v1"),
         )
+        attempt["canonical_evaluation"]["hard_arena"] = record["canonical_evaluation"][
+            "hard_arena"
+        ]
     elif report.get("passed") is False:
         attach_evaluation(
             record,
@@ -453,6 +476,9 @@ def merge_gate_report(record: dict[str, Any], report_path: Path) -> dict[str, An
             tool="local_promotion_gate",
             summary={"reason": "prefilter_failed"},
         )
+        attempt["canonical_evaluation"]["hard_arena"] = record["canonical_evaluation"][
+            "hard_arena"
+        ]
     decision = "passed" if report.get("passed") else "rejected"
     return record_promotion(
         record,
