@@ -246,7 +246,13 @@ def record_promotion(
     failure_reasons: list[Any] | None = None,
     gate_report: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    if decision not in {"not_evaluated", "passed", "rejected", "promoted"}:
+    if decision not in {
+        "not_evaluated",
+        "passed",
+        "rejected",
+        "promotion_ready",
+        "promoted",
+    }:
         raise GenerationRecordError(f"unsupported promotion decision: {decision}")
     record["promotion"] = {
         "decision": decision,
@@ -259,7 +265,7 @@ def record_promotion(
         record["status"] = "promoted"
     elif decision == "rejected":
         record["status"] = "rejected"
-    elif decision == "passed":
+    elif decision in {"passed", "promotion_ready"}:
         record["status"] = "promotion_ready"
     return record
 
@@ -479,7 +485,7 @@ def merge_gate_report(record: dict[str, Any], report_path: Path) -> dict[str, An
         attempt["canonical_evaluation"]["hard_arena"] = record["canonical_evaluation"][
             "hard_arena"
         ]
-    decision = "passed" if report.get("passed") else "rejected"
+    decision = "promotion_ready" if report.get("passed") else "rejected"
     return record_promotion(
         record,
         decision=decision,
