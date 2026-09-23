@@ -29,6 +29,7 @@ if os.environ.get("AZLITE_FORENSIC_SUITE_STUB") != "1":
     from ml.alphazero_lite.classic_mcts import MCTS
     from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
     from ml.alphazero_lite.kalah_rules import KalahGame
+    from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
 else:
     ArtifactEvaluator = None
     build_eval_search_options = lambda: {}  # noqa: E731
@@ -36,6 +37,7 @@ else:
     MCTS = None
     EndgameTablebase = None
     KalahGame = None
+    NativeExactRootTablebase = None
 
 
 DEFAULT_SUITE_PATH = Path("ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json")
@@ -55,6 +57,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--c-puct", type=float, default=1.25)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--exact-solve-stone-threshold", type=int, default=None)
+    parser.add_argument("--exact-root-solve-threshold", type=int, default=None)
+    parser.add_argument("--exact-root-native-probe", type=Path, default=None)
+    parser.add_argument("--exact-root-tablebase", type=Path, default=None)
     parser.add_argument(
         "--exact-solve-value-mode",
         choices=("wdl", "wdl_margin"),
@@ -515,6 +520,7 @@ def main() -> None:
     }
     evaluators = None
     exact_tablebases = None
+    exact_root_tablebase = None
     if not stub_mode:
         evaluators = {
             system_name: ArtifactEvaluator(Path(artifact_path))
@@ -527,6 +533,31 @@ def main() -> None:
             exact_tablebases = {
                 system_name: EndgameTablebase() for system_name in systems
             }
+        exact_root_native_probe = getattr(args, "exact_root_native_probe", None)
+        exact_root_tablebase_path = getattr(args, "exact_root_tablebase", None)
+        exact_root_solve_threshold = getattr(args, "exact_root_solve_threshold", None)
+        if (exact_root_native_probe is None) != (exact_root_tablebase_path is None):
+            raise SystemExit(
+                "--exact-root-native-probe and --exact-root-tablebase must be supplied together"
+            )
+        if exact_root_solve_threshold is not None:
+            if exact_root_solve_threshold != EndgameTablebase.MAX_SOLVED_SEEDS:
+                raise SystemExit(
+                    "--exact-root-solve-threshold must equal EndgameTablebase.MAX_SOLVED_SEEDS"
+                )
+            if exact_tablebases is not None:
+                raise SystemExit(
+                    "exact root handoff cannot be combined with exact leaf solving"
+                )
+            if exact_root_native_probe is None:
+                raise SystemExit(
+                    "exact root handoff requires native probe and tablebase"
+                )
+            exact_root_tablebase = NativeExactRootTablebase(
+                exact_root_native_probe,
+                exact_root_tablebase_path,
+                warm_on_start=True,
+            )
 
     system_rows: dict[str, list[dict]] = {}
     for system_name, artifact_path in systems.items():
@@ -544,15 +575,22 @@ def main() -> None:
                     c_puct=args.c_puct,
                     search_options=search_options,
                     endgame_tablebase=(
-                        None
+                        exact_root_tablebase
+                        if exact_root_tablebase is not None
+                        else None
                         if exact_tablebases is None
                         else exact_tablebases[system_name]
                     ),
                     exact_solve_stone_threshold=getattr(
                         args, "exact_solve_stone_threshold", None
                     ),
+                    exact_root_solve_threshold=getattr(
+                        args, "exact_root_solve_threshold", None
+                    ),
                     exact_solve_fail_closed=exact_tablebases is not None,
-                    exact_solve_value_mode=args.exact_solve_value_mode,
+                    exact_solve_value_mode=getattr(
+                        args, "exact_solve_value_mode", "wdl"
+                    ),
                 )
             rows.append(
                 build_row(
@@ -574,11 +612,19 @@ def main() -> None:
             "exact_solve_stone_threshold": getattr(
                 args, "exact_solve_stone_threshold", None
             ),
-            "exact_solve_value_mode": args.exact_solve_value_mode,
+            "exact_solve_value_mode": getattr(args, "exact_solve_value_mode", "wdl"),
             "exact_solve_fail_closed": getattr(
                 args, "exact_solve_stone_threshold", None
             )
             is not None,
+            "exact_root_solve_threshold": getattr(
+                args, "exact_root_solve_threshold", None
+            ),
+            "exact_root_solver": (
+                None
+                if exact_root_tablebase is None
+                else exact_root_tablebase.implementation_identity
+            ),
         },
         "reference": {
             "kind": "shared_artifact",
@@ -641,6 +687,8 @@ def main() -> None:
             report["buckets"], system_rows
         )
 
+    if exact_root_tablebase is not None:
+        exact_root_tablebase.close()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"wrote forensic report to {out_path}")

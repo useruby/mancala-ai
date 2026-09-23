@@ -74,6 +74,13 @@ if not ARENA_STUB_MODE:
         from ml.alphazero_lite.input_encodings import DEFAULT_INPUT_ENCODING
         from ml.alphazero_lite.kalah_rules import KalahGame
         from ml.alphazero_lite.endgame_tablebase import EndgameTablebase
+        from ml.alphazero_lite.exact_root_decision import (
+            exact_root_decision,
+            exact_root_profile_fields,
+        )
+        from ml.alphazero_lite.native_exact_root_tablebase import (
+            NativeExactRootTablebase,
+        )
         from ml.alphazero_lite.opening_cache import (
             load_opening_cache,
             state_qualifies_for_opening_cache,
@@ -110,6 +117,11 @@ if not ARENA_STUB_MODE:
         from input_encodings import DEFAULT_INPUT_ENCODING
         from kalah_rules import KalahGame
         from endgame_tablebase import EndgameTablebase
+        from exact_root_decision import (
+            exact_root_decision,
+            exact_root_profile_fields,
+        )
+        from native_exact_root_tablebase import NativeExactRootTablebase
         from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
         from search_ablation import build_mode_config, neutral_value
         from self_play import (
@@ -507,6 +519,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--current-value-transform-json", default=None)
     parser.add_argument("--exact-solve-stone-threshold", type=int, default=None)
+    parser.add_argument("--exact-root-solve-threshold", type=int, default=None)
+    parser.add_argument("--exact-root-native-probe", type=Path, default=None)
+    parser.add_argument("--exact-root-tablebase", type=Path, default=None)
     parser.add_argument(
         "--exact-solve-value-mode",
         choices=("wdl", "wdl_margin"),
@@ -1008,6 +1023,7 @@ def evaluate_artifact_position(
     exact_solve_stone_threshold: int | None = None,
     exact_solve_fail_closed: bool = False,
     exact_solve_value_mode: str = "wdl",
+    exact_root_solve_threshold: int | None = None,
     root_child_telemetry: dict[str, Any] | None = None,
     root_snapshot_checkpoints: set[int] | None = None,
 ) -> dict:
@@ -1091,6 +1107,48 @@ def evaluate_artifact_position(
         if artifact_path is None:
             raise ValueError("artifact_path is required when evaluator is not provided")
         evaluator = ArtifactEvaluator(Path(artifact_path))
+    if (
+        exact_root_solve_threshold is not None
+        and exact_solve_stone_threshold is not None
+    ):
+        raise ValueError("exact root handoff and exact leaf solving cannot be combined")
+    root_decision = exact_root_decision(
+        game,
+        evaluator,
+        tablebase=(
+            endgame_tablebase if endgame_tablebase is not None else EndgameTablebase()
+        ),
+        threshold=exact_root_solve_threshold,
+    )
+    if root_decision is not None:
+        policy = np.asarray(root_decision.network_priors, dtype=np.float32)
+        visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
+        return {
+            "selected_move": root_decision.selected_move,
+            "legal_moves": root_decision.legal_moves,
+            "policy": [float(prior) for prior in policy.tolist()],
+            "value": 0.0,
+            "child_stats": [
+                {"move": move, "visits": 0, "q_value": 0.0}
+                for move in root_decision.legal_moves
+            ],
+            "visits": [float(visit) for visit in visits.tolist()],
+            "exact_root_decision": {
+                "active_pit_stones": root_decision.active_pit_stones,
+                "root_player": root_decision.root_player,
+                "action_margins": {
+                    str(move): margin
+                    for move, margin in root_decision.action_margins.items()
+                },
+                "wdl": {str(move): value for move, value in root_decision.wdl.items()},
+                "optimal_moves": root_decision.optimal_moves,
+                "network_priors": root_decision.network_priors,
+                "solver_calls": root_decision.solver_calls,
+                "root_latency_ms": root_decision.root_latency_ms,
+                "puct_simulations_executed": 0,
+            },
+            "root_latency_ms": root_decision.root_latency_ms,
+        }
     if exact_solve_stone_threshold is not None:
         evaluator = ExactLeafValueEvaluator(
             evaluator,
@@ -1762,6 +1820,9 @@ def run_arena_worker(
     challenger_prior_tail_threshold: float | None = None,
     exact_solve_stone_threshold: int | None = None,
     exact_solve_value_mode: str = "wdl",
+    exact_root_solve_threshold: int | None = None,
+    exact_root_native_probe: str | Path | None = None,
+    exact_root_tablebase_path: str | Path | None = None,
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1791,6 +1852,24 @@ def run_arena_worker(
             ArtifactEvaluator(Path(challenger_value_artifact or challenger_path)),
             policy_source="current",
             value_source="candidate",
+        )
+    if (
+        exact_root_solve_threshold is not None
+        and exact_solve_stone_threshold is not None
+    ):
+        raise ValueError("exact root handoff and exact leaf solving cannot be combined")
+    if exact_root_solve_threshold is not None:
+        if exact_root_solve_threshold != EndgameTablebase.MAX_SOLVED_SEEDS:
+            raise ValueError(
+                "exact_root_solve_threshold must equal EndgameTablebase.MAX_SOLVED_SEEDS"
+            )
+        if challenger_shadow_artifact is not None:
+            raise ValueError(
+                "exact root handoff is incompatible with challenger shadow search"
+            )
+    if (exact_root_native_probe is None) != (exact_root_tablebase_path is None):
+        raise ValueError(
+            "exact_root_native_probe and exact_root_tablebase_path must be supplied together"
         )
     if exact_solve_stone_threshold is not None:
         if exact_solve_stone_threshold < 0:
@@ -1876,6 +1955,26 @@ def run_arena_worker(
             "exact_solve_stone_threshold": exact_solve_stone_threshold,
             "exact_solve_value_mode": exact_solve_value_mode,
             "exact_solve_semantics": "network_priors_exact_leaf_value",
+            **exact_root_profile_fields(
+                exact_root_solve_threshold,
+                solver_identity=(
+                    None
+                    if exact_root_native_probe is None
+                    else NativeExactRootTablebase.implementation_identity
+                ),
+            ),
+            **(
+                {
+                    "exact_root_native_probe_sha256": sha256_file(
+                        Path(exact_root_native_probe)
+                    ),
+                    "exact_root_tablebase_sha256": sha256_file(
+                        Path(exact_root_tablebase_path)
+                    ),
+                }
+                if exact_root_native_probe is not None
+                else {}
+            ),
             **(
                 {"challenger_value_transform": effective_challenger_value_transform}
                 if effective_challenger_value_transform is not None
@@ -1941,6 +2040,14 @@ def run_arena_worker(
     shadow_move_telemetry: list[dict] = []
     trajectory_hashes: list[str] = []
     opening_prefix_plies_applied: list[int] = []
+    if exact_root_native_probe is not None:
+        native_root_tablebase = NativeExactRootTablebase(
+            exact_root_native_probe, exact_root_tablebase_path, warm_on_start=True
+        )
+        # Exact values are model-independent; one read-only probe cache serves both seats.
+        root_tablebases = {0: native_root_tablebase, 1: native_root_tablebase}
+    else:
+        root_tablebases = {0: EndgameTablebase(), 1: EndgameTablebase()}
     effective_opening_seed: int | None = None
     if opening_seed is not None:
         effective_opening_seed = int(opening_seed)
@@ -2056,6 +2163,10 @@ def run_arena_worker(
         first_move_challenger: int | None = None
         first_move_current: int | None = None
         game_moves: list[int] = []
+        exact_root_handoff_count = 0
+        first_exact_root_handoff_ply: int | None = None
+        exact_root_solve_time_ms = 0.0
+        normal_puct_time_ms = 0.0
 
         for _ in range(max_moves):
             if game.over():
@@ -2156,7 +2267,25 @@ def run_arena_worker(
                     and acting_player == challenger_player
                 ):
                     puct_kwargs["prior_override"] = challenger_prior_override
-                if acting_player == challenger_player and challenger_shadow is not None:
+                exact_decision = exact_root_decision(
+                    game,
+                    evaluator,
+                    tablebase=root_tablebases[acting_player],
+                    threshold=exact_root_solve_threshold,
+                )
+                if exact_decision is not None:
+                    visits = np.zeros(PITS_PER_PLAYER, dtype=np.float32)
+                    root = None
+                    search = None
+                    move = exact_decision.selected_move
+                    search_duration_ms = exact_decision.root_latency_ms
+                    exact_root_handoff_count += 1
+                    if first_exact_root_handoff_ply is None:
+                        first_exact_root_handoff_ply = ply
+                    exact_root_solve_time_ms += search_duration_ms
+                elif (
+                    acting_player == challenger_player and challenger_shadow is not None
+                ):
                     started = time.perf_counter()
                     visits, root, shadow_telemetry = run_shadow_root_q_search(
                         game,
@@ -2215,6 +2344,7 @@ def run_arena_worker(
                     started = time.perf_counter()
                     visits, root = search.run(game)
                     search_duration_ms = (time.perf_counter() - started) * 1000.0
+                    normal_puct_time_ms += search_duration_ms
                 total_duration_ms = search_duration_ms + lookup_duration_ms
                 move_durations_ms.append(total_duration_ms)
 
@@ -2224,7 +2354,9 @@ def run_arena_worker(
                     )
                     opening_cache_miss_latency_ms.append(total_duration_ms)
 
-                if (
+                if exact_decision is not None:
+                    pass
+                elif (
                     search is not None
                     and hasattr(search, "select_root_move")
                     and root is not None
@@ -2386,6 +2518,10 @@ def run_arena_worker(
             "game_length": ply,
             "winner": winner,
             "trajectory": trajectory_str,
+            "exact_root_handoff_count": exact_root_handoff_count,
+            "first_exact_root_handoff_ply": first_exact_root_handoff_ply,
+            "exact_root_solve_time_ms": exact_root_solve_time_ms,
+            "normal_puct_time_ms": normal_puct_time_ms,
         }
         if opening_prefix_moves:
             entry_data["opening_prefix_moves"] = [int(m) for m in opening_prefix_moves]
@@ -2397,6 +2533,14 @@ def run_arena_worker(
             for entry in game_entries:
                 gjf.write(json.dumps(entry) + "\n")
 
+    closed_tablebases: set[int] = set()
+    for tablebase in root_tablebases.values():
+        if id(tablebase) in closed_tablebases:
+            continue
+        closed_tablebases.add(id(tablebase))
+        close = getattr(tablebase, "close", None)
+        if callable(close):
+            close()
     return {
         "worker_id": worker_id,
         "wins": wins,
@@ -2697,6 +2841,9 @@ def main() -> None:
                     suite_sha256_override=args.suite_sha256,
                     exact_solve_stone_threshold=args.exact_solve_stone_threshold,
                     exact_solve_value_mode=args.exact_solve_value_mode,
+                    exact_root_solve_threshold=args.exact_root_solve_threshold,
+                    exact_root_native_probe=args.exact_root_native_probe,
+                    exact_root_tablebase_path=args.exact_root_tablebase,
                 )
             )
         results = [future.result() for future in futures]

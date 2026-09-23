@@ -49,6 +49,46 @@
       "size_bytes": 11315
     },
     {
+      "path": ".tmp/exact_root16_diagnostic_arena.json",
+      "required": true,
+      "role": "exact_root16_diagnostic_arena",
+      "schema": "arena_v1",
+      "sha256": "7ffcfb451e50dac0217e78e38099a858e0028203c6adf4206c90a5d7f87990b7",
+      "size_bytes": 4971
+    },
+    {
+      "path": ".tmp/exact_root16_diagnostic_arena_games.jsonl",
+      "required": true,
+      "role": "exact_root16_diagnostic_arena_games",
+      "schema": null,
+      "sha256": "e56a88649cf63ad7cc8c5fe09b300b7d71e746da217972de79e951fcc1948331",
+      "size_bytes": 126517
+    },
+    {
+      "path": ".tmp/exact_root16_forensic_normal.json",
+      "required": true,
+      "role": "exact_root16_forensic_baseline",
+      "schema": "azlite_forensic_suite_v1",
+      "sha256": "e26a0cf9ce93598e0409befc33d818d8f353123233450d5c84548fdb349033c9",
+      "size_bytes": 871941
+    },
+    {
+      "path": ".tmp/exact_root16_forensic_native.json",
+      "required": true,
+      "role": "exact_root16_forensic_native",
+      "schema": "azlite_forensic_suite_v1",
+      "sha256": "03feef2f0e5c3776c6d8b5699987e182c173961d8df6fa5fe3a4f63db557d6d1",
+      "size_bytes": 871628
+    },
+    {
+      "path": ".tmp/exact_root16_handoff_summary.json",
+      "required": true,
+      "role": "exact_root16_handoff_summary",
+      "schema": "azlite_exact_root16_handoff_diagnostic_v1",
+      "sha256": "72c8994b42efeebe2283ccd443d4a781aed0c224b94268e1e3f92d47ef7454ba",
+      "size_bytes": 2076
+    },
+    {
       "path": "docs/alphazero-lite-seed455-forensic-exact-adjudication.md",
       "required": true,
       "role": "forensic_exact_adjudication_report",
@@ -90,6 +130,22 @@
       "size_bytes": 28984
     },
     {
+      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/metadata.json",
+      "required": true,
+      "role": "metadata",
+      "schema": "azlite_model_v1",
+      "sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+      "size_bytes": 1907
+    },
+    {
+      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/perspective_audit.json",
+      "required": true,
+      "role": "perspective_audit",
+      "schema": "perspective_audit_v1",
+      "sha256": "1166c8ad2bf1154593659842c22a582d8cc26f38b6627092212881dd7060898f",
+      "size_bytes": 319
+    },
+    {
       "path": ".tmp/puct_exact_leaf_propagation_seed455.json",
       "required": true,
       "role": "puct_exact_leaf_propagation",
@@ -114,14 +170,6 @@
       "size_bytes": 4603277
     },
     {
-      "path": ".tmp/puct_exact_margin_leaf_forensic.json",
-      "required": true,
-      "role": "puct_exact_margin_leaf_forensic",
-      "schema": "azlite_forensic_suite_v1",
-      "sha256": "5a10d684ed87be48c722068c9b0d17f9c4bdcd9fc69732488735ad1dea6bf181",
-      "size_bytes": 871874
-    },
-    {
       "path": "docs/alphazero-lite-puct-exact-margin-leaf-ablation.md",
       "required": true,
       "role": "puct_exact_margin_leaf_ablation_report",
@@ -130,20 +178,12 @@
       "size_bytes": 1078
     },
     {
-      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/metadata.json",
+      "path": ".tmp/puct_exact_margin_leaf_forensic.json",
       "required": true,
-      "role": "metadata",
-      "schema": "azlite_model_v1",
-      "sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
-      "size_bytes": 1907
-    },
-    {
-      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/perspective_audit.json",
-      "required": true,
-      "role": "perspective_audit",
-      "schema": "perspective_audit_v1",
-      "sha256": "1166c8ad2bf1154593659842c22a582d8cc26f38b6627092212881dd7060898f",
-      "size_bytes": 319
+      "role": "puct_exact_margin_leaf_forensic",
+      "schema": "azlite_forensic_suite_v1",
+      "sha256": "5a10d684ed87be48c722068c9b0d17f9c4bdcd9fc69732488735ad1dea6bf181",
+      "size_bytes": 871874
     },
     {
       "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/self_play.jsonl",
@@ -648,6 +688,31 @@
       },
       "tool": "shared_exact_diagnostic"
     },
+    "exact_root16_handoff": {
+      "artifact": {
+        "path": ".tmp/exact_root16_handoff_summary.json",
+        "required": true,
+        "role": "exact_root16_handoff_summary",
+        "schema": "azlite_exact_root16_handoff_diagnostic_v1",
+        "sha256": "72c8994b42efeebe2283ccd443d4a781aed0c224b94268e1e3f92d47ef7454ba",
+        "size_bytes": 2076
+      },
+      "config": {
+        "exact_root_solve_threshold": 16,
+        "leaf_exact_solve_mode": "disabled",
+        "objective": "final_score_margin",
+        "suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+      },
+      "status": "complete",
+      "summary": {
+        "arena_seed455_score": 0.6484375,
+        "forensic_noneligible_byte_drift": 0,
+        "pr340_noneligible_semantic_drift": 0,
+        "primary_classification": "exact_root16_repairs_seed455_without_search_regression",
+        "sparse_endgame_023_selected_move": 4
+      },
+      "tool": "native_exact_root_handoff"
+    },
     "forensic_exact_adjudication": {
       "artifact": {
         "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/forensic_exact_evaluation.json",
@@ -691,84 +756,6 @@
       },
       "tool": "run_forensic_suite"
     },
-    "puct_exact_leaf_value": {
-      "artifact": {
-        "path": "docs/alphazero-lite-seed455-puct-exact-leaf-diagnostic.md",
-        "required": true,
-        "role": "puct_exact_leaf_diagnostic",
-        "schema": "markdown",
-        "sha256": "d32a4bfdfaee5ae4c05e54f5c11601e281e2a26c1f8c15a74c2e3c8f9df23f15",
-        "size_bytes": 3059
-      },
-      "configurations": [
-        "disabled",
-        "exact_threshold_8",
-        "exact_threshold_10",
-        "exact_threshold_12"
-      ],
-      "primary_classification": "puct_exact_endgame_repairs_tactic_but_hurts_globally",
-      "promotion_decision_unchanged": "rejected",
-      "selected_threshold": null,
-      "summary": {
-        "decisive_row": "sparse_endgame-023",
-        "smallest_tactical_repair_threshold": 10,
-        "pr340_expected_regret_disabled": 1.5296,
-        "pr340_expected_regret_threshold_10": 1.6358,
-        "threshold_adopted": false
-      },
-      "tool": "run_forensic_suite_and_arena"
-    },
-    "puct_exact_leaf_propagation": {
-      "artifact": {
-        "path": ".tmp/puct_exact_leaf_propagation_seed455.json",
-        "required": true,
-        "role": "puct_exact_leaf_propagation",
-        "schema": "azlite_seed48_target_quality_audit_v1",
-        "sha256": "18a7add5dc81043cb573838c550b08eee32f21cd6d9327ca159bca2946851d91",
-        "size_bytes": 2812954
-      },
-      "config": {
-        "corpus": "docs/data/alphazero-lite-seed48-target-quality/results.json",
-        "c_puct": 1.25,
-        "exact_solve_stone_threshold": 10,
-        "simulations": 384
-      },
-      "status": "complete",
-      "summary": {
-        "primary_classification": "exact_wdl_margin_collapse_primary",
-        "seed455_expected_regret_delta": 0.10625,
-        "seed455_outcome_regressions": 0,
-        "seed455_same_outcome_margin_regressions": 6,
-        "seed455_unchanged_selection_redistribution_delta": 0.07947916666666666
-      },
-      "tool": "run_seed48_target_quality_audit"
-    },
-    "puct_exact_margin_leaf_ablation": {
-      "artifact": {
-        "path": ".tmp/puct_exact_margin_leaf_ablation_seed455.json",
-        "required": true,
-        "role": "puct_exact_margin_leaf_ablation",
-        "schema": "azlite_seed48_target_quality_audit_v1",
-        "sha256": "0ea1b0f9191bd68bba486bed9d04370f290348ae47d0279945840be719f09470",
-        "size_bytes": 4603277
-      },
-      "config": {
-        "conditions": ["disabled", "threshold10_wdl", "threshold10_wdl_margin"],
-        "c_puct": 1.25,
-        "exact_solve_stone_threshold": 10,
-        "simulations": 384
-      },
-      "status": "complete",
-      "summary": {
-        "primary_classification": "exact_margin_leaf_loses_tactical_fix",
-        "pr340_expected_regret_wdl": 1.6358333333333335,
-        "pr340_expected_regret_wdl_margin": 1.5128385416666665,
-        "pr340_optimal_mass_wdl": 0.6877994791666667,
-        "pr340_optimal_mass_wdl_margin": 0.6977604166666667,
-        "sparse_endgame_023_wdl_margin_selected_move": 5
-      },
-      "tool": "run_seed48_target_quality_audit_and_forensic_suite"
-    },
     "policy": {
       "artifact": {
         "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/perspective_audit.json",
@@ -797,6 +784,88 @@
         "rows": 70760
       },
       "tool": "perspective_audit"
+    },
+    "puct_exact_leaf_propagation": {
+      "artifact": {
+        "path": ".tmp/puct_exact_leaf_propagation_seed455.json",
+        "required": true,
+        "role": "puct_exact_leaf_propagation",
+        "schema": "azlite_seed48_target_quality_audit_v1",
+        "sha256": "18a7add5dc81043cb573838c550b08eee32f21cd6d9327ca159bca2946851d91",
+        "size_bytes": 2812954
+      },
+      "config": {
+        "c_puct": 1.25,
+        "corpus": "docs/data/alphazero-lite-seed48-target-quality/results.json",
+        "exact_solve_stone_threshold": 10,
+        "simulations": 384
+      },
+      "status": "complete",
+      "summary": {
+        "primary_classification": "exact_wdl_margin_collapse_primary",
+        "seed455_expected_regret_delta": 0.10625,
+        "seed455_outcome_regressions": 0,
+        "seed455_same_outcome_margin_regressions": 6,
+        "seed455_unchanged_selection_redistribution_delta": 0.07947916666666666
+      },
+      "tool": "run_seed48_target_quality_audit"
+    },
+    "puct_exact_leaf_value": {
+      "artifact": {
+        "path": "docs/alphazero-lite-seed455-puct-exact-leaf-diagnostic.md",
+        "required": true,
+        "role": "puct_exact_leaf_diagnostic",
+        "schema": "markdown",
+        "sha256": "d32a4bfdfaee5ae4c05e54f5c11601e281e2a26c1f8c15a74c2e3c8f9df23f15",
+        "size_bytes": 3059
+      },
+      "configurations": [
+        "disabled",
+        "exact_threshold_8",
+        "exact_threshold_10",
+        "exact_threshold_12"
+      ],
+      "primary_classification": "puct_exact_endgame_repairs_tactic_but_hurts_globally",
+      "promotion_decision_unchanged": "rejected",
+      "selected_threshold": null,
+      "summary": {
+        "decisive_row": "sparse_endgame-023",
+        "pr340_expected_regret_disabled": 1.5296,
+        "pr340_expected_regret_threshold_10": 1.6358,
+        "smallest_tactical_repair_threshold": 10,
+        "threshold_adopted": false
+      },
+      "tool": "run_forensic_suite_and_arena"
+    },
+    "puct_exact_margin_leaf_ablation": {
+      "artifact": {
+        "path": ".tmp/puct_exact_margin_leaf_ablation_seed455.json",
+        "required": true,
+        "role": "puct_exact_margin_leaf_ablation",
+        "schema": "azlite_seed48_target_quality_audit_v1",
+        "sha256": "0ea1b0f9191bd68bba486bed9d04370f290348ae47d0279945840be719f09470",
+        "size_bytes": 4603277
+      },
+      "config": {
+        "c_puct": 1.25,
+        "conditions": [
+          "disabled",
+          "threshold10_wdl",
+          "threshold10_wdl_margin"
+        ],
+        "exact_solve_stone_threshold": 10,
+        "simulations": 384
+      },
+      "status": "complete",
+      "summary": {
+        "pr340_expected_regret_wdl": 1.6358333333333335,
+        "pr340_expected_regret_wdl_margin": 1.5128385416666665,
+        "pr340_optimal_mass_wdl": 0.6877994791666667,
+        "pr340_optimal_mass_wdl_margin": 0.6977604166666667,
+        "primary_classification": "exact_margin_leaf_loses_tactical_fix",
+        "sparse_endgame_023_wdl_margin_selected_move": 5
+      },
+      "tool": "run_seed48_target_quality_audit_and_forensic_suite"
     },
     "regressions": {
       "artifact": {
