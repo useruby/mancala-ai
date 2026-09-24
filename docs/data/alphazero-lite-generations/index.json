@@ -143,6 +143,14 @@
       "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
       "reason": "diagnostic_sibling_exact_root_optimal_set_targets_improve_policy_only",
       "record": "docs/data/alphazero-lite-generations/seed461-exact-root-optimal-set-uniform/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "eb4c1615d18382ea8ab04824452f83ca85d348a752d5b456bcb9ddb79f9a4b66",
+      "decision": "not_evaluated",
+      "generation_id": "seed461-exact-root-policy-loss-zero",
+      "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "reason": "diagnostic_sibling_exact_root_policy_loss_mask_regresses",
+      "record": "docs/data/alphazero-lite-generations/seed461-exact-root-policy-loss-zero/generation.json"
     }
   ],
   "schema": "azlite_generation_index_v1"

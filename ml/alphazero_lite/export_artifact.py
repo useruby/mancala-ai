@@ -158,6 +158,7 @@ def main() -> None:
     parser.add_argument("--self-play-games", type=int, default=0)
     parser.add_argument("--policy-loss", type=float, default=0.0)
     parser.add_argument("--value-loss", type=float, default=0.0)
+    parser.add_argument("--exact-root-policy-loss-weight", type=float, default=1.0)
     parser.add_argument("--model-type", choices=SUPPORTED_MODEL_TYPES, default="mlp_v1")
     parser.add_argument("--rules-version", default="kalah_v1")
     parser.add_argument("--input-encoding", default="kalah_v1")
@@ -206,6 +207,7 @@ def main() -> None:
             validate_residual_v2_checkpoint(npz)
         if args.model_type == "residual_v3":
             validate_residual_v3_checkpoint(npz)
+            architecture_payload["hidden_layer_count"] += 2
         elif args.model_type == "residual_v3_parent_additive_policy_adapter":
             validate_parent_additive_policy_adapter_checkpoint(npz)
             architecture_payload["hidden_layer_count"] += 2
@@ -275,6 +277,7 @@ def main() -> None:
         },
         "training": {
             "self_play_games": args.self_play_games,
+            "exact_root_policy_loss_weight": args.exact_root_policy_loss_weight,
         },
         "metrics": {
             "policy_loss": args.policy_loss,
