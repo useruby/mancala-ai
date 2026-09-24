@@ -127,6 +127,22 @@
       "parent_weights_sha256": "935e3cf6cc0fa2d1d848e74ec3a23f71309f4fc7b129e873b2c187aef56abf0c",
       "reason": "seed455_default_value_downstream_blocked",
       "record": "docs/data/alphazero-lite-generations/seed48-nextgen-s455-default-value/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+      "decision": "rejected",
+      "generation_id": "seed455-nextgen-s461-default-value-root16-iter1",
+      "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "reason": "seed461_generation_n_plus_2_prefilter_failed",
+      "record": "docs/data/alphazero-lite-generations/seed455-nextgen-s461-default-value-root16/generation.json"
+    },
+    {
+      "candidate_weights_sha256": "4f575f92e83965949388b83863097c795b2182c54fb4017eca709cbd07c77014",
+      "decision": "not_evaluated",
+      "generation_id": "seed461-exact-root-optimal-set-uniform",
+      "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "reason": "diagnostic_sibling_exact_root_optimal_set_targets_improve_policy_only",
+      "record": "docs/data/alphazero-lite-generations/seed461-exact-root-optimal-set-uniform/generation.json"
     }
   ],
   "schema": "azlite_generation_index_v1"

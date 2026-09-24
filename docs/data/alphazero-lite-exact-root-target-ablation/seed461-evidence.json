@@ -1,0 +1,44 @@
+{
+  "artifacts": {
+    "diagnostic_arena_b_vs_a": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/arena256_b_vs_a.json", "sha256": "fe71e3b713f574079e423eef4165f516727d440b2a28067085005a01249dbcad"},
+    "diagnostic_arena_b_vs_seed455": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/arena256_b_vs_seed455.json", "sha256": "58e53e4ae678816a78c41f957ce16fd89d95328b23a01eca4e35ad8ddd2f8992"},
+    "forensic_a": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/forensic_a.json", "sha256": "9743cecbd5df9266247db116056e5d3690bf2cf94fa4625a38ccf11811f16883"},
+    "forensic_b": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/forensic_b.json", "sha256": "ad3c74c0674d8e12dfbdbd7ba94cc38459969e0fb2b07c064747c08afc8765ad"},
+    "relabel_audit": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/target_transform_audit.json", "sha256": "3b0648ea480d29f11bc78fac05764437611dc763644a918ab8a11a0e58419c54"}
+  },
+  "audit": {
+    "all_rows": 66733,
+    "exact_root_rows": 19848,
+    "non_exact_policy_mismatches": 0,
+    "ordering_mismatches": 0,
+    "output_rows": 66733,
+    "policy_rows_changed": 8131,
+    "source_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+    "state_mismatches": 0,
+    "tied_exact_root_fraction_all_rows": 0.12184796847257159,
+    "tied_exact_root_fraction_exact_rows": 0.4096657093903668,
+    "tied_optimum_rows": 8131,
+    "transformed_sha256": "dbdd3e1415f5b9122f354cff4e1a4046704813e6c1aef150087a2fe75c5c1733",
+    "unique_optimum_rows": 11717,
+    "value_mismatches": 0,
+    "winner_mismatches": 0
+  },
+  "classification_evidence": {
+    "diagnostic_arena": {"b_minus_a_score": -0.09765625, "b_score": 0.40234375, "games": 256, "suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f"},
+    "forensic_policy_v2_exact_top1": {"a": {"blunder": 0.4866, "hybrid_top1": 0.7098, "regret": 0.0794}, "b": {"blunder": 0.4688, "hybrid_top1": 0.7054, "regret": 0.0828}, "exact_reference_sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626"}
+  },
+  "regenerated_diagnostics": {
+    "exact_root_policy_fidelity": {
+      "root_handoff_disabled": true,
+      "tied": {"a_optimal_mass": 0.7903133909014057, "b_optimal_mass": 0.8168506972045222, "a_top1": 0.8439306358381503, "b_top1": 0.9060386176362071, "a_suboptimal_mass": 0.20968660909859616, "b_suboptimal_mass": 0.1831493027954788, "a_entropy": 1.0287520664917509, "b_entropy": 1.035025926966318, "a_kl_uniform": 0.444381473111804, "b_kl_uniform": 0.383324338831121, "a_tiebreak_mass": 0.3973147291778004, "b_tiebreak_mass": 0.30615355272738537, "a_other_optimal_mass": 0.39299866172360626, "b_other_optimal_mass": 0.5106971444771344, "b_minus_a_optimal_mass_bootstrap_95": [0.025136084725202002, 0.027986263819163387], "rows": 8131},
+      "unique": {"a_optimal_mass": 0.6620985599991268, "b_optimal_mass": 0.6907851630414235, "a_top1": 0.7638474012119143, "b_top1": 0.8155671246906204, "a_suboptimal_mass": 0.3379014400008738, "b_suboptimal_mass": 0.30921483695857804, "a_entropy": 0.6019469399850504, "b_entropy": 0.5905182385246178, "b_minus_a_optimal_mass_bootstrap_95": [0.027224002789024728, 0.030128082005624585], "rows": 11717}
+    },
+    "network_only_gt16": {"positions": 90, "a": {"raw_optimal_mass": 0.5292008863539743, "raw_expected_regret": 3.0096299485055105, "puct384_optimal_mass": 0.653587962962963, "puct384_expected_regret": 1.9059606481481484, "value_mae": 0.3371053831030925, "sign_accuracy": 0.9}, "b": {"raw_optimal_mass": 0.5468681823904648, "raw_expected_regret": 2.9508091509814336, "puct384_optimal_mass": 0.6752893518518518, "puct384_expected_regret": 1.8321180555555556, "value_mae": 0.33954311182994085, "sign_accuracy": 0.9111111111111111}, "b_minus_a_bootstrap_95": {"raw_optimal_mass": [0.0055061332191763375, 0.02968015777247048], "raw_expected_regret": [-0.16388066554355094, 0.06361471782976799], "puct384_optimal_mass": [0.000983796296296288, 0.04609375], "puct384_expected_regret": [-0.18859953703703705, 0.05115740740740739]}, "bootstrap": {"seed": 367, "samples": 10000}},
+    "pr340_full": {"positions": 200, "a": {"raw_optimal_mass": 0.6184006487430054, "raw_expected_regret": 2.313376816203988, "puct384_optimal_mass": 0.7105078125, "puct384_expected_regret": 1.5174479166666666}, "b": {"raw_optimal_mass": 0.6321497420351125, "raw_expected_regret": 2.2621749239249906, "puct384_optimal_mass": 0.7284765625, "puct384_expected_regret": 1.4510677083333334}}
+  },
+  "provenance_status": {
+    "classification": "exact_root_optimal_set_targets_improve_policy_only",
+    "reason": "B improves exact-root target fidelity and the frozen neural diagnostics, but the pre-existing 256-game symmetric diagnostic arena is negative versus A; this does not qualify B for a canonical promotion holdout."
+  },
+  "schema": "azlite_exact_root_target_ablation_v1"
+}

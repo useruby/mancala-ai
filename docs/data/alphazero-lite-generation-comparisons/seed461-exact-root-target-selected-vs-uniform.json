@@ -1,0 +1,12 @@
+{
+  "allowed_record_differences": ["artifacts", "candidate", "canonical_evaluation", "canonical_evaluation_attempts", "diagnostics", "promotion", "replay", "self_play", "status", "training", "transform"],
+  "comparison_id": "seed461-exact-root-target-selected-vs-uniform",
+  "conclusion": {"classification": "exact_root_optimal_set_targets_improve_policy_only", "next_step": "Do not canonical-gate B. Next test whether exact-root rows should carry reduced or zero policy-loss weight while retaining their value supervision and trajectories.", "verified": true},
+  "controlled_difference": {"replay.sources.fresh.exact_root_policy_target_mode": {"baseline": "selected_one_hot", "treatment": "optimal_set_uniform"}},
+  "description": "Frozen seed461 exact-root policy-target sibling comparison. No self-play was generated and A remains an immutable rejected candidate.",
+  "evidence": {"path": "../alphazero-lite-exact-root-target-ablation/seed461-evidence.json", "required": true, "role": "comparison_evidence", "schema": "azlite_exact_root_target_ablation_v1", "sha256": "25b27e7b6f1b1f951ef07e6bb22304477b6275e84e1aaa69368a4953cb240a45", "size_bytes": 4892},
+  "pairs": [{"baseline_record": "../alphazero-lite-generations/seed455-nextgen-s461-default-value-root16/generation.json", "pair_id": "seed461", "treatment_record": "../alphazero-lite-generations/seed461-exact-root-optimal-set-uniform/generation.json"}],
+  "schema": "azlite_generation_comparison_v1",
+  "scope": {"canonical_gate_run": false, "canonical_games": 0, "promotion_performed": false, "self_play_generated": false},
+  "statistics": {"caveat": "Conditional on one frozen dataset and training seed; no inference over training-seed randomness.", "paired_bootstrap": {"samples": 10000, "seed": 367}, "results": {"diagnostic_arena_score": {"b_minus_a": -0.09765625, "games": 256}}}
+}

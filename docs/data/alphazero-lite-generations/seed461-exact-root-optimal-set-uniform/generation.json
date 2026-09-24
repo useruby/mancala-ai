@@ -1,0 +1,28 @@
+{
+  "artifacts": [
+    {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/checkpoint.npz", "required": false, "role": "checkpoint", "schema": "npz", "sha256": "6e8248717433c73e13127409c5614ec4d26a0ea2586ba0075a1a5a51398fd478", "size_bytes": 298302},
+    {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/artifact/metadata.json", "required": false, "role": "metadata", "schema": "azlite_model_v1", "sha256": "0b68ee2fbf180d8a6bbb1e5d50a1dd1d6d18100bd8f93379e464b93d19314d1d", "size_bytes": 1925},
+    {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/artifact/weights.json", "required": false, "role": "weights", "schema": "azlite_model_weights_v1", "sha256": "4f575f92e83965949388b83863097c795b2182c54fb4017eca709cbd07c77014", "size_bytes": 1583050},
+    {"path": "../../alphazero-lite-exact-root-target-ablation/seed461-evidence.json", "required": true, "role": "comparison_evidence", "schema": "azlite_exact_root_target_ablation_v1", "sha256": "25b27e7b6f1b1f951ef07e6bb22304477b6275e84e1aaa69368a4953cb240a45", "size_bytes": 4892}
+  ],
+  "candidate": {
+    "checkpoint": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/checkpoint.npz", "required": false, "role": "checkpoint", "schema": "npz", "sha256": "6e8248717433c73e13127409c5614ec4d26a0ea2586ba0075a1a5a51398fd478", "size_bytes": 298302},
+    "metadata": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/artifact/metadata.json", "required": false, "role": "metadata", "schema": "azlite_model_v1", "sha256": "0b68ee2fbf180d8a6bbb1e5d50a1dd1d6d18100bd8f93379e464b93d19314d1d", "size_bytes": 1925},
+    "version": "seed455-nextgen-s461-exact-root-optimal-set-uniform-iter1",
+    "weights": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/artifact/weights.json", "required": false, "role": "weights", "schema": "azlite_model_weights_v1", "sha256": "4f575f92e83965949388b83863097c795b2182c54fb4017eca709cbd07c77014", "size_bytes": 1583050}
+  },
+  "canonical_evaluation": {"downstream": {"reason": "classification_not_qualified", "status": "not_run"}, "hard_arena": {"reason": "classification_not_qualified", "status": "not_run"}, "prefilter": {"reason": "classification_not_qualified; A evidence is not reusable", "status": "not_run"}},
+  "comparison_controls": {"architecture": "residual_v3 96,3", "batch_size": 512, "checkpoint_policy": "production_default_best_validation", "epochs": 4, "historical_replay_sha256": ["6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2", "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6", "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2", "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"], "lr": null, "optimizer": "numpy_adam", "parent_runtime_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d", "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c", "replay_weights": [1, 4, 1, 8, 4], "trainable_scope": "all_parameters", "training_seed": 461, "value_loss": "huber", "value_loss_weight": 0.3, "value_targets": "default"},
+  "compute": {"diagnostic_compute": "recovered", "self_play_games": 0, "treatment_training_compute": "recovered"},
+  "diagnostics": {},
+  "generation_id": "seed461-exact-root-optimal-set-uniform",
+  "parent": {"metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac", "runtime_search_policy": {"path": "model-artifact/current/search_policy.json", "required": true, "role": "parent_runtime_search_policy", "schema": "azlite_runtime_search_policy_v1", "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d", "size_bytes": 700}, "version": "seed48-nextgen-s455-default-value-iter1", "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"},
+  "promotion": {"decision": "not_evaluated", "failure_reasons": [], "gate_report": null},
+  "provenance_notes": ["Diagnostic sibling of seed455-nextgen-s461-default-value-root16-iter1; no self-play was generated.", "A's rejected canonical prefilter is not evidence for B."],
+  "replay": {"sources": [{"artifact": {"path": ".tmp/seed461-exact-root-policy-target-optimal-set/self_play_optimal_set_uniform.jsonl", "required": false, "role": "replay_source", "schema": "azlite_self_play_jsonl_v1", "sha256": "dbdd3e1415f5b9122f354cff4e1a4046704813e6c1aef150087a2fe75c5c1733", "size_bytes": 698990537}, "exact_root_policy_target_mode": "optimal_set_uniform", "name": "fresh", "weight": 1}]},
+  "schema": "azlite_generation_record_v1",
+  "self_play": {"artifact": null, "compute": {}, "config": {}, "reused_source_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab", "seeds": [], "status": "not_run"},
+  "status": "evaluated",
+  "training": {"checkpoint_policy": "production_default_best_validation", "compute": {}, "config": {"batch_size": "512", "epochs": "4", "hidden_sizes": "96,3", "model_type": "residual_v3", "replay_weights": "1,4,1,8,4", "seed": "461", "value_loss": "huber", "value_loss_weight": "0.3", "value_target_mode": "default"}, "metrics": {}, "optimizer_updates": null, "seed": 461, "status": "complete"},
+  "transform": {"audit_sha256": "3b0648ea480d29f11bc78fac05764437611dc763644a918ab8a11a0e58419c54", "exact_root_policy_target_mode": "optimal_set_uniform", "source_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab", "transformed_sha256": "dbdd3e1415f5b9122f354cff4e1a4046704813e6c1aef150087a2fe75c5c1733"}
+}
