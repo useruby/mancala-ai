@@ -15,6 +15,70 @@ from ml.alphazero_lite import train as train_module
 
 
 class TrainScriptTest(unittest.TestCase):
+    def test_weighted_policy_loss_normalizes_over_active_rows(self):
+        losses = torch.tensor([2.0, 10.0])
+        all_active = torch.ones(2)
+        mixed = torch.tensor([1.0, 0.0])
+
+        self.assertEqual(
+            6.0, float(train_module.weighted_policy_loss(losses, all_active))
+        )
+        self.assertEqual(2.0, float(train_module.weighted_policy_loss(losses, mixed)))
+        self.assertEqual(
+            0.0,
+            float(train_module.weighted_policy_loss(losses, torch.zeros(2))),
+        )
+
+    def test_exact_root_loader_masks_policy_but_keeps_value_target(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            path = Path(tmp) / "exact.jsonl"
+            row = {
+                "state": [1.0] * 15,
+                "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "value": 0.75,
+                "teacher_source": "exact_root_tablebase",
+                "active_pit_stones": 12,
+                "exact_selected_action": 0,
+                "exact_optimal_actions": [0],
+                "exact_action_margins": {"0": 1},
+                "puct_simulations_executed": 0,
+            }
+            self._write_rows(path, [row])
+
+            _x, _p, values, weights = train_module.load_jsonl(
+                path,
+                exact_root_policy_loss_weight=0.0,
+                include_policy_loss_weights=True,
+            )
+
+            self.assertEqual(0.0, float(weights[0]))
+            self.assertEqual(0.75, float(values[0, 0]))
+
+    def test_exact_root_loader_rejects_inconsistent_metadata(self):
+        with tempfile.TemporaryDirectory(prefix="azlite-train-") as tmp:
+            path = Path(tmp) / "exact.jsonl"
+            self._write_rows(
+                path,
+                [
+                    {
+                        "state": [1.0] * 15,
+                        "policy": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        "value": 0.0,
+                        "teacher_source": "exact_root_tablebase",
+                        "active_pit_stones": 17,
+                        "exact_selected_action": 0,
+                        "exact_optimal_actions": [0],
+                        "exact_action_margins": {"0": 1},
+                        "puct_simulations_executed": 0,
+                    }
+                ],
+            )
+
+            with self.assertRaisesRegex(
+                ValueError, "exact_root_policy_mask_metadata_inconsistent"
+            ):
+                train_module.load_jsonl(path, include_policy_loss_weights=True)
+
     def executable_python(self) -> str:
         repo_root = Path(__file__).resolve().parents[2]
         candidates = [

@@ -168,6 +168,7 @@
     "batch_size": 512,
     "checkpoint_policy": "production_default_best_validation",
     "epochs": 4,
+    "exact_root_policy_loss_weight": 1.0,
     "historical_replay_sha256": [
       "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
       "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",

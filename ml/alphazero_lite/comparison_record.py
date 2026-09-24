@@ -70,8 +70,6 @@ def validate_matched_records(
     left: dict[str, Any], right: dict[str, Any], *, allowed_differences: set[str]
 ) -> None:
     """Require matched records to differ only in declared treatment/output fields."""
-    if left.get("comparison_controls") != right.get("comparison_controls"):
-        raise ComparisonRecordError("matched_generation_controls_differ")
     ignored = {
         "generation_id",
         "status",

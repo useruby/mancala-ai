@@ -78,6 +78,7 @@ EXCLUDED_TRAINING_BUCKETS = {
     "incumbent_proxy_disagreement",
     "incumbent_proxy_residual",
 }
+DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT = 1.0
 
 
 def input_size_for_encoding(input_encoding: str) -> int:
@@ -103,6 +104,38 @@ def normalize_lr_scheduler(lr_scheduler: str) -> str:
     if normalized not in SUPPORTED_LR_SCHEDULERS:
         raise ValueError(f"unsupported lr_scheduler: {lr_scheduler}")
     return normalized
+
+
+def normalize_exact_root_policy_loss_weight(weight: float) -> float:
+    normalized = float(weight)
+    if not 0.0 <= normalized <= 1.0:
+        raise ValueError("exact_root_policy_loss_weight must be within [0.0, 1.0]")
+    return normalized
+
+
+def policy_loss_weight_for_row(
+    row: dict[str, object], *, exact_root_policy_loss_weight: float
+) -> float:
+    """Return the policy-loss weight after validating exact-root provenance."""
+    exact_root_policy_loss_weight = normalize_exact_root_policy_loss_weight(
+        exact_root_policy_loss_weight
+    )
+    if row.get("teacher_source") != "exact_root_tablebase":
+        return 1.0
+
+    try:
+        validate_exact_root_metadata(row)
+        active_pit_stones = int(str(row["active_pit_stones"]))
+        puct_simulations_executed = int(str(row["puct_simulations_executed"]))
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("exact_root_policy_mask_metadata_inconsistent") from error
+    if (
+        active_pit_stones < 0
+        or active_pit_stones > 16
+        or puct_simulations_executed != 0
+    ):
+        raise ValueError("exact_root_policy_mask_metadata_inconsistent")
+    return exact_root_policy_loss_weight
 
 
 def validate_input_features(x: np.ndarray, *, input_encoding: str) -> None:
@@ -333,12 +366,18 @@ def load_jsonl(
     policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
     exclude_buckets: frozenset[str] | set[str] | None = None,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    exact_root_policy_loss_weight: float = DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT,
+    include_policy_loss_weights: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+):
     policy_target_mode = normalize_policy_target_mode(policy_target_mode)
     value_target_mode = normalize_value_target_mode(value_target_mode)
     states = []
     policies = []
     values = []
+    policy_loss_weights = []
 
     with path.open("r", encoding="utf-8") as handle:
         for row_number, line in enumerate(handle, start=1):
@@ -367,10 +406,18 @@ def load_jsonl(
             states.append(row["state"])
             policies.append(policy)
             values.append(value)
+            policy_loss_weights.append(
+                policy_loss_weight_for_row(
+                    row,
+                    exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+                )
+            )
 
     x = np.asarray(states, dtype=np.float32)
     p = np.asarray(policies, dtype=np.float32)
     v = np.asarray(values, dtype=np.float32).reshape(-1, 1)
+    if include_policy_loss_weights:
+        return x, p, v, np.asarray(policy_loss_weights, dtype=np.float32)
     return x, p, v
 
 
@@ -401,7 +448,12 @@ def load_jsonl_replay(
     value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
     replay_value_target_modes: list[str] | None = None,
     exclude_buckets: frozenset[str] | set[str] | None = None,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    exact_root_policy_loss_weight: float = DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT,
+    include_policy_loss_weights: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+):
     if not paths:
         raise ValueError("at least one replay path is required")
 
@@ -425,31 +477,38 @@ def load_jsonl_replay(
     x_chunks: list[np.ndarray] = []
     p_chunks: list[np.ndarray] = []
     v_chunks: list[np.ndarray] = []
+    policy_loss_weight_chunks: list[np.ndarray] = []
     replay_index_chunks: list[np.ndarray] = []
     row_offset = 0
 
     for path, weight, source_value_target_mode in zip(
         paths, weights, replay_value_target_modes
     ):
-        x, p, v = load_jsonl(
+        x, p, v, policy_loss_weights = load_jsonl(
             path,
             policy_target_mode=policy_target_mode,
             value_target_mode=source_value_target_mode,
             exclude_buckets=exclude_buckets,
+            exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+            include_policy_loss_weights=True,
         )
         x_chunks.append(x)
         p_chunks.append(p)
         v_chunks.append(v)
+        policy_loss_weight_chunks.append(policy_loss_weights)
         compact_indexes = np.arange(row_offset, row_offset + x.shape[0], dtype=np.int64)
         replay_index_chunks.append(np.tile(compact_indexes, weight))
         row_offset += x.shape[0]
 
-    return (
+    result = (
         np.concatenate(x_chunks, axis=0),
         np.concatenate(p_chunks, axis=0),
         np.concatenate(v_chunks, axis=0),
         np.concatenate(replay_index_chunks, axis=0),
     )
+    if include_policy_loss_weights:
+        return (*result, np.concatenate(policy_loss_weight_chunks, axis=0))
+    return result
 
 
 def _pairwise_moves_for_row(
@@ -562,6 +621,16 @@ def compute_policy_cross_entropy(
     return -(targets * log_probs).sum(dim=1)
 
 
+def weighted_policy_loss(
+    policy_losses: torch.Tensor, policy_loss_weights: torch.Tensor
+) -> torch.Tensor:
+    """Average policy loss over active rows without changing its loss scale."""
+    denominator = policy_loss_weights.sum()
+    if float(denominator.detach().cpu().item()) == 0.0:
+        return torch.zeros((), device=policy_losses.device, dtype=policy_losses.dtype)
+    return (policy_losses * policy_loss_weights).sum() / denominator
+
+
 def compute_pairwise_ranking_loss(
     logits: torch.Tensor,
     preferred_moves: torch.Tensor,
@@ -600,6 +669,7 @@ def train_one_epoch(
     compact_x: np.ndarray,
     compact_p: np.ndarray,
     compact_v: np.ndarray,
+    compact_policy_loss_weights: np.ndarray | None = None,
     replay_indexes: np.ndarray,
     batch_size: int,
     device: torch.device,
@@ -629,6 +699,8 @@ def train_one_epoch(
     max_optimizer_updates: int | None = None,
 ) -> dict[str, float | None]:
     model.train()
+    if compact_policy_loss_weights is None:
+        compact_policy_loss_weights = np.ones((compact_x.shape[0],), dtype=np.float32)
     use_supervised = compact_x.shape[0] > 0 and replay_indexes.size > 0
     use_pairwise = (
         pairwise_loss_weight > 0.0
@@ -646,6 +718,11 @@ def train_one_epoch(
     x_all = torch.from_numpy(compact_x).to(device) if compact_x.shape[0] > 0 else None
     p_all = torch.from_numpy(compact_p).to(device) if compact_p.shape[0] > 0 else None
     v_all = torch.from_numpy(compact_v).to(device) if compact_v.shape[0] > 0 else None
+    policy_loss_weight_all = (
+        torch.from_numpy(compact_policy_loss_weights).to(device)
+        if compact_x.shape[0] > 0
+        else None
+    )
     legal_mask_all = None
     if compact_legal_masks is not None:
         legal_mask_all = torch.from_numpy(compact_legal_masks).to(device)
@@ -727,6 +804,8 @@ def train_one_epoch(
     grad_norms: list[float] = []
     audit_samples = 0
     examples_sampled = 0
+    policy_active_examples_sampled = 0
+    exact_root_masked_examples_sampled = 0
     total_primary_rows = int(permutation.size(0))
     for start in range(0, total_primary_rows, batch_size):
         if (
@@ -754,15 +833,28 @@ def train_one_epoch(
             assert x_all is not None
             assert p_all is not None
             assert v_all is not None
+            assert policy_loss_weight_all is not None
             assert legal_mask_all is not None
             batch_x = x_all[batch_primary_replay_indexes]
             batch_p = p_all[batch_primary_replay_indexes]
             batch_v = v_all[batch_primary_replay_indexes]
             batch_legal_mask = legal_mask_all[batch_primary_replay_indexes]
+            batch_policy_loss_weights = policy_loss_weight_all[
+                batch_primary_replay_indexes
+            ]
+            policy_active_examples_sampled += int(
+                (batch_policy_loss_weights > 0.0).sum().item()
+            )
+            exact_root_masked_examples_sampled += int(
+                (batch_policy_loss_weights == 0.0).sum().item()
+            )
             logits, value_pred = model(batch_x)
-            policy_loss = compute_policy_cross_entropy(
-                logits.masked_fill(batch_legal_mask <= 0.0, -1e9), batch_p
-            ).mean()
+            policy_loss = weighted_policy_loss(
+                compute_policy_cross_entropy(
+                    logits.masked_fill(batch_legal_mask <= 0.0, -1e9), batch_p
+                ),
+                batch_policy_loss_weights,
+            )
             value_component = compute_value_loss_vector(
                 value_pred,
                 batch_v,
@@ -924,6 +1016,8 @@ def train_one_epoch(
         "audit_source_samples": float(audit_samples),
         "optimizer_updates": len(policy_losses),
         "examples_sampled": examples_sampled,
+        "policy_active_examples_sampled": policy_active_examples_sampled,
+        "exact_root_masked_examples_sampled": exact_root_masked_examples_sampled,
     }
 
 
@@ -1131,6 +1225,7 @@ def train(
     v_target: np.ndarray,
     replay_indexes: np.ndarray | None = None,
     *,
+    policy_loss_weights: np.ndarray | None = None,
     epochs: int,
     batch_size: int,
     lr: float,
@@ -1179,6 +1274,10 @@ def train(
     use_supervised = x.shape[0] > 0
     if use_supervised:
         compact_size = x.shape[0]
+        if policy_loss_weights is None:
+            policy_loss_weights = np.ones((compact_size,), dtype=np.float32)
+        if policy_loss_weights.shape != (compact_size,):
+            raise ValueError("policy loss weights must match supervised rows")
         if replay_indexes is None:
             replay_indexes_array = np.arange(compact_size, dtype=np.int64)
         elif np.any((replay_indexes < 0) | (replay_indexes >= compact_size)):
@@ -1299,6 +1398,7 @@ def train(
     v_all = torch.from_numpy(v_target).to(device) if use_supervised else None
     compact_legal_masks = None
     legal_mask_all = None
+    val_policy_loss_weights = torch.zeros((), device=device)
     if use_supervised:
         compact_legal_masks = legal_mask_matrix_for_encoded_states(x)
         legal_mask_all = torch.from_numpy(compact_legal_masks).to(device)
@@ -1349,6 +1449,7 @@ def train(
             compact_x=x,
             compact_p=p_target,
             compact_v=v_target,
+            compact_policy_loss_weights=policy_loss_weights,
             replay_indexes=train_replay_indexes,
             batch_size=batch_size,
             device=device,
@@ -1418,9 +1519,16 @@ def train(
                     v_val = v_all[val_replay_indexes]
                     legal_mask_val = legal_mask_all[val_replay_indexes]
                     val_logits, val_value_pred = model(x_val)
-                    val_policy_loss = compute_policy_cross_entropy(
-                        val_logits.masked_fill(legal_mask_val <= 0.0, -1e9), p_val
-                    ).mean()
+                    assert policy_loss_weights is not None
+                    val_policy_loss_weights = torch.from_numpy(policy_loss_weights).to(
+                        device
+                    )[val_replay_indexes]
+                    val_policy_loss = weighted_policy_loss(
+                        compute_policy_cross_entropy(
+                            val_logits.masked_fill(legal_mask_val <= 0.0, -1e9), p_val
+                        ),
+                        val_policy_loss_weights,
+                    )
                     val_value_loss = compute_value_loss_vector(
                         val_value_pred,
                         v_val,
@@ -1485,6 +1593,16 @@ def train(
                     "validation_policy_loss": float(val_policy_loss.cpu().item()),
                     "validation_value_loss": float(val_value_loss.cpu().item()),
                     "validation_total_loss": val_total,
+                    "validation_policy_active_rows": float(
+                        (val_policy_loss_weights > 0.0).sum().item()
+                    )
+                    if use_supervised and val_count > 0
+                    else 0.0,
+                    "validation_exact_root_masked_rows": float(
+                        (val_policy_loss_weights == 0.0).sum().item()
+                    )
+                    if use_supervised and val_count > 0
+                    else 0.0,
                 }
                 if val_total < best_val_loss:
                     best_val_loss = val_total
@@ -1547,6 +1665,12 @@ def train(
         "max_optimizer_updates": max_optimizer_updates,
         "train_split_count": int(len(train_replay_indexes)),
         "validation_count": val_count,
+        "policy_active_rows": int(np.count_nonzero(policy_loss_weights))
+        if policy_loss_weights is not None
+        else 0,
+        "policy_masked_rows": int(np.count_nonzero(policy_loss_weights == 0.0))
+        if policy_loss_weights is not None
+        else 0,
         "final_checkpoint": final_checkpoint,
     }
 
@@ -2009,6 +2133,12 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument("--value-loss-weight", type=float, default=0.5)
+    parser.add_argument(
+        "--exact-root-policy-loss-weight",
+        type=float,
+        default=DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT,
+        help="Policy-loss weight for rows marked teacher_source=exact_root_tablebase",
+    )
     parser.add_argument("--value-loss", choices=["mse", "huber"], default="huber")
     parser.add_argument("--huber-delta", type=float, default=1.0)
     parser.add_argument("--val-split", type=float, default=0.1)
@@ -2117,6 +2247,9 @@ def main() -> None:
     args = parser.parse_args()
     policy_target_mode = normalize_policy_target_mode(args.policy_target_mode)
     value_target_mode = normalize_value_target_mode(args.value_target_mode)
+    exact_root_policy_loss_weight = normalize_exact_root_policy_loss_weight(
+        args.exact_root_policy_loss_weight
+    )
 
     data_path = Path(args.data) if args.data else None
     out_path = Path(args.out)
@@ -2163,26 +2296,36 @@ def main() -> None:
     empty_x = np.zeros((0, input_size), dtype=np.float32)
     empty_p = np.zeros((0, POLICY_SIZE), dtype=np.float32)
     empty_v = np.zeros((0, 1), dtype=np.float32)
+    empty_policy_loss_weights = np.zeros((0,), dtype=np.float32)
 
     if replay_paths:
-        x, p_target, v_target, replay_indexes = load_jsonl_replay(
+        x, p_target, v_target, replay_indexes, policy_loss_weights = load_jsonl_replay(
             replay_paths,
             replay_weights,
             policy_target_mode=policy_target_mode,
             value_target_mode=value_target_mode,
             replay_value_target_modes=replay_value_target_modes,
             exclude_buckets=exclude_buckets,
+            exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+            include_policy_loss_weights=True,
         )
     else:
         if data_path is not None:
-            x, p_target, v_target = load_jsonl(
+            x, p_target, v_target, policy_loss_weights = load_jsonl(
                 data_path,
                 policy_target_mode=policy_target_mode,
                 value_target_mode=value_target_mode,
                 exclude_buckets=exclude_buckets,
+                exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+                include_policy_loss_weights=True,
             )
         else:
-            x, p_target, v_target = empty_x, empty_p, empty_v
+            x, p_target, v_target, policy_loss_weights = (
+                empty_x,
+                empty_p,
+                empty_v,
+                empty_policy_loss_weights,
+            )
     if pairwise_target_paths:
         (
             pairwise_x,
@@ -2253,6 +2396,7 @@ def main() -> None:
         v_target,
         replay_indexes,
         epochs=epochs,
+        policy_loss_weights=policy_loss_weights,
         batch_size=args.batch_size,
         lr=args.lr,
         device=device,
@@ -2283,6 +2427,15 @@ def main() -> None:
         max_optimizer_updates=args.max_optimizer_updates,
         final_checkpoint=args.final_checkpoint,
     )
+    model.last_train_metrics["exact_root_policy_loss_weight"] = (
+        exact_root_policy_loss_weight
+    )
+    model.last_train_metrics["total_supervised_rows"] = int(x.shape[0])
+    model.last_train_metrics["policy_active_fraction"] = (
+        float(np.count_nonzero(policy_loss_weights) / policy_loss_weights.size)
+        if policy_loss_weights.size
+        else 0.0
+    )
 
     checkpoint = checkpoint_from_model(model)
     np.savez(out_path, **checkpoint)
@@ -2291,6 +2444,7 @@ def main() -> None:
     print(f"input_encoding={args.input_encoding}")
     print(f"policy_target_mode={policy_target_mode}")
     print(f"value_target_mode={value_target_mode}")
+    print(f"exact_root_policy_loss_weight={exact_root_policy_loss_weight:.6f}")
     print(f"model_type={args.model_type}")
     print(f"policy_loss={policy_loss:.6f}")
     print(f"value_loss={value_loss:.6f}")
@@ -2302,6 +2456,8 @@ def main() -> None:
     )
     print(f"total_loss={float(last_train_metrics.get('total_loss', 0.0)):.6f}")
     print(f"best_val_loss={best_val_loss:.6f}")
+    print(f"policy_active_rows={int(np.count_nonzero(policy_loss_weights))}")
+    print(f"policy_masked_rows={int(np.count_nonzero(policy_loss_weights == 0.0))}")
     if args.max_optimizer_updates is not None:
         print(
             f"optimizer_updates={int(last_train_metrics.get('optimizer_updates', 0))}"

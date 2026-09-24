@@ -1,0 +1,14 @@
+{
+  "schema": "azlite_generation_comparison_v1",
+  "comparison_id": "seed461-exact-root-policy-loss-full-vs-zero",
+  "description": "Frozen seed461 loss ablation. Exact-root rows retain their values and trajectories; only their policy-loss weight changes.",
+  "allowed_record_differences": ["artifacts", "candidate", "canonical_evaluation", "canonical_evaluation_attempts", "comparison_controls.exact_root_policy_loss_weight", "compute", "diagnostics", "promotion", "replay", "self_play", "status", "training"],
+  "controlled_difference": {
+    "comparison_controls.exact_root_policy_loss_weight": {"baseline": 1.0, "treatment": 0.0}
+  },
+  "pairs": [{"pair_id": "seed461", "baseline_record": "../alphazero-lite-generations/seed455-nextgen-s461-default-value-root16/generation.json", "treatment_record": "../alphazero-lite-generations/seed461-exact-root-policy-loss-zero/generation.json"}],
+  "evidence": {"path": "../alphazero-lite-exact-root-policy-loss-ablation/seed461-evidence.json", "required": true, "role": "comparison_evidence", "schema": "azlite_exact_root_policy_loss_ablation_v1", "sha256": "7c25eec666cc3b3974733f47276b20dca97d22a37b1ad2008a91b334036716f1"},
+  "scope": {"canonical_gate_run": false, "promotion_performed": false, "new_self_play_games": 0},
+  "conclusion": {"classification": "exact_root_policy_loss_mask_regresses", "next_step": "Retain exact-root policy supervision; do not sweep intermediate weights or canonical-gate this treatment.", "verified": true},
+  "contextual_evidence": {"pr368_comparison_id": "seed461-exact-root-target-selected-vs-uniform", "role": "context_only"}
+}

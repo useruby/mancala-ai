@@ -1,0 +1,19 @@
+{
+  "schema": "azlite_exact_root_policy_loss_ablation_v1",
+  "replay": {
+    "fresh_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+    "fresh_rows": 66733,
+    "exact_root_rows": 19848,
+    "non_exact_rows": 46885,
+    "target_transform": "none"
+  },
+  "training": {
+    "exact_root_policy_loss_weight": 0.0,
+    "policy_active_rows": 67777,
+    "policy_masked_rows": 19848,
+    "optimizer_updates": 1052,
+    "exact_root_value_supervision": "retained"
+  },
+  "classification": "exact_root_policy_loss_mask_regresses",
+  "reason": "C lost the frozen C-versus-A diagnostic arena and increased >16 value MAE."
+}
