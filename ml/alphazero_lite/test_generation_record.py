@@ -137,6 +137,7 @@ class GenerationRecordTest(unittest.TestCase):
             "seed48-nextgen-s443",
             "seed48-nextgen-s449",
             "seed48-nextgen-s455-default-value",
+            "seed461-exact-root-optimal-set-uniform",
             "value-target-s401-sharpened",
             "value-target-s401-default",
             "value-target-s407-sharpened",

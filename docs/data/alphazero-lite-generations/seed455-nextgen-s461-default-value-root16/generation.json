@@ -163,6 +163,28 @@
     }
   ],
   "compute": {},
+  "comparison_controls": {
+    "architecture": "residual_v3 96,3",
+    "batch_size": 512,
+    "checkpoint_policy": "production_default_best_validation",
+    "epochs": 4,
+    "historical_replay_sha256": [
+      "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+    ],
+    "lr": null,
+    "optimizer": "numpy_adam",
+    "parent_runtime_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "replay_weights": [1, 4, 1, 8, 4],
+    "trainable_scope": "all_parameters",
+    "training_seed": 461,
+    "value_loss": "huber",
+    "value_loss_weight": 0.3,
+    "value_targets": "default"
+  },
   "diagnostics": {
     "diagnostic_arena": {
       "reason": null,
@@ -189,7 +211,7 @@
   "parent": {
     "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
     "runtime_search_policy": {
-      "path": "/home/alex/Mancala/ai/model-artifact/current/search_policy.json",
+      "path": "model-artifact/current/search_policy.json",
       "required": true,
       "role": "parent_runtime_search_policy",
       "schema": "azlite_runtime_search_policy_v1",
@@ -230,6 +252,8 @@
           "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
           "size_bytes": 746904456
         },
+        "exact_root_policy_target_mode": "selected_one_hot",
+        "name": "fresh",
         "weight": 1
       },
       {
@@ -241,6 +265,7 @@
           "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
           "size_bytes": 8012548
         },
+        "name": "generic_bootstrap",
         "weight": 4
       },
       {
@@ -252,6 +277,7 @@
           "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
           "size_bytes": 2610481
         },
+        "name": "random_teacher",
         "weight": 1
       },
       {
@@ -263,6 +289,7 @@
           "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
           "size_bytes": 2414727
         },
+        "name": "opening_disagreement",
         "weight": 8
       },
       {
@@ -274,6 +301,7 @@
           "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
           "size_bytes": 2526874
         },
+        "name": "stability",
         "weight": 4
       }
     ]

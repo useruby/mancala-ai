@@ -1,4 +1,6 @@
 import unittest
+import json
+import tempfile
 from pathlib import Path
 
 from ml.alphazero_lite.comparison_record import (
@@ -6,8 +8,10 @@ from ml.alphazero_lite.comparison_record import (
     _value_at,
     load_record,
     paired_bootstrap,
+    canonical_gate_candidate,
     validate_matched_records,
 )
+from ml.alphazero_lite.generation_record import load_record as load_generation_record
 
 
 class ComparisonRecordTest(unittest.TestCase):
@@ -55,6 +59,34 @@ class ComparisonRecordTest(unittest.TestCase):
         self.assertFalse(comparison["scope"]["canonical_gate_run"])
         self.assertFalse(comparison["scope"]["promotion_performed"])
 
+    def test_seed461_sibling_comparison_preserves_rejected_a_and_blocks_b_gate(self):
+        root = Path(__file__).resolve().parents[2]
+        comparison = load_record(
+            root
+            / "docs/data/alphazero-lite-generation-comparisons"
+            / "seed461-exact-root-target-selected-vs-uniform.json"
+        )
+        self.assertEqual(
+            "exact_root_optimal_set_targets_improve_policy_only",
+            comparison["conclusion"]["classification"],
+        )
+        self.assertFalse(comparison["scope"]["canonical_gate_run"])
+        comparison_dir = root / "docs/data/alphazero-lite-generation-comparisons"
+        baseline = load_generation_record(
+            comparison_dir / comparison["pairs"][0]["baseline_record"]
+        )
+        treatment = load_generation_record(
+            comparison_dir / comparison["pairs"][0]["treatment_record"]
+        )
+        self.assertEqual("rejected", baseline["status"])
+        self.assertEqual("not_run", treatment["self_play"]["status"])
+        self.assertEqual(
+            "4f575f92e83965949388b83863097c795b2182c54fb4017eca709cbd07c77014",
+            treatment["candidate"]["weights"]["sha256"],
+        )
+        with self.assertRaisesRegex(ComparisonRecordError, "not_qualified"):
+            canonical_gate_candidate(comparison, base_dir=comparison_dir)
+
     def test_controlled_difference_uses_named_replay_source(self):
         baseline = {
             "replay": {"sources": [{"name": "fresh", "value_target_mode": "sharpened"}]}
@@ -68,6 +100,103 @@ class ComparisonRecordTest(unittest.TestCase):
         self.assertEqual(
             "default", _value_at(treatment, "replay.sources.fresh.value_target_mode")
         )
+
+    def test_canonical_gate_requires_qualifying_comparison_and_treatment_hash(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            baseline = {
+                "schema": "azlite_generation_record_v1",
+                "generation_id": "a",
+                "status": "rejected",
+                "parent": {"weights_sha256": "a" * 64},
+                "self_play": {
+                    "status": "not_run",
+                    "config": {},
+                    "seeds": [],
+                    "artifact": None,
+                    "compute": {},
+                },
+                "replay": {"sources": []},
+                "training": {
+                    "status": "not_run",
+                    "config": {},
+                    "seed": None,
+                    "optimizer_updates": None,
+                    "checkpoint_policy": None,
+                    "metrics": {},
+                    "compute": {},
+                },
+                "candidate": {
+                    "version": "a",
+                    "checkpoint": None,
+                    "weights": {"sha256": "b" * 64},
+                    "metadata": {"sha256": "c" * 64},
+                },
+                "diagnostics": {},
+                "canonical_evaluation": {},
+                "promotion": {
+                    "decision": "rejected",
+                    "failure_reasons": [{"code": "x"}],
+                    "gate_report": None,
+                },
+                "compute": {},
+                "artifacts": [],
+                "provenance_notes": [],
+                "comparison_controls": {"seed": 461},
+            }
+            treatment = {
+                **baseline,
+                "generation_id": "b",
+                "status": "evaluated",
+                "candidate": {
+                    "version": "b",
+                    "checkpoint": None,
+                    "weights": {"sha256": "d" * 64},
+                    "metadata": {"sha256": "e" * 64},
+                },
+                "promotion": {
+                    "decision": "not_evaluated",
+                    "failure_reasons": [],
+                    "gate_report": None,
+                },
+            }
+            (root / "a.json").write_text(json.dumps(baseline), encoding="utf-8")
+            (root / "b.json").write_text(json.dumps(treatment), encoding="utf-8")
+            comparison = {
+                "schema": "azlite_generation_comparison_v1",
+                "comparison_id": "x",
+                "allowed_record_differences": ["promotion"],
+                "controlled_difference": {
+                    "comparison_controls.seed": {"baseline": 461, "treatment": 461}
+                },
+                "pairs": [
+                    {
+                        "pair_id": "461",
+                        "baseline_record": "a.json",
+                        "treatment_record": "b.json",
+                    }
+                ],
+                "evidence": {
+                    "path": "unavailable",
+                    "required": False,
+                    "sha256": "a" * 64,
+                },
+                "scope": {"canonical_gate_run": False},
+                "conclusion": {
+                    "classification": "exact_root_optimal_set_targets_regress"
+                },
+            }
+            with self.assertRaisesRegex(ComparisonRecordError, "not_qualified"):
+                canonical_gate_candidate(comparison, base_dir=root)
+            comparison["conclusion"]["classification"] = (
+                "exact_root_optimal_set_targets_improve_seed461"
+            )
+            self.assertEqual(
+                "d" * 64,
+                canonical_gate_candidate(comparison, base_dir=root)["weights"][
+                    "sha256"
+                ],
+            )
 
 
 if __name__ == "__main__":
