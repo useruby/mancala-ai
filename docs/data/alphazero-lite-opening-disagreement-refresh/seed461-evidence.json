@@ -1,0 +1,11 @@
+{
+  "schema": "azlite_opening_disagreement_policy_refresh_v1",
+  "source_sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+  "refreshed_sha256": "a7bbd194d2a887014fa26019c45a0d1fb493f76e29efe903d42b674cbbfb0443",
+  "candidate_weights_sha256": "fdc90030d23bad9171a728ec04e1303c102d1d3155e54f4272f4cfcd8cbbada2",
+  "integrity": {"rows": 2000, "state_mismatches": 0, "value_mismatches": 0, "winner_mismatches": 0, "ordering_mismatches": 0, "bucket_family_mismatches": 0, "legal_move_violations": 0},
+  "matched_work": {"optimizer_updates_a": 1052, "optimizer_updates_d": 1052, "train_split_count": 134451, "validation_count": 14997, "replay_weights": [1, 4, 1, 8, 4]},
+  "scope": {"self_play_games": 0, "canonical_games": 0, "promotions": 0},
+  "classification": "opening_disagreement_refresh_no_clear_benefit",
+  "reason": "Frozen raw/search metrics improved and arenas were neutral, but >16 value MAE regressed with paired CI excluding zero."
+}

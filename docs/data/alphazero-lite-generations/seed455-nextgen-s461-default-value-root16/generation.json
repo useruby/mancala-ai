@@ -291,6 +291,7 @@
           "size_bytes": 2414727
         },
         "name": "opening_disagreement",
+        "policy_teacher": "historical",
         "weight": 8
       },
       {

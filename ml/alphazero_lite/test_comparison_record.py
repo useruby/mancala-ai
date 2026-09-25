@@ -87,6 +87,29 @@ class ComparisonRecordTest(unittest.TestCase):
         with self.assertRaisesRegex(ComparisonRecordError, "not_qualified"):
             canonical_gate_candidate(comparison, base_dir=comparison_dir)
 
+    def test_opening_disagreement_refresh_comparison_is_matched_and_not_promotable(
+        self,
+    ):
+        root = Path(__file__).resolve().parents[2]
+        comparison_dir = root / "docs/data/alphazero-lite-generation-comparisons"
+        comparison = load_record(
+            comparison_dir
+            / "seed461-opening-disagreement-historical-vs-seed455-refresh.json"
+        )
+        self.assertEqual(
+            "opening_disagreement_refresh_no_clear_benefit",
+            comparison["conclusion"]["classification"],
+        )
+        self.assertEqual(
+            "historical",
+            comparison["controlled_difference"][
+                "replay.sources.opening_disagreement.policy_teacher"
+            ]["baseline"],
+        )
+        self.assertFalse(comparison["scope"]["canonical_gate_run"])
+        with self.assertRaisesRegex(ComparisonRecordError, "not_qualified"):
+            canonical_gate_candidate(comparison, base_dir=comparison_dir)
+
     def test_controlled_difference_uses_named_replay_source(self):
         baseline = {
             "replay": {"sources": [{"name": "fresh", "value_target_mode": "sharpened"}]}
