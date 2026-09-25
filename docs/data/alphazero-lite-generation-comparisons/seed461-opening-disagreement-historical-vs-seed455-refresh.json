@@ -1,0 +1,32 @@
+{
+  "schema": "azlite_generation_comparison_v1",
+  "comparison_id": "seed461-opening-disagreement-historical-vs-seed455-refresh",
+  "description": "Frozen seed461 replay-teacher freshness comparison. D retains A's states, values, row count, replay weights, training seed, and optimizer work; only opening-disagreement policy-teacher provenance and targets change.",
+  "allowed_record_differences": ["artifacts", "candidate", "canonical_evaluation", "canonical_evaluation_attempts", "diagnostics", "promotion", "replay", "self_play", "status", "training", "compute", "provenance_notes"],
+  "controlled_difference": {
+    "replay.sources.opening_disagreement.policy_teacher": {
+      "baseline": "historical",
+      "treatment": "current_seed455_search"
+    }
+  },
+  "pairs": [{
+    "pair_id": "seed461",
+    "baseline_record": "../alphazero-lite-generations/seed455-nextgen-s461-default-value-root16/generation.json",
+    "treatment_record": "../alphazero-lite-generations/seed461-opening-disagreement-seed455-refresh/generation.json"
+  }],
+  "evidence": {
+    "path": "../alphazero-lite-opening-disagreement-refresh/seed461-evidence.json",
+    "required": true,
+    "role": "comparison_evidence",
+    "schema": "azlite_opening_disagreement_policy_refresh_v1",
+    "sha256": "7ba39add07a9c4b1b20cfb05ae789dfa7c3e5140e461d17b671cfa16cdcf640a",
+    "size_bytes": 971
+  },
+  "scope": {"self_play_generated": false, "canonical_gate_run": false, "canonical_games": 0, "promotion_performed": false},
+  "statistics": {"paired_bootstrap": {"samples": 10000, "seed": 370}, "caveat": "Conditional on one frozen dataset and training seed; no inference over training-seed randomness."},
+  "conclusion": {
+    "classification": "opening_disagreement_refresh_no_clear_benefit",
+    "verified": true,
+    "next_step": "Keep the historical opening-disagreement replay unchanged; perform broader replay-source attribution before changing another source."
+  }
+}
