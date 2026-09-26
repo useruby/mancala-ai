@@ -1,0 +1,238 @@
+{
+  "artifacts": [],
+  "candidate": {
+    "checkpoint": {
+      "path": ".tmp/seed461-replay-source-attribution/seed461-replay-attribution-full/checkpoint.npz",
+      "required": false,
+      "role": "checkpoint",
+      "schema": "npz",
+      "sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4"
+    },
+    "metadata": {
+      "path": ".tmp/seed461-replay-source-attribution/seed461-replay-attribution-full/metadata.json",
+      "required": false,
+      "role": "metadata",
+      "schema": "azlite_model_v1",
+      "sha256": "b1e2bfb019c55848bcc9f1fc2899116545a83c56a3ca4e698450980cdb3de155"
+    },
+    "version": "seed461-replay-attribution-full",
+    "weights": {
+      "path": ".tmp/seed461-replay-source-attribution/seed461-replay-attribution-full/weights.json",
+      "required": false,
+      "role": "weights",
+      "schema": "azlite_model_weights_v1",
+      "sha256": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+    }
+  },
+  "canonical_evaluation": {
+    "downstream": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "hard_arena": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "prefilter": {
+      "reason": null,
+      "status": "not_run"
+    }
+  },
+  "comparison_controls": {
+    "excluded_source": null,
+    "parent_runtime_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "source_hashes": {
+      "fresh": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "generic_bootstrap": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "opening_disagreement": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "random_teacher": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "stability": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+    },
+    "training": {
+      "batch_size": 512,
+      "epochs": 8,
+      "exact_root_policy_loss_weight": 1.0,
+      "final_checkpoint": "final",
+      "grad_clip": 1.0,
+      "hidden_sizes": "96,3",
+      "huber_delta": 1.0,
+      "input_encoding": "kalah_v3",
+      "lr": 0.001,
+      "lr_scheduler": "none",
+      "max_optimizer_updates": 1052,
+      "model_type": "residual_v3",
+      "policy_target_mode": "sharpened",
+      "trainable_scope": "all",
+      "training_seed": 461,
+      "value_loss": "huber",
+      "value_loss_weight": 0.3,
+      "value_target_mode": "default"
+    }
+  },
+  "compute": {
+    "canonical_games": 0,
+    "self_play_games": 0
+  },
+  "diagnostics": {
+    "diagnostic_arena": {
+      "artifact": null,
+      "config": {
+        "exact_root16": true,
+        "puct_simulations": 384,
+        "suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f"
+      },
+      "status": "complete",
+      "summary": {},
+      "tool": "arena"
+    },
+    "exact_oracle": {
+      "artifact": null,
+      "config": {
+        "exact_root_handoff": "disabled",
+        "puct_simulations": 384,
+        "seed": 371
+      },
+      "status": "complete",
+      "summary": {},
+      "tool": "run_frozen_exact_diagnostics"
+    },
+    "policy": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "regressions": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "value": {
+      "reason": null,
+      "status": "not_run"
+    }
+  },
+  "generation_id": "seed461-replay-attribution-full",
+  "parent": {
+    "metadata_sha256": null,
+    "runtime_search_policy": {
+      "path": "model-artifact/current/search_policy.json",
+      "required": false,
+      "role": "parent_runtime_search_policy",
+      "schema": "azlite_runtime_search_policy_v1",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "version": "seed455",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "promotion": {
+    "decision": "not_evaluated",
+    "failure_reasons": [],
+    "gate_report": null
+  },
+  "provenance_notes": [
+    "Diagnostic-only matched historical replay leave-one-source-out arm; not promotion-ready."
+  ],
+  "replay": {
+    "sources": [
+      {
+        "name": "fresh",
+        "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+        "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+        "value_target_mode": "default",
+        "weight": 1
+      },
+      {
+        "name": "generic_bootstrap",
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+        "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      },
+      {
+        "name": "random_teacher",
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+        "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+        "value_target_mode": "sharpened",
+        "weight": 1
+      },
+      {
+        "name": "opening_disagreement",
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+        "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+        "value_target_mode": "sharpened",
+        "weight": 8
+      },
+      {
+        "name": "stability",
+        "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+        "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      }
+    ]
+  },
+  "schema": "azlite_generation_record_v1",
+  "self_play": {
+    "artifact": null,
+    "compute": {
+      "games_generated": 0
+    },
+    "config": {},
+    "seeds": [],
+    "status": "not_run"
+  },
+  "status": "evaluated",
+  "training": {
+    "checkpoint_policy": "final",
+    "compute": {
+      "examples_sampled": 537804,
+      "full_epochs_completed": 4,
+      "partial_final_epoch_batches": 0
+    },
+    "config": {
+      "batch_size": 512,
+      "epochs": 8,
+      "exact_root_policy_loss_weight": 1.0,
+      "final_checkpoint": "final",
+      "grad_clip": 1.0,
+      "hidden_sizes": "96,3",
+      "huber_delta": 1.0,
+      "input_encoding": "kalah_v3",
+      "lr": 0.001,
+      "lr_scheduler": "none",
+      "max_optimizer_updates": 1052,
+      "model_type": "residual_v3",
+      "policy_target_mode": "sharpened",
+      "trainable_scope": "all",
+      "training_seed": 461,
+      "value_loss": "huber",
+      "value_loss_weight": 0.3,
+      "value_target_mode": "default"
+    },
+    "metrics": {
+      "behavior_anchor_loss": 0.0,
+      "behavior_loss_weight": 0.0,
+      "exact_root_policy_loss_weight": 1.0,
+      "examples_sampled": 537804,
+      "final_checkpoint": "final",
+      "full_epochs_completed": 4,
+      "max_optimizer_updates": 1052,
+      "optimizer_updates": 1052,
+      "pairwise_loss": 0.0,
+      "pairwise_loss_weight": 0.0,
+      "pairwise_margin": 0.0,
+      "partial_final_epoch_batches": 0,
+      "policy_active_fraction": 1.0,
+      "policy_active_rows": 87625,
+      "policy_loss": 0.8876456724826828,
+      "policy_masked_rows": 0,
+      "total_loss": 0.948168000340915,
+      "total_supervised_rows": 87625,
+      "train_split_count": 134451,
+      "validation_count": 14997,
+      "value_loss": 0.2017410807736473
+    },
+    "optimizer_updates": 1052,
+    "seed": 461,
+    "status": "complete"
+  }
+}

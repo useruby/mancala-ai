@@ -1,0 +1,19 @@
+{
+  "schema": "azlite_replay_source_attribution_v1",
+  "parent": {
+    "weights_path": "model-artifact/current/weights.json",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "runtime_policy_path": "model-artifact/current/search_policy.json",
+    "runtime_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "init_checkpoint_path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz"
+  },
+  "training": {"training_seed": 461, "max_optimizer_updates": 1052, "final_checkpoint": "final", "epochs": 8, "batch_size": 512, "lr": 0.001, "lr_scheduler": "none", "model_type": "residual_v3", "hidden_sizes": "96,3", "input_encoding": "kalah_v3", "value_loss": "huber", "huber_delta": 1.0, "value_loss_weight": 0.3, "grad_clip": 1.0, "trainable_scope": "all", "exact_root_policy_loss_weight": 1.0, "policy_target_mode": "sharpened", "value_target_mode": "default"},
+  "sources": [
+    {"name": "fresh", "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl", "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab", "weight": 1, "value_target_mode": "default"},
+    {"name": "generic_bootstrap", "path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2", "weight": 4, "value_target_mode": "sharpened"},
+    {"name": "random_teacher", "path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6", "weight": 1, "value_target_mode": "sharpened"},
+    {"name": "opening_disagreement", "path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2", "weight": 8, "value_target_mode": "sharpened"},
+    {"name": "stability", "path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff", "weight": 4, "value_target_mode": "sharpened"}
+  ],
+  "arms": {"seed461-replay-attribution-full": null, "seed461-replay-attribution-minus-bootstrap": "generic_bootstrap", "seed461-replay-attribution-minus-random": "random_teacher", "seed461-replay-attribution-minus-opening": "opening_disagreement", "seed461-replay-attribution-minus-stability": "stability"}
+}
