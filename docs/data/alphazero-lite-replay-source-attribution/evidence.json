@@ -1,0 +1,24 @@
+{
+  "artifacts": {
+    "arena_statistics": "../../.tmp/seed461-replay-source-attribution/arena_paired_statistics.json",
+    "contracts": "../../.tmp/seed461-replay-source-attribution/contracts.json",
+    "gt16_diagnostics": "../../.tmp/seed461-replay-source-attribution/gt16_diagnostics.json",
+    "parent_fit": "../../.tmp/seed461-replay-source-attribution/parent_fit.json",
+    "pr340_diagnostics": "../../.tmp/seed461-replay-source-attribution/pr340_diagnostics.json",
+    "source_census": "../../.tmp/seed461-replay-source-attribution/source_census.json",
+    "source_forgetting": "../../.tmp/seed461-replay-source-attribution/source_forgetting.json"
+  },
+  "classification": "replay_attribution_offline_arena_conflict",
+  "classification_reason": "Random and stability removal improve frozen value MAE but lose in the frozen diagnostic arena; bootstrap and opening removal win the arena without a clear paired >16 MCTS improvement.",
+  "schema": "azlite_replay_source_attribution_evidence_v1",
+  "scope": {
+    "canonical_games": 0,
+    "promotions": 0,
+    "self_play_games": 0
+  },
+  "semantic_identity": "seed461-historical-replay-leave-one-out-attribution",
+  "statistics": {
+    "paired_bootstrap_samples": 10000,
+    "seed": 371
+  }
+}
