@@ -1,0 +1,69 @@
+{
+  "allowed_record_differences": [
+    "replay",
+    "training",
+    "candidate",
+    "comparison_controls",
+    "diagnostics",
+    "artifacts",
+    "compute",
+    "provenance_notes",
+    "status",
+    "promotion",
+    "canonical_evaluation"
+  ],
+  "comparison_id": "seed461-historical-replay-leave-one-out-attribution",
+  "conclusion": {
+    "classification": "replay_attribution_offline_arena_conflict",
+    "next_step": "Analyze the frozen arena-changing state distribution; do not tune replay sources from these conflicting endpoints.",
+    "verified": true
+  },
+  "controlled_difference": {
+    "comparison_controls.training.training_seed": {
+      "baseline": 461,
+      "treatment": 461
+    }
+  },
+  "description": "One frozen full-replay diagnostic baseline and four matched leave-one-historical-source-out siblings. Retained source artifacts and weights are immutable; only the named source is absent.",
+  "evidence": {
+    "path": "../alphazero-lite-replay-source-attribution/evidence.json",
+    "required": true,
+    "schema": "azlite_replay_source_attribution_evidence_v1",
+    "sha256": "d27b25dc1d638fd0c0870de486d09dcc164e79b6d9270091e438cdf3112e4e93"
+  },
+  "pairs": [
+    {
+      "baseline_record": "../alphazero-lite-generations/seed461-replay-attribution-full/generation.json",
+      "pair_id": "minus-bootstrap",
+      "treatment_record": "../alphazero-lite-generations/seed461-replay-attribution-minus-bootstrap/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/seed461-replay-attribution-full/generation.json",
+      "pair_id": "minus-random",
+      "treatment_record": "../alphazero-lite-generations/seed461-replay-attribution-minus-random/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/seed461-replay-attribution-full/generation.json",
+      "pair_id": "minus-opening",
+      "treatment_record": "../alphazero-lite-generations/seed461-replay-attribution-minus-opening/generation.json"
+    },
+    {
+      "baseline_record": "../alphazero-lite-generations/seed461-replay-attribution-full/generation.json",
+      "pair_id": "minus-stability",
+      "treatment_record": "../alphazero-lite-generations/seed461-replay-attribution-minus-stability/generation.json"
+    }
+  ],
+  "schema": "azlite_generation_comparison_v1",
+  "scope": {
+    "canonical_games": 0,
+    "canonical_gate_run": false,
+    "promotion_performed": false,
+    "self_play_generated": false
+  },
+  "statistics": {
+    "paired_bootstrap": {
+      "samples": 10000,
+      "seed": 371
+    }
+  }
+}
