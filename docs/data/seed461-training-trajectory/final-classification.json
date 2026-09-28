@@ -1,0 +1,35 @@
+{
+  "schema": "azlite_checkpoint_trajectory_report_v1",
+  "semantic_identity": "seed461-training-trajectory",
+  "attached_generation": "seed455-nextgen-s461-default-value-root16-iter1",
+  "classification": "seed461_early_gain_then_forgetting",
+  "classification_reason": "The preregistered non-promotion arena rises above the parent at E1 (0.6250), weakens at best-validation E2 (0.5625), briefly recovers at E3 (0.6133), and falls below the parent at E4 (0.5117). Best-validation selected E2 because it has the lowest global validation loss, not the strongest arena score.",
+  "reproduction": {
+    "status": "exact",
+    "production_checkpoint_sha256": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+    "production_weights_sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+    "best_validation_epoch": 2,
+    "epoch_checkpoint_sha256": {
+      "E1": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+      "E2": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+      "E3": "9d3db177d22f12b0c8952233f3fc6c5dad5b0529f3990932699e8839afa0d2b8",
+      "E4": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4"
+    }
+  },
+  "arena": {
+    "suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f",
+    "games_per_epoch": 256,
+    "base_seed": 42,
+    "paired_bootstrap": {"samples": 10000, "seed": 373},
+    "scores": {
+      "E1": {"wdl": [160, 0, 96], "score": 0.625, "ci_95": [0.58984375, 0.6640625]},
+      "E2": {"wdl": [134, 20, 102], "score": 0.5625, "ci_95": [0.541015625, 0.5859375]},
+      "E3": {"wdl": [154, 6, 96], "score": 0.61328125, "ci_95": [0.580078125, 0.650390625]},
+      "E4": {"wdl": [128, 6, 122], "score": 0.51171875, "ci_95": [0.50390625, 0.521484375]}
+    },
+    "strongest_epoch": "E1",
+    "strongest_equals_best_validation": false
+  },
+  "scope": {"new_self_play_games": 0, "canonical_games": 0, "promotions": 0, "training_reproductions": 1},
+  "recommended_next_axis": "Derive a generic phase-conditioned checkpoint-selection rule before considering any training-duration change."
+}
