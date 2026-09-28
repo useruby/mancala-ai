@@ -108,6 +108,23 @@ class TrainScriptTest(unittest.TestCase):
 
         self.assertEqual("final", args.final_checkpoint)
 
+    def test_argument_parser_accepts_high_stone_phase_checkpoint_mode(self):
+        parser = train_module.build_argument_parser()
+
+        args = parser.parse_args(
+            [
+                "--out",
+                "checkpoint.npz",
+                "--final-checkpoint",
+                "best_phase_validation",
+                "--checkpoint-selection-phase",
+                "high_stone",
+            ]
+        )
+
+        self.assertEqual("best_phase_validation", args.final_checkpoint)
+        self.assertEqual("high_stone", args.checkpoint_selection_phase)
+
     def test_argument_parser_accepts_phase_aware_value_target_mode(self):
         parser = train_module.build_argument_parser()
 

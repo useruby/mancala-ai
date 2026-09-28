@@ -17,6 +17,7 @@ from typing import Any, Sequence
 import numpy as np
 
 from ml.alphazero_lite import arena, train
+from ml.alphazero_lite.checkpoint_phase_selection import active_pit_stones_from_state
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.replay_source_attribution import sha256_file
 
@@ -132,7 +133,7 @@ def phase_masks(
     rows: list[dict[str, Any]], indexes: np.ndarray
 ) -> dict[str, np.ndarray]:
     active = np.asarray(
-        [sum(KalahGame.from_state(state_from_row(rows[i])).pits) for i in indexes]
+        [active_pit_stones_from_state(state_from_row(rows[i])) for i in indexes]
     )
     ply = np.asarray(
         [int(rows[i].get("ply", rows[i].get("move_index", 10**9))) for i in indexes]
@@ -258,7 +259,7 @@ def main() -> None:
             if source == "fresh":
                 active = np.asarray(
                     [
-                        sum(KalahGame.from_state(states[i]).pits)
+                        active_pit_stones_from_state(states[i])
                         for i in range(len(states))
                     ]
                 )

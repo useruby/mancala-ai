@@ -1,0 +1,17 @@
+{
+  "schema": "azlite_opening_paired_checkpoint_comparison_v1",
+  "semantic_identity": "highstone-vs-global-validation-checkpoint-selection",
+  "generation": "seed461",
+  "selector_checkpoint_epoch": 2,
+  "global_best_validation_epoch": 2,
+  "selector_checkpoint_sha256": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+  "global_best_validation_checkpoint_sha256": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+  "identity_comparison": true,
+  "suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f",
+  "opening_count": 128,
+  "paired_delta_selector_minus_global_bv": {
+    "mean": 0.0,
+    "bootstrap_95": {"seed": 373, "samples": 10000, "lower": 0.0, "upper": 0.0}
+  },
+  "interpretation": "Both rules selected E2, so the paired per-opening delta is identically zero without a second arena run."
+}

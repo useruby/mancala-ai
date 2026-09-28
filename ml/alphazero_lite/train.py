@@ -18,6 +18,14 @@ from torch import nn
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
+from ml.alphazero_lite.checkpoint_phase_selection import (
+    BEST_HIGH_STONE_VALIDATION_V1,
+    EARLIEST_EPOCH_TIE_RULE,
+    HIGH_STONE_PHASE,
+    HIGH_STONE_THRESHOLD,
+    high_stone_validation_metrics,
+    phase_mask_for_encoded_states,
+)
 from ml.alphazero_lite.input_encodings import (
     DEFAULT_INPUT_ENCODING,
     SUPPORTED_INPUT_ENCODINGS,
@@ -1263,11 +1271,16 @@ def train(
     | None = None,
     max_optimizer_updates: int | None = None,
     final_checkpoint: str = "best_validation",
+    checkpoint_selection_phase: str = HIGH_STONE_PHASE,
 ) -> tuple[float, float, float]:
     if max_optimizer_updates is not None and max_optimizer_updates <= 0:
         raise ValueError("max_optimizer_updates must be positive")
-    if final_checkpoint not in {"best_validation", "final"}:
-        raise ValueError("final_checkpoint must be best_validation or final")
+    if final_checkpoint not in {"best_validation", "best_phase_validation", "final"}:
+        raise ValueError(
+            "final_checkpoint must be best_validation, best_phase_validation, or final"
+        )
+    if checkpoint_selection_phase != HIGH_STONE_PHASE:
+        raise ValueError("checkpoint_phase_selection_phase_invalid")
     model.to(device)
     model.train()
 
@@ -1294,11 +1307,29 @@ def train(
             else None
         )
         val_count = int(val_positions.shape[0])
+        phase_validation_mask = (
+            torch.from_numpy(
+                phase_mask_for_encoded_states(x[replay_indexes_array[val_positions]])
+            ).to(device)
+            if final_checkpoint == "best_phase_validation" and val_count > 0
+            else None
+        )
     else:
         replay_indexes_array = np.zeros((0,), dtype=np.int64)
         train_replay_indexes = replay_indexes_array
         val_replay_indexes = None
         val_count = 0
+        phase_validation_mask = None
+
+    if final_checkpoint == "best_phase_validation" and (
+        not use_supervised or val_count == 0
+    ):
+        raise ValueError("checkpoint_phase_validation_empty")
+    phase_validation_count = (
+        int(phase_validation_mask.sum().item())
+        if phase_validation_mask is not None
+        else None
+    )
 
     pairwise_val_count = 0
     pairwise_x_all = None
@@ -1422,6 +1453,9 @@ def train(
     total_loss_value = 0.0
     best_val_loss = float("inf")
     best_state = None
+    best_phase_validation_score = float("inf")
+    best_phase_validation_state = None
+    selected_epoch: int | None = None
     top_states: list[tuple[float, dict[str, torch.Tensor]]] = []
     optimizer_updates = 0
     examples_sampled = 0
@@ -1604,6 +1638,46 @@ def train(
                     if use_supervised and val_count > 0
                     else 0.0,
                 }
+                if final_checkpoint == "best_phase_validation":
+                    if phase_validation_mask is None:
+                        raise ValueError("checkpoint_phase_validation_empty")
+                    phase_metrics = high_stone_validation_metrics(
+                        logits=val_logits,
+                        value_predictions=val_value_pred,
+                        policy_targets=p_val,
+                        value_targets=v_val,
+                        legal_mask=legal_mask_val,
+                        policy_loss_weights=val_policy_loss_weights,
+                        phase_mask=phase_validation_mask,
+                        value_loss_weight=value_loss_weight,
+                        value_loss=value_loss,
+                        huber_delta=huber_delta,
+                        policy_cross_entropy=compute_policy_cross_entropy,
+                        weighted_policy_loss=weighted_policy_loss,
+                        value_loss_vector=compute_value_loss_vector,
+                    )
+                    validation_metrics.update(
+                        {
+                            "checkpoint_selector": BEST_HIGH_STONE_VALIDATION_V1,
+                            "checkpoint_selection_phase": HIGH_STONE_PHASE,
+                            "checkpoint_phase_threshold": HIGH_STONE_THRESHOLD,
+                            "checkpoint_phase_tie_rule": EARLIEST_EPOCH_TIE_RULE,
+                            **phase_metrics,
+                        }
+                    )
+                    # Strict comparison preserves the preregistered earliest-epoch tie rule.
+                    if (
+                        phase_metrics["phase_validation_score"]
+                        < best_phase_validation_score
+                    ):
+                        best_phase_validation_score = phase_metrics[
+                            "phase_validation_score"
+                        ]
+                        best_phase_validation_state = {
+                            k: v.detach().cpu().clone()
+                            for k, v in model.state_dict().items()
+                        }
+                        selected_epoch = epoch_idx
                 if val_total < best_val_loss:
                     best_val_loss = val_total
                     best_state = {
@@ -1644,6 +1718,10 @@ def train(
 
     if final_checkpoint == "best_validation" and best_state is not None:
         model.load_state_dict(best_state)
+    elif final_checkpoint == "best_phase_validation":
+        if best_phase_validation_state is None:
+            raise ValueError("checkpoint_phase_validation_empty")
+        model.load_state_dict(best_phase_validation_state)
 
     if best_val_loss == float("inf"):
         best_val_loss = policy_loss_value + (value_loss_weight * value_loss_value)
@@ -1672,6 +1750,31 @@ def train(
         if policy_loss_weights is not None
         else 0,
         "final_checkpoint": final_checkpoint,
+        "checkpoint_selector": (
+            BEST_HIGH_STONE_VALIDATION_V1
+            if final_checkpoint == "best_phase_validation"
+            else final_checkpoint
+        ),
+        "checkpoint_selection_phase": (
+            HIGH_STONE_PHASE if final_checkpoint == "best_phase_validation" else None
+        ),
+        "checkpoint_phase_threshold": (
+            HIGH_STONE_THRESHOLD
+            if final_checkpoint == "best_phase_validation"
+            else None
+        ),
+        "checkpoint_phase_tie_rule": (
+            EARLIEST_EPOCH_TIE_RULE
+            if final_checkpoint == "best_phase_validation"
+            else None
+        ),
+        "checkpoint_phase_selected_epoch": selected_epoch,
+        "checkpoint_phase_validation_count": phase_validation_count,
+        "checkpoint_phase_best_score": (
+            best_phase_validation_score
+            if final_checkpoint == "best_phase_validation"
+            else None
+        ),
     }
 
     return policy_loss_value, value_loss_value, best_val_loss
@@ -2121,9 +2224,15 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--final-checkpoint",
-        choices=["best_validation", "final"],
+        choices=["best_validation", "best_phase_validation", "final"],
         default="best_validation",
-        help="Choose the final optimizer state or the best validation-loss state",
+        help="Choose final, global best validation, or opt-in high-stone validation",
+    )
+    parser.add_argument(
+        "--checkpoint-selection-phase",
+        choices=[HIGH_STONE_PHASE],
+        default=HIGH_STONE_PHASE,
+        help="Phase used by --final-checkpoint best_phase_validation",
     )
     parser.add_argument(
         "--steps", type=int, default=None, help="Deprecated alias for --epochs"
@@ -2426,6 +2535,7 @@ def main() -> None:
         behavior_loss_weight=args.behavior_loss_weight,
         max_optimizer_updates=args.max_optimizer_updates,
         final_checkpoint=args.final_checkpoint,
+        checkpoint_selection_phase=args.checkpoint_selection_phase,
     )
     model.last_train_metrics["exact_root_policy_loss_weight"] = (
         exact_root_policy_loss_weight
