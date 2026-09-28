@@ -481,6 +481,11 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional path to write per-game diagnostic lines (JSONL). Does not affect normal arena output.",
     )
+    parser.add_argument(
+        "--trace-jsonl",
+        default=None,
+        help="Optional observational per-decision JSONL trace. Does not affect move selection.",
+    )
     parser.add_argument("--out", required=True)
     parser.add_argument(
         "--root-prior-transform",
@@ -1117,7 +1122,7 @@ def evaluate_artifact_position(
         raise ValueError("exact root handoff and exact leaf solving cannot be combined")
     policy = None
     policy_owner = artifact_path or getattr(evaluator, "artifact_dir", None)
-    if exact_root_solve_threshold is None and policy_owner is not None:
+    if exact_root_solve_threshold is None and isinstance(policy_owner, (str, Path)):
         policy = load_runtime_search_policy(policy_owner)
         if policy is not None:
             exact_root_solve_threshold = policy["exact_root_threshold"]
@@ -1831,6 +1836,7 @@ def run_arena_worker(
     games_per_opening: int = 2,
     challenger_starts: int | None = None,
     game_jsonl_path: str | None = None,
+    trace_jsonl_path: str | None = None,
     opening_cache=None,
     opening_cache_path: str | None = None,
     seed_contract: str = SEED_CONTRACT_VERSION,
@@ -2059,6 +2065,7 @@ def run_arena_worker(
     challenger_root_prior_telemetry_entries: list[dict] = []
     current_root_prior_telemetry_entries: list[dict] = []
     game_entries: list[dict] = []
+    trace_entries: list[dict] = []
     shadow_move_telemetry: list[dict] = []
     trajectory_hashes: list[str] = []
     opening_prefix_plies_applied: list[int] = []
@@ -2494,6 +2501,55 @@ def run_arena_worker(
                     "evaluation_profile_hash": search_profile["hash"],
                 }
             )
+            # This read-only record is deliberately built after move selection.
+            # It must not feed back into search, seeds, or game state.
+            if trace_jsonl_path:
+                child_stats = (
+                    {int(action): child for action, child in root.children.items()}
+                    if root is not None
+                    else {}
+                )
+                trace_entries.append(
+                    {
+                        "game_index": game_index,
+                        "opening_index": opening_index,
+                        "game_within_opening": game_index
+                        % max(1, int(games_per_opening)),
+                        "challenger_player": challenger_player,
+                        "ply": ply,
+                        "acting_role": acting_role,
+                        "player_to_move": acting_player,
+                        "state": game.to_state(),
+                        "state_hash": canonical_game_state_hash(game),
+                        "legal_moves": [int(item) for item in legal_moves],
+                        "selected_move": int(move),
+                        "derived_search_seed": derived_search_seed,
+                        "exact_root_handoff": exact_decision is not None,
+                        "exact_action_margins": (
+                            None
+                            if exact_decision is None
+                            else {
+                                str(key): value
+                                for key, value in exact_decision.action_margins.items()
+                            }
+                        ),
+                        "raw_policy_priors": {
+                            str(item): float(child_stats[item].prior)
+                            if item in child_stats
+                            else 0.0
+                            for item in legal_moves
+                        },
+                        "visits": {
+                            str(item): int(visits[item]) for item in legal_moves
+                        },
+                        "q_values": {
+                            str(item): float(child_stats[item].q_value)
+                            if item in child_stats and child_stats[item].visit_count > 0
+                            else 0.0
+                            for item in legal_moves
+                        },
+                    }
+                )
             relative_move = game.pit_index(move)
             game_moves.append(relative_move)
             if acting_player == challenger_player and first_move_challenger is None:
@@ -2554,6 +2610,10 @@ def run_arena_worker(
         with open(game_jsonl_path, "w", encoding="utf-8") as gjf:
             for entry in game_entries:
                 gjf.write(json.dumps(entry) + "\n")
+    if trace_jsonl_path:
+        with open(trace_jsonl_path, "w", encoding="utf-8") as trace_file:
+            for entry in trace_entries:
+                trace_file.write(json.dumps(entry) + "\n")
 
     closed_tablebases: set[int] = set()
     for tablebase in root_tablebases.values():
@@ -2796,6 +2856,7 @@ def main() -> None:
     futures = []
     results = []
     worker_game_paths: dict[int, str] = {}
+    worker_trace_paths: dict[int, str] = {}
     with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
         for worker_id, (start_index, count) in enumerate(
             zip(starts, counts, strict=True)
@@ -2806,6 +2867,10 @@ def main() -> None:
             if getattr(args, "game_jsonl", None):
                 worker_game_jsonl = worker_game_jsonl_path(args.game_jsonl, worker_id)
                 worker_game_paths[worker_id] = worker_game_jsonl
+            worker_trace_jsonl = None
+            if getattr(args, "trace_jsonl", None):
+                worker_trace_jsonl = worker_game_jsonl_path(args.trace_jsonl, worker_id)
+                worker_trace_paths[worker_id] = worker_trace_jsonl
             futures.append(
                 pool.submit(
                     run_arena_worker,
@@ -2856,6 +2921,7 @@ def main() -> None:
                     games_per_opening=getattr(args, "games_per_opening", 2),
                     challenger_starts=getattr(args, "challenger_starts", None),
                     game_jsonl_path=worker_game_jsonl,
+                    trace_jsonl_path=worker_trace_jsonl,
                     opening_prefixes_jsonl=getattr(
                         args, "opening_prefixes_jsonl", None
                     ),
@@ -2874,6 +2940,11 @@ def main() -> None:
         merge_worker_game_jsonl_files(
             out_path=args.game_jsonl,
             worker_ids=sorted(worker_game_paths),
+        )
+    if getattr(args, "trace_jsonl", None):
+        merge_worker_game_jsonl_files(
+            out_path=args.trace_jsonl,
+            worker_ids=sorted(worker_trace_paths),
         )
 
     report = aggregate_worker_reports(

@@ -1,0 +1,413 @@
+{
+  "active_stone_js_divergence_vs_pr340": {
+    "all_diagnostic_arena_states": 0.4018717891927365,
+    "arena_first_divergences": 0.9803208951103155,
+    "fresh_seed461_replay": 0.4018334965649186,
+    "generic_bootstrap": 0.45863041956612827,
+    "opening_disagreement": 0.297429161926055,
+    "random_teacher": 0.2467250191647707,
+    "stability": 0.5100918748309647
+  },
+  "sets": {
+    "all_diagnostic_arena_states": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 4243,
+          "22-24": 2577,
+          "25-32": 6576,
+          "33-40": 6845,
+          "<=16": 12211,
+          ">40": 7477
+        },
+        "capture_available": {
+          "0": 29044,
+          "1": 10885
+        },
+        "current_player": {
+          "0": 18362,
+          "1": 21567
+        },
+        "extra_turn_available": {
+          "0": 18901,
+          "1": 21028
+        },
+        "legal_action_count": {
+          "1": 2636,
+          "2": 4614,
+          "3": 7722,
+          "4": 9400,
+          "5": 9811,
+          "6": 5746
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 25.72085451676726,
+          "sd": 13.207776369211286
+        },
+        "pit_mean_times_100": {
+          "mean": 214.34967066543115,
+          "sd": 110.05903259555028
+        },
+        "pit_sd_times_100": {
+          "mean": 225.31931678729745,
+          "sd": 102.43785729016423
+        },
+        "store_score_difference": {
+          "mean": -2.9539432492674496,
+          "sd": 6.787841357431412
+        }
+      },
+      "states": 39929
+    },
+    "arena_first_divergences": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 5,
+          "22-24": 4,
+          "25-32": 55,
+          "33-40": 171,
+          ">40": 776
+        },
+        "capture_available": {
+          "0": 846,
+          "1": 165
+        },
+        "current_player": {
+          "0": 507,
+          "1": 504
+        },
+        "extra_turn_available": {
+          "0": 675,
+          "1": 336
+        },
+        "legal_action_count": {
+          "2": 7,
+          "3": 26,
+          "4": 231,
+          "5": 528,
+          "6": 219
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 42.19090009891197,
+          "sd": 4.8996009325888075
+        },
+        "pit_mean_times_100": {
+          "mean": 351.5895153313551,
+          "sd": 40.86467315699471
+        },
+        "pit_sd_times_100": {
+          "mean": 261.93867457962415,
+          "sd": 51.54255727559843
+        },
+        "store_score_difference": {
+          "mean": -0.05637982195845697,
+          "sd": 3.282870199374778
+        }
+      },
+      "states": 1011
+    },
+    "fresh_seed461_replay": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 7449,
+          "22-24": 4283,
+          "25-32": 10662,
+          "33-40": 11052,
+          "<=16": 19848,
+          ">40": 13439
+        },
+        "capture_available": {
+          "0": 50955,
+          "1": 15778
+        },
+        "current_player": {
+          "0": 35666,
+          "1": 31067
+        },
+        "extra_turn_available": {
+          "0": 32316,
+          "1": 34417
+        },
+        "legal_action_count": {
+          "1": 3884,
+          "2": 6816,
+          "3": 11892,
+          "4": 16671,
+          "5": 17920,
+          "6": 9550
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 26.290845608619424,
+          "sd": 13.232442617060874
+        },
+        "pit_mean_times_100": {
+          "mean": 219.09346200530473,
+          "sd": 110.27448273253371
+        },
+        "pit_sd_times_100": {
+          "mean": 216.40378823071043,
+          "sd": 98.81523007810141
+        },
+        "store_score_difference": {
+          "mean": 3.8514528044595626,
+          "sd": 6.586785100903434
+        }
+      },
+      "states": 66733
+    },
+    "generic_bootstrap": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 1211,
+          "22-24": 712,
+          "25-32": 1950,
+          "33-40": 2309,
+          "<=16": 3680,
+          ">40": 4079
+        },
+        "capture_available": {
+          "0": 10231,
+          "1": 3710
+        },
+        "current_player": {
+          "0": 7089,
+          "1": 6852
+        },
+        "extra_turn_available": {
+          "0": 7081,
+          "1": 6860
+        },
+        "legal_action_count": {
+          "1": 1320,
+          "2": 1592,
+          "3": 1990,
+          "4": 2539,
+          "5": 4111,
+          "6": 2389
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 28.43784520479162,
+          "sd": 14.211669536939795
+        },
+        "pit_mean_times_100": {
+          "mean": 236.98672978982856,
+          "sd": 118.43374492253261
+        },
+        "pit_sd_times_100": {
+          "mean": 214.39918226812998,
+          "sd": 93.77511553712803
+        },
+        "store_score_difference": {
+          "mean": 0.6351050857183846,
+          "sd": 6.115257063509647
+        }
+      },
+      "states": 13941
+    },
+    "opening_disagreement": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 315,
+          "22-24": 131,
+          "25-32": 190,
+          "33-40": 213,
+          "<=16": 754,
+          ">40": 397
+        },
+        "capture_available": {
+          "0": 1171,
+          "1": 829
+        },
+        "current_player": {
+          "0": 1035,
+          "1": 965
+        },
+        "extra_turn_available": {
+          "0": 1039,
+          "1": 961
+        },
+        "legal_action_count": {
+          "2": 244,
+          "3": 495,
+          "4": 543,
+          "5": 526,
+          "6": 192
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 23.777,
+          "sd": 12.847033548644605
+        },
+        "pit_mean_times_100": {
+          "mean": 198.1485,
+          "sd": 107.05195676749678
+        },
+        "pit_sd_times_100": {
+          "mean": 212.6995,
+          "sd": 98.28666847416287
+        },
+        "store_score_difference": {
+          "mean": 0.38,
+          "sd": 6.406215731615663
+        }
+      },
+      "states": 2000
+    },
+    "pr340": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 90,
+          "<=16": 110
+        },
+        "capture_available": {
+          "0": 143,
+          "1": 57
+        },
+        "current_player": {
+          "0": 100,
+          "1": 100
+        },
+        "extra_turn_available": {
+          "0": 96,
+          "1": 104
+        },
+        "legal_action_count": {
+          "1": 16,
+          "2": 36,
+          "3": 59,
+          "4": 50,
+          "5": 34,
+          "6": 5
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 14.69,
+          "sd": 5.184968659500267
+        },
+        "pit_mean_times_100": {
+          "mean": 122.46,
+          "sd": 43.23202979273585
+        },
+        "pit_sd_times_100": {
+          "mean": 160.55,
+          "sd": 66.62902895885546
+        },
+        "store_score_difference": {
+          "mean": 9.51,
+          "sd": 8.806809865098712
+        }
+      },
+      "states": 200
+    },
+    "random_teacher": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 461,
+          "22-24": 229,
+          "25-32": 502,
+          "33-40": 237,
+          "<=16": 1366,
+          ">40": 156
+        },
+        "capture_available": {
+          "0": 2006,
+          "1": 945
+        },
+        "current_player": {
+          "0": 1430,
+          "1": 1521
+        },
+        "extra_turn_available": {
+          "0": 1454,
+          "1": 1497
+        },
+        "legal_action_count": {
+          "1": 340,
+          "2": 482,
+          "3": 590,
+          "4": 704,
+          "5": 584,
+          "6": 251
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 19.270077939681464,
+          "sd": 10.74619786310821
+        },
+        "pit_mean_times_100": {
+          "mean": 160.57743137919348,
+          "sd": 89.54051928603134
+        },
+        "pit_sd_times_100": {
+          "mean": 186.7732971873941,
+          "sd": 88.82991285463989
+        },
+        "store_score_difference": {
+          "mean": 0.4032531345306676,
+          "sd": 7.389812489107162
+        }
+      },
+      "states": 2951
+    },
+    "stability": {
+      "categorical_counts": {
+        "active_stone_bucket": {
+          "17-21": 206,
+          "22-24": 123,
+          "25-32": 218,
+          "33-40": 291,
+          "<=16": 368,
+          ">40": 794
+        },
+        "capture_available": {
+          "0": 1543,
+          "1": 457
+        },
+        "current_player": {
+          "0": 1086,
+          "1": 914
+        },
+        "extra_turn_available": {
+          "0": 1099,
+          "1": 901
+        },
+        "legal_action_count": {
+          "2": 425,
+          "3": 293,
+          "4": 423,
+          "5": 603,
+          "6": 256
+        }
+      },
+      "numeric": {
+        "active_stones": {
+          "mean": 30.7525,
+          "sd": 13.421000102451382
+        },
+        "pit_mean_times_100": {
+          "mean": 256.27,
+          "sd": 111.83695766605956
+        },
+        "pit_sd_times_100": {
+          "mean": 245.827,
+          "sd": 87.76392237702233
+        },
+        "store_score_difference": {
+          "mean": 1.0685,
+          "sd": 5.872461813413519
+        }
+      },
+      "states": 2000
+    }
+  }
+}

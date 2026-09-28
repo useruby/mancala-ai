@@ -1329,6 +1329,61 @@ class ArenaScriptTest(unittest.TestCase):
             result["search_profile"]["hash"], result["search_profile_hash"]
         )
 
+    def test_trace_logging_is_observational(self):
+        class FakeArtifactEvaluator:
+            def __init__(self, _artifact_dir):
+                pass
+
+        class FakePUCT:
+            def __init__(self, **_kwargs):
+                pass
+
+            def run(self, _game):
+                return np.array([1, 0, 0, 0, 0, 0], dtype=np.float32), None
+
+        common = {
+            "worker_id": 0,
+            "start_index": 0,
+            "games": 1,
+            "challenger_path": "challenger",
+            "current_path": "current",
+            "challenger_simulations": 4,
+            "current_simulations": 4,
+            "seed": 42,
+            "c_puct": 1.25,
+            "max_moves": 1,
+        }
+        with tempfile.TemporaryDirectory(prefix="azlite-arena-trace-") as tmp:
+            base_games = Path(tmp) / "base.jsonl"
+            traced_games = Path(tmp) / "traced.jsonl"
+            trace = Path(tmp) / "trace.jsonl"
+            with (
+                mock.patch(
+                    "ml.alphazero_lite.arena.ArtifactEvaluator", FakeArtifactEvaluator
+                ),
+                mock.patch("ml.alphazero_lite.arena.PUCT", FakePUCT),
+            ):
+                base = arena.run_arena_worker(**common, game_jsonl_path=str(base_games))
+                traced = arena.run_arena_worker(
+                    **common,
+                    game_jsonl_path=str(traced_games),
+                    trace_jsonl_path=str(trace),
+                )
+            self.assertEqual(base["wins"], traced["wins"])
+            base_row = json.loads(base_games.read_text())
+            traced_row = json.loads(traced_games.read_text())
+            for key in (
+                "winner",
+                "margin",
+                "trajectory",
+                "first_move_challenger",
+                "first_move_current",
+            ):
+                self.assertEqual(base_row[key], traced_row[key])
+            row = json.loads(trace.read_text().strip())
+            self.assertEqual(0, row["selected_move"])
+            self.assertEqual([0, 1, 2, 3, 4, 5], row["legal_moves"])
+
     def test_artifact_evaluator_loads_residual_v2_weights_and_selected_input_encoding(
         self,
     ):

@@ -1,0 +1,4 @@
+{
+  "classification": "arena_conflict_state_distribution_mismatch",
+  "reason": "All first counterfactual divergences occur above exact-root coverage and none exactly overlap the frozen PR340 corpus; 98.7-99.2% occur above 32 active stones, while all 200 PR340 states have at most 21 stones. The frozen exact aggregate therefore does not observe the arena decision distribution."
+}

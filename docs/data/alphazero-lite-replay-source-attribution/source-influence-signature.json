@@ -1,0 +1,42 @@
+{
+  "F-B": {
+    "median_first_divergence_ply": 5.0,
+    "median_visit_margin": 76.0,
+    "number_first_divergences": 256,
+    "percent_exact_covered": 0.0,
+    "percent_found_fresh": 0.43359375,
+    "percent_found_pr340": 0.0,
+    "percent_gt32_stones": 0.9140625,
+    "percent_treatment_toward_parent": 0.3046875
+  },
+  "F-O": {
+    "median_first_divergence_ply": 5,
+    "median_visit_margin": 81.0,
+    "number_first_divergences": 253,
+    "percent_exact_covered": 0.0,
+    "percent_found_fresh": 0.34782608695652173,
+    "percent_found_pr340": 0.0,
+    "percent_gt32_stones": 0.9525691699604744,
+    "percent_treatment_toward_parent": 0.49407114624505927
+  },
+  "F-R": {
+    "median_first_divergence_ply": 4,
+    "median_visit_margin": 81.0,
+    "number_first_divergences": 249,
+    "percent_exact_covered": 0.0,
+    "percent_found_fresh": 0.42971887550200805,
+    "percent_found_pr340": 0.0,
+    "percent_gt32_stones": 0.9317269076305221,
+    "percent_treatment_toward_parent": 0.40160642570281124
+  },
+  "F-S": {
+    "median_first_divergence_ply": 4,
+    "median_visit_margin": 122.0,
+    "number_first_divergences": 253,
+    "percent_exact_covered": 0.0,
+    "percent_found_fresh": 0.4189723320158103,
+    "percent_found_pr340": 0.0,
+    "percent_gt32_stones": 0.9486166007905138,
+    "percent_treatment_toward_parent": 0.5335968379446641
+  }
+}

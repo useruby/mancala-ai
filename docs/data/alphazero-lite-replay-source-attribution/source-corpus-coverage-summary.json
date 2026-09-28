@@ -1,0 +1,38 @@
+{
+  "fresh": {
+    "F-B": 111,
+    "F-O": 88,
+    "F-R": 107,
+    "F-S": 106
+  },
+  "generic_bootstrap": {
+    "F-B": 58,
+    "F-O": 61,
+    "F-R": 72,
+    "F-S": 73
+  },
+  "opening_disagreement": {
+    "F-B": 12,
+    "F-O": 23,
+    "F-R": 20,
+    "F-S": 16
+  },
+  "pr340": {
+    "F-B": 0,
+    "F-O": 0,
+    "F-R": 0,
+    "F-S": 0
+  },
+  "random_teacher": {
+    "F-B": 0,
+    "F-O": 0,
+    "F-R": 6,
+    "F-S": 0
+  },
+  "stability": {
+    "F-B": 8,
+    "F-O": 31,
+    "F-R": 36,
+    "F-S": 26
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "F-B": {
+    "active_stone_buckets": {
+      "17-21": 390,
+      "22-24": 230,
+      "25-32": 584,
+      "33-40": 776,
+      "<=16": 618,
+      ">40": 610
+    },
+    "by_trajectory": {
+      "F": 1564,
+      "F-B": 1644
+    },
+    "divergence_rows": 3208,
+    "exact_root_rows": 618,
+    "outcome_associated_rows": 2094,
+    "phases": {
+      "early_midgame": 136,
+      "exact_root": 618,
+      "late_midgame": 1060,
+      "opening": 1394
+    }
+  },
+  "F-O": {
+    "active_stone_buckets": {
+      "17-21": 304,
+      "22-24": 198,
+      "25-32": 512,
+      "33-40": 706,
+      "<=16": 518,
+      ">40": 594
+    },
+    "by_trajectory": {
+      "F": 1416,
+      "F-O": 1416
+    },
+    "divergence_rows": 2832,
+    "exact_root_rows": 518,
+    "outcome_associated_rows": 696,
+    "phases": {
+      "early_midgame": 146,
+      "exact_root": 518,
+      "late_midgame": 884,
+      "opening": 1284
+    }
+  },
+  "F-R": {
+    "active_stone_buckets": {
+      "17-21": 378,
+      "22-24": 192,
+      "25-32": 506,
+      "33-40": 666,
+      "<=16": 532,
+      ">40": 566
+    },
+    "by_trajectory": {
+      "F": 1398,
+      "F-R": 1442
+    },
+    "divergence_rows": 2840,
+    "exact_root_rows": 532,
+    "outcome_associated_rows": 1446,
+    "phases": {
+      "early_midgame": 118,
+      "exact_root": 532,
+      "late_midgame": 962,
+      "opening": 1228
+    }
+  },
+  "F-S": {
+    "active_stone_buckets": {
+      "17-21": 312,
+      "22-24": 200,
+      "25-32": 512,
+      "33-40": 646,
+      "<=16": 534,
+      ">40": 664
+    },
+    "by_trajectory": {
+      "F": 1388,
+      "F-S": 1480
+    },
+    "divergence_rows": 2868,
+    "exact_root_rows": 534,
+    "outcome_associated_rows": 654,
+    "phases": {
+      "early_midgame": 112,
+      "exact_root": 534,
+      "late_midgame": 914,
+      "opening": 1308
+    }
+  }
+}
