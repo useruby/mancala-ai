@@ -1,0 +1,1402 @@
+[
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[0,0,0,6,1,7],\"opponent_store\":3,\"player_pits\":[1,2,7,6,6,0],\"player_store\":9}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.33333333333333337,
+    "seed455_target": [
+      0.004728739149868488,
+      0.013845562934875488,
+      0.33671635389328003,
+      0.43340423703193665,
+      0.21130508184432983,
+      0.0
+    ],
+    "seed461_target": [
+      0.004728739149868488,
+      0.013845562934875488,
+      0.33671635389328003,
+      0.43340423703193665,
+      0.21130508184432983,
+      0.0
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 1,
+    "active_stones": 36,
+    "ply": 6
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[0,1,0,9,2,10],\"opponent_store\":5,\"player_pits\":[5,0,6,1,6,0],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.5,
+    "seed455_target": [
+      0.0018866423051804304,
+      0.0,
+      0.00955906417220831,
+      0.0006549212266691029,
+      0.9878993630409241,
+      0.0
+    ],
+    "seed461_target": [
+      0.0018866423051804304,
+      0.0,
+      0.00955906417220831,
+      0.0006549212266691029,
+      0.9878993630409241,
+      0.0
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 2,
+    "active_stones": 40,
+    "ply": 8
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[0,2,1,7,7,0],\"opponent_store\":4,\"player_pits\":[6,6,1,1,0,9],\"player_store\":4}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 1.0,
+    "seed455_target": [
+      0.7688954472541809,
+      0.025712154805660248,
+      0.0004180280084256083,
+      0.19059471786022186,
+      0.0,
+      0.014379617758095264
+    ],
+    "seed461_target": [
+      0.7688954472541809,
+      0.025712154805660248,
+      0.0004180280084256083,
+      0.19059471786022186,
+      0.0,
+      0.014379617758095264
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 40,
+    "ply": 6
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[0,5,0,1,6,6],\"opponent_store\":2,\"player_pits\":[1,1,2,7,7,0],\"player_store\":10}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.004527336452156305,
+      0.004527336452156305,
+      0.01116457860916853,
+      0.19213062524795532,
+      0.7876501083374023,
+      0.0
+    ],
+    "seed461_target": [
+      0.004527336452156305,
+      0.004527336452156305,
+      0.01116457860916853,
+      0.19213062524795532,
+      0.7876501083374023,
+      0.0
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 2,
+    "active_stones": 36,
+    "ply": 6
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[0,5,1,6,6,5],\"opponent_store\":1,\"player_pits\":[4,0,1,6,6,6],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 1.0,
+    "seed455_target": [
+      0.005362057127058506,
+      0.0,
+      0.001118142157793045,
+      0.05140314996242523,
+      0.14409230649471283,
+      0.7980243563652039
+    ],
+    "seed461_target": [
+      0.005362057127058506,
+      0.0,
+      0.001118142157793045,
+      0.05140314996242523,
+      0.14409230649471283,
+      0.7980243563652039
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,4],\"opponent_store\":0,\"player_pits\":[4,0,1,6,6,6],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.3333333333333333,
+    "seed455_target": [
+      0.006626376416534185,
+      0.0,
+      0.001327659236267209,
+      0.10207872092723846,
+      0.5091854333877563,
+      0.3807818293571472
+    ],
+    "seed461_target": [
+      0.006626376416534185,
+      0.0,
+      0.001327659236267209,
+      0.10207872092723846,
+      0.5091854333877563,
+      0.3807818293571472
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 3,
+    "active_stones": 47,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[0,5,5,5,5,5],\"opponent_store\":0,\"player_pits\":[4,4,0,1,6,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.0031598955392837524,
+      0.0028479930479079485,
+      0.0,
+      0.000495887768920511,
+      0.7630217671394348,
+      0.23047442734241486
+    ],
+    "seed461_target": [
+      0.0031598955392837524,
+      0.0028479930479079485,
+      0.0,
+      0.000495887768920511,
+      0.7630217671394348,
+      0.23047442734241486
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 46,
+    "ply": 3
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[0,5,1,6,6,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.3333333333333333,
+    "seed455_target": [
+      0.0,
+      0.8694027662277222,
+      0.0019347469788044691,
+      0.0514640249311924,
+      0.047393810003995895,
+      0.029804598540067673
+    ],
+    "seed461_target": [
+      0.0,
+      0.8694027662277222,
+      0.0019347469788044691,
+      0.0514640249311924,
+      0.047393810003995895,
+      0.029804598540067673
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 2,
+    "active_stones": 47,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,0,0,6,6],\"opponent_store\":2,\"player_pits\":[1,6,5,5,5,4],\"player_store\":0}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.41666666666666663,
+    "seed455_target": [
+      0.1353013813495636,
+      0.33224424719810486,
+      0.37474822998046875,
+      0.14013968408107758,
+      0.00965863186866045,
+      0.0079078059643507
+    ],
+    "seed461_target": [
+      0.1353013813495636,
+      0.33224424719810486,
+      0.37474822998046875,
+      0.14013968408107758,
+      0.00965863186866045,
+      0.0079078059643507
+    ],
+    "seed455_occurrences": 7,
+    "seed461_occurrences": 12,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,0,5,0,6],\"opponent_store\":2,\"player_pits\":[5,1,6,5,5,5],\"player_store\":0}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -1.0,
+    "seed455_target": [
+      0.014832060784101486,
+      0.0117889903485775,
+      0.2549581825733185,
+      0.16638562083244324,
+      0.20332776010036469,
+      0.348707377910614
+    ],
+    "seed461_target": [
+      0.014832060784101486,
+      0.0117889903485775,
+      0.2549581825733185,
+      0.16638562083244324,
+      0.20332776010036469,
+      0.348707377910614
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,0,5,5,0],\"opponent_store\":2,\"player_pits\":[1,6,2,7,6,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.31666666666666665,
+    "seed455_target": [
+      0.019845739006996155,
+      0.138968363404274,
+      0.011369624175131321,
+      0.1271715611219406,
+      0.14259903132915497,
+      0.5600457191467285
+    ],
+    "seed461_target": [
+      0.019845739006996155,
+      0.138968363404274,
+      0.011369624175131321,
+      0.1271715611219406,
+      0.14259903132915497,
+      0.5600457191467285
+    ],
+    "seed455_occurrences": 20,
+    "seed461_occurrences": 27,
+    "active_stones": 45,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,0,5,5,0],\"opponent_store\":2,\"player_pits\":[5,1,2,7,6,6],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.6153846153846154,
+    "seed455_target": [
+      0.7530101537704468,
+      0.000528867298271507,
+      0.18298660218715668,
+      0.0063296095468103886,
+      0.05220697075128555,
+      0.0049377973191440105
+    ],
+    "seed461_target": [
+      0.7530101537704468,
+      0.000528867298271507,
+      0.18298660218715668,
+      0.0063296095468103886,
+      0.05220697075128555,
+      0.0049377973191440105
+    ],
+    "seed455_occurrences": 13,
+    "seed461_occurrences": 13,
+    "active_stones": 45,
+    "ply": 2
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,4,4,0,5],\"opponent_store\":1,\"player_pits\":[1,6,1,6,6,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.8,
+    "seed455_target": [
+      0.0002747443213593215,
+      0.3199453353881836,
+      0.0006249252473935485,
+      0.22478382289409637,
+      0.1964479386806488,
+      0.2579231858253479
+    ],
+    "seed461_target": [
+      0.0002747443213593215,
+      0.3199453353881836,
+      0.0006249252473935485,
+      0.22478382289409637,
+      0.1964479386806488,
+      0.2579231858253479
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 5,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,4,4,0,5],\"opponent_store\":1,\"player_pits\":[1,6,5,5,5,4],\"player_store\":0}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.00041384631185792387,
+      0.2638823688030243,
+      0.22727616131305695,
+      0.17702536284923553,
+      0.1643063724040985,
+      0.16709592938423157
+    ],
+    "seed461_target": [
+      0.00041384631185792387,
+      0.2638823688030243,
+      0.22727616131305695,
+      0.17702536284923553,
+      0.1643063724040985,
+      0.16709592938423157
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 5,
+    "active_stones": 47,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[1,6,2,6,6,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.16666666666666669,
+    "seed455_target": [
+      0.022073760628700256,
+      0.1766466200351715,
+      0.018327966332435608,
+      0.2153232842683792,
+      0.2408234179019928,
+      0.3268049657344818
+    ],
+    "seed461_target": [
+      0.022073760628700256,
+      0.1766466200351715,
+      0.018327966332435608,
+      0.2153232842683792,
+      0.2408234179019928,
+      0.3268049657344818
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 4,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[1,6,6,5,5,4],\"player_store\":0}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.04545454545454547,
+    "seed455_target": [
+      0.026967622339725494,
+      0.20675930380821228,
+      0.20354382693767548,
+      0.1509801745414734,
+      0.2315954864025116,
+      0.18015362322330475
+    ],
+    "seed461_target": [
+      0.026967622339725494,
+      0.20675930380821228,
+      0.20354382693767548,
+      0.1509801745414734,
+      0.2315954864025116,
+      0.18015362322330475
+    ],
+    "seed455_occurrences": 6,
+    "seed461_occurrences": 11,
+    "active_stones": 47,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[5,1,2,6,6,6],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.6666666666666666,
+    "seed455_target": [
+      0.7021709084510803,
+      0.0006738236988894641,
+      0.20649456977844238,
+      0.013646746054291725,
+      0.0661446675658226,
+      0.010869186371564865
+    ],
+    "seed461_target": [
+      0.7021709084510803,
+      0.0006738236988894641,
+      0.20649456977844238,
+      0.013646746054291725,
+      0.0661446675658226,
+      0.010869186371564865
+    ],
+    "seed455_occurrences": 6,
+    "seed461_occurrences": 5,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[4,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[5,1,6,5,5,5],\"player_store\":0}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.034090909090909116,
+    "seed455_target": [
+      0.21207255125045776,
+      0.0005552849033847451,
+      0.7678431272506714,
+      0.006665571592748165,
+      0.006197950802743435,
+      0.006665571592748165
+    ],
+    "seed461_target": [
+      0.21207255125045776,
+      0.0005552849033847451,
+      0.7678431272506714,
+      0.006665571592748165,
+      0.006197950802743435,
+      0.006665571592748165
+    ],
+    "seed455_occurrences": 22,
+    "seed461_occurrences": 16,
+    "active_stones": 47,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,0,1,0,7,1],\"opponent_store\":5,\"player_pits\":[0,3,2,8,7,7],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.0,
+      0.004991503898054361,
+      0.9410954117774963,
+      0.0019021002808585763,
+      0.0015704999677836895,
+      0.050440464168787
+    ],
+    "seed461_target": [
+      0.0,
+      0.004991503898054361,
+      0.9410954117774963,
+      0.0019021002808585763,
+      0.0015704999677836895,
+      0.050440464168787
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 6,
+    "active_stones": 41,
+    "ply": 7
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,0,1,0,7,7],\"opponent_store\":3,\"player_pits\":[5,5,5,4,0,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.032258064516129004,
+    "seed455_target": [
+      0.003443094901740551,
+      0.09708581119775772,
+      0.0020407401025295258,
+      0.001684970105998218,
+      0.0,
+      0.8957453966140747
+    ],
+    "seed461_target": [
+      0.003443094901740551,
+      0.09708581119775772,
+      0.0020407401025295258,
+      0.001684970105998218,
+      0.0,
+      0.8957453966140747
+    ],
+    "seed455_occurrences": 31,
+    "seed461_occurrences": 31,
+    "active_stones": 44,
+    "ply": 3
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,0,1,6,0,7],\"opponent_store\":3,\"player_pits\":[5,0,2,2,7,7],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.5333333333333333,
+    "seed455_target": [
+      0.8686524629592896,
+      0.0,
+      0.0027832782361656427,
+      0.002929551061242819,
+      0.0011965440353378654,
+      0.12443819642066956
+    ],
+    "seed461_target": [
+      0.8686524629592896,
+      0.0,
+      0.0027832782361656427,
+      0.002929551061242819,
+      0.0011965440353378654,
+      0.12443819642066956
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 5,
+    "active_stones": 42,
+    "ply": 4
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,0,5,5,0,6],\"opponent_store\":2,\"player_pits\":[5,0,6,5,1,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 1.5,
+    "seed455_target": [
+      0.007365503814071417,
+      0.0,
+      0.11759134382009506,
+      0.8524456024169922,
+      0.0014606547774747014,
+      0.021136950701475143
+    ],
+    "seed461_target": [
+      0.007365503814071417,
+      0.0,
+      0.11759134382009506,
+      0.8524456024169922,
+      0.0014606547774747014,
+      0.021136950701475143
+    ],
+    "seed455_occurrences": 2,
+    "seed461_occurrences": 1,
+    "active_stones": 44,
+    "ply": 4
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,0,5,5,5,5],\"opponent_store\":0,\"player_pits\":[4,4,0,1,6,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.014625231735408306,
+      0.010651941411197186,
+      0.0,
+      0.003108399221673608,
+      0.48923739790916443,
+      0.4823770523071289
+    ],
+    "seed461_target": [
+      0.014625231735408306,
+      0.010651941411197186,
+      0.0,
+      0.003108399221673608,
+      0.48923739790916443,
+      0.4823770523071289
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 2,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,4,4,4,0,5],\"opponent_store\":1,\"player_pits\":[5,5,0,1,6,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -1.3333333333333333,
+    "seed455_target": [
+      0.01588623598217964,
+      0.9172288775444031,
+      0.0,
+      0.0034508949611335993,
+      0.02305324375629425,
+      0.040380798280239105
+    ],
+    "seed461_target": [
+      0.01588623598217964,
+      0.9172288775444031,
+      0.0,
+      0.0034508949611335993,
+      0.02305324375629425,
+      0.040380798280239105
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 2,
+    "active_stones": 45,
+    "ply": 3
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,4,4,4,4,0],\"opponent_store\":1,\"player_pits\":[5,0,6,1,6,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.2857142857142857,
+    "seed455_target": [
+      0.02208460494875908,
+      0.0,
+      0.050827622413635254,
+      0.0001820625038817525,
+      0.8316192030906677,
+      0.0952865332365036
+    ],
+    "seed461_target": [
+      0.02208460494875908,
+      0.0,
+      0.050827622413635254,
+      0.0001820625038817525,
+      0.8316192030906677,
+      0.0952865332365036
+    ],
+    "seed455_occurrences": 11,
+    "seed461_occurrences": 7,
+    "active_stones": 45,
+    "ply": 3
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,5,0,5,5,0],\"opponent_store\":2,\"player_pits\":[5,0,6,6,1,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -1.0,
+    "seed455_target": [
+      0.006241851951926947,
+      0.0,
+      0.8070337176322937,
+      0.15157823264598846,
+      0.00017491175094619393,
+      0.03497139364480972
+    ],
+    "seed461_target": [
+      0.006241851951926947,
+      0.0,
+      0.8070337176322937,
+      0.15157823264598846,
+      0.00017491175094619393,
+      0.03497139364480972
+    ],
+    "seed455_occurrences": 2,
+    "seed461_occurrences": 1,
+    "active_stones": 44,
+    "ply": 4
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,5,0,5,5,5],\"opponent_store\":1,\"player_pits\":[5,4,0,5,0,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.22857142857142854,
+    "seed455_target": [
+      0.004018399398773909,
+      0.004018399398773909,
+      0.0,
+      0.9697260856628418,
+      0.0,
+      0.022237109020352364
+    ],
+    "seed461_target": [
+      0.004018399398773909,
+      0.004018399398773909,
+      0.0,
+      0.9697260856628418,
+      0.0,
+      0.022237109020352364
+    ],
+    "seed455_occurrences": 7,
+    "seed461_occurrences": 5,
+    "active_stones": 45,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,5,4,4,4,0],\"opponent_store\":1,\"player_pits\":[5,0,6,5,1,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.014282493852078915,
+      0.0,
+      0.5717237591743469,
+      0.25534817576408386,
+      0.0004262102011125535,
+      0.15821941196918488
+    ],
+    "seed461_target": [
+      0.014282493852078915,
+      0.0,
+      0.5717237591743469,
+      0.25534817576408386,
+      0.0004262102011125535,
+      0.15821941196918488
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 2,
+    "active_stones": 45,
+    "ply": 4
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,5,5,4,0,5],\"opponent_store\":1,\"player_pits\":[5,5,0,5,5,0],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.09999999999999998,
+    "seed455_target": [
+      0.9010780453681946,
+      0.09457762539386749,
+      0.0,
+      0.002172186505049467,
+      0.002172186505049467,
+      0.0
+    ],
+    "seed461_target": [
+      0.9010780453681946,
+      0.09457762539386749,
+      0.0,
+      0.002172186505049467,
+      0.002172186505049467,
+      0.0
+    ],
+    "seed455_occurrences": 5,
+    "seed461_occurrences": 4,
+    "active_stones": 44,
+    "ply": 4
+  },
+  {
+    "state_id": "{\"current_player\":0,\"opponent_pits\":[5,5,5,4,0,5],\"opponent_store\":1,\"player_pits\":[5,5,4,4,4,0],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.39583333333333337,
+    "seed455_target": [
+      0.35657650232315063,
+      0.638880729675293,
+      0.0027842670679092407,
+      0.0008335973834618926,
+      0.0009248900460079312,
+      0.0
+    ],
+    "seed461_target": [
+      0.35657650232315063,
+      0.638880729675293,
+      0.0027842670679092407,
+      0.0008335973834618926,
+      0.0009248900460079312,
+      0.0
+    ],
+    "seed455_occurrences": 18,
+    "seed461_occurrences": 16,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[0,0,1,6,6,6],\"opponent_store\":2,\"player_pits\":[0,5,5,5,5,0],\"player_store\":7}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 2.0,
+    "seed455_target": [
+      0.0,
+      0.0,
+      0.0020983456633985043,
+      0.660511314868927,
+      0.2570827305316925,
+      0.08030766248703003
+    ],
+    "seed461_target": [
+      0.0,
+      0.0,
+      0.0020983456633985043,
+      0.660511314868927,
+      0.2570827305316925,
+      0.08030766248703003
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 39,
+    "ply": 1
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[0,5,5,0,5,5],\"opponent_store\":1,\"player_pits\":[0,1,2,7,7,0],\"player_store\":10}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.0,
+      0.8457997441291809,
+      0.05402013659477234,
+      0.0,
+      0.05773613601922989,
+      0.04244398698210716
+    ],
+    "seed461_target": [
+      0.0,
+      0.8457997441291809,
+      0.05402013659477234,
+      0.0,
+      0.05773613601922989,
+      0.04244398698210716
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 5,
+    "active_stones": 37,
+    "ply": 5
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[0,6,6,5,5,5],\"opponent_store\":0,\"player_pits\":[0,5,1,6,6,0],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -1.0,
+    "seed455_target": [
+      0.0,
+      0.01824135333299637,
+      0.16541782021522522,
+      0.139207661151886,
+      0.3439346253871918,
+      0.3331984877586365
+    ],
+    "seed461_target": [
+      0.0,
+      0.01824135333299637,
+      0.16541782021522522,
+      0.139207661151886,
+      0.3439346253871918,
+      0.3331984877586365
+    ],
+    "seed455_occurrences": 2,
+    "seed461_occurrences": 2,
+    "active_stones": 45,
+    "ply": 5
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[0,6,6,5,5,5],\"opponent_store\":0,\"player_pits\":[0,5,5,5,5,0],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.0,
+      0.012481681071221828,
+      0.3798460066318512,
+      0.3436299264431,
+      0.12454354763031006,
+      0.13949881494045258
+    ],
+    "seed461_target": [
+      0.0,
+      0.012481681071221828,
+      0.3798460066318512,
+      0.3436299264431,
+      0.12454354763031006,
+      0.13949881494045258
+    ],
+    "seed455_occurrences": 2,
+    "seed461_occurrences": 3,
+    "active_stones": 47,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[0,6,6,5,5,5],\"opponent_store\":0,\"player_pits\":[4,0,5,5,5,1],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.3333333333333333,
+    "seed455_target": [
+      0.0,
+      0.35450270771980286,
+      0.1966714709997177,
+      0.18649230897426605,
+      0.1682366579771042,
+      0.09409693628549576
+    ],
+    "seed461_target": [
+      0.0,
+      0.35450270771980286,
+      0.1966714709997177,
+      0.18649230897426605,
+      0.1682366579771042,
+      0.09409693628549576
+    ],
+    "seed455_occurrences": 2,
+    "seed461_occurrences": 3,
+    "active_stones": 47,
+    "ply": 3
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[0,7,1,6,6,6],\"opponent_store\":2,\"player_pits\":[5,4,0,0,1,7],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.8,
+    "seed455_target": [
+      0.0,
+      0.0021547749638557434,
+      0.9824430346488953,
+      0.0016280976124107838,
+      0.0015307734720408916,
+      0.012243312783539295
+    ],
+    "seed461_target": [
+      0.0,
+      0.0021547749638557434,
+      0.9824430346488953,
+      0.0016280976124107838,
+      0.0015307734720408916,
+      0.012243312783539295
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 5,
+    "active_stones": 43,
+    "ply": 4
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[4,4,0,5,5,5],\"opponent_store\":1,\"player_pits\":[0,5,5,5,5,4],\"player_store\":0}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.05569727891156462,
+    "seed455_target": [
+      0.004687208216637373,
+      0.004157498478889465,
+      0.0,
+      0.025767121464014053,
+      0.026553262025117874,
+      0.9388349056243896
+    ],
+    "seed461_target": [
+      0.004687208216637373,
+      0.004157498478889465,
+      0.0,
+      0.025767121464014053,
+      0.026553262025117874,
+      0.9388349056243896
+    ],
+    "seed455_occurrences": 49,
+    "seed461_occurrences": 48,
+    "active_stones": 47,
+    "ply": 1
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,0,1,0,7,1],\"opponent_store\":5,\"player_pits\":[0,3,0,9,8,7],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.08333333333333331,
+    "seed455_target": [
+      0.019096236675977707,
+      0.0,
+      0.22560976445674896,
+      0.0,
+      0.1762484908103943,
+      0.5790454745292664
+    ],
+    "seed461_target": [
+      0.019096236675977707,
+      0.0,
+      0.22560976445674896,
+      0.0,
+      0.1762484908103943,
+      0.5790454745292664
+    ],
+    "seed455_occurrences": 3,
+    "seed461_occurrences": 4,
+    "active_stones": 41,
+    "ply": 8
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,0,1,6,6,6],\"opponent_store\":2,\"player_pits\":[4,4,0,0,6,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.2175925925925926,
+    "seed455_target": [
+      0.03529288247227669,
+      0.0,
+      0.005560723133385181,
+      0.29409536719322205,
+      0.29568397998809814,
+      0.3693670630455017
+    ],
+    "seed461_target": [
+      0.03529288247227669,
+      0.0,
+      0.005560723133385181,
+      0.29409536719322205,
+      0.29568397998809814,
+      0.3693670630455017
+    ],
+    "seed455_occurrences": 24,
+    "seed461_occurrences": 27,
+    "active_stones": 44,
+    "ply": 2
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,0,1,6,6,6],\"opponent_store\":2,\"player_pits\":[4,4,4,4,0,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.2122823984526112,
+    "seed455_target": [
+      0.0030988939106464386,
+      0.0,
+      0.0005294195143505931,
+      0.8955463767051697,
+      0.08794563263654709,
+      0.012879634276032448
+    ],
+    "seed461_target": [
+      0.0030988939106464386,
+      0.0,
+      0.0005294195143505931,
+      0.8955463767051697,
+      0.08794563263654709,
+      0.012879634276032448
+    ],
+    "seed455_occurrences": 44,
+    "seed461_occurrences": 47,
+    "active_stones": 45,
+    "ply": 2
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,0,5,5,5,5],\"opponent_store\":1,\"player_pits\":[4,4,4,4,0,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -0.2222222222222222,
+    "seed455_target": [
+      0.020109791308641434,
+      0.0,
+      0.2709716558456421,
+      0.1432652622461319,
+      0.24535426497459412,
+      0.32029902935028076
+    ],
+    "seed461_target": [
+      0.020109791308641434,
+      0.0,
+      0.2709716558456421,
+      0.1432652622461319,
+      0.24535426497459412,
+      0.32029902935028076
+    ],
+    "seed455_occurrences": 7,
+    "seed461_occurrences": 9,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,0,6,5,5,5],\"opponent_store\":1,\"player_pits\":[4,4,4,4,4,0],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.04621575241138526,
+    "seed455_target": [
+      0.9666836261749268,
+      0.0,
+      0.01044420339167118,
+      0.008782454766333103,
+      0.006838272325694561,
+      0.007251375820487738
+    ],
+    "seed461_target": [
+      0.9666836261749268,
+      0.0,
+      0.01044420339167118,
+      0.008782454766333103,
+      0.006838272325694561,
+      0.007251375820487738
+    ],
+    "seed455_occurrences": 262,
+    "seed461_occurrences": 258,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,4,0,1,6,6],\"opponent_store\":2,\"player_pits\":[5,0,0,6,6,6],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 2.0,
+    "seed455_target": [
+      0.007731458637863398,
+      0.1115150898694992,
+      0.0,
+      0.0013311641523614526,
+      0.5616536140441895,
+      0.3177686333656311
+    ],
+    "seed461_target": [
+      0.007731458637863398,
+      0.1115150898694992,
+      0.0,
+      0.0013311641523614526,
+      0.5616536140441895,
+      0.3177686333656311
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 45,
+    "ply": 1
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,4,0,5,5,0],\"opponent_store\":2,\"player_pits\":[1,0,3,8,7,6],\"player_store\":2}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.4,
+    "seed455_target": [
+      0.0192877147346735,
+      0.029037242755293846,
+      0.0,
+      0.9471845626831055,
+      0.004490496125072241,
+      0.0
+    ],
+    "seed461_target": [
+      0.0192877147346735,
+      0.029037242755293846,
+      0.0,
+      0.9471845626831055,
+      0.004490496125072241,
+      0.0
+    ],
+    "seed455_occurrences": 5,
+    "seed461_occurrences": 3,
+    "active_stones": 44,
+    "ply": 3
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,4,0,5,5,0],\"opponent_store\":3,\"player_pits\":[1,0,7,6,6,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": -1.0,
+    "seed455_target": [
+      0.04596380144357681,
+      0.8189906477928162,
+      0.0,
+      0.08126009255647659,
+      0.05378551036119461,
+      0.0
+    ],
+    "seed461_target": [
+      0.04596380144357681,
+      0.8189906477928162,
+      0.0,
+      0.08126009255647659,
+      0.05378551036119461,
+      0.0
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 44,
+    "ply": 2
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[5,4,0,5,5,5],\"opponent_store\":1,\"player_pits\":[4,4,4,0,5,5],\"player_store\":1}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.19053185271770895,
+    "seed455_target": [
+      0.007284056395292282,
+      0.0050572967156767845,
+      0.0,
+      0.02319587953388691,
+      0.8607572317123413,
+      0.103705495595932
+    ],
+    "seed461_target": [
+      0.007284056395292282,
+      0.0050572967156767845,
+      0.0,
+      0.02319587953388691,
+      0.8607572317123413,
+      0.103705495595932
+    ],
+    "seed455_occurrences": 59,
+    "seed461_occurrences": 58,
+    "active_stones": 46,
+    "ply": 0
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[6,0,2,7,0,8],\"opponent_store\":4,\"player_pits\":[5,0,6,1,6,0],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.2444444444444444,
+    "seed455_target": [
+      0.8868402242660522,
+      0.0,
+      0.0005231330287642777,
+      0.08894642442464828,
+      0.0,
+      0.023690270259976387
+    ],
+    "seed461_target": [
+      0.8868402242660522,
+      0.0,
+      0.0005231330287642777,
+      0.08894642442464828,
+      0.0,
+      0.023690270259976387
+    ],
+    "seed455_occurrences": 10,
+    "seed461_occurrences": 9,
+    "active_stones": 41,
+    "ply": 6
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[6,1,0,6,6,6],\"opponent_store\":2,\"player_pits\":[5,5,0,0,1,7],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.16666666666666669,
+    "seed455_target": [
+      0.9693579077720642,
+      0.0020324522629380226,
+      0.0,
+      0.0013175428612157702,
+      0.0013175428612157702,
+      0.02597462199628353
+    ],
+    "seed461_target": [
+      0.9693579077720642,
+      0.0020324522629380226,
+      0.0,
+      0.0013175428612157702,
+      0.0013175428612157702,
+      0.02597462199628353
+    ],
+    "seed455_occurrences": 2,
+    "seed461_occurrences": 3,
+    "active_stones": 43,
+    "ply": 3
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[6,5,1,6,1,6],\"opponent_store\":2,\"player_pits\":[5,0,6,1,6,0],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.07870370370370369,
+    "seed455_target": [
+      0.5686999559402466,
+      0.4178532660007477,
+      0.00013545369438361377,
+      0.008911949582397938,
+      0.00013545369438361377,
+      0.004263897892087698
+    ],
+    "seed461_target": [
+      0.5686999559402466,
+      0.4178532660007477,
+      0.00013545369438361377,
+      0.008911949582397938,
+      0.00013545369438361377,
+      0.004263897892087698
+    ],
+    "seed455_occurrences": 27,
+    "seed461_occurrences": 24,
+    "active_stones": 43,
+    "ply": 4
+  },
+  {
+    "state_id": "{\"current_player\":1,\"opponent_pits\":[6,5,5,5,5,0],\"opponent_store\":1,\"player_pits\":[5,0,6,1,6,0],\"player_store\":3}",
+    "target_js": 0.0,
+    "argmax_change": false,
+    "top1_mass_delta": 0.0,
+    "entropy_delta": 0.0,
+    "value_delta": 0.0,
+    "seed455_target": [
+      0.02236652746796608,
+      0.9658658504486084,
+      0.003664144314825535,
+      0.004130995832383633,
+      0.0039725820533931255,
+      0.0
+    ],
+    "seed461_target": [
+      0.02236652746796608,
+      0.9658658504486084,
+      0.003664144314825535,
+      0.004130995832383633,
+      0.0039725820533931255,
+      0.0
+    ],
+    "seed455_occurrences": 1,
+    "seed461_occurrences": 1,
+    "active_stones": 44,
+    "ply": 4
+  }
+]

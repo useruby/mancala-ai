@@ -1,0 +1,266 @@
+{
+  "seed455": {
+    "0": {
+      "largest_state_frequency": 1.0,
+      "rows": 1600,
+      "shannon_entropy": -0.0,
+      "simpson_effective_states": 1.0,
+      "top10_state_mass": 1.0,
+      "top5_state_mass": 1.0,
+      "unique_state_fraction": 0.000625,
+      "unique_states": 1
+    },
+    "1": {
+      "largest_state_frequency": 0.56625,
+      "rows": 1600,
+      "shannon_entropy": 1.742201273352711,
+      "simpson_effective_states": 2.5145519873800923,
+      "top10_state_mass": 1.0,
+      "top5_state_mass": 0.96375,
+      "unique_state_fraction": 0.00375,
+      "unique_states": 6
+    },
+    "10": {
+      "largest_state_frequency": 0.035,
+      "rows": 1600,
+      "shannon_entropy": 9.56690332079635,
+      "simpson_effective_states": 270.09917704156993,
+      "top10_state_mass": 0.14125,
+      "top5_state_mass": 0.101875,
+      "unique_state_fraction": 0.70625,
+      "unique_states": 1130
+    },
+    "11": {
+      "largest_state_frequency": 0.019375,
+      "rows": 1600,
+      "shannon_entropy": 9.890331627580565,
+      "simpson_effective_states": 470.0697759823724,
+      "top10_state_mass": 0.105,
+      "top5_state_mass": 0.069375,
+      "unique_state_fraction": 0.771875,
+      "unique_states": 1235
+    },
+    "12": {
+      "largest_state_frequency": 0.016260162601626018,
+      "rows": 1599,
+      "shannon_entropy": 10.104598124760594,
+      "simpson_effective_states": 629.5988672740705,
+      "top10_state_mass": 0.0825515947467167,
+      "top5_state_mass": 0.05565978736710444,
+      "unique_state_fraction": 0.8286429018136335,
+      "unique_states": 1325
+    },
+    "2": {
+      "largest_state_frequency": 0.450625,
+      "rows": 1600,
+      "shannon_entropy": 3.0310331881367327,
+      "simpson_effective_states": 4.134380279006069,
+      "top10_state_mass": 0.893125,
+      "top5_state_mass": 0.7525,
+      "unique_state_fraction": 0.02,
+      "unique_states": 32
+    },
+    "3": {
+      "largest_state_frequency": 0.31,
+      "rows": 1600,
+      "shannon_entropy": 4.4180178039190405,
+      "simpson_effective_states": 7.964607276415428,
+      "top10_state_mass": 0.705,
+      "top5_state_mass": 0.59375,
+      "unique_state_fraction": 0.070625,
+      "unique_states": 113
+    },
+    "4": {
+      "largest_state_frequency": 0.243125,
+      "rows": 1600,
+      "shannon_entropy": 5.530324446869155,
+      "simpson_effective_states": 12.538202335240184,
+      "top10_state_mass": 0.5625,
+      "top5_state_mass": 0.47,
+      "unique_state_fraction": 0.145,
+      "unique_states": 232
+    },
+    "5": {
+      "largest_state_frequency": 0.205625,
+      "rows": 1600,
+      "shannon_entropy": 6.478905964330456,
+      "simpson_effective_states": 18.017510768277923,
+      "top10_state_mass": 0.449375,
+      "top5_state_mass": 0.371875,
+      "unique_state_fraction": 0.2375,
+      "unique_states": 380
+    },
+    "6": {
+      "largest_state_frequency": 0.0775,
+      "rows": 1600,
+      "shannon_entropy": 7.6122632278496996,
+      "simpson_effective_states": 57.9999093751416,
+      "top10_state_mass": 0.324375,
+      "top5_state_mass": 0.253125,
+      "unique_state_fraction": 0.335625,
+      "unique_states": 537
+    },
+    "7": {
+      "largest_state_frequency": 0.04625,
+      "rows": 1600,
+      "shannon_entropy": 8.3259566190192,
+      "simpson_effective_states": 108.50216156649996,
+      "top10_state_mass": 0.250625,
+      "top5_state_mass": 0.170625,
+      "unique_state_fraction": 0.43875,
+      "unique_states": 702
+    },
+    "8": {
+      "largest_state_frequency": 0.044375,
+      "rows": 1600,
+      "shannon_entropy": 8.795927375305812,
+      "simpson_effective_states": 135.0780920219502,
+      "top10_state_mass": 0.225625,
+      "top5_state_mass": 0.155,
+      "unique_state_fraction": 0.545625,
+      "unique_states": 873
+    },
+    "9": {
+      "largest_state_frequency": 0.04,
+      "rows": 1600,
+      "shannon_entropy": 9.201565710662303,
+      "simpson_effective_states": 191.38755980861245,
+      "top10_state_mass": 0.175625,
+      "top5_state_mass": 0.12375,
+      "unique_state_fraction": 0.6275,
+      "unique_states": 1004
+    }
+  },
+  "seed461": {
+    "0": {
+      "largest_state_frequency": 1.0,
+      "rows": 1600,
+      "shannon_entropy": -0.0,
+      "simpson_effective_states": 1.0,
+      "top10_state_mass": 1.0,
+      "top5_state_mass": 1.0,
+      "unique_state_fraction": 0.000625,
+      "unique_states": 1
+    },
+    "1": {
+      "largest_state_frequency": 0.589375,
+      "rows": 1600,
+      "shannon_entropy": 1.6885291165965255,
+      "simpson_effective_states": 2.401253153989739,
+      "top10_state_mass": 1.0,
+      "top5_state_mass": 0.975625,
+      "unique_state_fraction": 0.00375,
+      "unique_states": 6
+    },
+    "10": {
+      "largest_state_frequency": 0.04,
+      "rows": 1600,
+      "shannon_entropy": 9.520632599723182,
+      "simpson_effective_states": 239.92502343017807,
+      "top10_state_mass": 0.145625,
+      "top5_state_mass": 0.108125,
+      "unique_state_fraction": 0.700625,
+      "unique_states": 1121
+    },
+    "11": {
+      "largest_state_frequency": 0.03125,
+      "rows": 1600,
+      "shannon_entropy": 9.806375245564029,
+      "simpson_effective_states": 363.0175836642087,
+      "top10_state_mass": 0.113125,
+      "top5_state_mass": 0.081875,
+      "unique_state_fraction": 0.76125,
+      "unique_states": 1218
+    },
+    "12": {
+      "largest_state_frequency": 0.02375,
+      "rows": 1600,
+      "shannon_entropy": 10.00822867937933,
+      "simpson_effective_states": 494.7816003092385,
+      "top10_state_mass": 0.091875,
+      "top5_state_mass": 0.06875,
+      "unique_state_fraction": 0.81,
+      "unique_states": 1296
+    },
+    "2": {
+      "largest_state_frequency": 0.4675,
+      "rows": 1600,
+      "shannon_entropy": 2.97278254793958,
+      "simpson_effective_states": 3.9193951883300002,
+      "top10_state_mass": 0.901875,
+      "top5_state_mass": 0.753125,
+      "unique_state_fraction": 0.019375,
+      "unique_states": 31
+    },
+    "3": {
+      "largest_state_frequency": 0.31,
+      "rows": 1600,
+      "shannon_entropy": 4.442052569058277,
+      "simpson_effective_states": 7.986522742871404,
+      "top10_state_mass": 0.69125,
+      "top5_state_mass": 0.588125,
+      "unique_state_fraction": 0.066875,
+      "unique_states": 107
+    },
+    "4": {
+      "largest_state_frequency": 0.255625,
+      "rows": 1600,
+      "shannon_entropy": 5.508611336764099,
+      "simpson_effective_states": 11.81782090461726,
+      "top10_state_mass": 0.55875,
+      "top5_state_mass": 0.474375,
+      "unique_state_fraction": 0.1475,
+      "unique_states": 236
+    },
+    "5": {
+      "largest_state_frequency": 0.215625,
+      "rows": 1600,
+      "shannon_entropy": 6.483024896888614,
+      "simpson_effective_states": 17.421602787456443,
+      "top10_state_mass": 0.444375,
+      "top5_state_mass": 0.3575,
+      "unique_state_fraction": 0.231875,
+      "unique_states": 371
+    },
+    "6": {
+      "largest_state_frequency": 0.066875,
+      "rows": 1600,
+      "shannon_entropy": 7.616934326034575,
+      "simpson_effective_states": 59.38297378798423,
+      "top10_state_mass": 0.34125,
+      "top5_state_mass": 0.250625,
+      "unique_state_fraction": 0.338125,
+      "unique_states": 541
+    },
+    "7": {
+      "largest_state_frequency": 0.055,
+      "rows": 1600,
+      "shannon_entropy": 8.323002899351879,
+      "simpson_effective_states": 100.23492560689115,
+      "top10_state_mass": 0.258125,
+      "top5_state_mass": 0.17875,
+      "unique_state_fraction": 0.446875,
+      "unique_states": 715
+    },
+    "8": {
+      "largest_state_frequency": 0.048125,
+      "rows": 1600,
+      "shannon_entropy": 8.788955092843343,
+      "simpson_effective_states": 128.2950786809662,
+      "top10_state_mass": 0.230625,
+      "top5_state_mass": 0.16,
+      "unique_state_fraction": 0.55,
+      "unique_states": 880
+    },
+    "9": {
+      "largest_state_frequency": 0.044375,
+      "rows": 1600,
+      "shannon_entropy": 9.17899047627692,
+      "simpson_effective_states": 175.39051795012332,
+      "top10_state_mass": 0.1875,
+      "top5_state_mass": 0.13,
+      "unique_state_fraction": 0.631875,
+      "unique_states": 1011
+    }
+  }
+}
