@@ -1,0 +1,1198 @@
+{
+  "arena_delta_weighted_first_divergence_coverage": {
+    "seed455": {
+      "coverage_fraction": 0.14485981308411214,
+      "covered_weight": 7.75,
+      "total_weight": 53.5
+    },
+    "seed461": {
+      "coverage_fraction": 0.16355140186915887,
+      "covered_weight": 8.75,
+      "total_weight": 53.5
+    }
+  },
+  "arena_localization_commit": "7bf67be12f55e614ee7fc30062a7e789ae715540",
+  "classification": "nplus2_fresh_distribution_no_clear_regression",
+  "datasets": {
+    "seed455": {
+      "path": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/self_play.jsonl",
+      "sha256": "0628b7212e6a141138f1618250506d5b506e45fa0fd8c5b614917825ebffcd22"
+    },
+    "seed461": {
+      "path": ".tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab"
+    }
+  },
+  "descriptor_comparison": {
+    "comparisons": {
+      "active_stone_bucket": {
+        "seed455": 0.31323142696827433,
+        "seed461": 0.28993645122897205
+      },
+      "active_stones": {
+        "seed455": -1.4329885744013795,
+        "seed461": -1.3627974962998153
+      },
+      "capture_available": {
+        "seed455": 0.0008560064718310199,
+        "seed461": 0.00012097411186336605
+      },
+      "current_player": {
+        "seed455": 0.0009073368746650538,
+        "seed461": 0.0009330673202711422
+      },
+      "extra_turn_available": {
+        "seed455": 0.017945657772484844,
+        "seed461": 0.027578246866912327
+      },
+      "legal_action_count": {
+        "seed455": -0.8152866925209373,
+        "seed461": -0.7641662459437938
+      },
+      "ply_bucket": {
+        "seed455": 0.16336255112125686,
+        "seed461": 0.1512571262366589
+      }
+    },
+    "distributions": {
+      "arena": {
+        "categorical": {
+          "active_stone_bucket": {
+            "17-21": 5,
+            "22-24": 3,
+            "25-32": 34,
+            "33-40": 83,
+            ">40": 212
+          },
+          "capture_available": {
+            "0": 261,
+            "1": 76
+          },
+          "current_player": {
+            "0": 168,
+            "1": 169
+          },
+          "extra_turn_available": {
+            "0": 228,
+            "1": 109
+          },
+          "legal_action_count": {
+            "2": 4,
+            "3": 15,
+            "4": 80,
+            "5": 154,
+            "6": 84
+          },
+          "ply_bucket": {
+            "0-4": 112,
+            "5-8": 84,
+            "9-12": 59,
+            ">12": 82
+          }
+        },
+        "count": 337,
+        "cross_tabs": {
+          "active_stones_x_legal_action_count": {
+            "17-21|2": 2,
+            "17-21|3": 1,
+            "17-21|4": 1,
+            "17-21|5": 1,
+            "22-24|3": 1,
+            "22-24|4": 2,
+            "25-32|3": 5,
+            "25-32|4": 9,
+            "25-32|5": 14,
+            "25-32|6": 6,
+            "33-40|2": 1,
+            "33-40|3": 4,
+            "33-40|4": 25,
+            "33-40|5": 33,
+            "33-40|6": 20,
+            ">40|2": 1,
+            ">40|3": 4,
+            ">40|4": 43,
+            ">40|5": 106,
+            ">40|6": 58
+          },
+          "active_stones_x_ply": {
+            "17-21|>12": 5,
+            "22-24|>12": 3,
+            "25-32|5-8": 1,
+            "25-32|9-12": 6,
+            "25-32|>12": 27,
+            "33-40|0-4": 5,
+            "33-40|5-8": 26,
+            "33-40|9-12": 21,
+            "33-40|>12": 31,
+            ">40|0-4": 107,
+            ">40|5-8": 57,
+            ">40|9-12": 32,
+            ">40|>12": 16
+          }
+        },
+        "numeric": {
+          "active_stones": {
+            "mean": 40.29376854599406,
+            "sd": 6.0049230332166905
+          },
+          "legal_action_count": {
+            "mean": 4.887240356083086,
+            "sd": 0.871090475105461
+          }
+        }
+      },
+      "seed455": {
+        "categorical": {
+          "active_stone_bucket": {
+            "17-21": 7368,
+            "22-24": 4125,
+            "25-32": 10688,
+            "33-40": 10890,
+            "<=16": 24189,
+            ">40": 13500
+          },
+          "capture_available": {
+            "0": 52720,
+            "1": 18040
+          },
+          "current_player": {
+            "0": 37783,
+            "1": 32977
+          },
+          "extra_turn_available": {
+            "0": 36962,
+            "1": 33798
+          },
+          "legal_action_count": {
+            "1": 4145,
+            "2": 8297,
+            "3": 13374,
+            "4": 17041,
+            "5": 18206,
+            "6": 9697
+          },
+          "ply_bucket": {
+            "0-4": 8000,
+            "5-8": 6400,
+            "9-12": 6399,
+            ">12": 49961
+          }
+        },
+        "count": 70760,
+        "cross_tabs": {
+          "active_stones_x_legal_action_count": {
+            "17-21|1": 210,
+            "17-21|2": 1022,
+            "17-21|3": 1931,
+            "17-21|4": 2225,
+            "17-21|5": 1609,
+            "17-21|6": 371,
+            "22-24|1": 60,
+            "22-24|2": 349,
+            "22-24|3": 949,
+            "22-24|4": 1333,
+            "22-24|5": 1099,
+            "22-24|6": 335,
+            "25-32|1": 41,
+            "25-32|2": 488,
+            "25-32|3": 1819,
+            "25-32|4": 3305,
+            "25-32|5": 3565,
+            "25-32|6": 1470,
+            "33-40|1": 11,
+            "33-40|2": 153,
+            "33-40|3": 1173,
+            "33-40|4": 3301,
+            "33-40|5": 4245,
+            "33-40|6": 2007,
+            "<=16|1": 3823,
+            "<=16|2": 6267,
+            "<=16|3": 7180,
+            "<=16|4": 4531,
+            "<=16|5": 2044,
+            "<=16|6": 344,
+            ">40|2": 18,
+            ">40|3": 322,
+            ">40|4": 2346,
+            ">40|5": 5644,
+            ">40|6": 5170
+          },
+          "active_stones_x_ply": {
+            "17-21|9-12": 7,
+            "17-21|>12": 7361,
+            "22-24|9-12": 28,
+            "22-24|>12": 4097,
+            "25-32|5-8": 19,
+            "25-32|9-12": 794,
+            "25-32|>12": 9875,
+            "33-40|0-4": 178,
+            "33-40|5-8": 1412,
+            "33-40|9-12": 4880,
+            "33-40|>12": 4420,
+            "<=16|9-12": 1,
+            "<=16|>12": 24188,
+            ">40|0-4": 7822,
+            ">40|5-8": 4969,
+            ">40|9-12": 689,
+            ">40|>12": 20
+          }
+        },
+        "numeric": {
+          "active_stones": {
+            "mean": 25.016011871113623,
+            "sd": 13.830204111584532
+          },
+          "legal_action_count": {
+            "mean": 3.9321226681741095,
+            "sd": 1.4092833272770195
+          }
+        }
+      },
+      "seed461": {
+        "categorical": {
+          "active_stone_bucket": {
+            "17-21": 7449,
+            "22-24": 4283,
+            "25-32": 10662,
+            "33-40": 11052,
+            "<=16": 19848,
+            ">40": 13439
+          },
+          "capture_available": {
+            "0": 50955,
+            "1": 15778
+          },
+          "current_player": {
+            "0": 35666,
+            "1": 31067
+          },
+          "extra_turn_available": {
+            "0": 32316,
+            "1": 34417
+          },
+          "legal_action_count": {
+            "1": 3884,
+            "2": 6816,
+            "3": 11892,
+            "4": 16671,
+            "5": 17920,
+            "6": 9550
+          },
+          "ply_bucket": {
+            "0-4": 8000,
+            "5-8": 6400,
+            "9-12": 6400,
+            ">12": 45933
+          }
+        },
+        "count": 66733,
+        "cross_tabs": {
+          "active_stones_x_legal_action_count": {
+            "17-21|1": 231,
+            "17-21|2": 1044,
+            "17-21|3": 2009,
+            "17-21|4": 2224,
+            "17-21|5": 1551,
+            "17-21|6": 390,
+            "22-24|1": 66,
+            "22-24|2": 333,
+            "22-24|3": 1015,
+            "22-24|4": 1375,
+            "22-24|5": 1142,
+            "22-24|6": 352,
+            "25-32|1": 64,
+            "25-32|2": 533,
+            "25-32|3": 1778,
+            "25-32|4": 3376,
+            "25-32|5": 3495,
+            "25-32|6": 1416,
+            "33-40|1": 11,
+            "33-40|2": 180,
+            "33-40|3": 1195,
+            "33-40|4": 3348,
+            "33-40|5": 4276,
+            "33-40|6": 2042,
+            "<=16|1": 3512,
+            "<=16|2": 4706,
+            "<=16|3": 5570,
+            "<=16|4": 3986,
+            "<=16|5": 1811,
+            "<=16|6": 263,
+            ">40|2": 20,
+            ">40|3": 325,
+            ">40|4": 2362,
+            ">40|5": 5645,
+            ">40|6": 5087
+          },
+          "active_stones_x_ply": {
+            "17-21|9-12": 6,
+            "17-21|>12": 7443,
+            "22-24|9-12": 17,
+            "22-24|>12": 4266,
+            "25-32|5-8": 23,
+            "25-32|9-12": 722,
+            "25-32|>12": 9917,
+            "33-40|0-4": 193,
+            "33-40|5-8": 1410,
+            "33-40|9-12": 5002,
+            "33-40|>12": 4447,
+            "<=16|>12": 19848,
+            ">40|0-4": 7807,
+            ">40|5-8": 4967,
+            ">40|9-12": 653,
+            ">40|>12": 12
+          }
+        },
+        "numeric": {
+          "active_stones": {
+            "mean": 26.290845608619424,
+            "sd": 13.232442617060874
+          },
+          "legal_action_count": {
+            "mean": 3.9976623259856443,
+            "sd": 1.3969727108114276
+          }
+        }
+      }
+    }
+  },
+  "first_divergence_coverage": {
+    "seed455": {
+      "coverage_fraction": 0.16913946587537093,
+      "covered_states": 57,
+      "median_occurrences": 3,
+      "p90_occurrences": 24,
+      "total_occurrences": 702
+    },
+    "seed461": {
+      "coverage_fraction": 0.18991097922848665,
+      "covered_states": 64,
+      "median_occurrences": 3,
+      "p90_occurrences": 27,
+      "total_occurrences": 724
+    }
+  },
+  "outcome_associated_coverage": {
+    "seed455": {
+      "coverage_fraction": 0.1910828025477707,
+      "covered_states": 30,
+      "median_occurrences": 3,
+      "p90_occurrences": 24,
+      "total_occurrences": 240
+    },
+    "seed461": {
+      "coverage_fraction": 0.20382165605095542,
+      "covered_states": 32,
+      "median_occurrences": 2,
+      "p90_occurrences": 27,
+      "total_occurrences": 245
+    }
+  },
+  "raw_to_search_lift": {
+    "seed455": {
+      "0-4|33-40": {
+        "argmax_agreement": 0.9325842696629213,
+        "entropy_delta": -0.3480022282856817,
+        "js": 0.07368101581537442,
+        "raw_on_target_argmax": 0.6807213899606211,
+        "target_on_raw_argmax": 0.7956306668511184
+      },
+      "0-4|>40": {
+        "argmax_agreement": 0.8840450012784454,
+        "entropy_delta": -0.7269128081385762,
+        "js": 0.1502228819822426,
+        "raw_on_target_argmax": 0.6048870757605573,
+        "target_on_raw_argmax": 0.8031692206240193
+      },
+      "5-8|33-40": {
+        "argmax_agreement": 0.6182719546742209,
+        "entropy_delta": -0.6796455596228453,
+        "js": 0.18668188951703546,
+        "raw_on_target_argmax": 0.4455407671303834,
+        "target_on_raw_argmax": 0.5316072821500011
+      },
+      "5-8|>40": {
+        "argmax_agreement": 0.6924934594485812,
+        "entropy_delta": -0.6327398207897631,
+        "js": 0.1657808237096078,
+        "raw_on_target_argmax": 0.541545476538631,
+        "target_on_raw_argmax": 0.6126868153366992
+      },
+      "9-12|33-40": {
+        "argmax_agreement": 0.5836065573770491,
+        "entropy_delta": -1.0558635505094274,
+        "js": 0.28181883628588983,
+        "raw_on_target_argmax": 0.43084870771557815,
+        "target_on_raw_argmax": 0.545502777972243
+      },
+      "9-12|>40": {
+        "argmax_agreement": 0.49056603773584906,
+        "entropy_delta": -0.9628935489238878,
+        "js": 0.30905295100680724,
+        "raw_on_target_argmax": 0.3861299924605746,
+        "target_on_raw_argmax": 0.443683231339758
+      },
+      ">12|33-40": {
+        "argmax_agreement": 0.5617647058823529,
+        "entropy_delta": -1.490372535025323,
+        "js": 0.3960423808412446,
+        "raw_on_target_argmax": 0.42550190882443767,
+        "target_on_raw_argmax": 0.5613071063671335
+      },
+      ">12|>40": {
+        "argmax_agreement": 0.45,
+        "entropy_delta": -1.38785868136573,
+        "js": 0.47460103458572733,
+        "raw_on_target_argmax": 0.3880312788812872,
+        "target_on_raw_argmax": 0.4499902763871851
+      },
+      ">32_all": {
+        "argmax_agreement": 0.7,
+        "entropy_delta": -0.9136060533710697,
+        "js": 0.23057528056663312,
+        "raw_on_target_argmax": 0.5096228975465202,
+        "target_on_raw_argmax": 0.6427556657971526
+      }
+    },
+    "seed461": {
+      "0-4|33-40": {
+        "argmax_agreement": 0.9326424870466321,
+        "entropy_delta": -0.23951342540333484,
+        "js": 0.04836657462702237,
+        "raw_on_target_argmax": 0.7305170570542175,
+        "target_on_raw_argmax": 0.7880079186439437
+      },
+      "0-4|>40": {
+        "argmax_agreement": 0.8836941206609453,
+        "entropy_delta": -0.7172363046992295,
+        "js": 0.13199897227027957,
+        "raw_on_target_argmax": 0.6149924786525757,
+        "target_on_raw_argmax": 0.7963501399663542
+      },
+      "5-8|33-40": {
+        "argmax_agreement": 0.6198581560283688,
+        "entropy_delta": -0.6776244971195078,
+        "js": 0.1803150459756832,
+        "raw_on_target_argmax": 0.4626343338613193,
+        "target_on_raw_argmax": 0.5391227720576185
+      },
+      "5-8|>40": {
+        "argmax_agreement": 0.6551238171934769,
+        "entropy_delta": -0.6011741365403245,
+        "js": 0.1459681152083588,
+        "raw_on_target_argmax": 0.5688523898768171,
+        "target_on_raw_argmax": 0.6422104180406841
+      },
+      "9-12|33-40": {
+        "argmax_agreement": 0.5925629748100759,
+        "entropy_delta": -1.039036494448592,
+        "js": 0.2672587361725376,
+        "raw_on_target_argmax": 0.44757029090785305,
+        "target_on_raw_argmax": 0.5578370391455572
+      },
+      "9-12|>40": {
+        "argmax_agreement": 0.5329249617151608,
+        "entropy_delta": -0.9825605127985371,
+        "js": 0.28500696918454,
+        "raw_on_target_argmax": 0.4148787711758848,
+        "target_on_raw_argmax": 0.4888925871836573
+      },
+      ">12|33-40": {
+        "argmax_agreement": 0.5826399820103441,
+        "entropy_delta": -1.4598769739539061,
+        "js": 0.3783241660643221,
+        "raw_on_target_argmax": 0.4494836957518092,
+        "target_on_raw_argmax": 0.5797092394424453
+      },
+      ">12|>40": {
+        "argmax_agreement": 0.5,
+        "entropy_delta": -1.3725551778067568,
+        "js": 0.4300502997605946,
+        "raw_on_target_argmax": 0.4562441367508556,
+        "target_on_raw_argmax": 0.5000398078934154
+      },
+      ">32_all": {
+        "argmax_agreement": 0.6988689722755298,
+        "entropy_delta": -0.8956183301792507,
+        "js": 0.2135325012363899,
+        "raw_on_target_argmax": 0.5281136605880924,
+        "target_on_raw_argmax": 0.6538209350682785
+      }
+    }
+  },
+  "schema": "azlite_seed455_vs_seed461_fresh_distribution_v1",
+  "scope": {
+    "arena_games": 0,
+    "canonical_games": 0,
+    "promotions": 0,
+    "self_play_games": 0,
+    "training_runs": 0
+  },
+  "semantic_identity": "seed455-vs-seed461-fresh-selfplay-distribution",
+  "shared_state_target_drift": {
+    "argmax_change_fraction": 0.0,
+    "entropy_delta": 0.0,
+    "shared_states": 1962,
+    "target_js": 0.0,
+    "top1_mass_delta": 0.0,
+    "value_delta": 0.003428933045251006
+  },
+  "state_overlap": {
+    "global": {
+      "intersection": 5093,
+      "jaccard": 0.05481058975462764,
+      "seed455_only": 46770,
+      "seed455_unique": 51863,
+      "seed461_only": 41057,
+      "seed461_unique": 46150
+    },
+    "highstone": {
+      "intersection": 2478,
+      "jaccard": 0.13703478405131891,
+      "seed455_only": 7824,
+      "seed455_unique": 10302,
+      "seed461_only": 7781,
+      "seed461_unique": 10259
+    },
+    "ply_0": {
+      "intersection": 1,
+      "jaccard": 1.0,
+      "seed455_only": 0,
+      "seed455_unique": 1,
+      "seed461_only": 0,
+      "seed461_unique": 1
+    },
+    "ply_1": {
+      "intersection": 6,
+      "jaccard": 1.0,
+      "seed455_only": 0,
+      "seed455_unique": 6,
+      "seed461_only": 0,
+      "seed461_unique": 6
+    },
+    "ply_10": {
+      "intersection": 201,
+      "jaccard": 0.09804878048780488,
+      "seed455_only": 929,
+      "seed455_unique": 1130,
+      "seed461_only": 920,
+      "seed461_unique": 1121
+    },
+    "ply_11": {
+      "intersection": 189,
+      "jaccard": 0.08348056537102473,
+      "seed455_only": 1046,
+      "seed455_unique": 1235,
+      "seed461_only": 1029,
+      "seed461_unique": 1218
+    },
+    "ply_12": {
+      "intersection": 171,
+      "jaccard": 0.06979591836734694,
+      "seed455_only": 1154,
+      "seed455_unique": 1325,
+      "seed461_only": 1125,
+      "seed461_unique": 1296
+    },
+    "ply_2": {
+      "intersection": 29,
+      "jaccard": 0.8529411764705882,
+      "seed455_only": 3,
+      "seed455_unique": 32,
+      "seed461_only": 2,
+      "seed461_unique": 31
+    },
+    "ply_3": {
+      "intersection": 87,
+      "jaccard": 0.6541353383458647,
+      "seed455_only": 26,
+      "seed455_unique": 113,
+      "seed461_only": 20,
+      "seed461_unique": 107
+    },
+    "ply_4": {
+      "intersection": 159,
+      "jaccard": 0.5145631067961165,
+      "seed455_only": 73,
+      "seed455_unique": 232,
+      "seed461_only": 77,
+      "seed461_unique": 236
+    },
+    "ply_5": {
+      "intersection": 216,
+      "jaccard": 0.40373831775700936,
+      "seed455_only": 164,
+      "seed455_unique": 380,
+      "seed461_only": 155,
+      "seed461_unique": 371
+    },
+    "ply_6": {
+      "intersection": 256,
+      "jaccard": 0.31143552311435524,
+      "seed455_only": 281,
+      "seed455_unique": 537,
+      "seed461_only": 285,
+      "seed461_unique": 541
+    },
+    "ply_7": {
+      "intersection": 252,
+      "jaccard": 0.21630901287553647,
+      "seed455_only": 450,
+      "seed455_unique": 702,
+      "seed461_only": 463,
+      "seed461_unique": 715
+    },
+    "ply_8": {
+      "intersection": 242,
+      "jaccard": 0.1601588352084712,
+      "seed455_only": 631,
+      "seed455_unique": 873,
+      "seed461_only": 638,
+      "seed461_unique": 880
+    },
+    "ply_9": {
+      "intersection": 216,
+      "jaccard": 0.12006670372429128,
+      "seed455_only": 788,
+      "seed455_unique": 1004,
+      "seed461_only": 795,
+      "seed461_unique": 1011
+    }
+  },
+  "summaries": {
+    "seed455": {
+      "draw_rate": 0.0825,
+      "exact_root": {
+        "handoffs": 0,
+        "rows_at_or_below_16": 24189
+      },
+      "game_length": {
+        "mean": 44.225,
+        "median": 44,
+        "p10": 33,
+        "p90": 55
+      },
+      "game_level_bootstrap": {
+        "value": {
+          "lower_95": 0.10826941654410131,
+          "samples": 10000,
+          "seed": 372,
+          "upper_95": 0.11991711763293511
+        }
+      },
+      "games": 1600,
+      "highstone": {
+        "mean_target_entropy": 0.5443896310074535,
+        "opening": {
+          "largest_state_frequency": 0.08020050125313283,
+          "rows": 19950,
+          "shannon_entropy": 9.9853726674983,
+          "simpson_effective_states": 79.87187267459922,
+          "top10_state_mass": 0.27463659147869673,
+          "top5_state_mass": 0.20776942355889724,
+          "unique_state_fraction": 0.3394486215538847,
+          "unique_states": 6772
+        },
+        "row_share": 0.3446862634256642,
+        "rows": 24390
+      },
+      "opening_diversity_by_bucket": {
+        "0-4": {
+          "largest_state_frequency": 0.2,
+          "rows": 8000,
+          "shannon_entropy": 5.26624343734289,
+          "simpson_effective_states": 13.551082286829828,
+          "top10_state_mass": 0.661375,
+          "top5_state_mass": 0.518125,
+          "unique_state_fraction": 0.048,
+          "unique_states": 384
+        },
+        "5-8": {
+          "largest_state_frequency": 0.05140625,
+          "rows": 6400,
+          "shannon_entropy": 9.803263296626291,
+          "simpson_effective_states": 179.0460204224367,
+          "top10_state_mass": 0.17046875,
+          "top5_state_mass": 0.11953125,
+          "unique_state_fraction": 0.389375,
+          "unique_states": 2492
+        },
+        "9-12": {
+          "largest_state_frequency": 0.010001562744178778,
+          "rows": 6399,
+          "shannon_entropy": 11.6907849848,
+          "simpson_effective_states": 1265.3255770835265,
+          "top10_state_mass": 0.06000937646507267,
+          "top5_state_mass": 0.037818409126426006,
+          "unique_state_fraction": 0.7335521175183622,
+          "unique_states": 4694
+        }
+      },
+      "opening_diversity_by_ply": {
+        "0": {
+          "largest_state_frequency": 1.0,
+          "rows": 1600,
+          "shannon_entropy": -0.0,
+          "simpson_effective_states": 1.0,
+          "top10_state_mass": 1.0,
+          "top5_state_mass": 1.0,
+          "unique_state_fraction": 0.000625,
+          "unique_states": 1
+        },
+        "1": {
+          "largest_state_frequency": 0.56625,
+          "rows": 1600,
+          "shannon_entropy": 1.742201273352711,
+          "simpson_effective_states": 2.5145519873800923,
+          "top10_state_mass": 1.0,
+          "top5_state_mass": 0.96375,
+          "unique_state_fraction": 0.00375,
+          "unique_states": 6
+        },
+        "10": {
+          "largest_state_frequency": 0.035,
+          "rows": 1600,
+          "shannon_entropy": 9.56690332079635,
+          "simpson_effective_states": 270.09917704156993,
+          "top10_state_mass": 0.14125,
+          "top5_state_mass": 0.101875,
+          "unique_state_fraction": 0.70625,
+          "unique_states": 1130
+        },
+        "11": {
+          "largest_state_frequency": 0.019375,
+          "rows": 1600,
+          "shannon_entropy": 9.890331627580565,
+          "simpson_effective_states": 470.0697759823724,
+          "top10_state_mass": 0.105,
+          "top5_state_mass": 0.069375,
+          "unique_state_fraction": 0.771875,
+          "unique_states": 1235
+        },
+        "12": {
+          "largest_state_frequency": 0.016260162601626018,
+          "rows": 1599,
+          "shannon_entropy": 10.104598124760594,
+          "simpson_effective_states": 629.5988672740705,
+          "top10_state_mass": 0.0825515947467167,
+          "top5_state_mass": 0.05565978736710444,
+          "unique_state_fraction": 0.8286429018136335,
+          "unique_states": 1325
+        },
+        "2": {
+          "largest_state_frequency": 0.450625,
+          "rows": 1600,
+          "shannon_entropy": 3.0310331881367327,
+          "simpson_effective_states": 4.134380279006069,
+          "top10_state_mass": 0.893125,
+          "top5_state_mass": 0.7525,
+          "unique_state_fraction": 0.02,
+          "unique_states": 32
+        },
+        "3": {
+          "largest_state_frequency": 0.31,
+          "rows": 1600,
+          "shannon_entropy": 4.4180178039190405,
+          "simpson_effective_states": 7.964607276415428,
+          "top10_state_mass": 0.705,
+          "top5_state_mass": 0.59375,
+          "unique_state_fraction": 0.070625,
+          "unique_states": 113
+        },
+        "4": {
+          "largest_state_frequency": 0.243125,
+          "rows": 1600,
+          "shannon_entropy": 5.530324446869155,
+          "simpson_effective_states": 12.538202335240184,
+          "top10_state_mass": 0.5625,
+          "top5_state_mass": 0.47,
+          "unique_state_fraction": 0.145,
+          "unique_states": 232
+        },
+        "5": {
+          "largest_state_frequency": 0.205625,
+          "rows": 1600,
+          "shannon_entropy": 6.478905964330456,
+          "simpson_effective_states": 18.017510768277923,
+          "top10_state_mass": 0.449375,
+          "top5_state_mass": 0.371875,
+          "unique_state_fraction": 0.2375,
+          "unique_states": 380
+        },
+        "6": {
+          "largest_state_frequency": 0.0775,
+          "rows": 1600,
+          "shannon_entropy": 7.6122632278496996,
+          "simpson_effective_states": 57.9999093751416,
+          "top10_state_mass": 0.324375,
+          "top5_state_mass": 0.253125,
+          "unique_state_fraction": 0.335625,
+          "unique_states": 537
+        },
+        "7": {
+          "largest_state_frequency": 0.04625,
+          "rows": 1600,
+          "shannon_entropy": 8.3259566190192,
+          "simpson_effective_states": 108.50216156649996,
+          "top10_state_mass": 0.250625,
+          "top5_state_mass": 0.170625,
+          "unique_state_fraction": 0.43875,
+          "unique_states": 702
+        },
+        "8": {
+          "largest_state_frequency": 0.044375,
+          "rows": 1600,
+          "shannon_entropy": 8.795927375305812,
+          "simpson_effective_states": 135.0780920219502,
+          "top10_state_mass": 0.225625,
+          "top5_state_mass": 0.155,
+          "unique_state_fraction": 0.545625,
+          "unique_states": 873
+        },
+        "9": {
+          "largest_state_frequency": 0.04,
+          "rows": 1600,
+          "shannon_entropy": 9.201565710662303,
+          "simpson_effective_states": 191.38755980861245,
+          "top10_state_mass": 0.175625,
+          "top5_state_mass": 0.12375,
+          "unique_state_fraction": 0.6275,
+          "unique_states": 1004
+        }
+      },
+      "per_source_seed": {
+        "454": {
+          "highstone_row_share": 0.3491711765457877,
+          "opening_diversity": {
+            "largest_state_frequency": 0.08002397722163944,
+            "rows": 6673,
+            "shannon_entropy": 9.352377815300654,
+            "simpson_effective_states": 77.60965743217925,
+            "top10_state_mass": 0.28413007642739396,
+            "top5_state_mass": 0.20875168589839652,
+            "unique_state_fraction": 0.4161546530795744,
+            "unique_states": 2777
+          },
+          "rows": 23467
+        },
+        "455": {
+          "highstone_row_share": 0.34121878967414304,
+          "opening_diversity": {
+            "largest_state_frequency": 0.08031946955997589,
+            "rows": 6636,
+            "shannon_entropy": 9.455025215441879,
+            "simpson_effective_states": 77.74859991949096,
+            "top10_state_mass": 0.2756178420735383,
+            "top5_state_mass": 0.2120253164556962,
+            "unique_state_fraction": 0.4323387582881254,
+            "unique_states": 2869
+          },
+          "rows": 23630
+        },
+        "456": {
+          "highstone_row_share": 0.34370113679584163,
+          "opening_diversity": {
+            "largest_state_frequency": 0.08025899713898509,
+            "rows": 6641,
+            "shannon_entropy": 9.490569674525936,
+            "simpson_effective_states": 82.72180280485496,
+            "top10_state_mass": 0.2644180093359434,
+            "top5_state_mass": 0.20252973949706368,
+            "unique_state_fraction": 0.423881945490137,
+            "unique_states": 2815
+          },
+          "rows": 23663
+        }
+      },
+      "player0_win_rate": 0.65125,
+      "player1_win_rate": 0.26625,
+      "rows": 70760,
+      "rows_by_active_bucket": {
+        "17-21": 7368,
+        "22-24": 4125,
+        "25-32": 10688,
+        "33-40": 10890,
+        "<=16": 24189,
+        ">40": 13500
+      },
+      "rows_by_ply_bucket": {
+        "0-4": 8000,
+        "5-8": 6400,
+        "9-12": 6399,
+        ">12": 49961
+      },
+      "winner_distribution": {
+        "0": 1042,
+        "1": 426,
+        "None": 132
+      }
+    },
+    "seed461": {
+      "draw_rate": 0.081875,
+      "exact_root": {
+        "handoffs": 19848,
+        "rows_at_or_below_16": 19848
+      },
+      "game_length": {
+        "mean": 41.708125,
+        "median": 42,
+        "p10": 32,
+        "p90": 52
+      },
+      "game_level_bootstrap": {
+        "value": {
+          "lower_95": 0.09478022388108952,
+          "samples": 10000,
+          "seed": 372,
+          "upper_95": 0.10847553504358774
+        }
+      },
+      "games": 1600,
+      "highstone": {
+        "mean_target_entropy": 0.5402090417884455,
+        "opening": {
+          "largest_state_frequency": 0.07987220447284345,
+          "rows": 20032,
+          "shannon_entropy": 9.978250536925591,
+          "simpson_effective_states": 78.85870241920777,
+          "top10_state_mass": 0.2763578274760383,
+          "top5_state_mass": 0.20946485623003194,
+          "unique_state_fraction": 0.33945686900958466,
+          "unique_states": 6800
+        },
+        "row_share": 0.3669998351640118,
+        "rows": 24491
+      },
+      "opening_diversity_by_bucket": {
+        "0-4": {
+          "largest_state_frequency": 0.2,
+          "rows": 8000,
+          "shannon_entropy": 5.244323208959059,
+          "simpson_effective_states": 13.287839094234448,
+          "top10_state_mass": 0.66675,
+          "top5_state_mass": 0.5245,
+          "unique_state_fraction": 0.047625,
+          "unique_states": 381
+        },
+        "5-8": {
+          "largest_state_frequency": 0.05390625,
+          "rows": 6400,
+          "shannon_entropy": 9.802979303779603,
+          "simpson_effective_states": 173.8923701326269,
+          "top10_state_mass": 0.17109375,
+          "top5_state_mass": 0.1196875,
+          "unique_state_fraction": 0.39171875,
+          "unique_states": 2507
+        },
+        "9-12": {
+          "largest_state_frequency": 0.01109375,
+          "rows": 6400,
+          "shannon_entropy": 11.628556750235864,
+          "simpson_effective_states": 1092.4997332764324,
+          "top10_state_mass": 0.06859375,
+          "top5_state_mass": 0.04265625,
+          "unique_state_fraction": 0.7259375,
+          "unique_states": 4646
+        }
+      },
+      "opening_diversity_by_ply": {
+        "0": {
+          "largest_state_frequency": 1.0,
+          "rows": 1600,
+          "shannon_entropy": -0.0,
+          "simpson_effective_states": 1.0,
+          "top10_state_mass": 1.0,
+          "top5_state_mass": 1.0,
+          "unique_state_fraction": 0.000625,
+          "unique_states": 1
+        },
+        "1": {
+          "largest_state_frequency": 0.589375,
+          "rows": 1600,
+          "shannon_entropy": 1.6885291165965255,
+          "simpson_effective_states": 2.401253153989739,
+          "top10_state_mass": 1.0,
+          "top5_state_mass": 0.975625,
+          "unique_state_fraction": 0.00375,
+          "unique_states": 6
+        },
+        "10": {
+          "largest_state_frequency": 0.04,
+          "rows": 1600,
+          "shannon_entropy": 9.520632599723182,
+          "simpson_effective_states": 239.92502343017807,
+          "top10_state_mass": 0.145625,
+          "top5_state_mass": 0.108125,
+          "unique_state_fraction": 0.700625,
+          "unique_states": 1121
+        },
+        "11": {
+          "largest_state_frequency": 0.03125,
+          "rows": 1600,
+          "shannon_entropy": 9.806375245564029,
+          "simpson_effective_states": 363.0175836642087,
+          "top10_state_mass": 0.113125,
+          "top5_state_mass": 0.081875,
+          "unique_state_fraction": 0.76125,
+          "unique_states": 1218
+        },
+        "12": {
+          "largest_state_frequency": 0.02375,
+          "rows": 1600,
+          "shannon_entropy": 10.00822867937933,
+          "simpson_effective_states": 494.7816003092385,
+          "top10_state_mass": 0.091875,
+          "top5_state_mass": 0.06875,
+          "unique_state_fraction": 0.81,
+          "unique_states": 1296
+        },
+        "2": {
+          "largest_state_frequency": 0.4675,
+          "rows": 1600,
+          "shannon_entropy": 2.97278254793958,
+          "simpson_effective_states": 3.9193951883300002,
+          "top10_state_mass": 0.901875,
+          "top5_state_mass": 0.753125,
+          "unique_state_fraction": 0.019375,
+          "unique_states": 31
+        },
+        "3": {
+          "largest_state_frequency": 0.31,
+          "rows": 1600,
+          "shannon_entropy": 4.442052569058277,
+          "simpson_effective_states": 7.986522742871404,
+          "top10_state_mass": 0.69125,
+          "top5_state_mass": 0.588125,
+          "unique_state_fraction": 0.066875,
+          "unique_states": 107
+        },
+        "4": {
+          "largest_state_frequency": 0.255625,
+          "rows": 1600,
+          "shannon_entropy": 5.508611336764099,
+          "simpson_effective_states": 11.81782090461726,
+          "top10_state_mass": 0.55875,
+          "top5_state_mass": 0.474375,
+          "unique_state_fraction": 0.1475,
+          "unique_states": 236
+        },
+        "5": {
+          "largest_state_frequency": 0.215625,
+          "rows": 1600,
+          "shannon_entropy": 6.483024896888614,
+          "simpson_effective_states": 17.421602787456443,
+          "top10_state_mass": 0.444375,
+          "top5_state_mass": 0.3575,
+          "unique_state_fraction": 0.231875,
+          "unique_states": 371
+        },
+        "6": {
+          "largest_state_frequency": 0.066875,
+          "rows": 1600,
+          "shannon_entropy": 7.616934326034575,
+          "simpson_effective_states": 59.38297378798423,
+          "top10_state_mass": 0.34125,
+          "top5_state_mass": 0.250625,
+          "unique_state_fraction": 0.338125,
+          "unique_states": 541
+        },
+        "7": {
+          "largest_state_frequency": 0.055,
+          "rows": 1600,
+          "shannon_entropy": 8.323002899351879,
+          "simpson_effective_states": 100.23492560689115,
+          "top10_state_mass": 0.258125,
+          "top5_state_mass": 0.17875,
+          "unique_state_fraction": 0.446875,
+          "unique_states": 715
+        },
+        "8": {
+          "largest_state_frequency": 0.048125,
+          "rows": 1600,
+          "shannon_entropy": 8.788955092843343,
+          "simpson_effective_states": 128.2950786809662,
+          "top10_state_mass": 0.230625,
+          "top5_state_mass": 0.16,
+          "unique_state_fraction": 0.55,
+          "unique_states": 880
+        },
+        "9": {
+          "largest_state_frequency": 0.044375,
+          "rows": 1600,
+          "shannon_entropy": 9.17899047627692,
+          "simpson_effective_states": 175.39051795012332,
+          "top10_state_mass": 0.1875,
+          "top5_state_mass": 0.13,
+          "unique_state_fraction": 0.631875,
+          "unique_states": 1011
+        }
+      },
+      "per_source_seed": {
+        "460": {
+          "highstone_row_share": 0.3641345511249722,
+          "opening_diversity": {
+            "largest_state_frequency": 0.07998801677651288,
+            "rows": 6676,
+            "shannon_entropy": 9.469351671297968,
+            "simpson_effective_states": 77.86007574804691,
+            "top10_state_mass": 0.274415817855003,
+            "top5_state_mass": 0.2121030557219892,
+            "unique_state_fraction": 0.4376872378669862,
+            "unique_states": 2922
+          },
+          "rows": 22445
+        },
+        "461": {
+          "highstone_row_share": 0.373574144486692,
+          "opening_diversity": {
+            "largest_state_frequency": 0.07943368107302534,
+            "rows": 6710,
+            "shannon_entropy": 9.347088136828726,
+            "simpson_effective_states": 79.06621851336732,
+            "top10_state_mass": 0.2761549925484352,
+            "top5_state_mass": 0.20730253353204173,
+            "unique_state_fraction": 0.4014903129657228,
+            "unique_states": 2694
+          },
+          "rows": 22092
+        },
+        "462": {
+          "highstone_row_share": 0.36335375743377185,
+          "opening_diversity": {
+            "largest_state_frequency": 0.08019861570869696,
+            "rows": 6646,
+            "shannon_entropy": 9.45799196354925,
+            "simpson_effective_states": 78.2004171225625,
+            "top10_state_mass": 0.2789647908516401,
+            "top5_state_mass": 0.20975022569966897,
+            "unique_state_fraction": 0.43063496840204635,
+            "unique_states": 2862
+          },
+          "rows": 22196
+        }
+      },
+      "player0_win_rate": 0.643125,
+      "player1_win_rate": 0.275,
+      "rows": 66733,
+      "rows_by_active_bucket": {
+        "17-21": 7449,
+        "22-24": 4283,
+        "25-32": 10662,
+        "33-40": 11052,
+        "<=16": 19848,
+        ">40": 13439
+      },
+      "rows_by_ply_bucket": {
+        "0-4": 8000,
+        "5-8": 6400,
+        "9-12": 6400,
+        ">12": 45933
+      },
+      "winner_distribution": {
+        "0": 1029,
+        "1": 440,
+        "None": 131
+      }
+    }
+  }
+}

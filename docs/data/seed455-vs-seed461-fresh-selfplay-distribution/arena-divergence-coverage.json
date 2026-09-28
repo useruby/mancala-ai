@@ -1,0 +1,46 @@
+{
+  "first": {
+    "seed455": {
+      "coverage_fraction": 0.16913946587537093,
+      "covered_states": 57,
+      "median_occurrences": 3,
+      "p90_occurrences": 24,
+      "total_occurrences": 702
+    },
+    "seed461": {
+      "coverage_fraction": 0.18991097922848665,
+      "covered_states": 64,
+      "median_occurrences": 3,
+      "p90_occurrences": 27,
+      "total_occurrences": 724
+    }
+  },
+  "outcome": {
+    "seed455": {
+      "coverage_fraction": 0.1910828025477707,
+      "covered_states": 30,
+      "median_occurrences": 3,
+      "p90_occurrences": 24,
+      "total_occurrences": 240
+    },
+    "seed461": {
+      "coverage_fraction": 0.20382165605095542,
+      "covered_states": 32,
+      "median_occurrences": 2,
+      "p90_occurrences": 27,
+      "total_occurrences": 245
+    }
+  },
+  "weighted": {
+    "seed455": {
+      "coverage_fraction": 0.14485981308411214,
+      "covered_weight": 7.75,
+      "total_weight": 53.5
+    },
+    "seed461": {
+      "coverage_fraction": 0.16355140186915887,
+      "covered_weight": 8.75,
+      "total_weight": 53.5
+    }
+  }
+}

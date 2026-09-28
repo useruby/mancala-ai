@@ -1,0 +1,90 @@
+{
+  "seed455": {
+    "454": {
+      "highstone_row_share": 0.3491711765457877,
+      "opening_diversity": {
+        "largest_state_frequency": 0.08002397722163944,
+        "rows": 6673,
+        "shannon_entropy": 9.352377815300654,
+        "simpson_effective_states": 77.60965743217925,
+        "top10_state_mass": 0.28413007642739396,
+        "top5_state_mass": 0.20875168589839652,
+        "unique_state_fraction": 0.4161546530795744,
+        "unique_states": 2777
+      },
+      "rows": 23467
+    },
+    "455": {
+      "highstone_row_share": 0.34121878967414304,
+      "opening_diversity": {
+        "largest_state_frequency": 0.08031946955997589,
+        "rows": 6636,
+        "shannon_entropy": 9.455025215441879,
+        "simpson_effective_states": 77.74859991949096,
+        "top10_state_mass": 0.2756178420735383,
+        "top5_state_mass": 0.2120253164556962,
+        "unique_state_fraction": 0.4323387582881254,
+        "unique_states": 2869
+      },
+      "rows": 23630
+    },
+    "456": {
+      "highstone_row_share": 0.34370113679584163,
+      "opening_diversity": {
+        "largest_state_frequency": 0.08025899713898509,
+        "rows": 6641,
+        "shannon_entropy": 9.490569674525936,
+        "simpson_effective_states": 82.72180280485496,
+        "top10_state_mass": 0.2644180093359434,
+        "top5_state_mass": 0.20252973949706368,
+        "unique_state_fraction": 0.423881945490137,
+        "unique_states": 2815
+      },
+      "rows": 23663
+    }
+  },
+  "seed461": {
+    "460": {
+      "highstone_row_share": 0.3641345511249722,
+      "opening_diversity": {
+        "largest_state_frequency": 0.07998801677651288,
+        "rows": 6676,
+        "shannon_entropy": 9.469351671297968,
+        "simpson_effective_states": 77.86007574804691,
+        "top10_state_mass": 0.274415817855003,
+        "top5_state_mass": 0.2121030557219892,
+        "unique_state_fraction": 0.4376872378669862,
+        "unique_states": 2922
+      },
+      "rows": 22445
+    },
+    "461": {
+      "highstone_row_share": 0.373574144486692,
+      "opening_diversity": {
+        "largest_state_frequency": 0.07943368107302534,
+        "rows": 6710,
+        "shannon_entropy": 9.347088136828726,
+        "simpson_effective_states": 79.06621851336732,
+        "top10_state_mass": 0.2761549925484352,
+        "top5_state_mass": 0.20730253353204173,
+        "unique_state_fraction": 0.4014903129657228,
+        "unique_states": 2694
+      },
+      "rows": 22092
+    },
+    "462": {
+      "highstone_row_share": 0.36335375743377185,
+      "opening_diversity": {
+        "largest_state_frequency": 0.08019861570869696,
+        "rows": 6646,
+        "shannon_entropy": 9.45799196354925,
+        "simpson_effective_states": 78.2004171225625,
+        "top10_state_mass": 0.2789647908516401,
+        "top5_state_mass": 0.20975022569966897,
+        "unique_state_fraction": 0.43063496840204635,
+        "unique_states": 2862
+      },
+      "rows": 22196
+    }
+  }
+}
