@@ -1,0 +1,55 @@
+{
+  "schema": "azlite_checkpoint_selection_comparison_v1",
+  "semantic_identity": "highstone-vs-global-validation-checkpoint-selection",
+  "selector": {
+    "version": "best_high_stone_validation_v1",
+    "phase": "high_stone",
+    "phase_definition": "sum(player_pits) + sum(opponent_pits) > 32",
+    "phase_threshold": 32,
+    "objective": "weighted legal-masked policy cross-entropy + 0.3 * Huber(value, delta=1.0)",
+    "tie_rule": "earliest_epoch",
+    "arena_input": false,
+    "parent_model_input": false
+  },
+  "seed461": {
+    "generation": "seed455-nextgen-s461-default-value-root16-iter1",
+    "reproduction": "exact",
+    "validation_count": 14997,
+    "high_stone_validation_count": 6138,
+    "global_best_validation_epoch": 2,
+    "high_stone_selected_epoch": 2,
+    "high_stone_scores": {"E1": 1.1144872903823853, "E2": 1.1051456928253174, "E3": 1.110801100730896, "E4": 1.1133990287780762},
+    "high_stone_margin": 0.005655407905578613,
+    "epoch_checkpoint_sha256": {"E1": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc", "E2": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488", "E3": "9d3db177d22f12b0c8952233f3fc6c5dad5b0529f3990932699e8839afa0d2b8", "E4": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4"},
+    "selected_final_checkpoint_sha256": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+    "selected_final_equals_epoch": true,
+    "selected_weights_sha256": "f18240a8985fd7ea142d301b865a8fcfdd64de18e63608316e9426fb9e361ab9",
+    "frozen_arena": {"suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f", "selected_score": 0.5625, "global_bv_score": 0.5625, "paired_selected_minus_global_bv": 0.0, "paired_artifact": "docs/data/highstone-vs-global-validation-seed461-paired.json"},
+    "phase_metrics": ".tmp/highstone-checkpoint-selection/seed461/phase_metrics.json"
+  },
+  "seed455_control": {
+    "generation": "seed48-nextgen-s455-default-value",
+    "reproduction": "exact_global_best_validation_E3",
+    "validation_count": 15471,
+    "high_stone_validation_count": 6102,
+    "global_best_validation_epoch": 3,
+    "high_stone_selected_epoch": 4,
+    "high_stone_scores": {"E1": 1.1564570665359497, "E2": 1.1511340141296387, "E3": 1.1460697650909424, "E4": 1.1452133655548096},
+    "high_stone_margin": 0.0008563995361328125,
+    "global_bv_checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+    "global_bv_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "high_stone_checkpoint_sha256": "f531561bf303f0f14913f1cb47330823bff1e30e2abd11493d598327f0b22895",
+    "phase_metrics": ".tmp/highstone-checkpoint-selection/seed455/phase_metrics.json",
+    "control_arena": {
+      "status": "complete",
+      "suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f",
+      "configuration": "exact_root16; 384 PUCT each side; two games for each of 128 frozen openings; base seed 42",
+      "global_bv_vs_parent": {"score": 0.62109375, "report": {"path": ".tmp/highstone-checkpoint-selection/seed455/E3_vs_parent.json", "sha256": "3181f355805e9afc46c69283675baf014afce7879f87f8e472cea426798907e7"}, "games": {"path": ".tmp/highstone-checkpoint-selection/seed455/E3_vs_parent.games.jsonl", "sha256": "4eecf8c9e0efd43c57bc94bbc638e13829e4faf5c05656577a5e3ed9c0147dde"}},
+      "high_stone_vs_parent": {"score": 0.427734375, "report": {"path": ".tmp/highstone-checkpoint-selection/seed455/E4_vs_parent.json", "sha256": "e3b5a1974f3e052361530c1a9bd863dc94eb8cb663d3001ae6c11cd6ec93c39b"}, "games": {"path": ".tmp/highstone-checkpoint-selection/seed455/E4_vs_parent.games.jsonl", "sha256": "6b7e61e949f7f052531305d2bbd3ce9e299514d517bb0bcccb974d2cb2a4e8a3"}},
+      "paired_bootstrap_high_stone_minus_global_bv": {"mean": -0.193359375, "seed": 374, "samples": 10000, "lower_95": -0.234375, "upper_95": -0.15234375}
+    }
+  },
+  "classification": "highstone_checkpoint_selector_not_aligned",
+  "classification_reason": "The preregistered selector selected the same E2 checkpoint as global validation on seed461. The exact seed455 control also shows a clear high-stone-selected E4 regression against global-BV E3.",
+  "scope": {"new_self_play_games": 0, "canonical_games": 0, "promotions": 0}
+}
