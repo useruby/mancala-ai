@@ -21,6 +21,25 @@ class ComparisonRecordError(ValueError):
     """Raised when a generic comparison record is malformed."""
 
 
+def classify_parent_behavior_anchor(evidence: dict[str, Any]) -> str:
+    """Recompute the preregistered parent-behavior-anchor decision label."""
+    if not evidence["primary_sampling_audit"]["baseline_equals_treatment"]:
+        return "behavior_anchor_primary_rng_drift"
+    if evidence["validation_overlap_audit"]["canonical_overlap"] != 0:
+        return "behavior_anchor_validation_leakage"
+
+    conditions = evidence["conclusion"]["decision_conditions"]
+    h4 = evidence["arena"]["paired"][3]
+    success = (
+        h4["ci95"][0] > 0.0
+        and evidence["arena"]["H"][3] >= 0.5
+        and all(conditions.values())
+    )
+    if success:
+        return "parent_behavior_anchor_mitigates_seed461_forgetting"
+    return "parent_behavior_anchor_no_clear_benefit"
+
+
 def paired_bootstrap(
     deltas: list[float], *, seed: int, samples: int = 10_000
 ) -> dict[str, Any]:
@@ -58,7 +77,11 @@ def _value_at(record: dict[str, Any], path: str) -> Any:
     current: Any = record
     for component in path.split("."):
         if isinstance(current, dict):
-            current = current[component]
+            # A missing control is a meaningful baseline value for an intervention
+            # introduced by a diagnostic sibling (for example, no behavior anchor).
+            current = current.get(component)
+            if current is None:
+                return None
         elif isinstance(current, list):
             current = next(item for item in current if item.get("name") == component)
         else:
@@ -150,6 +173,8 @@ def canonical_gate_candidate(
     treatment = load_generation_record(
         base_dir / record["pairs"][0]["treatment_record"]
     )
+    if treatment.get("diagnostic_only"):
+        raise ComparisonRecordError("canonical_gate_diagnostic_sibling")
     candidate = treatment.get("candidate", {})
     weights = candidate.get("weights")
     if not isinstance(weights, dict) or not weights.get("sha256"):

@@ -1,0 +1,17 @@
+{
+  "schema": "azlite_generation_comparison_v1",
+  "comparison_id": "seed461-parent-policy-anchor-highstone-w010",
+  "description": "Frozen seed461 parent-policy behavior-anchor diagnostic sibling from PR #375. A remains rejected and H cannot be promoted or canonical-gated.",
+  "allowed_record_differences": ["artifacts", "behavior_anchor", "candidate", "canonical_evaluation", "canonical_evaluation_attempts", "compute", "diagnostic_only", "diagnostics", "promotion", "replay", "self_play", "status", "training"],
+  "controlled_difference": {
+    "behavior_anchor": {
+      "baseline": null,
+      "treatment": {"enabled": true, "teacher": "parent_raw_policy", "phase": "active_stones_gt32", "weight": 0.1, "artifact_sha256": "a0a4d8df3cf88e1f9d78d6a73f4ae874752909a705549516ff9c0302c3146d1b"}
+    }
+  },
+  "pairs": [{"pair_id": "seed461", "baseline_record": "../alphazero-lite-generations/seed455-nextgen-s461-default-value-root16/generation.json", "treatment_record": "../alphazero-lite-generations/seed461-parent-policy-anchor-highstone-w010/generation.json"}],
+  "evidence": {"role": "comparison_evidence", "path": "../alphazero-lite-parent-policy-anchor/seed461-parent-policy-anchor-highstone-w010-evidence.json", "schema": "azlite_generation_comparison_evidence_v1", "sha256": "6cfb17eb6bef8287043fab2fa80cc6720910e6002738615add527328e6f17490", "required": true},
+  "scope": {"self_play_generated": false, "self_play_games": 0, "canonical_gate_run": false, "canonical_games": 0, "promotion_performed": false},
+  "statistics": {"paired_bootstrap": {"samples": 10000, "seed": 375}, "primary_endpoint": "H4_minus_A4", "primary_endpoint_result": {"delta": 0.1015625, "ci95": [0.06640625, 0.140625], "openings": 128}},
+  "conclusion": {"classification": "parent_behavior_anchor_mitigates_seed461_forgetting", "verified": true, "next_step": "Run one genuinely fresh prospective AlphaZero generation from seed455 with this preregistered parent raw-policy anchor on >32 training states at behavior weight 0.10 for four epochs; fix the production checkpoint policy before execution. Do not canonical-gate retrospective H."}
+}

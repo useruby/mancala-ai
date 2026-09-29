@@ -6,6 +6,7 @@ from pathlib import Path
 from ml.alphazero_lite.comparison_record import (
     ComparisonRecordError,
     _value_at,
+    classify_parent_behavior_anchor,
     load_record,
     paired_bootstrap,
     canonical_gate_candidate,
@@ -107,6 +108,45 @@ class ComparisonRecordTest(unittest.TestCase):
             ]["baseline"],
         )
         self.assertFalse(comparison["scope"]["canonical_gate_run"])
+        with self.assertRaisesRegex(ComparisonRecordError, "not_qualified"):
+            canonical_gate_candidate(comparison, base_dir=comparison_dir)
+
+    def test_parent_behavior_anchor_comparison_is_durable_and_not_promotable(self):
+        root = Path(__file__).resolve().parents[2]
+        comparison_dir = root / "docs/data/alphazero-lite-generation-comparisons"
+        comparison = load_record(
+            comparison_dir / "seed461-parent-policy-anchor-highstone-w010.json"
+        )
+        treatment = load_generation_record(
+            comparison_dir / comparison["pairs"][0]["treatment_record"]
+        )
+        evidence = json.loads(
+            (
+                root / comparison["evidence"]["path"].replace("../", "docs/data/")
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            "parent_behavior_anchor_mitigates_seed461_forgetting",
+            classify_parent_behavior_anchor(evidence),
+        )
+        self.assertEqual(["H1", "H2", "H3", "H4"], list(evidence["checkpoints"])[4:])
+        self.assertTrue(evidence["primary_sampling_audit"]["baseline_equals_treatment"])
+        self.assertEqual(0, evidence["validation_overlap_audit"]["canonical_overlap"])
+        self.assertEqual(
+            "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+            evidence["behavior_anchor"]["parent_weights_sha256"],
+        )
+        self.assertEqual(
+            "a0a4d8df3cf88e1f9d78d6a73f4ae874752909a705549516ff9c0302c3146d1b",
+            evidence["behavior_anchor"]["artifact_sha256"],
+        )
+        self.assertEqual(
+            10_000, comparison["statistics"]["paired_bootstrap"]["samples"]
+        )
+        self.assertEqual(375, comparison["statistics"]["paired_bootstrap"]["seed"])
+        self.assertEqual(128, evidence["arena"]["paired"][3]["openings"])
+        self.assertEqual(0.1, treatment["behavior_anchor"]["weight"])
+        self.assertTrue(treatment["diagnostic_only"])
         with self.assertRaisesRegex(ComparisonRecordError, "not_qualified"):
             canonical_gate_candidate(comparison, base_dir=comparison_dir)
 

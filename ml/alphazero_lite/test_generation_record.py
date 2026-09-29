@@ -130,6 +130,27 @@ class GenerationRecordTest(unittest.TestCase):
         self.assertEqual("promotion_ready", record["promotion"]["decision"])
         self.assertEqual("promotion_ready", record["status"])
 
+    def test_diagnostic_sibling_cannot_become_promotion_ready(self):
+        record = new_record(
+            generation_id="diagnostic",
+            parent={
+                "version": "p",
+                "weights_sha256": "a" * 64,
+                "metadata_sha256": None,
+            },
+        )
+        record_candidate(
+            record,
+            version="diagnostic",
+            checkpoint={"role": "checkpoint", "path": "c", "sha256": "b" * 64},
+            weights={"role": "weights", "path": "w", "sha256": "c" * 64},
+            metadata={"role": "metadata", "path": "m", "sha256": "d" * 64},
+        )
+        record["diagnostic_only"] = True
+        record_promotion(record, decision="promotion_ready")
+        with self.assertRaisesRegex(GenerationRecordError, "diagnostic siblings"):
+            validate(record)
+
     def test_historical_records_and_registry(self):
         root = Path(__file__).resolve().parents[2]
         for generation_id in (
@@ -138,6 +159,7 @@ class GenerationRecordTest(unittest.TestCase):
             "seed48-nextgen-s449",
             "seed48-nextgen-s455-default-value",
             "seed461-exact-root-optimal-set-uniform",
+            "seed461-parent-policy-anchor-highstone-w010",
             "value-target-s401-sharpened",
             "value-target-s401-default",
             "value-target-s407-sharpened",
@@ -158,6 +180,13 @@ class GenerationRecordTest(unittest.TestCase):
                 / "generation.json"
             )
         validate_index(root / "docs/data/alphazero-lite-generations/index.json")
+        baseline = load_record(
+            root
+            / "docs/data/alphazero-lite-generations"
+            / "seed455-nextgen-s461-default-value-root16/generation.json"
+        )
+        self.assertEqual("rejected", baseline["status"])
+        self.assertEqual("rejected", baseline["promotion"]["decision"])
 
 
 if __name__ == "__main__":
