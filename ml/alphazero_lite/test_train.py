@@ -1964,6 +1964,95 @@ class TrainScriptTest(unittest.TestCase):
         self.assertAlmostEqual(expected_ce, metrics["behavior_anchor_loss"], places=5)
         self.assertAlmostEqual(expected_ce * 3.0, metrics["total_loss"], places=5)
 
+    def test_behavior_anchor_does_not_change_primary_epoch_permutations(self):
+        x = np.zeros((12, 15), dtype=np.float32)
+        x[:, 0] = 1.0 / 48.0
+        p = np.tile(
+            np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32), (12, 1)
+        )
+        v = np.zeros((12, 1), dtype=np.float32)
+        replay_indexes = np.arange(12, dtype=np.int64)
+
+        def run(anchor_weight: float):
+            train_module.set_seed(461)
+            model = train_module.PolicyValueNet((8, 8), "mlp_v1", 15)
+            permutations: list[list[int]] = []
+            train_module.train(
+                model,
+                x,
+                p,
+                v,
+                replay_indexes=replay_indexes,
+                epochs=4,
+                batch_size=4,
+                lr=0.01,
+                device=torch.device("cpu"),
+                value_loss_weight=0.3,
+                value_loss="huber",
+                huber_delta=1.0,
+                val_split=0.0,
+                grad_clip=1.0,
+                save_top_k=0,
+                final_checkpoint="final",
+                behavior_anchor_x=x,
+                behavior_anchor_p=p,
+                behavior_anchor_replay_indexes=replay_indexes,
+                behavior_loss_weight=anchor_weight,
+                permutation_callback=lambda _epoch, values: permutations.append(values),
+            )
+            return permutations, model.last_train_metrics["optimizer_updates"]
+
+        without_anchor, without_updates = run(0.0)
+        with_anchor, with_updates = run(0.10)
+        self.assertEqual(without_anchor, with_anchor)
+        self.assertEqual(4, len(with_anchor))
+        self.assertEqual(without_updates, with_updates)
+
+    def test_pairwise_auxiliary_rng_does_not_change_primary_epoch_permutations(self):
+        x = np.zeros((8, 15), dtype=np.float32)
+        x[:, 0] = 1.0 / 48.0
+        p = np.tile(
+            np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float32), (8, 1)
+        )
+        v = np.zeros((8, 1), dtype=np.float32)
+        replay_indexes = np.arange(8, dtype=np.int64)
+
+        def run(with_pairwise: bool):
+            train_module.set_seed(461)
+            model = train_module.PolicyValueNet((8, 8), "mlp_v1", 15)
+            permutations: list[list[int]] = []
+            train_module.train(
+                model,
+                x,
+                p,
+                v,
+                replay_indexes=replay_indexes,
+                epochs=4,
+                batch_size=4,
+                lr=0.01,
+                device=torch.device("cpu"),
+                value_loss_weight=0.3,
+                value_loss="huber",
+                huber_delta=1.0,
+                val_split=0.0,
+                grad_clip=1.0,
+                save_top_k=0,
+                final_checkpoint="final",
+                pairwise_x=x if with_pairwise else None,
+                pairwise_preferred_moves=np.zeros(8, dtype=np.int64)
+                if with_pairwise
+                else None,
+                pairwise_baseline_moves=np.ones(8, dtype=np.int64)
+                if with_pairwise
+                else None,
+                pairwise_replay_indexes=replay_indexes if with_pairwise else None,
+                pairwise_loss_weight=0.1 if with_pairwise else 0.0,
+                permutation_callback=lambda _epoch, values: permutations.append(values),
+            )
+            return permutations
+
+        self.assertEqual(run(False), run(True))
+
     def test_train_one_epoch_masks_illegal_logits_for_supervised_policy_loss(self):
         model = train_module.PolicyValueNet(
             hidden_sizes=(8, 8), model_type="mlp_v1", input_size=15

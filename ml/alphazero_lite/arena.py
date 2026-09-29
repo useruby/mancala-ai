@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import gc
 import gzip
 import hashlib
 import json
@@ -2605,6 +2606,12 @@ def run_arena_worker(
             entry_data["opening_prefix_moves"] = [int(m) for m in opening_prefix_moves]
         game_entries.append(entry_data)
         trajectory_hashes.append(trajectory_str)
+        # PUCT nodes retain parent/child cycles. Reclaim completed-game trees now
+        # instead of allowing a long arena trajectory to accumulate their memory.
+        reusable_roots.clear()
+        root = None
+        search = None
+        gc.collect()
 
     if game_jsonl_path:
         with open(game_jsonl_path, "w", encoding="utf-8") as gjf:
