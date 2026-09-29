@@ -1,0 +1,442 @@
+{
+  "artifacts": [
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/behavior_anchor_rows.jsonl",
+      "required": false,
+      "role": "behavior_anchor",
+      "schema": "azlite_parent_policy_behavior_anchor_rows_v1",
+      "sha256": "172fb057207fb1669286e11caa4da5e6241179212b6dc1a0752800b10f03f663",
+      "size_bytes": 24389745
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/behavior_anchor_audit.json",
+      "required": false,
+      "role": "behavior_anchor_audit",
+      "schema": "azlite_parent_policy_behavior_anchor_v1",
+      "sha256": "5f083acf46edb947000f0c2b1914ab190f697fa604b44393156b7da8eafe1cbc",
+      "size_bytes": 1078
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/candidate_vs_current_arena.json",
+      "required": false,
+      "role": "canonical_prefilter",
+      "schema": "arena_v1",
+      "sha256": "05a4a433aff6b401694cd065fac4a195af5a7b97aed2f9fe0a335cf44f9c9f85",
+      "size_bytes": 5390
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/epochs/checkpoint_epoch1.npz",
+      "required": false,
+      "role": "checkpoint_E1",
+      "schema": "npz",
+      "sha256": "4a0728597eed9fc4f60dc9f9656ae448cc98b1b7f492d467c60d56493b4765bf",
+      "size_bytes": null
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/epochs/checkpoint_epoch2.npz",
+      "required": false,
+      "role": "checkpoint_E2",
+      "schema": "npz",
+      "sha256": "184b9c5dbc6cfe0de517be0987bce35503946c6a7762e427c23b700df88018c7",
+      "size_bytes": null
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/epochs/checkpoint_epoch3.npz",
+      "required": false,
+      "role": "checkpoint_E3",
+      "schema": "npz",
+      "sha256": "498852a556fa9e4cc5f2abb0631e6542aa14d169385c1d30e76fa7c0b0aee8a1",
+      "size_bytes": null
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/epochs/checkpoint_epoch4.npz",
+      "required": false,
+      "role": "checkpoint_E4",
+      "schema": "npz",
+      "sha256": "ced2eb4b35ed4593408baaf6176832735e6d1667ee33b4f0d769ec91d80de3b9",
+      "size_bytes": null
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/checkpoint.npz",
+      "required": true,
+      "role": "checkpoint",
+      "schema": "npz",
+      "sha256": "ced2eb4b35ed4593408baaf6176832735e6d1667ee33b4f0d769ec91d80de3b9",
+      "size_bytes": 298302
+    },
+    {
+      "candidate_weights_sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/local_promotion_gate.json",
+      "required": true,
+      "role": "gate_report",
+      "schema": "azlite_local_promotion_gate_v1",
+      "sha256": "dcf2eaa0141f6471dfb9774b470584f0e55104e856232b525b6678deac53bfe0",
+      "size_bytes": 25547
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/metadata.json",
+      "required": true,
+      "role": "metadata",
+      "schema": "azlite_model_v1",
+      "sha256": "09ffa934d51682d68730b799d87c085587b33fb8f54f5118a05a9d0e7a25a8ab",
+      "size_bytes": 1955
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl",
+      "required": true,
+      "role": "self_play",
+      "schema": "azlite_self_play_jsonl_v1",
+      "sha256": "6f7038dccf282fb9365a031a06f8c5a8af4a2b8a6eda32725fe125b06d654a76",
+      "size_bytes": 749547469
+    },
+    {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/weights.json",
+      "required": true,
+      "role": "weights",
+      "schema": "azlite_model_weights_v1",
+      "sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+      "size_bytes": 1582841
+    }
+  ],
+  "candidate": {
+    "checkpoint": {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/checkpoint.npz",
+      "required": true,
+      "role": "checkpoint",
+      "schema": "npz",
+      "sha256": "ced2eb4b35ed4593408baaf6176832735e6d1667ee33b4f0d769ec91d80de3b9",
+      "size_bytes": 298302
+    },
+    "metadata": {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/metadata.json",
+      "required": true,
+      "role": "metadata",
+      "schema": "azlite_model_v1",
+      "sha256": "09ffa934d51682d68730b799d87c085587b33fb8f54f5118a05a9d0e7a25a8ab",
+      "size_bytes": 1955
+    },
+    "version": "seed455-nextgen-s467-parent-anchor-w010-iter1",
+    "weights": {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/weights.json",
+      "required": true,
+      "role": "weights",
+      "schema": "azlite_model_weights_v1",
+      "sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+      "size_bytes": 1582841
+    }
+  },
+  "behavior_anchor": {
+    "enabled": true,
+    "teacher": "parent_raw_legal_policy",
+    "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "phase": "active_stones_gt32",
+    "weight": 0.1,
+    "artifact_sha256": "172fb057207fb1669286e11caa4da5e6241179212b6dc1a0752800b10f03f663",
+    "row_occurrences": 33042,
+    "unique_states": 13052,
+    "validation_overlap": 0,
+    "duplicate_fraction": 0.6049875915501484,
+    "entropy_bits": {"min": 0.0, "mean": 1.6259808958970754, "max": 2.5636418657189095}
+  },
+  "classification": "seed467_parent_anchor_prefilter_failed",
+  "canonical_evaluation": {
+    "downstream": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "hard_arena": {
+      "artifact": null,
+      "config": {},
+      "status": "not_run",
+      "summary": {
+        "reason": "prefilter_failed"
+      },
+      "tool": "local_promotion_gate"
+    },
+    "prefilter": {
+      "artifact": {
+        "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/candidate_vs_current_arena.json",
+        "required": false,
+        "role": "canonical_prefilter",
+        "schema": "arena_v1",
+        "sha256": "05a4a433aff6b401694cd065fac4a195af5a7b97aed2f9fe0a335cf44f9c9f85",
+        "size_bytes": 5390
+      },
+      "config": {},
+      "status": "complete",
+      "summary": {
+        "passed": false,
+        "score": 0.4902
+      },
+      "tool": "local_promotion_gate"
+    }
+  },
+  "canonical_evaluation_attempts": [
+    {
+      "canonical_evaluation": {
+        "hard_arena": {
+          "artifact": null,
+          "config": {},
+          "status": "not_run",
+          "summary": {
+            "reason": "prefilter_failed"
+          },
+          "tool": "local_promotion_gate"
+        },
+        "prefilter": {
+          "artifact": {
+            "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/candidate_vs_current_arena.json",
+            "required": false,
+            "role": "canonical_prefilter",
+            "schema": "arena_v1",
+            "sha256": "05a4a433aff6b401694cd065fac4a195af5a7b97aed2f9fe0a335cf44f9c9f85",
+            "size_bytes": 5390
+          },
+          "config": {},
+          "status": "complete",
+          "summary": {
+            "passed": false,
+            "score": 0.4902
+          },
+          "tool": "local_promotion_gate"
+        }
+      },
+      "classification": "seed455_exact_root16_prefilter_failed",
+      "gate_report": {
+        "candidate_weights_sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+        "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/local_promotion_gate.json",
+        "required": true,
+        "role": "gate_report",
+        "schema": "azlite_local_promotion_gate_v1",
+        "sha256": "dcf2eaa0141f6471dfb9774b470584f0e55104e856232b525b6678deac53bfe0",
+        "size_bytes": 25547
+      },
+      "runtime_search_policy": {
+        "exact_leaf_solve": "disabled",
+        "exact_root_enabled": true,
+        "mode": "puct_exact_root_hybrid",
+        "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "objective": "final_score_margin",
+        "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+        "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "threshold": 16,
+        "tie_rule": "highest_legal_network_prior_then_lowest_move_index"
+      }
+    }
+  ],
+  "compute": {
+    "canonical_games": 0,
+    "promotions": 0,
+    "self_play_games": 1600
+  },
+  "diagnostics": {
+    "diagnostic_arena": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "exact_oracle": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "policy": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "regressions": {
+      "reason": null,
+      "status": "not_run"
+    },
+    "value": {
+      "reason": null,
+      "status": "not_run"
+    }
+  },
+  "generation_id": "seed455-nextgen-s467-parent-anchor-w010-iter1",
+  "parent": {
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "runtime_search_policy": {
+      "path": "model-artifact/current/search_policy.json",
+      "required": true,
+      "role": "parent_runtime_search_policy",
+      "schema": "azlite_runtime_search_policy_v1",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "size_bytes": 700
+    },
+    "version": "seed48-nextgen-s455-default-value-iter1",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "promotion": {
+    "decision": "rejected",
+    "failure_reasons": [
+      {
+        "code": "arena_score_below_threshold"
+      }
+    ],
+    "gate_report": {
+      "candidate_weights_sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/local_promotion_gate.json",
+      "required": true,
+      "role": "gate_report",
+      "schema": "azlite_local_promotion_gate_v1",
+      "sha256": "dcf2eaa0141f6471dfb9774b470584f0e55104e856232b525b6678deac53bfe0",
+      "size_bytes": 25547
+    }
+  },
+  "provenance_notes": [
+    "Preregistered before self-play. The sole changed method is a 0.10 policy-only seed455 raw legal-policy anchor on primary-training occurrences with active pit stones >32.",
+    "Epoch checkpoints are observational only; the sole candidate is selected by best_validation. No promotion is authorized by this generation record."
+  ],
+  "replay": {
+    "sources": [
+      {
+        "artifact": {
+          "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "6f7038dccf282fb9365a031a06f8c5a8af4a2b8a6eda32725fe125b06d654a76",
+          "size_bytes": 749547469
+        },
+        "weight": 1
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+          "size_bytes": 8012548
+        },
+        "weight": 4
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+          "size_bytes": 2610481
+        },
+        "weight": 1
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+          "size_bytes": 2414727
+        },
+        "weight": 8
+      },
+      {
+        "artifact": {
+          "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+          "required": false,
+          "role": "replay_source",
+          "schema": "azlite_self_play_jsonl_v1",
+          "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+          "size_bytes": 2526874
+        },
+        "weight": 4
+      }
+    ]
+  },
+  "schema": "azlite_generation_record_v1",
+  "self_play": {
+    "artifact": {
+      "path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl",
+      "required": true,
+      "role": "self_play",
+      "schema": "azlite_self_play_jsonl_v1",
+      "sha256": "6f7038dccf282fb9365a031a06f8c5a8af4a2b8a6eda32725fe125b06d654a76",
+      "size_bytes": 749547469
+    },
+    "compute": {
+      "wall_clock_duration_seconds": 890.9662,
+      "rows_written": 66448,
+      "exact_root_handoffs": 19370,
+      "puct_searched_roots": 47078
+    },
+    "config": {
+      "dirichlet_alpha": "0.3",
+      "dirichlet_epsilon": "0.3",
+      "games": "1600",
+      "input_encoding": "kalah_v3",
+      "iteration": "1",
+      "out": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl",
+      "policy_target_mode": "sharpened",
+      "policy_target_noise_mode": "denoised",
+      "runtime_search_policy_artifact": "/home/alex/Mancala/ai/model-artifact/current",
+      "schedule_progress_mode": "linear",
+      "seed": "467",
+      "seed_sweep": "466,467,468",
+      "simulations": "1200",
+      "temperature": "1.1",
+      "temperature_late": "0.15",
+      "temperature_threshold": "12",
+      "total_iterations": "1",
+      "tree_reuse_enabled": true,
+      "value_target_mode": "default",
+      "workers": "6",
+      "write_game_metadata": true,
+      "write_root_target_telemetry": true
+    },
+    "seeds": [
+      466,
+      467,
+      468
+    ],
+    "status": "complete"
+  },
+  "status": "rejected",
+  "training": {
+    "checkpoint_policy": "best_validation",
+    "compute": {
+      "wall_clock_duration_seconds": 27.9485
+    },
+    "config": {
+      "batch_size": "512",
+      "behavior_anchor_files": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/behavior_anchor_rows.jsonl",
+      "behavior_loss_weight": "0.10",
+      "data": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl",
+      "data_files": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl,/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+      "device": "auto",
+      "epoch_metrics_out": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/epoch_metrics.json",
+      "epochs": "4",
+      "final_checkpoint": "best_validation",
+      "grad_clip": "1.0",
+      "hidden_sizes": "96,3",
+      "huber_delta": "1.0",
+      "init_checkpoint": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/parent_init_checkpoint.npz",
+      "input_encoding": "kalah_v3",
+      "lr_scheduler": "none",
+      "model_type": "residual_v3",
+      "out": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/checkpoint.npz",
+      "policy_target_mode": "sharpened",
+      "replay_value_target_modes": "default,sharpened,sharpened,sharpened,sharpened",
+      "replay_weights": "1,4,1,8,4",
+      "save_epochs": "1,2,3,4",
+      "save_top_k": "3",
+      "seed": "467",
+      "top_k_dir": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/epochs",
+      "training_metrics_out": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/training_metrics.json",
+      "val_split": "0.1",
+      "value_loss": "huber",
+      "value_loss_weight": "0.3",
+      "value_target_mode": "default"
+    },
+    "metrics": {
+      "training_metrics_sha256": "2b05b33969f31030a5922de6cb5bbc3f65e7f28e6e5778103aad0f4933c764ac",
+      "epoch_metrics_sha256": "2d37a122e150025e2dcca4b08e8299abc0401209b1ff1279b972959c53788e5d",
+      "best_validation_epoch": 4,
+      "best_validation_loss": 1.1193420886993408
+    },
+    "optimizer_updates": 1052,
+    "seed": 467,
+    "status": "complete"
+  }
+}
