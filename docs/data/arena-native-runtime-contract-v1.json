@@ -1,0 +1,91 @@
+{
+  "schema": "arena_native_runtime_contract_correction_v1",
+  "semantic_identity": "arena-native-runtime-contract-v1",
+  "runtime_policy": {
+    "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "mode": "puct_exact_root_hybrid",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_leaf_solve_mode": "disabled"
+  },
+  "diagnostic_contract": {
+    "identity": "diagnostic_native_runtime_v1",
+    "suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f",
+    "games_per_matchup": 256,
+    "opening_pairs": 128,
+    "simulations": 384,
+    "c_puct": 1.25,
+    "seed": 42,
+    "search_options": {
+      "fpu_mode": "zero",
+      "reuse_subtree": false,
+      "normalize_values": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0
+    }
+  },
+  "backend_parity": {
+    "report": ".tmp/seed467-native-runtime-readjudication/parity.json",
+    "sha256": "a578c4a3896c606dbb580afccfa5a905fd0e56f784189943b009cd639516de48",
+    "states_tested": 32,
+    "margin_mismatches": 0,
+    "optimal_set_mismatches": 0,
+    "selected_action_mismatches": 0
+  },
+  "corrected_reports": {
+    "H1_vs_seed455": "f3faf8aaa5b63329ae75c6574a8dd85f89e08fae54a20227186d47836067f5cc",
+    "H2_vs_seed455": "dc503dc617f97b4c95f6ef1d5023a359a3b82780b1686e9b729316509d2162e3",
+    "H3_vs_seed455": "27c401764a64b7dca5174698149a102a088bdb8eaefdf19d0a2013cfa6385704",
+    "H4_vs_seed455": "6d2877d08e9bb7dc42bd5e24dd7abda149fd64d4c594ba742d9959b7d4ad320f",
+    "U1_vs_seed455": "5ffb17cb588a57abe9e94e0090e6cc9110d29f97153adf69396ca6c11e81eb27",
+    "U2_vs_seed455": "e345c919abecd913a70b03a9ab0a1015aaccae0f56a47b90f8c0f0280a481bd1",
+    "U3_vs_seed455": "eb7460a7b79e6435be3a87e0899235f377b3e6111e6b7195ccb2c5f7b2202b7b",
+    "U4_vs_seed455": "d5a96b5efac4c59489cf0d26fb2950e205a2515326139748f9648a797e7bfa8c",
+    "H4_vs_U4": "19629068f53c4c4b9207fa6c333a84d51122fa167cd655cfeb843713ac48658c"
+  },
+  "paired_bootstrap": {
+    "seed": 380,
+    "samples": 10000,
+    "H1_minus_U1": {"estimate": 0.015625, "ci95": [-0.009765625, 0.0390625]},
+    "H2_minus_U2": {"estimate": -0.05859375, "ci95": [-0.1015625, -0.017578125]},
+    "H3_minus_U3": {"estimate": 0.0390625, "ci95": [0.0234375, 0.0546875]},
+    "H4_minus_U4": {"estimate": 0.0390625, "ci95": [-0.005859375, 0.0859375]},
+    "H4_minus_U4_sha256": "22abf797f25584e70aa266c1c0d99028c51d6d2947aae449f0249059424f0537"
+  },
+  "legacy_evidence": {
+    "status": "legacy_noncanonical_exact_root_contract",
+    "reports": [
+      ".tmp/seed467-parent-anchor-diagnostic/H1_vs_E0.json",
+      ".tmp/seed467-parent-anchor-diagnostic/H2_vs_E0.json",
+      ".tmp/seed467-parent-anchor-diagnostic/H3_vs_E0.json",
+      ".tmp/seed467-parent-anchor-diagnostic/H4_vs_E0.json",
+      ".tmp/seed467-unanchored-control/U1_vs_E0.json",
+      ".tmp/seed467-unanchored-control/U2_vs_E0.json",
+      ".tmp/seed467-unanchored-control/U3_vs_E0.json",
+      ".tmp/seed467-unanchored-control/U4_vs_E0.json",
+      ".tmp/seed467-parent-anchor-diagnostic/H4_vs_U4.json"
+    ],
+    "superseded_by": "arena-native-runtime-contract-v1"
+  },
+  "readjudication": {
+    "semantic_identity": "seed467-parent-anchor-native-runtime-readjudication",
+    "classification": "parent_anchor_transfer_not_supported_native_runtime",
+    "reason": "H4-U4 paired estimate is positive but its 95% interval includes zero and direct H4-vs-U4 favors U4.",
+    "native_contract_suite_alignment_followup_required": false,
+    "comparison": {
+      "old_H4_diagnostic_score": 1.0,
+      "corrected_H4_diagnostic_score": 0.60546875,
+      "frozen_canonical_H4_score": 0.490234375
+    }
+  },
+  "scope": {
+    "training_runs": 0,
+    "self_play_games": 0,
+    "canonical_games": 0,
+    "promotions": 0
+  }
+}
