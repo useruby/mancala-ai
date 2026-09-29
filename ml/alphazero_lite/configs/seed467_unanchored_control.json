@@ -1,0 +1,48 @@
+{
+  "run_id": "seed467-unanchored-control",
+  "seed": 467,
+  "iterations": 1,
+  "start_iteration": 1,
+  "replay_window": 1,
+  "versions_dir": ".tmp/seed467-unanchored-control/runs",
+  "current_path": "model-artifact/current",
+  "parent_artifact_path": "model-artifact/current",
+  "inherit_parent_runtime_search_policy": true,
+  "preserve_config_workers": true,
+  "fixed_replay_sources": [
+    {"path": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl", "weight": 1},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl", "weight": 4},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl", "weight": 1},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl", "weight": 8},
+    {"path": ".tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl", "weight": 4}
+  ],
+  "steps": [
+    {
+      "name": "train",
+      "command": [
+        ".venv/bin/python", "ml/alphazero_lite/train.py",
+        "--data-files", "{replay_data}", "--replay-weights", "{replay_weights}",
+        "--init-checkpoint", "{parent_checkpoint}", "--out", "{iter_dir}/checkpoint.npz",
+        "--epochs", "4", "--batch-size", "512", "--device", "auto", "--lr-scheduler", "none",
+        "--hidden-sizes", "96,3", "--model-type", "residual_v3", "--input-encoding", "kalah_v3",
+        "--value-loss", "huber", "--huber-delta", "1.0", "--value-loss-weight", "0.3",
+        "--val-split", "0.1", "--grad-clip", "1.0", "--save-top-k", "3",
+        "--save-epochs", "1,2,3,4", "--top-k-dir", "{iter_dir}/epochs",
+        "--final-checkpoint", "best_validation", "--policy-target-mode", "sharpened",
+        "--value-target-mode", "default", "--replay-value-target-modes", "default,sharpened,sharpened,sharpened,sharpened",
+        "--behavior-loss-weight", "0.0", "--epoch-metrics-out", "{iter_dir}/epoch_metrics.json",
+        "--training-metrics-out", "{iter_dir}/training_metrics.json",
+        "--primary-sampling-audit-out", "{iter_dir}/primary_sampling_audit.json", "--seed", "467"
+      ]
+    },
+    {
+      "name": "export_artifact",
+      "command": [
+        ".venv/bin/python", "ml/alphazero_lite/export_artifact.py",
+        "--checkpoint", "{iter_dir}/checkpoint.npz", "--out-dir", "{iter_dir}",
+        "--version", "seed467-unanchored-control-iter{iteration}", "--model-type", "residual_v3",
+        "--rules-version", "kalah_v1", "--input-encoding", "kalah_v3"
+      ]
+    }
+  ]
+}
