@@ -1,0 +1,19 @@
+{
+  "schema": "azlite_matched_training_config_diff_v1",
+  "semantic_identity": "seed467-parent-anchor-w010-vs-unanchored",
+  "baseline": "seed467-unanchored-control",
+  "treatment": "seed455-nextgen-s467-parent-anchor-w010-iter1",
+  "frozen_self_play_sha256": "6f7038dccf282fb9365a031a06f8c5a8af4a2b8a6eda32725fe125b06d654a76",
+  "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+  "primary_sampling": {
+    "equal": true,
+    "optimizer_updates": 1052,
+    "lr_scheduler": "none",
+    "validation_split": 0.1
+  },
+  "controlled_difference": {
+    "training.behavior_loss_weight": {"baseline": 0.0, "treatment": 0.1},
+    "training.behavior_anchor_stream": {"baseline": "absent", "treatment": "parent_raw_policy/active_stones_gt32"}
+  },
+  "disallowed_differences": []
+}

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import sys
@@ -2367,6 +2368,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional comma-separated compact replay indexes to count without changing sampling",
     )
+    parser.add_argument(
+        "--primary-sampling-audit-out",
+        default=None,
+        help="Optional JSON output hashing the supervised replay split and epoch permutations",
+    )
     return parser
 
 
@@ -2517,6 +2523,39 @@ def main() -> None:
         if args.audit_source_indexes
         else None
     )
+    primary_permutations: list[dict[str, int | str]] = []
+    primary_replay_indexes = (
+        replay_indexes
+        if replay_indexes is not None
+        else np.arange(x.shape[0], dtype=np.int64)
+    )
+    # Auditing must not consume the NumPy stream used by train() to form its split.
+    numpy_rng_state = np.random.get_state()
+    primary_train_positions, primary_validation_positions = (
+        split_replay_positions_by_source_row(
+            primary_replay_indexes, val_split=args.val_split
+        )
+    )
+    np.random.set_state(numpy_rng_state)
+    primary_train_replay_indexes = primary_replay_indexes[primary_train_positions]
+
+    def primary_permutation_audit(epoch: int | None, permutation: list[int]) -> None:
+        if epoch is None:
+            return
+        permutation_array = np.asarray(permutation, dtype=np.int64)
+        ordered_indexes = primary_train_replay_indexes[permutation_array]
+        primary_permutations.append(
+            {
+                "epoch": epoch,
+                "permutation_sha256": hashlib.sha256(
+                    permutation_array.tobytes()
+                ).hexdigest(),
+                "ordered_primary_indexes_sha256": hashlib.sha256(
+                    ordered_indexes.tobytes()
+                ).hexdigest(),
+            }
+        )
+
     policy_loss, value_loss, best_val_loss = train(
         model,
         x,
@@ -2541,6 +2580,9 @@ def main() -> None:
         save_epochs_base=save_epochs_base,
         epoch_history=epoch_history,
         audit_source_indexes=audit_source_indexes,
+        permutation_callback=(
+            primary_permutation_audit if args.primary_sampling_audit_out else None
+        ),
         pairwise_x=pairwise_x,
         pairwise_preferred_moves=pairwise_preferred_moves,
         pairwise_baseline_moves=pairwise_baseline_moves,
@@ -2602,6 +2644,51 @@ def main() -> None:
         training_metrics_path.parent.mkdir(parents=True, exist_ok=True)
         training_metrics_path.write_text(
             json.dumps(last_train_metrics, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    if args.primary_sampling_audit_out:
+
+        def digest(values: np.ndarray) -> str:
+            return hashlib.sha256(
+                values.astype(np.int64, copy=False).tobytes()
+            ).hexdigest()
+
+        primary_sampling_audit_path = Path(args.primary_sampling_audit_out)
+        primary_sampling_audit_path.parent.mkdir(parents=True, exist_ok=True)
+        primary_sampling_audit_path.write_text(
+            json.dumps(
+                {
+                    "primary_replay_indexes": {
+                        "count": int(primary_replay_indexes.size),
+                        "sha256": digest(primary_replay_indexes),
+                    },
+                    "train_positions": {
+                        "count": int(primary_train_positions.size),
+                        "sha256": digest(primary_train_positions),
+                    },
+                    "validation_positions": {
+                        "count": int(primary_validation_positions.size),
+                        "sha256": digest(primary_validation_positions),
+                    },
+                    "train_replay_indexes": {
+                        "count": int(primary_train_positions.size),
+                        "sha256": digest(primary_train_replay_indexes),
+                    },
+                    "validation_replay_indexes": {
+                        "count": int(primary_validation_positions.size),
+                        "sha256": digest(
+                            primary_replay_indexes[primary_validation_positions]
+                        ),
+                    },
+                    "epoch_permutations": primary_permutations,
+                    "optimizer_updates": int(last_train_metrics["optimizer_updates"]),
+                    "lr_scheduler": args.lr_scheduler,
+                    "behavior_stream_active": bool(args.behavior_loss_weight > 0.0),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
             encoding="utf-8",
         )
 
