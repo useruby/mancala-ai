@@ -1,0 +1,74 @@
+{
+  "canonical_score_recomputation": {
+    "draws": 48,
+    "games": 512,
+    "losses": 237,
+    "opening_pair_score_distribution": {
+      "0.0": 30,
+      "0.25": 20,
+      "0.5": 163,
+      "0.75": 16,
+      "1.0": 27
+    },
+    "p0_score": 0.56640625,
+    "p1_score": 0.4140625,
+    "score": 0.490234375,
+    "wins": 227
+  },
+  "classification": "diagnostic_canonical_search_contract_mismatch",
+  "classification_reason": "The diagnostic exact-root solver is Python EndgameTablebase without recorded native/tablebase identities; canonical uses native_kvtb_root_action_probe_v1 bound to both native and tablebase SHA256 values.",
+  "diagnostic_score_recomputation": {
+    "draws": 0,
+    "games": 256,
+    "losses": 0,
+    "opening_pair_score_distribution": {
+      "1.0": 128
+    },
+    "p0_score": 1.0,
+    "p1_score": 1.0,
+    "score": 1.0,
+    "wins": 256
+  },
+  "frozen_inputs": {
+    "canonical_report_sha256": "05a4a433aff6b401694cd065fac4a195af5a7b97aed2f9fe0a335cf44f9c9f85",
+    "canonical_suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+    "diagnostic_report_sha256": "d9e370a60585420f3954648bbad193482eb904f8f7b9c10253ca5b1ef8082e89",
+    "diagnostic_suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f"
+  },
+  "identity": {
+    "canonical_parent_path": "model-artifact/current/weights.json",
+    "diagnostic_parent_path": "model-artifact/current/weights.json",
+    "expected_checkpoint_sha256": "ced2eb4b35ed4593408baaf6176832735e6d1667ee33b4f0d769ec91d80de3b9",
+    "expected_weights_sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+    "generation_checkpoint_sha256": "ced2eb4b35ed4593408baaf6176832735e6d1667ee33b4f0d769ec91d80de3b9",
+    "generation_exported_weights_sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+    "h4_canonical_candidate_weights_sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+    "h4_checkpoint_sha256": "ced2eb4b35ed4593408baaf6176832735e6d1667ee33b4f0d769ec91d80de3b9",
+    "h4_diagnostic_weights_sha256": "3629ba489409baf7c7f194d104101dcffde4ac7ccbfd20409cd112214095b323",
+    "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "identity_ok": true,
+  "schema": "diagnostic_vs_canonical_arena_alignment_audit_v1",
+  "scope": {
+    "canonical_games": 0,
+    "promotions": 0,
+    "self_play_games": 0,
+    "training_runs": 0
+  },
+  "search_contract_diff": {
+    "exact_root_native_probe_sha256": {
+      "canonical": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "diagnostic": null
+    },
+    "exact_root_solver": {
+      "canonical": "native_kvtb_root_action_probe_v1",
+      "diagnostic": "ml.alphazero_lite.endgame_tablebase.EndgameTablebase"
+    },
+    "exact_root_tablebase_sha256": {
+      "canonical": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "diagnostic": null
+    }
+  },
+  "semantic_identity": "diagnostic-vs-canonical-arena-alignment-audit",
+  "stop_rule_applied": "No suite-distribution, root-probe, or new-game analysis was performed after the material contract mismatch."
+}
