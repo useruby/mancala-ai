@@ -1,0 +1,114 @@
+{
+  "schema": "azlite_generation_comparison_evidence_v1",
+  "semantic_identity": "seed461-parent-policy-anchor-highstone-w010",
+  "source": "PR #375 completed frozen-data diagnostic",
+  "guardrails": {
+    "self_play_games": 0,
+    "canonical_games": 0,
+    "promotions": 0,
+    "new_training_seeds": 0,
+    "behavior_loss_weight": 0.1
+  },
+  "identity": {
+    "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "parent_runtime_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "fresh_replay_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+    "arena_suite_sha256": "5835a907a712d8680000215c91e2b26d7c2bb5ce51289b60cbd141ec490a3f3f"
+  },
+  "behavior_anchor": {
+    "artifact_sha256": "a0a4d8df3cf88e1f9d78d6a73f4ae874752909a705549516ff9c0302c3146d1b",
+    "audit_sha256": "e47724eee926b05c0a7c50f5fa4bd852c4454228c9c5bed536e36c6e74c14754",
+    "parent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "target_semantics": "parent_raw_legal_policy",
+    "active_stone_predicate": "active_pit_stones > 32",
+    "origin": "primary_training_replay_only",
+    "value_loss_weight": 0.0,
+    "rows": 33120,
+    "unique_states": 12832,
+    "duplicate_fraction": 0.6125603864734299,
+    "policy_entropy": {"min": 0.0, "mean": 1.6247241098961605, "max": 2.5545338423365753},
+    "row_validation": {"finite_probabilities": true, "illegal_action_mass": 0.0, "legal_mass": 1.0}
+  },
+  "primary_sampling_audit": {
+    "training_seed": 461,
+    "primary_replay_rows": 149448,
+    "primary_replay_indexes_sha256": "529cca2a76e2230c66a1ee8c757d6eac8cd7b30ad638bd698cde16cf4ae558ef",
+    "train_positions": {"count": 134451, "sha256": "388cda80ac03e75c2b42daf217e4ba7794fd61193644bc47d3d78bc1bf3452ef"},
+    "validation_positions": {"count": 14997, "sha256": "8cb9a2028f1dbc2b3516957371f894b979342371cf79eb2bfef2dcb166d3416a"},
+    "train_replay_indexes": {"count": 134451, "sha256": "1e28f12cb0861d1964963456eae1041376ec2a5840d549ce2f32b2aeba66bf3b"},
+    "validation_replay_indexes": {"count": 14997, "sha256": "38aba9657843b5ce9aede3bf77cee3b9d73e282f97bde0e58e375ebfe98512fa"},
+    "epoch_permutations": [
+      {"epoch": 1, "permutation_sha256": "0eb7ab8f9bb81d8cfb81be94f84c20dd21c4508602b53dae06a3da69a443d51d", "ordered_primary_indexes_sha256": "d5b8eab70136cec931501023773e3512612504f01d588511368434d34afe8919"},
+      {"epoch": 2, "permutation_sha256": "59069936110feb8b125d61c97753fa8f4b05f065d37d35c53614aad1a215b7a6", "ordered_primary_indexes_sha256": "8a8a396f841d131c1e335d5777fc71eb59470439536b37ffd6fc219523cdd8de"},
+      {"epoch": 3, "permutation_sha256": "51ce16d9d5a692c6fccd381abeb243b5b6f52f9d207ce71757bca9c60f3ac344", "ordered_primary_indexes_sha256": "a50962a76e4433767817e9f249567eb3d66539e3568153953d8d8cdf05d0e9be"},
+      {"epoch": 4, "permutation_sha256": "ccb09bcabdd8df6faa140a176fabc97d4d542e5b4f0c314e6521d9b3244d464d", "ordered_primary_indexes_sha256": "2a8653afc67199a13b9831f675aa74d100168d91d2a01057084062fd654ae0ff"}
+    ],
+    "baseline_equals_treatment": true,
+    "optimizer_updates": {"baseline": 1052, "treatment": 1052, "equal": true},
+    "lr_sequence": {"scheduler": "none", "equal": true}
+  },
+  "validation_overlap_audit": {"canonical_overlap": 0, "passed": true},
+  "checkpoints": {
+    "A1": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+    "A2": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+    "A3": "9d3db177d22f12b0c8952233f3fc6c5dad5b0529f3990932699e8839afa0d2b8",
+    "A4": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+    "H1": "680e22b74baf06676e6e16e1a4fcbd234dc4452775c9abb8bad73a197552c559",
+    "H2": "5af17878af6404d978cab9782e06e3ea195bef7937bb5f591b7337c3fb183275",
+    "H3": "db8163cce46fdd5958dca284fdd6344d60e461309928450707814c816492b0d1",
+    "H4": "47dadf540cc5b4bb8a63bfb6a6e2b33fd62000ab1012ef8522af68adbba52bf7"
+  },
+  "arena": {
+    "A": [0.625, 0.5625, 0.61328125, 0.51171875],
+    "H": [0.578125, 0.56640625, 0.51953125, 0.61328125],
+    "H_report_sha256": ["0e4129565cf1da61c93970fd6d0207417092b4fe774c6231f667bd5200ba025b", "9c2d642c5093c78fe644928d8d35356163fc7a585c841596c620f4fcb0488dd3", "3f176c52d74ce489bb3b030f2bc683ea9565c6ac502603082bb301481a84c6e8", "3e282bc53fd968b67b145fdea310b29151c0dbdb1933fc77b777673a99615e2c"],
+    "paired": [
+      {"epoch": 1, "delta": -0.046875, "ci95": [-0.07421875, -0.0234375], "openings": 128, "report_sha256": "81c8656077266109eb4eaa9c62e51c02005a56aece122729454e0b0b48d0a13d"},
+      {"epoch": 2, "delta": 0.00390625, "ci95": [-0.029296875, 0.037109375], "openings": 128, "report_sha256": "cc1d4c4c64b2c9681a0b17d418550de4322d4a2f946b836f19b10b1e21ff41d9"},
+      {"epoch": 3, "delta": -0.09375, "ci95": [-0.12890625, -0.0625], "openings": 128, "report_sha256": "6567d93c18d48b85605e75a286ace1cd2dfe799f6851c87271bd8f0c9a367391"},
+      {"epoch": 4, "delta": 0.1015625, "ci95": [0.06640625, 0.140625], "openings": 128, "report_sha256": "9727f1ed6b831e622420e91ee08e2ff61da4e4578179b11cbb1b5227a4c83801"}
+    ]
+  },
+  "trajectory": {
+    "parent_retention": {
+      "A": [[0.691394659, 0.035034859, 0.459554455, 0.59347181, 0.075178368, 0.101382299], [0.715133531, 0.036488449, 0.478751037, 0.578635015, 0.088129088, 0.113220837], [0.738872404, 0.032370484, 0.481476968, 0.540059347, 0.080404686, 0.099293054], [0.703264095, 0.040413184, 0.471702609, 0.507418398, 0.109847449, 0.126378818]],
+      "H": [[0.712166172, 0.02823297, 0.461363524, 0.623145401, 0.064412639, 0.085139273], [0.78041543, 0.023898663, 0.482330332, 0.629080119, 0.069501536, 0.10133495], [0.759643917, 0.02615625, 0.472373962, 0.584569733, 0.063321151, 0.097224225], [0.685459941, 0.037920271, 0.464362964, 0.507418398, 0.098316962, 0.110603103]],
+      "columns": ["raw_argmax_agreement", "raw_js", "parent_argmax_probability", "puct_selected_move_agreement", "puct_visit_js", "value_mae_from_parent"]
+    },
+    "high_stone_supervised": {
+      "A": [[1.042834992, 0.588520269, 0.583740632], [1.03347873, 0.587038076, 0.586184425], [1.038632006, 0.593348163, 0.580808081], [1.042093015, 0.581704237, 0.592049528]],
+      "H": [[1.034738506, 0.586644701, 0.582926035], [1.022431051, 0.588304235, 0.587487781], [1.033961217, 0.5951505, 0.583251874], [1.035615353, 0.586255759, 0.589279896]],
+      "columns": ["policy_ce", "value_mae", "value_sign_accuracy"]
+    },
+    "fresh_high_stone_targets": {
+      "A": [[0.934568198, 0.208374828], [0.921347331, 0.200745874], [0.927990546, 0.203396415], [0.916748801, 0.19937342]],
+      "H": [[0.926642699, 0.20695457], [0.909493216, 0.198978848], [0.923083034, 0.204524131], [0.92761044, 0.206484499]],
+      "columns": ["policy_ce", "policy_js"]
+    },
+    "parameter_relative_l2": {
+      "A": [[0.08313532, 0.085346778, 0.071357132, 0.082125194], [0.135897299, 0.139355383, 0.11790684, 0.133589558], [0.184604486, 0.189101817, 0.159559274, 0.185204363], [0.22993177, 0.235107654, 0.20058083, 0.232112455]],
+      "H": [[0.081279467, 0.08323682, 0.06970286, 0.082927873], [0.132915466, 0.135897555, 0.116162895, 0.133857513], [0.178661705, 0.182546543, 0.155062368, 0.183611321], [0.221804932, 0.225872806, 0.194700839, 0.232495207]],
+      "columns": ["total", "trunk", "policy_head", "value_head"]
+    }
+  },
+  "regression_checks": {
+    "H4_superhuman_regressions": {"passed": true, "sha256": "0cc6a99a3c2d526ddc960d8e14b45669c8063818c20fc720948d50d0cf8c3175"},
+    "H4_forensic": {"sha256": "9f9598dbe6845d222e219f86d0ad1b157716bf69b1374bedf34d3b4b09596d3a", "challenger": {"top1_agreement": 0.7371, "average_regret": 1.2864, "blunder_rate": 0.2629, "value_calibration_mae": 0.8095}}
+  },
+  "conclusion": {
+    "classification": "parent_behavior_anchor_mitigates_seed461_forgetting",
+    "next_axis": "one_fresh_prospective_seed455_generation_with_preregistered_parent_anchor_w010",
+    "canonical_gate_eligible": false,
+    "decision_conditions": {
+      "primary_sampling_invariants_pass": true,
+      "validation_overlap_zero": true,
+      "H4_minus_A4_ci_excludes_zero": true,
+      "H4_vs_parent_at_least_0_5": true,
+      "H2_to_H4_not_progressive_collapse": true,
+      "fresh_high_stone_target_learning_no_material_regression": true,
+      "value_mae_no_clear_regression": true,
+      "triggered_regression_and_forensic_checks_pass": true
+    },
+    "reason": "The primary endpoint is positive with a paired CI excluding zero, H4 remains above 0.5 versus seed455, retained behavior/drift metrics improve overall, and fresh high-stone policy learning and value quality show no clear regression."
+  }
+}

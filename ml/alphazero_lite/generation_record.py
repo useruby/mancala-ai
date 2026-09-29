@@ -352,6 +352,12 @@ def validate(record: dict[str, Any], *, base_dir: Path | None = None) -> None:
                 "candidate-ready records require complete candidate identity"
             )
     decision = record["promotion"]["decision"]
+    if record.get("diagnostic_only") and decision in {
+        "passed",
+        "promotion_ready",
+        "promoted",
+    }:
+        raise GenerationRecordError("diagnostic siblings cannot become promotion-ready")
     if record["status"] == "promoted" and decision != "promoted":
         raise GenerationRecordError("promoted records require promoted decision")
     if decision == "rejected" and not record["promotion"]["failure_reasons"]:
