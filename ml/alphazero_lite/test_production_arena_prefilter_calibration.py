@@ -42,6 +42,18 @@ class ProductionArenaPrefilterCalibrationTest(unittest.TestCase):
         self.assertEqual(START_GAMES, contract["arena_games"])
         self.assertEqual(PRODUCTION_THRESHOLD, contract["minimum_score"])
         self.assertEqual(0, contract["random_opening_plies"])
+        runtime = contract["runtime_search_contract"]
+        self.assertEqual(
+            "native_kvtb_root_action_probe_v1", runtime["exact_root_solver"]
+        )
+        self.assertEqual(
+            "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+            runtime["exact_root_native_probe_sha256"],
+        )
+        self.assertEqual(
+            "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+            runtime["exact_root_tablebase_sha256"],
+        )
         suite, preflight = build_suite()
         self.assertEqual(942, preflight["total_canonical_population"])
         self.assertEqual(430, preflight["remaining_population"])

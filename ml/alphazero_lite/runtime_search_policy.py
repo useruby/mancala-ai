@@ -62,3 +62,78 @@ def load_runtime_search_policy(artifact_dir: str | Path) -> dict[str, Any] | Non
             raise RuntimeSearchPolicyError("runtime_search_policy_artifact_mismatch")
         artifact["resolved_path"] = str(artifact_path)
     return policy
+
+
+def resolve_strength_comparison_runtime_contract(
+    *,
+    current_artifact: str | Path,
+    challenger_artifact: str | Path,
+    exact_root_threshold: int | None = None,
+    native_probe: str | Path | None = None,
+    tablebase: str | Path | None = None,
+) -> dict[str, Any] | None:
+    """Bind a strength comparison to the incumbent's validated runtime policy.
+
+    A challenger without a copied sidecar explicitly inherits the incumbent
+    policy.  This is intentionally a resolution layer, not another policy
+    validator: ``load_runtime_search_policy`` remains authoritative.
+    """
+    try:
+        current = load_runtime_search_policy(current_artifact)
+        challenger = load_runtime_search_policy(challenger_artifact)
+    except RuntimeSearchPolicyError as error:
+        raise RuntimeSearchPolicyError(
+            "arena_runtime_search_policy_mismatch"
+        ) from error
+    if current is None:
+        return None
+
+    semantic_fields = (
+        "mode",
+        "exact_root_threshold",
+        "solver_implementation_identity",
+        "exact_root_objective",
+        "exact_root_tie_rule",
+        "exact_leaf_solve",
+    )
+    if challenger is not None and any(
+        challenger[field] != current[field] for field in semantic_fields
+    ):
+        raise RuntimeSearchPolicyError("arena_runtime_search_policy_mismatch")
+    if challenger is not None and any(
+        challenger[name]["sha256"] != current[name]["sha256"]
+        for name in ("native_probe", "tablebase")
+    ):
+        raise RuntimeSearchPolicyError("arena_runtime_search_policy_mismatch")
+
+    expected_threshold = current["exact_root_threshold"]
+    expected_probe = Path(current["native_probe"]["resolved_path"])
+    expected_tablebase = Path(current["tablebase"]["resolved_path"])
+    if exact_root_threshold not in (None, expected_threshold):
+        raise RuntimeSearchPolicyError("arena_runtime_search_policy_mismatch")
+    if (
+        native_probe is not None
+        and Path(native_probe).resolve() != expected_probe.resolve()
+    ):
+        raise RuntimeSearchPolicyError("arena_runtime_search_policy_mismatch")
+    if (
+        tablebase is not None
+        and Path(tablebase).resolve() != expected_tablebase.resolve()
+    ):
+        raise RuntimeSearchPolicyError("arena_runtime_search_policy_mismatch")
+
+    policy_path = Path(current_artifact) / "search_policy.json"
+    return {
+        "runtime_search_policy_mode": current["mode"],
+        "exact_root_solve_threshold": expected_threshold,
+        "exact_root_solver": current["solver_implementation_identity"],
+        "exact_root_native_probe": str(expected_probe),
+        "exact_root_native_probe_sha256": current["native_probe"]["sha256"],
+        "exact_root_tablebase": str(expected_tablebase),
+        "exact_root_tablebase_sha256": current["tablebase"]["sha256"],
+        "exact_root_objective": current["exact_root_objective"],
+        "exact_root_tie_rule": current["exact_root_tie_rule"],
+        "exact_leaf_solve_mode": current["exact_leaf_solve"],
+        "runtime_search_policy_sha256": sha256_file(policy_path),
+        "challenger_runtime_policy_inherited": challenger is None,
+    }

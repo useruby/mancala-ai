@@ -82,7 +82,11 @@ if not ARENA_STUB_MODE:
         from ml.alphazero_lite.native_exact_root_tablebase import (
             NativeExactRootTablebase,
         )
-        from ml.alphazero_lite.runtime_search_policy import load_runtime_search_policy
+        from ml.alphazero_lite.runtime_search_policy import (
+            RuntimeSearchPolicyError,
+            load_runtime_search_policy,
+            resolve_strength_comparison_runtime_contract,
+        )
         from ml.alphazero_lite.opening_cache import (
             load_opening_cache,
             state_qualifies_for_opening_cache,
@@ -124,7 +128,11 @@ if not ARENA_STUB_MODE:
             exact_root_profile_fields,
         )
         from native_exact_root_tablebase import NativeExactRootTablebase
-        from runtime_search_policy import load_runtime_search_policy
+        from runtime_search_policy import (
+            RuntimeSearchPolicyError,
+            load_runtime_search_policy,
+            resolve_strength_comparison_runtime_contract,
+        )
         from opening_cache import load_opening_cache, state_qualifies_for_opening_cache
         from search_ablation import build_mode_config, neutral_value
         from self_play import (
@@ -1852,6 +1860,7 @@ def run_arena_worker(
     exact_root_solve_threshold: int | None = None,
     exact_root_native_probe: str | Path | None = None,
     exact_root_tablebase_path: str | Path | None = None,
+    runtime_search_contract: dict[str, Any] | None = None,
 ) -> dict:
     current = ArtifactEvaluator(Path(current_path))
     challenger = (
@@ -1900,6 +1909,8 @@ def run_arena_worker(
         raise ValueError(
             "exact_root_native_probe and exact_root_tablebase_path must be supplied together"
         )
+    if runtime_search_contract is not None and exact_root_native_probe is None:
+        raise RuntimeSearchPolicyError("arena_runtime_search_policy_mismatch")
     if exact_solve_stone_threshold is not None:
         if exact_solve_stone_threshold < 0:
             raise ValueError("exact_solve_stone_threshold must be non-negative")
@@ -1992,6 +2003,7 @@ def run_arena_worker(
                     else NativeExactRootTablebase.implementation_identity
                 ),
             ),
+            **(runtime_search_contract or {}),
             **(
                 {
                     "exact_root_native_probe_sha256": sha256_file(
@@ -2839,6 +2851,30 @@ def main() -> None:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # A deployed incumbent's sidecar is the authoritative exact-root contract.
+    # Resolve it once before workers start so every worker gets the same native
+    # probe and no production-bound comparison can fall back to Python.
+    try:
+        runtime_search_contract = resolve_strength_comparison_runtime_contract(
+            current_artifact=current_path,
+            challenger_artifact=challenger_path,
+            exact_root_threshold=args.exact_root_solve_threshold,
+            native_probe=args.exact_root_native_probe,
+            tablebase=args.exact_root_tablebase,
+        )
+    except RuntimeSearchPolicyError as error:
+        raise RuntimeError("arena_runtime_search_policy_mismatch") from error
+    if runtime_search_contract is not None:
+        args.exact_root_solve_threshold = runtime_search_contract[
+            "exact_root_solve_threshold"
+        ]
+        args.exact_root_native_probe = Path(
+            runtime_search_contract["exact_root_native_probe"]
+        )
+        args.exact_root_tablebase = Path(
+            runtime_search_contract["exact_root_tablebase"]
+        )
+
     workers = max(1, args.workers)
     search_options = build_eval_search_options(**search_options_from_args(args))
     challenger_search_options = parse_search_options_override(
@@ -2939,6 +2975,7 @@ def main() -> None:
                     exact_root_solve_threshold=args.exact_root_solve_threshold,
                     exact_root_native_probe=args.exact_root_native_probe,
                     exact_root_tablebase_path=args.exact_root_tablebase,
+                    runtime_search_contract=runtime_search_contract,
                 )
             )
         results = [future.result() for future in futures]
@@ -3026,6 +3063,7 @@ def main() -> None:
             "exact_solve_stone_threshold": args.exact_solve_stone_threshold,
             "exact_solve_value_mode": args.exact_solve_value_mode,
             "exact_solve_semantics": "network_priors_exact_leaf_value",
+            **(runtime_search_contract or {}),
         }
     )
 

@@ -38,6 +38,9 @@ from ml.alphazero_lite.run_uniform1200_incumbent_opening_holdout import (  # noq
     HOLDOUT_SUITE_SHA256,
     PR327_SUITE_SHA256,
 )
+from ml.alphazero_lite.runtime_search_policy import (  # noqa: E402
+    resolve_strength_comparison_runtime_contract,
+)
 
 SCHEMA = "azlite_production_arena_prefilter_calibration_v1"
 SUITE_VERSION = "production_prefilter_calibration_unique_v1"
@@ -223,6 +226,12 @@ def production_contract() -> dict[str, Any]:
         fragment in arena for fragment in required_arena_fragments
     ):
         raise ValueError("production_prefilter_contract_changed")
+    runtime_contract = resolve_strength_comparison_runtime_contract(
+        current_artifact=INCUMBENT,
+        challenger_artifact=INCUMBENT,
+    )
+    if runtime_contract is None:
+        raise ValueError("production_prefilter_contract_changed")
     return {
         "arena_games": START_GAMES,
         "minimum_score": PRODUCTION_THRESHOLD,
@@ -236,6 +245,7 @@ def production_contract() -> dict[str, Any]:
         "root_prior_transform": None,
         "value_transform": None,
         "opening_cache": None,
+        "runtime_search_contract": runtime_contract,
     }
 
 
