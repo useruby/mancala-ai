@@ -760,12 +760,14 @@ def train_one_epoch(
         else None
     )
     pairwise_permutation = None
+    pairwise_generator = None
     pairwise_position = 0
     behavior_anchor_x_all = None
     behavior_anchor_p_all = None
     behavior_anchor_legal_mask_all = None
     behavior_anchor_replay_tensor = None
     behavior_anchor_permutation = None
+    behavior_anchor_generator = None
     behavior_anchor_position = 0
     use_behavior_anchors = (
         behavior_loss_weight > 0.0
@@ -776,8 +778,9 @@ def train_one_epoch(
     )
     if use_pairwise:
         assert pairwise_replay_tensor is not None
+        pairwise_generator = auxiliary_rng(device, seed=0x50414952)
         pairwise_permutation = torch.randperm(
-            pairwise_replay_tensor.size(0), device=device
+            pairwise_replay_tensor.size(0), device=device, generator=pairwise_generator
         )
     if use_behavior_anchors:
         behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
@@ -793,8 +796,11 @@ def train_one_epoch(
         behavior_anchor_replay_tensor = torch.from_numpy(
             behavior_anchor_replay_indexes
         ).to(device)
+        behavior_anchor_generator = auxiliary_rng(device, seed=0x414E4348)
         behavior_anchor_permutation = torch.randperm(
-            behavior_anchor_replay_tensor.size(0), device=device
+            behavior_anchor_replay_tensor.size(0),
+            device=device,
+            generator=behavior_anchor_generator,
         )
     if use_supervised:
         assert replay_tensor is not None
@@ -877,10 +883,13 @@ def train_one_epoch(
             assert pairwise_baseline_tensor is not None
             assert pairwise_replay_tensor is not None
             assert pairwise_permutation is not None
+            assert pairwise_generator is not None
             if use_supervised:
                 if pairwise_position + batch_size_actual > pairwise_permutation.size(0):
                     pairwise_permutation = torch.randperm(
-                        pairwise_replay_tensor.size(0), device=device
+                        pairwise_replay_tensor.size(0),
+                        device=device,
+                        generator=pairwise_generator,
                     )
                     pairwise_position = 0
                 pairwise_indexes = pairwise_permutation[
@@ -905,13 +914,16 @@ def train_one_epoch(
             assert behavior_anchor_legal_mask_all is not None
             assert behavior_anchor_replay_tensor is not None
             assert behavior_anchor_permutation is not None
+            assert behavior_anchor_generator is not None
             anchor_count = batch_size_actual
             if (
                 behavior_anchor_position + anchor_count
                 > behavior_anchor_permutation.size(0)
             ):
                 behavior_anchor_permutation = torch.randperm(
-                    behavior_anchor_replay_tensor.size(0), device=device
+                    behavior_anchor_replay_tensor.size(0),
+                    device=device,
+                    generator=behavior_anchor_generator,
                 )
                 behavior_anchor_position = 0
             anchor_indexes = behavior_anchor_permutation[
@@ -1193,6 +1205,13 @@ def set_seed(seed: int):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+
+def auxiliary_rng(device: torch.device, seed: int) -> torch.Generator:
+    """Create an auxiliary-only deterministic stream without advancing global RNG."""
+    generator = torch.Generator(device=device)
+    generator.manual_seed(seed)
+    return generator
 
 
 def split_replay_positions_by_source_row(
