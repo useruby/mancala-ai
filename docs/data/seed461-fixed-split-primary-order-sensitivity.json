@@ -1,0 +1,37 @@
+{
+  "schema": "seed461-fixed-split-primary-order-sensitivity-v1",
+  "semantic_identity": "seed461-fixed-split-primary-order-sensitivity",
+  "classification": "blind_suite_registration_failure",
+  "classification_reason": "The required independent non-promotion opening suite was not registered before O1-O5 treatment execution. No arena, canonical, or functional strength interpretation is valid under the preregistered protocol.",
+  "frozen_inputs": {
+    "generation": "seed455-nextgen-s461-default-value-root16",
+    "fresh_replay_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+    "training_seed": 461,
+    "replay_weights": [1, 4, 1, 8, 4]
+  },
+  "backward_compatibility": {
+    "status": "exact",
+    "O0_epoch_checkpoint_sha256": {
+      "E1": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+      "E2": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+      "E3": "9d3db177d22f12b0c8952233f3fc6c5dad5b0529f3990932699e8839afa0d2b8",
+      "E4": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "selected": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488"
+    }
+  },
+  "treatment_orders": {
+    "O1": 38201,
+    "O2": 38202,
+    "O3": 38203,
+    "O4": 38204,
+    "O5": 38205
+  },
+  "scope": {
+    "alternate_training_runs_completed": 5,
+    "self_play_games": 0,
+    "arena_games": 0,
+    "canonical_games": 0,
+    "promotions": 0
+  },
+  "required_next_action": "Discard this treatment set for scientific strength comparison. Register the blind suite before any future independently authorized treatment execution."
+}
