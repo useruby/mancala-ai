@@ -175,12 +175,14 @@ def classify(result: dict[str, Any]) -> str:
         < 0.03
         for item in failures
     )
-    if common:
-        return "shared_trunk_conflict_common_to_all_generations"
-    if more_conflict:
-        return "shared_trunk_policy_value_conflict_failure_signature"
+    # A failure signature is more specific than common conflict rates.  In
+    # particular, equal conflict fractions must not hide value dominance.
     if dominance:
         return "shared_trunk_value_gradient_dominance_failure_signature"
+    if more_conflict:
+        return "shared_trunk_policy_value_conflict_failure_signature"
+    if common:
+        return "shared_trunk_conflict_common_to_all_generations"
     return "policy_value_gradient_conflict_no_clear_signal"
 
 
@@ -353,6 +355,12 @@ def run_cohort(name: str, spec: dict[str, Any], workdir: Path) -> dict[str, Any]
         raise RuntimeError(
             f"gradient_audit_training_reproduction_drift:{name}:{epochs}"
         )
+    trace_path = workdir / name / "chronological_gradient_trace.jsonl"
+    trace_path.parent.mkdir(parents=True, exist_ok=True)
+    trace_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in traces),
+        encoding="utf-8",
+    )
     return {
         "generation": spec["generation"],
         "fresh_sha256": sha256(spec["fresh"]),
@@ -362,6 +370,11 @@ def run_cohort(name: str, spec: dict[str, Any], workdir: Path) -> dict[str, Any]
         "reproduction": "exact",
         "permutation_sha256": permutations,
         "steps": len(traces),
+        "chronological_trace": {
+            "path": str(trace_path),
+            "sha256": sha256(trace_path),
+            "steps": len(traces),
+        },
         "epoch_all": aggregate_by_epoch(traces, "all"),
         "epoch_high": aggregate_by_epoch(
             [row for row in traces if row["high"] is not None], "high"

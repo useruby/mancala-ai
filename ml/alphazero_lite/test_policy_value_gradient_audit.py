@@ -6,6 +6,7 @@ from ml.alphazero_lite.policy_value_gradient_audit import (
     gradient_metrics,
     parameter_groups,
 )
+from ml.alphazero_lite.run_policy_value_shared_trunk_gradient_audit import classify
 from ml.alphazero_lite.train import PolicyValueNet
 from ml.alphazero_lite.train import checkpoint_from_model, set_seed, train
 
@@ -30,6 +31,23 @@ def test_weighted_value_scale_is_reflected() -> None:
     result = gradient_metrics((torch.tensor([1.0]),), (0.3 * value,), (value,))
     assert result["value_weighted_norm"] == pytest.approx(0.9)
     assert result["value_raw_norm"] == pytest.approx(3.0)
+
+
+def test_classifier_prefers_value_dominance_when_conflict_rates_are_equal() -> None:
+    def epoch(conflict_fraction: float, ratio: float) -> dict[str, float]:
+        return {
+            "conflict_fraction": conflict_fraction,
+            "mean_value_policy_norm_ratio": ratio,
+        }
+
+    result = {
+        "cohorts": {
+            "S455": {"epoch_high": {f"E{i}": epoch(0.25, 1.0) for i in range(1, 5)}},
+            "F461": {"epoch_high": {f"E{i}": epoch(0.25, 2.1) for i in range(1, 5)}},
+            "U467": {"epoch_high": {f"E{i}": epoch(0.25, 2.1) for i in range(1, 5)}},
+        }
+    }
+    assert classify(result) == "shared_trunk_value_gradient_dominance_failure_signature"
 
 
 def test_parameter_groups_are_complete_and_heads_are_not_trunk() -> None:
