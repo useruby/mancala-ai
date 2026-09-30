@@ -1,0 +1,40 @@
+{
+  "schema": "seed461_order_exploratory_results_v1",
+  "status": "exploratory_not_sealed_v2_confirmation",
+  "classification": "material_order_sensitivity_exploratory",
+  "classification_reason": "T3 and T4 have absolute E4-minus-O0 effects of at least 0.05 and Bonferroni-adjusted 99% intervals excluding zero. The recovered consumed suites are not historical identities, so this result is not confirmatory.",
+  "registered_manifest_sha256": "e5fce1237479c5d137153d18ec9f624997d0c843b97d5fb424f206c8a5d9c359",
+  "opening_suite_sha256": "f12482ebeef753fd942531dfb0c8c3953a26e10963acf57c0d43d30b5df6b858",
+  "training": {
+    "artifact": ".tmp/seed461-order-exploratory/training.json",
+    "sha256": "e4c407da178035ea64bd06b08aab1781e6dcef88b3c9fe4a5c59d84d3c2fa9e5",
+    "wall_clock_seconds": 111.17838340392336,
+    "o0_epoch_hashes_reproduced": true
+  },
+  "arena": {
+    "games": 6144,
+    "contract": "arena-native-runtime-contract-v1",
+    "simulations_per_side": 384,
+    "exact_root_threshold": 16,
+    "reports": ".tmp/seed461-order-exploratory/arena",
+    "analysis_sha256": "e31dc715148de090b6644c5ef6d4465d1d0f48109ccff9238f818a6ddfb72117"
+  },
+  "primary_e4_minus_o0": {
+    "bootstrap": {"samples": 10000, "seed": 382, "interval": "Bonferroni-adjusted 99%"},
+    "T1": {"estimate": 0.01171875, "interval": [-0.0419931640625, 0.0654296875]},
+    "T2": {"estimate": -0.0009765625, "interval": [-0.0283203125, 0.0234384765625002]},
+    "T3": {"estimate": -0.0791015625, "interval": [-0.1298837890625, -0.0302724609374998]},
+    "T4": {"estimate": 0.1015625, "interval": [0.0625, 0.142578125]},
+    "T5": {"estimate": 0.0009765625, "interval": [-0.0595703125, 0.0615244140625002]}
+  },
+  "secondary_e4_minus_e1": {
+    "O0": -0.08984375,
+    "T1": -0.064453125,
+    "T2": -0.0576171875,
+    "T3": -0.1806640625,
+    "T4": 0.03515625,
+    "T5": -0.0419921875
+  },
+  "limitation": "Historical consumed suites A-AP and their original replay exclusions were unavailable. The replacement registry is a deterministic exploratory substitute and does not establish historical-suite non-overlap.",
+  "next_experimental_axis": "Restore the original consumed-suite artifacts, then repeat this exact registered protocol as a sealed confirmation."
+}

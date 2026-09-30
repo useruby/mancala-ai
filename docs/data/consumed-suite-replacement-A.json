@@ -1,0 +1,24 @@
+{
+  "schema": "consumed_opening_suite_replacement_v1",
+  "label": "A",
+  "status": "replacement_not_original",
+  "path": ".tmp/consumed-suite-recovery/replacement/suite_A.jsonl",
+  "sha256": "e28edd555c73c5a4692b88c0f4c8755b99b6a97eeb03e52da3d69e36428d8737",
+  "opening_count": 128,
+  "selection": {
+    "source_population": "run_pr249_fresh_suite_generalization.all_openings",
+    "selector": "build_opening_suite.select_diverse",
+    "seed": 1042,
+    "excluded_canonical_suite_sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+  },
+  "historical_identity": {
+    "expected_sha256": "c8277e659c7a4e137140d83c187781f40e6b25c4b1dff5ec4da3f2e09fdcc6ab",
+    "match": false,
+    "reason": "The historical PR249 replay-state exclusions are unavailable."
+  },
+  "use_limitations": [
+    "This artifact is not the original consumed suite A.",
+    "It cannot establish non-overlap with the unavailable historical consumed suites.",
+    "It must not be used to unseal or confirm the seed461 batch-order sensitivity v2 protocol."
+  ]
+}
