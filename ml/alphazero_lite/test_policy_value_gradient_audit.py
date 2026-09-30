@@ -50,6 +50,46 @@ def test_classifier_prefers_value_dominance_when_conflict_rates_are_equal() -> N
     assert classify(result) == "shared_trunk_value_gradient_dominance_failure_signature"
 
 
+def test_classifier_preserves_published_common_fixture() -> None:
+    # Published S455/F461/U467 high-stone summaries, retaining their recorded
+    # common classification despite residual epoch-level conflict differences.
+    summaries = {
+        "S455": [
+            (0.292593, 0.066547),
+            (0.303704, 0.071165),
+            (0.329630, 0.068451),
+            (0.325926, 0.066619),
+        ],
+        "F461": [
+            (0.304183, 0.069626),
+            (0.281369, 0.071452),
+            (0.376426, 0.069248),
+            (0.326996, 0.067239),
+        ],
+        "U467": [
+            (0.338403, 0.069218),
+            (0.346008, 0.067754),
+            (0.300380, 0.066277),
+            (0.342205, 0.067647),
+        ],
+    }
+    result = {
+        "cohorts": {
+            name: {
+                "epoch_high": {
+                    f"E{epoch}": {
+                        "conflict_fraction": conflict,
+                        "mean_value_policy_norm_ratio": ratio,
+                    }
+                    for epoch, (conflict, ratio) in enumerate(values, start=1)
+                }
+            }
+            for name, values in summaries.items()
+        }
+    }
+    assert classify(result) == "shared_trunk_conflict_common_to_all_generations"
+
+
 def test_parameter_groups_are_complete_and_heads_are_not_trunk() -> None:
     model = PolicyValueNet((8, 3), "residual_v3", 21)
     groups = parameter_groups(model)

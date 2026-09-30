@@ -1,0 +1,24 @@
+{
+  "schema": "seed461-order-evaluation-identity-amendment-v1",
+  "timing": "after_training_before_arena_games",
+  "original_registration": {
+    "path": "docs/data/seed461-batch-order-sensitivity-confirmation.json",
+    "sha256": "fae923e79ef7ec162fbe212b6aa77729df57fae498f9ba88c208ba3dc8db627e"
+  },
+  "completed_training": {
+    "path": ".tmp/seed461-order-confirmation/training.json",
+    "sha256": "6d290f345d583d2054494da18bc2773275628a52e2fbf158ca0a0042b70b32c5",
+    "o0_e1_e4_reproduced": true
+  },
+  "opponent": {
+    "version": "seed48-nextgen-s455-default-value-iter1",
+    "source_directory": ".tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1",
+    "checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "runtime_sidecar_snapshot": ".tmp/seed461-order-confirmation/opponent-snapshot/search_policy.json",
+    "runtime_sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "native_probe": {"path": "model-artifact/runtime/kalah_v1_tablebase", "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"},
+    "tablebase": {"path": "model-artifact/runtime/kalah_v1_21.kvtb", "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"}
+  }
+}

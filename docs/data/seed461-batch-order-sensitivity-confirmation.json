@@ -1,0 +1,122 @@
+{
+  "analysis": {
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 383,
+    "interval": "Bonferroni-adjusted 99%",
+    "primary": "five paired E4-minus-O0 contrasts"
+  },
+  "evaluation": {
+    "both_seats_per_opening": true,
+    "extensions": "forbidden",
+    "games": 6144,
+    "opponent": "frozen_seed455",
+    "simulations_per_side": 384
+  },
+  "population_coverage": {
+    "canonical": {
+      "members": 128,
+      "path": "/home/alex/Mancala/ai/.tmp/canonical-reconstruction/medium_eval.jsonl",
+      "sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+    },
+    "claim": "A-AP are covered by the complete PR249 source population; this is a conservative superset proof, not suite reconstruction.",
+    "exclusion_counts": {
+      "frozen_replays": 62330,
+      "pr249_population": 28961,
+      "pr382_exploratory": 256,
+      "union": 88784
+    },
+    "historical_source_population": {
+      "function": "run_pr249_fresh_suite_generalization.all_openings",
+      "source_runners": {
+        "A-C": "run_pr249_fresh_suite_generalization.py",
+        "AB-AD": "run_pr260_value_head_refresh.py",
+        "AE-AG": "run_pr261_policy_representation.py",
+        "AH-AJ": "run_pr262_policy_hidden_capacity.py",
+        "AK-AM": "run_pr264_joint_alphazero_iteration.py",
+        "AN-AP": "run_pr265_unique_data_scale.py",
+        "D-F": "run_pr251_cross_seed_strength_residual_transfer.py",
+        "G-I": "run_pr252_phase_target_delta_attribution.py",
+        "J-L": "run_pr253_semantic_receiver_target_surgery.py",
+        "M-R": "run_pr254_third_seed_budget_replay.py",
+        "S-U": "run_pr256_fresh768_replay_replication.py",
+        "V-X": "run_pr258_two_replay_aggregation.py",
+        "Y-AA": "run_pr259_two_replay_second_epoch.py"
+      },
+      "unique_state_identities": 28961
+    },
+    "holdout": {
+      "active_pit_stones_gt": 32,
+      "nonterminal": true,
+      "openings": 256,
+      "overlap_with_exclusion_union": 0,
+      "path": "docs/data/seed461-batch-order-sensitivity-confirmation-openings.jsonl",
+      "seed": 383,
+      "sha256": "13d2d1d9770b05fb241ea9625b34916edbf81f178ed1c4bbe9b880bb2bf5746e",
+      "unique_identities": 256
+    },
+    "schema": "seed461-order-population-coverage-v1"
+  },
+  "schema": "seed461-batch-order-sensitivity-confirmation-v1",
+  "status": "registered_before_training",
+  "training": {
+    "batch_size": 512,
+    "epochs": 4,
+    "expected_o0": {
+      "E1": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+      "E2": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+      "E3": "9d3db177d22f12b0c8952233f3fc6c5dad5b0529f3990932699e8839afa0d2b8",
+      "E4": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4"
+    },
+    "lr": 0.001,
+    "orders": {
+      "O0": null,
+      "T1": 38311,
+      "T2": 38312,
+      "T3": 38313,
+      "T4": 38314,
+      "T5": 38315
+    },
+    "parent": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz",
+    "parent_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "replays": [
+      {
+        "name": "fresh",
+        "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+        "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+        "value_target_mode": "default",
+        "weight": 1
+      },
+      {
+        "name": "generic_bootstrap",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+        "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      },
+      {
+        "name": "random_teacher",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+        "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+        "value_target_mode": "sharpened",
+        "weight": 1
+      },
+      {
+        "name": "opening_disagreement",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+        "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+        "value_target_mode": "sharpened",
+        "weight": 8
+      },
+      {
+        "name": "stability",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+        "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      }
+    ],
+    "seed": 461,
+    "selection": "best_validation",
+    "validation_split": 0.1
+  }
+}

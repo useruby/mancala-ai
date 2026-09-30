@@ -175,14 +175,15 @@ def classify(result: dict[str, Any]) -> str:
         < 0.03
         for item in failures
     )
-    # A failure signature is more specific than common conflict rates.  In
-    # particular, equal conflict fractions must not hide value dominance.
+    # Value dominance is the most specific failure signature.  Otherwise,
+    # preserve the historical common-conflict finding before considering a
+    # residual conflict-rate signature.
     if dominance:
         return "shared_trunk_value_gradient_dominance_failure_signature"
-    if more_conflict:
-        return "shared_trunk_policy_value_conflict_failure_signature"
     if common:
         return "shared_trunk_conflict_common_to_all_generations"
+    if more_conflict:
+        return "shared_trunk_policy_value_conflict_failure_signature"
     return "policy_value_gradient_conflict_no_clear_signal"
 
 
