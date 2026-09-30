@@ -1,0 +1,244 @@
+{
+  "absolute_scores_vs_seed455": {
+    "38411": {
+      "A_lr_0.001": 0.4814453125,
+      "B_lr_0.0005": 0.6015625
+    },
+    "38412": {
+      "A_lr_0.001": 0.599609375,
+      "B_lr_0.0005": 0.759765625
+    },
+    "38413": {
+      "A_lr_0.001": 0.498046875,
+      "B_lr_0.0005": 0.6015625
+    },
+    "38414": {
+      "A_lr_0.001": 0.541015625,
+      "B_lr_0.0005": 0.455078125
+    },
+    "38415": {
+      "A_lr_0.001": 0.541015625,
+      "B_lr_0.0005": 0.560546875
+    }
+  },
+  "another_dataset_generation_replication_required_before_production_adoption": true,
+  "between_order_spread": {
+    "A_range": 0.1181640625,
+    "B_range": 0.3046875,
+    "decreased": false,
+    "definition": "range of five absolute opening scores"
+  },
+  "bootstrap": {
+    "cluster": "opening, shared across all order pairs",
+    "confidence": 0.95,
+    "lower": 0.0458984375,
+    "samples": 10000,
+    "seed": 384,
+    "upper": 0.0810546875
+  },
+  "decision": "reject_lr_0.0005_retain_lr_0.001",
+  "decision_gates": {
+    "at_least_four_nonnegative_pairs": true,
+    "lower_bound_above_zero": true,
+    "mean_at_least_0.03": true,
+    "no_pair_below_minus_0.05": false,
+    "nonnegative_pairs": 4,
+    "worst_pair": -0.0859375
+  },
+  "decision_reason": "A paired order regressed by more than 0.05 and between-order spread increased",
+  "evidence_identity": {
+    "evaluation_binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+    "opponent_metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "opponent_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "opponent_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+    "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+    "training_amendment_sha256": "90e241b75780b7314f1c6e54caeebd39c91f8d77381874eaada41cae31949a1a",
+    "training_record_sha256": "8bcdf12d69663332db6f3af6928b7a4fc6f0910d10e548e0e06306ce06cd77b0"
+  },
+  "game_count": 5120,
+  "inference_scope": "conditional on these five order seeds and this frozen dataset",
+  "pair_invariants": {
+    "initialization_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "replay_multiplicity_sha256": "5a294a28065397addb8b13f7bf78a98ab2adb0dd549e374a824b9a35e0158294",
+    "split_membership_sha256": "9a7abb86f4f5b207c520517de56246a07942c9ba989e4716c64fa0ddffe43a57",
+    "train_split_count": "134451",
+    "validation_count": "14997"
+  },
+  "paired_order_effects": {
+    "38411": 0.1201171875,
+    "38412": 0.16015625,
+    "38413": 0.103515625,
+    "38414": -0.0859375,
+    "38415": 0.01953125
+  },
+  "primary_endpoint": "mean of five order-paired B-minus-A opening-score differences",
+  "primary_mean": 0.0634765625,
+  "provenance": {
+    "order_38411_A": {
+      "absolute_score": 0.4814453125,
+      "candidate_weights_sha256": "cf9719311edcee395d1314e561c8b60f5936672305a42cab3a95212a12b5e894",
+      "checkpoint_sha256": "4cdeb2c3038948cf40d64c3fd21d7c303c8b881bb733648bd255754654a71635",
+      "games_sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a",
+      "report_sha256": "b04d4393949d2ebb2f2a57d2e420d1a11a3293055bb8f9c861058a164fde7fa6",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E4",
+      "validation_total_loss_by_epoch": [
+        1.0250728130340576,
+        1.0278464555740356,
+        1.0178284645080566,
+        1.0148175954818726
+      ]
+    },
+    "order_38411_B": {
+      "absolute_score": 0.6015625,
+      "candidate_weights_sha256": "4e962c0820785b0d296bca72790f320ffe361078c51ad62627d9c25b27774dfd",
+      "checkpoint_sha256": "b4730690b06ed46e0509b3064a18b8b45e88b45b33344830df041dd814336c8d",
+      "games_sha256": "0b8533f9695d248fa038e7dff635c9353f34a9c21e21415f02ec52170e6c2161",
+      "report_sha256": "22327c326d40a5aa16a202adaec6e0def4ec39b4d6c54645c7ee125012c0b945",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E2",
+      "validation_total_loss_by_epoch": [
+        1.0106253623962402,
+        1.007973313331604,
+        1.0138310194015503,
+        1.008248209953308
+      ]
+    },
+    "order_38412_A": {
+      "absolute_score": 0.599609375,
+      "candidate_weights_sha256": "62d65e1db923d304fbc7816aafe832a079077afb69527db5563b9a60100f0eb1",
+      "checkpoint_sha256": "5f05518a3d23befe8e5763bac90ea89efc194f78487f56ba909ecf361c0b7364",
+      "games_sha256": "859ac1487327a59cc9427294860ea98af9e2987c22838f0b4ccda0948c7e2e62",
+      "report_sha256": "277f593de71379151260f712e98b9749a91e90ff4063d01ac4662b95e506d45a",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E1",
+      "validation_total_loss_by_epoch": [
+        1.0205950736999512,
+        1.0307831764221191,
+        1.0385322570800781,
+        1.0236996412277222
+      ]
+    },
+    "order_38412_B": {
+      "absolute_score": 0.759765625,
+      "candidate_weights_sha256": "823417a84ae0abd10663185efb99b6fedcbcdb93dc67610219ea0ca110d86135",
+      "checkpoint_sha256": "744d55dd25e1295e4bb6c56fb209113e22b61f9f2d5870995b3637909cb90947",
+      "games_sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0",
+      "report_sha256": "e6d7ad6371a072a37a76dbde0a577888b3f5f949b7848331cb7d0da120c6e1ae",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E4",
+      "validation_total_loss_by_epoch": [
+        1.0121241807937622,
+        1.0097012519836426,
+        1.011448860168457,
+        1.007882833480835
+      ]
+    },
+    "order_38413_A": {
+      "absolute_score": 0.498046875,
+      "candidate_weights_sha256": "892db706001efbb25f3149992bb71560d35e88d9b66d49d622db33c9f73f172c",
+      "checkpoint_sha256": "7b834d60c1e6c1cf5a28da77698efaab74ea5c8ba203193ceaca9e410e1c6d2e",
+      "games_sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613",
+      "report_sha256": "786685f9b7f3fac814de1e75f6723322ddc08fb86c64b383d0883683242b8eb3",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E4",
+      "validation_total_loss_by_epoch": [
+        1.041723370552063,
+        1.0227466821670532,
+        1.0244197845458984,
+        1.0122747421264648
+      ]
+    },
+    "order_38413_B": {
+      "absolute_score": 0.6015625,
+      "candidate_weights_sha256": "504ba5457d99178efc23763fa1ee00b736ba71f97d67621220e1646c5fb96fbb",
+      "checkpoint_sha256": "75039037c8be42da421ed9ba5497cc5b7e6315e5cfbd75c9ed2466d75098bd06",
+      "games_sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336",
+      "report_sha256": "d63b86255d45b9ff2530cae49bb781666a2557e5a78709b0b9debee5f1a33165",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E4",
+      "validation_total_loss_by_epoch": [
+        1.0133470296859741,
+        1.006998062133789,
+        1.0126192569732666,
+        1.00566828250885
+      ]
+    },
+    "order_38414_A": {
+      "absolute_score": 0.541015625,
+      "candidate_weights_sha256": "3436a1b0fb2bbbba66d107c29d62dbc5e5d25bc743f29e1bc0bf145f7a363561",
+      "checkpoint_sha256": "b78a769bf98d7b86e1450b1bef0852c1c8a559d584a4b5fc6a6f6f7627332b61",
+      "games_sha256": "4c8b4b74f608095767b2a09b748d22012b7b00ac9b150fcc2bc083b4bcf1fbe7",
+      "report_sha256": "29fbcdbe755ae7dc87767957578795a956ea77b8eef6fae302b8c3547d01adc8",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E2",
+      "validation_total_loss_by_epoch": [
+        1.0202151536941528,
+        1.019068717956543,
+        1.034318208694458,
+        1.029291033744812
+      ]
+    },
+    "order_38414_B": {
+      "absolute_score": 0.455078125,
+      "candidate_weights_sha256": "9e2032e743c24dac8c24fb800dd42f460e759dd36dbc8e88b2582c14d803b13f",
+      "checkpoint_sha256": "79d43bb1a9b73fd5ecff781696ba97a2111e3e73dd4ff60972bc7589be2bf16e",
+      "games_sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec",
+      "report_sha256": "f48821fd92d8c8d18bde7ed3852b1b6fa744bad92ef064ebfe34d2909edac1e3",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E4",
+      "validation_total_loss_by_epoch": [
+        1.0080194473266602,
+        1.010417103767395,
+        1.012657880783081,
+        1.0053977966308594
+      ]
+    },
+    "order_38415_A": {
+      "absolute_score": 0.541015625,
+      "candidate_weights_sha256": "6bbc9dc860f9ea350c0dbcd85adf5b100bd052808a3c4e94b9a4c2d0ce03d048",
+      "checkpoint_sha256": "f186fb738d2614eee44a93367ca7a17ff188a18b401d37e4f131a6832bc6ec60",
+      "games_sha256": "bec2a0d67433a8739e356ef50a04c50d8f408dafba462a9cd766228f6de901a6",
+      "report_sha256": "31e15a51d5343173b6e8025895ce60cc79aa83d5b2cc089f1c4e5a32ff4a53de",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E3",
+      "validation_total_loss_by_epoch": [
+        1.02392578125,
+        1.0271666049957275,
+        1.0227025747299194,
+        1.024324893951416
+      ]
+    },
+    "order_38415_B": {
+      "absolute_score": 0.560546875,
+      "candidate_weights_sha256": "a19613f798c674c952b21823b6301bb7febe0fdd1cff2b90ccf57abdfa45902f",
+      "checkpoint_sha256": "c9a75deac35bf0a259fe22b0f816da7d83f7fad94dc4a6630d90483df8c23e99",
+      "games_sha256": "713a1538ec5e7b7c7e4a74d8cda5a110f57afcc1fb0bf723f0cff32c1c5eb948",
+      "report_sha256": "3b6076bebb82a8ef7bbd1ca0b445876f6c5d342bcc4a610e9715ada11fb090ec",
+      "runtime_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "selected_epoch": "E2",
+      "validation_total_loss_by_epoch": [
+        1.0132535696029663,
+        1.0068358182907104,
+        1.0069085359573364,
+        1.013193964958191
+      ]
+    }
+  },
+  "schema": "seed461-lr-sensitivity-results-v1",
+  "selected_epochs": {
+    "order_38411_A": "E4",
+    "order_38411_B": "E2",
+    "order_38412_A": "E1",
+    "order_38412_B": "E4",
+    "order_38413_A": "E4",
+    "order_38413_B": "E4",
+    "order_38414_A": "E2",
+    "order_38414_B": "E4",
+    "order_38415_A": "E3",
+    "order_38415_B": "E2"
+  },
+  "stability_claim": "not supported: between-order spread did not decrease",
+  "status": "completed_fixed_budget"
+}
