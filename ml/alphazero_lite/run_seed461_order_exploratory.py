@@ -150,7 +150,9 @@ def load_registered(path: Path) -> dict[str, Any]:
     return manifest
 
 
-def train_one(manifest: dict[str, Any], label: str) -> dict[str, Any]:
+def train_one(
+    manifest: dict[str, Any], label: str, lr: float = 0.001
+) -> dict[str, Any]:
     spec = manifest["training"]
     paths = [Path(row["path"]) for row in spec["replays"]]
     train.set_seed(461)
@@ -186,7 +188,7 @@ def train_one(manifest: dict[str, Any], label: str) -> dict[str, Any]:
         policy_loss_weights=weights,
         epochs=4,
         batch_size=512,
-        lr=0.001,
+        lr=lr,
         device=torch.device("cpu"),
         value_loss_weight=0.3,
         value_loss="huber",

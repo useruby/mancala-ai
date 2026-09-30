@@ -1,0 +1,99 @@
+{
+  "checkpoints": {
+    "order_38411_A": {
+      "epochs": {
+        "E1": "f413732347078dab4a43e3986766c694a26a535a37df375d63f7935aebf2eb57",
+        "E2": "1e0e8af293804b7a34f75271a7251d736b79370801f11fa08174ad3015790faa",
+        "E3": "c16a403298f9a362097d245bc93d4036aeac763125cd9dc0b7fdc433600e7462",
+        "E4": "4cdeb2c3038948cf40d64c3fd21d7c303c8b881bb733648bd255754654a71635"
+      },
+      "selected_sha256": "4cdeb2c3038948cf40d64c3fd21d7c303c8b881bb733648bd255754654a71635"
+    },
+    "order_38411_B": {
+      "epochs": {
+        "E1": "1c3d0fd4c4b5d049face87d65da584362f9d2686b162e7cb026fbc5d61aa47dc",
+        "E2": "b4730690b06ed46e0509b3064a18b8b45e88b45b33344830df041dd814336c8d",
+        "E3": "8a5d63b57e39784a34798deb9bf1d0f0184869813501c3e32e66986da539d59d",
+        "E4": "0c101345b535f69315ddcf9af89ea8e5fe5c3f6ac1ed05d8ab3eeccfd0ab60dd"
+      },
+      "selected_sha256": "b4730690b06ed46e0509b3064a18b8b45e88b45b33344830df041dd814336c8d"
+    },
+    "order_38412_A": {
+      "epochs": {
+        "E1": "5f05518a3d23befe8e5763bac90ea89efc194f78487f56ba909ecf361c0b7364",
+        "E2": "9eff72eace8e84142a9d681198cb738493d3b6a2eb98718c736ab9d1cb47ca28",
+        "E3": "f2eba5775dbc411ae40060c89977df9e57f37c9072df578e34877ddc27945ccf",
+        "E4": "3f5ced69efbc5fadf46e8c956867ffed6d815dd2ef3b7a018932a05f1f4c8d73"
+      },
+      "selected_sha256": "5f05518a3d23befe8e5763bac90ea89efc194f78487f56ba909ecf361c0b7364"
+    },
+    "order_38412_B": {
+      "epochs": {
+        "E1": "d0d538d186a6565a244c75b35638d91c4ef4c7f4aa3d8fb97913e69936a23fe6",
+        "E2": "f89923b6cb5c477a3d35b7a4f03dab9a2e3f18f0478a0640add298235353b048",
+        "E3": "6b1a5698f07b9b91abf705f83ae1c55f6d88c5b6ac82ac01c9721543dc28d2fa",
+        "E4": "744d55dd25e1295e4bb6c56fb209113e22b61f9f2d5870995b3637909cb90947"
+      },
+      "selected_sha256": "744d55dd25e1295e4bb6c56fb209113e22b61f9f2d5870995b3637909cb90947"
+    },
+    "order_38413_A": {
+      "epochs": {
+        "E1": "9cb9e67b8050fccc3641f954df1dcc993b8028e04639e19405476a9492209f99",
+        "E2": "5c5584be0bcbff76dc2fb79ff121de37950e730f6dbf77ac521bc16041b0a5ff",
+        "E3": "b43b96e660f37fc2f159c42856859a248ca2d2ae7ce0cd5f165991ada069a4d5",
+        "E4": "7b834d60c1e6c1cf5a28da77698efaab74ea5c8ba203193ceaca9e410e1c6d2e"
+      },
+      "selected_sha256": "7b834d60c1e6c1cf5a28da77698efaab74ea5c8ba203193ceaca9e410e1c6d2e"
+    },
+    "order_38413_B": {
+      "epochs": {
+        "E1": "e0d9f1411bbb9bf097fa8aaf63cf98d18e7aae90219101d2c2fe737addb1b3eb",
+        "E2": "7b6ed0c6b0ea4191d7cb2ba0ad3f6aabd0bf335eef7158b6d13579a7008ae564",
+        "E3": "c2dee4e47a7dbbf94c17c6aa490fb4643430bec608d342c4125b8d8f5a300a2b",
+        "E4": "75039037c8be42da421ed9ba5497cc5b7e6315e5cfbd75c9ed2466d75098bd06"
+      },
+      "selected_sha256": "75039037c8be42da421ed9ba5497cc5b7e6315e5cfbd75c9ed2466d75098bd06"
+    },
+    "order_38414_A": {
+      "epochs": {
+        "E1": "4cdb4f32f3cbe7679a6351b17617873f5b41ab08eda73a909c8685445b1cfff4",
+        "E2": "b78a769bf98d7b86e1450b1bef0852c1c8a559d584a4b5fc6a6f6f7627332b61",
+        "E3": "46ba1d246c2e267cc19c40917726bec9e01dc654e151e27ddb595dcfd19d32b2",
+        "E4": "7cde87d13b0c7ed1e023bcde8411b26cf2961fc0f304a042e5de72a6588bee21"
+      },
+      "selected_sha256": "b78a769bf98d7b86e1450b1bef0852c1c8a559d584a4b5fc6a6f6f7627332b61"
+    },
+    "order_38414_B": {
+      "epochs": {
+        "E1": "d44e9a1ccc87bb8dff13caeeab24fa909d4635718be8926eb0cd5197cc41d333",
+        "E2": "461d2e5f88a6193379f3dca8c5017f7df1d44e7322114125826b431d257394d6",
+        "E3": "0252cccbaa11d62cd898c895fd4df032ea1482f528ce11c2ef4e31d8684f3c2b",
+        "E4": "79d43bb1a9b73fd5ecff781696ba97a2111e3e73dd4ff60972bc7589be2bf16e"
+      },
+      "selected_sha256": "79d43bb1a9b73fd5ecff781696ba97a2111e3e73dd4ff60972bc7589be2bf16e"
+    },
+    "order_38415_A": {
+      "epochs": {
+        "E1": "1ce5203c20f7540aafe2b6b9b1af303f4a6b71700d842aabd2905d510edd5d1d",
+        "E2": "4baca697a41dc13975af51cd644ba605648d7ea105d5bfc13127cab21fc48caf",
+        "E3": "f186fb738d2614eee44a93367ca7a17ff188a18b401d37e4f131a6832bc6ec60",
+        "E4": "87b801c0e3e52e57f6d1e1491fb7a7a5e710a9de4478909a414786d146564b92"
+      },
+      "selected_sha256": "f186fb738d2614eee44a93367ca7a17ff188a18b401d37e4f131a6832bc6ec60"
+    },
+    "order_38415_B": {
+      "epochs": {
+        "E1": "88584aee3f3ea1e5ad7154ee2a1d478864ea882e4e4b3b5e07b4454c74023ae1",
+        "E2": "c9a75deac35bf0a259fe22b0f816da7d83f7fad94dc4a6630d90483df8c23e99",
+        "E3": "b8cd8bebf3c716ac0d1d8f45bc7be50b28088aa99b3e614db33e12868d4edeaa",
+        "E4": "7d776563506b336ec3fe8db9251f48b81062f13abfa549bba9a85525cbf1006a"
+      },
+      "selected_sha256": "c9a75deac35bf0a259fe22b0f816da7d83f7fad94dc4a6630d90483df8c23e99"
+    }
+  },
+  "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+  "schema": "seed461-lr-sensitivity-training-amendment-v1",
+  "timing": "after_training_before_evaluation",
+  "training_record": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/training.json",
+  "training_record_sha256": "8bcdf12d69663332db6f3af6928b7a4fc6f0910d10e548e0e06306ce06cd77b0"
+}
