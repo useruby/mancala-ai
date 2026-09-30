@@ -1,0 +1,40 @@
+{
+  "schema": "policy-value-shared-trunk-gradient-conflict-audit-v1",
+  "semantic_identity": "policy-value-shared-trunk-gradient-conflict-audit-v1",
+  "observer": "torch.autograd.grad pre-backward only; no .grad or optimizer mutation",
+  "classification": "shared_trunk_conflict_common_to_all_generations",
+  "classification_reason": "All trajectories have positive median high-stone policy/value cosine and overlapping 28-38% conflict fractions. The failed trajectories do not show a materially distinct or late-rising cancellation or value-scale pattern.",
+  "guardrails": {
+    "candidate_training": 0,
+    "self_play_games": 0,
+    "arena_games": 0,
+    "canonical_games": 0,
+    "promotions": 0
+  },
+  "cohorts": {
+    "S455": {
+      "generation": "seed48-nextgen-s455-default-value",
+      "seed": 455,
+      "fresh_sha256": "0628b7212e6a141138f1618250506d5b506e45fa0fd8c5b614917825ebffcd22",
+      "epoch_checkpoint_sha256": {"E1": "7777c49291bce498ba23461c28e6c32799eb9ec14eb889003c17d4bf2c559e75", "E2": "3efd725e2f873b16572feaf79f27d81344a99ea4ead48052a8be3f8ba19d0734", "E3": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1", "E4": "f531561bf303f0f14913f1cb47330823bff1e30e2abd11493d598327f0b22895"},
+      "high_stone_epoch": {"E1": [0.086809, 0.292593, 0.022222, 0.066547, 0.055183], "E2": [0.059010, 0.303704, 0.014815, 0.071165, 0.059540], "E3": [0.050949, 0.329630, 0.007407, 0.068451, 0.057801], "E4": [0.062650, 0.325926, 0.007407, 0.066619, 0.055973]}
+    },
+    "F461": {
+      "generation": "seed455-nextgen-s461-default-value-root16",
+      "seed": 461,
+      "fresh_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "epoch_checkpoint_sha256": {"E1": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc", "E2": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488", "E3": "9d3db177d22f12b0c8952233f3fc6c5dad5b0529f3990932699e8839afa0d2b8", "E4": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4"},
+      "high_stone_epoch": {"E1": [0.066200, 0.304183, 0.015209, 0.069626, 0.058695], "E2": [0.072759, 0.281369, 0.003802, 0.071452, 0.059329], "E3": [0.045379, 0.376426, 0.022814, 0.069248, 0.059474], "E4": [0.060703, 0.326996, 0.003802, 0.067239, 0.057160]}
+    },
+    "U467": {
+      "generation": "seed467-unanchored-control",
+      "seed": 467,
+      "fresh_sha256": "6f7038dccf282fb9365a031a06f8c5a8af4a2b8a6eda32725fe125b06d654a76",
+      "epoch_checkpoint_sha256": {"E1": "0ea38854e5610997080a419f6e6db1a181967a130eb5494e8ec31676c18ac3fe", "E2": "584b4861c818fcbdcd17ee0f95beb572b4db4a5eb15384149711f66fd608f7f3", "E3": "cc4534f980507d2332ef1cee59ce3abcdd860ac2513b010aa1305846e7d28360", "E4": "798b4654a5e16ceb4dd675193074b8150da83e1887d7c78202c1890d2ff71f2f"},
+      "high_stone_epoch": {"E1": [0.064420, 0.338403, 0.022814, 0.069218, 0.058430], "E2": [0.043734, 0.346008, 0.015209, 0.067754, 0.058245], "E3": [0.064361, 0.300380, 0.000000, 0.066277, 0.055466], "E4": [0.066494, 0.342205, 0.007605, 0.067647, 0.057231]}
+    }
+  },
+  "high_stone_epoch_columns": ["median_cosine", "conflict_fraction", "strong_conflict_fraction", "value_policy_norm_ratio", "cancellation_ratio"],
+  "per_step_summary": {"path": ".tmp/policy-value-gradient-audit/result.json", "sha256": "2b27313c68086c8f5a4b4e5e94b90a3866ff2f6bff133bb64ca6cb1919fca842"},
+  "next_experimental_axis": "optimizer/batch-order sensitivity with replicated deterministic permutations on one frozen dataset"
+}

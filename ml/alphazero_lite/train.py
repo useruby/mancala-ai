@@ -704,6 +704,7 @@ def train_one_epoch(
     step_observer: Callable[[str, dict[str, Any]], None] | None = None,
     loss_observer: Callable[[dict[str, Any]], None] | None = None,
     permutation_callback: Callable[[int | None, list[int]], None] | None = None,
+    primary_order_generator: torch.Generator | None = None,
     epoch: int | None = None,
     max_optimizer_updates: int | None = None,
 ) -> dict[str, float | None]:
@@ -805,7 +806,9 @@ def train_one_epoch(
         )
     if use_supervised:
         assert replay_tensor is not None
-        permutation = torch.randperm(replay_tensor.size(0), device=device)
+        permutation = torch.randperm(
+            replay_tensor.size(0), device=device, generator=primary_order_generator
+        )
     else:
         assert pairwise_replay_tensor is not None
         permutation = torch.randperm(pairwise_replay_tensor.size(0), device=device)
@@ -1287,6 +1290,7 @@ def train(
     step_observer: Callable[[str, dict[str, Any]], None] | None = None,
     loss_observer: Callable[[dict[str, Any]], None] | None = None,
     permutation_callback: Callable[[int | None, list[int]], None] | None = None,
+    primary_order_seed: int | None = None,
     epoch_callback: Callable[[int, torch.optim.Optimizer, nn.Module], None]
     | None = None,
     max_optimizer_updates: int | None = None,
@@ -1459,6 +1463,12 @@ def train(
         lr=lr,
         weight_decay=weight_decay,
     )
+    primary_order_generator = None
+    if primary_order_seed is not None:
+        # This stream owns only primary minibatch order. It deliberately does
+        # not participate in split formation, initialization, or auxiliaries.
+        primary_order_generator = torch.Generator(device=device.type)
+        primary_order_generator.manual_seed(primary_order_seed)
     normalized_lr_scheduler = normalize_lr_scheduler(lr_scheduler)
     scheduler = None
     if normalized_lr_scheduler == DEFAULT_LR_SCHEDULER:
@@ -1529,6 +1539,7 @@ def train(
             step_observer=step_observer,
             loss_observer=loss_observer,
             permutation_callback=permutation_callback,
+            primary_order_generator=primary_order_generator,
             epoch=epoch_idx,
             max_optimizer_updates=(
                 None
@@ -2260,6 +2271,12 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch-size", type=int, default=512)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--primary-order-seed",
+        type=int,
+        default=None,
+        help="Optional dedicated RNG seed for primary minibatch order only",
+    )
     parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument("--value-loss-weight", type=float, default=0.5)
     parser.add_argument(
@@ -2583,6 +2600,7 @@ def main() -> None:
         permutation_callback=(
             primary_permutation_audit if args.primary_sampling_audit_out else None
         ),
+        primary_order_seed=args.primary_order_seed,
         pairwise_x=pairwise_x,
         pairwise_preferred_moves=pairwise_preferred_moves,
         pairwise_baseline_moves=pairwise_baseline_moves,
@@ -2681,6 +2699,7 @@ def main() -> None:
                         ),
                     },
                     "epoch_permutations": primary_permutations,
+                    "primary_order_seed": args.primary_order_seed,
                     "optimizer_updates": int(last_train_metrics["optimizer_updates"]),
                     "lr_scheduler": args.lr_scheduler,
                     "behavior_stream_active": bool(args.behavior_loss_weight > 0.0),
