@@ -1,0 +1,69 @@
+{
+  "arena_reports": {
+    "O0-E1": "f0bcfc960c2e1177290066940d1d856c44f418d0ab30564478c3dc5366960bcf",
+    "O0-E4": "50cff13f00de841005eee4ed85d7e7c23a6adae212cc112091690551c2fd2806",
+    "T1-E1": "ebacb936a856b599606e01acf2e691d3c4d9bbc6d30eb2d341e47166c75a51dc",
+    "T1-E4": "1d0694e098afe20342636476200dc6beb66f03b02e44833327b80e0d3295ba5b",
+    "T2-E1": "8c7ba83e98f2c1b2d742a6253682283be69027e812815616b0b8a8a5dd8a06a7",
+    "T2-E4": "198cfed774e522d6a633fe03bdc841b85f395ae986d3768294839dab5c9401b2",
+    "T3-E1": "fb13ecebaab6e494042217aba73e6c8cd51ff97d689df0aad25f5b66f3ba5748",
+    "T3-E4": "a5e5ce14dfdf7004b1b4e0bc492416b1336fb28bfd22e386b7059c028b3b2ca0",
+    "T4-E1": "81601e1280071264c9405f01a6491dcc1d9847abd202f4b3e7b3ec3ca828e4e0",
+    "T4-E4": "113de415b89a8ba6b1f94a674416e58f0945d262cdd4540fdfd2e59d496667a3",
+    "T5-E1": "ec2a825b4939a76a2ef84a3432a561680233efb5e07f0be1bb9363ed3a80569a",
+    "T5-E4": "c42988d0f15e565808c19e31580795e1154f38cc971b0ff4ab69451ba55ce3b8"
+  },
+  "bootstrap": {
+    "interval": "Bonferroni-adjusted 99% (99.8% per contrast)",
+    "samples": 10000,
+    "seed": 383
+  },
+  "games": 6144,
+  "pairing": "two opposite challenger seats per opening",
+  "primary_e4_minus_o0": {
+    "T1": {
+      "estimate": 0.05078125,
+      "interval": [
+        0.0322255859375,
+        0.0703125
+      ]
+    },
+    "T2": {
+      "estimate": -0.091796875,
+      "interval": [
+        -0.1298828125,
+        -0.0585917968749996
+      ]
+    },
+    "T3": {
+      "estimate": 0.03515625,
+      "interval": [
+        -0.0009765625,
+        0.068359375
+      ]
+    },
+    "T4": {
+      "estimate": 0.08984375,
+      "interval": [
+        0.054685546875000005,
+        0.12890625
+      ]
+    },
+    "T5": {
+      "estimate": 0.1240234375,
+      "interval": [
+        0.056640625,
+        0.1904296875
+      ]
+    }
+  },
+  "schema": "seed461-order-confirmation-analysis-v1",
+  "secondary_e4_minus_e1": {
+    "O0": -0.091796875,
+    "T1": 0.060546875,
+    "T2": -0.107421875,
+    "T3": -0.037109375,
+    "T4": 0.1123046875,
+    "T5": 0.0849609375
+  }
+}
