@@ -10,6 +10,9 @@ from typing import Any
 import numpy as np
 
 from ml.alphazero_lite.seed461_arena_validation import validate_arena_evidence
+from ml.alphazero_lite.order38615_confirmation_validation import (
+    validate_confirmation_inputs,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
@@ -33,6 +36,7 @@ def analyze() -> dict[str, Any]:
     reg, candidate, binding = (
         json.loads(p.read_text()) for p in (REG, CANDIDATE, BINDING)
     )
+    validate_confirmation_inputs(REG, CANDIDATE, BINDING, reg, candidate, binding)
     if binding.get("status") != "completed_2048_games":
         raise ValueError("evaluation_not_complete")
     ev = reg["evaluation"]
@@ -174,9 +178,20 @@ def analyze() -> dict[str, Any]:
         "",
         f"Decision: **{results['decision']}**.",
         "",
+        "The candidate was selected after inspecting #386, #388, #389, and #390 results; those results are selection evidence only and are excluded from these estimates. No training or model export was performed. Rejections in #386, #388, #389, and #390 remain preserved.",
+        "",
+        f"Registration SHA-256: `{sha(REG)}`. Candidate binding SHA-256: `{sha(CANDIDATE)}`. Evaluation binding SHA-256: `{sha(BINDING)}`.",
+        "",
+        f"Fresh suite SHA-256 values: seed 391 `{ev['suites']['391']['sha256']}`; seed 392 `{ev['suites']['392']['sha256']}`.",
+        "",
         reg["analysis"]["scope"],
         "",
         f"Raw evidence is hash-bound by `order38615-a5-confirmation-opening-score-matrix.json` (SHA-256 `{sha(MATRIX)}`).",
+        "",
+        "Reproduce the point estimates and intervals from the registered opening-score matrix:",
+        "```sh",
+        ".venv/bin/python -m ml.alphazero_lite.reproduce_order38615_a5_confirmation docs/data/order38615-a5-confirmation-opening-score-matrix.json",
+        "```",
         "",
     ]
     RESULTS_MD.write_text("\n".join(lines))

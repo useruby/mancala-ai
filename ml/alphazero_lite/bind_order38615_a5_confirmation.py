@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 from typing import Any
 
-from ml.alphazero_lite.frozen_opponent_identity import validate_frozen_opponent_identity
+from ml.alphazero_lite.order38615_confirmation_validation import (
+    sha256_file,
+    validate_candidate_source,
+    validate_confirmation_inputs,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
@@ -17,7 +20,7 @@ EVALUATION_BINDING = DATA / "order38615-a5-confirmation-evaluation-binding.json"
 
 
 def sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return sha256_file(path)
 
 
 def save(path: Path, value: Any) -> None:
@@ -31,6 +34,7 @@ def save(path: Path, value: Any) -> None:
 def bind() -> None:
     reg = json.loads(REG.read_text())
     ev = reg["evaluation"]
+    validate_candidate_source(REG, reg)
     source = json.loads(Path(ev["candidate_binding_source"]).read_text())
     source_row = source["candidates"][ev["candidate"]]
     artifact = Path(source_row["artifact"])
@@ -43,9 +47,6 @@ def bind() -> None:
     if source_row["artifact_sha256"]["model.npz"] != sha(checkpoint):
         raise ValueError("candidate_model_checkpoint_mismatch")
     opponent = ev["opponent_binding"]
-    validate_frozen_opponent_identity(
-        Path(opponent["artifact"]), opponent, ev["runtime_contract"]
-    )
     candidate = {
         "schema": "order38615-a5-confirmation-candidate-binding-v1",
         "registration_sha256": sha(REG),
@@ -63,7 +64,18 @@ def bind() -> None:
         "opponent": opponent,
         "reports": {},
     }
-    save(EVALUATION_BINDING, evaluation)
+    if EVALUATION_BINDING.exists():
+        evaluation = json.loads(EVALUATION_BINDING.read_text())
+    else:
+        save(EVALUATION_BINDING, evaluation)
+    validate_confirmation_inputs(
+        REG,
+        CANDIDATE_BINDING,
+        EVALUATION_BINDING,
+        reg,
+        json.loads(CANDIDATE_BINDING.read_text()),
+        json.loads(EVALUATION_BINDING.read_text()),
+    )
     print(f"candidate_binding_sha256={sha(CANDIDATE_BINDING)}")
     print(f"evaluation_binding_sha256={sha(EVALUATION_BINDING)}")
 

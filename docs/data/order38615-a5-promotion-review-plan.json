@@ -1,0 +1,94 @@
+{
+  "schema": "order38615-a5-promotion-review-plan-v1",
+  "status": "prospective_frozen_before_evaluation",
+  "candidate": {
+    "checkpoint_sha256": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+    "artifact": ".tmp/seed461-e2-e4-average/artifacts/order_38615_A",
+    "weights_json_sha256": "73aa08979a1e05be9a83d8349aedd4a9913da224951feeeafe4d2d12df43675f",
+    "metadata_json_sha256": "5bddbc75be291d2b37cfd2257b7546e2b68f7b823c4692883b09e2f1ddadd37f",
+    "runtime_sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+  },
+  "incumbent": {
+    "artifact": "model-artifact/current",
+    "weights_json_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "metadata_json_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "runtime_sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+  },
+  "confirmation": {
+    "registration_sha256": "ef02fd57f638e7cf4f02030fae5c7da84b824f4d2c3192ee51b1ac629671c06f",
+    "candidate_binding_sha256": "31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a",
+    "evaluation_binding_sha256": "ebed6050dcf73d76fdf14438a74c3587a2a3a9a619de58ac0d7dc0da8f9f0239",
+    "opening_score_matrix_sha256": "17d8fe40ed83327b1f6ed2f93d6e149c74272212b9e097446546d2412d0df036",
+    "pooled_score": 0.634521484375,
+    "stratified_interval_95": [0.623046875, 0.645751953125]
+  },
+  "runtime_policy": {
+    "mode": "puct_exact_root_hybrid",
+    "root_threshold": 16,
+    "objective": "final_score_margin",
+    "tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "solver": "native_kvtb_root_action_probe_v1",
+    "native_probe": "model-artifact/runtime/kalah_v1_tablebase",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_leaf_solve": "disabled",
+    "mcts_relative_policy": "classic_mcts_gate_component_unchanged"
+  },
+  "evaluations": {
+    "canonical_prefilter": {
+      "games": 512,
+      "seat_paired": true,
+      "simulations_each": 384,
+      "suite": "docs/data/alphazero-lite-production-prefilter-calibration-openings-v1.jsonl",
+      "suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf"
+    },
+    "canonical_hard_arena": {
+      "games": 512,
+      "seat_paired": true,
+      "simulations_each": 384,
+      "suite": "docs/data/alphazero-lite-uniform1200-incumbent-holdout-openings-v1.jsonl",
+      "suite_sha256": "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c"
+    },
+    "candidate_vs_mcts1200": {"games": 40, "exact_root_policy": false},
+    "incumbent_vs_mcts1200": {"games": 40, "exact_root_policy": false},
+    "regression": "test/fixtures/ai/superhuman_regression_positions.json",
+    "forensic": {
+      "suite": "ml/alphazero_lite/fixtures/incumbent_forensic_suite_v1.json",
+      "reference": "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+      "reference_sha256": "45aaa5c4e216e19eeff517895c9fc16099dc1406d5a1f233dd632a57c251d626",
+      "mcts_simulations": 1200,
+      "teacher_simulations": 1800
+    }
+  },
+  "thresholds": {
+    "canonical_score_each_at_least": 0.55,
+    "canonical_games_each_at_least": 512,
+    "mcts_games_each_at_least": 40,
+    "mean_move_latency_ms_at_most": 200,
+    "p95_move_latency_ms_at_most": 350,
+    "forensic_quality": "local_promotion_gate.FORENSIC_THRESHOLDS unchanged",
+    "regression": "all frozen superhuman regression checks pass"
+  },
+  "game_budget": {"canonical_prefilter": 512, "canonical_hard": 512, "mcts_relative": 80, "total": 1104},
+  "prospective_gate_command": [
+    "script/ai/local_promotion_gate",
+    "--candidate-path", ".tmp/seed461-e2-e4-average/artifacts/order_38615_A",
+    "--current-path", "model-artifact/current",
+    "--expected-current-weights-sha256", "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "--expected-candidate-weights-sha256", "73aa08979a1e05be9a83d8349aedd4a9913da224951feeeafe4d2d12df43675f",
+    "--hard-path", "model-artifact/current",
+    "--shadow-canonical-prefilter", "--shadow-prefilter-opening-prefixes-jsonl", "docs/data/alphazero-lite-production-prefilter-calibration-openings-v1.jsonl",
+    "--shadow-prefilter-suite-sha256", "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+    "--shadow-canonical-hard-arena", "--shadow-hard-opening-prefixes-jsonl", "docs/data/alphazero-lite-uniform1200-incumbent-holdout-openings-v1.jsonl",
+    "--shadow-hard-suite-sha256", "5d1f5982c990d00bce0a57161c1ae710bed6b8ced831ac2c1551af5217d2716c",
+    "--arena-games", "512", "--hard-arena-games", "512", "--mcts-games", "40",
+    "--min-arena-games", "512", "--min-mcts-games", "40",
+    "--max-arena-move-time-mean-ms", "200", "--max-arena-move-time-p95-ms", "350",
+    "--exact-root-solve-threshold", "16", "--exact-root-native-probe", "model-artifact/runtime/kalah_v1_tablebase",
+    "--exact-root-tablebase", "model-artifact/runtime/kalah_v1_21.kvtb",
+    "--forensic-exact-top1-reference", "ml/alphazero_lite/fixtures/incumbent_forensic_references_v2.json",
+    "--out", ".tmp/order38615-a5-promotion-review/gate_report.json"
+  ],
+  "scope": "this frozen order_38615_A E4 candidate versus the exact frozen seed455 incumbent under the registered gate configuration; does not establish order generalization or validate rejected #386, #388, #389, or #390 treatments"
+}

@@ -10,7 +10,9 @@ from pathlib import Path
 from typing import Any
 
 from ml.alphazero_lite import seed461_arena_validation as validation
-from ml.alphazero_lite.frozen_opponent_identity import validate_frozen_opponent_identity
+from ml.alphazero_lite.order38615_confirmation_validation import (
+    validate_confirmation_inputs,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
@@ -30,34 +32,15 @@ def write(path: Path, value: Any) -> None:
 
 
 def inputs(reg: dict[str, Any], cand: dict[str, Any]) -> None:
-    ev = reg["evaluation"]
-    cb = cand["candidate"]
-    validate_frozen_opponent_identity(
-        Path(ev["opponent_binding"]["artifact"]),
-        ev["opponent_binding"],
-        ev["runtime_contract"],
+    validate_confirmation_inputs(
+        REG, CANDIDATE, BINDING, reg, cand, json.loads(BINDING.read_text())
     )
-    if (
-        cand["registration_sha256"] != sha(REG)
-        or cand["opponent"] != ev["opponent_binding"]
-    ):
-        raise ValueError("candidate_binding_header_mismatch")
-    if sha(Path(cb["checkpoint"])) != cb["checkpoint_sha256"]:
-        raise ValueError("candidate_checkpoint_hash_mismatch")
-    for name, expected in cb["artifact_sha256"].items():
-        if sha(Path(cb["artifact"]) / name) != expected:
-            raise ValueError(f"candidate_artifact_hash_mismatch:{name}")
-    if cb["artifact_sha256"]["model.npz"] != cb["checkpoint_sha256"]:
-        raise ValueError("candidate_model_checkpoint_mismatch")
-    for suite in ev["suites"].values():
-        if sha(Path(suite["path"])) != suite["sha256"]:
-            raise ValueError("registered_suite_hash_mismatch")
 
 
 def run() -> None:
     reg, cand = json.loads(REG.read_text()), json.loads(CANDIDATE.read_text())
-    inputs(reg, cand)
     prior = json.loads(BINDING.read_text())
+    inputs(reg, cand)
     for key, value in (
         ("registration_sha256", sha(REG)),
         ("candidate_binding_sha256", sha(CANDIDATE)),
