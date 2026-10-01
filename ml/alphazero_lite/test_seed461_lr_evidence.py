@@ -8,6 +8,7 @@ from ml.alphazero_lite.seed461_lr_evidence import (
     validate_training_record,
 )
 from ml.alphazero_lite.analyze_seed461_lr_sensitivity import _validate_report
+from ml.alphazero_lite.run_seed461_lr_sensitivity import validate_runtime
 
 
 def test_training_record_binds_epoch_and_selected_checkpoint(tmp_path):
@@ -117,3 +118,31 @@ def test_report_identity_validation_rejects_mismatched_suite_candidates_and_runt
             expected_suite_hash="suite",
             expected_runtime=expected_runtime,
         )
+
+
+def test_runtime_preflight_rejects_changed_registered_artifact(tmp_path, monkeypatch):
+    import ml.alphazero_lite.run_seed461_lr_sensitivity as runner
+
+    opponent = tmp_path / "opponent"
+    challenger = tmp_path / "challenger"
+    opponent.mkdir()
+    challenger.mkdir()
+    for artifact in (opponent, challenger):
+        (artifact / "search_policy.json").write_text("{}")
+    (opponent / "weights.json").write_text("weights")
+    (opponent / "metadata.json").write_text("metadata")
+    monkeypatch.setattr(runner, "ROOT", tmp_path)
+    expected = {
+        "runtime_contract": {"contract": "registered"},
+        "opponent_artifact_identity": {
+            "weights.json": hashlib.sha256(b"weights").hexdigest(),
+            "metadata.json": hashlib.sha256(b"metadata").hexdigest(),
+        },
+    }
+    monkeypatch.setattr(
+        runner,
+        "resolve_strength_comparison_runtime_contract",
+        lambda **_: {"contract": "changed"},
+    )
+    with pytest.raises(RuntimeError, match="registered_runtime_contract_mismatch"):
+        validate_runtime({"evaluation": expected})

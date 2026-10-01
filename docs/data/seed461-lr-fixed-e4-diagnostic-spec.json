@@ -1,0 +1,48 @@
+{
+  "schema": "seed461-lr-fixed-e4-retrospective-diagnostic-v1",
+  "status": "specified_before_diagnostic_evaluation",
+  "analysis_type": "retrospective",
+  "holdout_status": "consumed_by_PR_384_original_analysis",
+  "decision_scope": "diagnostic_only_preserve_PR_384_rejection",
+  "provenance": {
+    "registration": {"path": "docs/data/seed461-lr-sensitivity-registration-v2.json", "sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab"},
+    "training_amendment": {"path": "docs/data/seed461-lr-sensitivity-training-amendment.json", "sha256": "90e241b75780b7314f1c6e54caeebd39c91f8d77381874eaada41cae31949a1a"},
+    "training_record": {"path": ".tmp/seed461-lr-sensitivity/training.json", "sha256": "8bcdf12d69663332db6f3af6928b7a4fc6f0910d10e548e0e06306ce06cd77b0"},
+    "suite": {"path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl", "sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8"},
+    "opponent": {
+      "artifact": ".tmp/seed461-order-confirmation/opponent-artifact",
+      "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+      "search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "runtime_contract": {
+      "contract": "puct_exact_root_hybrid; threshold=16; 384 simulations/side; c_puct=1.25; seed=384",
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "original_evaluation_binding": {"path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json", "sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d"},
+    "original_results": {"path": "docs/data/seed461-lr-sensitivity-results.json", "sha256": "b8cbe10ef93c477c026e717a5553687ce7d046e10c844897bd5ff24fc277134a"}
+  },
+  "checkpoint_policy": {"primary_epoch": "E4", "runs": "all ten trajectories", "selection_rule_changes": false},
+  "arena": {
+    "openings": 256,
+    "seats": [0, 1],
+    "games_per_arm": 512,
+    "simulations_per_side": 384,
+    "runtime_threshold": 16,
+    "arena_seed": 384,
+    "extensions": false,
+    "additional_game_budget": 2560,
+    "reuse_existing_e4_runs": ["order_38411_A", "order_38412_B", "order_38413_A", "order_38413_B", "order_38414_B"],
+    "new_runs_only": ["order_38411_B", "order_38412_A", "order_38414_A", "order_38415_A", "order_38415_B"]
+  },
+  "analysis": {
+    "per_order": ["selected_effect=B_selected-A_selected", "fixed_effect=B_E4-A_E4", "selection_interaction=selected_effect-fixed_effect", "A_selected_minus_E4", "B_selected_minus_E4"],
+    "bootstrap": {"replicates": 10000, "seed": 385, "cluster": "opening; same sampled indices across all orders and arms", "interval": "95th percentile interval"},
+    "material_interaction": "absolute mean interaction >= 0.03 and percentile interval excludes zero; otherwise no clear average interaction",
+    "heterogeneity": "report per-order effects and between-order ranges descriptively",
+    "checkpoint_picking": false,
+    "rejection_reinterpretation": false
+  }
+}

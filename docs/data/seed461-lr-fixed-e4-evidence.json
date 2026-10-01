@@ -1,0 +1,166 @@
+{
+  "runs": {
+    "order_38411_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/artifacts/order_38411_A",
+      "candidate_artifacts": {
+        "metadata.json": "15339fdc68fc65cd29d031cd74dc8867dcd75c0f39a59aac63dbcf55f2979188",
+        "model.npz": "4cdeb2c3038948cf40d64c3fd21d7c303c8b881bb733648bd255754654a71635",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "cf9719311edcee395d1314e561c8b60f5936672305a42cab3a95212a12b5e894"
+      },
+      "checkpoint_sha256": "4cdeb2c3038948cf40d64c3fd21d7c303c8b881bb733648bd255754654a71635",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_A-games.jsonl",
+      "games_sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_A.json",
+      "report_sha256": "b04d4393949d2ebb2f2a57d2e420d1a11a3293055bb8f9c861058a164fde7fa6",
+      "reused_selected_record": true
+    },
+    "order_38411_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-artifacts/order_38411_B",
+      "candidate_artifacts": {
+        "metadata.json": "7e9204bef6466cb4cd868e17cee7783c933cfbb8369b523e4cde1842d37ff66a",
+        "model.npz": "0c101345b535f69315ddcf9af89ea8e5fe5c3f6ac1ed05d8ab3eeccfd0ab60dd",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "b61013b2f41afb113d95eabb2a2c6475c4d102e0b24549cdafa262066f8dc91d"
+      },
+      "checkpoint_sha256": "0c101345b535f69315ddcf9af89ea8e5fe5c3f6ac1ed05d8ab3eeccfd0ab60dd",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_B-games.jsonl",
+      "games_sha256": "8fe922535d4beead4ea3b233a040b24fbfa6aa14898acc96e019befbe0a5d360",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_B.json",
+      "report_sha256": "a065e078f57ff8f0e1ea8b5bc051e56edc3a9db75c18a422861203a7712f200f",
+      "reused_selected_record": false
+    },
+    "order_38412_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-artifacts/order_38412_A",
+      "candidate_artifacts": {
+        "metadata.json": "98042b5face167f65e6cb26d84893d6518e65c4960c35fd1e71a09ea98340f9a",
+        "model.npz": "3f5ced69efbc5fadf46e8c956867ffed6d815dd2ef3b7a018932a05f1f4c8d73",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "98878a7eefc8df27f8d5f1b27ef4b92d6bc7c4af6b85d48a96f4f34319a08f0c"
+      },
+      "checkpoint_sha256": "3f5ced69efbc5fadf46e8c956867ffed6d815dd2ef3b7a018932a05f1f4c8d73",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_A-games.jsonl",
+      "games_sha256": "fd739b6851a28be9cea403d9455906cf6c0a205f013cd67942e43b5ba57a292f",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_A.json",
+      "report_sha256": "7adf3b10a484904d949073d2413b049304c89396532baead2b014780e3116aec",
+      "reused_selected_record": false
+    },
+    "order_38412_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/artifacts/order_38412_B",
+      "candidate_artifacts": {
+        "metadata.json": "43d098b523d96008f471d40a8d346755bb1c9e1f938dc997e9b7f98a18d345a1",
+        "model.npz": "744d55dd25e1295e4bb6c56fb209113e22b61f9f2d5870995b3637909cb90947",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "823417a84ae0abd10663185efb99b6fedcbcdb93dc67610219ea0ca110d86135"
+      },
+      "checkpoint_sha256": "744d55dd25e1295e4bb6c56fb209113e22b61f9f2d5870995b3637909cb90947",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_B-games.jsonl",
+      "games_sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_B.json",
+      "report_sha256": "e6d7ad6371a072a37a76dbde0a577888b3f5f949b7848331cb7d0da120c6e1ae",
+      "reused_selected_record": true
+    },
+    "order_38413_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/artifacts/order_38413_A",
+      "candidate_artifacts": {
+        "metadata.json": "4185f58c6716e8c9599cae8ade95581664ee48557f931bed20f5453788ce12cb",
+        "model.npz": "7b834d60c1e6c1cf5a28da77698efaab74ea5c8ba203193ceaca9e410e1c6d2e",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "892db706001efbb25f3149992bb71560d35e88d9b66d49d622db33c9f73f172c"
+      },
+      "checkpoint_sha256": "7b834d60c1e6c1cf5a28da77698efaab74ea5c8ba203193ceaca9e410e1c6d2e",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_A-games.jsonl",
+      "games_sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_A.json",
+      "report_sha256": "786685f9b7f3fac814de1e75f6723322ddc08fb86c64b383d0883683242b8eb3",
+      "reused_selected_record": true
+    },
+    "order_38413_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/artifacts/order_38413_B",
+      "candidate_artifacts": {
+        "metadata.json": "ca170b38d8c288276d9ef97529e2f4de533bbf13f5caf4379cd1a30456b7ec22",
+        "model.npz": "75039037c8be42da421ed9ba5497cc5b7e6315e5cfbd75c9ed2466d75098bd06",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "504ba5457d99178efc23763fa1ee00b736ba71f97d67621220e1646c5fb96fbb"
+      },
+      "checkpoint_sha256": "75039037c8be42da421ed9ba5497cc5b7e6315e5cfbd75c9ed2466d75098bd06",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_B-games.jsonl",
+      "games_sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_B.json",
+      "report_sha256": "d63b86255d45b9ff2530cae49bb781666a2557e5a78709b0b9debee5f1a33165",
+      "reused_selected_record": true
+    },
+    "order_38414_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-artifacts/order_38414_A",
+      "candidate_artifacts": {
+        "metadata.json": "7494752967687c8d774e948bbccce9f5d237ca7007bd4909634b215f725cf101",
+        "model.npz": "7cde87d13b0c7ed1e023bcde8411b26cf2961fc0f304a042e5de72a6588bee21",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "e9368cc12ad2b4382b380308fcaaff6e8f589c0d5ba617c33bf36cf52646666f"
+      },
+      "checkpoint_sha256": "7cde87d13b0c7ed1e023bcde8411b26cf2961fc0f304a042e5de72a6588bee21",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_A-games.jsonl",
+      "games_sha256": "e75c054e5d45cfa3ca5de4981059b4067316746efc8a4c8925e58c0d1cd3d443",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_A.json",
+      "report_sha256": "7d9f944ce72c45df4869cfd839ae84e3ae1a56ce657195ff8768594df12ab378",
+      "reused_selected_record": false
+    },
+    "order_38414_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/artifacts/order_38414_B",
+      "candidate_artifacts": {
+        "metadata.json": "31d91fd8c8c47db998d8629cf74af02520a059ad5436dc1a1faee2a8eb87a1b1",
+        "model.npz": "79d43bb1a9b73fd5ecff781696ba97a2111e3e73dd4ff60972bc7589be2bf16e",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "9e2032e743c24dac8c24fb800dd42f460e759dd36dbc8e88b2582c14d803b13f"
+      },
+      "checkpoint_sha256": "79d43bb1a9b73fd5ecff781696ba97a2111e3e73dd4ff60972bc7589be2bf16e",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_B-games.jsonl",
+      "games_sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_B.json",
+      "report_sha256": "f48821fd92d8c8d18bde7ed3852b1b6fa744bad92ef064ebfe34d2909edac1e3",
+      "reused_selected_record": true
+    },
+    "order_38415_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-artifacts/order_38415_A",
+      "candidate_artifacts": {
+        "metadata.json": "d5c8fbbd06f8d89a2b7c3764a94b888015910eddf393d347d39dca4f77af056f",
+        "model.npz": "87b801c0e3e52e57f6d1e1491fb7a7a5e710a9de4478909a414786d146564b92",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "0d118cabd2dd6c6ffc417406983d1b36b6d2ca1133f4bebb8186eb6cc086dc91"
+      },
+      "checkpoint_sha256": "87b801c0e3e52e57f6d1e1491fb7a7a5e710a9de4478909a414786d146564b92",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_A-games.jsonl",
+      "games_sha256": "42c9d3d2c0041b04f74164c0ab444f1c1849b488678682b8546ccbea94dc72c3",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_A.json",
+      "report_sha256": "49e3b71e528e4edbcd59a5de405f59597c5fabfd31ed99ff0ac0b3085ec38f51",
+      "reused_selected_record": false
+    },
+    "order_38415_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-artifacts/order_38415_B",
+      "candidate_artifacts": {
+        "metadata.json": "fee46f1b81ebb89ae546b90fcb700282dea930f0ac93906f2240f94fed793784",
+        "model.npz": "7d776563506b336ec3fe8db9251f48b81062f13abfa549bba9a85525cbf1006a",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "2451740d7f62bff1e6258fd6335893812c3594a600a4d52ba6a6d0ad978c7959"
+      },
+      "checkpoint_sha256": "7d776563506b336ec3fe8db9251f48b81062f13abfa549bba9a85525cbf1006a",
+      "epoch": "E4",
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_B-games.jsonl",
+      "games_sha256": "2fa4df7bf7bb7606ca709c51b752844963dbb2a3b593a99f63562cd134bcade3",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_B.json",
+      "report_sha256": "b413df81e3b9d7285f06eb068fe9335f5a3505bd139610e2e15f8c8ed958acc6",
+      "reused_selected_record": false
+    }
+  },
+  "schema": "seed461-lr-fixed-e4-binding-v1",
+  "spec_sha256": "5235dee3e274ecec2e3aa8bf5f6d20d196da3f2151d61fe3f447a95d082bdc7e"
+}
