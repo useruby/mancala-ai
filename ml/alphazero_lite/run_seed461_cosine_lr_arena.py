@@ -42,6 +42,9 @@ def main() -> None:
         REG
     ):
         raise RuntimeError("registered_input_hash_mismatch")
+    # Read immutable state before touching artifact paths. Existing exports are
+    # evidence and must never be overwritten during a resume.
+    previous = json.loads(BINDING.read_text()) if BINDING.exists() else None
     binding: dict[str, Any] = {
         "schema": "seed461-cosine-lr-evaluation-binding-v1",
         "registration_sha256": sha(REG),
@@ -60,8 +63,18 @@ def main() -> None:
             ],
         },
         "candidates": {},
-        "reports": {},
+        "reports": dict(previous.get("reports", {})) if previous else {},
     }
+    if previous is not None:
+        for field in (
+            "schema",
+            "registration_sha256",
+            "training_sha256",
+            "suite_sha256",
+            "opponent",
+        ):
+            if previous.get(field) != binding[field]:
+                raise RuntimeError(f"immutable_binding_mismatch:{field}")
     # Complete and bind all ten exports before launching any arena game.
     for seed in ORDERS:
         for arm in ("A", "B"):
@@ -71,37 +84,49 @@ def main() -> None:
             if sha(checkpoint) != expected:
                 raise RuntimeError(f"e4_checkpoint_hash_mismatch:{run}")
             artifact = WORK / "artifacts-e4" / run
-            artifact.mkdir(parents=True, exist_ok=True)
-            subprocess.run(
-                [
-                    sys.executable,
-                    str(ROOT / "ml/alphazero_lite/export_artifact.py"),
-                    "--checkpoint",
-                    str(checkpoint),
-                    "--out-dir",
-                    str(artifact),
-                    "--version",
-                    f"seed461-cosine-e4-{run}",
-                    "--model-type",
-                    "residual_v3",
-                    "--rules-version",
-                    "kalah_v1",
-                    "--input-encoding",
-                    "kalah_v3",
-                ],
-                cwd=ROOT,
-                check=True,
-            )
-            shutil.copy2(RUNTIME_POLICY, artifact / "search_policy.json")
-            hashes = {
-                name: sha(artifact / name)
-                for name in (
-                    "model.npz",
-                    "weights.json",
-                    "metadata.json",
-                    "search_policy.json",
+            existing = previous.get("candidates", {}).get(run) if previous else None
+            if existing is not None:
+                if existing.get("checkpoint_sha256") != expected:
+                    raise RuntimeError(f"immutable_candidate_binding_mismatch:{run}")
+                for name, expected_hash in existing.get("artifact_sha256", {}).items():
+                    if sha(Path(existing["artifact"]) / name) != expected_hash:
+                        raise RuntimeError(f"bound_artifact_hash_mismatch:{run}:{name}")
+                artifact = Path(existing["artifact"])
+                hashes = existing["artifact_sha256"]
+            else:
+                if artifact.exists() and any(artifact.iterdir()):
+                    raise RuntimeError(f"unbound_existing_artifact:{run}")
+                artifact.mkdir(parents=True, exist_ok=True)
+                subprocess.run(
+                    [
+                        sys.executable,
+                        str(ROOT / "ml/alphazero_lite/export_artifact.py"),
+                        "--checkpoint",
+                        str(checkpoint),
+                        "--out-dir",
+                        str(artifact),
+                        "--version",
+                        f"seed461-cosine-e4-{run}",
+                        "--model-type",
+                        "residual_v3",
+                        "--rules-version",
+                        "kalah_v1",
+                        "--input-encoding",
+                        "kalah_v3",
+                    ],
+                    cwd=ROOT,
+                    check=True,
                 )
-            }
+                shutil.copy2(RUNTIME_POLICY, artifact / "search_policy.json")
+                hashes = {
+                    name: sha(artifact / name)
+                    for name in (
+                        "model.npz",
+                        "weights.json",
+                        "metadata.json",
+                        "search_policy.json",
+                    )
+                }
             if hashes["model.npz"] != expected:
                 raise RuntimeError(f"exported_model_checkpoint_mismatch:{run}")
             contract = resolve_strength_comparison_runtime_contract(
@@ -117,15 +142,14 @@ def main() -> None:
                 "runtime_contract": contract,
                 "epoch": "E4",
             }
-    if BINDING.exists():
-        previous = json.loads(BINDING.read_text())
+    if previous is not None:
         for run, candidate in binding["candidates"].items():
             old = previous.get("candidates", {}).get(run)
             if old != candidate:
                 raise RuntimeError(f"immutable_candidate_binding_mismatch:{run}")
     else:
         write_json(BINDING, binding)
-    immutable = json.loads(BINDING.read_text())
+    immutable = previous if previous is not None else json.loads(BINDING.read_text())
     for run, candidate in binding["candidates"].items():
         report, games = (
             WORK / "arena-e4" / f"{run}.json",
@@ -186,6 +210,7 @@ def main() -> None:
             "games_sha256": sha(games),
         }
         write_json(BINDING, binding)
+        immutable = json.loads(BINDING.read_text())
     binding["status"] = "completed_fixed_5120_games"
     write_json(BINDING, binding)
 
