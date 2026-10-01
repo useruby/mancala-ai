@@ -1,0 +1,100 @@
+{
+  "published_training_record": {
+    "path": "docs/data/seed461-cosine-lr-ablation-training.json",
+    "sha256": "b49fe98dd885a9858f335883577f86a419f014c37acbc7e1ff614a2d3a2308a7"
+  },
+  "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+  "training_sha256": "b49fe98dd885a9858f335883577f86a419f014c37acbc7e1ff614a2d3a2308a7",
+  "trajectories": {
+    "order_38611_A": {
+      "epochs": {
+        "E1": "e2a8723d528fc3ed9ffd0864f6c7e375d408893ac64c7f2b7c6acccd6191dd1a",
+        "E2": "4bcf3ee592617dec174f1e92c5d85482b6accf2b3071ac380a01b5c46231efb8",
+        "E3": "26b80574621d857974bd40ec730206522d4d39c64bfdee6dd8025d59ddca3eb6",
+        "E4": "fd1d791f0d5ada26f068d71da296541e63bdb3dc19283353f458d41e3b174ee3"
+      },
+      "selected_sha256": "fd1d791f0d5ada26f068d71da296541e63bdb3dc19283353f458d41e3b174ee3"
+    },
+    "order_38611_B": {
+      "epochs": {
+        "E1": "e2a8723d528fc3ed9ffd0864f6c7e375d408893ac64c7f2b7c6acccd6191dd1a",
+        "E2": "30b3521b97a1d10142f89f61f2f87074c18c32db841b9dffa9cbade4d0eb83ee",
+        "E3": "4a357bc5821679a5f5a4f6f4973389b2de1e64d4d916a52f9d8c1e27bc3bacf1",
+        "E4": "3af3285d18d438bfa7e673d988b6c3c33c584e61c06ae04f9da9189e3699174a"
+      },
+      "selected_sha256": "3af3285d18d438bfa7e673d988b6c3c33c584e61c06ae04f9da9189e3699174a"
+    },
+    "order_38612_A": {
+      "epochs": {
+        "E1": "b79f583743297aabc9f73fd37a0a6ed7cf2b87bc02a78fc09b0a4f12b9531785",
+        "E2": "2c93c4539597183bd5a7fde6414f1da8b5d7b27f6f20801a16e3a9ff23c77e19",
+        "E3": "bbbd23f04edf53501632cb8425107113b9339895ea5f42389488f2367ee051fe",
+        "E4": "15fc2bccdeabdce0f5182bf1f5222ecb515fca7611d1a2bf6b1f90de3c6670f1"
+      },
+      "selected_sha256": "2c93c4539597183bd5a7fde6414f1da8b5d7b27f6f20801a16e3a9ff23c77e19"
+    },
+    "order_38612_B": {
+      "epochs": {
+        "E1": "b79f583743297aabc9f73fd37a0a6ed7cf2b87bc02a78fc09b0a4f12b9531785",
+        "E2": "4a484527427b68b7baaf838fad3f640c6fbc71cd9ef36849c975f1e519f9c06d",
+        "E3": "a7b39766e41ba62818649ad284e1ce398b2c95e530156e6d09f54b5c9861d2b5",
+        "E4": "d53d27eb59228253b298152e2c31a2a64edf083322c5899bdd149d4047775165"
+      },
+      "selected_sha256": "d53d27eb59228253b298152e2c31a2a64edf083322c5899bdd149d4047775165"
+    },
+    "order_38613_A": {
+      "epochs": {
+        "E1": "08e1328af6eaad2b790c721ec230e24adb3e6c9841c67010f440346222331498",
+        "E2": "caf86447afc2e3f6e27c8d1cc90e402aa86283fcbb3f95180a79df77f96d9230",
+        "E3": "921075798296003ab91d187b205d1c5abd0df29ca8100c54f0af7d304cb1dce6",
+        "E4": "d7077cd7832acaa3a324177fe4e812df8beeb5bfb82252749fa3bce9f9838803"
+      },
+      "selected_sha256": "d7077cd7832acaa3a324177fe4e812df8beeb5bfb82252749fa3bce9f9838803"
+    },
+    "order_38613_B": {
+      "epochs": {
+        "E1": "08e1328af6eaad2b790c721ec230e24adb3e6c9841c67010f440346222331498",
+        "E2": "7f83a6fe0a02374e4cebdca558b5f2bc3f08df003ea1a7fce7eb4cd02783f664",
+        "E3": "9785cc28059a9670e77c1a4306864c5ac312274f0403d8d9603e3d97448d5ecf",
+        "E4": "09f6e416366b6e7a66ba5e12a08dfe21b061a547dbe4cbe0e681303430838ddb"
+      },
+      "selected_sha256": "09f6e416366b6e7a66ba5e12a08dfe21b061a547dbe4cbe0e681303430838ddb"
+    },
+    "order_38614_A": {
+      "epochs": {
+        "E1": "d2a704316dca7e3190bc836c99721eafd94b602b6bec4fa4b26811f0b7f34000",
+        "E2": "824be9149ea75cb56118d3185e2f54621f4395c701441f4fc51f5c59e5d7deb1",
+        "E3": "745fd52858023f6a047e28842b7cf8803d1907299d9e2721b1afbd914b816927",
+        "E4": "f197414c4300efb29dc4eb7305940a4e0aa48bdec3dd829287311b0507faca59"
+      },
+      "selected_sha256": "d2a704316dca7e3190bc836c99721eafd94b602b6bec4fa4b26811f0b7f34000"
+    },
+    "order_38614_B": {
+      "epochs": {
+        "E1": "d2a704316dca7e3190bc836c99721eafd94b602b6bec4fa4b26811f0b7f34000",
+        "E2": "1153bf3cbc46b85c4b260c4091ff5ebd506dc518521d15a03bd748b94583cd9e",
+        "E3": "a23603fb253b5387dd69fc025aae8227e623e6cfa3f93bd374beee0597ecda46",
+        "E4": "363562675e37c259d97cb9a1e8568d5504ed6666ad451f86a7276f96b5ad3e50"
+      },
+      "selected_sha256": "363562675e37c259d97cb9a1e8568d5504ed6666ad451f86a7276f96b5ad3e50"
+    },
+    "order_38615_A": {
+      "epochs": {
+        "E1": "e3929da019d9bc749896c10de104394cac9539c53390c0a9575e3b518c97d568",
+        "E2": "40cd40777e402ef451a6d97129e1e1bd5c7f87839337f9da8a0eaee9e5d4facb",
+        "E3": "cc8014fe7fa274f34338636e1bf644c55540d1ffd2b127ed0eb95287d45eeb1a",
+        "E4": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351"
+      },
+      "selected_sha256": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351"
+    },
+    "order_38615_B": {
+      "epochs": {
+        "E1": "e3929da019d9bc749896c10de104394cac9539c53390c0a9575e3b518c97d568",
+        "E2": "4d2e84d161736d1aa7ce701da1b82f5426a3c7aed7026e7aa178ddd7a3321126",
+        "E3": "1b1b2208a62b3ec86472929163d04f6fb2439fac619737808faf3ec74e56ec75",
+        "E4": "a1208b8bbdc4136a098705d029b3184488a64000996f2e40c0b16b38ae4e93c4"
+      },
+      "selected_sha256": "a1208b8bbdc4136a098705d029b3184488a64000996f2e40c0b16b38ae4e93c4"
+    }
+  }
+}

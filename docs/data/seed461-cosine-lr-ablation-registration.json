@@ -1,0 +1,171 @@
+{
+  "analysis": {
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 386,
+    "cluster": "shared opening",
+    "confidence": 0.95,
+    "inference": "conditional on these five orders and frozen dataset"
+  },
+  "created_before_training": true,
+  "evaluation": {
+    "arena_seed": 386,
+    "c_puct": 1.25,
+    "games": 5120,
+    "opponent": "frozen seed455 native runtime from PR #384",
+    "outcome_dependent_extensions": false,
+    "primary_checkpoint": "E4",
+    "runtime_contract": {
+      "challenger_runtime_policy_inherited": false,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations_per_side": 384
+  },
+  "holdout": {
+    "active_pit_stones_gt": 32,
+    "excluded_identity_overlap": 0,
+    "nonterminal": true,
+    "openings": 256,
+    "path": "/home/alex/Mancala/ai/docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+    "seed": 386,
+    "sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+    "unique_identities": 256
+  },
+  "population_coverage": {
+    "canonical": {
+      "members": 128,
+      "path": "/home/alex/Mancala/ai/.tmp/canonical-reconstruction/medium_eval.jsonl",
+      "sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+    },
+    "claim": "A-AP are covered by the complete PR249 source population; this is a conservative superset proof, not suite reconstruction.",
+    "consumed_suites": {
+      "pr383": {
+        "path": "/home/alex/Mancala/ai/docs/data/seed461-batch-order-sensitivity-confirmation-openings.jsonl",
+        "sha256": "13d2d1d9770b05fb241ea9625b34916edbf81f178ed1c4bbe9b880bb2bf5746e",
+        "unique_state_identities": 256
+      },
+      "pr384_385": {
+        "path": "/home/alex/Mancala/ai/docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+        "sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+        "unique_state_identities": 256
+      }
+    },
+    "exclusion_counts": {
+      "consumed_pr383_pr384_pr385": 512,
+      "frozen_replays": 62330,
+      "pr249_population": 28961,
+      "pr382_exploratory": 256,
+      "union": 89296
+    },
+    "historical_source_population": {
+      "function": "run_pr249_fresh_suite_generalization.all_openings",
+      "source_runners": {
+        "A-C": "run_pr249_fresh_suite_generalization.py",
+        "AB-AD": "run_pr260_value_head_refresh.py",
+        "AE-AG": "run_pr261_policy_representation.py",
+        "AH-AJ": "run_pr262_policy_hidden_capacity.py",
+        "AK-AM": "run_pr264_joint_alphazero_iteration.py",
+        "AN-AP": "run_pr265_unique_data_scale.py",
+        "D-F": "run_pr251_cross_seed_strength_residual_transfer.py",
+        "G-I": "run_pr252_phase_target_delta_attribution.py",
+        "J-L": "run_pr253_semantic_receiver_target_surgery.py",
+        "M-R": "run_pr254_third_seed_budget_replay.py",
+        "S-U": "run_pr256_fresh768_replay_replication.py",
+        "V-X": "run_pr258_two_replay_aggregation.py",
+        "Y-AA": "run_pr259_two_replay_second_epoch.py"
+      },
+      "unique_state_identities": 28961
+    },
+    "schema": "seed461-order-population-coverage-v1"
+  },
+  "schema": "seed461-cosine-lr-ablation-v1",
+  "status": "registered_before_training",
+  "training": {
+    "architecture": {
+      "input": [
+        96,
+        3
+      ],
+      "model": "residual_v3"
+    },
+    "arms": {
+      "A": {
+        "lr": 0.001,
+        "lr_scheduler": "none"
+      },
+      "B": {
+        "T_max": 4,
+        "eta_min": 0.0,
+        "lr": 0.001,
+        "lr_scheduler": "cosine"
+      }
+    },
+    "batch_size": 512,
+    "epochs": 4,
+    "grad_clip": 1.0,
+    "huber_delta": 1.0,
+    "orders": [
+      38611,
+      38612,
+      38613,
+      38614,
+      38615
+    ],
+    "parent": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz",
+    "parent_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "policy_target_mode": "sharpened",
+    "replays": [
+      {
+        "name": "fresh",
+        "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+        "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+        "value_target_mode": "default",
+        "weight": 1
+      },
+      {
+        "name": "generic_bootstrap",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+        "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      },
+      {
+        "name": "random_teacher",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+        "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+        "value_target_mode": "sharpened",
+        "weight": 1
+      },
+      {
+        "name": "opening_disagreement",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+        "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+        "value_target_mode": "sharpened",
+        "weight": 8
+      },
+      {
+        "name": "stability",
+        "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+        "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      }
+    ],
+    "seed": 461,
+    "selection": "best_validation; descriptive only",
+    "split_seed": 461,
+    "validation_split": 0.1,
+    "value_loss": "huber",
+    "value_loss_weight": 0.3
+  }
+}

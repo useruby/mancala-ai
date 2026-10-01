@@ -1,0 +1,339 @@
+{
+  "candidates": {
+    "order_38611_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38611_A",
+      "artifact_sha256": {
+        "metadata.json": "8971f81310fa3941ff6f7e43b7e445b07d760cbe656e7efe02d6acc702a7a23f",
+        "model.npz": "fd1d791f0d5ada26f068d71da296541e63bdb3dc19283353f458d41e3b174ee3",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "639f0a7f25c2af2f78179f5bbac1c257fb59a06ee80c7fd4399879fa5c17a82e"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38611_A/E4.npz",
+      "checkpoint_sha256": "fd1d791f0d5ada26f068d71da296541e63bdb3dc19283353f458d41e3b174ee3",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38611_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38611_B",
+      "artifact_sha256": {
+        "metadata.json": "45384078e94d9a8af2450375d47dcb9c3a9f0e55d239839a135c71d55f5fbe3b",
+        "model.npz": "3af3285d18d438bfa7e673d988b6c3c33c584e61c06ae04f9da9189e3699174a",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "bf6a0ee6c4470b6b00715961ab1258ebf875ce6f0e8e0f2464b800f51701039f"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38611_B/E4.npz",
+      "checkpoint_sha256": "3af3285d18d438bfa7e673d988b6c3c33c584e61c06ae04f9da9189e3699174a",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38612_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38612_A",
+      "artifact_sha256": {
+        "metadata.json": "f0aa786c5e1b945eae49ae4536a9b333e41a791fdcd12a679f5fe2b6f52ffe7a",
+        "model.npz": "15fc2bccdeabdce0f5182bf1f5222ecb515fca7611d1a2bf6b1f90de3c6670f1",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "8efb65807ed06ec122237eb82848dda774b9957c20fb074d84216fd870c34d98"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38612_A/E4.npz",
+      "checkpoint_sha256": "15fc2bccdeabdce0f5182bf1f5222ecb515fca7611d1a2bf6b1f90de3c6670f1",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38612_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38612_B",
+      "artifact_sha256": {
+        "metadata.json": "a49f8e5cf1cba7b0d87628a6d2cb3e0d0659fd1af4d241c9e8e045b57e4f4b90",
+        "model.npz": "d53d27eb59228253b298152e2c31a2a64edf083322c5899bdd149d4047775165",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "b20a853c034a0b851c867499ad4c9394bd57cb4f7bb5c38692825721e72f664b"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38612_B/E4.npz",
+      "checkpoint_sha256": "d53d27eb59228253b298152e2c31a2a64edf083322c5899bdd149d4047775165",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38613_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38613_A",
+      "artifact_sha256": {
+        "metadata.json": "d0d07dba2899af14f2c8ac502c7ee81c2c4ae9c443eaa8ead1ac2615260ccba5",
+        "model.npz": "d7077cd7832acaa3a324177fe4e812df8beeb5bfb82252749fa3bce9f9838803",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "1ff639f44769da19d9546eb76bf7ffd4ed01444421505e4baeaab89a65859a75"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38613_A/E4.npz",
+      "checkpoint_sha256": "d7077cd7832acaa3a324177fe4e812df8beeb5bfb82252749fa3bce9f9838803",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38613_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38613_B",
+      "artifact_sha256": {
+        "metadata.json": "481f027405e5992628451c3e1795e13373bc467429938a42a7c1885b0e21da58",
+        "model.npz": "09f6e416366b6e7a66ba5e12a08dfe21b061a547dbe4cbe0e681303430838ddb",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "ea8e6f4bc31d1ba8831b64c89e030fc894e0353b75b01fc8a415d20aeec328ba"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38613_B/E4.npz",
+      "checkpoint_sha256": "09f6e416366b6e7a66ba5e12a08dfe21b061a547dbe4cbe0e681303430838ddb",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38614_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38614_A",
+      "artifact_sha256": {
+        "metadata.json": "e102491eedf4485b91f99ac4f6a53c53f997a4bb26245862600354a60b181e6c",
+        "model.npz": "f197414c4300efb29dc4eb7305940a4e0aa48bdec3dd829287311b0507faca59",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "15511f37c0e431c8bac81e0b21193ca41fa09960c7f4c437d6ed3ac338213bfa"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38614_A/E4.npz",
+      "checkpoint_sha256": "f197414c4300efb29dc4eb7305940a4e0aa48bdec3dd829287311b0507faca59",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38614_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38614_B",
+      "artifact_sha256": {
+        "metadata.json": "0ea22a201a7ca022bb2045b25164c6f07fdd6647a81d0ebc0830d9c9dd6fa3cf",
+        "model.npz": "363562675e37c259d97cb9a1e8568d5504ed6666ad451f86a7276f96b5ad3e50",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "ed98f2bde33645f45c908a87d69f25cc65bb12c4303045eb4e4f17a9a065b7ca"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38614_B/E4.npz",
+      "checkpoint_sha256": "363562675e37c259d97cb9a1e8568d5504ed6666ad451f86a7276f96b5ad3e50",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38615_A": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38615_A",
+      "artifact_sha256": {
+        "metadata.json": "69502dc26af2a327d37edc4bcbfa5d8c4b654af6caa18d792dad81cfcade6ba1",
+        "model.npz": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "73aa08979a1e05be9a83d8349aedd4a9913da224951feeeafe4d2d12df43675f"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38615_A/E4.npz",
+      "checkpoint_sha256": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "order_38615_B": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/artifacts-e4/order_38615_B",
+      "artifact_sha256": {
+        "metadata.json": "5cd4591e4b684f60fbcac9246cfcff9dcbbca5d11027d3a281360520dd8d24a6",
+        "model.npz": "a1208b8bbdc4136a098705d029b3184488a64000996f2e40c0b16b38ae4e93c4",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "e9727433e4951790c155bb0e392ad3c97db1df6906df70f73d12cfc26a3ab4b5"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38615_B/E4.npz",
+      "checkpoint_sha256": "a1208b8bbdc4136a098705d029b3184488a64000996f2e40c0b16b38ae4e93c4",
+      "epoch": "E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    }
+  },
+  "opponent": {
+    "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+  "reports": {
+    "order_38611_A": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_A-games.jsonl",
+      "games_sha256": "6bcf879780dbc21a9502f92333607c9c8c0439766389d2baa2dbcdc6a375a4ea",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_A.json",
+      "report_sha256": "e7c4ddcf4a45a9b4fca4bb9756697fdc863630203b5540b112e270294b570f91"
+    },
+    "order_38611_B": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_B-games.jsonl",
+      "games_sha256": "2dfa173466266e2bf0a6e505c35bad5d9e44bcae58fe459160ff0476d1f679be",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_B.json",
+      "report_sha256": "614126532d96f38e4a2e5673c637f00759b0c8efbf7223a087d05225b5b5a15d"
+    },
+    "order_38612_A": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_A-games.jsonl",
+      "games_sha256": "b2afb9af982e4a7521195ad47e5710af3468346c65cf29734b45beda43bbad5e",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_A.json",
+      "report_sha256": "0786bd22002b2ff26c522d8dff6aa6f42277bc3bf61154a5db1bb58e189cfb96"
+    },
+    "order_38612_B": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_B-games.jsonl",
+      "games_sha256": "0c740c9be6f3be0a8a6ad6881db32cb63204f2f6e88eca3ce39874ee7ef21feb",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_B.json",
+      "report_sha256": "6b191ff9e2096eb3fd472ff64b204482f0d7ae3731b56b918b7080220e508cf1"
+    },
+    "order_38613_A": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_A-games.jsonl",
+      "games_sha256": "0e3dc45334b2db054d7412dedeca3f5e91c32fcf0ad2a14ab01457752adcde71",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_A.json",
+      "report_sha256": "4eab604e76d924b115cc82ec0d7fd1220b09880d2f069036efc09e4b9581f334"
+    },
+    "order_38613_B": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_B-games.jsonl",
+      "games_sha256": "2170aeb8faa6d02f27263314c7edaf57b1eeae4dee86d1775bfbae9a888fbf33",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_B.json",
+      "report_sha256": "5557b0d455269e6e6050067035cc0caf9ae266066ce3e74bcdc56d446c02fd9e"
+    },
+    "order_38614_A": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_A-games.jsonl",
+      "games_sha256": "9a45d6264c47b9d3ec75e443bcd4f426ae2924fbeca4d52991fe2e397822e515",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_A.json",
+      "report_sha256": "a56a9c0f57e032775db4749af60f285a7e00fa02a06777a614ab3a3c5f3942f3"
+    },
+    "order_38614_B": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_B-games.jsonl",
+      "games_sha256": "a36392f410c8c43368170dcba48e4243de40c3291aa7e07c6c93c6c20893bbdf",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_B.json",
+      "report_sha256": "6d3457aa0559879a1feef10ce5c0faab3eb594fbcfa1dbfd95ae3d90aa6c8be9"
+    },
+    "order_38615_A": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_A-games.jsonl",
+      "games_sha256": "3008c9f141049e05743ce4570e387263976d89626cfccf44e85d5d6ad3d496cf",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_A.json",
+      "report_sha256": "b9caa2ee21d6687de6eb5bff113e3f7608b502bfab0dcb787258e9159415bd52"
+    },
+    "order_38615_B": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_B-games.jsonl",
+      "games_sha256": "4889acaac73b04da7f3a4f46e4168037f26a24eec26850fc736f230c2e036b09",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_B.json",
+      "report_sha256": "6f75e3a0f63547b430547218b8e7ab361784b293829afa2ce67fc088dcab0a8a"
+    }
+  },
+  "schema": "seed461-cosine-lr-evaluation-binding-v1",
+  "status": "completed_fixed_5120_games",
+  "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+  "training_sha256": "b49fe98dd885a9858f335883577f86a419f014c37acbc7e1ff614a2d3a2308a7"
+}

@@ -1548,6 +1548,7 @@ def train(
             ),
         )
         epoch_updates = int(epoch_metrics["optimizer_updates"] or 0)
+        epoch_lr = float(optimizer.param_groups[0]["lr"])
         optimizer_updates += epoch_updates
         examples_sampled += int(epoch_metrics["examples_sampled"] or 0)
         batches_per_epoch = (len(train_replay_indexes) + batch_size - 1) // batch_size
@@ -1721,6 +1722,7 @@ def train(
         if epoch_history is not None:
             history_metrics = {
                 "epoch": epoch_idx,
+                "learning_rate": epoch_lr,
                 **epoch_metrics,
                 **validation_metrics,
             }
@@ -1774,6 +1776,12 @@ def train(
         "max_optimizer_updates": max_optimizer_updates,
         "train_split_count": int(len(train_replay_indexes)),
         "validation_count": val_count,
+        "train_split_sha256": hashlib.sha256(
+            np.sort(np.unique(replay_indexes_array[train_positions])).tobytes()
+        ).hexdigest(),
+        "validation_split_sha256": hashlib.sha256(
+            np.sort(np.unique(replay_indexes_array[val_positions])).tobytes()
+        ).hexdigest(),
         "policy_active_rows": int(np.count_nonzero(policy_loss_weights))
         if policy_loss_weights is not None
         else 0,

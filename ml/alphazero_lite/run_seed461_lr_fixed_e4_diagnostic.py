@@ -38,6 +38,24 @@ def verify_cached_file(path: Path, expected_sha256: str, identity: str) -> None:
         raise ValueError(f"cached_evidence_identity_mismatch:{identity}")
 
 
+def verify_exported_model_checkpoint(
+    artifact: Path, checkpoint_sha256: str, run: str
+) -> None:
+    if sha(artifact / "model.npz") != checkpoint_sha256:
+        raise ValueError(f"exported_model_checkpoint_mismatch:{run}")
+
+
+def verify_immutable_cached_binding(
+    registered: dict[str, Any],
+    current: dict[str, Any],
+    run: str,
+    fields: tuple[str, ...],
+) -> None:
+    for field in fields:
+        if registered.get(field) != current.get(field):
+            raise ValueError(f"cached_binding_identity_mismatch:{run}:{field}")
+
+
 def jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line]
 
@@ -76,6 +94,8 @@ def validate_games(path: Path, openings: list[dict[str, Any]]) -> np.ndarray:
             1,
         ]:
             raise ValueError(f"seat_pairing_mismatch:{path.name}:{index}")
+        if any(r.get("winner") not in {"challenger", "current", "draw"} for r in pair):
+            raise ValueError(f"unknown_winner:{path.name}:{index}")
         scores[index] = (
             sum(
                 1.0
@@ -151,6 +171,12 @@ def ensure_e4_evaluations(
         "spec_sha256": sha(SPEC),
         "runs": {},
     }
+    immutable_binding_path = DATA / "seed461-lr-fixed-e4-evidence.json"
+    immutable_binding = (
+        json.loads(immutable_binding_path.read_text())
+        if immutable_binding_path.exists()
+        else None
+    )
     for seed in ORDERS:
         for arm in ("A", "B"):
             run = f"order_{seed}_{arm}"
@@ -199,6 +225,7 @@ def ensure_e4_evaluations(
                     "search_policy.json",
                 )
             }
+            verify_exported_model_checkpoint(artifact, checkpoint_hash, run)
             if (
                 candidate_identity["search_policy.json"]
                 != runtime["search_policy_sha256"]
@@ -213,6 +240,24 @@ def ensure_e4_evaluations(
                 "games": str(games),
                 "reused_selected_record": source_binding["selected_epoch"] == "E4",
             }
+            if immutable_binding is not None:
+                registered_run = immutable_binding.get("runs", {}).get(run)
+                if registered_run is None:
+                    raise ValueError(f"cached_binding_run_missing:{run}")
+                verify_immutable_cached_binding(
+                    registered_run,
+                    e4_binding["runs"][run],
+                    run,
+                    ("checkpoint_sha256", "candidate_artifacts"),
+                )
+                for artifact_name, artifact_hash in candidate_identity.items():
+                    if (
+                        registered_run.get("candidate_artifacts", {}).get(artifact_name)
+                        != artifact_hash
+                    ):
+                        raise ValueError(
+                            f"cached_artifact_binding_mismatch:{run}:{artifact_name}"
+                        )
             if source_binding["selected_epoch"] == "E4":
                 # Copy existing validated evaluation evidence to the dedicated E4 evidence path.
                 old_report = Path(binding["reports"][run]["report"])
@@ -302,6 +347,14 @@ def ensure_e4_evaluations(
             )
             e4_binding["runs"][run]["report_sha256"] = sha(report)
             e4_binding["runs"][run]["games_sha256"] = sha(games)
+            if immutable_binding is not None:
+                registered_run = immutable_binding["runs"][run]
+                verify_immutable_cached_binding(
+                    registered_run,
+                    e4_binding["runs"][run],
+                    run,
+                    ("report_sha256", "games_sha256"),
+                )
     return e4_binding
 
 
@@ -453,7 +506,13 @@ def main() -> None:
     original_binding = json.loads(BIND.read_text())
     e4_binding = ensure_e4_evaluations(spec, amendment, original_binding)
     binding_path = DATA / "seed461-lr-fixed-e4-evidence.json"
-    binding_path.write_text(json.dumps(e4_binding, indent=2, sort_keys=True) + "\n")
+    serialized_binding = json.dumps(e4_binding, indent=2, sort_keys=True) + "\n"
+    if binding_path.exists():
+        existing_binding = json.loads(binding_path.read_text())
+        if existing_binding != e4_binding:
+            raise ValueError("cached_evidence_binding_mismatch")
+    else:
+        binding_path.write_text(serialized_binding)
     result = analyze(spec, amendment, original_binding, e4_binding)
     out = DATA / "seed461-lr-fixed-e4-diagnostic-results.json"
     out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
