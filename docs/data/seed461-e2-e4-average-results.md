@@ -18,4 +18,5 @@ Reproduce from repository root:
 ```sh
 .venv/bin/python -m ml.alphazero_lite.run_seed461_e2_e4_average_arena
 .venv/bin/python -m ml.alphazero_lite.analyze_seed461_e2_e4_average
+.venv/bin/python -m ml.alphazero_lite.reproduce_seed461_score_matrix docs/data/seed461-e2-e4-average-opening-score-matrix.json --seed 387
 ```

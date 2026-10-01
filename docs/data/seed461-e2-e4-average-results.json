@@ -74,6 +74,7 @@
     }
   },
   "preserves_pr386_cosine_rejection": true,
+  "preserves_pr388_averaging_rejection": false,
   "schema": "seed461-e2-e4-average-results-v1",
   "status": "completed_fixed_5120_games",
   "worst_pair": -0.033203125
