@@ -1,0 +1,83 @@
+{
+  "P_absolute_score_95_percentile_interval": [
+    0.5419921875,
+    0.5673828125
+  ],
+  "P_minus_Ai_effects": {
+    "P-A1": 0.123046875,
+    "P-A2": 0.1650390625,
+    "P-A3": 0.0888671875,
+    "P-A4": -0.0048828125,
+    "P-A5": -0.0771484375
+  },
+  "P_score": 0.5546875,
+  "P_score_at_least_baselines_count": 3,
+  "advance_to_independent_confirmation": false,
+  "baseline_scores": {
+    "A1": 0.431640625,
+    "A2": 0.3896484375,
+    "A3": 0.4658203125,
+    "A4": 0.5595703125,
+    "A5": 0.6318359375
+  },
+  "bootstrap": {
+    "cluster": "shared opening",
+    "interval": "95% percentile",
+    "resamples": 10000,
+    "seed": 390
+  },
+  "criteria": {
+    "P_absolute_score_interval_lower_above_0.5": true,
+    "P_score_at_least_four_of_five_baselines": false,
+    "primary_interval_lower_above_zero": true,
+    "primary_mean_improvement_at_least_0.03": true,
+    "worst_P_minus_Ai_at_least_minus_0.05": false
+  },
+  "decision": "reject_cross_order_E4_averaging",
+  "evidence_sha256": {
+    "candidate_binding": "17c9f0d34e08e3b92e2a8dbad7a986d0dab931d96fd86a8c8b4e328c381e1506",
+    "evaluation_binding": "a7e8be2ba38b93c92e676c57d84d8c80990eddbb60f6b864809c558c04db0c1b",
+    "matrix": "2c78f1eed1f59316dcdc59f64ff67168e5b86babedaabf5e87f967b42683590c",
+    "registration": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+    "suite": "69f50cdc0d97ce7debe8043824e0c60cf285585c81e2a02455957a59ce4c992a"
+  },
+  "failed_criteria": [
+    "P_score_at_least_four_of_five_baselines",
+    "worst_P_minus_Ai_at_least_minus_0.05"
+  ],
+  "future_training_runs_required": 5,
+  "game_accounting": {
+    "games": 3072,
+    "games_per_model": 512,
+    "models": 6,
+    "outcome_dependent_extensions": 0
+  },
+  "inference_scope": "conditional on these five source trajectories and this dataset; no inference to order stability",
+  "no_model_promotion": true,
+  "preserves_rejections": [
+    "PR #386 cosine-LR rejection",
+    "PR #388 within-trajectory averaging rejection",
+    "PR #389 E3 versus E4 rejection"
+  ],
+  "primary_95_percentile_interval": [
+    0.046679687500000004,
+    0.0712890625
+  ],
+  "primary_effect": 0.058984375000000006,
+  "schema": "seed461-cross-order-e4-average-results-v1",
+  "scores": {
+    "A1": 0.431640625,
+    "A2": 0.3896484375,
+    "A3": 0.4658203125,
+    "A4": 0.5595703125,
+    "A5": 0.6318359375,
+    "P": 0.5546875
+  },
+  "single_network_inference": true,
+  "status": "completed_fixed_3072_games",
+  "training_runs_performed": 0,
+  "worst_comparison": {
+    "effect": -0.0771484375,
+    "name": "P-A5"
+  }
+}

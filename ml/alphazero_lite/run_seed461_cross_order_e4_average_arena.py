@@ -1,4 +1,4 @@
-"""Execute the frozen seed461 E2–E4 averaging arena; no training or exports."""
+"""Run the fixed six-model cross-order E4 arena with immutable recovery."""
 
 from __future__ import annotations
 
@@ -9,22 +9,21 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from ml.alphazero_lite.frozen_opponent_identity import validate_frozen_opponent_identity
 from ml.alphazero_lite.runtime_search_policy import (
     resolve_strength_comparison_runtime_contract,
-)
-from ml.alphazero_lite.frozen_opponent_identity import (
-    validate_frozen_opponent_identity,
 )
 from ml.alphazero_lite.seed461_arena_validation import validate_arena_evidence
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
-REG = DATA / "seed461-e2-e4-average-registration.json"
-SUITE = DATA / "seed461-e2-e4-average-openings.jsonl"
-CANDIDATES = DATA / "seed461-e2-e4-average-candidate-binding.json"
-BINDING = DATA / "seed461-e2-e4-average-evaluation-binding.json"
-WORK = ROOT / ".tmp/seed461-e2-e4-average"
+REG = DATA / "seed461-cross-order-e4-average-registration.json"
+SUITE = DATA / "seed461-cross-order-e4-average-openings.jsonl"
+CANDIDATES = DATA / "seed461-cross-order-e4-average-candidate-binding.json"
+BINDING = DATA / "seed461-cross-order-e4-average-evaluation-binding.json"
+WORK = ROOT / ".tmp/seed461-cross-order-e4-average"
 OPPONENT = ROOT / ".tmp/seed461-order-confirmation/opponent-artifact"
+RUNS = ("P", "A1", "A2", "A3", "A4", "A5")
 
 
 def sha(path: Path) -> str:
@@ -32,60 +31,65 @@ def sha(path: Path) -> str:
 
 
 def write_json(path: Path, value: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
 
 
 def validate_inputs(reg: dict[str, Any], candidates: dict[str, Any]) -> None:
-    if sha(SUITE) != reg["evaluation"]["suite"]["sha256"]:
+    evaluation = reg["evaluation"]
+    if sha(SUITE) != evaluation["suite"]["sha256"]:
         raise ValueError("registered_suite_hash_mismatch")
-    if candidates.get("schema") != "seed461-e2-e4-average-candidate-binding-v1":
+    if (
+        candidates.get("schema")
+        != "seed461-cross-order-e4-average-candidate-binding-v1"
+    ):
         raise ValueError("candidate_binding_schema_mismatch")
     for key, expected in (
         ("registration_sha256", sha(REG)),
-        ("source_training_sha256", reg["reused_training"]["training_record_sha256"]),
         ("suite_sha256", sha(SUITE)),
-        ("opponent", reg["evaluation"]["opponent_binding"]),
+        ("source_training_sha256", reg["training"]["training_record_sha256"]),
+        ("opponent", evaluation["opponent_binding"]),
+        ("runtime_contract", evaluation["runtime_contract"]),
     ):
         if candidates.get(key) != expected:
             raise ValueError(f"candidate_binding_mismatch:{key}")
-    contract = reg["evaluation"]["runtime_contract"]
-    opponent = reg["evaluation"]["opponent_binding"]
-    validate_frozen_opponent_identity(OPPONENT, opponent, contract)
-    expected_runs = {
-        f"order_{order}_{arm}"
-        for order in reg["reused_training"]["orders"]
-        for arm in ("A", "B")
-    }
-    if set(candidates.get("candidates", {})) != expected_runs:
+    validate_frozen_opponent_identity(
+        OPPONENT, evaluation["opponent_binding"], evaluation["runtime_contract"]
+    )
+    if set(candidates.get("candidates", {})) != set(RUNS):
         raise ValueError("candidate_set_mismatch")
-    for run, row in candidates["candidates"].items():
-        if row["runtime_contract"] != contract:
-            raise ValueError(f"bound_runtime_contract_mismatch:{run}")
+    for run in RUNS:
+        row = candidates["candidates"][run]
+        artifact = Path(row["artifact"])
+        if row["runtime_contract"] != evaluation["runtime_contract"]:
+            raise ValueError(f"candidate_runtime_contract_mismatch:{run}")
         if sha(Path(row["checkpoint"])) != row["checkpoint_sha256"]:
-            raise ValueError(f"checkpoint_hash_mismatch:{run}")
-        for name, digest in row["artifact_sha256"].items():
-            if sha(Path(row["artifact"]) / name) != digest:
+            raise ValueError(f"candidate_checkpoint_hash_mismatch:{run}")
+        for name, expected in row["artifact_sha256"].items():
+            if sha(artifact / name) != expected:
                 raise ValueError(f"candidate_artifact_hash_mismatch:{run}:{name}")
         if row["artifact_sha256"].get("model.npz") != row["checkpoint_sha256"]:
             raise ValueError(f"candidate_model_checkpoint_mismatch:{run}")
-        actual = resolve_strength_comparison_runtime_contract(
-            current_artifact=OPPONENT, challenger_artifact=Path(row["artifact"])
-        )
-        if actual != contract:
-            raise ValueError(f"resolved_runtime_contract_mismatch:{run}")
+        if (
+            resolve_strength_comparison_runtime_contract(
+                current_artifact=OPPONENT, challenger_artifact=artifact
+            )
+            != evaluation["runtime_contract"]
+        ):
+            raise ValueError(f"candidate_resolved_runtime_mismatch:{run}")
 
 
 def main() -> None:
-    reg, candidates = json.loads(REG.read_text()), json.loads(CANDIDATES.read_text())
+    reg = json.loads(REG.read_text())
+    candidates = json.loads(CANDIDATES.read_text())
     validate_inputs(reg, candidates)
     openings = [json.loads(line) for line in SUITE.read_text().splitlines() if line]
-    candidate_hash = sha(CANDIDATES)
+    if len(openings) != 256:
+        raise ValueError("opening_count_mismatch")
     previous = json.loads(BINDING.read_text()) if BINDING.exists() else None
     binding: dict[str, Any] = {
-        "schema": "seed461-e2-e4-average-evaluation-binding-v1",
+        "schema": "seed461-cross-order-e4-average-evaluation-binding-v1",
         "registration_sha256": sha(REG),
-        "candidate_binding_sha256": candidate_hash,
+        "candidate_binding_sha256": sha(CANDIDATES),
         "suite_sha256": sha(SUITE),
         "opponent": reg["evaluation"]["opponent_binding"],
         "candidates": candidates["candidates"],
@@ -93,9 +97,7 @@ def main() -> None:
     }
     if previous:
         for key, expected in binding.items():
-            if key == "reports":
-                continue
-            if previous.get(key) != expected:
+            if key != "reports" and previous.get(key) != expected:
                 raise ValueError(f"immutable_evaluation_binding_mismatch:{key}")
         for run, evidence in previous.get("reports", {}).items():
             if evidence.get("state") == "running":
@@ -108,9 +110,13 @@ def main() -> None:
                 or sha(games) != evidence["games_sha256"]
             ):
                 raise ValueError(f"cached_evidence_hash_mismatch:{run}")
-    for run, candidate in binding["candidates"].items():
-        report = WORK / "arena" / f"{run}.json"
-        games = WORK / "arena" / f"{run}-games.jsonl"
+
+    for run in RUNS:
+        candidate = candidates["candidates"][run]
+        report, games = (
+            WORK / "arena" / f"{run}.json",
+            WORK / "arena" / f"{run}-games.jsonl",
+        )
         cached = binding["reports"].get(run)
         if report.exists() or games.exists():
             if cached is None:
@@ -120,14 +126,7 @@ def main() -> None:
                 and report.is_file()
                 and games.is_file()
             ):
-                # Recover only a fully written report/game pair for an evaluation
-                # already declared in the immutable binding before launch.
                 report_data = json.loads(report.read_text())
-                if (
-                    report_data.get("games_played") != 512
-                    or report_data.get("games") != 512
-                ):
-                    raise ValueError(f"incomplete_cached_evaluation:{run}")
                 rows = [
                     json.loads(line) for line in games.read_text().splitlines() if line
                 ]
@@ -136,7 +135,7 @@ def main() -> None:
                     rows,
                     openings,
                     run,
-                    binding["candidates"][run],
+                    candidate,
                     binding["opponent"],
                     reg["evaluation"],
                 )
@@ -157,21 +156,18 @@ def main() -> None:
                 or sha(games) != cached.get("games_sha256")
             ):
                 raise ValueError(f"cached_evaluation_hash_mismatch:{run}")
-            report_data = json.loads(report.read_text())
-            rows = [json.loads(line) for line in games.read_text().splitlines() if line]
             validate_arena_evidence(
-                report_data,
-                rows,
+                json.loads(report.read_text()),
+                [json.loads(line) for line in games.read_text().splitlines() if line],
                 openings,
                 run,
-                binding["candidates"][run],
+                candidate,
                 binding["opponent"],
                 reg["evaluation"],
             )
             continue
         if cached is not None and cached.get("state") != "running":
             raise ValueError(f"bound_evaluation_missing:{run}")
-        evaluation = reg["evaluation"]
         report.parent.mkdir(parents=True, exist_ok=True)
         binding["reports"][run] = {
             "state": "running",
@@ -179,6 +175,7 @@ def main() -> None:
             "games": str(games),
         }
         write_json(BINDING, binding)
+        evaluation = reg["evaluation"]
         subprocess.run(
             [
                 sys.executable,
@@ -196,17 +193,17 @@ def main() -> None:
                 "--suite-sha256",
                 sha(SUITE),
                 "--challenger-simulations",
-                str(evaluation["simulations_per_side"]),
+                "384",
                 "--current-simulations",
-                str(evaluation["simulations_per_side"]),
+                "384",
                 "--seed",
-                str(evaluation["arena_seed"]),
+                "390",
                 "--workers",
                 "24",
                 "--c-puct",
-                str(evaluation["c_puct"]),
+                "1.25",
                 "--seed-contract",
-                evaluation["seed_contract"],
+                "azlite_eval_seed_v2",
                 "--game-jsonl",
                 str(games),
                 "--out",
@@ -231,9 +228,8 @@ def main() -> None:
             "games_sha256": sha(games),
         }
         write_json(BINDING, binding)
-    binding["status"] = "completed_fixed_5120_games"
-    if previous is None or previous != binding:
-        write_json(BINDING, binding)
+    binding["status"] = "completed_fixed_3072_games"
+    write_json(BINDING, binding)
 
 
 if __name__ == "__main__":

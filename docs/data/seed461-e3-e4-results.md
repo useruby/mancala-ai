@@ -14,6 +14,8 @@ Decision: **retain_e4_baseline**. Failed criteria: mean_effect_at_least_0.03, at
 
 Inference is conditional on these five orders and this dataset; PR #386's cosine and PR #388's averaging rejections remain unchanged. No model is promoted.
 
+Validation note: the #389 runner resolved and checked the runtime-policy contract but did not independently re-hash the frozen opponent's `weights.json`, `metadata.json`, `search_policy.json`, native probe, and tablebase against their registered identities before launch/resume. This is a preflight validation gap, not evidence that the completed games used a different opponent; the registration and arena reports identify the frozen seed455 opponent. No claim is made that its identity changed.
+
 Reproduce from repository root:
 ```sh
 .venv/bin/python -m ml.alphazero_lite.run_seed461_e3_e4_arena
