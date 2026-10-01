@@ -1,0 +1,80 @@
+{
+  "advance": false,
+  "between_order_range": {
+    "A": 0.2392578125,
+    "B": 0.107421875
+  },
+  "bootstrap": {
+    "cluster": "shared opening",
+    "interval": "95% percentile",
+    "resamples": 10000,
+    "seed": 387
+  },
+  "bootstrap_95_percentile_interval": [
+    0.0443359375,
+    0.06875
+  ],
+  "criteria": {
+    "B_minimum_no_lower": true,
+    "B_score_range_smaller": true,
+    "at_least_four_nonnegative_pairs": false,
+    "lower_interval_above_zero": true,
+    "mean_effect_at_least_0.03": true,
+    "worst_pair_at_least_minus_0.05": true
+  },
+  "decision": "retain_constant_lr_0.001",
+  "evidence_sha256": {
+    "candidate_binding": "fa393de662830d4915616ce99623b10bcef521997786e3d89cb6c187c5c6f8f3",
+    "evaluation_binding": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+    "registration": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+    "suite": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56"
+  },
+  "failed_criteria": [
+    "at_least_four_nonnegative_pairs"
+  ],
+  "game_accounting": {
+    "expected_games": 5120,
+    "games": 5120,
+    "outcome_dependent_extensions": 0
+  },
+  "inference_scope": "conditional on these five orders and this dataset",
+  "mean_effect": 0.056640625,
+  "minimum_score": {
+    "A": 0.4013671875,
+    "B": 0.5126953125
+  },
+  "no_model_promotion": true,
+  "paired_effects": {
+    "38611": 0.09375,
+    "38612": 0.2060546875,
+    "38613": 0.037109375,
+    "38614": -0.033203125,
+    "38615": -0.0205078125
+  },
+  "per_order_scores": {
+    "38611": {
+      "A": 0.44140625,
+      "B": 0.53515625
+    },
+    "38612": {
+      "A": 0.4013671875,
+      "B": 0.607421875
+    },
+    "38613": {
+      "A": 0.4755859375,
+      "B": 0.5126953125
+    },
+    "38614": {
+      "A": 0.568359375,
+      "B": 0.53515625
+    },
+    "38615": {
+      "A": 0.640625,
+      "B": 0.6201171875
+    }
+  },
+  "preserves_pr386_cosine_rejection": true,
+  "schema": "seed461-e2-e4-average-results-v1",
+  "status": "completed_fixed_5120_games",
+  "worst_pair": -0.033203125
+}
