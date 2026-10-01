@@ -1,0 +1,140 @@
+{
+  "schema": "opening-replay-contract-erratum-v1",
+  "supersedes": "declared-suite-state validity for seed461 order-evaluation suites enumerated below",
+  "validity_status": "affected_evaluations_invalid_for_registered_opening_distribution_claims",
+  "supersedes_result_artifact": "order38615-a5-confirmation-results.json",
+  "advancement_claim_status": "withdrawn",
+  "cause": "Suite generators stored absolute pit indices, while arena.apply_opening_moves interprets prefix_moves as player-relative actions and stops at the first illegal move.",
+  "replay_contract": {
+    "generator_encoding": "absolute pit indices",
+    "arena_encoding": "player-relative actions",
+    "corrected_export": "arena_player_relative_v2",
+    "conversion": "replay every absolute action, subtract 6 times the current player before applying each action; current player is read again after each move, including extra turns"
+  },
+  "affected_evaluations": [
+    {
+      "evaluation": "#383 batch-order sensitivity confirmation",
+      "suite": "seed461-batch-order-sensitivity-confirmation-openings.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 215, "2": 41},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#384 LR sensitivity",
+      "suite": "seed461-lr-sensitivity-openings-v2.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 211, "2": 45},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#385 retrospective fixed-E4 diagnostic (reuses the #384 suite)",
+      "suite": "seed461-lr-sensitivity-openings-v2.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 211, "2": 45},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#386 cosine-LR ablation",
+      "suite": "seed461-cosine-lr-ablation-openings.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 212, "2": 44},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#387 fixed E2-E4 averaging registration (same suite completed in #388)",
+      "suite": "seed461-e2-e4-average-openings.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 212, "2": 44},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#388 E2-E4 average",
+      "suite": "seed461-e2-e4-average-openings.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 212, "2": 44},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#389 E3-E4 average",
+      "suite": "seed461-e3-e4-openings.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 216, "2": 40},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#390 cross-order E4 average",
+      "suite": "seed461-cross-order-e4-average-openings.jsonl",
+      "declared_openings": 256,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 214, "2": 42},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#391 order_38615_A E4 confirmation",
+      "suite": "order38615-a5-confirmation-seed391-openings.jsonl",
+      "declared_openings": 512,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 427, "2": 85},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    },
+    {
+      "evaluation": "#391 order_38615_A E4 confirmation paired suite",
+      "suite": "order38615-a5-confirmation-seed392-openings.jsonl",
+      "declared_openings": 512,
+      "actual_unique_starts": 10,
+      "applied_prefix_length_counts": {"1": 427, "2": 85},
+      "declared_state_matches": 0,
+      "evidence_actual_start_identities": "not recorded; reconstructed from the arena replay path"
+    }
+  ],
+  "overlap": {
+    "seed391_seed392_actual_start_intersection": 10,
+    "all_listed_suites_share_the_same_10_actual_start_states": true,
+    "canonical_actual_state_identities": [
+      "0c0c22db4574d4abf563b3f77a21252a413dad0f5d1cc3fa6764001f2998424e",
+      "377c7530013a81c8a65b9b81e8ea8872c10d9b790e1781c341fda3dd99959e21",
+      "4275ecbec54d9811ab580fc79b98423bd94ead956bbaba9d371389154bed9fc4",
+      "619f3d5bd5d5a9ce417eea51391a536474d1486727d8907c63f0439c0bcdd3a7",
+      "6ab7fa1bb9069847c108e29ff8c800045b16abde3c3230c04116168839c220a4",
+      "8ff6a3bfc12cc28a3e3cfc4e00d0202c4389495f5fb3777efbaba97aa0cd4933",
+      "a94418a5a3d1b18e10fa5eb0825b171f3e80859d739a5cd5d2043c11f560274b",
+      "c235b8ae85d2ddb8c7d80e3c3e6e29d081101692a20938c51ed87f08d6cb0d65",
+      "e1f42cb0ca13bf1b8e6d697a440f4aec5f54f3bf1c0402d9e8c8c59c53a2bd98",
+      "ed44869b074a215cc1cb9a03671d59ae49466097d5b99b39df16d8087921e96a"
+    ]
+  },
+  "historical_evidence": {
+    "registrations_preserved": true,
+    "scores_matrices_and_raw_evidence_preserved": true,
+    "actual_state_identifiers_were_not_recorded_in_game_rows": true,
+    "treatment_benefits_or_training_order_generalization_inference": "withdrawn; affected holdouts are invalid for those claims"
+  },
+  "unaffected_evidence": {
+    "canonical_production_prefilter": {
+      "suite": "alphazero-lite-production-prefilter-calibration-openings-v1.jsonl",
+      "declared_openings": 256,
+      "fully_applied": 256,
+      "actual_unique_starts": 256,
+      "declared_states_match": 256,
+      "canonical_rejection": "retained"
+    },
+    "incumbent": "seed455 retained",
+    "#391 advancement claim": "withdrawn"
+  }
+}

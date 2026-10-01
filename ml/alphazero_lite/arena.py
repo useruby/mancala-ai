@@ -2094,6 +2094,7 @@ def run_arena_worker(
     if opening_seed is not None:
         effective_opening_seed = int(opening_seed)
     opening_prefix_cache: list[list[int]] | None = None
+    opening_contracts: list[dict | None] = []
     if opening_prefixes_jsonl is not None:
         opening_prefix_cache = []
         with open(opening_prefixes_jsonl, "r", encoding="utf-8") as pf:
@@ -2103,6 +2104,16 @@ def run_arena_worker(
                     continue
                 entry = json.loads(line)
                 opening_prefix_cache.append([int(m) for m in entry["prefix_moves"]])
+                opening_contracts.append(
+                    entry if entry.get("opening_contract") else None
+                )
+        registered = [entry for entry in opening_contracts if entry is not None]
+        if registered:
+            if len(registered) != len(opening_contracts):
+                raise ValueError("opening_contract_mixed_suite")
+            from ml.alphazero_lite.build_opening_suite import validate_arena_entries
+
+            validate_arena_entries(registered)
     elif int(opening_samples) > 0 and int(random_opening_plies) > 0:
         effective_opening_seed = (
             int(opening_seed) if opening_seed is not None else int(seed)
@@ -2170,6 +2181,7 @@ def run_arena_worker(
             challenger_player = 0 if game_index % 2 == 0 else 1
 
         opening_prefix_moves: list[int] = []
+        opening_applied_prefix_length = 0
         if opening_state_override is not None:
             opening_prefix_moves = []
             applied = 0
@@ -2177,12 +2189,30 @@ def run_arena_worker(
         elif opening_prefix_override is not None:
             opening_prefix_moves = [int(move) for move in opening_prefix_override]
             applied = apply_opening_moves(game, opening_prefix_moves)
+            opening_applied_prefix_length = applied
+            if (
+                opening_contracts
+                and opening_contracts[opening_index] is not None
+                and applied != len(opening_prefix_moves)
+            ):
+                raise ValueError(
+                    f"registered_opening_truncated:{opening_index}:{applied}"
+                )
             opening_prefix_plies_applied.append(applied)
         elif opening_prefix_cache is not None:
             sample_idx = opening_index
             if sample_idx < len(opening_prefix_cache):
                 opening_prefix_moves = list(opening_prefix_cache[sample_idx])
                 applied = apply_opening_moves(game, opening_prefix_moves)
+                opening_applied_prefix_length = applied
+                if (
+                    opening_contracts
+                    and opening_contracts[sample_idx] is not None
+                    and applied != len(opening_prefix_moves)
+                ):
+                    raise ValueError(
+                        f"registered_opening_truncated:{sample_idx}:{applied}"
+                    )
                 opening_prefix_plies_applied.append(applied)
             else:
                 opening_prefix_plies_applied.append(0)
@@ -2194,6 +2224,12 @@ def run_arena_worker(
             )
             opening_prefix_plies_applied.append(applied)
         opening_state_hash = canonical_game_state_hash(game)
+        if opening_contracts and opening_contracts[opening_index] is not None:
+            declared = opening_contracts[opening_index]
+            from ml.alphazero_lite.build_opening_suite import canonical_key
+
+            if canonical_key(game.to_state()) != declared["state_hash"]:
+                raise ValueError(f"registered_opening_state_mismatch:{opening_index}")
         reusable_roots = {
             0: None,
             1: None,
@@ -2616,6 +2652,13 @@ def run_arena_worker(
         }
         if opening_prefix_moves:
             entry_data["opening_prefix_moves"] = [int(m) for m in opening_prefix_moves]
+        entry_data["opening_state_hash"] = opening_state_hash
+        entry_data["opening_applied_prefix_length"] = opening_applied_prefix_length
+        entry_data["opening_contract"] = (
+            "arena_player_relative_v2"
+            if opening_contracts and opening_contracts[opening_index] is not None
+            else "legacy_player_relative_v1"
+        )
         game_entries.append(entry_data)
         trajectory_hashes.append(trajectory_str)
         # PUCT nodes retain parent/child cycles. Reclaim completed-game trees now
