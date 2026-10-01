@@ -1,0 +1,41 @@
+{
+  "schema": "order38615-a5-seed392-evidence-recovery-v1",
+  "validity": "score reproducible; registered opening-distribution claim invalid",
+  "registration_sha256": "ef02fd57f638e7cf4f02030fae5c7da84b824f4d2c3192ee51b1ac629671c06f",
+  "suite_sha256": "b961da2cf1c751d8f501203d9496b1a1d5d884da63b075f0e8f3d2c68f25efc7",
+  "raw_evidence": {
+    "games_path": ".tmp/order38615-a5-confirmation/seed392-games.jsonl",
+    "games_sha256": "7559acc5f3beaf630b85493cf817a33676e7d7d27d6f2cabc68b9d797f058081",
+    "report_path": ".tmp/order38615-a5-confirmation/seed392.json",
+    "report_sha256": "6c1dbc447c0340be13c90e8ce6978d5c55af6adff711e740f57c37c05ae396c9",
+    "hashes_verified": true
+  },
+  "declared_openings": 512,
+  "actual_unique_starting_states": 10,
+  "cross_suite_actual_overlap_with_seed391": 10,
+  "applied_prefix_length_counts": {"1": 427, "2": 85},
+  "score_matrix_path": "order38615-a5-confirmation-opening-score-matrix.json",
+  "score_matrix_sha256": "17d8fe40ed83327b1f6ed2f93d6e149c74272212b9e097446546d2412d0df036",
+  "reported_result": {
+    "games": 1024,
+    "wins": 597,
+    "draws": 102,
+    "losses": 325,
+    "score": 0.6328125,
+    "opening_cluster_interval_95_percentile": [0.61669921875, 0.6494140625],
+    "bootstrap_seed": 392,
+    "bootstrap_resamples": 10000
+  },
+  "runtime": {
+    "workers_used": 24,
+    "simulations_per_side": 384,
+    "c_puct": 1.25,
+    "move_time_mean_ms": 54.76,
+    "move_time_p95_ms": 132.98,
+    "summed_normal_puct_ms": 1873178.3771554474,
+    "summed_exact_root_solve_ms": 2767.7742931991816,
+    "training_or_export_cost": "none"
+  },
+  "reproduce": ".venv/bin/python -m ml.alphazero_lite.reproduce_order38615_a5_confirmation docs/data/order38615-a5-confirmation-opening-score-matrix.json",
+  "interpretation": "The score and interval reproduce from the preserved matrix. Repeated suites states and incomplete prefixes invalidate the declared 512-opening distribution interpretation; the numerical score is not an advancement result."
+}

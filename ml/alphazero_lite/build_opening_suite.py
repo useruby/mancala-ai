@@ -49,6 +49,79 @@ def canonical_key(state: dict) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
+def absolute_prefix_to_relative(moves: list[int]) -> list[int]:
+    """Replay generator-absolute pit indices and encode arena-relative actions.
+
+    The current player is consulted before every move, so extra turns retain
+    that player's coordinate system while ordinary turns switch coordinates.
+    """
+    game = KalahGame.from_state(INITIAL_STATE)
+    relative: list[int] = []
+    for ply, absolute in enumerate(moves):
+        if game.over():
+            raise ValueError(f"opening terminates before move {ply}")
+        action = int(absolute) - game.current_player * PITS_PER_PLAYER
+        if action not in game.possible_moves():
+            raise ValueError(f"illegal absolute opening move {absolute} at ply {ply}")
+        if not game.move(int(absolute)):
+            raise ValueError(f"failed absolute opening move {absolute} at ply {ply}")
+        relative.append(action)
+    return relative
+
+
+def export_arena_entry(entry: dict) -> dict:
+    """Return a v2 arena record while preserving the generator's source path."""
+    record = dict(entry)
+    record["source_prefix_moves_absolute"] = [int(m) for m in entry["prefix_moves"]]
+    record["prefix_moves"] = absolute_prefix_to_relative(
+        record["source_prefix_moves_absolute"]
+    )
+    record["opening_contract"] = "arena_player_relative_v2"
+    record["state_hash"] = canonical_key(entry["state"])
+    return record
+
+
+def validate_arena_entries(
+    entries: list[dict], *, allow_duplicates: bool = False
+) -> list[str]:
+    """Replay relative arena entries and require their declared board identity."""
+    from ml.alphazero_lite.arena import apply_opening_moves, canonical_game_state_hash
+
+    identities: list[str] = []
+    seen: set[str] = set()
+    for index, entry in enumerate(entries):
+        if entry.get("opening_contract") != "arena_player_relative_v2":
+            raise ValueError(f"entry {index} has no supported opening contract")
+        game = KalahGame.from_state(INITIAL_STATE)
+        expected_length = len(entry["prefix_moves"])
+        applied = apply_opening_moves(game, [int(m) for m in entry["prefix_moves"]])
+        if applied != expected_length:
+            raise ValueError(
+                f"entry {index} applied {applied}/{expected_length} opening moves"
+            )
+        actual_hash = canonical_key(game.to_state())
+        declared_hash = entry.get("state_hash", canonical_key(entry["state"]))
+        if actual_hash != declared_hash or canonical_key(
+            game.to_state()
+        ) != canonical_key(entry["state"]):
+            raise ValueError(
+                f"entry {index} replayed state does not match its declaration"
+            )
+        if "source_prefix_moves_absolute" in entry:
+            if absolute_prefix_to_relative(entry["source_prefix_moves_absolute"]) != [
+                int(move) for move in entry["prefix_moves"]
+            ]:
+                raise ValueError(f"entry {index} source prefix conversion mismatch")
+        # Keep arena's evidence hash format checkable alongside canonical suite identity.
+        if not canonical_game_state_hash(game):
+            raise ValueError(f"entry {index} produced an empty arena identity")
+        if not allow_duplicates and actual_hash in seen:
+            raise ValueError(f"entry {index} duplicates an actual starting state")
+        seen.add(actual_hash)
+        identities.append(actual_hash)
+    return identities
+
+
 def enumerate_legal_prefixes(max_ply: int) -> list[dict]:
     initial_game = KalahGame.from_state(INITIAL_STATE)
     results: list[dict] = []
@@ -251,6 +324,12 @@ def write_suite_jsonl(entries: list[dict], path: str) -> str:
                 "extra_turn_available": entry["extra_turn_available"],
                 "first_move_family": entry.get("first_move_family", "none"),
             }
+            if entry.get("opening_contract"):
+                record["opening_contract"] = entry["opening_contract"]
+                record["source_prefix_moves_absolute"] = entry[
+                    "source_prefix_moves_absolute"
+                ]
+                record["state_hash"] = entry["state_hash"]
             if entry.get("alternate_prefixes"):
                 record["alternate_prefixes"] = entry["alternate_prefixes"]
             f.write(json.dumps(record) + "\n")
@@ -294,6 +373,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--seed", type=int, default=49, help="RNG seed for subset selection."
+    )
+    parser.add_argument(
+        "--arena-v2",
+        action="store_true",
+        help="Export prefixes in the versioned player-relative arena contract.",
     )
     return parser.parse_args()
 
@@ -347,7 +431,12 @@ def main() -> int:
     for size, entries in suites.items():
         label = size_label(size)
         path = str(out_dir / f"{label}.jsonl")
-        write_suite_jsonl(entries, path)
+        exported = (
+            [export_arena_entry(entry) for entry in entries]
+            if args.arena_v2
+            else entries
+        )
+        write_suite_jsonl(exported, path)
         sha = suite_sha256(path)
         suite_paths[size] = path
 
@@ -367,7 +456,7 @@ def main() -> int:
         print(f"  By store-diff: {dict(store_sub)}")
 
     summary = {
-        "schema": "opening_suite_v1",
+        "schema": "opening_suite_arena_v2" if args.arena_v2 else "opening_suite_v1",
         "total_legal_prefixes_enumerated": total_enumerated,
         "unique_resulting_boards": len(unique),
         "duplicate_prefix_count": duplicate_count,

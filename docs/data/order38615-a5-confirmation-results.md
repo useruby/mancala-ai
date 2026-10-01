@@ -7,9 +7,9 @@
 
 Equally weighted pooled score: **0.6345** (stratified opening bootstrap 95% interval 0.6230–0.6458).
 
-Decision: **advance_to_promotion_review**.
+Superseding validity status: **INVALID OPENING DISTRIBUTION — advancement claim withdrawn**. The recorded score estimates and matrices are preserved below and in their hash-bound files, but both registered suites replayed through the arena as only 10 actual starting states, shared those states, and never reached their declared boards. They cannot support advancement or treatment/generalization claims. See [`opening-replay-contract-erratum.md`](opening-replay-contract-erratum.md) and the machine-readable [`opening-replay-contract-erratum.json`](opening-replay-contract-erratum.json).
 
-The candidate was selected after inspecting #386, #388, #389, and #390 results; those results are selection evidence only and are excluded from these estimates. No training or model export was performed. Rejections in #386, #388, #389, and #390 remain preserved.
+The candidate was selected after inspecting #386, #388, #389, and #390 results; those results remain selection history only. No training or model export was performed. The affected holdout results do not establish treatment benefits or training-order generalization.
 
 Registration SHA-256: `ef02fd57f638e7cf4f02030fae5c7da84b824f4d2c3192ee51b1ac629671c06f`. Candidate binding SHA-256: `31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a`. Evaluation binding SHA-256: `ebed6050dcf73d76fdf14438a74c3587a2a3a9a619de58ac0d7dc0da8f9f0239`.
 
@@ -18,6 +18,8 @@ Fresh suite SHA-256 values: seed 391 `3ee182e45ce262971f2e57b0e77bc49e5a323d2d68
 this frozen order_38615_A E4 candidate versus this exact frozen seed455 opponent on the registered opening distribution; does not establish order generalization or validate rejected averaging treatments
 
 Raw evidence is hash-bound by `order38615-a5-confirmation-opening-score-matrix.json` (SHA-256 `17d8fe40ed83327b1f6ed2f93d6e149c74272212b9e097446546d2412d0df036`).
+
+Seed 392 raw report and game evidence were recovered and their registered hashes verified. The compact runtime and score recovery, including the actual 10-state replay identity count, is recorded in [`order38615-a5-confirmation-seed392-recovery.json`](order38615-a5-confirmation-seed392-recovery.json). The matrix remains numerically reproducible, but the corrected validity status above supersedes its original distribution claim.
 
 Reproduce the point estimates and intervals from the registered opening-score matrix:
 ```sh

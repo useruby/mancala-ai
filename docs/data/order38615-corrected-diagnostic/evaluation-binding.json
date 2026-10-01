@@ -1,0 +1,40 @@
+{
+  "candidate_artifact_sha256": {
+    "metadata.json": "5bddbc75be291d2b37cfd2257b7546e2b68f7b823c4692883b09e2f1ddadd37f",
+    "model.npz": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+    "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "weights.json": "73aa08979a1e05be9a83d8349aedd4a9913da224951feeeafe4d2d12df43675f"
+  },
+  "opponent": {
+    "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "registration_sha256": "94e7afbc3e5c64443084430eb3539b55be8929fb798fc0a6e243362224dd13bf",
+  "reports": {
+    "393": {
+      "games": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed393-games.jsonl",
+      "games_sha256": "da68b60614e6c4c9955a436f6c31c2216ffd434c8de196a54eb2d47edd9eb5d8",
+      "report": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed393.json",
+      "report_sha256": "b82cb7a52ec48d38169d1a7b6ceb95745bc38a3a3f1a0db4c19e5d0783ae5322",
+      "score": 0.4912109375
+    },
+    "394": {
+      "games": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed394-games.jsonl",
+      "games_sha256": "9a73af391ac58b55a1bb532a62505fea6290f895e42e1b4fbecf0d214f1f9c1c",
+      "report": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed394.json",
+      "report_sha256": "6a8a59bae72dc81465ccd924c9c18797aaf8ec2ed503de39600696504ab26fdf",
+      "score": 0.5009765625
+    }
+  },
+  "schema": "order38615-corrected-diagnostic-evaluation-binding-v1",
+  "source_candidate_binding_sha256": "31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a",
+  "status": "completed_2048_games",
+  "suite_sha256": {
+    "393": "6e3ed4680c9b8fae598a7ff4db088c7dac1b6c8b89268ff2efa43b6a813ad50f",
+    "394": "1bb1253fd1db6f4e7f3d163f6dd09fbb4cb062e56d990ae10172b5079e2b8a6b"
+  }
+}

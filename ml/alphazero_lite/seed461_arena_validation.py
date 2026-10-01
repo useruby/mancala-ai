@@ -6,6 +6,10 @@ from typing import Any
 
 import numpy as np
 
+from ml.alphazero_lite.arena import canonical_game_state_hash
+from ml.alphazero_lite.build_opening_suite import INITIAL_STATE, canonical_key
+from ml.alphazero_lite.kalah_rules import KalahGame
+
 
 def validate_arena_evidence(
     report: dict[str, Any],
@@ -54,6 +58,36 @@ def validate_arena_evidence(
             raise ValueError(f"report_runtime_contract_mismatch:{run}:{key}")
 
     grouped: dict[int, list[dict[str, Any]]] = {}
+    actual_identities: dict[int, tuple[str, str, int]] = {}
+    versioned_indices: set[int] = set()
+    for index, opening in enumerate(openings):
+        game = KalahGame.from_state(INITIAL_STATE)
+        from ml.alphazero_lite.arena import apply_opening_moves
+
+        prefix = [int(move) for move in opening.get("prefix_moves", [])]
+        versioned = opening.get("opening_contract") == "arena_player_relative_v2"
+        if versioned:
+            versioned_indices.add(index)
+        if not versioned and "state" not in opening:
+            continue
+        applied = apply_opening_moves(game, prefix)
+        identity = canonical_game_state_hash(game)
+        if applied != len(prefix):
+            raise ValueError(
+                f"opening_prefix_truncated:{run}:{index}:{applied}/{len(prefix)}"
+            )
+        if "state" in opening and canonical_key(game.to_state()) != canonical_key(
+            opening["state"]
+        ):
+            raise ValueError(f"opening_declared_state_mismatch:{run}:{index}")
+        if opening.get("opening_contract") == "arena_player_relative_v2":
+            if canonical_key(game.to_state()) != opening.get("state_hash"):
+                raise ValueError(f"opening_declared_hash_mismatch:{run}:{index}")
+        actual_identities[index] = (identity, canonical_key(game.to_state()), applied)
+    if len({actual_identities[index][1] for index in versioned_indices}) != len(
+        versioned_indices
+    ):
+        raise ValueError(f"duplicate_actual_opening_state:{run}")
     wins = losses = draws = 0
     for row in rows:
         winner = row.get("winner")
@@ -70,6 +104,18 @@ def validate_arena_evidence(
             or row.get("opening_prefix_moves") != openings[index]["prefix_moves"]
         ):
             raise ValueError(f"opening_identity_mismatch:{run}")
+        if index in versioned_indices:
+            actual_hash, actual_canonical, actual_length = actual_identities[index]
+            if row.get("opening_state_hash") != actual_hash:
+                raise ValueError(f"actual_opening_state_identity_mismatch:{run}")
+            if row.get("opening_applied_prefix_length") != actual_length:
+                raise ValueError(f"opening_applied_prefix_length_mismatch:{run}")
+            if row.get(
+                "opening_contract"
+            ) != "arena_player_relative_v2" or actual_canonical != openings[index].get(
+                "state_hash"
+            ):
+                raise ValueError(f"actual_opening_contract_mismatch:{run}")
         grouped.setdefault(index, []).append(row)
     if set(grouped) != set(range(len(openings))):
         raise ValueError(f"opening_coverage_mismatch:{run}")

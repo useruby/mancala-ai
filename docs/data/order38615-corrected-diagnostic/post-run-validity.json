@@ -1,0 +1,25 @@
+{
+  "evaluation_binding_sha256": "10978eca6d4d9dce1486c16108b88ad9470f5f4def0cbf84400dbe624d01c06d",
+  "interpretation": "Observed scores are preserved, but this run cannot establish corrected-distribution performance because declared prior-suite states were not excluded. No outcome-dependent replacement games were run.",
+  "observed_decision_rule_result": "fail",
+  "observed_scores": {
+    "393": 0.4912109375,
+    "394": 0.5009765625,
+    "pooled": 0.49609375
+  },
+  "prior_consumed_suite_count": 8,
+  "prior_declared_state_union": 2560,
+  "prior_reconstructed_actual_state_union": 10,
+  "registration_sha256": "94e7afbc3e5c64443084430eb3539b55be8929fb798fc0a6e243362224dd13bf",
+  "schema": "order38615-corrected-diagnostic-post-run-validity-v1",
+  "status": "invalid_for_preregistered_exclusion_contract",
+  "suite_393_suite_394_actual_overlap": 0,
+  "suite_actual_state_intersections": {
+    "393": 0,
+    "394": 0
+  },
+  "suite_declared_state_intersections": {
+    "393": 14,
+    "394": 12
+  }
+}
