@@ -94,7 +94,9 @@ def build_proof(
     )
 
 
-def select_holdout(excluded: set[str], seed: int = 383) -> list[dict[str, Any]]:
+def select_holdout(
+    excluded: set[str], seed: int = 383, size: int = 256
+) -> list[dict[str, Any]]:
     prefixes = suites.enumerate_legal_prefixes(8)
     population, _, _ = suites.deduplicate_openings(prefixes)
     eligible = [
@@ -104,7 +106,11 @@ def select_holdout(excluded: set[str], seed: int = 383) -> list[dict[str, Any]]:
         and row["pit_sum"] > 32
         and not KalahGame.from_state(row["state"]).over()
     ]
-    selected = suites.select_diverse(suites.stratify_openings(eligible), 256, seed)
-    if len(selected) != 256 or len(keys(selected)) != 256 or keys(selected) & excluded:
+    selected = suites.select_diverse(suites.stratify_openings(eligible), size, seed)
+    if (
+        len(selected) != size
+        or len(keys(selected)) != size
+        or keys(selected) & excluded
+    ):
         raise RuntimeError("holdout_selection_contract_failure")
     return selected

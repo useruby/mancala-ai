@@ -1,0 +1,59 @@
+{
+  "candidate": {
+    "arm": "A",
+    "artifact": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/artifacts/order_38615_A",
+    "artifact_sha256": {
+      "metadata.json": "5bddbc75be291d2b37cfd2257b7546e2b68f7b823c4692883b09e2f1ddadd37f",
+      "model.npz": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "73aa08979a1e05be9a83d8349aedd4a9913da224951feeeafe4d2d12df43675f"
+    },
+    "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38615_A/E4.npz",
+    "checkpoint_sha256": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+    "runtime_contract": {
+      "challenger_runtime_policy_inherited": false,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "source_checkpoint_sha256": {
+      "E2": "40cd40777e402ef451a6d97129e1e1bd5c7f87839337f9da8a0eaee9e5d4facb",
+      "E3": "cc8014fe7fa274f34338636e1bf644c55540d1ffd2b127ed0eb95287d45eeb1a",
+      "E4": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351"
+    }
+  },
+  "opponent": {
+    "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "registration_sha256": "ef02fd57f638e7cf4f02030fae5c7da84b824f4d2c3192ee51b1ac629671c06f",
+  "runtime_contract": {
+    "challenger_runtime_policy_inherited": false,
+    "exact_leaf_solve_mode": "disabled",
+    "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+    "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+    "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "runtime_search_policy_mode": "puct_exact_root_hybrid",
+    "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+  },
+  "schema": "order38615-a5-confirmation-candidate-binding-v1",
+  "source_binding_sha256": "fa393de662830d4915616ce99623b10bcef521997786e3d89cb6c187c5c6f8f3",
+  "source_training_sha256": "b49fe98dd885a9858f335883577f86a419f014c37acbc7e1ff614a2d3a2308a7"
+}
