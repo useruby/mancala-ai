@@ -9,6 +9,9 @@ from pathlib import Path
 import pytest
 
 from ml.alphazero_lite import run_order38615_a5_confirmation as runner
+from ml.alphazero_lite.order38615_confirmation_validation import (
+    validate_confirmation_inputs,
+)
 
 
 def digest(path: Path) -> str:
@@ -63,6 +66,7 @@ def setup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     evaluation = {
         "candidate": "fixture",
         "artifact": candidate,
+        "candidate_checkpoint_sha256": candidate["checkpoint_sha256"],
         "opponent_binding": opponent,
         "runtime_contract": contract,
         "suites": suites,
@@ -83,6 +87,7 @@ def setup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
             {
                 "registration_sha256": digest(reg_path),
                 "opponent": opponent,
+                "runtime_contract": contract,
                 "candidate": candidate,
             }
         )
@@ -200,3 +205,74 @@ def test_completed_resume_preserves_evidence_without_launch(tmp_path, monkeypatc
     )
     runner.run()
     assert all(path.read_bytes() == payload for path, payload in before.items())
+
+
+def test_stale_registration_header_rejected_before_launch(tmp_path, monkeypatch):
+    setup(tmp_path, monkeypatch)
+    binding = json.loads(runner.BINDING.read_text())
+    binding["registration_sha256"] = "stale"
+    runner.BINDING.write_text(json.dumps(binding))
+    monkeypatch.setattr(
+        runner.subprocess, "run", lambda *a, **k: pytest.fail("launched")
+    )
+    with pytest.raises(
+        ValueError, match="evaluation_binding_registration_hash_mismatch"
+    ):
+        runner.run()
+    assert not runner.WORK.exists()
+
+
+def test_stale_candidate_registration_header_rejected_before_launch(
+    tmp_path, monkeypatch
+):
+    setup(tmp_path, monkeypatch)
+    candidate = json.loads(runner.CANDIDATE.read_text())
+    candidate["registration_sha256"] = "stale"
+    runner.CANDIDATE.write_text(json.dumps(candidate))
+    monkeypatch.setattr(
+        runner.subprocess, "run", lambda *a, **k: pytest.fail("launched")
+    )
+    with pytest.raises(
+        ValueError, match="candidate_binding_registration_hash_mismatch"
+    ):
+        runner.run()
+    assert not runner.WORK.exists()
+
+
+def test_changed_suite_rejected_even_when_opening_prefix_is_unchanged(
+    tmp_path, monkeypatch
+):
+    setup(tmp_path, monkeypatch)
+    suite = Path(
+        json.loads(runner.REG.read_text())["evaluation"]["suites"]["391"]["path"]
+    )
+    original = suite.read_text()
+    suite.write_text(
+        original.replace('"prefix_moves": [0]', '"prefix_moves": [0], "extra": true', 1)
+    )
+    monkeypatch.setattr(
+        runner.subprocess, "run", lambda *a, **k: pytest.fail("launched")
+    )
+    with pytest.raises(ValueError, match="registered_suite_hash_mismatch"):
+        runner.run()
+    assert not runner.WORK.exists()
+
+
+def test_candidate_runtime_identity_mismatch_rejected(tmp_path, monkeypatch):
+    reg, _, binding_path, _ = setup(tmp_path, monkeypatch)
+    candidate_path = runner.CANDIDATE
+    candidate = json.loads(candidate_path.read_text())
+    candidate["candidate"]["runtime_contract"]["exact_root_solve_threshold"] = 8
+    candidate_path.write_text(json.dumps(candidate))
+    binding = json.loads(binding_path.read_text())
+    binding["candidate_binding_sha256"] = digest(candidate_path)
+    binding_path.write_text(json.dumps(binding))
+    with pytest.raises(ValueError, match="candidate_binding_identity_mismatch"):
+        validate_confirmation_inputs(
+            runner.REG,
+            candidate_path,
+            binding_path,
+            reg,
+            candidate,
+            binding,
+        )

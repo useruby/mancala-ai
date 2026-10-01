@@ -1,0 +1,85 @@
+{
+  "schema": "order38615-a5-promotion-review-result-v1",
+  "plan": "docs/data/order38615-a5-promotion-review-plan.json",
+  "status": "rejected_at_canonical_prefilter",
+  "promotion_ready": false,
+  "candidate_checkpoint_sha256": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+  "plan_scope_preserved": "this frozen order_38615_A E4 candidate versus the exact frozen seed455 incumbent; no claim of order generalization; rejected #386, #388, #389, and #390 treatments remain rejected",
+  "confirmation_validation": {
+    "status": "validated_original_evidence_without_new_games",
+    "registration_sha256": "ef02fd57f638e7cf4f02030fae5c7da84b824f4d2c3192ee51b1ac629671c06f",
+    "candidate_binding_sha256": "31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a",
+    "evaluation_binding_sha256": "ebed6050dcf73d76fdf14438a74c3587a2a3a9a619de58ac0d7dc0da8f9f0239",
+    "opening_score_matrix_sha256": "17d8fe40ed83327b1f6ed2f93d6e149c74272212b9e097446546d2412d0df036",
+    "pooled_score": 0.634521484375,
+    "stratified_interval_95": [0.623046875, 0.645751953125],
+    "decision": "advance_to_promotion_review"
+  },
+  "gate": {
+    "report_path_in_run_workspace": ".tmp/order38615-a5-promotion-review/gate_report.json",
+    "report_sha256": "255cc61f25aeaa3abaa419fa617cedb49b8e1fc8fa69e6f4562a1044e5fe675b",
+    "candidate_identity": {
+      "weights_json_sha256": "73aa08979a1e05be9a83d8349aedd4a9913da224951feeeafe4d2d12df43675f",
+      "metadata_json_sha256": "5bddbc75be291d2b37cfd2257b7546e2b68f7b823c4692883b09e2f1ddadd37f",
+      "runtime_sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "incumbent_identity": {
+      "weights_json_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "metadata_json_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+      "runtime_sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "canonical_prefilter": {
+      "suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+      "games_executed": 512,
+      "wins": 222,
+      "draws": 50,
+      "losses": 240,
+      "seat_paired_score": 0.482421875,
+      "opening_pair_interval_95": [0.4521484375, 0.5126953125],
+      "seat_scores": {"candidate_p0": 0.552734375, "candidate_p1": 0.412109375},
+      "arena_report_sha256": "0da00045ae4c23e10078421459f98c3b3d830c4bd52bf12a8abb58c7aae35cdd",
+      "game_rows_sha256": "ca00003c1e7415b52f52d9f2bed5305fbe5d0614f332632dec8f1a4fc6e459f5",
+      "seed_ledger_sha256": "8852625de9d1db51e5ba1140a6c60e9ea20e5a6a20cf3415a9096b8464cfdc0a",
+      "search_configuration_ledger_sha256": "4253380ac75e0771b0d65929c27e608e6629b7aaecb152e1d8ad1ec775909d87",
+      "search_outcome_ledger_sha256": "f3b8c4172b28c41b4b7081ae21ffd3c01bcc701eedba23c464e963338a4c145d"
+    },
+    "failure_reasons": ["arena_score_below_threshold"],
+    "later_components": {
+      "canonical_hard_arena": "not_run_after_prefilter_failure",
+      "candidate_vs_mcts1200": "not_run_after_prefilter_failure",
+      "incumbent_vs_mcts1200": "not_run_after_prefilter_failure",
+      "superhuman_regressions": "not_run_after_prefilter_failure",
+      "corrected_forensic": "not_run_after_prefilter_failure"
+    },
+    "runtime_policy": {
+      "exact_root_threshold": 16,
+      "objective": "final_score_margin",
+      "tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "solver": "native_kvtb_root_action_probe_v1",
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_leaf_solve": "disabled",
+      "canonical_simulations_each": 384
+    }
+  },
+  "execution_accounting": {
+    "canonical_prefilter_games": 512,
+    "canonical_hard_games": 0,
+    "mcts_relative_games": 0,
+    "total_games": 512,
+    "regression_probes": 0,
+    "forensic_probes": 0,
+    "training_commands": 0,
+    "self_play_games": 0
+  },
+  "installation": {
+    "staged": false,
+    "reason": "gate did not pass; no installation rehearsal was performed",
+    "model_artifact_current_changed": false
+  },
+  "limitations": [
+    "Gate stopped at the required canonical prefilter: score 0.482421875 was below the unchanged 0.55 threshold.",
+    "The confirmation estimate remains a prospective advancement result only and does not substitute for canonical gate evidence.",
+    "The installed production artifact was not modified."
+  ]
+}
