@@ -9,6 +9,8 @@ from typing import Any
 
 import numpy as np
 
+from ml.alphazero_lite.seed461_arena_validation import validate_arena_evidence
+
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
 REG = DATA / "seed461-e2-e4-average-registration.json"
@@ -16,6 +18,8 @@ SUITE = DATA / "seed461-e2-e4-average-openings.jsonl"
 CANDIDATES = DATA / "seed461-e2-e4-average-candidate-binding.json"
 BINDING = DATA / "seed461-e2-e4-average-evaluation-binding.json"
 RESULT = DATA / "seed461-e2-e4-average-results.json"
+MATRIX = DATA / "seed461-e2-e4-average-opening-score-matrix.json"
+RESULT_MD = DATA / "seed461-e2-e4-average-results.md"
 
 
 def sha(path: Path) -> str:
@@ -83,14 +87,12 @@ def main() -> None:
     openings = [json.loads(line) for line in SUITE.read_text().splitlines() if line]
     if len(openings) != 256:
         raise ValueError("opening_count_mismatch")
-    expected_runs = [
-        f"order_{order}_{arm}"
-        for order in reg["reused_training"]["orders"]
-        for arm in ("A", "B")
-    ]
+    orders = reg.get("reused_training", reg.get("training"))["orders"]
+    expected_runs = [f"order_{order}_{arm}" for order in orders for arm in ("A", "B")]
     if set(binding["reports"]) != set(expected_runs):
         raise ValueError("evaluation_set_incomplete")
     vectors: dict[str, np.ndarray] = {}
+    evidence_hashes: dict[str, dict[str, str]] = {}
     for run in expected_runs:
         paths, candidate = binding["reports"][run], candidates["candidates"][run]
         report_path, games_path = Path(paths["report"]), Path(paths["games"])
@@ -118,15 +120,20 @@ def main() -> None:
         for key, expected in candidate["runtime_contract"].items():
             if notes.get(key) != expected:
                 raise ValueError(f"report_runtime_contract_mismatch:{run}:{key}")
-        scores = validate_game_records(
+        scores = validate_arena_evidence(
+            report,
             [json.loads(line) for line in games_path.read_text().splitlines() if line],
             openings,
             run,
+            candidate,
+            binding["opponent"],
+            evaluation,
         )
-        if not np.isclose(scores.mean(), report.get("score", float("nan"))):
-            raise ValueError(f"report_score_mismatch:{run}")
         vectors[run] = scores
-    orders = reg["reused_training"]["orders"]
+        evidence_hashes[run] = {
+            "report_sha256": paths["report_sha256"],
+            "games_sha256": paths["games_sha256"],
+        }
     pairs = {
         str(order): vectors[f"order_{order}_B"] - vectors[f"order_{order}_A"]
         for order in orders
@@ -162,8 +169,38 @@ def main() -> None:
         "B_minimum_no_lower": minima["B"] >= minima["A"],
     }
     advance = all(criteria.values())
+    matrix_rows = [
+        {
+            "opening_index": index,
+            **{
+                f"order_{order}_{arm}": float(vectors[f"order_{order}_{arm}"][index])
+                for order in orders
+                for arm in ("A", "B")
+            },
+        }
+        for index in range(len(openings))
+    ]
+    MATRIX.write_text(
+        json.dumps(
+            {
+                "schema": "seed461-e2-e4-average-opening-score-matrix-v1",
+                "suite_sha256": suite_hash,
+                "evaluation_binding_sha256": sha(BINDING),
+                "evidence_sha256": evidence_hashes,
+                "score_definition": "per-opening challenger points across the two seat-paired games divided by two",
+                "rows": matrix_rows,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    )
     result = {
-        "schema": "seed461-e2-e4-average-results-v1",
+        "schema": (
+            "seed461-e3-e4-results-v1"
+            if reg.get("schema") == "seed461-e3-e4-registration-v1"
+            else "seed461-e2-e4-average-results-v1"
+        ),
         "status": "completed_fixed_5120_games",
         "inference_scope": reg["analysis"]["inference_scope"],
         "per_order_scores": {
@@ -181,9 +218,15 @@ def main() -> None:
         "advance": advance,
         "decision": "advance_to_independent_generation_confirmation"
         if advance
-        else "retain_constant_lr_0.001",
+        else (
+            "retain_e4_baseline"
+            if reg.get("schema") == "seed461-e3-e4-registration-v1"
+            else "retain_constant_lr_0.001"
+        ),
         "failed_criteria": [key for key, passed in criteria.items() if not passed],
         "preserves_pr386_cosine_rejection": True,
+        "preserves_pr388_averaging_rejection": reg.get("schema")
+        == "seed461-e3-e4-registration-v1",
         "no_model_promotion": True,
         "evidence_sha256": {
             "registration": sha(REG),
@@ -199,7 +242,11 @@ def main() -> None:
     }
     RESULT.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     lines = [
-        "# Seed461 E2–E4 checkpoint averaging",
+        (
+            "# Seed461 constant-LR E3 vs E4"
+            if reg.get("schema") == "seed461-e3-e4-registration-v1"
+            else "# Seed461 E2–E4 checkpoint averaging"
+        ),
         "",
         "| Order | A score | B score | B−A |",
         "|---:|---:|---:|---:|",
@@ -214,16 +261,33 @@ def main() -> None:
         f"Worst pair: {min(effects.values()):+.4f}; minimum A/B: {minima['A']:.4f}/{minima['B']:.4f}; range A/B: {ranges['A']:.4f}/{ranges['B']:.4f}.",
         f"Decision: **{result['decision']}**. Failed criteria: {', '.join(result['failed_criteria']) or 'none'}.",
         "",
-        "Parameter distances are descriptive only. Inference is conditional on these five orders and this dataset; PR #386's cosine rejection remains unchanged. No model is promoted.",
+        (
+            "Inference is conditional on these five orders and this dataset; PR #386's cosine and PR #388's averaging rejections remain unchanged. No model is promoted."
+            if reg.get("schema") == "seed461-e3-e4-registration-v1"
+            else "Parameter distances are descriptive only. Inference is conditional on these five orders and this dataset; PR #386's cosine rejection remains unchanged. No model is promoted."
+        ),
         "",
         "Reproduce from repository root:",
         "```sh",
-        ".venv/bin/python -m ml.alphazero_lite.run_seed461_e2_e4_average_arena",
-        ".venv/bin/python -m ml.alphazero_lite.analyze_seed461_e2_e4_average",
+        (
+            ".venv/bin/python -m ml.alphazero_lite.run_seed461_e3_e4_arena"
+            if reg.get("schema") == "seed461-e3-e4-registration-v1"
+            else ".venv/bin/python -m ml.alphazero_lite.run_seed461_e2_e4_average_arena"
+        ),
+        (
+            ".venv/bin/python -m ml.alphazero_lite.analyze_seed461_e3_e4"
+            if reg.get("schema") == "seed461-e3-e4-registration-v1"
+            else ".venv/bin/python -m ml.alphazero_lite.analyze_seed461_e2_e4_average"
+        ),
+        (
+            ".venv/bin/python -m ml.alphazero_lite.reproduce_seed461_score_matrix docs/data/seed461-e3-e4-opening-score-matrix.json --seed 389"
+            if reg.get("schema") == "seed461-e3-e4-registration-v1"
+            else ".venv/bin/python -m ml.alphazero_lite.reproduce_seed461_score_matrix docs/data/seed461-e2-e4-average-opening-score-matrix.json --seed 387"
+        ),
         "```",
         "",
     ]
-    (DATA / "seed461-e2-e4-average-results.md").write_text("\n".join(lines))
+    RESULT_MD.write_text("\n".join(lines))
 
 
 if __name__ == "__main__":

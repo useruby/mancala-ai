@@ -1,0 +1,83 @@
+{
+  "advance": false,
+  "between_order_range": {
+    "A": 0.2412109375,
+    "B": 0.080078125
+  },
+  "bootstrap": {
+    "cluster": "shared opening",
+    "interval": "95% percentile",
+    "resamples": 10000,
+    "seed": 389
+  },
+  "bootstrap_95_percentile_interval": [
+    0.011127929687500005,
+    0.0455078125
+  ],
+  "criteria": {
+    "B_minimum_no_lower": true,
+    "B_score_range_smaller": true,
+    "at_least_four_nonnegative_pairs": false,
+    "lower_interval_above_zero": true,
+    "mean_effect_at_least_0.03": false,
+    "worst_pair_at_least_minus_0.05": false
+  },
+  "decision": "retain_e4_baseline",
+  "evidence_sha256": {
+    "candidate_binding": "8fdb347e70d43ce39216c6d174bbf6b4660d179d4350b9d147f3456f32d63a3a",
+    "evaluation_binding": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+    "registration": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+    "suite": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082"
+  },
+  "failed_criteria": [
+    "mean_effect_at_least_0.03",
+    "at_least_four_nonnegative_pairs",
+    "worst_pair_at_least_minus_0.05"
+  ],
+  "game_accounting": {
+    "expected_games": 5120,
+    "games": 5120,
+    "outcome_dependent_extensions": 0
+  },
+  "inference_scope": "conditional on these five orders and this dataset",
+  "mean_effect": 0.028125,
+  "minimum_score": {
+    "A": 0.4072265625,
+    "B": 0.494140625
+  },
+  "no_model_promotion": true,
+  "paired_effects": {
+    "38611": 0.123046875,
+    "38612": 0.150390625,
+    "38613": 0.05078125,
+    "38614": -0.080078125,
+    "38615": -0.103515625
+  },
+  "per_order_scores": {
+    "38611": {
+      "A": 0.451171875,
+      "B": 0.57421875
+    },
+    "38612": {
+      "A": 0.4072265625,
+      "B": 0.5576171875
+    },
+    "38613": {
+      "A": 0.4716796875,
+      "B": 0.5224609375
+    },
+    "38614": {
+      "A": 0.57421875,
+      "B": 0.494140625
+    },
+    "38615": {
+      "A": 0.6484375,
+      "B": 0.544921875
+    }
+  },
+  "preserves_pr386_cosine_rejection": true,
+  "preserves_pr388_averaging_rejection": true,
+  "schema": "seed461-e3-e4-results-v1",
+  "status": "completed_fixed_5120_games",
+  "worst_pair": -0.103515625
+}

@@ -12,6 +12,7 @@ from typing import Any
 from ml.alphazero_lite.runtime_search_policy import (
     resolve_strength_comparison_runtime_contract,
 )
+from ml.alphazero_lite.seed461_arena_validation import validate_arena_evidence
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
@@ -92,6 +93,7 @@ def validate_inputs(reg: dict[str, Any], candidates: dict[str, Any]) -> None:
 def main() -> None:
     reg, candidates = json.loads(REG.read_text()), json.loads(CANDIDATES.read_text())
     validate_inputs(reg, candidates)
+    openings = [json.loads(line) for line in SUITE.read_text().splitlines() if line]
     candidate_hash = sha(CANDIDATES)
     previous = json.loads(BINDING.read_text()) if BINDING.exists() else None
     binding: dict[str, Any] = {
@@ -143,8 +145,15 @@ def main() -> None:
                 rows = [
                     json.loads(line) for line in games.read_text().splitlines() if line
                 ]
-                if len(rows) != 512:
-                    raise ValueError(f"incomplete_cached_game_records:{run}")
+                validate_arena_evidence(
+                    report_data,
+                    rows,
+                    openings,
+                    run,
+                    binding["candidates"][run],
+                    binding["opponent"],
+                    reg["evaluation"],
+                )
                 cached = {
                     "report": str(report),
                     "report_sha256": sha(report),
@@ -162,6 +171,17 @@ def main() -> None:
                 or sha(games) != cached.get("games_sha256")
             ):
                 raise ValueError(f"cached_evaluation_hash_mismatch:{run}")
+            report_data = json.loads(report.read_text())
+            rows = [json.loads(line) for line in games.read_text().splitlines() if line]
+            validate_arena_evidence(
+                report_data,
+                rows,
+                openings,
+                run,
+                binding["candidates"][run],
+                binding["opponent"],
+                reg["evaluation"],
+            )
             continue
         if cached is not None and cached.get("state") != "running":
             raise ValueError(f"bound_evaluation_missing:{run}")
@@ -209,6 +229,15 @@ def main() -> None:
             cwd=ROOT,
             check=True,
         )
+        validate_arena_evidence(
+            json.loads(report.read_text()),
+            [json.loads(line) for line in games.read_text().splitlines() if line],
+            openings,
+            run,
+            candidate,
+            binding["opponent"],
+            evaluation,
+        )
         binding["reports"][run] = {
             "report": str(report),
             "report_sha256": sha(report),
@@ -217,7 +246,8 @@ def main() -> None:
         }
         write_json(BINDING, binding)
     binding["status"] = "completed_fixed_5120_games"
-    write_json(BINDING, binding)
+    if previous is None or previous != binding:
+        write_json(BINDING, binding)
 
 
 if __name__ == "__main__":
