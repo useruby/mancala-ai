@@ -151,7 +151,10 @@ def load_registered(path: Path) -> dict[str, Any]:
 
 
 def train_one(
-    manifest: dict[str, Any], label: str, lr: float = 0.001
+    manifest: dict[str, Any],
+    label: str,
+    lr: float = 0.001,
+    lr_scheduler: str = "none",
 ) -> dict[str, Any]:
     spec = manifest["training"]
     paths = [Path(row["path"]) for row in spec["replays"]]
@@ -166,6 +169,16 @@ def train_one(
     )
     model = train.PolicyValueNet((96, 3), "residual_v3", x.shape[1])
     train.load_checkpoint_into_model(model, Path(spec["parent"]))
+    initialization_hash = hashlib.sha256(
+        json.dumps(
+            {
+                key: value.tolist()
+                for key, value in train.checkpoint_from_model(model).items()
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
     output = WORKDIR / "training" / label
     output.mkdir(parents=True, exist_ok=True)
     epochs: dict[str, str] = {}
@@ -196,7 +209,7 @@ def train_one(
         val_split=0.1,
         grad_clip=1.0,
         save_top_k=3,
-        lr_scheduler="none",
+        lr_scheduler=lr_scheduler,
         final_checkpoint="best_validation",
         primary_order_seed=spec["orders"][label],
         epoch_history=history,
@@ -212,6 +225,8 @@ def train_one(
         "selected_sha256": sha256(selected),
         "history": history,
         "permutation_sha256": permutations,
+        "initialization_sha256": initialization_hash,
+        "replay_multiplicity_sha256": hashlib.sha256(replay.tobytes()).hexdigest(),
         "metrics": model.last_train_metrics,
     }
 

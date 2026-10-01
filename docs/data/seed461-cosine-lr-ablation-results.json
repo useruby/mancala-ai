@@ -1,0 +1,90 @@
+{
+  "advance": false,
+  "best_validation_selections_descriptive_only": {
+    "order_38611_A": "E4",
+    "order_38611_B": "E4",
+    "order_38612_A": "E2",
+    "order_38612_B": "E4",
+    "order_38613_A": "E4",
+    "order_38613_B": "E4",
+    "order_38614_A": "E1",
+    "order_38614_B": "E4",
+    "order_38615_A": "E4",
+    "order_38615_B": "E4"
+  },
+  "between_order_range": {
+    "A": 0.2412109375,
+    "B": 0.1015625
+  },
+  "bootstrap": {
+    "cluster": "shared opening",
+    "resamples": 10000,
+    "seed": 386
+  },
+  "bootstrap_95_percentile_interval": [
+    0.057421875,
+    0.0791015625
+  ],
+  "criteria": {
+    "B_minimum_no_lower": true,
+    "B_score_range_smaller": true,
+    "at_least_four_nonnegative_pairs": true,
+    "lower_interval_above_zero": true,
+    "mean_effect_at_least_0.03": true,
+    "worst_pair_at_least_minus_0.05": false
+  },
+  "decision": "retain_constant_lr_0.001",
+  "evidence_sha256": {
+    "binding": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+    "registration": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+    "suite": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c"
+  },
+  "failed_criteria": [
+    "worst_pair_at_least_minus_0.05"
+  ],
+  "game_accounting": {
+    "expected_games": 5120,
+    "games": 5120,
+    "outcome_dependent_extensions": 0
+  },
+  "inference_scope": "conditional on these five orders and this frozen dataset",
+  "mean_effect": 0.0681640625,
+  "minimum_score": {
+    "A": 0.3974609375,
+    "B": 0.521484375
+  },
+  "no_model_promotion": true,
+  "paired_effects": {
+    "38611": 0.087890625,
+    "38612": 0.2109375,
+    "38613": 0.0517578125,
+    "38614": 0.05859375,
+    "38615": -0.068359375
+  },
+  "per_order_scores": {
+    "38611": {
+      "A": 0.439453125,
+      "B": 0.52734375
+    },
+    "38612": {
+      "A": 0.3974609375,
+      "B": 0.6083984375
+    },
+    "38613": {
+      "A": 0.4697265625,
+      "B": 0.521484375
+    },
+    "38614": {
+      "A": 0.564453125,
+      "B": 0.623046875
+    },
+    "38615": {
+      "A": 0.638671875,
+      "B": 0.5703125
+    }
+  },
+  "preserves_pr384_rejection": true,
+  "schema": "seed461-cosine-lr-ablation-results-v1",
+  "status": "completed_fixed_e4",
+  "worst_pair": -0.068359375
+}
