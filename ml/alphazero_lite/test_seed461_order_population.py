@@ -21,3 +21,15 @@ def test_holdout_has_zero_overlap_with_complete_source_population() -> None:
     assert len(selected) == 256
     assert not population.keys(selected) & excluded
     assert all(row["pit_sum"] > 32 for row in selected)
+
+
+def test_512_opening_holdouts_are_disjoint() -> None:
+    excluded = population.keys(population.pr249_population())
+    first = population.select_holdout(excluded, seed=391, size=512)
+    second = population.select_holdout(
+        excluded | population.keys(first), seed=392, size=512
+    )
+    assert len(first) == len(population.keys(first)) == 512
+    assert len(second) == len(population.keys(second)) == 512
+    assert not population.keys(first) & population.keys(second)
+    assert all(row["pit_sum"] > 32 for row in first + second)

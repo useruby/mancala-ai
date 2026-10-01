@@ -1,0 +1,28 @@
+{
+  "candidate_binding_sha256": "31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a",
+  "opponent": {
+    "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "registration_sha256": "ef02fd57f638e7cf4f02030fae5c7da84b824f4d2c3192ee51b1ac629671c06f",
+  "reports": {
+    "391": {
+      "games": "/home/alex/Mancala/ai/.tmp/order38615-a5-confirmation/seed391-games.jsonl",
+      "games_sha256": "d47aeed6c20ca8563d061bfde04efc2c74974caea89bd6c8b65aa41820dcfe13",
+      "report": "/home/alex/Mancala/ai/.tmp/order38615-a5-confirmation/seed391.json",
+      "report_sha256": "361c8e30231fa957bcfab141d47ab7103f53f5a2f2fd2a1d3aa95e3a67d9613e"
+    },
+    "392": {
+      "games": "/home/alex/Mancala/ai/.tmp/order38615-a5-confirmation/seed392-games.jsonl",
+      "games_sha256": "7559acc5f3beaf630b85493cf817a33676e7d7d27d6f2cabc68b9d797f058081",
+      "report": "/home/alex/Mancala/ai/.tmp/order38615-a5-confirmation/seed392.json",
+      "report_sha256": "6c1dbc447c0340be13c90e8ce6978d5c55af6adff711e740f57c37c05ae396c9"
+    }
+  },
+  "schema": "order38615-a5-confirmation-evaluation-binding-v1",
+  "status": "completed_2048_games"
+}

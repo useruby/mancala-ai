@@ -1,0 +1,58 @@
+{
+  "all_conditions_passed": true,
+  "candidate_binding_sha256": "31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a",
+  "decision": "advance_to_promotion_review",
+  "evaluation_binding_sha256": "ebed6050dcf73d76fdf14438a74c3587a2a3a9a619de58ac0d7dc0da8f9f0239",
+  "no_additional_training_cost": true,
+  "opening_score_matrix_sha256": "17d8fe40ed83327b1f6ed2f93d6e149c74272212b9e097446546d2412d0df036",
+  "outcome_counts": {
+    "391": {
+      "draws": 109,
+      "games": 1024,
+      "losses": 318,
+      "wins": 597
+    },
+    "392": {
+      "draws": 102,
+      "games": 1024,
+      "losses": 325,
+      "wins": 597
+    }
+  },
+  "pooled_bootstrap_seed": 391,
+  "pooled_interval_95_percentile": [
+    0.623046875,
+    0.645751953125
+  ],
+  "pooled_resamples": 10000,
+  "pooled_score": 0.634521484375,
+  "registration_sha256": "ef02fd57f638e7cf4f02030fae5c7da84b824f4d2c3192ee51b1ac629671c06f",
+  "schema": "order38615-a5-confirmation-results-v1",
+  "scope": "this frozen order_38615_A E4 candidate versus this exact frozen seed455 opponent on the registered opening distribution; does not establish order generalization or validate rejected averaging treatments",
+  "suite_results": {
+    "391": {
+      "bootstrap_seed": 391,
+      "draws": 109,
+      "interval_95_percentile": [
+        0.6201171875,
+        0.65234375
+      ],
+      "losses": 318,
+      "resamples": 10000,
+      "score": 0.63623046875,
+      "wins": 597
+    },
+    "392": {
+      "bootstrap_seed": 392,
+      "draws": 102,
+      "interval_95_percentile": [
+        0.61669921875,
+        0.6494140625
+      ],
+      "losses": 325,
+      "resamples": 10000,
+      "score": 0.6328125,
+      "wins": 597
+    }
+  }
+}
