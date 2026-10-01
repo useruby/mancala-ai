@@ -1,0 +1,129 @@
+{
+  "between_order_ranges": {
+    "fixed_effect": [
+      -0.0673828125,
+      0.154296875
+    ],
+    "selected_effect": [
+      -0.0859375,
+      0.16015625
+    ],
+    "selection_interaction": [
+      -0.12109375,
+      0.1875
+    ]
+  },
+  "bootstrap": {
+    "cluster": "opening; same sampled indices across all orders and arms",
+    "interval": "95th percentile interval",
+    "replicates": 10000,
+    "seed": 385
+  },
+  "evidence_identity": {
+    "e4_binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+    "original_binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+    "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+    "spec_sha256": "5235dee3e274ecec2e3aa8bf5f6d20d196da3f2151d61fe3f447a95d082bdc7e",
+    "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+    "training_amendment_sha256": "90e241b75780b7314f1c6e54caeebd39c91f8d77381874eaada41cae31949a1a"
+  },
+  "fixed_effect": {
+    "lower_95": 0.0630859375,
+    "mean": 0.071875,
+    "upper_95": 0.08046875
+  },
+  "game_accounting": {
+    "additional": 2560,
+    "extensions": 0,
+    "per_run": 512,
+    "runs": 10,
+    "total": 5120
+  },
+  "holdout_consumed": true,
+  "interaction_classification": "no_clear_average_interaction",
+  "original_rejection_preserved": true,
+  "per_order": {
+    "38411": {
+      "A_selected_minus_E4": 0.0,
+      "B_selected_minus_E4": 0.1875,
+      "e4_checkpoint_sha256": {
+        "A": "4cdeb2c3038948cf40d64c3fd21d7c303c8b881bb733648bd255754654a71635",
+        "B": "0c101345b535f69315ddcf9af89ea8e5fe5c3f6ac1ed05d8ab3eeccfd0ab60dd"
+      },
+      "fixed_effect": -0.0673828125,
+      "selected_effect": 0.1201171875,
+      "selected_epochs": {
+        "A": "E4",
+        "B": "E2"
+      },
+      "selection_interaction": 0.1875
+    },
+    "38412": {
+      "A_selected_minus_E4": -0.005859375,
+      "B_selected_minus_E4": 0.0,
+      "e4_checkpoint_sha256": {
+        "A": "3f5ced69efbc5fadf46e8c956867ffed6d815dd2ef3b7a018932a05f1f4c8d73",
+        "B": "744d55dd25e1295e4bb6c56fb209113e22b61f9f2d5870995b3637909cb90947"
+      },
+      "fixed_effect": 0.154296875,
+      "selected_effect": 0.16015625,
+      "selected_epochs": {
+        "A": "E1",
+        "B": "E4"
+      },
+      "selection_interaction": 0.005859375
+    },
+    "38413": {
+      "A_selected_minus_E4": 0.0,
+      "B_selected_minus_E4": 0.0,
+      "e4_checkpoint_sha256": {
+        "A": "7b834d60c1e6c1cf5a28da77698efaab74ea5c8ba203193ceaca9e410e1c6d2e",
+        "B": "75039037c8be42da421ed9ba5497cc5b7e6315e5cfbd75c9ed2466d75098bd06"
+      },
+      "fixed_effect": 0.103515625,
+      "selected_effect": 0.103515625,
+      "selected_epochs": {
+        "A": "E4",
+        "B": "E4"
+      },
+      "selection_interaction": 0.0
+    },
+    "38414": {
+      "A_selected_minus_E4": 0.12109375,
+      "B_selected_minus_E4": 0.0,
+      "e4_checkpoint_sha256": {
+        "A": "7cde87d13b0c7ed1e023bcde8411b26cf2961fc0f304a042e5de72a6588bee21",
+        "B": "79d43bb1a9b73fd5ecff781696ba97a2111e3e73dd4ff60972bc7589be2bf16e"
+      },
+      "fixed_effect": 0.03515625,
+      "selected_effect": -0.0859375,
+      "selected_epochs": {
+        "A": "E2",
+        "B": "E4"
+      },
+      "selection_interaction": -0.12109375
+    },
+    "38415": {
+      "A_selected_minus_E4": 0.1171875,
+      "B_selected_minus_E4": 0.0029296875,
+      "e4_checkpoint_sha256": {
+        "A": "87b801c0e3e52e57f6d1e1491fb7a7a5e710a9de4478909a414786d146564b92",
+        "B": "7d776563506b336ec3fe8db9251f48b81062f13abfa549bba9a85525cbf1006a"
+      },
+      "fixed_effect": 0.1337890625,
+      "selected_effect": 0.01953125,
+      "selected_epochs": {
+        "A": "E3",
+        "B": "E2"
+      },
+      "selection_interaction": -0.1142578125
+    }
+  },
+  "schema": "seed461-lr-fixed-e4-diagnostic-results-v1",
+  "selection_interaction": {
+    "lower_95": -0.0208984375,
+    "mean": -0.0083984375,
+    "upper_95": 0.003515625
+  },
+  "status": "retrospective_diagnostic"
+}

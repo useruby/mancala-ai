@@ -219,6 +219,33 @@ def train_all() -> None:
     )
 
 
+def validate_runtime(manifest: dict[str, Any]) -> None:
+    """Revalidate the entire frozen evaluation runtime before costly work."""
+    evaluation = manifest["evaluation"]
+    opponent = ROOT / ".tmp/seed461-order-confirmation/opponent-artifact"
+    challenger = ROOT / ".tmp/seed461-order-confirmation/artifacts/T1-E4"
+    registered = evaluation["runtime_contract"]
+    runtime = resolve_strength_comparison_runtime_contract(
+        current_artifact=opponent, challenger_artifact=challenger
+    )
+    if runtime != registered:
+        raise RuntimeError("registered_runtime_contract_mismatch")
+    binding_path = ROOT / "docs/data/seed461-lr-sensitivity-evaluation-binding.json"
+    binding = json.loads(binding_path.read_text(encoding="utf-8"))
+    if (
+        sha(binding_path)
+        != "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d"
+    ):
+        raise RuntimeError("frozen_evaluation_binding_hash_mismatch")
+    for filename, key in (
+        ("weights.json", "weights_sha256"),
+        ("metadata.json", "metadata_sha256"),
+    ):
+        expected_hash = binding["opponent"][key]
+        if sha(opponent / filename) != expected_hash:
+            raise RuntimeError(f"frozen_opponent_identity_mismatch:{filename}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("stage", choices=("register", "validate-runtime", "train"))
@@ -233,6 +260,7 @@ def main() -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         if sha(SUITE) != manifest["evaluation"]["suite_sha256"]:
             raise RuntimeError("registered_suite_hash_mismatch")
+        validate_runtime(manifest)
         print("runtime_and_suite_preflight_valid")
 
 
