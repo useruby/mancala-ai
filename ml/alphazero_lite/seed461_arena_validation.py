@@ -17,7 +17,11 @@ def validate_arena_evidence(
     evaluation: dict[str, Any],
 ) -> np.ndarray:
     """Validate the complete report/game contract and return per-opening scores."""
-    expected_games = evaluation["games_per_candidate"]
+    expected_games = evaluation.get(
+        "games_per_candidate", evaluation.get("games_per_model")
+    )
+    if expected_games is None:
+        raise ValueError(f"registered_game_count_missing:{run}")
     if (
         len(rows) != expected_games
         or report.get("schema") != "arena_v1"

@@ -6,12 +6,20 @@ from pathlib import Path
 from typing import Any
 
 from ml.alphazero_lite import run_seed461_e2_e4_average_arena as arena
+from ml.alphazero_lite.frozen_opponent_identity import (
+    validate_frozen_opponent_identity,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
 
 
 def validate_inputs(reg: dict[str, Any], candidates: dict[str, Any]) -> None:
+    validate_frozen_opponent_identity(
+        arena.OPPONENT,
+        reg["evaluation"]["opponent_binding"],
+        reg["evaluation"]["runtime_contract"],
+    )
     if arena.sha(arena.SUITE) != reg["evaluation"]["suite"]["sha256"]:
         raise ValueError("registered_suite_hash_mismatch")
     if candidates.get("schema") != "seed461-e3-e4-candidate-binding-v1":
