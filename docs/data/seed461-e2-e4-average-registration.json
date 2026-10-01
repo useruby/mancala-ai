@@ -1,0 +1,211 @@
+{
+  "analysis": {
+    "bootstrap": {
+      "cluster": "shared opening",
+      "interval": "95% percentile",
+      "resamples": 10000,
+      "seed": 387
+    },
+    "cosine_rejection": "PR #386's cosine-LR rejection remains unchanged",
+    "decision_thresholds": {
+      "B_minimum_score_at_least_A": true,
+      "B_score_range_strictly_smaller": true,
+      "lower_interval_strictly_above": 0.0,
+      "mean_effect_at_least": 0.03,
+      "nonnegative_paired_effects_at_least": 4,
+      "worst_paired_effect_at_least": -0.05
+    },
+    "inference_scope": "conditional on these five orders and this dataset",
+    "metrics": [
+      "per-order A/B score",
+      "paired B-minus-A",
+      "mean paired effect",
+      "worst paired effect",
+      "minimum score per arm",
+      "between-order score range per arm",
+      "parameter L2 distances from parent and among source checkpoints"
+    ],
+    "parameter_distances": "descriptive only; gain alone does not establish mechanism",
+    "promotion": "never; do not change production checkpoint selection"
+  },
+  "arms": {
+    "A": "original constant-LR E4 checkpoint",
+    "B": "uniform arithmetic mean of E2, E3, and E4 floating model parameters"
+  },
+  "construction": {
+    "algorithm": "uniform arithmetic mean; float64 accumulation; cast to source dtype",
+    "compatibility": "identical keys, shapes, dtypes; finite floats; identical nonfloating arrays",
+    "parameter_scope": "all floating checkpoint arrays, including shared trunk and policy/value heads",
+    "selection": "all five predefined orders; no checkpoint, coefficient, or order selection using arena outcomes"
+  },
+  "evaluation": {
+    "arena_seed": 387,
+    "c_puct": 1.25,
+    "games": 5120,
+    "games_per_candidate": 512,
+    "games_per_opening": 2,
+    "opponent": "exact frozen seed455 artifact used in PR #384/#386",
+    "opponent_binding": {
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+      "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    },
+    "outcome_dependent_extensions": false,
+    "runtime_contract": {
+      "challenger_runtime_policy_inherited": false,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations_per_side": 384,
+    "suite": {
+      "active_pit_stones_gt": 32,
+      "identity_overlap_proof": {
+        "canonical": {
+          "members": 128,
+          "path": "/home/alex/Mancala/ai/.tmp/canonical-reconstruction/medium_eval.jsonl",
+          "sha256": "57ea2f461b0cfb63be0b0fed9e3f818f47cd775b5970a105e61524c000c57e04"
+        },
+        "claim": "A-AP are covered by the complete PR249 source population; this is a conservative superset proof, not suite reconstruction.",
+        "consumed_suites_through_386": {
+          "seed461-batch-order-sensitivity-confirmation-openings.jsonl": {
+            "path": "/home/alex/Mancala/ai/docs/data/seed461-batch-order-sensitivity-confirmation-openings.jsonl",
+            "sha256": "13d2d1d9770b05fb241ea9625b34916edbf81f178ed1c4bbe9b880bb2bf5746e",
+            "unique_state_identities": 256
+          },
+          "seed461-cosine-lr-ablation-openings.jsonl": {
+            "path": "/home/alex/Mancala/ai/docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+            "sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+            "unique_state_identities": 256
+          },
+          "seed461-lr-sensitivity-openings-v2.jsonl": {
+            "path": "/home/alex/Mancala/ai/docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+            "sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+            "unique_state_identities": 256
+          }
+        },
+        "exclusion_counts": {
+          "consumed_suites_through_386": 768,
+          "frozen_replays": 62330,
+          "pr249_population": 28961,
+          "pr382_exploratory": 256,
+          "union": 89552
+        },
+        "historical_source_population": {
+          "function": "run_pr249_fresh_suite_generalization.all_openings",
+          "source_runners": {
+            "A-C": "run_pr249_fresh_suite_generalization.py",
+            "AB-AD": "run_pr260_value_head_refresh.py",
+            "AE-AG": "run_pr261_policy_representation.py",
+            "AH-AJ": "run_pr262_policy_hidden_capacity.py",
+            "AK-AM": "run_pr264_joint_alphazero_iteration.py",
+            "AN-AP": "run_pr265_unique_data_scale.py",
+            "D-F": "run_pr251_cross_seed_strength_residual_transfer.py",
+            "G-I": "run_pr252_phase_target_delta_attribution.py",
+            "J-L": "run_pr253_semantic_receiver_target_surgery.py",
+            "M-R": "run_pr254_third_seed_budget_replay.py",
+            "S-U": "run_pr256_fresh768_replay_replication.py",
+            "V-X": "run_pr258_two_replay_aggregation.py",
+            "Y-AA": "run_pr259_two_replay_second_epoch.py"
+          },
+          "unique_state_identities": 28961
+        },
+        "schema": "seed461-order-population-coverage-v1",
+        "suite_identity_overlap": {
+          "excluded_states": 89552,
+          "overlap": 0,
+          "proof": "canonical state SHA-256 identities; zero intersection",
+          "suite_states": 256
+        }
+      },
+      "nonterminal": true,
+      "openings": 256,
+      "path": "/home/alex/Mancala/ai/docs/data/seed461-e2-e4-average-openings.jsonl",
+      "seed": 387,
+      "sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unique_state_identities": 256
+    }
+  },
+  "reused_training": {
+    "description": "Reused PR #386 constant-LR A trajectories; no new training was performed.",
+    "epochs_and_source_sha256": {
+      "38611": {
+        "E2": "4bcf3ee592617dec174f1e92c5d85482b6accf2b3071ac380a01b5c46231efb8",
+        "E3": "26b80574621d857974bd40ec730206522d4d39c64bfdee6dd8025d59ddca3eb6",
+        "E4": "fd1d791f0d5ada26f068d71da296541e63bdb3dc19283353f458d41e3b174ee3"
+      },
+      "38612": {
+        "E2": "2c93c4539597183bd5a7fde6414f1da8b5d7b27f6f20801a16e3a9ff23c77e19",
+        "E3": "bbbd23f04edf53501632cb8425107113b9339895ea5f42389488f2367ee051fe",
+        "E4": "15fc2bccdeabdce0f5182bf1f5222ecb515fca7611d1a2bf6b1f90de3c6670f1"
+      },
+      "38613": {
+        "E2": "caf86447afc2e3f6e27c8d1cc90e402aa86283fcbb3f95180a79df77f96d9230",
+        "E3": "921075798296003ab91d187b205d1c5abd0df29ca8100c54f0af7d304cb1dce6",
+        "E4": "d7077cd7832acaa3a324177fe4e812df8beeb5bfb82252749fa3bce9f9838803"
+      },
+      "38614": {
+        "E2": "824be9149ea75cb56118d3185e2f54621f4395c701441f4fc51f5c59e5d7deb1",
+        "E3": "745fd52858023f6a047e28842b7cf8803d1907299d9e2721b1afbd914b816927",
+        "E4": "f197414c4300efb29dc4eb7305940a4e0aa48bdec3dd829287311b0507faca59"
+      },
+      "38615": {
+        "E2": "40cd40777e402ef451a6d97129e1e1bd5c7f87839337f9da8a0eaee9e5d4facb",
+        "E3": "cc8014fe7fa274f34338636e1bf644c55540d1ffd2b127ed0eb95287d45eeb1a",
+        "E4": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351"
+      }
+    },
+    "orders": [
+      38611,
+      38612,
+      38613,
+      38614,
+      38615
+    ],
+    "pr": 386,
+    "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+    "source_paths": {
+      "38611": {
+        "E2": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38611_A/E2.npz",
+        "E3": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38611_A/E3.npz",
+        "E4": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38611_A/E4.npz"
+      },
+      "38612": {
+        "E2": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38612_A/E2.npz",
+        "E3": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38612_A/E3.npz",
+        "E4": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38612_A/E4.npz"
+      },
+      "38613": {
+        "E2": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38613_A/E2.npz",
+        "E3": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38613_A/E3.npz",
+        "E4": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38613_A/E4.npz"
+      },
+      "38614": {
+        "E2": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38614_A/E2.npz",
+        "E3": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38614_A/E3.npz",
+        "E4": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38614_A/E4.npz"
+      },
+      "38615": {
+        "E2": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38615_A/E2.npz",
+        "E3": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38615_A/E3.npz",
+        "E4": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/training/order_38615_A/E4.npz"
+      }
+    },
+    "training_binding_sha256": "c9dca5817005bc5395be171698551638c73d5e7191dd0c68b9a566456437c6bf",
+    "training_record_sha256": "b49fe98dd885a9858f335883577f86a419f014c37acbc7e1ff614a2d3a2308a7"
+  },
+  "schema": "seed461-e2-e4-average-v1",
+  "status": "prospectively_registered_before_candidate_construction_and_games"
+}
