@@ -1,0 +1,48 @@
+{
+  "artifact_hashes": {
+    "E1": {
+      "metadata.json": "8303ab1a2abfa0931f95520f1841d2cfa86e449785a69286c38c62397c25be37",
+      "model.npz": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "0c0cf8b0490535233279eb87c10ca694bc19533805644fbe777a5f50a3e58a22"
+    },
+    "E4": {
+      "metadata.json": "c26123bbefc4b2c7c7a75178d908928b57c74ba1ff26254a09711e4fd0d5bade",
+      "model.npz": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+    }
+  },
+  "manifest_sha256": "762a5b494d6aa6512aadeb685c59734f3dff38da63c91c0bfc3efc5aab81185a",
+  "registration_sha256": "3a072feed2ee52926576357b4367b40378536ef9b7151647e3897cf9865c2e8d",
+  "reports": {
+    "E1": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E1-games.jsonl",
+      "games_sha256": "4d52b1248ef5f1dc40a76506f048ee6c6fcc047bd9ce2746e97bb56f9330eef8",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E1.json",
+      "report_sha256": "df1b54889298db754a912ae0b71acc818401bac44316b2706034de583a3bf2bf",
+      "score": 0.48388671875
+    },
+    "E4": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E4-games.jsonl",
+      "games_sha256": "b5823166d97ca2b1b559682b349fe1a5300f097bb8b12928879149d744ff5c40",
+      "report": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E4.json",
+      "report_sha256": "a8fa922a42d3d7c656c5b202c50dc1b3b106fe3c323497b68cec267a7a49b345",
+      "score": 0.51171875
+    }
+  },
+  "schema": "seed461-o0-e1-e4-corrected-diagnostic-binding-v1",
+  "source_hashes": {
+    "ml/alphazero_lite/arena.py": "287521149f160cbcbd47cc9362b3f7418a673958b8adeb752c397fa1766bddd2",
+    "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "ml/alphazero_lite/frozen_opponent_identity.py": "b939b10fe5ef68460df3de49fedbedc3b0c180be283d630efa456799dda8be2e",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/opening_exclusion_contract.py": "54b97dffe3651a609b655d1df8d39c89a3090998b2cc2ff2551e4ff44bc2a0f6",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed461_arena_validation.py": "b96cc00ad56fd6019d4d5fb1d32ad28fd746f7e4eac569ffd012bb374efe7feb",
+    "ml/alphazero_lite/seed461_e1_e4_diagnostic.py": "21d2f712e845796da032419522d49ad8e55e2ad987d912156d15136a077a3d54",
+    "ml/alphazero_lite/seed461_order_population.py": "c2919fd0f30c919d831c7a7435e909eb1578d67fc7670abbb48cda581d1a2680"
+  },
+  "status": "completed_2048_games",
+  "suite_sha256": "8920b4fa7df27292c1f20401a0cae80c5952d6f31b1edb311b75c4df7c970814"
+}
