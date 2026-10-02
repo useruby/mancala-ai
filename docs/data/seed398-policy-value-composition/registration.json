@@ -1,0 +1,181 @@
+{
+  "analysis": {
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 398,
+    "cluster": "opening; four treatment scores and both seats resampled together",
+    "descriptive_interval_quantiles": [
+      0.025,
+      0.975
+    ],
+    "followup_rule": "primary mean >= +0.03 and 97.5% interval lower bound > 0",
+    "harmful_classification": "mean <= -0.03 and interval upper bound < 0",
+    "positive_followup_threshold": 0.03,
+    "primary_interval_quantiles": [
+      0.0125,
+      0.9875
+    ]
+  },
+  "component_sources": {
+    "native_runtime_contract": {
+      "challenger_runtime_policy_inherited": false,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "original_o0_e4": {
+      "architecture": {
+        "activation": "relu",
+        "hidden_layer_count": 9,
+        "hidden_sizes": [
+          96
+        ],
+        "model_type": "residual_v3",
+        "policy_hidden_size": 96,
+        "policy_size": 6,
+        "residual_block_count": 3,
+        "trunk_size": 96,
+        "type": "residual_policy_value",
+        "value_hidden_size": 48,
+        "value_size": 1
+      },
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/artifacts/O0-E4",
+      "artifact_sha256": {
+        "metadata.json": "c26123bbefc4b2c7c7a75178d908928b57c74ba1ff26254a09711e4fd0d5bade",
+        "model.npz": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/training/O0/E4.npz",
+      "checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4"
+    },
+    "seed455": {
+      "architecture": {
+        "activation": "relu",
+        "hidden_layer_count": 7,
+        "hidden_sizes": [
+          96
+        ],
+        "model_type": "residual_v3",
+        "policy_hidden_size": 96,
+        "policy_size": 6,
+        "residual_block_count": 3,
+        "trunk_size": 96,
+        "type": "residual_policy_value",
+        "value_hidden_size": 48,
+        "value_size": 1
+      },
+      "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+      "artifact_sha256": {
+        "metadata.json": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+      },
+      "checkpoint": "/home/alex/Mancala/ai/.tmp/seed48-nextgen-s455-default-value/runs/seed48-nextgen-s455-default-value-iter1/checkpoint.npz",
+      "checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1"
+    }
+  },
+  "evaluation": {
+    "base_seed": 398,
+    "both_seats_per_opening": true,
+    "c_puct": 1.25,
+    "games_per_opening": 2,
+    "games_per_treatment": 1024,
+    "games_total": 4096,
+    "opening_contract": "arena_player_relative_v2",
+    "opening_count": 512,
+    "outcome_dependent_extensions": false,
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations_per_side": 384,
+    "suite": {
+      "opening_count": 512,
+      "path": "docs/data/seed398-policy-value-composition/seed398-openings-v2.jsonl",
+      "selection_seed": 398,
+      "sha256": "10dcb48c9a6bc268ab45ec0a67895b335bb9b669b309115d6ff37b6218131423",
+      "unique_states": 512
+    },
+    "workers": 24
+  },
+  "exclusion_proof": {
+    "excluded_identity_sha256": "7023a21d53f9176c676225ed55af2b9f242173f66c3948757aaf03686cd1bb74",
+    "excluded_state_count": 94370,
+    "path": "docs/data/seed398-policy-value-composition/opening-exclusion-proof.json",
+    "sha256": "8c825e47a1bbbc46af42813322003819dee77a0cfc0d168373593c292e8f19c2"
+  },
+  "execution_commit": "1dd060cdd67659e7c5cc54b812a7fc93dc0a58cb",
+  "execution_source_hashes": {
+    "ml/alphazero_lite/arena.py": "287521149f160cbcbd47cc9362b3f7418a673958b8adeb752c397fa1766bddd2",
+    "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "ml/alphazero_lite/frozen_opponent_identity.py": "b939b10fe5ef68460df3de49fedbedc3b0c180be283d630efa456799dda8be2e",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/opening_exclusion_contract.py": "54b97dffe3651a609b655d1df8d39c89a3090998b2cc2ff2551e4ff44bc2a0f6",
+    "ml/alphazero_lite/prepare_seed398_recovery_bundle.py": "332a0cb496193ba3bb3db40bb8654c3324ad82ccf9347e9b54e093ef6d5fc998",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed398_composition_diagnostic.py": "9e48e09f74a4f6873377273d80b64bda371e22b20a279f50c9f7821585cab524",
+    "ml/alphazero_lite/seed461_arena_validation.py": "b96cc00ad56fd6019d4d5fb1d32ad28fd746f7e4eac569ffd012bb374efe7feb",
+    "ml/alphazero_lite/seed461_order_population.py": "c2919fd0f30c919d831c7a7435e909eb1578d67fc7670abbb48cda581d1a2680"
+  },
+  "schema": "seed398-policy-value-composition-registration-v1",
+  "status": "registered_before_games",
+  "treatments": {
+    "FF": {
+      "policy_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/artifacts/O0-E4",
+      "policy_checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "policy_model_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "policy_source": "original_o0_e4",
+      "policy_weights_sha256": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4",
+      "trunk_composition": "each output computed by its own complete source evaluator; no weight splicing",
+      "value_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/artifacts/O0-E4",
+      "value_checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "value_model_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "value_source": "original_o0_e4",
+      "value_weights_sha256": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+    },
+    "FS": {
+      "policy_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/artifacts/O0-E4",
+      "policy_checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "policy_model_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "policy_source": "original_o0_e4",
+      "policy_weights_sha256": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4",
+      "trunk_composition": "each output computed by its own complete source evaluator; no weight splicing",
+      "value_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+      "value_checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "value_model_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "value_source": "seed455",
+      "value_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    },
+    "SF": {
+      "policy_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+      "policy_checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "policy_model_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "policy_source": "seed455",
+      "policy_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "trunk_composition": "each output computed by its own complete source evaluator; no weight splicing",
+      "value_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/artifacts/O0-E4",
+      "value_checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "value_model_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "value_source": "original_o0_e4",
+      "value_weights_sha256": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+    },
+    "SS": {
+      "policy_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+      "policy_checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "policy_model_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "policy_source": "seed455",
+      "policy_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "trunk_composition": "each output computed by its own complete source evaluator; no weight splicing",
+      "value_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+      "value_checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "value_model_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+      "value_source": "seed455",
+      "value_weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  }
+}

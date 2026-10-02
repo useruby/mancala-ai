@@ -1,0 +1,216 @@
+"""Replay-based opening-suite exclusion checks shared by arena workflows."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from typing import Any
+from pathlib import Path
+
+from ml.alphazero_lite.arena import apply_opening_moves
+from ml.alphazero_lite.build_opening_suite import INITIAL_STATE, canonical_key
+from ml.alphazero_lite.kalah_rules import KalahGame
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _path(value: str) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
+
+def _sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _load_jsonl(path: Path) -> list[dict[str, Any]]:
+    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+
+
+def _source_identities(spec: dict[str, str]) -> tuple[list[str], list[str]]:
+    path = _path(spec["path"])
+    kind = spec["kind"]
+    if kind == "historical_suite":
+        declared, actual = historical_opening_identities(_load_jsonl(path))
+        return sorted(declared), sorted(actual)
+    if kind == "state_jsonl":
+        entries = _load_jsonl(path)
+        identities = sorted({canonical_key(row["state"]) for row in entries})
+        return identities, identities
+    if kind == "training_replay":
+        from ml.alphazero_lite import checkpoint_trajectory_diagnostic as trajectory
+
+        identities = sorted(
+            {
+                canonical_key(trajectory.state_from_row(json.loads(line)))
+                for line in path.read_text().splitlines()
+                if line.strip()
+            }
+        )
+        return identities, identities
+    if kind == "historical_population":
+        from ml.alphazero_lite.run_pr249_fresh_suite_generalization import all_openings
+
+        identities = sorted({canonical_key(row["state"]) for row in all_openings()})
+        return identities, identities
+    if kind == "source_code":
+        return [], []
+    raise ValueError(f"unknown_exclusion_source_kind:{kind}")
+
+
+def create_manifest(source_specs: list[dict[str, str]]) -> dict[str, Any]:
+    """Hash-bind source bytes and the recomputed complete exclusion union."""
+    sources: list[dict[str, Any]] = []
+    declared_union: set[str] = set()
+    actual_union: set[str] = set()
+    for spec in source_specs:
+        path = _path(spec["path"])
+        if not path.is_file():
+            raise FileNotFoundError(f"exclusion_source_missing:{path}")
+        declared, actual = _source_identities(spec)
+        declared_union.update(declared)
+        actual_union.update(actual)
+        sources.append(
+            {
+                **spec,
+                "sha256": _sha(path),
+                "declared_state_count": len(declared),
+                "actual_state_count": len(actual),
+                "declared_identity_sha256": hashlib.sha256(
+                    "\n".join(declared).encode()
+                ).hexdigest(),
+                "actual_identity_sha256": hashlib.sha256(
+                    "\n".join(actual).encode()
+                ).hexdigest(),
+            }
+        )
+    union = declared_union | actual_union
+    return {
+        "schema": "order38615-a5-opening-exclusion-manifest-v1",
+        "sources": sources,
+        "declared_state_count": len(declared_union),
+        "actual_state_count": len(actual_union),
+        "excluded_state_count": len(union),
+        "declared_state_identities": sorted(declared_union),
+        "actual_state_identities": sorted(actual_union),
+        "excluded_state_identities": sorted(union),
+        "excluded_identity_sha256": hashlib.sha256(
+            "\n".join(sorted(union)).encode()
+        ).hexdigest(),
+    }
+
+
+def verify_manifest(path: Path) -> dict[str, Any]:
+    """Recompute every source and identity; reject stale manifest bytes."""
+    saved = json.loads(path.read_text())
+    recomputed = create_manifest(
+        [{"path": row["path"], "kind": row["kind"]} for row in saved["sources"]]
+    )
+    if recomputed != saved:
+        raise ValueError("exclusion_manifest_stale_or_mutated")
+    return saved
+
+
+def write_immutable_json(path: Path, value: dict[str, Any]) -> None:
+    payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
+    if path.exists() and path.read_text() != payload:
+        raise ValueError(f"immutable_artifact_conflict:{path.name}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.write_text(payload)
+
+
+def opening_identities(entries: list[dict[str, Any]]) -> tuple[list[str], list[str]]:
+    """Return declared and consumed identities after complete legal replay."""
+    declared: list[str] = []
+    actual: list[str] = []
+    for index, entry in enumerate(entries):
+        game = KalahGame.from_state(INITIAL_STATE)
+        prefix = [int(move) for move in entry["prefix_moves"]]
+        applied = apply_opening_moves(game, prefix)
+        if applied != len(prefix):
+            raise ValueError(
+                f"opening_suite_truncated_prefix:{index}:{applied}/{len(prefix)}"
+            )
+        identity = canonical_key(game.to_state())
+        actual.append(identity)
+        if "state" in entry:
+            declared.append(canonical_key(entry["state"]))
+            if declared[-1] != identity:
+                raise ValueError(f"opening_suite_state_mismatch:{index}")
+        for field in ("state_hash", "canonical_resulting_state_hash"):
+            if field in entry:
+                declared.append(str(entry[field]))
+                if declared[-1] != identity:
+                    raise ValueError(
+                        f"opening_suite_state_hash_mismatch:{index}:{field}"
+                    )
+    return declared, actual
+
+
+def historical_opening_identities(
+    entries: list[dict[str, Any]],
+) -> tuple[set[str], set[str]]:
+    """Reconstruct legacy starts with the historical stop-on-illegal replay."""
+    declared: set[str] = set()
+    actual: set[str] = set()
+    for entry in entries:
+        if "state" in entry:
+            declared.add(canonical_key(entry["state"]))
+        for field in ("state_hash", "canonical_resulting_state_hash"):
+            if field in entry:
+                declared.add(str(entry[field]))
+        game = KalahGame.from_state(INITIAL_STATE)
+        apply_opening_moves(game, [int(move) for move in entry["prefix_moves"]])
+        actual.add(canonical_key(game.to_state()))
+    return declared, actual
+
+
+def validate_exclusions(
+    entries: list[dict[str, Any]],
+    excluded_declared: set[str],
+    excluded_actual: set[str],
+) -> set[str]:
+    """Require unique consumed starts and coverage of both identity populations."""
+    declared, actual_list = opening_identities(entries)
+    if len(set(actual_list)) != len(actual_list):
+        raise ValueError("opening_suite_duplicate_start")
+    actual = set(actual_list)
+    declared_set = set(declared)
+    if declared_set & excluded_declared:
+        raise ValueError("opening_suite_declared_exclusion_overlap")
+    if actual & excluded_actual:
+        raise ValueError("opening_suite_actual_exclusion_overlap")
+    # A suite's declared and consumed views must also be disjoint from the other
+    # view of historical starts: neither form may hide a collision.
+    if declared_set & excluded_actual:
+        raise ValueError("opening_suite_declared_vs_actual_overlap")
+    if actual & excluded_declared:
+        raise ValueError("opening_suite_actual_vs_declared_overlap")
+    return actual
+
+
+def validate_suite_against_manifest(
+    entries: list[dict[str, Any]], manifest: dict[str, Any]
+) -> set[str]:
+    """Apply both historical identity populations to a new strict suite."""
+    return validate_exclusions(
+        entries,
+        set(manifest["declared_state_identities"]),
+        set(manifest["actual_state_identities"]),
+    )
+
+
+def validate_suite_set(
+    suites: dict[str, list[dict[str, Any]]], manifest: dict[str, Any]
+) -> dict[str, set[str]]:
+    """Validate every suite against exclusions and against each other."""
+    identities: dict[str, set[str]] = {}
+    seen: set[str] = set()
+    for name, entries in suites.items():
+        current = validate_suite_against_manifest(entries, manifest)
+        if current & seen:
+            raise ValueError(f"cross_suite_opening_overlap:{name}")
+        identities[name] = current
+        seen |= current
+    return identities
