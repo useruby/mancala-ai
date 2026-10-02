@@ -1,0 +1,58 @@
+{
+  "a5_union_state_count": 89808,
+  "excluded_union_state_count": 90832,
+  "schema": "seed397-opening-exclusions-v1",
+  "seed395_396_start_count": 1024,
+  "selected_exclusion_overlap": 0,
+  "sources": [
+    {
+      "kind": "verified_a5_complete_exclusion_union",
+      "path": "docs/data/order38615-a5-frozen-diagnostic-v4/opening-exclusion-manifest.json",
+      "sha256": "d47243590dd4015ce207d8d980f30c1f097519868224abb31014d310a6a489e0",
+      "states": 89808
+    },
+    {
+      "kind": "seed395_or_396_frozen_suite",
+      "path": "docs/data/order38615-a5-frozen-diagnostic-v4/seed395-openings-v2.jsonl",
+      "sha256": "2e89781142ba07924ed1473e98e644444895c791eea2d345ece24628f91da1ba",
+      "states": 512
+    },
+    {
+      "kind": "seed395_or_396_frozen_suite",
+      "path": "docs/data/order38615-a5-frozen-diagnostic-v4/seed396-openings-v2.jsonl",
+      "sha256": "a92da7d29fd70d91c7f8182f4b4186515be2abf71e7973cd89954abb2d69a40d",
+      "states": 512
+    },
+    {
+      "kind": "original_seed461_training_replay",
+      "name": "fresh",
+      "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab"
+    },
+    {
+      "kind": "original_seed461_training_replay",
+      "name": "generic_bootstrap",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+      "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+    },
+    {
+      "kind": "original_seed461_training_replay",
+      "name": "random_teacher",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+      "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+    },
+    {
+      "kind": "original_seed461_training_replay",
+      "name": "opening_disagreement",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+      "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+    },
+    {
+      "kind": "original_seed461_training_replay",
+      "name": "stability",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+      "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+    }
+  ],
+  "training_replay_union_state_count": 62330
+}

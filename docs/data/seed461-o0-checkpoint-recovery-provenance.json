@@ -1,0 +1,76 @@
+{
+  "all_four_epoch_hashes": {
+    "E1": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+    "E2": "73914b801e61be7eada0366619fbc2defb23999fb163ef0da49134594ec44488",
+    "E3": "9d3db177d22f12b0c8952233f3fc6c5dad5b0529f3990932699e8839afa0d2b8",
+    "E4": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4"
+  },
+  "checkpoint_files": [
+    {
+      "available_original_checkpoint": true,
+      "checkpoint_sha256": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+      "epoch": "E1",
+      "expected_sha256": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+      "metadata_sha256": "8303ab1a2abfa0931f95520f1841d2cfa86e449785a69286c38c62397c25be37",
+      "model_sha256": "643407f0b070acc1603e90e14e4ad8fd4579e4e34e3c109d9b0691f08267a1dc",
+      "path": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/training/O0/E1.npz",
+      "runtime_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/artifacts/O0-E1",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      },
+      "search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights_sha256": "0c0cf8b0490535233279eb87c10ca694bc19533805644fbe777a5f50a3e58a22"
+    },
+    {
+      "available_original_checkpoint": true,
+      "checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "epoch": "E4",
+      "expected_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "metadata_sha256": "c26123bbefc4b2c7c7a75178d908928b57c74ba1ff26254a09711e4fd0d5bade",
+      "model_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "path": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/training/O0/E4.npz",
+      "runtime_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/artifacts/O0-E4",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      },
+      "search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights_sha256": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+    }
+  ],
+  "environment": {
+    "cuda_available": false,
+    "executable": "/home/alex/Mancala/ai/.tmp/venv/bin/python",
+    "numpy": "2.5.3",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "repository_head": "a4eec768002ca496f0a1424345906b5fa72dc610",
+    "torch": "2.14.0+cu130"
+  },
+  "method": "recovered_from_original_execution_checkout; no reproduction required",
+  "original_execution_checkout": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation",
+  "original_training_record_sha256": "6d290f345d583d2054494da18bc2773275628a52e2fbf158ca0a0042b70b32c5",
+  "published_binding_sha256": "21a1b02b11b024716175bab387c66cabd5702a7b61c8e798db8e1f0ac9a78c98",
+  "schema": "seed461-o0-checkpoint-recovery-provenance-v1"
+}
