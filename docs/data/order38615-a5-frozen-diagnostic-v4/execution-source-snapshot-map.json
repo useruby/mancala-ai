@@ -1,0 +1,17 @@
+{
+  "manifest_sha256": "d47243590dd4015ce207d8d980f30c1f097519868224abb31014d310a6a489e0",
+  "registration_sha256": "b0fae6cb8a30e567c96bbcc01e3d14e98ac36b751adf545790dee8062a01ec75",
+  "schema": "order38615-a5-execution-source-snapshot-map-v1",
+  "sources": [
+    {
+      "original_path": "ml/alphazero_lite/arena.py",
+      "registered_sha256": "d55bdb0a72a7f65c131272273a755edbfbddd525941e1b518864a711f762c430",
+      "snapshot_path": "docs/data/order38615-a5-frozen-diagnostic-v4/execution-source-snapshots/arena.py.execution-source"
+    },
+    {
+      "original_path": "ml/alphazero_lite/opening_exclusion_contract.py",
+      "registered_sha256": "9503b7a99fbfcb4b1e89e877951965d73f2a66176da20cc1c6dee8f55f331a04",
+      "snapshot_path": "docs/data/order38615-a5-frozen-diagnostic-v4/execution-source-snapshots/opening_exclusion_contract.py.execution-source"
+    }
+  ]
+}

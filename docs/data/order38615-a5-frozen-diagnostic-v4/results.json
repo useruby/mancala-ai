@@ -1,0 +1,152 @@
+{
+  "canonical_promotion_failure_overridden": false,
+  "evaluation_binding_sha256": "586751f43e949c7170892d473c4c85c94c2c9858326da8c833b1dc2d83a27621",
+  "excluded_state_count": 92342,
+  "exclusion_manifest_sha256": "d47243590dd4015ce207d8d980f30c1f097519868224abb31014d310a6a489e0",
+  "game_outcome_accounting_sha256": "2beb361f469eb3ced4a1ebf49f981a3a0429fb45a0e1b7b64f401a1df5ab39e2",
+  "opening_score_matrix_sha256": "fb675a179a0b5436d79de281e4ce8d9c260d320a23a45ad8e937be13dfa4b934",
+  "outcomes": {
+    "395": {
+      "draws": 97,
+      "games": 1024,
+      "losses": 477,
+      "score": 0.48681640625,
+      "seat_outcomes": {
+        "0": {
+          "draws": 54,
+          "games": 512,
+          "losses": 197,
+          "score": 0.5625,
+          "wins": 261
+        },
+        "1": {
+          "draws": 43,
+          "games": 512,
+          "losses": 280,
+          "score": 0.4111328125,
+          "wins": 189
+        }
+      },
+      "wins": 450
+    },
+    "396": {
+      "draws": 103,
+      "games": 1024,
+      "losses": 477,
+      "score": 0.48388671875,
+      "seat_outcomes": {
+        "0": {
+          "draws": 42,
+          "games": 512,
+          "losses": 206,
+          "score": 0.556640625,
+          "wins": 264
+        },
+        "1": {
+          "draws": 61,
+          "games": 512,
+          "losses": 271,
+          "score": 0.4111328125,
+          "wins": 180
+        }
+      },
+      "wins": 444
+    }
+  },
+  "per_suite_and_pooled_pass": false,
+  "pooled_bootstrap_seed": 395,
+  "pooled_interval_95_percentile": [
+    0.470947265625,
+    0.500244140625
+  ],
+  "pooled_pass": false,
+  "pooled_resamples": 10000,
+  "pooled_score": 0.4853515625,
+  "registration_sha256": "b0fae6cb8a30e567c96bbcc01e3d14e98ac36b751adf545790dee8062a01ec75",
+  "runtime": {
+    "395": {
+      "games": 1024,
+      "move_time_mean_ms": 50.65,
+      "move_time_p95_ms": 130.72,
+      "simulations_per_side": 384,
+      "summed_exact_root_solve_ms": 3017.3173339571804,
+      "summed_normal_puct_ms": 1690294.9932746124,
+      "workers_used": 24
+    },
+    "396": {
+      "games": 1024,
+      "move_time_mean_ms": 51.16,
+      "move_time_p95_ms": 130.9,
+      "simulations_per_side": 384,
+      "summed_exact_root_solve_ms": 2988.6837631929666,
+      "summed_normal_puct_ms": 1683258.199976408,
+      "workers_used": 24
+    }
+  },
+  "schema": "order38615-corrected-diagnostic-results-v1",
+  "suite_pass": false,
+  "suite_results": {
+    "395": {
+      "bootstrap_seed": 395,
+      "draws": 97,
+      "games": 1024,
+      "interval_95_percentile": [
+        0.4658203125,
+        0.5068359375
+      ],
+      "losses": 477,
+      "resamples": 10000,
+      "score": 0.48681640625,
+      "seat_outcomes": {
+        "0": {
+          "draws": 54,
+          "games": 512,
+          "losses": 197,
+          "score": 0.5625,
+          "wins": 261
+        },
+        "1": {
+          "draws": 43,
+          "games": 512,
+          "losses": 280,
+          "score": 0.4111328125,
+          "wins": 189
+        }
+      },
+      "wins": 450
+    },
+    "396": {
+      "bootstrap_seed": 396,
+      "draws": 103,
+      "games": 1024,
+      "interval_95_percentile": [
+        0.462890625,
+        0.50439453125
+      ],
+      "losses": 477,
+      "resamples": 10000,
+      "score": 0.48388671875,
+      "seat_outcomes": {
+        "0": {
+          "draws": 42,
+          "games": 512,
+          "losses": 206,
+          "score": 0.556640625,
+          "wins": 264
+        },
+        "1": {
+          "draws": 61,
+          "games": 512,
+          "losses": 271,
+          "score": 0.4111328125,
+          "wins": 180
+        }
+      },
+      "wins": 444
+    }
+  },
+  "total_games": 2048,
+  "total_search_simulations": 1572864,
+  "training_or_export_cost": "none",
+  "validity_status": "valid"
+}
