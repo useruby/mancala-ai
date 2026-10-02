@@ -1,0 +1,23 @@
+{
+  "exclusions_sha256": "5f031dbf80e699619e4cbd6bf429eec6003a422f85845c92448b8dcdb3340a3e",
+  "registration_sha256": "eb28a64fa484dd1d0de83269d395186ae73571cec6f6a79c0653fbd99138f9ef",
+  "reports": {
+    "E1": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed397-o0-e1-e4/E1-games.jsonl",
+      "games_sha256": "e9475abe05373a39685f40ad07529984f89e03b64c4a295cadb1df01d9f2d490",
+      "report": "/home/alex/Mancala/ai/.tmp/seed397-o0-e1-e4/E1.json",
+      "report_sha256": "cdfc5355bfe20ec59719030b8b764966ba41940912951f56e7834d40ce3266e1",
+      "state": "completed"
+    },
+    "E4": {
+      "games": "/home/alex/Mancala/ai/.tmp/seed397-o0-e1-e4/E4-games.jsonl",
+      "games_sha256": "d115e428d8a3f24e7ae0efec0645071f74c2c3c1e1af578c4a3b8fb3ed48c48e",
+      "report": "/home/alex/Mancala/ai/.tmp/seed397-o0-e1-e4/E4.json",
+      "report_sha256": "ed296373d9976af3149f1881f34a3266c213f03b0c1943372d4f6608d8115f18",
+      "state": "completed"
+    }
+  },
+  "schema": "seed397-o0-e1-e4-evaluation-binding-v1",
+  "status": "completed_2048_games",
+  "suite_sha256": "f1a08072b140d031b9b3a858e9abb09bac1bf11ffe1a0af5f692062911fda778"
+}
