@@ -10,9 +10,13 @@ from ml.alphazero_lite.build_opening_suite import (
     load_suite_jsonl,
     validate_arena_entries,
 )
+from ml.alphazero_lite.opening_exclusion_contract import (
+    validate_suite_against_manifest,
+    verify_manifest,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
-DATA = ROOT / "docs/data/order38615-corrected-diagnostic"
+DATA = ROOT / "docs/data/order38615-a5-frozen-diagnostic-v4"
 REG = DATA / "registration.json"
 BIND = DATA / "evaluation-binding.json"
 SOURCE_BIND = ROOT / "docs/data/order38615-a5-confirmation-candidate-binding.json"
@@ -26,6 +30,10 @@ def bind() -> None:
     registration = json.loads(REG.read_text())
     source = json.loads(SOURCE_BIND.read_text())
     candidate = registration["candidate"]
+    manifest_path = ROOT / registration["exclusion_proof"]["manifest_path"]
+    if sha(manifest_path) != registration["exclusion_proof"]["manifest_sha256"]:
+        raise ValueError("exclusion_manifest_hash_mismatch")
+    manifest = verify_manifest(manifest_path)
     if source["candidate"]["checkpoint_sha256"] != candidate["checkpoint_sha256"]:
         raise ValueError("candidate_checkpoint_binding_mismatch")
     if source["candidate"]["artifact"] != candidate["artifact"]:
@@ -33,6 +41,7 @@ def bind() -> None:
     for filename, digest in candidate["artifact_sha256"].items():
         if sha(Path(candidate["artifact"]) / filename) != digest:
             raise ValueError(f"candidate_artifact_hash_mismatch:{filename}")
+    all_identities: set[str] = set()
     for seed, spec in registration["evaluation"]["suites"].items():
         suite_path = ROOT / spec["path"]
         if sha(suite_path) != spec["sha256"]:
@@ -41,9 +50,14 @@ def bind() -> None:
         identities = validate_arena_entries(rows)
         if len(rows) != 512 or len(set(identities)) != 512:
             raise ValueError(f"suite_identity_mismatch:{seed}")
+        excluded = validate_suite_against_manifest(rows, manifest)
+        if excluded != set(identities) or excluded & all_identities:
+            raise ValueError(f"suite_exclusion_or_cross_overlap:{seed}")
+        all_identities |= excluded
     value = {
         "schema": "order38615-corrected-diagnostic-evaluation-binding-v1",
         "registration_sha256": sha(REG),
+        "exclusion_manifest_sha256": sha(manifest_path),
         "source_candidate_binding_sha256": sha(SOURCE_BIND),
         "candidate_artifact_sha256": candidate["artifact_sha256"],
         "opponent": registration["opponent"],

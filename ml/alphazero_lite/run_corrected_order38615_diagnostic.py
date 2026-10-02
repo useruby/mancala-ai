@@ -15,9 +15,13 @@ from ml.alphazero_lite.build_opening_suite import (
     validate_arena_entries,
 )
 from ml.alphazero_lite.frozen_opponent_identity import validate_frozen_opponent_identity
+from ml.alphazero_lite.opening_exclusion_contract import (
+    validate_suite_against_manifest,
+    verify_manifest,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
-DATA = ROOT / "docs/data/order38615-corrected-diagnostic"
+DATA = ROOT / "docs/data/order38615-a5-frozen-diagnostic-v4"
 REG = DATA / "registration.json"
 BIND = DATA / "evaluation-binding.json"
 SOURCE_BIND = ROOT / "docs/data/order38615-a5-confirmation-candidate-binding.json"
@@ -41,6 +45,13 @@ def run() -> None:
         raise ValueError("registration_binding_mismatch")
     if binding.get("source_candidate_binding_sha256") != sha(SOURCE_BIND):
         raise ValueError("candidate_source_binding_mismatch")
+    manifest_path = ROOT / registration["exclusion_proof"]["manifest_path"]
+    if (
+        binding.get("exclusion_manifest_sha256") != sha(manifest_path)
+        or sha(manifest_path) != registration["exclusion_proof"]["manifest_sha256"]
+    ):
+        raise ValueError("exclusion_manifest_binding_mismatch")
+    manifest = verify_manifest(manifest_path)
     candidate = registration["candidate"]
     opponent = registration["opponent"]
     validate_frozen_opponent_identity(
@@ -52,15 +63,28 @@ def run() -> None:
     if source["candidate"]["checkpoint_sha256"] != candidate["checkpoint_sha256"]:
         raise ValueError("candidate_checkpoint_substitution")
     ev = registration["evaluation"]
+    all_suite_states: set[str] = set()
+    suite_rows: dict[str, list[dict[str, Any]]] = {}
+    for seed_text, spec in ev["suites"].items():
+        suite = ROOT / spec["path"]
+        if sha(suite) != spec["sha256"]:
+            raise ValueError(f"suite_hash_mismatch:{seed_text}")
+        rows = load_suite_jsonl(str(suite))
+        actual = set(validate_arena_entries(rows))
+        excluded = validate_suite_against_manifest(rows, manifest)
+        if len(rows) != spec["opening_count"] or actual != excluded:
+            raise ValueError(f"suite_exclusion_preflight_failed:{seed_text}")
+        if actual & all_suite_states:
+            raise ValueError("cross_suite_opening_overlap")
+        all_suite_states |= actual
+        suite_rows[seed_text] = rows
     reports = binding.setdefault("reports", {})
     for seed_text, spec in ev["suites"].items():
         seed = int(seed_text)
         suite = ROOT / spec["path"]
         if sha(suite) != spec["sha256"]:
             raise ValueError(f"suite_hash_mismatch:{seed}")
-        openings = load_suite_jsonl(str(suite))
-        if len(validate_arena_entries(openings)) != spec["opening_count"]:
-            raise ValueError(f"suite_replay_preflight_failed:{seed}")
+        openings = suite_rows[seed_text]
         report = WORK / f"seed{seed}.json"
         games = WORK / f"seed{seed}-games.jsonl"
         cached = reports.get(seed_text)

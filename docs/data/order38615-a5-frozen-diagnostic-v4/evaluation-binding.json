@@ -1,0 +1,41 @@
+{
+  "candidate_artifact_sha256": {
+    "metadata.json": "5bddbc75be291d2b37cfd2257b7546e2b68f7b823c4692883b09e2f1ddadd37f",
+    "model.npz": "f9986d511ddf70d76640b866d549e00a86bae6414761176653132e4d5163f351",
+    "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "weights.json": "73aa08979a1e05be9a83d8349aedd4a9913da224951feeeafe4d2d12df43675f"
+  },
+  "exclusion_manifest_sha256": "d47243590dd4015ce207d8d980f30c1f097519868224abb31014d310a6a489e0",
+  "opponent": {
+    "artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+    "metadata_sha256": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "sidecar_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "registration_sha256": "b0fae6cb8a30e567c96bbcc01e3d14e98ac36b751adf545790dee8062a01ec75",
+  "reports": {
+    "395": {
+      "games": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed395-games.jsonl",
+      "games_sha256": "733c4e98229ccc7bb828403619473bac315b5270dd97fcd5fe2e2d838c627d04",
+      "report": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed395.json",
+      "report_sha256": "e121d3168e19164be7c03b3b1cda21403ba0cb3ddb5add96facfbd5440350c95",
+      "score": 0.48681640625
+    },
+    "396": {
+      "games": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed396-games.jsonl",
+      "games_sha256": "8b54d1bc6f5e3332edf8079b17bcce91551654aefbe4f79fde4412fe09272ee0",
+      "report": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed396.json",
+      "report_sha256": "009d947571e9fce5733d7b388f5369b3f8e7e4e4781f702a8d99b1d7614bf0f3",
+      "score": 0.48388671875
+    }
+  },
+  "schema": "order38615-corrected-diagnostic-evaluation-binding-v1",
+  "source_candidate_binding_sha256": "31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a",
+  "status": "completed_2048_games",
+  "suite_sha256": {
+    "395": "2e89781142ba07924ed1473e98e644444895c791eea2d345ece24628f91da1ba",
+    "396": "a92da7d29fd70d91c7f8182f4b4186515be2abf71e7973cd89954abb2d69a40d"
+  }
+}

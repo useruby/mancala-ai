@@ -1,0 +1,74 @@
+{
+  "ast_equivalence": {
+    "all_sources_equivalent": true,
+    "method": "Parse archived and formatted Python with type_comments=True; compare ast.dump(..., annotate_fields=True, include_attributes=False).",
+    "source_locations_excluded": true,
+    "type_comments_retained": true
+  },
+  "execution_sources": [
+    {
+      "ast_equivalent": true,
+      "ast_method": "ast.parse(type_comments=True); ast.dump(annotate_fields=True, include_attributes=False)",
+      "formatted_sha256": "287521149f160cbcbd47cc9362b3f7418a673958b8adeb752c397fa1766bddd2",
+      "original_path": "ml/alphazero_lite/arena.py",
+      "registered_sha256": "d55bdb0a72a7f65c131272273a755edbfbddd525941e1b518864a711f762c430",
+      "snapshot_path": "docs/data/order38615-a5-frozen-diagnostic-v4/execution-source-snapshots/arena.py.execution-source"
+    },
+    {
+      "ast_equivalent": true,
+      "ast_method": "ast.parse(type_comments=True); ast.dump(annotate_fields=True, include_attributes=False)",
+      "formatted_sha256": "54b97dffe3651a609b655d1df8d39c89a3090998b2cc2ff2551e4ff44bc2a0f6",
+      "original_path": "ml/alphazero_lite/opening_exclusion_contract.py",
+      "registered_sha256": "9503b7a99fbfcb4b1e89e877951965d73f2a66176da20cc1c6dee8f55f331a04",
+      "snapshot_path": "docs/data/order38615-a5-frozen-diagnostic-v4/execution-source-snapshots/opening_exclusion_contract.py.execution-source"
+    }
+  ],
+  "original_hashes": {
+    "candidate_binding_sha256": "31037f07e5f50aa0c945a6a37e1ec3ef17bf74746f1d531d5275cc32c261970a",
+    "canonical_gate_result_sha256": "8fd66b7880b81610718c01f2669c6f6dbd8c250312b6b5125b732ebc2294b0e8",
+    "canonical_gate_score_matrix_sha256": "66e50f5706f38ed0d09b671a4789c05bd1e6beff48b46b4552596d9b94e60b35",
+    "evaluation_binding_sha256": "586751f43e949c7170892d473c4c85c94c2c9858326da8c833b1dc2d83a27621",
+    "game_outcome_accounting_sha256": "2beb361f469eb3ced4a1ebf49f981a3a0429fb45a0e1b7b64f401a1df5ab39e2",
+    "manifest_sha256": "d47243590dd4015ce207d8d980f30c1f097519868224abb31014d310a6a489e0",
+    "opening_score_matrix_sha256": "fb675a179a0b5436d79de281e4ce8d9c260d320a23a45ad8e937be13dfa4b934",
+    "public_results_binding": {
+      "evaluation_binding_sha256": "586751f43e949c7170892d473c4c85c94c2c9858326da8c833b1dc2d83a27621",
+      "exclusion_manifest_sha256": "d47243590dd4015ce207d8d980f30c1f097519868224abb31014d310a6a489e0",
+      "registration_sha256": "b0fae6cb8a30e567c96bbcc01e3d14e98ac36b751adf545790dee8062a01ec75"
+    },
+    "raw_evidence_paths": {
+      "395": {
+        "games_path": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed395-games.jsonl",
+        "report_path": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed395.json"
+      },
+      "396": {
+        "games_path": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed396-games.jsonl",
+        "report_path": "/home/alex/Mancala/ai/.tmp/order38615-corrected-diagnostic/seed396.json"
+      }
+    },
+    "raw_reports_and_games": {
+      "395": {
+        "games_sha256": "733c4e98229ccc7bb828403619473bac315b5270dd97fcd5fe2e2d838c627d04",
+        "report_sha256": "e121d3168e19164be7c03b3b1cda21403ba0cb3ddb5add96facfbd5440350c95"
+      },
+      "396": {
+        "games_sha256": "8b54d1bc6f5e3332edf8079b17bcce91551654aefbe4f79fde4412fe09272ee0",
+        "report_sha256": "009d947571e9fce5733d7b388f5369b3f8e7e4e4781f702a8d99b1d7614bf0f3"
+      }
+    },
+    "registration_sha256": "b0fae6cb8a30e567c96bbcc01e3d14e98ac36b751adf545790dee8062a01ec75",
+    "results_sha256": "9a77e31e1febcfa6ac326fb506c8b2688594ec774a0bea52b03afce94a6ad4b9",
+    "suite_sha256": {
+      "395": "2e89781142ba07924ed1473e98e644444895c791eea2d345ece24628f91da1ba",
+      "396": "a92da7d29fd70d91c7f8182f4b4186515be2abf71e7973cd89954abb2d69a40d"
+    }
+  },
+  "schema": "order38615-a5-post-execution-publication-amendment-v1",
+  "separate_functional_publication_verifier": {
+    "path": "ml/alphazero_lite/publish_order38615_a5_diagnostic.py",
+    "role": "post-execution publication verification only; launch validation remains bound to exact original source bytes",
+    "sha256": "2d68322f30e40674f254f561854cfe270070f5078dd28acc649751efbd6f374e"
+  },
+  "statement": "Source formatting occurred after the 2,048 games and completed analysis. Each delivery source has the same Python AST as its byte-exact execution snapshot; no experimental input, runtime, suite, game, outcome, registration, manifest, or preregistered hash was changed.",
+  "status": "post_execution_formatting_only"
+}

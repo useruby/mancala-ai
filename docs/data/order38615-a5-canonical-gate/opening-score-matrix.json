@@ -1,0 +1,3365 @@
+{
+  "bootstrap": {
+    "interval_95_percentile": [
+      0.4521484375,
+      0.5126953125
+    ],
+    "method": "opening-pair percentile bootstrap",
+    "order_statistics_zero_based": [
+      500,
+      19499
+    ],
+    "resamples": 20000,
+    "seed": 331
+  },
+  "canonical_suite_sha256": "811feb7d208467cdfa9a42244eb75adcc8877db5bc03f87dacbd3379e08bd4bf",
+  "draws": 50,
+  "games": 512,
+  "gate_result_sha256": "8fd66b7880b81610718c01f2669c6f6dbd8c250312b6b5125b732ebc2294b0e8",
+  "losses": 240,
+  "opening_count": 256,
+  "opening_scores": [
+    {
+      "canonical_resulting_state_hash": "3888f6bf52102d72bf568f2c875b55ccf298443a8d397295feadc97a34129be7",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 0,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "e4c95479ae34fa76b30533b311439fbed18e2944d84dfcfb119a245d6927225c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.5
+      ],
+      "opening_index": 1,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "95f485fc1dd0e800122f2577b878f82ade05ac59ea29dd5a793586c6cffaa783",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 2,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "76d65968b87eb537fdf1c72289c753c2fae052fb41429ef544c6a0a67025d798",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 3,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1625be288cd18d72c195917da9409becee5e755464446d9e55a91adfa3e0b05d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 4,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "4a468f0009292d01eb8808f28c6e1bfd4ffd033be4cd986ef2213d1877346b60",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 5,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "32133ed546cf772c4be8058a347d9c0d9cdef10bf01c80d3e936f8860a1b97da",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 6,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8637896666f6e09bb3461dfbb614abd8c8487fabbd08e471b6b23da0ba178d89",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 7,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "34afbd000fe532a8ff7f6c222fa05622cbd7333005a7b2e32d4dcce6b954f1cd",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 8,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "635e97ce9449b045cd79a33f752548ad3ebb5dc31336ccb658ce63ddd592d6ee",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 9,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "06d51ae6b80145938fa6f847af678ff721b81a2eef84504043afe5b654581847",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 10,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "dbf8ca9dae0e5b9d0986522591cf3042905d2e0bcf9eaa380e5efde1d712ae89",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 11,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "048eec0150ed03d31cce283f9d1658c88e151dfae4d3e3e8978c9f96e354de81",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 12,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8be2bef8f35d86997d211d7d1c21d7083f164817e3262a03adf78c0e96031a14",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 13,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "135004562e9218e8145792e902f580f750b7baba19cd17a7d44ee1cef719426b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 14,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "64a52a877e0ed517647a2141d765f74429075c3abeb82381e3e3e764ef1e96c7",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 15,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "5320a0d5fd6ffc6d627e1482124a6e052a97ac040d675ed4374e104f8c2b51bb",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 16,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "f767506b120766119d0c99de53d14effbb2467c9bfcb41853cff614c231f6240",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 17,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "c6f89bfb54a3a6df0013add30626c7a3d2250da82f19c24a3aaee0c243a1e1f5",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 18,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "d8db302cd613d607d063906ae139124f9260fa6504c2a09f020482c5746a5bb4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 19,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1f3b25350b9775cc00595f988ba1cc5b4a92d4637efe9bcdc6cb5742ef9bdc91",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 20,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "599a811040f5a9325ed69e2d2b951e18e7101cb965011ed250ef70be0e35775e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 21,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "d1004ff2c26c22a8a68ce57314cee7cbc006eabe0daa0f2e40caa0d9ae5a903f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 22,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "db8c0ed1d50854619f4acf2043c1d37608b5452f2d5c7512efe950d661632e7e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 23,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "b915ab5e4038242a58c6502935bd27247dbc0025c6d415b08f964b6dba72114a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 24,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "40f88d1ff3a701eb5363a17918a9846bf8c2186509fb4c7ed6bb6800fc34feaa",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 25,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0057339d85050241de30ab283cda775f5514c74965f9ffaf2bb7d596168040a9",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 26,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8ab02c6d4bbc4825015fdf07bcba538d33560776784e1d8494df6a534d64ec07",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 27,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "96f5ada730b1da90ec2578d2f573be6cbb91484b90cef07ac040b7d608619b6d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        1.0
+      ],
+      "opening_index": 28,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "3c666538d0676f551a461ec9202af5f64cd374acb45d3a8087a004bd73dd0ff2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 29,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "60d96f8f74617a17f5ebdcd67b2c68ea80e376de53d29033b72c36a8a37e0340",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 30,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "4f81cfbb06c98d99eecaa070516d66485c75795fae6cae6bd29261002780c647",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 31,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "adec1c034d6d82e369cde8bd0aa70226d1b17a97096224ffb64a926072f6324e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 32,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "408e4460c4929ce45f6bd0b41118b363dd60789a17acef9d9cd30f1e40aae35c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 33,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "57b9b464173c5dee77dc123cfa4369f5659a51f4c7d444497e2e59829650107d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 34,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "d4feb1c80fd90f14779fe83318900c68730da7d4a959407c31ae82d80b950fce",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 35,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "3194df5c701a2aa70bbebb258371e7e1e4eb11f0ba60533c91ccca9c184e9182",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 36,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0dc5dc4a7d03370ab8d5fdf95eafa3d2a74b88c7d4f4050c05da7400d6af609a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 37,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "7d61e5cd20c0c14f8cb8b95613db6157d096342e8b4835da3c5ad194097c2c6b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 38,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "6e616dec3a698137db71dfd94cbca85f31517f5b04eec85e4a5188b2798e12f2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 39,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8f1d0a37da6fa80727a7d2fd261bf1a54366c273a47019b9a7577f8dce1b6494",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 40,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "17a7a0d559cf857d2129d044b6dcf92d5b794fac664bb85939ebe4facb6c4717",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 41,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "88d117962f834aaf582dd2a09344a6e8bb7730ddb56a933935fa657e525c3211",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 42,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "125171ed996fa3e01c50cb6815e21ae587103c29f0a1d889337e81c298c69929",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 43,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "2e358263bca2d94c1508ce0adc5b6aa240169f1c5441a07cd4722d656ba101d8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 44,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "f3dca3e3eb03ee88151139cad835c4a748512797f819d616aee2bc62c98348ee",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 45,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "1485f266a49e4ab3343a9f74e93b4157a564e84fbf4725376502133be24789a2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 46,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "5a8493d8e230b5e3dafb4d7e9b2776b222aab6494a437787fbe32a7265776be3",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 47,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8ff5b08030a453fc3e794d319d2f8630396dcb789a740475196957494152ebd8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 48,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "91e5dcdd8cccf37c61ea20be4cf08a92f1ce6dbe04409263384117ac015573fa",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 49,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "c11883b4d75497e3694d17a2402637132e980ef5f78d7fe7b8bfc52b2f79faac",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 50,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "140c4ecf40a9634201dc79dd08faf0431d077bb808c089d05803b6e953597b79",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 51,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "6cc7848025772e637ffba05df1f490cd9fb067e1f748cb85e734661466828248",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 52,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "6286692d4f24fd46ce16db807c6f4f399f880741ee9df2875130a58fd3839233",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 53,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1673ccd34be674ce5fab356db7409146398625d659a25ece680256e0e2f64ca5",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 54,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "0df369c2360ca23feb180b29d6206e48cebaf4112926d58f2a4d126681daad0c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 55,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "fb8ebf7aa055ce169e36bd65c73366c248600592a03de3b98261a7cf40978954",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 56,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "2949f7bf517711da952c37d02b83dc742b6b55702d318535d04d99dbe865a624",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 57,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "51b41ee647506e491228f1e7215e5984603c52c19c87b69f9693e615e2cf45ae",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 58,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "ee56b399b8fabaa30b820fe796bca4a3f57f228eb1a6e5be98152a8984a61ec3",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 59,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "e7cab01a630fef63cab4b675061122b9668ab106686059a8fad12060d017c10f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 60,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "906aff7d4294839028612fab3e81bbf45e6c1086873644c02e187a8116e6dce7",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 61,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "f4820ffe6856c598f2b17e8d2d9e481648910b9bccab5b4dcf86354852f4cba8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 62,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "a27c1086d8c63628b8b371309d4d874a7cc81f76f898f7d463fe408ea0c60962",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 63,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1a362f62e544ad6e58dd6aff3049926409e79136de7e55ee8e354c29db667d3f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 64,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "5ab36ee7f82fb7d46799891ff53a9bf8d151444ee5390e2efb6f5f741b6563f4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.5
+      ],
+      "opening_index": 65,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "79e8d6bd57c63585e7b8d4eafa51314e80c6bf4826eaab5d83a7967bbc31afd4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 66,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "7f3078c4885e6a5b05135de37f47d017bd2b3c9b280d4af55e7d74a2da7e6ced",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 67,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "5232bd687b8fa192dbae33850c7601adc9083f6b7a3b9e7a21479c1c27c0ed4e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 68,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9cd927e45c4432739a80d383ad28f3ccb53e898162d92cb5a21cb00b355de94b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 69,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "ab78924d030d8e97edce5620984db9783345bddce77e3382a62a3ade5bb3705e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 70,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "63b70be6821debebb63a88d19ff9806d9101760752119b34c0e0a70e5e1e5c39",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 71,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "02329e183e681c349003b3d73f81712224e9e1fbd96139c94ece8f7f46f06f2e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 72,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "110bdd33826b15a2be7a7c772c23b2a8a1d1df7f2a5822d43cce0de522ec88f1",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 73,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "3f54fa4d6b95a0f05f27efd1ebad6bb23dcf1b2d9b4c56bf3241b1b3447381f0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 74,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "4faca9160f93a584401147ca3713cb5c2a021f935a9c0132fd84b83b11c542cf",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 75,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "6e57df8666efe7c5c1f312418e7d5943e9885d99b629e3bb1291843c0c19ebeb",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 76,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "711f721d49db74b7c65d93634f27562b4531354f5e477e25f286f7c987d1dcf0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 77,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "21267df37ad0493796342133696e70ee37649971250c251e16f377f9bf04bcf0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        1.0
+      ],
+      "opening_index": 78,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "ff332447c0e1df9b315d7a7daa74a7b7821581069f9ad2a855c03a0d66cd7706",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 79,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "026748ff89b66923ef2cefab7aa5f2d06d7ce19c021a2fb844aec4a6056e6408",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 80,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "e337a856b70e23ed842742b23c27ad7d2904f7ca61d79c77e32651e2a088e57f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 81,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "cf639b8086ff55e1a6f6d22580bc62b18d77ab8027f520d47abc26dbbbdd8e3a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 82,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "da70385df00e6cd0768ca348a365a5a1547aed9339fc25c67d660db3d795a786",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 83,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "600a5feca5d54b77e284594038f89f9b4b631f47ee1de7f63568189e6d5c7568",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        1.0
+      ],
+      "opening_index": 84,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "1b1edba992be42da97c0310ff8ee2750aa648f0db9a169405fde0479d744c61a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 85,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "6b9414f87b3f7e35914f01478cb317731f51658b9536c62a8b702d1d57310900",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 86,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "d3ecd758778475cb830bed096413d75f7d0bdf3331ad7bfed6e27bbefe28a517",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 87,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "80c71471bbd231a1441c8f018710d3f1aae9b31d16e4400482cc9d15ba8ec030",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 88,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "59fae7264bab79729e3efd35f284b0b72efc3137848d80c7bf51e855cb444989",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 89,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8b12dfd528b2222277e813b9930a19c20a9cc8a64b193fcdea72da73d36dd56a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 90,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "652187767341c801c34b57516cbb8e1858844e7d28953a009d3694c7afa141f4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 91,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "e2a8ec2d2082e7e751d113a659c33194ebbb2a21988fb47770753082a34a9332",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        1.0
+      ],
+      "opening_index": 92,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "4955ef27924bcbd98bac8a607132722214ea1ab7ef72282a6a20e743b4ddb925",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 93,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "fb68ff237b84eb1335110704771d9983b3de95e8c1a4e4c6ce475a4252d288bb",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 94,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "681b76f58a78b57a97827bce69e07e6c1ef35299cc8568ab14df92968dc41345",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 95,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "6e9782dd2d45d1a0f8cc42eb06849220697c20b0a5756067e2f0bfcdbf8d10fa",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 96,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "3f139ce9233cabbe3784131827e88c21faf1723f740a46578ad9fa5cf9dadb9d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 97,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9ae735ee3881c7ec6aab198d46694fbc99a6dc5fdb061a57ca5334886fbe301b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 98,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "55855888aea669a7a235c35f4e5502b6c7d66e828ac21c77bc2fb13b4a3208a4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 99,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9ffbe8550e4b9e92c1dcfe16581bcdc956de6bfb1b74f2ce9e42e0361ced4db5",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 100,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "7b3a773427be1baa3368a1445ed426350656b5347061c3e6a6a31e2f1254680e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 101,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "4932f2303a7b95d2698233cfbb71a3bbd09da241bfb093bffc79da2584f5478f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 102,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "5d63c2f24dc740d1d9e63314bc4c9db6b1e76add8344a7867e5614c1f347486e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 103,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "818cdec985fa931339ba3ca7bc150b7aa17c7ded3e9cf8ad6ce086518bf26305",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 104,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f6d88ceaac382de3d82a22856e6176e3de7cf6aae971e4fdeaed8278ad283ab8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 105,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "90002af0e7d85946e25ee0d1eafc16a1cd671e618bcc52bd1688d5d66448cc9a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 106,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "eed31243dad3adf804089967b8afccea442e91312c5ac46cffc8b060b9370da3",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 107,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0f1c548949d621dd2255d0af289eaa3caac57ea0eefbc9c4bcf46bdb099377cc",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 108,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "786704a1e3be987417603487a2efe4d65e99cb83c901fc5ec2966c69d192940c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 109,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "b471caa5ed6abe326feeec8b4a39834557abf190b6263e752c8f87d483318248",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 110,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8690166770801e79877c1a488bca9d11551d500f96b23a45afc96a470e363c26",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 111,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "c8a231f4a64753dbec520ca9232909447a5b70921e9d6206e5a045668b88e916",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 112,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "440d46c481ffd8ef0c72b86fbac4792ddccfcbeeebbb698f29d0dce3b6aa1371",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 113,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9055b96c3bfd5de7fb5e71f180f3fba58fd59e96ad57c186f3ade5b030c03d2b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 114,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "21465dc1d1c90f6a86329d7da5fa569b16591c9b5c7ab614746fdbb9e4c86809",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 115,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "69920b69480aacf00991f0842754001ee8b6c56d4e2dd12919dd17769e044012",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 116,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "16f22fac93a68d89f90a2df2b08675da3942aeac69f4cf5810857f52ba45d876",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 117,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "b8a2c3ef6be9f0da4f532ae85014d788dd93cdea9ef76097dea19fa09d8780b9",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 118,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "a91829560587a92c3ee7bc53a4567de9103b90bb30eeb6ddd12c2e6eec9dc655",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 119,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "b71fe3da709072d4dd61eff94d101c05e7c0d566446ed521b126d1ff4f1fbdf4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 120,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "ddb5ce4d32946531cfbc82ca1dcd7d2f325a37131ea9266631379991d93b2cb1",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 121,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "bb66f4c81295f4abec0cc66863edc306711aa49e441b8d15258ac2c119a919f2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 122,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "db319df805560b86af4a43aae036df312f4cc6897025a7eaabe875483f9f19b7",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 123,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "e6727a576369506785cb5805853e9a6543dded5dbca1978f22febdbed0d8f21f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 124,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "613c4a36ade603d9f02afd6dc26e457994a2123d2ca68236ae19f6e097b0dd7c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 125,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1dd615da18a687ded88fa09245a6638755a0d23ac403c1615d761f04d6880fcf",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        1.0
+      ],
+      "opening_index": 126,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "c50d359aef569f706bb4a18d44bdc59d5889c8a88089d3691dbfb26c448bce88",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 127,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "fd267850a7d6e9c9cdbd058ec183e9dd69b7fd6b8626e5884f9d1a0e528e1928",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 128,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "e79db8216f0ee0d4bca3469199f8f323e8ce214623fc05c87d5bee4cbfc57e58",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 129,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "1974e7cba38de8187ae660fe56d181a64736bf47713244ca32e3e498d4fe7aca",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 130,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "6cf75c925985cb1cfbc2f2ee9d0361eefba6e5b8b54e8c50d167841f7bf43165",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 131,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "5d4ed83a32cea0fd5134ccc6d0422700c0453ebe7e251fc4266f20c0b8358c78",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 132,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "65e42cc8a74ed14fe6c4be408b4e3d85bb71ac225bd477433a10a6541ffeb0cc",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        1.0
+      ],
+      "opening_index": 133,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "3d836c612e4ecf77075b63b7a51d17fd95da87c17ceef348dee95ae643aef28b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 134,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "49642480812324186b3efefd6c356265765e7a57a55887b4bb175c978c49b55b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 135,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1e0a8ec7b4f901604af2561299f2a9e2af394ee8270a75acd6050b5a042657e3",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 136,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "d8f8968e5a3abf97a560dceccd6a0ef9b4d8bcd83af4433628f1679cf784886e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 137,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "7b5123c11161bd0a2a4036ccb3b887d68dbf312fae0ab17756f76b6507c6c758",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 138,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "0aa92557157ee4c231712c04fc8216495055ebf6842bf0ca48c0beb1d8bd02fe",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 139,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f64d1479270a485849fe3fd05f4b9dead0406b0071ee326a6dd997f48ac9e84e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 140,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "6531fbd3cca917d63b84d5b01e690c87d272e0580891e3fa7ac6edf3f22602f5",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 141,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1bb145e8306e4ef0b73dee459ff53770cf148b29da1d8a9c532ae2ca9b74022f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 142,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "3031046340c788650f7687969ae902d845d0dd069cc9db00f3fc059fbbb8d3b5",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 143,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0fc211204cebf8893b4e405d7d079b4c7fc1f5c7ce29c16e2ac6fa385c1261c0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 144,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0c1e6192328e20aae249100207bb0984d8694752fa38687112a5bc5fda57dcf9",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 145,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "9ff23fba3cc0226d75fe59941776a2a4dc2755faf642d1c6b452885707b29f10",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 146,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "d8e70f369a404cd7c07d31e42ca8f6fb0bee15f6811aba1c018dc23b7847a424",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 147,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "ca6308afb908180305cec72bc6d31e40e7e1d7c0d95a580ab26dfd63be74b7bc",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 148,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "d66f35f7fea63fa931731c44f6f3739f20835fcbbc85c59905c3a603e0136e8d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 149,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "b9f1f7d889d64b15bdebc882cabc37a7e4957b29ea70e30be905e77970510ca4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 150,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "286cc423c37227abd654262c5c4056d7dde2d3d899a22055e62ec66d8a521def",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 151,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "bd07ef6dfa33e04f29b048f529b5fd89f6ead9ca45af54b08182f0e201a63b67",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.5
+      ],
+      "opening_index": 152,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9a7a177bd091710796f46cb588758514140db53ad6adcbb5b4123b1188373c5a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 153,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "b9bd463c82d334c1926be283a3775b75882116e91debc35f2f22a11382bac27c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 154,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f754a2d19da1839cfd71643c8b0f204da830764e067d6c0b08e2b234fbe04af2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        1.0
+      ],
+      "opening_index": 155,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "b80d08923970495decb5edc4e5831356a4b3995155d3852d02bdea84f4bbca9d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 156,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "81c1b38b7b96352415f2487ffea905f2914e5795857e1d34e3768d32d7065b06",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 157,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "550b50600b853a0e9a71f50e46cc618127f3d1d54217321d9120d635b172b7e9",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 158,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1b4a3b0fa51d37926a138ac4eee71994b8e740bc185950f5f7a90946efe1f2de",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 159,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "b9e91c1becb4642dad5fef2197da1d7568286008a05595c345d8e0f22ad09ce0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 160,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1f28e07807372fa1816168c15791e83f0eb1bd8b044aa3a78b9a500b962d12e4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 161,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1f0853c6f14a380198c460801e8484126b68249d0b52cc9d469ca6a14416194d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 162,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "151c125647a6c18283ae99b8c805ec1ec8d183d2a6fb03c3ef75ce88bc96d6e9",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 163,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "0bd27bc071aeb8cd910b1e7dfdf71e54cc804c02426ae025b0d9c1b5e3630df2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 164,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f5b1db6b28288229bd85c16a3039faf731f804d07b9305890de1f7a45e5bc750",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 165,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "7ad2bbf841e866529954fbe814353507bd07f54632fcf383b0d7c46a8c80e82e",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 166,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "d1309cd16e347b2c736ce5b604a0acb7fd9ce715e01b8ca556bc76a4a485e556",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 167,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "99fb2e12683d03728cf4a57b259f158dff76a592fdc9cb177ef942a2c93350f2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 168,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "f3eb0372354ec0f8a7e3b1f83770ad856ae39589462b5be7e8a6b401316b427b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 169,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "b5aab8274c9318466ec94b1528d7a064aa1af818ba280399e88dcb17e5c0f585",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 170,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "34f94891a6840f6141064a55bdcc66d5d271863d2210b5012d5e6f9501c5b995",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 171,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "2f653feea28480577f6df54f4c4c7efe3dc705a890c743fe14a36fa1601c0d6f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 172,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "63eb2671ec7823d5616d0e00f3c631e8c8de562d62a631503edaf99f0e7caa8c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 173,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "d282155efe0b6c3c3205f4b47e51128ece5ccb3bcab4ff32856335b15772fa5b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 174,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9a78cce6cc80666abefa06b7ea0cdb92012e7fbd8a9cffc9b1c4524151f16dbd",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 175,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "c8a68097439d5099ef63c13012ce191f16f772dbb08d67ba2d3e67217fe72971",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 176,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9cc2f2bbddb505885ab8f8d5c5b9a2432c74f9bbf93fa618b6c35f0a458435fc",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 177,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "6b85e8f3c38c812c1d99ec8d52e3bc8703d6ecf502cb8e8ddc6cc3628093d2f2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 178,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "6ff4a7adc9a5ef16f8eaedb487c306333bf9d96bfbbe8bc0426380f20d86e244",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 179,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1bf2c847998eec8976ce2afbf37f16223a45c1887748c5b42316f581cb72f487",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 180,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9f8116c4f12b8b7bfca63e296bd8a7949d456818cb7681718422ca9f1cb1b0b6",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 181,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "a16f1c5dfff2cc19491eaf18659f1213966c7606fb47367ef8dbd97de1ece160",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 182,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "457888560e737c15f0a4fe84b6a4825efbda044ed11773dc61a8196fba9adfb1",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 183,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "772b607ad9de9c896a9d04bbacbe2beb83948681f6933445485d1ddc2d62bad0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 184,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "77dbf2a4606fe0c3167acdd7bf51e5e3f77aa9072e562bea578377f9787df47b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 185,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "416431ebf9bc812a29e098b703cac760cebdde04404bcbcc6e5277ed0a1f0931",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 186,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0e15dd97f50af1eb00c685239a2b15ea3e18a1f06a240ff4360c6c6e5e2a3ae0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 187,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9e1fea37439591cb792ca4402cb6874848019cfb6d3927e9468bb66ebaf102f7",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 188,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "99463588502d74e335dd33e35d2155edd62413cebd50f65bc0633ee6ee7456e8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 189,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "59581e32b887b123ffa73489188398ec803f701f040a5f24ff2dd08d41fcc1a0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 190,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "b05b153216879f2b39c5a8d7c76352461b71bcac36a5351f52cc6ac28958cdf0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 191,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "87f62c2a17394cbb8830f036c1015c524e38529045eac9235586625701810938",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 192,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9177a28ae2eb3fd8c98b46c61892478daf4a3f36428a6d9ba54a168d42a9201b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 193,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "ce09ea1b11e25fe93cf21fb86880dd52711d171dbbeae2ce7c348b72deb63f8a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 194,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "cd1f20b8e79e4fd75b7241af5d036f429345828d0146a1e7eaedf147aad0684f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 195,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f2dc26f8aef8c92e52ab8881d557304d44d7ad35e31de99f6e21a80ebe259c81",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 196,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f5508df9dc52d31c238e34a2e333b7aa9b16e6d6a483f316310295f8aee8d862",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 197,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "eb7be291969addbff3e87734c8d1ff8626282b9fe3138a1b0a11817e12443a35",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 198,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "d1c5c90e348b3587515e0817776fe9e54c74e30fe59ca66c6705c5cd04a1cfe8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 199,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "07adbe30d2fbf6de8f0c4078c9a8758679bd15681852f6e1f0795b5e132482fd",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 200,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "47f15bab992f1ea7339f1d40225518a37c2e23e5080c1bb4d1f6a2fb2e51bb4b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 201,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "2e7a082892acc7a342f029df42d288c1d60a4b29966602763591d96224f7a6cd",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 202,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "cf36706b5bbc2a8df9209ea4a79e99484aaff8b008015c95f282100fc8f72287",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 203,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "dd6a10029275b6b8ee36130fff89124f640a8cc11723ff7fd69b4a51328ba1cf",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 204,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "c66ab1aa0004e3794c4dc1279eee1d8fa9c4b9f3c42c3eb1fe12f72261db1f12",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 205,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "cd4ae937b5022126ee1c8867abbb4f0696ca1725f5a27eda3bca3c41db360fb0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 206,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "959f8c6956578161273099a727ac622bbf9619446b9cebcfa04b1ebf8cd60b5a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 207,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "6640f1fdc8b82f9a79902734b7ab8105f9061a09fb45e4ded20fb8fc84ef0505",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 208,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "71664eb218cdf82d45cd4993b13cd6868b6a117f77159968bf2eed0bc2f084c6",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 209,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0ddae1ae61cdc05f8e616d99f0d0b830c4d5195558ed882a24da7f0904857613",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 210,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "3387db9c12437b83619a45dfbec75fed0ca9f674b1b8a9bd718d22a37f688ad2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 211,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "c7ae99712d3f3bb2807c2383c4315c150e8126e32fbe2284928b0f26fefc8bd8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 212,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "92ef8d57b0fce625938e139b5661277ac8123791be1c6b0a920f58576f83c609",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 213,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "fea1f0795f1823e59b4b5190d59fa65e1167a556196830d3b389242e422bd965",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 214,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "b5f2f1dda3e5d68e18edee0d43e059c1e6cd8ba0785643f5e28d9be34b164bd2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 215,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "4c4325b0d3483be1b94cdbbf44c9062a3c33b6fd06db3832a4386cf43d120b10",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 216,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "1300f0495c237498bb29351827c57da0060ac264bd3d9701f62e09fc1174cda2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 217,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "2a386e77f22436e6a3299a2856daa01c2bb57ce6a77a7b930803478f033883e9",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 218,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "e9e47a30660045175732104c1ae8f367cc4c8c46e362345c31e4681d04a87489",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 219,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "1ab2875d47035aaf09312db96c6f1678046254905c21d83c319fc74a0d39f99c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 220,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "8ac7a04dd83ae14ea26e129ecf5d44d7c4522feb2235fa6b1465f1e8381f958b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 221,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "e09748ad365dba8ecce313d3611a0bce28eac495b9a1eda91fd96439af6102b6",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 222,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "23aebfce9203a5f112c00a53883f374f7e933989f38bdd5ea642cd207a7ec4ef",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 223,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "f3909cc8a28e007c496c1c6f9268a08e58eb076e3838248842cbec7fc21f6748",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 224,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "da9544e49ce48bd147451f9a10f530741b4de813c285ece35e9e463603157996",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 225,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "e4c4d40cd2e5f7667fcb5a8e4f6ca6924b246f2b2bb166475a1a7f4ae590efb0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.5
+      ],
+      "opening_index": 226,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "20f585ab164b05bec5d91b4c00cc57f745f291b71061ffaef7ca5191ffd907cb",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 227,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "a9c31b52a09a9a27cc142a6bf66a85e1040dc2b4bea8c40894d307b51ff1516d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 228,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "5fd1bb9a05652d291083857d2fd43a32ec6b15f6ff419009a0b72a8a18644fb8",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.5
+      ],
+      "opening_index": 229,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f89eb329296d9fe7f99c63dd53f7cb1f96fe53fbf3e1064b6eb721a26675a624",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.0
+      ],
+      "opening_index": 230,
+      "score": 0.0
+    },
+    {
+      "canonical_resulting_state_hash": "a96ce8b589a05e9dd5b953bbae0eb8ad74fd912eebbb51c702c0bb2cb794fd4f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 231,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "f173b0e411dfbadb5d51f84a32aa18cfbc11e6aa5d5154dfbc3e42b1a926d231",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 232,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "ae25f5b6f6a81883967229ca27ae0a2499d7f6a0a10ae5cd873f8d6691db65c4",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 233,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "6c9230ff7c30b05666c6cb7881428d88efbdbd18ab1166f9a74463d363819791",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 234,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "7520e94d3c93d7b2904691edea798d301667d8ad2711596db487d6e89311006c",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 235,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "b36477d487543836c4fe76d58f02611824ec775d8c055bb18397cf3a94fcd405",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 236,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "e486fea89dde115f4ab8c60254942f342d503c5fb2059a6510867ed997b40e85",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 237,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "4169cf054006112e8e9df82e173b5b321141e04fe69dcee4057dbe9af7b7df50",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        0.5
+      ],
+      "opening_index": 238,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "955ecea122fb6dabb423eb3726bb445704e959ce3d6df7c9cef3baf7add0b0dd",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        1.0
+      ],
+      "opening_index": 239,
+      "score": 1.0
+    },
+    {
+      "canonical_resulting_state_hash": "37cc1ace14b98e4f06206812149a412847175fe2e80ac1370232699c89da7340",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 240,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "774ee1f0c02761224ed15517f80635554f0fe794ce6f5507326e773c0d90a85d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.0
+      ],
+      "opening_index": 241,
+      "score": 0.25
+    },
+    {
+      "canonical_resulting_state_hash": "ad44178ebe771bea5834b058440d16d2eb01e8f636b32333809b4e4923d7721a",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 242,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "e1e42042fb5e95e43c7f5b09f103132d81ac2ad19b1ea2857a15d3a3131fb7c1",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 243,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "a829aaa4b98498ecc59ee9b0a512d22a4b76b681339f45119ee2c74899c3869d",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.5,
+        0.5
+      ],
+      "opening_index": 244,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "51fe7caf0052d867be4f4c799155f8dd05f947b0ad8437bcd95efdc0ffcbb36b",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 245,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "c2f0cee4eb09bb738aef9efb6a5dbf8abd25cddeb2cccb6c062f998b6f58d3e2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 246,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9f2c6fc2ac6c7994f4576b8b02abcd5b9c1a6efb9b0996b9968a1dd8dc6a32ab",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 247,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "dc8165269bae16fd1fcf0baf175c29e52f3461f952c954fff4e101f16e140e69",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 248,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "63ab7289a0f0eade0f420a77538f991fe223d25caa5943dd59702f92cf8defbc",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 249,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "9473e1f9fce32e2ab46381946a82d91b85f5cc7e20f4c16eb88ee5f1f2e7d8a0",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 250,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "3b61d5267d7271537588ccef4d8a24e378842b8489c0d54b6c670e41210feec2",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 251,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "4d1dac1975a2e8232fe91ec7a6764f1207fd9e6db440f69313fae8789fa53c0f",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.0
+      ],
+      "opening_index": 252,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "a5fd03caa7022022cbed99f00983e47b01ebb5ecd60864a0e546a880eeb2ac43",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 253,
+      "score": 0.5
+    },
+    {
+      "canonical_resulting_state_hash": "0c4004b8c89a2427e3ac16ff91e3ded2ac91cf739a9d4e62383929792cb3b237",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        1.0,
+        0.5
+      ],
+      "opening_index": 254,
+      "score": 0.75
+    },
+    {
+      "canonical_resulting_state_hash": "7e03f2ea3122eb005f8d1da71e3b3ccffd7a763db00d3f8268f7f5c831920fa7",
+      "challenger_seats": [
+        0,
+        1
+      ],
+      "game_scores": [
+        0.0,
+        1.0
+      ],
+      "opening_index": 255,
+      "score": 0.5
+    }
+  ],
+  "original_arena_report_sha256": "0da00045ae4c23e10078421459f98c3b3d830c4bd52bf12a8abb58c7aae35cdd",
+  "original_game_rows_sha256": "ca00003c1e7415b52f52d9f2bed5305fbe5d0614f332632dec8f1a4fc6e459f5",
+  "plan_sha256": "36f381b1bba6db534a8ad622fe1e7bbeef261b0fa11766d6c327469fc6450053",
+  "reproduction": {
+    "decision": "fail: canonical score below 0.55; no promotion",
+    "interval_matches_recorded": true,
+    "score_matches_recorded": true
+  },
+  "schema": "order38615-a5-canonical-prefilter-opening-score-matrix-v1",
+  "score": 0.482421875,
+  "search_configuration_ledger_sha256": "4253380ac75e0771b0d65929c27e608e6629b7aaecb152e1d8ad1ec775909d87",
+  "search_outcome_ledger_sha256": "f3b8c4172b28c41b4b7081ae21ffd3c01bcc701eedba23c464e963338a4c145d",
+  "seed_ledger_sha256": "8852625de9d1db51e5ba1140a6c60e9ea20e5a6a20cf3415a9096b8464cfdc0a",
+  "wins": 222
+}

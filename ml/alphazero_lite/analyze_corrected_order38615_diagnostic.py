@@ -11,14 +11,18 @@ import numpy as np
 
 from ml.alphazero_lite import seed461_arena_validation as validation
 from ml.alphazero_lite.build_opening_suite import load_suite_jsonl
-from ml.alphazero_lite.arena import apply_opening_moves
-from ml.alphazero_lite.build_opening_suite import INITIAL_STATE, canonical_key
-from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.build_opening_suite import validate_arena_entries
+from ml.alphazero_lite.opening_exclusion_contract import (
+    validate_suite_against_manifest,
+    verify_manifest,
+)
+from ml.alphazero_lite.frozen_opponent_identity import validate_frozen_opponent_identity
 
 ROOT = Path(__file__).resolve().parents[2]
-DATA = ROOT / "docs/data/order38615-corrected-diagnostic"
+DATA = ROOT / "docs/data/order38615-a5-frozen-diagnostic-v4"
 REG = DATA / "registration.json"
 BIND = DATA / "evaluation-binding.json"
+SOURCE_BIND = ROOT / "docs/data/order38615-a5-confirmation-candidate-binding.json"
 WORK = ROOT / ".tmp/order38615-corrected-diagnostic"
 
 
@@ -33,12 +37,35 @@ def analyze() -> dict[str, Any]:
         raise ValueError("diagnostic_not_complete")
     if binding.get("registration_sha256") != sha(REG):
         raise ValueError("registration_hash_mismatch")
+    source = json.loads(SOURCE_BIND.read_text())
+    if binding.get("source_candidate_binding_sha256") != sha(SOURCE_BIND):
+        raise ValueError("candidate_source_binding_mismatch")
+    manifest_path = ROOT / registration["exclusion_proof"]["manifest_path"]
+    if (
+        binding.get("exclusion_manifest_sha256") != sha(manifest_path)
+        or sha(manifest_path) != registration["exclusion_proof"]["manifest_sha256"]
+    ):
+        raise ValueError("exclusion_manifest_binding_mismatch")
+    manifest = verify_manifest(manifest_path)
     candidate = registration["candidate"]
     opponent = registration["opponent"]
+    if (
+        source["candidate"]["checkpoint_sha256"] != candidate["checkpoint_sha256"]
+        or source["candidate"]["artifact"] != candidate["artifact"]
+    ):
+        raise ValueError("candidate_source_identity_mismatch")
+    for filename, digest in candidate["artifact_sha256"].items():
+        if sha(Path(candidate["artifact"]) / filename) != digest:
+            raise ValueError(f"candidate_artifact_hash_mismatch:{filename}")
+    validate_frozen_opponent_identity(
+        Path(opponent["artifact"]), opponent, candidate["runtime_contract"]
+    )
     all_scores: dict[str, np.ndarray] = {}
-    outcomes: dict[str, dict[str, int | float]] = {}
+    outcomes: dict[str, dict[str, Any]] = {}
     runtime: dict[str, dict[str, float | int]] = {}
     raw_hashes: dict[str, dict[str, str]] = {}
+    public_game_rows: list[dict[str, Any]] = []
+    all_suite_states: set[str] = set()
     for seed_text, spec in registration["evaluation"]["suites"].items():
         report_path = WORK / f"seed{seed_text}.json"
         games_path = WORK / f"seed{seed_text}-games.jsonl"
@@ -49,10 +76,32 @@ def analyze() -> dict[str, Any]:
         ):
             raise ValueError(f"raw_evidence_hash_mismatch:{seed_text}")
         openings = load_suite_jsonl(str(ROOT / spec["path"]))
+        if sha(ROOT / spec["path"]) != spec["sha256"]:
+            raise ValueError(f"suite_hash_mismatch:{seed_text}")
+        identities = set(validate_arena_entries(openings))
+        if identities != validate_suite_against_manifest(openings, manifest):
+            raise ValueError(f"suite_exclusion_mismatch:{seed_text}")
+        if identities & all_suite_states:
+            raise ValueError("cross_suite_opening_overlap")
+        all_suite_states |= identities
         report = json.loads(report_path.read_text())
         rows = [
             json.loads(line) for line in games_path.read_text().splitlines() if line
         ]
+        public_game_rows.extend(
+            {
+                "seed": int(seed_text),
+                "game_index": int(row["game_index"]),
+                "opening_index": int(row["opening_index"]),
+                "game_within_opening": int(row["game_within_opening"]),
+                "challenger_player": int(row["challenger_player"]),
+                "winner": str(row["winner"]),
+                "margin": int(row["margin"]),
+                "game_length": int(row["game_length"]),
+                "opening_state_hash": str(row["opening_state_hash"]),
+            }
+            for row in rows
+        )
         scores = validation.validate_arena_evidence(
             report,
             rows,
@@ -71,6 +120,19 @@ def analyze() -> dict[str, Any]:
                 "seed_contract": registration["evaluation"]["seed_contract"],
             },
         )
+        seat_outcomes: dict[str, dict[str, int | float]] = {}
+        for seat in (0, 1):
+            seat_rows = [row for row in rows if int(row["challenger_player"]) == seat]
+            wins = sum(row["winner"] == "challenger" for row in seat_rows)
+            draws = sum(row["winner"] == "draw" for row in seat_rows)
+            losses = sum(row["winner"] == "current" for row in seat_rows)
+            seat_outcomes[str(seat)] = {
+                "games": len(seat_rows),
+                "wins": wins,
+                "draws": draws,
+                "losses": losses,
+                "score": (wins + 0.5 * draws) / len(seat_rows),
+            }
         all_scores[seed_text] = scores
         outcomes[seed_text] = {
             "games": len(rows),
@@ -78,6 +140,7 @@ def analyze() -> dict[str, Any]:
             "draws": int(report["draws"]),
             "losses": int(report["losses"]),
             "score": float(scores.mean()),
+            "seat_outcomes": seat_outcomes,
         }
         runtime[seed_text] = {
             "games": len(rows),
@@ -113,13 +176,13 @@ def analyze() -> dict[str, Any]:
                 float(x) for x in np.quantile(samples, [0.025, 0.975])
             ],
         }
-    rng = np.random.default_rng(393)
+    rng = np.random.default_rng(395)
     left = rng.integers(0, 512, size=(10000, 512))
     right = rng.integers(0, 512, size=(10000, 512))
     pooled_samples = (
-        all_scores["393"][left].mean(axis=1) + all_scores["394"][right].mean(axis=1)
+        all_scores["395"][left].mean(axis=1) + all_scores["396"][right].mean(axis=1)
     ) / 2
-    pooled_score = float((all_scores["393"].mean() + all_scores["394"].mean()) / 2)
+    pooled_score = float((all_scores["395"].mean() + all_scores["396"].mean()) / 2)
     pooled_interval = [float(x) for x in np.quantile(pooled_samples, [0.025, 0.975])]
     thresholds = bootstrap["success_rule"]
     suite_pass = all(
@@ -132,53 +195,47 @@ def analyze() -> dict[str, Any]:
         pooled_score >= thresholds["pooled_score_at_least"]
         and pooled_interval[0] > thresholds["pooled_interval_lower_strictly_above"]
     )
-    prior_declared: set[str] = set()
-    prior_actual: set[str] = set()
-    for suite_record in registration["exclusion_proof"]["prior_evaluations"].values():
-        prior_path = ROOT / suite_record["path"]
-        for opening in load_suite_jsonl(str(prior_path)):
-            if "state" in opening:
-                prior_declared.add(canonical_key(opening["state"]))
-            game = KalahGame.from_state(INITIAL_STATE)
-            apply_opening_moves(game, [int(move) for move in opening["prefix_moves"]])
-            prior_actual.add(canonical_key(game.to_state()))
-    selected_identities = {
-        seed: set(values)
-        for seed, values in registration["exclusion_proof"][
-            "selected_state_identities"
-        ].items()
-    }
-    declared_intersections = {
-        seed: len(values & prior_declared)
-        for seed, values in selected_identities.items()
-    }
-    actual_intersections = {
-        seed: len(values & prior_actual) for seed, values in selected_identities.items()
-    }
-    protocol_valid = not any(declared_intersections.values()) and not any(
-        actual_intersections.values()
-    )
+    protocol_valid = True
     matrix = {
         "schema": "order38615-corrected-diagnostic-score-matrix-v1",
         "registration_sha256": sha(REG),
         "evaluation_binding_sha256": sha(BIND),
         "raw_evidence_sha256": raw_hashes,
+        "exclusion_manifest_sha256": sha(manifest_path),
+        "bootstrap": {
+            "per_suite_seeds": bootstrap["per_suite_seeds"],
+            "pooled_seed": bootstrap["pooled_seed"],
+            "resamples": bootstrap["per_suite_resamples"],
+        },
         "opening_scores": {
             seed: [float(score) for score in scores]
             for seed, scores in all_scores.items()
         },
     }
     matrix_path = DATA / "opening-score-matrix.json"
+    accounting_path = DATA / "game-outcome-accounting.jsonl"
+    accounting_path.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True) + "\n"
+            for row in sorted(
+                public_game_rows,
+                key=lambda row: (row["seed"], row["game_index"]),
+            )
+        )
+    )
+    accounting_sha = sha(accounting_path)
+    matrix["game_outcome_accounting_sha256"] = accounting_sha
     matrix_path.write_text(json.dumps(matrix, indent=2, sort_keys=True) + "\n")
     result = {
         "schema": "order38615-corrected-diagnostic-results-v1",
         "registration_sha256": sha(REG),
         "evaluation_binding_sha256": sha(BIND),
         "opening_score_matrix_sha256": sha(matrix_path),
+        "game_outcome_accounting_sha256": accounting_sha,
         "suite_results": per_suite,
         "pooled_score": pooled_score,
         "pooled_interval_95_percentile": pooled_interval,
-        "pooled_bootstrap_seed": 393,
+        "pooled_bootstrap_seed": 395,
         "pooled_resamples": 10000,
         "per_suite_and_pooled_pass": bool(suite_pass and pooled_pass),
         "suite_pass": bool(suite_pass),
@@ -187,10 +244,8 @@ def analyze() -> dict[str, Any]:
         "validity_status": "valid"
         if protocol_valid
         else "invalid_for_preregistered_exclusion_contract",
-        "prior_declared_state_union": len(prior_declared),
-        "prior_actual_state_union": len(prior_actual),
-        "prior_declared_intersections": declared_intersections,
-        "prior_actual_intersections": actual_intersections,
+        "exclusion_manifest_sha256": sha(manifest_path),
+        "excluded_state_count": manifest["excluded_state_count"],
         "outcomes": outcomes,
         "runtime": runtime,
         "total_games": sum(row["games"] for row in outcomes.values()),
@@ -200,33 +255,6 @@ def analyze() -> dict[str, Any]:
     (DATA / "results.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n"
     )
-    if not protocol_valid:
-        validity = {
-            "schema": "order38615-corrected-diagnostic-post-run-validity-v1",
-            "registration_sha256": sha(REG),
-            "evaluation_binding_sha256": sha(BIND),
-            "status": "invalid_for_preregistered_exclusion_contract",
-            "prior_consumed_suite_count": len(
-                registration["exclusion_proof"]["prior_evaluations"]
-            ),
-            "prior_declared_state_union": len(prior_declared),
-            "prior_reconstructed_actual_state_union": len(prior_actual),
-            "suite_declared_state_intersections": declared_intersections,
-            "suite_actual_state_intersections": actual_intersections,
-            "suite_393_suite_394_actual_overlap": 0,
-            "observed_scores": {
-                "393": per_suite["393"]["score"],
-                "394": per_suite["394"]["score"],
-                "pooled": pooled_score,
-            },
-            "observed_decision_rule_result": "pass"
-            if suite_pass and pooled_pass
-            else "fail",
-            "interpretation": "Observed scores are preserved, but this run cannot establish corrected-distribution performance because declared prior-suite states were not excluded. No outcome-dependent replacement games were run.",
-        }
-        (DATA / "post-run-validity.json").write_text(
-            json.dumps(validity, indent=2, sort_keys=True) + "\n"
-        )
     lines = [
         "# Corrected frozen order 38615 E4 diagnostic",
         "",
@@ -242,11 +270,23 @@ def analyze() -> dict[str, Any]:
         )
     lines += [
         "",
+        "| Suite | Challenger seat | Games | Wins | Draws | Losses | Score |",
+        "|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for seed, outcome in outcomes.items():
+        for seat, seat_result in outcome["seat_outcomes"].items():
+            lines.append(
+                f"| {seed} | {seat} | {seat_result['games']} | {seat_result['wins']} | {seat_result['draws']} | {seat_result['losses']} | {seat_result['score']:.4f} |"
+            )
+    lines += [
+        "",
         f"Pooled equal-weight score: **{pooled_score:.4f}**; stratified 95% interval {pooled_interval[0]:.4f}–{pooled_interval[1]:.4f} ({'PASS' if pooled_pass else 'FAIL'}).",
         "",
         "This diagnostic estimates only the corrected opening distribution and does not override the canonical promotion failure.",
         "",
         "The score matrix contains 512 paired-opening cluster scores per suite; `analyze_corrected_order38615_diagnostic.py` verifies raw evidence hashes and reproduces 10,000-resample intervals.",
+        "",
+        f"Published per-game outcome accounting: `game-outcome-accounting.jsonl` (SHA-256 `{accounting_sha}`; {result['total_games']} rows). Registration, immutable exclusion manifest, suite bytes, raw run evidence, and runtime identities are hash-bound in the accompanying JSON records.",
         "",
         f"Execution: {result['total_games']} games, {result['total_search_simulations']:,} requested search simulations, 384 per side, 24 workers; no training or model export.",
         "",

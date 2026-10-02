@@ -11,6 +11,11 @@ from ml.alphazero_lite import build_opening_suite as suites
 from ml.alphazero_lite import seed461_order_population as population
 from ml.alphazero_lite.arena import apply_opening_moves
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.opening_exclusion_contract import (
+    create_manifest,
+    write_immutable_json,
+)
+from ml.alphazero_lite.frozen_opponent_identity import validate_frozen_opponent_identity
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data"
@@ -19,8 +24,8 @@ SOURCE_BIND = DATA / "order38615-a5-confirmation-candidate-binding.json"
 BASE_REG = DATA / "seed461-cosine-lr-ablation-registration.json"
 CANONICAL = ROOT / ".tmp/canonical-reconstruction/medium_eval.jsonl"
 EXPLORATORY = DATA / "seed461-batch-order-sensitivity-exploratory-openings.jsonl"
-OUT = DATA / "order38615-corrected-diagnostic"
-SEEDS = (393, 394)
+OUT = DATA / "order38615-a5-frozen-diagnostic-v4"
+SEEDS = (395, 396)
 PRIOR_SUITES = (
     "seed461-batch-order-sensitivity-confirmation-openings.jsonl",
     "seed461-lr-sensitivity-openings-v2.jsonl",
@@ -30,6 +35,8 @@ PRIOR_SUITES = (
     "seed461-cross-order-e4-average-openings.jsonl",
     "order38615-a5-confirmation-seed391-openings.jsonl",
     "order38615-a5-confirmation-seed392-openings.jsonl",
+    "order38615-corrected-diagnostic/seed393-openings-v2.jsonl",
+    "order38615-corrected-diagnostic/seed394-openings-v2.jsonl",
 )
 
 
@@ -70,9 +77,54 @@ def register() -> None:
     for name, digest in candidate["artifact_sha256"].items():
         if sha(Path(candidate["artifact"]) / name) != digest:
             raise ValueError(f"frozen_artifact_hash_mismatch:{name}")
+    if sha(Path(binding["candidate"]["checkpoint"])) != candidate["checkpoint_sha256"]:
+        raise ValueError("frozen_checkpoint_file_hash_mismatch")
+    validate_frozen_opponent_identity(
+        Path(binding["opponent"]["artifact"]),
+        binding["opponent"],
+        candidate["runtime_contract"],
+    )
 
     replay_paths = [Path(row["path"]) for row in base["training"]["replays"]]
-    proof, excluded = population.build_proof(CANONICAL, EXPLORATORY, replay_paths)
+    source_specs = [
+        {"path": str(CANONICAL.relative_to(ROOT)), "kind": "state_jsonl"},
+        {"path": str(EXPLORATORY.relative_to(ROOT)), "kind": "state_jsonl"},
+        {
+            "path": "ml/alphazero_lite/run_pr249_fresh_suite_generalization.py",
+            "kind": "historical_population",
+        },
+        *(
+            {"path": path, "kind": "source_code"}
+            for path in (
+                "ml/alphazero_lite/build_opening_suite.py",
+                "ml/alphazero_lite/arena.py",
+                "ml/alphazero_lite/kalah_rules.py",
+                "ml/alphazero_lite/seed461_order_population.py",
+                "ml/alphazero_lite/checkpoint_trajectory_diagnostic.py",
+                "ml/alphazero_lite/opening_exclusion_contract.py",
+            )
+        ),
+    ]
+    source_specs.extend(
+        {"path": str(path.relative_to(ROOT)), "kind": "training_replay"}
+        for path in replay_paths
+    )
+    source_specs.extend(
+        {"path": f"docs/data/{name}", "kind": "historical_suite"}
+        for name in PRIOR_SUITES
+    )
+    manifest = create_manifest(source_specs)
+    manifest_path = OUT / "opening-exclusion-manifest.json"
+    write_immutable_json(manifest_path, manifest)
+    excluded = set(manifest["excluded_state_identities"])
+    proof = {
+        "schema": "order38615-a5-opening-exclusion-proof-v1",
+        "manifest_path": str(manifest_path.relative_to(ROOT)),
+        "manifest_sha256": sha(manifest_path),
+        "source_count": len(manifest["sources"]),
+        "excluded_state_count": len(excluded),
+        "excluded_identity_sha256": manifest["excluded_identity_sha256"],
+    }
     prior_rows: dict[str, list[dict[str, Any]]] = {}
     prior_actual: dict[str, set[str]] = {}
     for name in PRIOR_SUITES:
@@ -113,7 +165,7 @@ def register() -> None:
             },
         }
         excluded |= identities
-    if selected_identities[393] & selected_identities[394]:
+    if selected_identities[395] & selected_identities[396]:
         raise ValueError("corrected_suites_overlap")
 
     historical = {
@@ -154,9 +206,11 @@ def register() -> None:
         },
         "exclusion_proof": {
             **proof,
+            "manifest_path": str(manifest_path.relative_to(ROOT)),
+            "manifest_sha256": sha(manifest_path),
             "prior_evaluations": historical,
             "prior_actual_state_union": len(set().union(*prior_actual.values())),
-            "suite_393_394_cross_overlap": 0,
+            "suite_395_396_cross_overlap": 0,
             "selected_state_identities": {
                 str(seed): sorted(selected_identities[seed]) for seed in SEEDS
             },
@@ -164,10 +218,10 @@ def register() -> None:
         "analysis": {
             "per_suite_bootstrap": "opening-cluster; two seats kept together",
             "per_suite_resamples": 10000,
-            "per_suite_seeds": {"393": 393, "394": 394},
+            "per_suite_seeds": {"395": 395, "396": 396},
             "pooled_bootstrap": "equal-weight stratified opening resampling",
             "pooled_resamples": 10000,
-            "pooled_seed": 393,
+            "pooled_seed": 395,
             "success_rule": {
                 "each_score_at_least": 0.55,
                 "each_interval_lower_strictly_above": 0.50,
