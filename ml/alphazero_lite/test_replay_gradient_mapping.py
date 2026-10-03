@@ -15,6 +15,74 @@ from ml.alphazero_lite import train
 from ml.alphazero_lite.verify_fresh_historical_replay_gradient_alignment import (
     recompute,
 )
+from ml.alphazero_lite.run_fresh_historical_replay_gradient_alignment import (
+    _one_source_gradient,
+)
+from ml.alphazero_lite import run_fresh_historical_replay_gradient_alignment as runner
+
+
+def test_runner_gradient_helper_dispatches_three_objectives(monkeypatch) -> None:
+    monkeypatch.setattr(runner, "CHUNK", 2)
+
+    class TinyModel(torch.nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.policy = torch.nn.Parameter(torch.tensor(2.0))
+            self.value = torch.nn.Parameter(torch.tensor(3.0))
+
+        def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+            return x[:, :1] * self.policy, x[:, :1] * self.value
+
+    monkeypatch.setattr(
+        train, "legal_mask_matrix_for_encoded_states", lambda x: np.ones((len(x), 1))
+    )
+    monkeypatch.setattr(
+        train, "compute_policy_cross_entropy", lambda logits, target: logits[:, 0]
+    )
+    model = TinyModel()
+    params = (model.policy, model.value)
+    x = np.ones((4, 1), dtype=np.float32)
+    targets = np.ones((4, 1), dtype=np.float32)
+    value_targets = np.zeros((4, 1), dtype=np.float32)
+    q = np.ones(4, dtype=np.float32)
+    multiplicity = np.ones(4, dtype=np.float32)
+
+    def gradient(objective: str, indexes: np.ndarray) -> torch.Tensor:
+        return _one_source_gradient(
+            model,
+            params,
+            x,
+            targets,
+            value_targets,
+            q,
+            multiplicity,
+            indexes,
+            4.0,
+            4.0,
+            objective,
+        )[0]
+
+    ids = np.arange(4)
+    policy = gradient("policy", ids)
+    weighted_value = gradient("weighted_value", ids)
+    combined = gradient("combined", ids)
+    torch.testing.assert_close(policy, torch.tensor([1.0, 0.0]))
+    torch.testing.assert_close(weighted_value, torch.tensor([0.0, 0.3]))
+    torch.testing.assert_close(combined, policy + weighted_value)
+
+    source_a = np.array([0, 2])
+    source_b = np.array([1, 3])
+    for objective in ("policy", "weighted_value", "combined"):
+        torch.testing.assert_close(
+            gradient(objective, ids),
+            gradient(objective, source_a) + gradient(objective, source_b),
+        )
+    torch.testing.assert_close(
+        gradient("combined", source_a) + gradient("combined", source_b),
+        gradient("policy", ids) + gradient("weighted_value", ids),
+    )
+    with pytest.raises(ValueError, match="unknown_gradient_objective"):
+        gradient("value", ids)
 
 
 def test_mapping_uses_compact_rows_and_production_split_positions() -> None:

@@ -33,6 +33,7 @@ SEED455 = (
 E4 = ROOT / ".tmp/seed461-order-confirmation/training/O0/E4.npz"
 SEED455_SHA = "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1"
 VALUE_WEIGHT, HUBER_DELTA, PARTITIONS, CHUNK = 0.3, 1.0, 4, 1024
+DECOMPOSITION_ATOL, DECOMPOSITION_RTOL = 2e-5, 2e-5
 COHORTS = ("all", ">32", "17-32", "<=16")
 TRUNK_GROUPS = (
     "input_projection",
@@ -158,13 +159,14 @@ def _one_source_gradient(
             else policy_rows.sum() * 0.0
         )
         v_loss = VALUE_WEIGHT * (value_rows * bm).sum() / denominator_value
-        loss = (
-            p_loss
-            if objective == "policy"
-            else v_loss
-            if objective == "value"
-            else p_loss + v_loss
-        )
+        if objective == "policy":
+            loss = p_loss
+        elif objective == "weighted_value":
+            loss = v_loss
+        elif objective == "combined":
+            loss = p_loss + v_loss
+        else:
+            raise ValueError(f"unknown_gradient_objective:{objective}")
         grad = torch.autograd.grad(loss, trunk, allow_unused=True)
         missing_count += sum(item is None for item in grad)
         accum += _flatten(grad, trunk)
@@ -417,6 +419,57 @@ def _audit_checkpoint(
                     )
                     all_source_vectors[source["name"]] = vector
                     all_source_missing[source["name"]] = missing_count
+                decomposition: dict[str, Any] = {}
+                if objective == "combined":
+                    max_residual = 0.0
+                    for source_idx, source in enumerate(sources):
+                        source_selected = ids[source_ids[ids] == source_idx]
+                        policy_vector, _ = _one_source_gradient(
+                            model,
+                            trunk,
+                            x,
+                            p,
+                            v,
+                            q,
+                            mult,
+                            source_selected,
+                            den_p,
+                            den_v,
+                            "policy",
+                        )
+                        value_vector, _ = _one_source_gradient(
+                            model,
+                            trunk,
+                            x,
+                            p,
+                            v,
+                            q,
+                            mult,
+                            source_selected,
+                            den_p,
+                            den_v,
+                            "weighted_value",
+                        )
+                        residual = (
+                            all_source_vectors[source["name"]]
+                            - policy_vector
+                            - value_vector
+                        )
+                        residual_norm = _norm(residual)
+                        tolerance = DECOMPOSITION_ATOL + DECOMPOSITION_RTOL * _norm(
+                            policy_vector + value_vector
+                        )
+                        if residual_norm > tolerance:
+                            raise RuntimeError(
+                                f"gradient_decomposition_failed:{label}:{cohort_name}:{key}:{source['name']}"
+                            )
+                        max_residual = max(max_residual, residual_norm)
+                    decomposition = {
+                        "max_source_residual_l2": max_residual,
+                        "absolute_tolerance": DECOMPOSITION_ATOL,
+                        "relative_tolerance": DECOMPOSITION_RTOL,
+                        "passed": True,
+                    }
                 for group_name in TRUNK_GROUPS:
                     per_source = {
                         name: vector[group_ranges[group_name]]
@@ -505,6 +558,10 @@ def _audit_checkpoint(
                         if name != "fresh"
                     },
                 }
+                if objective == "combined":
+                    partition_result["objectives"][objective]["shared_trunk"][
+                        "decomposition_check"
+                    ] = decomposition
             output["results"][cohort_name][key] = partition_result
     if any(
         not torch.equal(frozen[name], tensor)
@@ -603,7 +660,7 @@ def main() -> None:
         row for row in _json(RECOVERY)["checkpoint_files"] if row["epoch"] == "E4"
     )
     result = {
-        "schema": "fresh_historical_replay_gradient_alignment_v1",
+        "schema": "fresh_historical_replay_gradient_alignment_correction_v1",
         "manifest": manifest,
         "manifest_sha256": manifest_digest,
         "seed455": _audit_checkpoint("seed455", SEED455, SEED455_SHA, arrays, sources),
@@ -612,6 +669,65 @@ def main() -> None:
         ),
     }
     result["classification"] = classify_result(result["seed455"])
+    original_summary = (
+        ROOT / "docs/data/seed455-fresh-historical-replay-gradient-alignment.json"
+    )
+    original = _json(original_summary)
+    comparison: dict[str, Any] = {}
+    for checkpoint_name in ("seed455", "original_o0_e4_secondary"):
+        for objective in ("policy", "combined"):
+            differences = []
+            new_results = result[checkpoint_name]["results"]
+            old_results = original[checkpoint_name]["results"]
+            for cohort, partitions in new_results.items():
+                for part, entry in partitions.items():
+                    for group, metrics in entry["objectives"][objective].items():
+                        old = old_results[cohort][part]["objectives"][objective][group]
+                        for metric, value in metrics["fresh_historical"].items():
+                            old_value = old["fresh_historical"][metric]
+                            if value is None or old_value is None:
+                                if value is not old_value:
+                                    differences.append(
+                                        {
+                                            "cohort": cohort,
+                                            "partition": part,
+                                            "group": group,
+                                            "metric": metric,
+                                            "old": old_value,
+                                            "corrected": value,
+                                        }
+                                    )
+                            elif abs(value - old_value) > 1e-6 * max(
+                                1.0, abs(old_value)
+                            ):
+                                differences.append(
+                                    {
+                                        "cohort": cohort,
+                                        "partition": part,
+                                        "group": group,
+                                        "metric": metric,
+                                        "old": old_value,
+                                        "corrected": value,
+                                        "absolute_difference": abs(value - old_value),
+                                    }
+                                )
+            comparison[f"{checkpoint_name}:{objective}"] = {
+                "tolerance": "abs(diff) <= 1e-6 * max(1, abs(original))",
+                "within_tolerance": not differences,
+                "differences": differences,
+            }
+    result["correction"] = {
+        "label": "Post-publication correction to #402 weighted-value gradient audit",
+        "observed_after_results": True,
+        "original_summary_sha256": "53144cb5c8720f652fdd2d620c406d9b6a27a0898a4a1b8cd3652a8b27e1a8ad",
+        "original_manifest_sha256": "3d20de91085db7e5e60319f3f8b0d7a8c4be18dbaa00ed2a6dd33ee90132b073",
+        "original_files": [
+            "seed455-fresh-historical-replay-gradient-alignment-original/summary.json",
+            "seed455-fresh-historical-replay-gradient-alignment-original/manifest.json",
+        ],
+        "comparison_to_original_policy_and_combined": comparison,
+        "weighted_value_correction": "Explicit weighted_value dispatch now returns only 0.3 times the Huber gradient; #402 accidentally returned policy plus weighted value.",
+    }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"

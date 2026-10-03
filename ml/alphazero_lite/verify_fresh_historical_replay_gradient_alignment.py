@@ -50,10 +50,40 @@ def meets_rule(metrics: dict[str, Any]) -> bool:
 
 
 def verify(payload: dict[str, Any]) -> None:
-    if payload.get("schema") != "fresh_historical_replay_gradient_alignment_v1":
+    if payload.get("schema") not in (
+        "fresh_historical_replay_gradient_alignment_v1",
+        "fresh_historical_replay_gradient_alignment_correction_v1",
+    ):
         raise ValueError("unsupported_gradient_summary_schema")
+    if payload["schema"].endswith("correction_v1"):
+        correction = payload.get("correction", {})
+        if correction.get("observed_after_results") is not True:
+            raise ValueError("correction_publication_timing_missing")
+        for label, expected_hash in (
+            (
+                "seed455-fresh-historical-replay-gradient-alignment-original/summary.json",
+                correction.get("original_summary_sha256"),
+            ),
+            (
+                "seed455-fresh-historical-replay-gradient-alignment-original/manifest.json",
+                correction.get("original_manifest_sha256"),
+            ),
+        ):
+            archived = Path(__file__).resolve().parents[2] / "docs/data" / label
+            if (
+                not expected_hash
+                or hashlib.sha256(archived.read_bytes()).hexdigest() != expected_hash
+            ):
+                raise ValueError(f"original_artifact_hash_mismatch:{label}")
+        for comparison in correction.get(
+            "comparison_to_original_policy_and_combined", {}
+        ).values():
+            if comparison.get("within_tolerance") is not (
+                not comparison.get("differences")
+            ):
+                raise ValueError("original_comparison_record_mismatch")
     for checkpoint_name in ("seed455", "original_o0_e4_secondary"):
-        for cohort in payload[checkpoint_name]["results"].values():
+        for cohort_name, cohort in payload[checkpoint_name]["results"].items():
             for partition in cohort.values():
                 for objective in partition["objectives"].values():
                     for group in objective.values():
@@ -69,6 +99,37 @@ def verify(payload: dict[str, Any]) -> None:
                                 raise ValueError(
                                     f"gradient_metric_mismatch:{checkpoint_name}:{key}"
                                 )
+                        check = group.get("decomposition_check")
+                        if (
+                            payload["schema"].endswith("correction_v1")
+                            and group.get("decomposition_check") is not None
+                            and (
+                                not isinstance(check, dict)
+                                or check.get("passed") is not True
+                                or check.get("max_source_residual_l2", math.inf)
+                                > check.get("absolute_tolerance", 0.0)
+                                + check.get("relative_tolerance", 0.0)
+                            )
+                        ):
+                            raise ValueError(
+                                f"gradient_decomposition_check_missing_or_failed:{checkpoint_name}"
+                            )
+        if payload["schema"].endswith("correction_v1"):
+            for cohort_name, cohort in payload[checkpoint_name]["results"].items():
+                for partition_name, partition in cohort.items():
+                    check = partition["objectives"]["combined"]["shared_trunk"].get(
+                        "decomposition_check"
+                    )
+                    if (
+                        not isinstance(check, dict)
+                        or check.get("passed") is not True
+                        or check.get("max_source_residual_l2", math.inf)
+                        > check.get("absolute_tolerance", 0.0)
+                        + check.get("relative_tolerance", 0.0)
+                    ):
+                        raise ValueError(
+                            f"gradient_decomposition_check_missing_or_failed:{checkpoint_name}:{cohort_name}:{partition_name}"
+                        )
     primary = payload["seed455"]["results"][">32"]
     combined = primary["all"]["objectives"]["combined"]["shared_trunk"][
         "fresh_historical"

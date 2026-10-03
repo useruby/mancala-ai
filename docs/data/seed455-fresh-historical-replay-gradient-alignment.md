@@ -1,5 +1,14 @@
 # Seed455 fresh-versus-historical replay gradient alignment
 
+> **Correction to #402:** the original summary and manifest remain archived
+> byte-for-byte at `seed455-fresh-historical-replay-gradient-alignment-original/`.
+> The corrected three-objective rerun and its manifest are
+> `seed455-fresh-historical-replay-gradient-alignment-correction.json` and
+> `seed455-fresh-historical-replay-gradient-alignment-correction-manifest.json`.
+> See the correction report for original hashes, corrected code hashes,
+> decomposition residuals, and the explicit comparison with #402. The correction
+> was made after the original results had been observed and published.
+
 This offline, forward/backward-only diagnostic measures source contributions to
 the cohort-average mixture objective at frozen seed455. It does not reproduce
 the original minibatch sequence or Adam updates, and it is not evidence of
@@ -18,6 +27,23 @@ receipt and utility, production split seed and fraction, code identities, and
 the deterministic partition rule. Four disjoint partitions keep every repeated
 copy of a source row together; they measure consistency, not independent games
 or statistical confidence.
+
+## #402 correction
+
+The original runner requested `weighted_value`, but dispatched `value`; unknown
+objectives fell through to the combined loss. Consequently all 200 published
+weighted-value group entries duplicated combined results. The corrected runner
+uses explicit `policy`, `weighted_value`, and `combined` dispatch, rejects every
+other objective, and checks on full source gradient vectors before norm/dot
+reduction that `combined = policy + weighted_value`. It records residual L2
+norms with absolute and relative tolerances of `2e-5` each. The corrected
+portable verifier validates these decomposition checks and the corrected
+summary's original-artifact hashes.
+
+Policy-only and combined metrics were compared with #402 using
+`abs(diff) <= 1e-6 * max(1, abs(original))`; the correction report lists the
+differences explicitly. The original decision rule is preserved and the
+corrected classification is reported in the correction artifact.
 
 ## Objective and mapping
 
