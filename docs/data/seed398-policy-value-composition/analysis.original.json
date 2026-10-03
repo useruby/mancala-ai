@@ -47,7 +47,7 @@
       ]
     },
     "value_SF_minus_SS": {
-      "classification": "positive_but_threshold_not_met",
+      "classification": "uncertain",
       "interval": [
         -0.02294921875,
         0.025390625

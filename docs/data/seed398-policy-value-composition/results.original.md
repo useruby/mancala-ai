@@ -14,11 +14,11 @@ All challenger treatments faced the unchanged seed455 opponent. Component output
 | Contrast | Mean | Interval | Level | Classification |
 |---|---:|---:|---:|---|
 | policy_FS_minus_SS | -0.0073 | [-0.0312, +0.0166] | 97.5% | uncertain |
-| value_SF_minus_SS | +0.0010 | [-0.0229, +0.0254] | 97.5% | positive but threshold not met |
+| value_SF_minus_SS | +0.0010 | [-0.0229, +0.0254] | 97.5% | uncertain |
 | FF_minus_SS | +0.0107 | [-0.0112, +0.0322] | 95% descriptive | uncertain |
 | interaction_FF_minus_FS_minus_SF_plus_SS | +0.0171 | [-0.0132, +0.0474] | 95% descriptive | uncertain |
 
 SS seat-score difference (seat 0 minus seat 1): +0.1328. Seat 0 scored higher in all four treatment arms; seat scores remain paired in every opening and both seats are retained.
-The positive value point estimate (+0.0010) remains statistically uncertain: its 97.5% interval [-0.0229, +0.0254] includes zero and the estimate is below the +0.03 follow-up threshold. No follow-up is triggered. Primary components merit a follow-up training study only if the estimated effect is at least +0.03 and the 97.5% interval lower bound exceeds zero. Wide intervals are uncertainty, not equivalence.
+Primary components merit a follow-up training study only if the estimated effect is at least +0.03 and the 97.5% interval lower bound exceeds zero. Wide intervals are uncertainty, not equivalence.
 
-The complete validated per-game ledger is `validated-outcome-ledger.jsonl`; the 512-opening score matrix is `four-treatment-opening-score-matrix.json`. Reproduce public evidence checks with `python -m ml.alphazero_lite.verify_seed398_publication`. This requires no checkpoint/runtime files and launches no searches. Checking checkpoint and native runtime file bytes against their registered hashes requires those files locally.
+The complete validated per-game ledger is `validated-outcome-ledger.jsonl`; the 512-opening score matrix is `four-treatment-opening-score-matrix.json`. Recompute the bootstrap by rerunning `python -m ml.alphazero_lite.seed398_composition_diagnostic analyze` against the hash-bound registration and ledgers.

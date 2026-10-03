@@ -1,0 +1,13 @@
+{
+  "corrected_analysis_sha256": "541f19b94734f62a50611a73dc30c5719c4ea9c675c226f03daa042864c377a9",
+  "original_analysis_sha256": "1753529f6fb818b8d76c287ee2e2d9765649db6244ed1d0d5afa0f8c17b659e6",
+  "original_report_hashes": {
+    "FF": "867cf0fedb5430522564403853b2243dc24d26de59d4958b831dfd13aa29669b",
+    "FS": "4f9ac7211ef3d1ecdd5fb265f1e18d6e6bb7ba4e52e9a77aba39babab3a5d9ab",
+    "SF": "3ecc302b3e1a83fbb6f0f13dcb76a2fc6a06cbc9119bd03c5a2b6e30abd35128",
+    "SS": "2889d9523f74e68d615520b649498b79a6c41f5366207111ebda90cfe987e7cb"
+  },
+  "reason": "The frozen analyzer classifies a positive primary mean below the +0.03 follow-up threshold as positive_but_threshold_not_met; the published analysis had labeled it uncertain.",
+  "schema": "seed398-post-execution-correction-receipt-v1",
+  "timing": "post_execution"
+}
