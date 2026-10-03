@@ -44,7 +44,37 @@ def test_command_rejects_changed_value_source_when_policy_is_unchanged() -> None
             command,
             treatment,
             registration["component_sources"]["seed455"]["artifact"],
+            registration,
         )
+
+
+@pytest.mark.parametrize(
+    "flag", ["--challenger-policy-artifact", "--opening-prefixes-jsonl"]
+)
+def test_command_rejects_changed_historical_identity(flag: str) -> None:
+    binding = json.loads((verifier.DATA / "evaluation-binding.json").read_text())
+    registration = json.loads((verifier.DATA / "registration.json").read_text())
+    command = list(binding["reports"]["FF"]["command"])
+    command[command.index(flag) + 1] += ".changed"
+    with pytest.raises(ValueError, match="command_identity_mismatch:FF"):
+        verifier.verify_command(
+            "FF",
+            command,
+            registration["treatments"]["FF"],
+            registration["component_sources"]["seed455"]["artifact"],
+            registration,
+        )
+
+
+@pytest.mark.parametrize("directory", ["copy-one", "nested/copy-two"])
+def test_clean_publication_verifies_from_local_copy(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, directory: str
+) -> None:
+    copy = tmp_path / directory
+    copy.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(verifier.DATA, copy)
+    monkeypatch.setattr(verifier, "DATA", copy)
+    assert verifier.verify_publication()["status"] == "verified"
 
 
 def test_registration_binding_hash_mutation_is_rejected(tmp_path: Path) -> None:
@@ -71,9 +101,16 @@ def test_publication_rejects_altered_published_evidence(
 ) -> None:
     copy = tmp_path / "publication"
     shutil.copytree(verifier.DATA, copy)
+    monkeypatch.setattr(verifier, "DATA", copy)
+    assert verifier.verify_publication()["status"] == "verified"
     target = copy / relative_path
     if mutate == "bytes":
-        target.write_bytes(target.read_bytes() + b" ")
+        payload = target.read_bytes()
+        if relative_path == "validated-outcome-ledger.jsonl":
+            payload = payload.replace(b"\n", b" \n", 1)
+        else:
+            payload += b" "
+        target.write_bytes(payload)
     else:
         value = json.loads(target.read_text())
         if mutate == "matrix":
@@ -81,6 +118,30 @@ def test_publication_rejects_altered_published_evidence(
         else:
             value["decision"]["value_follow_up"] = True
         target.write_text(json.dumps(value))
+    expected = {
+        "original-arena-reports/FF.json": "report_hash_mismatch:FF",
+        "validated-outcome-ledger.jsonl": "ledger_hash_mismatch",
+        "four-treatment-opening-score-matrix.json": "analysis_matrix_hash_mismatch",
+        "analysis.json": "published_analysis_derivative_mismatch",
+    }[relative_path]
+    with pytest.raises(ValueError, match=expected):
+        verifier.verify_publication()
+
+
+@pytest.mark.parametrize(
+    "identity",
+    ["registration_sha256", "evaluation_binding_sha256", "outcome_ledger_sha256"],
+)
+def test_matrix_identity_headers_are_validated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, identity: str
+) -> None:
+    copy = tmp_path / "publication"
+    shutil.copytree(verifier.DATA, copy)
     monkeypatch.setattr(verifier, "DATA", copy)
-    with pytest.raises(ValueError):
+    assert verifier.verify_publication()["status"] == "verified"
+    path = copy / "four-treatment-opening-score-matrix.json"
+    matrix = json.loads(path.read_text())
+    matrix[identity] += "x"
+    path.write_text(json.dumps(matrix))
+    with pytest.raises(ValueError, match=f"matrix_identity_mismatch:{identity}"):
         verifier.verify_publication()

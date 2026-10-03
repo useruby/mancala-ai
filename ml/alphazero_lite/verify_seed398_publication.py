@@ -37,13 +37,19 @@ def require(condition: bool, message: str) -> None:
 
 
 def verify_command(
-    name: str, command: list[str], treatment: dict[str, Any], opponent: str
+    name: str,
+    command: list[str],
+    treatment: dict[str, Any],
+    opponent: str,
+    registration: dict[str, Any],
 ) -> None:
     """Check each argument of the recorded arena invocation, including sources."""
     require(len(command) == 38, f"command_length_mismatch:{name}")
     args = dict(zip(command[2::2], command[3::2]))
     # The executable and arena script occupy the first two argv slots; the rest
     # are flag/value pairs in the registered runner's stable invocation.
+    execution_root = Path(command[1]).resolve().parents[2]
+    suite_path = registration["evaluation"]["suite"]["path"]
     expected = {
         "--challenger": treatment["policy_artifact"],
         "--current": opponent,
@@ -53,7 +59,7 @@ def verify_command(
         "--current-value-artifact": opponent,
         "--games": "1024",
         "--games-per-opening": "2",
-        "--opening-prefixes-jsonl": str(DATA / "seed398-openings-v2.jsonl"),
+        "--opening-prefixes-jsonl": str(execution_root / suite_path),
         "--suite-sha256": "10dcb48c9a6bc268ab45ec0a67895b335bb9b669b309115d6ff37b6218131423",
         "--challenger-simulations": "384",
         "--current-simulations": "384",
@@ -61,11 +67,21 @@ def verify_command(
         "--workers": "24",
         "--c-puct": "1.25",
         "--seed-contract": "azlite_eval_seed_v2",
-        "--game-jsonl": f"/home/alex/Mancala/ai/.tmp/seed398-policy-value-composition/{name}-games.jsonl",
-        "--out": f"/home/alex/Mancala/ai/.tmp/seed398-policy-value-composition/{name}.json",
+        "--game-jsonl": str(
+            execution_root
+            / ".tmp/seed398-policy-value-composition"
+            / f"{name}-games.jsonl"
+        ),
+        "--out": str(
+            execution_root / ".tmp/seed398-policy-value-composition" / f"{name}.json"
+        ),
     }
     require(
-        command[1].endswith("/ml/alphazero_lite/arena.py"),
+        command[0] == str(execution_root / ".venv-azlite/bin/python"),
+        f"command_executable_mismatch:{name}",
+    )
+    require(
+        command[1] == str(execution_root / "ml/alphazero_lite/arena.py"),
         f"command_script_mismatch:{name}",
     )
     for flag, value in expected.items():
@@ -161,6 +177,7 @@ def verify_publication() -> dict[str, Any]:
             record["command"],
             treatment,
             registration["component_sources"]["seed455"]["artifact"],
+            registration,
         )
         report_path = DATA / "original-arena-reports" / f"{name}.json"
         require(
@@ -193,6 +210,21 @@ def verify_publication() -> dict[str, Any]:
     )
 
     matrix = read_json(DATA / "four-treatment-opening-score-matrix.json")
+    original = read_json(DATA / "analysis.original.json")
+    corrected = read_json(DATA / "analysis.corrected.json")
+    matrix_hash = sha256(DATA / "four-treatment-opening-score-matrix.json")
+    expected_matrix_identities = {
+        "registration_sha256": binding["registration_sha256"],
+        "evaluation_binding_sha256": sha256(binding_path),
+        "outcome_ledger_sha256": sha256(DATA / "validated-outcome-ledger.jsonl"),
+    }
+    for identity, digest in expected_matrix_identities.items():
+        require(matrix.get(identity) == digest, f"matrix_identity_mismatch:{identity}")
+    for analysis in (original, corrected):
+        require(
+            analysis["opening_matrix_sha256"] == matrix_hash,
+            "analysis_matrix_hash_mismatch",
+        )
     require(len(matrix["opening_scores"]) == 512, "matrix_count_mismatch")
     for i, row in enumerate(matrix["opening_scores"]):
         require(
@@ -251,8 +283,6 @@ def verify_publication() -> dict[str, Any]:
         "value_followup_should_be_false",
     )
 
-    original = read_json(DATA / "analysis.original.json")
-    corrected = read_json(DATA / "analysis.corrected.json")
     require(
         (DATA / "analysis.json").read_bytes()
         == (DATA / "analysis.corrected.json").read_bytes(),
