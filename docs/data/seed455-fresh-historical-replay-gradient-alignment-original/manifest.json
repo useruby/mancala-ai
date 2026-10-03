@@ -1,0 +1,801 @@
+{
+  "code_sha256": {
+    "checkpoint_trajectory_diagnostic.py": "a0efa5a4bd490e9053bb3e5c42681d0c52f3f1ec77fbec19a64618b2df4a2696",
+    "policy_value_gradient_audit.py": "1861505011acf32a690e2accc3702456aecde64ca71f6d22882a46968810fe4a",
+    "replay_gradient_mapping.py": "8d9a57c7be2cf43482aa379fe662e5797a16a733d3052b2928f0386c0d1fcf95",
+    "run_fresh_historical_replay_gradient_alignment.py": "f832c2f93733e793dbfc68521be9ef24aa6ab15b2a82306a416374c62aebf27d",
+    "test_replay_gradient_mapping.py": "1416dac49f3de46dd65fd330b74b0f04507f939a8173966e53f06e7a7a76b289",
+    "train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "verify_fresh_historical_replay_gradient_alignment.py": "d3ce93ab7ed0408f1b9da23edc749dba04c217228f040691ca44d414f01cac4a"
+  },
+  "decision_rule": "recommend only when seed455 primary >32 shared_trunk combined meets dot<0, H_norm>=F_norm, retained_projection<=0.5 and the same three conditions hold for both combined and policy-only in at least 3/4 partitions; otherwise no supported follow-up",
+  "interpretation": "Observational diagnostic only; no evidence of improved playing strength.",
+  "loaded_compact_rows": 87625,
+  "objective": {
+    "huber": "smooth_l1 beta=1.0",
+    "legal_mask": "production train.legal_mask_matrix_for_encoded_states",
+    "optimizer_steps": 0,
+    "original_training_config": {
+      "exact_root_policy_loss_weight": 1.0,
+      "huber_delta": 1.0,
+      "policy_target_mode": "sharpened",
+      "value_loss": "huber",
+      "value_loss_weight": 0.3
+    },
+    "policy": "sum(m*q*CE)/sum(m*q)",
+    "policy_target_mode": "sharpened",
+    "type": "cohort-average",
+    "value": "0.3*sum(m*Huber)/sum(m)"
+  },
+  "original_o0_e4_checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+  "partition_construction": "SHA256('fresh-historical-gradient-v1\\0' + source_name + '\\0' + source-local compact row id), first 8 bytes big-endian modulo 4; copies remain together",
+  "partition_ids_sha256": "534762d6a644eab498f1f876dcbf89ee6e1fb004b46986ff914edd73742a5efb",
+  "partition_interpretation": "Disjoint source-row partitions measure consistency only; they are not independent games or statistical confidence intervals.",
+  "partition_source_accounting": {
+    "0": {
+      "fresh": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 5054.0,
+            "unique_rows": 5054,
+            "weighted_replay_mass": 5054
+          },
+          "<=16": {
+            "policy_active_mass": 4402.0,
+            "unique_rows": 4402,
+            "weighted_replay_mass": 4402
+          },
+          ">32": {
+            "policy_active_mass": 5441.0,
+            "unique_rows": 5441,
+            "weighted_replay_mass": 5441
+          },
+          "all": {
+            "policy_active_mass": 14897.0,
+            "unique_rows": 14897,
+            "weighted_replay_mass": 14897
+          }
+        },
+        "policy_active_mass": 14897.0,
+        "unique_training_rows": 14897,
+        "weighted_replay_mass": 14897
+      },
+      "generic_bootstrap": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 3616.0,
+            "unique_rows": 904,
+            "weighted_replay_mass": 3616
+          },
+          "<=16": {
+            "policy_active_mass": 3156.0,
+            "unique_rows": 789,
+            "weighted_replay_mass": 3156
+          },
+          ">32": {
+            "policy_active_mass": 5784.0,
+            "unique_rows": 1446,
+            "weighted_replay_mass": 5784
+          },
+          "all": {
+            "policy_active_mass": 12556.0,
+            "unique_rows": 3139,
+            "weighted_replay_mass": 12556
+          }
+        },
+        "policy_active_mass": 12556.0,
+        "unique_training_rows": 3139,
+        "weighted_replay_mass": 12556
+      },
+      "opening_disagreement": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 1208.0,
+            "unique_rows": 151,
+            "weighted_replay_mass": 1208
+          },
+          "<=16": {
+            "policy_active_mass": 1360.0,
+            "unique_rows": 170,
+            "weighted_replay_mass": 1360
+          },
+          ">32": {
+            "policy_active_mass": 984.0,
+            "unique_rows": 123,
+            "weighted_replay_mass": 984
+          },
+          "all": {
+            "policy_active_mass": 3552.0,
+            "unique_rows": 444,
+            "weighted_replay_mass": 3552
+          }
+        },
+        "policy_active_mass": 3552.0,
+        "unique_training_rows": 444,
+        "weighted_replay_mass": 3552
+      },
+      "random_teacher": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 265.0,
+            "unique_rows": 265,
+            "weighted_replay_mass": 265
+          },
+          "<=16": {
+            "policy_active_mass": 317.0,
+            "unique_rows": 317,
+            "weighted_replay_mass": 317
+          },
+          ">32": {
+            "policy_active_mass": 92.0,
+            "unique_rows": 92,
+            "weighted_replay_mass": 92
+          },
+          "all": {
+            "policy_active_mass": 674.0,
+            "unique_rows": 674,
+            "weighted_replay_mass": 674
+          }
+        },
+        "policy_active_mass": 674.0,
+        "unique_training_rows": 674,
+        "weighted_replay_mass": 674
+      },
+      "stability": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 480.0,
+            "unique_rows": 120,
+            "weighted_replay_mass": 480
+          },
+          "<=16": {
+            "policy_active_mass": 296.0,
+            "unique_rows": 74,
+            "weighted_replay_mass": 296
+          },
+          ">32": {
+            "policy_active_mass": 932.0,
+            "unique_rows": 233,
+            "weighted_replay_mass": 932
+          },
+          "all": {
+            "policy_active_mass": 1708.0,
+            "unique_rows": 427,
+            "weighted_replay_mass": 1708
+          }
+        },
+        "policy_active_mass": 1708.0,
+        "unique_training_rows": 427,
+        "weighted_replay_mass": 1708
+      }
+    },
+    "1": {
+      "fresh": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 4931.0,
+            "unique_rows": 4931,
+            "weighted_replay_mass": 4931
+          },
+          "<=16": {
+            "policy_active_mass": 4435.0,
+            "unique_rows": 4435,
+            "weighted_replay_mass": 4435
+          },
+          ">32": {
+            "policy_active_mass": 5587.0,
+            "unique_rows": 5587,
+            "weighted_replay_mass": 5587
+          },
+          "all": {
+            "policy_active_mass": 14953.0,
+            "unique_rows": 14953,
+            "weighted_replay_mass": 14953
+          }
+        },
+        "policy_active_mass": 14953.0,
+        "unique_training_rows": 14953,
+        "weighted_replay_mass": 14953
+      },
+      "generic_bootstrap": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 3368.0,
+            "unique_rows": 842,
+            "weighted_replay_mass": 3368
+          },
+          "<=16": {
+            "policy_active_mass": 3236.0,
+            "unique_rows": 809,
+            "weighted_replay_mass": 3236
+          },
+          ">32": {
+            "policy_active_mass": 5636.0,
+            "unique_rows": 1409,
+            "weighted_replay_mass": 5636
+          },
+          "all": {
+            "policy_active_mass": 12240.0,
+            "unique_rows": 3060,
+            "weighted_replay_mass": 12240
+          }
+        },
+        "policy_active_mass": 12240.0,
+        "unique_training_rows": 3060,
+        "weighted_replay_mass": 12240
+      },
+      "opening_disagreement": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 1032.0,
+            "unique_rows": 129,
+            "weighted_replay_mass": 1032
+          },
+          "<=16": {
+            "policy_active_mass": 1328.0,
+            "unique_rows": 166,
+            "weighted_replay_mass": 1328
+          },
+          ">32": {
+            "policy_active_mass": 1136.0,
+            "unique_rows": 142,
+            "weighted_replay_mass": 1136
+          },
+          "all": {
+            "policy_active_mass": 3496.0,
+            "unique_rows": 437,
+            "weighted_replay_mass": 3496
+          }
+        },
+        "policy_active_mass": 3496.0,
+        "unique_training_rows": 437,
+        "weighted_replay_mass": 3496
+      },
+      "random_teacher": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 236.0,
+            "unique_rows": 236,
+            "weighted_replay_mass": 236
+          },
+          "<=16": {
+            "policy_active_mass": 292.0,
+            "unique_rows": 292,
+            "weighted_replay_mass": 292
+          },
+          ">32": {
+            "policy_active_mass": 99.0,
+            "unique_rows": 99,
+            "weighted_replay_mass": 99
+          },
+          "all": {
+            "policy_active_mass": 627.0,
+            "unique_rows": 627,
+            "weighted_replay_mass": 627
+          }
+        },
+        "policy_active_mass": 627.0,
+        "unique_training_rows": 627,
+        "weighted_replay_mass": 627
+      },
+      "stability": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 460.0,
+            "unique_rows": 115,
+            "weighted_replay_mass": 460
+          },
+          "<=16": {
+            "policy_active_mass": 384.0,
+            "unique_rows": 96,
+            "weighted_replay_mass": 384
+          },
+          ">32": {
+            "policy_active_mass": 1008.0,
+            "unique_rows": 252,
+            "weighted_replay_mass": 1008
+          },
+          "all": {
+            "policy_active_mass": 1852.0,
+            "unique_rows": 463,
+            "weighted_replay_mass": 1852
+          }
+        },
+        "policy_active_mass": 1852.0,
+        "unique_training_rows": 463,
+        "weighted_replay_mass": 1852
+      }
+    },
+    "2": {
+      "fresh": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 5135.0,
+            "unique_rows": 5135,
+            "weighted_replay_mass": 5135
+          },
+          "<=16": {
+            "policy_active_mass": 4525.0,
+            "unique_rows": 4525,
+            "weighted_replay_mass": 4525
+          },
+          ">32": {
+            "policy_active_mass": 5458.0,
+            "unique_rows": 5458,
+            "weighted_replay_mass": 5458
+          },
+          "all": {
+            "policy_active_mass": 15118.0,
+            "unique_rows": 15118,
+            "weighted_replay_mass": 15118
+          }
+        },
+        "policy_active_mass": 15118.0,
+        "unique_training_rows": 15118,
+        "weighted_replay_mass": 15118
+      },
+      "generic_bootstrap": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 3428.0,
+            "unique_rows": 857,
+            "weighted_replay_mass": 3428
+          },
+          "<=16": {
+            "policy_active_mass": 3528.0,
+            "unique_rows": 882,
+            "weighted_replay_mass": 3528
+          },
+          ">32": {
+            "policy_active_mass": 5768.0,
+            "unique_rows": 1442,
+            "weighted_replay_mass": 5768
+          },
+          "all": {
+            "policy_active_mass": 12724.0,
+            "unique_rows": 3181,
+            "weighted_replay_mass": 12724
+          }
+        },
+        "policy_active_mass": 12724.0,
+        "unique_training_rows": 3181,
+        "weighted_replay_mass": 12724
+      },
+      "opening_disagreement": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 1160.0,
+            "unique_rows": 145,
+            "weighted_replay_mass": 1160
+          },
+          "<=16": {
+            "policy_active_mass": 1344.0,
+            "unique_rows": 168,
+            "weighted_replay_mass": 1344
+          },
+          ">32": {
+            "policy_active_mass": 1152.0,
+            "unique_rows": 144,
+            "weighted_replay_mass": 1152
+          },
+          "all": {
+            "policy_active_mass": 3656.0,
+            "unique_rows": 457,
+            "weighted_replay_mass": 3656
+          }
+        },
+        "policy_active_mass": 3656.0,
+        "unique_training_rows": 457,
+        "weighted_replay_mass": 3656
+      },
+      "random_teacher": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 290.0,
+            "unique_rows": 290,
+            "weighted_replay_mass": 290
+          },
+          "<=16": {
+            "policy_active_mass": 308.0,
+            "unique_rows": 308,
+            "weighted_replay_mass": 308
+          },
+          ">32": {
+            "policy_active_mass": 82.0,
+            "unique_rows": 82,
+            "weighted_replay_mass": 82
+          },
+          "all": {
+            "policy_active_mass": 680.0,
+            "unique_rows": 680,
+            "weighted_replay_mass": 680
+          }
+        },
+        "policy_active_mass": 680.0,
+        "unique_training_rows": 680,
+        "weighted_replay_mass": 680
+      },
+      "stability": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 532.0,
+            "unique_rows": 133,
+            "weighted_replay_mass": 532
+          },
+          "<=16": {
+            "policy_active_mass": 328.0,
+            "unique_rows": 82,
+            "weighted_replay_mass": 328
+          },
+          ">32": {
+            "policy_active_mass": 968.0,
+            "unique_rows": 242,
+            "weighted_replay_mass": 968
+          },
+          "all": {
+            "policy_active_mass": 1828.0,
+            "unique_rows": 457,
+            "weighted_replay_mass": 1828
+          }
+        },
+        "policy_active_mass": 1828.0,
+        "unique_training_rows": 457,
+        "weighted_replay_mass": 1828
+      }
+    },
+    "3": {
+      "fresh": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 5110.0,
+            "unique_rows": 5110,
+            "weighted_replay_mass": 5110
+          },
+          "<=16": {
+            "policy_active_mass": 4453.0,
+            "unique_rows": 4453,
+            "weighted_replay_mass": 4453
+          },
+          ">32": {
+            "policy_active_mass": 5511.0,
+            "unique_rows": 5511,
+            "weighted_replay_mass": 5511
+          },
+          "all": {
+            "policy_active_mass": 15074.0,
+            "unique_rows": 15074,
+            "weighted_replay_mass": 15074
+          }
+        },
+        "policy_active_mass": 15074.0,
+        "unique_training_rows": 15074,
+        "weighted_replay_mass": 15074
+      },
+      "generic_bootstrap": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 3740.0,
+            "unique_rows": 935,
+            "weighted_replay_mass": 3740
+          },
+          "<=16": {
+            "policy_active_mass": 3364.0,
+            "unique_rows": 841,
+            "weighted_replay_mass": 3364
+          },
+          ">32": {
+            "policy_active_mass": 5716.0,
+            "unique_rows": 1429,
+            "weighted_replay_mass": 5716
+          },
+          "all": {
+            "policy_active_mass": 12820.0,
+            "unique_rows": 3205,
+            "weighted_replay_mass": 12820
+          }
+        },
+        "policy_active_mass": 12820.0,
+        "unique_training_rows": 3205,
+        "weighted_replay_mass": 12820
+      },
+      "opening_disagreement": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 1072.0,
+            "unique_rows": 134,
+            "weighted_replay_mass": 1072
+          },
+          "<=16": {
+            "policy_active_mass": 1328.0,
+            "unique_rows": 166,
+            "weighted_replay_mass": 1328
+          },
+          ">32": {
+            "policy_active_mass": 1088.0,
+            "unique_rows": 136,
+            "weighted_replay_mass": 1088
+          },
+          "all": {
+            "policy_active_mass": 3488.0,
+            "unique_rows": 436,
+            "weighted_replay_mass": 3488
+          }
+        },
+        "policy_active_mass": 3488.0,
+        "unique_training_rows": 436,
+        "weighted_replay_mass": 3488
+      },
+      "random_teacher": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 284.0,
+            "unique_rows": 284,
+            "weighted_replay_mass": 284
+          },
+          "<=16": {
+            "policy_active_mass": 312.0,
+            "unique_rows": 312,
+            "weighted_replay_mass": 312
+          },
+          ">32": {
+            "policy_active_mass": 80.0,
+            "unique_rows": 80,
+            "weighted_replay_mass": 80
+          },
+          "all": {
+            "policy_active_mass": 676.0,
+            "unique_rows": 676,
+            "weighted_replay_mass": 676
+          }
+        },
+        "policy_active_mass": 676.0,
+        "unique_training_rows": 676,
+        "weighted_replay_mass": 676
+      },
+      "stability": {
+        "cohort_coverage": {
+          "17-32": {
+            "policy_active_mass": 516.0,
+            "unique_rows": 129,
+            "weighted_replay_mass": 516
+          },
+          "<=16": {
+            "policy_active_mass": 320.0,
+            "unique_rows": 80,
+            "weighted_replay_mass": 320
+          },
+          ">32": {
+            "policy_active_mass": 996.0,
+            "unique_rows": 249,
+            "weighted_replay_mass": 996
+          },
+          "all": {
+            "policy_active_mass": 1832.0,
+            "unique_rows": 458,
+            "weighted_replay_mass": 1832
+          }
+        },
+        "policy_active_mass": 1832.0,
+        "unique_training_rows": 458,
+        "weighted_replay_mass": 1832
+      }
+    }
+  },
+  "policy_active_rows": 78863,
+  "recovery_receipt_sha256": "3ab713f2e4e444bf0572d879e55386bf0d5a225481fc1e77914ff5ece56935b0",
+  "recovery_utility_sha256": "332a0cb496193ba3bb3db40bb8654c3324ad82ccf9347e9b54e093ef6d5fc998",
+  "registered_split": {
+    "seed": 461,
+    "validation_split": 0.1
+  },
+  "registration_sha256": "fae923e79ef7ec162fbe212b6aa77729df57fae498f9ba88c208ba3dc8db627e",
+  "replay_training_config_sha256": "9a58c3925e11a0c5d5898b292cab6f06f877eb66f4264b04e2b5ab46d6e9cdad",
+  "schema": "fresh_historical_replay_gradient_alignment_manifest_v1",
+  "seed455_checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+  "source_config": [
+    {
+      "name": "fresh",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "value_target_mode": "default",
+      "weight": 1
+    },
+    {
+      "name": "generic_bootstrap",
+      "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    },
+    {
+      "name": "random_teacher",
+      "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "value_target_mode": "sharpened",
+      "weight": 1
+    },
+    {
+      "name": "opening_disagreement",
+      "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "value_target_mode": "sharpened",
+      "weight": 8
+    },
+    {
+      "name": "stability",
+      "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    }
+  ],
+  "source_split_accounting": {
+    "fresh": {
+      "cohort_coverage": {
+        "17-32": {
+          "policy_active_mass": 20230.0,
+          "training_unique_rows": 20230,
+          "weighted_replay_mass": 20230
+        },
+        "<=16": {
+          "policy_active_mass": 17815.0,
+          "training_unique_rows": 17815,
+          "weighted_replay_mass": 17815
+        },
+        ">32": {
+          "policy_active_mass": 21997.0,
+          "training_unique_rows": 21997,
+          "weighted_replay_mass": 21997
+        },
+        "all": {
+          "policy_active_mass": 60042.0,
+          "training_unique_rows": 60042,
+          "weighted_replay_mass": 60042
+        }
+      },
+      "raw_rows": 66733,
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "training_policy_active_mass": 60042.0,
+      "training_unique_rows": 60042,
+      "training_weighted_replay_mass": 60042,
+      "unique_compact_rows": 66733,
+      "validation_unique_rows": 6691,
+      "validation_weighted_replay_mass": 6691,
+      "value_target_mode": "default",
+      "weight": 1
+    },
+    "generic_bootstrap": {
+      "cohort_coverage": {
+        "17-32": {
+          "policy_active_mass": 14152.0,
+          "training_unique_rows": 3538,
+          "weighted_replay_mass": 14152
+        },
+        "<=16": {
+          "policy_active_mass": 13284.0,
+          "training_unique_rows": 3321,
+          "weighted_replay_mass": 13284
+        },
+        ">32": {
+          "policy_active_mass": 22904.0,
+          "training_unique_rows": 5726,
+          "weighted_replay_mass": 22904
+        },
+        "all": {
+          "policy_active_mass": 50340.0,
+          "training_unique_rows": 12585,
+          "weighted_replay_mass": 50340
+        }
+      },
+      "raw_rows": 13941,
+      "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "training_policy_active_mass": 50340.0,
+      "training_unique_rows": 12585,
+      "training_weighted_replay_mass": 50340,
+      "unique_compact_rows": 13941,
+      "validation_unique_rows": 1356,
+      "validation_weighted_replay_mass": 5424,
+      "value_target_mode": "sharpened",
+      "weight": 4
+    },
+    "opening_disagreement": {
+      "cohort_coverage": {
+        "17-32": {
+          "policy_active_mass": 4472.0,
+          "training_unique_rows": 559,
+          "weighted_replay_mass": 4472
+        },
+        "<=16": {
+          "policy_active_mass": 5360.0,
+          "training_unique_rows": 670,
+          "weighted_replay_mass": 5360
+        },
+        ">32": {
+          "policy_active_mass": 4360.0,
+          "training_unique_rows": 545,
+          "weighted_replay_mass": 4360
+        },
+        "all": {
+          "policy_active_mass": 14192.0,
+          "training_unique_rows": 1774,
+          "weighted_replay_mass": 14192
+        }
+      },
+      "raw_rows": 2000,
+      "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "training_policy_active_mass": 14192.0,
+      "training_unique_rows": 1774,
+      "training_weighted_replay_mass": 14192,
+      "unique_compact_rows": 2000,
+      "validation_unique_rows": 226,
+      "validation_weighted_replay_mass": 1808,
+      "value_target_mode": "sharpened",
+      "weight": 8
+    },
+    "random_teacher": {
+      "cohort_coverage": {
+        "17-32": {
+          "policy_active_mass": 1075.0,
+          "training_unique_rows": 1075,
+          "weighted_replay_mass": 1075
+        },
+        "<=16": {
+          "policy_active_mass": 1229.0,
+          "training_unique_rows": 1229,
+          "weighted_replay_mass": 1229
+        },
+        ">32": {
+          "policy_active_mass": 353.0,
+          "training_unique_rows": 353,
+          "weighted_replay_mass": 353
+        },
+        "all": {
+          "policy_active_mass": 2657.0,
+          "training_unique_rows": 2657,
+          "weighted_replay_mass": 2657
+        }
+      },
+      "raw_rows": 2951,
+      "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "training_policy_active_mass": 2657.0,
+      "training_unique_rows": 2657,
+      "training_weighted_replay_mass": 2657,
+      "unique_compact_rows": 2951,
+      "validation_unique_rows": 294,
+      "validation_weighted_replay_mass": 294,
+      "value_target_mode": "sharpened",
+      "weight": 1
+    },
+    "stability": {
+      "cohort_coverage": {
+        "17-32": {
+          "policy_active_mass": 1988.0,
+          "training_unique_rows": 497,
+          "weighted_replay_mass": 1988
+        },
+        "<=16": {
+          "policy_active_mass": 1328.0,
+          "training_unique_rows": 332,
+          "weighted_replay_mass": 1328
+        },
+        ">32": {
+          "policy_active_mass": 3904.0,
+          "training_unique_rows": 976,
+          "weighted_replay_mass": 3904
+        },
+        "all": {
+          "policy_active_mass": 7220.0,
+          "training_unique_rows": 1805,
+          "weighted_replay_mass": 7220
+        }
+      },
+      "raw_rows": 2000,
+      "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+      "training_policy_active_mass": 7220.0,
+      "training_unique_rows": 1805,
+      "training_weighted_replay_mass": 7220,
+      "unique_compact_rows": 2000,
+      "validation_unique_rows": 195,
+      "validation_weighted_replay_mass": 780,
+      "value_target_mode": "sharpened",
+      "weight": 4
+    }
+  },
+  "training_replay_mass": 134451,
+  "weighted_replay_positions": 149448
+}
