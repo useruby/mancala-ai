@@ -1287,6 +1287,7 @@ def evaluate_artifact_position(
     root_value_trust = None
     root_selection_breakdown = None
     root_visit_snapshots = None
+    root_search_snapshots = None
     search_root_value = None
     root_evaluation_raw_value = None
     root_evaluation_transformed_value = None
@@ -1309,6 +1310,9 @@ def evaluate_artifact_position(
         candidate_visit_snapshots = root_summary.get("visit_snapshots")
         if isinstance(candidate_visit_snapshots, list):
             root_visit_snapshots = candidate_visit_snapshots
+        candidate_root_snapshots = root_summary.get("root_snapshots")
+        if isinstance(candidate_root_snapshots, list):
+            root_search_snapshots = candidate_root_snapshots
         candidate_search_root_value = root_summary.get("root_q_value")
         if isinstance(candidate_search_root_value, (int, float)):
             search_root_value = float(candidate_search_root_value)
@@ -1378,6 +1382,8 @@ def evaluate_artifact_position(
         result["selection_breakdown"] = root_selection_breakdown
     if root_visit_snapshots is not None:
         result["visit_snapshots"] = root_visit_snapshots
+    if root_search_snapshots is not None:
+        result["root_snapshots"] = root_search_snapshots
     if search_root_value is not None:
         result["search_root_value"] = search_root_value
     if root_evaluation_raw_value is not None:
