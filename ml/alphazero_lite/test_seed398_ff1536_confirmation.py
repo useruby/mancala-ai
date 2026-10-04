@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+import subprocess
+import sys
 import unittest
+from unittest.mock import patch
 from ml.alphazero_lite import seed398_ff1536_analysis
 from ml.alphazero_lite.seed398_ff1536_confirmation import (
     OUT,
@@ -77,12 +82,92 @@ class FF1536ConfirmationTests(unittest.TestCase):
         after = {name: (OUT / name).read_bytes() for name in published}
         self.assertEqual(before, after)
         self.assertEqual(result["provenance_cases"], 128)
+        self.assertEqual(result["primary_mean_gain"], 0.0703125)
+        self.assertEqual(result["bootstrap_95_interval"], [0.015625, 0.12890625])
+        self.assertEqual(
+            result["reference_mean_gains"],
+            {"seed455": 0.0859375, "original_O0_E4": 0.0546875},
+        )
+
+    def test_verifier_imports_without_execution_stack(self) -> None:
+        script = (
+            "import sys; import ml.alphazero_lite.verify_seed398_ff1536_confirmation; "
+            "assert not any(name in sys.modules for name in "
+            "('ml.alphazero_lite.arena', 'ml.alphazero_lite.seed398_ff1536_confirmation', "
+            "'ml.alphazero_lite.seed398_paired_first_action'))"
+        )
+        subprocess.run([sys.executable, "-c", script], check=True)
+
+    def test_verifier_never_reads_runtime_or_checkpoint_files(self) -> None:
+        original = Path.read_bytes
+
+        def read_publication_only(path: Path) -> bytes:
+            text = str(path)
+            if ".tmp/" in text or "model-artifact/runtime" in text:
+                raise AssertionError(f"runtime file opened: {text}")
+            return original(path)
+
+        with patch.object(Path, "read_bytes", read_publication_only):
+            verify()
 
     def test_verifier_rejects_missing_published_trajectory(self) -> None:
         outcomes = OUT / "new-outcomes.jsonl"
         original = outcomes.read_bytes()
         try:
             outcomes.write_bytes(b"\n".join(original.splitlines()[:-1]) + b"\n")
+            with self.assertRaisesRegex(ValueError, "new_outcome_count"):
+                verify()
+        finally:
+            outcomes.write_bytes(original)
+
+    def test_verifier_rejects_altered_analysis_matrix_trajectory_and_provenance(
+        self,
+    ) -> None:
+        cases = (
+            "analysis.json",
+            "provenance-matrix.json",
+            "new-outcomes.jsonl",
+            "registration.json",
+        )
+        for filename in cases:
+            path = OUT / filename
+            original = path.read_bytes()
+            try:
+                if filename.endswith(".jsonl"):
+                    rows = [json.loads(line) for line in original.splitlines()]
+                    rows[0]["outcome"]["trajectory"][1]["action_relative"] = 99
+                    payload = b"".join(
+                        json.dumps(row, sort_keys=True).encode() + b"\n" for row in rows
+                    )
+                else:
+                    value = json.loads(original)
+                    if filename == "analysis.json":
+                        value["exploratory"] = False
+                    elif filename == "provenance-matrix.json":
+                        value[0]["score"] = -1
+                    else:
+                        value["reuse_plan"][0]["source_ledger_sha256"] = "0" * 64
+                    payload = (json.dumps(value) + "\n").encode()
+                path.write_bytes(payload)
+                with self.assertRaises(ValueError):
+                    verify()
+            finally:
+                path.write_bytes(original)
+
+    def test_verifier_rejects_altered_seeds_and_duplicate_outcomes(self) -> None:
+        outcomes = OUT / "new-outcomes.jsonl"
+        original = outcomes.read_bytes()
+        rows = [json.loads(line) for line in original.splitlines()]
+        try:
+            rows[0]["outcome"]["trajectory"][1]["seed"] += 1
+            outcomes.write_bytes(
+                b"".join(
+                    json.dumps(row, sort_keys=True).encode() + b"\n" for row in rows
+                )
+            )
+            with self.assertRaises(ValueError):
+                verify()
+            outcomes.write_bytes(original + original.splitlines()[0] + b"\n")
             with self.assertRaisesRegex(ValueError, "new_outcome_count"):
                 verify()
         finally:
