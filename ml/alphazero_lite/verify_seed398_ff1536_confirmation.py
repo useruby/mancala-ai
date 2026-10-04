@@ -10,6 +10,10 @@ from typing import Any
 from ml.alphazero_lite import seed398_ff1536_analysis as analysis
 from ml.alphazero_lite.evaluation_seed_contract import derive_search_seed, stable_hash
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.seed398_ff1536_probe_validation import (
+    derive_ff1536_actions,
+    validate_probe_bundle,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data/seed398-ff1536-confirmation"
@@ -48,6 +52,7 @@ def verify() -> dict[str, Any]:
     before = {name: path.read_bytes() for name, path in paths.items()}
     binding = _load(DATA / "publication-binding.json")
     correction = _load(DATA / "verification-correction-receipt.json")
+    successor = _load(DATA / "verification-correction-receipt-v2.json")
     binding_bytes = (DATA / "publication-binding.json").read_bytes()
     require(
         correction["schema"]
@@ -64,10 +69,6 @@ def verify() -> dict[str, Any]:
         "correction_historical_verifier",
     )
     require(
-        correction["current_verifier_sha256"] == sha(Path(__file__)),
-        "correction_current_verifier",
-    )
-    require(
         correction["verification_helpers"]["analysis_module_sha256"]
         == sha(ROOT / "ml/alphazero_lite/seed398_ff1536_analysis.py"),
         "correction_analysis_helper",
@@ -82,6 +83,18 @@ def verify() -> dict[str, Any]:
         == sha(ROOT / "ml/alphazero_lite/kalah_rules.py"),
         "correction_rules_helper",
     )
+    require(
+        successor["schema"] == "seed398-ff1536-confirmation-verification-correction-v2"
+        and successor["predecessor_receipt_sha256"]
+        == sha(DATA / "verification-correction-receipt.json"),
+        "successor_receipt_predecessor",
+    )
+    require(
+        successor["current_verifier_sha256"] == sha(Path(__file__))
+        and successor["probe_validation_helper_sha256"]
+        == sha(ROOT / "ml/alphazero_lite/seed398_ff1536_probe_validation.py"),
+        "successor_receipt_code_identity",
+    )
     reg = json.loads(before["registration"])
     require(
         reg["schema"] == "seed398-ff1536-confirmation-registration-v1",
@@ -94,19 +107,22 @@ def verify() -> dict[str, Any]:
     paired_reg = _load(PAIRED / "registration.json")
     e4_reg = _load(E4 / "registration.json")
     persistence_reg = _load(PERSISTENCE / "registration.json")
+    raw_path = PERSISTENCE / "raw-probes.json"
+    raw_bytes = raw_path.read_bytes()
+    persistence_registration_bytes = (PERSISTENCE / "registration.json").read_bytes()
+    raw = validate_probe_bundle(
+        raw_bytes, reg["probe_sha256"], persistence_registration_bytes
+    )
     require(
         sha(PAIRED / "registration.json") == reg["state_registration_sha256"],
         "state_registration_binding",
     )
-    require(len(reg["probe_sha256"]) == 64, "frozen_probe_binding")
     require(
         len(persistence_reg["publication_binding_sha256"]) == 64,
         "persistence_publication_binding",
     )
     states = {s["opening_index"]: s for s in paired_reg["states"]}
-    expected_actions = {
-        r["opening_index"]: r["ff1536_action"] for r in reg["action_mapping"]
-    }
+    expected_actions = derive_ff1536_actions(paired_reg["states"], raw)
     require(
         reg["runtime_identities"] == _parent_runtime_identities(paired_reg, e4_reg),
         "runtime_identity_binding",
@@ -122,11 +138,7 @@ def verify() -> dict[str, Any]:
         "persistence_registration_schema",
     )
     require(len(reg["action_mapping"]) == 64, "action_mapping_count")
-    for row in reg["action_mapping"]:
-        require(
-            row["ff1536_action"] == expected_actions[row["opening_index"]],
-            "action_mapping_identity",
-        )
+    require(reg["action_mapping"] == expected_actions, "action_mapping_identity")
     new_expected = [(372, 4), (260, 1), (164, 2), (217, 0)]
     require(
         [
