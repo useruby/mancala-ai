@@ -7,8 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ml.alphazero_lite import seed398_paired_first_action as paired
-from ml.alphazero_lite.seed398_e4_reference_diagnostic import analyze
+from ml.alphazero_lite import seed398_e4_report
+from ml.alphazero_lite.seed398_e4_report import calculate_report, validate_outcome
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data/seed398-e4-reference-diagnostic"
@@ -20,7 +20,8 @@ def sha(path: Path) -> str:
 
 def verify() -> dict[str, Any]:
     reg_path = DATA / "registration.json"
-    reg = json.loads(reg_path.read_text())
+    reg_bytes = reg_path.read_bytes()
+    reg = json.loads(reg_bytes)
     require(
         reg["schema"] == "seed398-e4-reference-diagnostic-registration-v1",
         "registration_schema",
@@ -49,11 +50,12 @@ def verify() -> dict[str, Any]:
         "source_hash_binding",
     )
     ledger_path = DATA / "outcomes.jsonl"
-    rows = [json.loads(line) for line in ledger_path.read_text().splitlines() if line]
+    ledger_bytes = ledger_path.read_bytes()
+    rows = [json.loads(line) for line in ledger_bytes.decode().splitlines() if line]
     states = {s["opening_index"]: s for s in reg["states"]}
     keys = set()
     for row in rows:
-        paired.validate_outcome(row, states[row["opening_index"]])
+        validate_outcome(row, states[row["opening_index"]])
         key = (row["opening_index"], row["action"], row["budget"])
         require(key not in keys, "duplicate_outcome")
         keys.add(key)
@@ -64,14 +66,21 @@ def verify() -> dict[str, Any]:
         for budget in (1536, 384)
     }
     require(len(rows) == 256 and keys == expected, "incomplete_or_extra_outcomes")
-    expected_analysis = analyze(reg, rows)
     analysis_path = DATA / "analysis.json"
+    require(analysis_path.is_file(), "analysis_missing")
+    analysis_bytes = analysis_path.read_bytes()
+    published_analysis = json.loads(analysis_bytes)
+    baseline = json.loads(
+        (ROOT / "docs/data/seed398-paired-first-action/analysis.json").read_bytes()
+    )
+    expected_analysis = calculate_report(reg, rows, baseline)
     require(
-        json.loads(analysis_path.read_text()) == expected_analysis,
+        published_analysis == expected_analysis,
         "analysis_reconciliation",
     )
     binding_path = DATA / "publication-binding.json"
-    binding = json.loads(binding_path.read_text())
+    binding_bytes = binding_path.read_bytes()
+    binding = json.loads(binding_bytes)
     require(
         binding["registration_sha256"] == sha(reg_path),
         "publication_registration_binding",
@@ -81,6 +90,53 @@ def verify() -> dict[str, Any]:
     )
     require(
         binding["analysis_sha256"] == sha(analysis_path), "publication_analysis_binding"
+    )
+    correction_path = DATA / "verifier-correction-receipt.json"
+    if correction_path.exists():
+        receipt = json.loads(correction_path.read_bytes())
+        require(
+            receipt["original_publication_binding_sha256"] == sha(binding_path),
+            "correction_binding_identity",
+        )
+        require(
+            receipt["old_verifier_sha256"] == binding["verifier_sha256"],
+            "correction_old_verifier_identity",
+        )
+        require(
+            receipt["new_verifier_sha256"] == sha(Path(__file__)),
+            "correction_new_verifier_identity",
+        )
+        require(
+            receipt["analysis_sha256"] == hashlib.sha256(analysis_bytes).hexdigest(),
+            "correction_analysis_identity",
+        )
+        require(
+            receipt["registration_sha256"] == sha(reg_path),
+            "correction_registration_identity",
+        )
+        require(
+            receipt["outcomes_sha256"] == hashlib.sha256(ledger_bytes).hexdigest(),
+            "correction_ledger_identity",
+        )
+        require(
+            receipt["helper_sha256"] == sha(Path(seed398_e4_report.__file__)),
+            "correction_helper_identity",
+        )
+    require(
+        reg_path.read_bytes() == reg_bytes,
+        "registration_bytes_changed_during_verification",
+    )
+    require(
+        ledger_path.read_bytes() == ledger_bytes,
+        "ledger_bytes_changed_during_verification",
+    )
+    require(
+        analysis_path.read_bytes() == analysis_bytes,
+        "analysis_bytes_changed_during_verification",
+    )
+    require(
+        binding_path.read_bytes() == binding_bytes,
+        "binding_bytes_changed_during_verification",
     )
     return {
         "status": "verified",
