@@ -1,0 +1,5632 @@
+{
+  "analysis": {
+    "interaction": "E4 delta minus #406 seed455 delta; descriptive paired bootstrap interval",
+    "interval": [
+      0.025,
+      0.975
+    ],
+    "paired_bootstrap_samples": 10000,
+    "paired_bootstrap_seed": 406,
+    "primary_budget": 1536,
+    "primary_decision": "SS advantage under both tested references iff E4 primary <= -0.03, upper 95% interval < 0, and secondary <= 0; reverse iff primary >= +0.03, lower interval > 0, and secondary >= 0; otherwise Reference robustness unresolved",
+    "secondary_budget": 384
+  },
+  "reference": {
+    "artifact": ".tmp/seed461-order-confirmation/artifacts/O0-E4",
+    "artifact_file_sha256": {
+      "metadata.json": "c26123bbefc4b2c7c7a75178d908928b57c74ba1ff26254a09711e4fd0d5bade",
+      "model.npz": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+    },
+    "checkpoint": ".tmp/seed461-order-confirmation/training/O0/E4.npz",
+    "checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+    "name": "original_O0_E4",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "schema": "seed398-e4-reference-diagnostic-registration-v1",
+  "scope": "retrospective reference-dependence diagnostic; no training, state reselection, promotion, or overall-strength claim",
+  "search": {
+    "budgets": [
+      1536,
+      384
+    ],
+    "c_puct": 1.25,
+    "exact_leaf_solving": "disabled",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    }
+  },
+  "seed_contract": "#406 azlite_eval_seed_v2 contexts, base seed 406; action, branch, and reference labels excluded from search seeds.",
+  "source_registration_sha256": "1acaa4a74c3abc1bc4469b65e4c523dc8722bd56da47863796c5da2ff53993a6",
+  "source_sha256": {
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "exact_root_decision": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "paired_runner": "830d88db4708fc77cb3498ae61b94cde6394543219e2385cb82447d552b07ba8",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runner": "0279b61d0e0f7e7bab2f4ec72c14f5c3222371c753f5de9951e4bef1b5e8b8a2",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+  },
+  "states": [
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 335,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 2,
+          "first_move_current": 4,
+          "game_index": 335,
+          "game_within_opening": 1,
+          "margin": -28,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 167,
+          "opening_prefix_moves": [
+            4,
+            0,
+            1,
+            5,
+            2,
+            0,
+            5,
+            4
+          ],
+          "opening_state_hash": "87f4f0fb9cf6e4ff910f827a2536afdeec4f5cc2dabed33a18535eeba5cb65f6",
+          "trajectory": "4,5,0,5,3,8,5,4,5,2,10,7,4,5,1,5,3,4,5,8,0,9,5,2,5,3,10,11,0",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 1,
+          "first_move_current": 4,
+          "game_index": 335,
+          "game_within_opening": 1,
+          "margin": -34,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 167,
+          "opening_prefix_moves": [
+            4,
+            0,
+            1,
+            5,
+            2,
+            0,
+            5,
+            4
+          ],
+          "opening_state_hash": "87f4f0fb9cf6e4ff910f827a2536afdeec4f5cc2dabed33a18535eeba5cb65f6",
+          "trajectory": "4,5,0,5,3,7,5,4,6,5,3,10,8,2,5,0,11,0,10,3,5,2,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 167,
+      "ply": 5,
+      "ss_action_384": 1,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          10,
+          7,
+          7,
+          1,
+          3
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          2,
+          0,
+          2,
+          1
+        ],
+        "player_store": 8
+      },
+      "state_hash": "af058a4c0f13fbd79442a3dfa01a6ac784897646e8bba4cb24d3e789619f1f24"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 1,
+      "game_index": 1011,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 1,
+          "first_move_current": 0,
+          "game_index": 1011,
+          "game_within_opening": 1,
+          "margin": -8,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 505,
+          "opening_prefix_moves": [
+            3,
+            0,
+            1,
+            5,
+            5,
+            3,
+            1,
+            5
+          ],
+          "opening_state_hash": "2724b8b6c7303cc275d254495379362b0a2ede24363f52c1076f83a518a0c599",
+          "trajectory": "7,0,11,10,2,8,4,11,0,10,1,3,7,4,2,5,10,6,9,2,10,8,3,5,4,5,0,10,1,9,2,10,4,11,4,7,2,6,1,7,2",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 2,
+          "first_move_current": 0,
+          "game_index": 1011,
+          "game_within_opening": 1,
+          "margin": 12,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 505,
+          "opening_prefix_moves": [
+            3,
+            0,
+            1,
+            5,
+            5,
+            3,
+            1,
+            5
+          ],
+          "opening_state_hash": "2724b8b6c7303cc275d254495379362b0a2ede24363f52c1076f83a518a0c599",
+          "trajectory": "8,0,11,6,5,4,10,2,9,10,11,4,1,6,0,7,4,5,11,10,11,8,3,11,9,11,10,11,6,5,2,7,1,8,0,9,1,11,10,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "opening_index": 505,
+      "ply": 0,
+      "ss_action_384": 2,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          6,
+          6,
+          0,
+          7,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          0,
+          8,
+          3,
+          6,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "2724b8b6c7303cc275d254495379362b0a2ede24363f52c1076f83a518a0c599"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 711,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 2,
+          "first_move_current": 4,
+          "game_index": 711,
+          "game_within_opening": 1,
+          "margin": -2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 355,
+          "opening_prefix_moves": [
+            4,
+            5,
+            0,
+            1,
+            4,
+            2,
+            1,
+            5
+          ],
+          "opening_state_hash": "91a3efb31992a82e4df444e93615c41b93aaf036123c4ce918c3f6b3501f3224",
+          "trajectory": "8,4,5,3,6,5,2,10,1,9,4,8,3,7,1,10,11,0,5,6,3,11,10,11,8,5,4,2,11,10,5,1,11,9,11,10,3,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 4,
+          "game_index": 711,
+          "game_within_opening": 1,
+          "margin": -4,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 355,
+          "opening_prefix_moves": [
+            4,
+            5,
+            0,
+            1,
+            4,
+            2,
+            1,
+            5
+          ],
+          "opening_state_hash": "91a3efb31992a82e4df444e93615c41b93aaf036123c4ce918c3f6b3501f3224",
+          "trajectory": "11,4,0,6,5,1,11,10,11,8,4,2,11,9,11,10,11,6,5,6,1,7,0,10,3,6,5,4,9,5,2,10,8,3,9,4,10,5",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 355,
+      "ply": 0,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          1,
+          8,
+          6,
+          1,
+          3
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          7,
+          0,
+          6,
+          2,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "91a3efb31992a82e4df444e93615c41b93aaf036123c4ce918c3f6b3501f3224"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 543,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 1,
+          "game_index": 543,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 271,
+          "opening_prefix_moves": [
+            2,
+            0,
+            4,
+            2,
+            5,
+            5,
+            2
+          ],
+          "opening_state_hash": "cf362e276b268f38dcfe14a7c88dfe3609f5bd00049d6de3bdfa55fa6c5b77c3",
+          "trajectory": "1,11,6,10,9,5,3,10,8,5,0,7,0,11,1,10,5,3,5,4,11,9,5,2,11,10,11,9,5,4,7,3,9,0,8,1,10,9,4,11,10,5,2,11",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 1,
+          "game_index": 543,
+          "game_within_opening": 1,
+          "margin": -10,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 271,
+          "opening_prefix_moves": [
+            2,
+            0,
+            4,
+            2,
+            5,
+            5,
+            2
+          ],
+          "opening_state_hash": "cf362e276b268f38dcfe14a7c88dfe3609f5bd00049d6de3bdfa55fa6c5b77c3",
+          "trajectory": "1,11,6,11,10,11,9,5,3,10,8,5,2,7,0,5,2,9,10,8,3,1,11,0,9,2",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 271,
+      "ply": 3,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          1,
+          7,
+          2,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          3,
+          0,
+          2,
+          9,
+          7,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "3f9f44d09c3dd360fbd2ee8c0438c68660229df4a8c17d2b25881c7d92922e2d"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 1,
+      "game_index": 958,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 2,
+          "game_index": 958,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 479,
+          "opening_prefix_moves": [
+            0,
+            2,
+            4,
+            4,
+            0,
+            5,
+            5
+          ],
+          "opening_state_hash": "ce099bfe783183b815ea7f134c384ceb441b5e9094870c5a06e5eb1486ce2792",
+          "trajectory": "5,1,8,5,4,5,3,9,4,3,8,1,6,0,7,5,6",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 2,
+          "game_index": 958,
+          "game_within_opening": 0,
+          "margin": -8,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 479,
+          "opening_prefix_moves": [
+            0,
+            2,
+            4,
+            4,
+            0,
+            5,
+            5
+          ],
+          "opening_state_hash": "ce099bfe783183b815ea7f134c384ceb441b5e9094870c5a06e5eb1486ce2792",
+          "trajectory": "5,3,8,11,10,11,9,5,0,11,10,3,11,7,0,11,9,1,11,9,3,6,4,10,2,11,0,8,11,9,11,10,5,7,6,3,8,5,4,5,0,11,1,10,11,9,11,10,2",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_index": 479,
+      "ply": 1,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          7,
+          3,
+          7,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          7,
+          7,
+          6,
+          1,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "8a7738dd1deb3c6d1bc68f0a309fcbce6603b2291cba265a7ae1fdcdc6a38e99"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 1,
+      "game_index": 744,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 3,
+          "game_index": 744,
+          "game_within_opening": 0,
+          "margin": 34,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 372,
+          "opening_prefix_moves": [
+            1,
+            2,
+            0,
+            2,
+            0,
+            4,
+            2
+          ],
+          "opening_state_hash": "bd56a4871892289d2247e3a7bfe7a4a2b164a240844163c12a594a7c7ac25373",
+          "trajectory": "0,9,1,10,4,2,0,11,0,6,2",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 3,
+          "game_index": 744,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 372,
+          "opening_prefix_moves": [
+            1,
+            2,
+            0,
+            2,
+            0,
+            4,
+            2
+          ],
+          "opening_state_hash": "bd56a4871892289d2247e3a7bfe7a4a2b164a240844163c12a594a7c7ac25373",
+          "trajectory": "0,9,5,6,3,10,5,6,1,9,8,11,5,4,10,11,7,5,0,11,9,1,11,10,11,6,4,5,3,8,5,4,11,9,5,2,10,11,6,5,3,7,4,5",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 372,
+      "ply": 2,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          0,
+          8,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          2,
+          2,
+          8,
+          1,
+          7
+        ],
+        "player_store": 10
+      },
+      "state_hash": "b376c183520d176139b5143844747539a387394ecc6ff6fb69347716a88af1fd"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 3,
+      "game_index": 405,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 4,
+          "game_index": 405,
+          "game_within_opening": 1,
+          "margin": 4,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 202,
+          "opening_prefix_moves": [
+            3,
+            3,
+            5,
+            5,
+            4,
+            0,
+            0,
+            2
+          ],
+          "opening_state_hash": "8e19ba89e4b5adada0c85b542e9a6223803351b9438dd7a0dd3f3be2341e6352",
+          "trajectory": "4,9,7,1,10,4,5,10,3,6,5,2,11,5,10,11,9,0,11,8,3,5,4,11,10,11,7,11,10,5,1,6,3,9,4,11,8,5,2,10,11,9,5,4,10,5,3,11",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 4,
+          "game_index": 405,
+          "game_within_opening": 1,
+          "margin": 2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 202,
+          "opening_prefix_moves": [
+            3,
+            3,
+            5,
+            5,
+            4,
+            0,
+            0,
+            2
+          ],
+          "opening_state_hash": "8e19ba89e4b5adada0c85b542e9a6223803351b9438dd7a0dd3f3be2341e6352",
+          "trajectory": "4,11,5,9,6,0,11,10,5,3,11,7,4,5,0,11,9,1,11,6,5,3,10,5,4,5,2,11,5,4,9,3,10",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 202,
+      "ply": 1,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          7,
+          0,
+          3,
+          7,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          7,
+          7,
+          2,
+          0,
+          3
+        ],
+        "player_store": 4
+      },
+      "state_hash": "47ec6ff5cee95d45cedbd73ec19704cbce1b532c0250c2a3026ac50e7bc63039"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 4,
+      "game_index": 692,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 692,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 346,
+          "opening_prefix_moves": [
+            1,
+            0,
+            2,
+            1,
+            2,
+            5,
+            4,
+            4
+          ],
+          "opening_state_hash": "045c05c8c2972aae4668674cc113f35c01bcd8fdf0dc06cc6205065a185c074e",
+          "trajectory": "11,0,9,3,11,4,9,2,1,5,11,8,11,7,11,10,11,9,11,6,4,5,0,11,10,11,9,5,3,5,4,2,8,3,9,5,4,10,11",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 692,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 346,
+          "opening_prefix_moves": [
+            1,
+            0,
+            2,
+            1,
+            2,
+            5,
+            4,
+            4
+          ],
+          "opening_state_hash": "045c05c8c2972aae4668674cc113f35c01bcd8fdf0dc06cc6205065a185c074e",
+          "trajectory": "11,0,9,3,11,2,4,8,11,9,3,10,5,11,0,6,2,11,9,1,6,5,2,7,4,8,5,3,5,4,9,5",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_index": 346,
+      "ply": 5,
+      "ss_action_384": 2,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          3,
+          3,
+          1,
+          3,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          3,
+          5,
+          4,
+          0,
+          4,
+          6
+        ],
+        "player_store": 5
+      },
+      "state_hash": "b8b8e9a85e1428af39ae8a16b251d2c85305e383b7acfa54699abefcc8c13f26"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 559,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 2,
+          "first_move_current": 3,
+          "game_index": 559,
+          "game_within_opening": 1,
+          "margin": -10,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 279,
+          "opening_prefix_moves": [
+            0,
+            3,
+            1,
+            2,
+            5,
+            0,
+            0,
+            5
+          ],
+          "opening_state_hash": "1bbcc7b47141627713a7589a52a01c8929187a78cbcb720fd588a6ac8a91bd68",
+          "trajectory": "8,3,10,4,7,5,10,9,3,11,5,4,5,0,5,3,10,5,4,5,2,11,8,11,6,5,1,6,5,4,5,3,7,11,10,8,5,2,11,9,11,10,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 3,
+          "game_index": 559,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 279,
+          "opening_prefix_moves": [
+            0,
+            3,
+            1,
+            2,
+            5,
+            0,
+            0,
+            5
+          ],
+          "opening_state_hash": "1bbcc7b47141627713a7589a52a01c8929187a78cbcb720fd588a6ac8a91bd68",
+          "trajectory": "11,8,3,11,7,5,4,6,5,2,11,5,0,8,7,1,5,4,5,3,5,4,11,9,5,11,8,4,10,5,3,11,9,4,5,2,10",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 279,
+      "ply": 0,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          7,
+          6,
+          2,
+          7,
+          1
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          2,
+          2,
+          8,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "1bbcc7b47141627713a7589a52a01c8929187a78cbcb720fd588a6ac8a91bd68"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 3,
+      "game_index": 566,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 566,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 283,
+          "opening_prefix_moves": [
+            1,
+            1,
+            5,
+            3,
+            3,
+            4,
+            1
+          ],
+          "opening_state_hash": "586ed5bbc59505778263ca95222de667a2760bc0cf86eb14e9a22f5146e4ea38",
+          "trajectory": "6,11,0,8,5,2,11,5,3,9,11,8,5,0,7,11,10,1,5,3,11,9,4,11,10,11,9,5,0,6,2,3,7,5,1,8,4,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 566,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 283,
+          "opening_prefix_moves": [
+            1,
+            1,
+            5,
+            3,
+            3,
+            4,
+            1
+          ],
+          "opening_state_hash": "586ed5bbc59505778263ca95222de667a2760bc0cf86eb14e9a22f5146e4ea38",
+          "trajectory": "6,11,0,8,5,2,11,5,4,11,10,5,3,6,0,11,9,4,3,11,8,1,10,11,9,3,10,2,11",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_index": 283,
+      "ply": 8,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          4,
+          1,
+          3,
+          3,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          3,
+          3,
+          0,
+          5,
+          9,
+          0
+        ],
+        "player_store": 6
+      },
+      "state_hash": "ad2f298ea5a1cddfdf893a484f2f5cb47a7be8534c195453354a427a88a6245e"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 167,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 167,
+          "game_within_opening": 1,
+          "margin": 16,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 83,
+          "opening_prefix_moves": [
+            0,
+            1,
+            2,
+            4,
+            2,
+            5,
+            4
+          ],
+          "opening_state_hash": "35902cd5d64981894124ab208249bdb13c033f31e0c9814243c7fd284dbf2016",
+          "trajectory": "6,11,10,11,8,0,11,9,3,10,5,10,4,5,0,6,1,9,10,11,1,7,0,11,9,1,10,11,8,5,11,6,3,9,5,2,6,5,4,7,5,3,6",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 1,
+          "game_index": 167,
+          "game_within_opening": 1,
+          "margin": 6,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 83,
+          "opening_prefix_moves": [
+            0,
+            1,
+            2,
+            4,
+            2,
+            5,
+            4
+          ],
+          "opening_state_hash": "35902cd5d64981894124ab208249bdb13c033f31e0c9814243c7fd284dbf2016",
+          "trajectory": "6,11,10,11,9,1,11,10,3,8,0,11,10,11,6,2,4,7,0,11,9,11,10,11,8,1,9,4,10,3,11,6,2",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        1,
+        2,
+        3
+      ],
+      "opening_index": 83,
+      "ply": 4,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          7,
+          7,
+          0,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          2,
+          7,
+          1,
+          8,
+          0,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "1f1533778c44752a68ba40cf8ce903da77d945bc31f98ee74821c5b92713993b"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 0,
+      "game_index": 477,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 4,
+          "game_index": 477,
+          "game_within_opening": 1,
+          "margin": -8,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 238,
+          "opening_prefix_moves": [
+            3,
+            2,
+            4,
+            2,
+            1,
+            3,
+            3
+          ],
+          "opening_state_hash": "107a33335aa9c28ca68ddcda7147b808a54bb1a289e96da481fa5f9085dfc60e",
+          "trajectory": "4,6,2,10,0,11,4,2,9,3,6,1,7,4,3,10,2,6,5,11,2,9,11,10,6,3,7,5,1,8,0,11,9,2,10,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 4,
+          "game_index": 477,
+          "game_within_opening": 1,
+          "margin": 20,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 238,
+          "opening_prefix_moves": [
+            3,
+            2,
+            4,
+            2,
+            1,
+            3,
+            3
+          ],
+          "opening_state_hash": "107a33335aa9c28ca68ddcda7147b808a54bb1a289e96da481fa5f9085dfc60e",
+          "trajectory": "4,10,1,6,4,7,2,8,10,9,0,11,5,11,10,4,11,6,5,0,9,11,10,3,11,8,11,7,11,10,11,9,5,2,5,4,5,1,8,3,6",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 238,
+      "ply": 1,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          1,
+          2,
+          1,
+          3,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          6,
+          1,
+          0,
+          0,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "cc1693e2cf87b641a189750173ba99541975781ebca023c29974f6373cb82319"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 921,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 2,
+          "first_move_current": 5,
+          "game_index": 921,
+          "game_within_opening": 1,
+          "margin": -6,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 460,
+          "opening_prefix_moves": [
+            5,
+            1,
+            0,
+            0,
+            4,
+            3,
+            0
+          ],
+          "opening_state_hash": "04215fe794ada0b58b499fc20819845c786a8cf6dc2d36d6a6903502d2c3d367",
+          "trajectory": "5,1,8,5,3,7,2,10,9,5,6,1,11,5,3,8,11,10,11,6,0,8,5,4,11,9,11,10,8,5,3,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 5,
+          "game_index": 921,
+          "game_within_opening": 1,
+          "margin": -2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 460,
+          "opening_prefix_moves": [
+            5,
+            1,
+            0,
+            0,
+            4,
+            3,
+            0
+          ],
+          "opening_state_hash": "04215fe794ada0b58b499fc20819845c786a8cf6dc2d36d6a6903502d2c3d367",
+          "trajectory": "5,1,9,5,2,8,5,3,5,4,9,11,5,6,4,7,5,1,5,0,11,9,3,11,8,11,10,11,9,5,4,5,2,10,3,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_index": 460,
+      "ply": 2,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          8,
+          6,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          0,
+          7,
+          1,
+          7,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_hash": "6bfb5331468703261e88ad9d52e60e861a83740a2bc3abbb2549fd8249862cea"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 2,
+      "game_index": 810,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 810,
+          "game_within_opening": 0,
+          "margin": -10,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 405,
+          "opening_prefix_moves": [
+            5,
+            3,
+            2,
+            1,
+            4,
+            1,
+            1
+          ],
+          "opening_state_hash": "367a6c515a0bee0131b6959cde7b2cffe6bcb79faf09dd450bd2ff0c008d2487",
+          "trajectory": "11,0,6,11,10,11,8,2,11,9,11,10,11,7,3,11,10,1,9,4,11,5,11,9,3,8,6,2,11,10,3,11,9,2,10,1,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 810,
+          "game_within_opening": 0,
+          "margin": -12,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 405,
+          "opening_prefix_moves": [
+            5,
+            3,
+            2,
+            1,
+            4,
+            1,
+            1
+          ],
+          "opening_state_hash": "367a6c515a0bee0131b6959cde7b2cffe6bcb79faf09dd450bd2ff0c008d2487",
+          "trajectory": "11,0,6,11,10,11,8,4,11,3,10,5,11,10,4,9,0,11,10,1,5,4,11,7,5,3,11,10,4,11,9,5,2,6,5,4,7,3,10,5,4,9,5",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 405,
+      "ply": 7,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          3,
+          1,
+          1
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          3,
+          6,
+          8,
+          8,
+          4
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0d3a12177fa8c99fbd0fb866b407fdfea396d9ac15c8cd5731b8cd6ca89de80e"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 0,
+      "game_index": 1013,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 1013,
+          "game_within_opening": 1,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 506,
+          "opening_prefix_moves": [
+            0,
+            0,
+            5,
+            1,
+            4,
+            4,
+            0
+          ],
+          "opening_state_hash": "23c27165eb4a046128d3f7803016074f29a8c0144bdc3b4242238526617078d0",
+          "trajectory": "6,5,1,9,5,4,8,2,11,5,7,11,9,11,6,4,10,5,0,11,8,2,11,6,1,5,4,10,5,3,11,5,4,10,2,9,3,11,10,1,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 5,
+          "game_index": 1013,
+          "game_within_opening": 1,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 506,
+          "opening_prefix_moves": [
+            0,
+            0,
+            5,
+            1,
+            4,
+            4,
+            0
+          ],
+          "opening_state_hash": "23c27165eb4a046128d3f7803016074f29a8c0144bdc3b4242238526617078d0",
+          "trajectory": "9,5,2,10,5,1,11,5,6,11,9,4,10,11,8,5,11,10,1,6,2,5,4,5,3,11,8,5,4,10,9,0,11,7,1,11,10",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_index": 506,
+      "ply": 0,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          8,
+          6,
+          0,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          7,
+          7,
+          6,
+          0,
+          1
+        ],
+        "player_store": 2
+      },
+      "state_hash": "23c27165eb4a046128d3f7803016074f29a8c0144bdc3b4242238526617078d0"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 19,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 0,
+          "game_index": 19,
+          "game_within_opening": 1,
+          "margin": -8,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 9,
+          "opening_prefix_moves": [
+            4,
+            5,
+            0,
+            0,
+            1,
+            5,
+            1
+          ],
+          "opening_state_hash": "df03d33e75851ef5f601eabf6364bca4e75849f5009c1ba9e633605a11b431fd",
+          "trajectory": "0,11,8,4,2,11,9,3,11,10,4,5,7,1,11,0,10,11,9,8,4,5,3,11,10,1,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 0,
+          "game_index": 19,
+          "game_within_opening": 1,
+          "margin": -10,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 9,
+          "opening_prefix_moves": [
+            4,
+            5,
+            0,
+            0,
+            1,
+            5,
+            1
+          ],
+          "opening_state_hash": "df03d33e75851ef5f601eabf6364bca4e75849f5009c1ba9e633605a11b431fd",
+          "trajectory": "0,11,6,2,8,3,11,9,5,10,1,11,3,9,2,7,5,0,8,5,3,11,10,11,9,5,1,11,10,2,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        2,
+        3
+      ],
+      "opening_index": 9,
+      "ply": 2,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          6,
+          6,
+          0,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          0,
+          7,
+          6,
+          2,
+          7
+        ],
+        "player_store": 9
+      },
+      "state_hash": "7eaea4cdaaddb115fccd411d4bcc512034a1a097552c5e45dd7948042bc6260e"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 4,
+      "game_index": 632,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 3,
+          "first_move_current": 4,
+          "game_index": 632,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 316,
+          "opening_prefix_moves": [
+            1,
+            3,
+            4,
+            1,
+            0,
+            2,
+            1,
+            0
+          ],
+          "opening_state_hash": "f35b2c8b84dc8e35b631b9fe81320d14fb09c793777b463e15c550c27445e380",
+          "trajectory": "10,3,9,10,8,4,9,5,10,2,5,3,7,4,5,0,9,1,8,2,10,11,5,4,11,9,5,3,5,2,6,1,10,11,7,4,8,5",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 3,
+          "first_move_current": 4,
+          "game_index": 632,
+          "game_within_opening": 0,
+          "margin": -2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 316,
+          "opening_prefix_moves": [
+            1,
+            3,
+            4,
+            1,
+            0,
+            2,
+            1,
+            0
+          ],
+          "opening_state_hash": "f35b2c8b84dc8e35b631b9fe81320d14fb09c793777b463e15c550c27445e380",
+          "trajectory": "10,3,9,10,8,2,7,0,11,3,8,1,0,7,4,6,5,11,10,3,11,7,4,5,0,8,11,9,2,5,0,11,10,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 316,
+      "ply": 5,
+      "ss_action_384": 2,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          0,
+          1,
+          1,
+          11
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          2,
+          3,
+          3,
+          1,
+          5,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_hash": "e8468113a8a2413e7340b0144043b9db0259443940c7ab3ec1e96121fc7e5ab1"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 5,
+      "game_index": 118,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 5,
+          "game_index": 118,
+          "game_within_opening": 0,
+          "margin": 6,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 59,
+          "opening_prefix_moves": [
+            2,
+            3,
+            4,
+            5,
+            5,
+            0,
+            3,
+            1
+          ],
+          "opening_state_hash": "6a94a229ab1c54baa45b30d3bc91403f56d2a6c088ff335a7f1bae4264d57bae",
+          "trajectory": "5,11,10,11,6,4,10,9,5,2,8,4,5,3,5,1,10,11,5,0,7,4,9,11,7,5,3,5,4,8,2,3,10,11,5,0,9,4,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 4,
+          "first_move_current": 2,
+          "game_index": 118,
+          "game_within_opening": 0,
+          "margin": 10,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 59,
+          "opening_prefix_moves": [
+            2,
+            3,
+            4,
+            5,
+            5,
+            0,
+            3,
+            1
+          ],
+          "opening_state_hash": "6a94a229ab1c54baa45b30d3bc91403f56d2a6c088ff335a7f1bae4264d57bae",
+          "trajectory": "4,8,1,9,4,5,6,0,10,3,11,5,4,5,1,5,0,6,1,9,2,6,5,4,8,10,5,3,0,9,4,7,1,8,5,6",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_index": 59,
+      "ply": 0,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          0,
+          6,
+          6,
+          2,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          7,
+          2,
+          0,
+          8,
+          2
+        ],
+        "player_store": 4
+      },
+      "state_hash": "6a94a229ab1c54baa45b30d3bc91403f56d2a6c088ff335a7f1bae4264d57bae"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 3,
+      "game_index": 22,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 3,
+          "first_move_current": 2,
+          "game_index": 22,
+          "game_within_opening": 0,
+          "margin": 14,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 11,
+          "opening_prefix_moves": [
+            4,
+            0,
+            3,
+            3,
+            1,
+            2,
+            5,
+            4
+          ],
+          "opening_state_hash": "d353647535c31e5e07d33deca12b80d8f4f8e2e376de8e7ac064b925b88cc5d8",
+          "trajectory": "8,3,5,6,2,7,4,5,0,8,10,5,9,4,5,2,10,1,11,4,6,2",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 2,
+          "game_index": 22,
+          "game_within_opening": 0,
+          "margin": -10,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 11,
+          "opening_prefix_moves": [
+            4,
+            0,
+            3,
+            3,
+            1,
+            2,
+            5,
+            4
+          ],
+          "opening_state_hash": "d353647535c31e5e07d33deca12b80d8f4f8e2e376de8e7ac064b925b88cc5d8",
+          "trajectory": "8,0,11,7,3,11,10,0,11,6,2,3,11,9,11,10,11,8,4,6,5,11,10,5,4,7,2,9,11,3,10,11,8,5,1,10,4,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_index": 11,
+      "ply": 1,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          7,
+          0,
+          1,
+          7,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          1,
+          1,
+          3,
+          0,
+          9
+        ],
+        "player_store": 5
+      },
+      "state_hash": "f68178330976adf5f82ee935f54580bd305916f3582e2a34e7452a61f1dbd027"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 3,
+      "game_index": 348,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 3,
+          "first_move_current": 4,
+          "game_index": 348,
+          "game_within_opening": 0,
+          "margin": 8,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 174,
+          "opening_prefix_moves": [
+            3,
+            5,
+            0,
+            0,
+            2,
+            0,
+            5,
+            5
+          ],
+          "opening_state_hash": "d4a99b18a968ec00e27bf783a86b57a6b6a4571cfc0a129fa77ee42f175c0bac",
+          "trajectory": "3,10,4,7,5,1,10,8,5,4,5,2,5,4,11,3,10,5,4,8,1,7,3,8,4,9,0,11,10,2,11,7,4,1,6,3",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 4,
+          "game_index": 348,
+          "game_within_opening": 0,
+          "margin": 24,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 174,
+          "opening_prefix_moves": [
+            3,
+            5,
+            0,
+            0,
+            2,
+            0,
+            5,
+            5
+          ],
+          "opening_state_hash": "d4a99b18a968ec00e27bf783a86b57a6b6a4571cfc0a129fa77ee42f175c0bac",
+          "trajectory": "1,10,5,4,8,5,2,10,7,0,10,4,5,2,8,4,11,5,1,5,0,9,0,11,10,1,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_index": 174,
+      "ply": 0,
+      "ss_action_384": 1,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          8,
+          6,
+          6,
+          6,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          6,
+          0,
+          2,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "d4a99b18a968ec00e27bf783a86b57a6b6a4571cfc0a129fa77ee42f175c0bac"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 989,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 1,
+          "first_move_current": 2,
+          "game_index": 989,
+          "game_within_opening": 1,
+          "margin": -6,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 494,
+          "opening_prefix_moves": [
+            1,
+            0,
+            0,
+            5,
+            5,
+            0,
+            0
+          ],
+          "opening_state_hash": "1c1dafb94cf34a8a4c993d694e4cc3b86f78428d8fde840441a5475df2e01b04",
+          "trajectory": "7,2,11,8,1,3,9,2,11,3,8,0,10,1,11,9,4,2,4,5,11,0,6,3,11,10,5,4,2,11,9,5,1,11,10,3,8,9,5,4,5,2,11,10,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 1,
+          "first_move_current": 2,
+          "game_index": 989,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 494,
+          "opening_prefix_moves": [
+            1,
+            0,
+            0,
+            5,
+            5,
+            0,
+            0
+          ],
+          "opening_state_hash": "1c1dafb94cf34a8a4c993d694e4cc3b86f78428d8fde840441a5475df2e01b04",
+          "trajectory": "7,2,11,8,1,3,9,2,11,3,6,1,7,4,11,9,2,10,5,11,3,10,4,5,1,9,2,7,3,9,4,10,8,5",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "opening_index": 494,
+      "ply": 10,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          2,
+          1,
+          0,
+          9,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          4,
+          2,
+          0,
+          0,
+          12,
+          6
+        ],
+        "player_store": 4
+      },
+      "state_hash": "67fa4b1d45c40fc8fb0c86687a0bf2f4c87c8c493d43a78f7a00cd5cb3662f4e"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 5,
+      "game_index": 666,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 2,
+          "game_index": 666,
+          "game_within_opening": 0,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 333,
+          "opening_prefix_moves": [
+            1,
+            1,
+            5,
+            3,
+            3,
+            0,
+            5
+          ],
+          "opening_state_hash": "425e47efb1f3a0deac32ac66ab64bf33e82bc2a22d08b8af308751aecece5058",
+          "trajectory": "0,2,8,4,7,10,1,5,11,4,9,0,11,10,11,8,5,3,11,10,11,7,5,4,5,2,8,5,4,7",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 2,
+          "game_index": 666,
+          "game_within_opening": 0,
+          "margin": -2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 333,
+          "opening_prefix_moves": [
+            1,
+            1,
+            5,
+            3,
+            3,
+            0,
+            5
+          ],
+          "opening_state_hash": "425e47efb1f3a0deac32ac66ab64bf33e82bc2a22d08b8af308751aecece5058",
+          "trajectory": "0,2,8,4,7,10,1,3,11,4,2,3,8,4,1,7,5,11,10,11,9,0,6,1,7,2,11,9,4,11,10,11,8,5,3,9,4,10,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 333,
+      "ply": 7,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          2,
+          5,
+          0,
+          4
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          3,
+          0,
+          3,
+          6,
+          1,
+          7
+        ],
+        "player_store": 6
+      },
+      "state_hash": "c7b0accac76260ab691f1033cb94429c8d8458e3fed64c835542e33d4aaf8e27"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 0,
+      "game_index": 113,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 3,
+          "game_index": 113,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 56,
+          "opening_prefix_moves": [
+            0,
+            3,
+            2,
+            0,
+            1,
+            5,
+            1,
+            0
+          ],
+          "opening_state_hash": "7be29358e5ec357872a9a2c6f82cb47468bc8c28ebba490b51051919e2fb047f",
+          "trajectory": "6,3,8,5,3,10,5,2,5,3,9,4,10,5,1,7,0,8,4,9,5,2,10,3,5,4,11,5,6,3,8,0,9,4,5,2,7,3,9,4,8,5",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 3,
+          "game_index": 113,
+          "game_within_opening": 1,
+          "margin": 8,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 56,
+          "opening_prefix_moves": [
+            0,
+            3,
+            2,
+            0,
+            1,
+            5,
+            1,
+            0
+          ],
+          "opening_state_hash": "7be29358e5ec357872a9a2c6f82cb47468bc8c28ebba490b51051919e2fb047f",
+          "trajectory": "9,6,3,10,4,2,9,4,8,3,5,9,4,8,0,7,1,10,0,11,5,4,9,0,8,3",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 56,
+      "ply": 0,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          7,
+          3,
+          8,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          1,
+          2,
+          7,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "7be29358e5ec357872a9a2c6f82cb47468bc8c28ebba490b51051919e2fb047f"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 3,
+      "game_index": 627,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 2,
+          "game_index": 627,
+          "game_within_opening": 1,
+          "margin": -12,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 313,
+          "opening_prefix_moves": [
+            1,
+            5,
+            0,
+            4,
+            0,
+            1,
+            5,
+            2
+          ],
+          "opening_state_hash": "1b0d097e716627e56b64c6b5ba2d542e4e2c7b3f24f6bcf9e291bb24058e4f74",
+          "trajectory": "2,9,5,3,10,5,4,6,5,1,10,6,5,0,9,8,4,5,2,5,3,5,4,5,1,11,5,4,10,11,7,0,11,10,1,11,9,2,4,3,10,4,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 2,
+          "game_index": 627,
+          "game_within_opening": 1,
+          "margin": 6,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 313,
+          "opening_prefix_moves": [
+            1,
+            5,
+            0,
+            4,
+            0,
+            1,
+            5,
+            2
+          ],
+          "opening_state_hash": "1b0d097e716627e56b64c6b5ba2d542e4e2c7b3f24f6bcf9e291bb24058e4f74",
+          "trajectory": "2,11,5,0,6,11,10,3,11,9,5,1,8,11,10,11,7,11,10,5,3,11,8,4,11,9,5,2,11,10",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 313,
+      "ply": 1,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          2,
+          1,
+          7,
+          3,
+          3
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          5,
+          0,
+          7,
+          7,
+          1
+        ],
+        "player_store": 2
+      },
+      "state_hash": "510e4548161cb819709659b3143dff18c0e465f99181b6ea79356d79e400346a"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 0,
+      "game_index": 701,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 2,
+          "game_index": 701,
+          "game_within_opening": 1,
+          "margin": -18,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 350,
+          "opening_prefix_moves": [
+            0,
+            3,
+            1,
+            4,
+            2,
+            3,
+            0,
+            1
+          ],
+          "opening_state_hash": "a11a050ec1d94e0a97265e800fbdaf00c9c324ec5d853614b398162cafc650bd",
+          "trajectory": "2,10,4,8,3,11,4,0,6,4,7,1,10,11,9,3,4,0,8,1,11,10,11,9,3,10,4,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 2,
+          "game_index": 701,
+          "game_within_opening": 1,
+          "margin": -10,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 350,
+          "opening_prefix_moves": [
+            0,
+            3,
+            1,
+            4,
+            2,
+            3,
+            0,
+            1
+          ],
+          "opening_state_hash": "a11a050ec1d94e0a97265e800fbdaf00c9c324ec5d853614b398162cafc650bd",
+          "trajectory": "2,10,4,8,3,11,4,0,9,1,4,2,3,4,5,6,5,4,7,9,5,2,8,10,4,11,0,9,2",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_index": 350,
+      "ply": 8,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          2,
+          0,
+          5,
+          1,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          4,
+          3,
+          1,
+          1,
+          14
+        ],
+        "player_store": 6
+      },
+      "state_hash": "a1b7a00eab8926a14bee1da8035773505058481486df0d7ce40d94025467eb7b"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 3,
+      "game_index": 521,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 4,
+          "game_index": 521,
+          "game_within_opening": 1,
+          "margin": -20,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 260,
+          "opening_prefix_moves": [
+            1,
+            4,
+            1,
+            1,
+            4,
+            1,
+            0,
+            5
+          ],
+          "opening_state_hash": "a77fa1a107b381c16935c823be65bc9db587bf55374d76c07ac850f3d1f2c453",
+          "trajectory": "4,2,6,11,10,11,9,3,8,4,10,3,11,0,6,2,4,3,9,1,11,10,4,6,3,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 4,
+          "game_index": 521,
+          "game_within_opening": 1,
+          "margin": -20,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 260,
+          "opening_prefix_moves": [
+            1,
+            4,
+            1,
+            1,
+            4,
+            1,
+            0,
+            5
+          ],
+          "opening_state_hash": "a77fa1a107b381c16935c823be65bc9db587bf55374d76c07ac850f3d1f2c453",
+          "trajectory": "4,2,6,11,10,11,8,4,1,11,10,2,9,0,11,10,2,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        1,
+        2,
+        3
+      ],
+      "opening_index": 260,
+      "ply": 6,
+      "ss_action_384": 2,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          9,
+          7,
+          0,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          2,
+          0,
+          8,
+          1,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_hash": "298558acfc678a81470149746e06581bb916ce1a22b7406b581ded35199c7466"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 2,
+      "game_index": 292,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 2,
+          "game_index": 292,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 146,
+          "opening_prefix_moves": [
+            5,
+            5,
+            3,
+            1,
+            0,
+            5,
+            1
+          ],
+          "opening_state_hash": "bbb2471828ec1a8bba6cb12748445c48d39dafbd924569a3cf27f23f40636489",
+          "trajectory": "0,2,8,4,9,5,6,3,10,4,7,5,9,10,6,3,8,0,11,4,5,0,10,1,11,9,4,11,10,3,4,11",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 2,
+          "game_index": 292,
+          "game_within_opening": 0,
+          "margin": -2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 146,
+          "opening_prefix_moves": [
+            5,
+            5,
+            3,
+            1,
+            0,
+            5,
+            1
+          ],
+          "opening_state_hash": "bbb2471828ec1a8bba6cb12748445c48d39dafbd924569a3cf27f23f40636489",
+          "trajectory": "0,3,8,2,11,9,4,6,5,8,10,5,4,11,0,9,11,7,5,2,5,4,5,1,11,10,11,8,5,3,5,4,5,0,9,1,7,2,6,3,11,10,4,8,5",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 146,
+      "ply": 1,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          7,
+          6,
+          6,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          1,
+          7,
+          2,
+          7,
+          3
+        ],
+        "player_store": 4
+      },
+      "state_hash": "611a4330e90e1ba24baabcd3732315b95e81673cb39a7e0a4d95d5ef6006c33a"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 83,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 83,
+          "game_within_opening": 1,
+          "margin": 30,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 41,
+          "opening_prefix_moves": [
+            1,
+            5,
+            1,
+            4,
+            4,
+            1,
+            5
+          ],
+          "opening_state_hash": "430c9ca29d99f7d3366f2fcbb72fa8466978f06162d3fab4befa133f4b9fca74",
+          "trajectory": "0,6,10,8,2,10,9,4,8,3,10,9,0,8,5,6,4,10,9,5,0,8",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 83,
+          "game_within_opening": 1,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 41,
+          "opening_prefix_moves": [
+            1,
+            5,
+            1,
+            4,
+            4,
+            1,
+            5
+          ],
+          "opening_state_hash": "430c9ca29d99f7d3366f2fcbb72fa8466978f06162d3fab4befa133f4b9fca74",
+          "trajectory": "0,6,11,10,11,9,2,11,10,11,9,4,3,8,4,0,11,10,3,11,9,2,11,6,1,7,2,10,3,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 41,
+      "ply": 2,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          7,
+          6,
+          2,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          0,
+          2,
+          8,
+          6,
+          1,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "2857e7730c8f0aeda37139a84c15f5aaa398ae6dffe49515ddb554bcdb1de510"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 1015,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 3,
+          "game_index": 1015,
+          "game_within_opening": 1,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 507,
+          "opening_prefix_moves": [
+            2,
+            0,
+            2,
+            5,
+            4,
+            0,
+            2
+          ],
+          "opening_state_hash": "0303a02575aa41907c1c45a72ce11b8425b94020cc353ed03228cf71add73170",
+          "trajectory": "10,3,9,4,5,8,7,0,10,1,11,5,4,5,2,10,5,4,8,3,6,5,4,7,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 3,
+          "game_index": 1015,
+          "game_within_opening": 1,
+          "margin": -14,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 507,
+          "opening_prefix_moves": [
+            2,
+            0,
+            2,
+            5,
+            4,
+            0,
+            2
+          ],
+          "opening_state_hash": "0303a02575aa41907c1c45a72ce11b8425b94020cc353ed03228cf71add73170",
+          "trajectory": "9,3,10,4,1,11,0,8,11,10,3,4,2,5,11,4,1,10,5,3,5,2,9,10,4,5,3,8,4,11,5,0,9",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        2,
+        3,
+        4
+      ],
+      "opening_index": 507,
+      "ply": 0,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          7,
+          6,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          6,
+          0,
+          8,
+          0,
+          6
+        ],
+        "player_store": 9
+      },
+      "state_hash": "0303a02575aa41907c1c45a72ce11b8425b94020cc353ed03228cf71add73170"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 1,
+      "game_index": 997,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 997,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 498,
+          "opening_prefix_moves": [
+            3,
+            5,
+            5,
+            4,
+            4,
+            2,
+            1,
+            5
+          ],
+          "opening_state_hash": "c0f6c813494806add0456c1ab298c4d388fd8b7b8dedb9322b6ce20ec6714444",
+          "trajectory": "5,6,2,11,10,11,7,5,4,5,3,5,1,11,10,4,9,0,11,10,1,11",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 997,
+          "game_within_opening": 1,
+          "margin": -2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 498,
+          "opening_prefix_moves": [
+            3,
+            5,
+            5,
+            4,
+            4,
+            2,
+            1,
+            5
+          ],
+          "opening_state_hash": "c0f6c813494806add0456c1ab298c4d388fd8b7b8dedb9322b6ce20ec6714444",
+          "trajectory": "5,6,2,11,10,11,9,5,4,5,0,11,7,5,4,5,2,11,10,11,9,3,6,5,4,5,1,7,5,4,10,5,3,11,8,1,11,10,4",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "opening_index": 498,
+      "ply": 6,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          9,
+          2,
+          7,
+          0,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          9,
+          1,
+          0,
+          2,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_hash": "4bdd1d9faab5ca1e5b98876b3bf245a1e7dc183611f96f64e87cc5602f10b2d8"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 2,
+      "game_index": 922,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 2,
+          "first_move_current": 3,
+          "game_index": 922,
+          "game_within_opening": 0,
+          "margin": -18,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 461,
+          "opening_prefix_moves": [
+            3,
+            5,
+            0,
+            3,
+            4,
+            1,
+            5
+          ],
+          "opening_state_hash": "3e52edea93583d59561ea722ab441979e0fa6cfa7fb4b5bfaeb97e2b4b0126f9",
+          "trajectory": "2,9,5,6,4,11,9,5,3,8,5,1,11,10,4,11,7,11,10,3,4,9,5,8,10,6,2,9,7,5,3,8,4,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 3,
+          "game_index": 922,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 461,
+          "opening_prefix_moves": [
+            3,
+            5,
+            0,
+            3,
+            4,
+            1,
+            5
+          ],
+          "opening_state_hash": "3e52edea93583d59561ea722ab441979e0fa6cfa7fb4b5bfaeb97e2b4b0126f9",
+          "trajectory": "1,9,4,8,1,11,10,4,11,9,3,2,6,4,3,11,10,11,9,1,8,2,10,11,9,3,10,4,11",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_index": 461,
+      "ply": 0,
+      "ss_action_384": 1,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          0,
+          6,
+          2,
+          6,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          6,
+          6,
+          1,
+          0,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "3e52edea93583d59561ea722ab441979e0fa6cfa7fb4b5bfaeb97e2b4b0126f9"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 0,
+      "game_index": 886,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 886,
+          "game_within_opening": 0,
+          "margin": -4,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 443,
+          "opening_prefix_moves": [
+            1,
+            4,
+            3,
+            1,
+            4,
+            5,
+            4,
+            4
+          ],
+          "opening_state_hash": "ac2f3d24dc96a55002d9485d8221c628b109a3aa62ed1be9640a38b2d92e0275",
+          "trajectory": "11,0,5,6,4,5,2,11,7,11,10,11,8,4,1,5,11,10,4,8,3,9,0,11,10,5,6,1,11,7,2,11,9,4,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 2,
+          "first_move_current": 5,
+          "game_index": 886,
+          "game_within_opening": 0,
+          "margin": 6,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 443,
+          "opening_prefix_moves": [
+            1,
+            4,
+            3,
+            1,
+            4,
+            5,
+            4,
+            4
+          ],
+          "opening_state_hash": "ac2f3d24dc96a55002d9485d8221c628b109a3aa62ed1be9640a38b2d92e0275",
+          "trajectory": "11,2,9,5,11,6,4,2,11,10,11,9,5,3,8,5,0,11,7,5,4,5,3,8,1,10,11,9,11,10,2,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 443,
+      "ply": 1,
+      "ss_action_384": 2,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          8,
+          2,
+          7,
+          7,
+          0,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          2,
+          6,
+          1,
+          1,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "aaef7b9cb2a7250cb33da41a8ebf6b35bdb0750915c5a5dd907650498bf2c847"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 4,
+      "game_index": 376,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 0,
+          "game_index": 376,
+          "game_within_opening": 0,
+          "margin": 12,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 188,
+          "opening_prefix_moves": [
+            5,
+            4,
+            4,
+            3,
+            5,
+            0,
+            5,
+            3
+          ],
+          "opening_state_hash": "e33748b3b431ce9aedde2a892c0346085f5950a0fc3a0408cfa6f6c16633e8ac",
+          "trajectory": "6,5,4,5,1,10,11,4,2,8,3,4,0,11,7,5,11,6,2,10,5,3,5,0,11,7,4,5,1,8,11,6,2,10,5,3,9,5,4,10,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 0,
+          "game_index": 376,
+          "game_within_opening": 0,
+          "margin": 8,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 188,
+          "opening_prefix_moves": [
+            5,
+            4,
+            4,
+            3,
+            5,
+            0,
+            5,
+            3
+          ],
+          "opening_state_hash": "e33748b3b431ce9aedde2a892c0346085f5950a0fc3a0408cfa6f6c16633e8ac",
+          "trajectory": "6,5,4,5,1,10,11,5,6,4,5,0,9,2,11,8,5,4,11,10,11,7,3,11,10,5,4,2,9,11,6,5,3,10,1,11,8,3",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 188,
+      "ply": 7,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          8,
+          6,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          2,
+          1,
+          7,
+          2,
+          2,
+          2
+        ],
+        "player_store": 10
+      },
+      "state_hash": "ca5cb0dc89fb88f8db87da2e9ba7ffc17a49f3ff641794928faa303edfae7580"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 3,
+      "game_index": 1006,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 3,
+          "first_move_current": 5,
+          "game_index": 1006,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 503,
+          "opening_prefix_moves": [
+            5,
+            3,
+            0,
+            5,
+            2,
+            1,
+            5
+          ],
+          "opening_state_hash": "1e86602b78db112f46bf066fbdf54021a2a32f7cac3430b79f4f4132a4c26551",
+          "trajectory": "3,11,9,5,4,10,1,11,8,4,0,11,9,3,2,4,5,10,3,9,0,6,1,7",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 4,
+          "first_move_current": 5,
+          "game_index": 1006,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 503,
+          "opening_prefix_moves": [
+            5,
+            3,
+            0,
+            5,
+            2,
+            1,
+            5
+          ],
+          "opening_state_hash": "1e86602b78db112f46bf066fbdf54021a2a32f7cac3430b79f4f4132a4c26551",
+          "trajectory": "4,11,10,5,3,11,9,11,10,11,8,5,4,11,10,1,6,5,4,7,5,3,11,9,5,2,11,10,11,8,5,4,5,3,10,4,9,5",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_index": 503,
+      "ply": 0,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          6,
+          1,
+          6,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          6,
+          0,
+          7,
+          6,
+          0
+        ],
+        "player_store": 9
+      },
+      "state_hash": "1e86602b78db112f46bf066fbdf54021a2a32f7cac3430b79f4f4132a4c26551"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 5,
+      "game_index": 590,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 5,
+          "game_index": 590,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 295,
+          "opening_prefix_moves": [
+            2,
+            0,
+            1,
+            1,
+            4,
+            5,
+            0,
+            2
+          ],
+          "opening_state_hash": "13b198fbb34ec1eee4df3cd1ed1f4f805becf083e4b545f3cb3d85542113d95b",
+          "trajectory": "1,11,9,3,11,2,10,5,6,4,10,7,5,3,9,4,10,5,0,8,11,5,6,4,5,2,10,5,4,9,3",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 5,
+          "game_index": 590,
+          "game_within_opening": 0,
+          "margin": 14,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 295,
+          "opening_prefix_moves": [
+            2,
+            0,
+            1,
+            1,
+            4,
+            5,
+            0,
+            2
+          ],
+          "opening_state_hash": "13b198fbb34ec1eee4df3cd1ed1f4f805becf083e4b545f3cb3d85542113d95b",
+          "trajectory": "1,11,9,3,11,2,10,4,9,3,11,8,0,6,4,3,11,8,0,10,1,11,9,4,11,10,3,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 295,
+      "ply": 7,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          8,
+          1,
+          1,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          5,
+          2,
+          1,
+          2,
+          3,
+          10
+        ],
+        "player_store": 7
+      },
+      "state_hash": "baa7c6a6a382e2f638309754947dd64e9b0ad064099d0533ff1426488bda20f5"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 2,
+      "game_index": 344,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 2,
+          "first_move_current": 4,
+          "game_index": 344,
+          "game_within_opening": 0,
+          "margin": 24,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 172,
+          "opening_prefix_moves": [
+            3,
+            4,
+            0,
+            5,
+            5,
+            3,
+            0,
+            2
+          ],
+          "opening_state_hash": "3c39a880a607516bdf35a64e65039729b7ffe238a982b04595dd0b19f1710aaf",
+          "trajectory": "2,10,5,4,6,5,3,5,1,8,7,5,4,5,3,11,4,5,2,9,5,4,10,5,0,11,5,2,8,1,2,9,0",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 4,
+          "first_move_current": 0,
+          "game_index": 344,
+          "game_within_opening": 0,
+          "margin": 6,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 172,
+          "opening_prefix_moves": [
+            3,
+            4,
+            0,
+            5,
+            5,
+            3,
+            0,
+            2
+          ],
+          "opening_state_hash": "3c39a880a607516bdf35a64e65039729b7ffe238a982b04595dd0b19f1710aaf",
+          "trajectory": "4,6,5,2,11,5,3,5,4,5,0,9,11,6,1,11,9,5,4,10,2,11,7,5,4,11,10,5,3,8,5,4,9,2,11,10,3,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_index": 172,
+      "ply": 0,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          5,
+          0,
+          1,
+          3,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          9,
+          7,
+          2,
+          6,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "3c39a880a607516bdf35a64e65039729b7ffe238a982b04595dd0b19f1710aaf"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 1,
+      "game_index": 372,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 2,
+          "game_index": 372,
+          "game_within_opening": 0,
+          "margin": 18,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 186,
+          "opening_prefix_moves": [
+            3,
+            1,
+            2,
+            0,
+            3,
+            2,
+            5
+          ],
+          "opening_state_hash": "50ea0c1162027959f3664dda84b434011026cdece56a6d84a2444c9d0c0b01d4",
+          "trajectory": "1,8,3,10,4,11,2,0,4,3,5,10,9,11,4,5,3,10,1,6,5,2,8,5,3,10,5,4,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 3,
+          "first_move_current": 0,
+          "game_index": 372,
+          "game_within_opening": 0,
+          "margin": 4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 186,
+          "opening_prefix_moves": [
+            3,
+            1,
+            2,
+            0,
+            3,
+            2,
+            5
+          ],
+          "opening_state_hash": "50ea0c1162027959f3664dda84b434011026cdece56a6d84a2444c9d0c0b01d4",
+          "trajectory": "3,6,11,8,1,11,10,0,11,9,3,2,3,11,10,4,3,11,4,2,10,1,6,5,5,4,11,7,2,9,11,10,11,8,3,9,0",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 186,
+      "ply": 0,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          5,
+          0,
+          6,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          7,
+          1,
+          4,
+          8,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "50ea0c1162027959f3664dda84b434011026cdece56a6d84a2444c9d0c0b01d4"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 889,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 5,
+          "game_index": 889,
+          "game_within_opening": 1,
+          "margin": -2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 444,
+          "opening_prefix_moves": [
+            3,
+            3,
+            1,
+            5,
+            5,
+            4,
+            2
+          ],
+          "opening_state_hash": "ba38d08a94085f197a035ce9f7d13977c8a53e92b0cd8f57a47fefbe2af095d5",
+          "trajectory": "11,9,5,3,8,5,0,11,7,5,4,10,5,1,9,6,3,5,4,10,7,5,2,11,5,4,5,0,9,5,4,8,11,9,5,2,10,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 5,
+          "game_index": 889,
+          "game_within_opening": 1,
+          "margin": -2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 444,
+          "opening_prefix_moves": [
+            3,
+            3,
+            1,
+            5,
+            5,
+            4,
+            2
+          ],
+          "opening_state_hash": "ba38d08a94085f197a035ce9f7d13977c8a53e92b0cd8f57a47fefbe2af095d5",
+          "trajectory": "11,9,5,3,6,5,4,11,5,0,10,11,7,5,3,11,9,11,10,11,8,5,4,11,10,5,1,9,3,10,4,2,3,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2
+      ],
+      "opening_index": 444,
+      "ply": 4,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          6,
+          6,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          7,
+          0,
+          0,
+          0,
+          8,
+          1
+        ],
+        "player_store": 5
+      },
+      "state_hash": "be712e0fc7e80ff04a16b3ff168bba48c2ba8c6da8e030016110e460a3c0122e"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 1,
+      "game_index": 612,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 4,
+          "game_index": 612,
+          "game_within_opening": 0,
+          "margin": -34,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 306,
+          "opening_prefix_moves": [
+            1,
+            3,
+            0,
+            4,
+            4,
+            0,
+            5
+          ],
+          "opening_state_hash": "bd1d2dc09297dc1ea04784e2b67837f498a1047c633ebfb05d4176d1a1c7f350",
+          "trajectory": "10,9,7,1,6,3,10,11,4,0,9,7,3,11,6,4,7,5,6,1,10",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 2,
+          "first_move_current": 4,
+          "game_index": 612,
+          "game_within_opening": 0,
+          "margin": -8,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 306,
+          "opening_prefix_moves": [
+            1,
+            3,
+            0,
+            4,
+            4,
+            0,
+            5
+          ],
+          "opening_state_hash": "bd1d2dc09297dc1ea04784e2b67837f498a1047c633ebfb05d4176d1a1c7f350",
+          "trajectory": "10,9,7,2,10,11,4,0,8,5,11,9,8,3,11,5,4,5,0,10,1,11,6,2,9,3,11,10,11,8,5,4,9,5",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "opening_index": 306,
+      "ply": 3,
+      "ss_action_384": 2,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          8,
+          1,
+          2,
+          11
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          2,
+          3,
+          7,
+          6,
+          0,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "0278b645de868540b831d2e3e6a4fa608cb572d21eafbce2b59a5d106c2430b5"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 4,
+      "game_index": 10,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 4,
+          "first_move_current": 0,
+          "game_index": 10,
+          "game_within_opening": 0,
+          "margin": -18,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 5,
+          "opening_prefix_moves": [
+            1,
+            3,
+            2,
+            2,
+            5,
+            2,
+            1
+          ],
+          "opening_state_hash": "c36342855bc30b5ef2fdc106a3aaf8ec1097f161381cae4938d993cf7f6f5b5d",
+          "trajectory": "4,6,10,4,11,3,11,10,5,6,4,9,5,1,11,10,3,8,0,9,2,11,10,3,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 0,
+          "game_index": 10,
+          "game_within_opening": 0,
+          "margin": -6,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 5,
+          "opening_prefix_moves": [
+            1,
+            3,
+            2,
+            2,
+            5,
+            2,
+            1
+          ],
+          "opening_state_hash": "c36342855bc30b5ef2fdc106a3aaf8ec1097f161381cae4938d993cf7f6f5b5d",
+          "trajectory": "5,6,11,10,4,11,3,11,7,5,6,2,10,4,11,9,5,0,11,7,1,10,5,3,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 5,
+      "ply": 0,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          1,
+          2,
+          7,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          1,
+          0,
+          8,
+          7,
+          6
+        ],
+        "player_store": 1
+      },
+      "state_hash": "c36342855bc30b5ef2fdc106a3aaf8ec1097f161381cae4938d993cf7f6f5b5d"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 0,
+      "game_index": 272,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 5,
+          "game_index": 272,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 136,
+          "opening_prefix_moves": [
+            2,
+            5,
+            5,
+            1,
+            0,
+            2,
+            4,
+            0
+          ],
+          "opening_state_hash": "e6677e071391443f91a8fa1bbc7a567ee17e15ab9b2ddbe8ca5f8386df8594fd",
+          "trajectory": "11,5,7,2,5,0,11,8,3,9,4,10,5,6,8,10,7,9,8,1,5,4,5,3,5,2,10,11,4,1,7,0,6,5,6,2,7,1,8,3,9,5,4,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 5,
+          "game_index": 272,
+          "game_within_opening": 0,
+          "margin": 6,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 136,
+          "opening_prefix_moves": [
+            2,
+            5,
+            5,
+            1,
+            0,
+            2,
+            4,
+            0
+          ],
+          "opening_state_hash": "e6677e071391443f91a8fa1bbc7a567ee17e15ab9b2ddbe8ca5f8386df8594fd",
+          "trajectory": "11,5,7,2,5,4,11,8,3,9,4,5,11,7,1,10,5,4,5,3,5,2,11,9,4,5,3,10,1,8,2,10,3,9,4,10,5",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_index": 136,
+      "ply": 5,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          3,
+          9,
+          8,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          3,
+          2,
+          0,
+          8,
+          1,
+          0
+        ],
+        "player_store": 7
+      },
+      "state_hash": "353022f3739af4268a63e3fb3dd9b13263c981377c5ec5392b9e748e0ab75a11"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 713,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 1,
+          "game_index": 713,
+          "game_within_opening": 1,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 356,
+          "opening_prefix_moves": [
+            3,
+            0,
+            0,
+            2,
+            5,
+            1,
+            3
+          ],
+          "opening_state_hash": "2b8406ae5174460b060136e548851878a9f31b4c5bbf0709d8f54ef12729996b",
+          "trajectory": "10,1,9,5,3,5,2,11,0,10,3,4,1,8,10,11,4,0,9,11,7,5,6,11,9,7,3,11,8,11,10,1,11,9,0",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 1,
+          "game_index": 713,
+          "game_within_opening": 1,
+          "margin": 6,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 356,
+          "opening_prefix_moves": [
+            3,
+            0,
+            0,
+            2,
+            5,
+            1,
+            3
+          ],
+          "opening_state_hash": "2b8406ae5174460b060136e548851878a9f31b4c5bbf0709d8f54ef12729996b",
+          "trajectory": "6,1,5,2,9,5,3,5,2,10,5,3,6,4,11,5,6,3,7,11,10,4,5,1,9,11,8,2,11,10,11,9,4,3,10,4,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 356,
+      "ply": 0,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          8,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          5,
+          5,
+          0,
+          7,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "2b8406ae5174460b060136e548851878a9f31b4c5bbf0709d8f54ef12729996b"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 3,
+      "game_index": 294,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 1,
+          "game_index": 294,
+          "game_within_opening": 0,
+          "margin": 6,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 147,
+          "opening_prefix_moves": [
+            0,
+            5,
+            4,
+            3,
+            5,
+            2,
+            2,
+            3
+          ],
+          "opening_state_hash": "4516218d610b3603106277a435b87908657155667fcf0398338fe2e554d1f30f",
+          "trajectory": "5,3,7,5,4,5,2,6,1,9,10,4,2,11,3,8,4,0,6,4,7,3,9,5,10,11,6,2,7,4,5,3,9,4,10,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 1,
+          "game_index": 294,
+          "game_within_opening": 0,
+          "margin": 8,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 147,
+          "opening_prefix_moves": [
+            0,
+            5,
+            4,
+            3,
+            5,
+            2,
+            2,
+            3
+          ],
+          "opening_state_hash": "4516218d610b3603106277a435b87908657155667fcf0398338fe2e554d1f30f",
+          "trajectory": "5,4,7,1,10,5,8,4,5,0,7,2,11,0,9,5,1,11,10,3,5,2,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_index": 147,
+      "ply": 1,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          7,
+          0,
+          0,
+          7,
+          3
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          3,
+          7,
+          0,
+          6,
+          1,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "b874faaa1d742565e05ba6648c2ec64759cc7cdb13d0b13cd5f2eeb7c3e54bcd"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 0,
+      "game_index": 609,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 609,
+          "game_within_opening": 1,
+          "margin": -6,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 304,
+          "opening_prefix_moves": [
+            0,
+            1,
+            4,
+            1,
+            5,
+            2,
+            2
+          ],
+          "opening_state_hash": "4b45a36d2fc8d008125a6af3bb38e775d86274b4393ff7eb607c1c962aa02f2e",
+          "trajectory": "6,0,10,5,4,5,3,8,5,1,11,5,10,11,7,11,9,11,10,11,6,0,9,4,6,5,2,5,4,7,5,3,5,4,9,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 5,
+          "game_index": 609,
+          "game_within_opening": 1,
+          "margin": -10,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 304,
+          "opening_prefix_moves": [
+            0,
+            1,
+            4,
+            1,
+            5,
+            2,
+            2
+          ],
+          "opening_state_hash": "4b45a36d2fc8d008125a6af3bb38e775d86274b4393ff7eb607c1c962aa02f2e",
+          "trajectory": "9,5,4,10,1,11,2,5,7,4,6,5,3,11,8,11,10,5,1,11,7,4,5,0,9,2,8,4,11,10,9,3,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 304,
+      "ply": 0,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          2,
+          0,
+          7,
+          6,
+          6
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          1,
+          6,
+          0,
+          7,
+          1,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "4b45a36d2fc8d008125a6af3bb38e775d86274b4393ff7eb607c1c962aa02f2e"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 0,
+      "game_index": 35,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 35,
+          "game_within_opening": 1,
+          "margin": -24,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 17,
+          "opening_prefix_moves": [
+            1,
+            1,
+            3,
+            5,
+            1,
+            3,
+            2,
+            1
+          ],
+          "opening_state_hash": "e7f083a7f4faa22af83c120348a4c5658d31e6116ce8fa39f0e3d375150c9baf",
+          "trajectory": "0,3,4,6,5,10,5,1,8,5,4,9,5,3,5,2,10,11,5,0,5,4,7,5,3,5,4,11,10,1,8,2,11,9,4,3,11,10,4,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 0,
+          "game_index": 35,
+          "game_within_opening": 1,
+          "margin": -30,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 17,
+          "opening_prefix_moves": [
+            1,
+            1,
+            3,
+            5,
+            1,
+            3,
+            2,
+            1
+          ],
+          "opening_state_hash": "e7f083a7f4faa22af83c120348a4c5658d31e6116ce8fa39f0e3d375150c9baf",
+          "trajectory": "0,3,4,10,5,6,1,5,4,5,2,5,3,0,9,4,2,7,1,11,2,10,3,8,1,9,0,11,10,2,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_index": 17,
+      "ply": 3,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          1,
+          8,
+          2,
+          7,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          2,
+          1,
+          0,
+          0,
+          10
+        ],
+        "player_store": 8
+      },
+      "state_hash": "a04492ed2f4ec9fd9d4abb54ec59c59c8548dfc64d2770805da082d35c6f36b3"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 4,
+      "game_index": 328,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 328,
+          "game_within_opening": 0,
+          "margin": 12,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 164,
+          "opening_prefix_moves": [
+            1,
+            4,
+            3,
+            5,
+            3,
+            2,
+            3,
+            1
+          ],
+          "opening_state_hash": "082b4d90c5185d4128abb652b9b55322d3e5f9d896f9f1313d10851f84e7c101",
+          "trajectory": "11,0,10,11,7,4,11,5,11,6,1,11,9,3,0,4,3,11,8,11,10,1,11,9,0",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 328,
+          "game_within_opening": 0,
+          "margin": -24,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 164,
+          "opening_prefix_moves": [
+            1,
+            4,
+            3,
+            5,
+            3,
+            2,
+            3,
+            1
+          ],
+          "opening_state_hash": "082b4d90c5185d4128abb652b9b55322d3e5f9d896f9f1313d10851f84e7c101",
+          "trajectory": "11,0,10,11,7,0,6,10,8,3,11,2,9,0,11,8,5,11,10,9,0,7,4,11,5,0,6,3,8,11,10,9",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 164,
+      "ply": 5,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          1,
+          1,
+          8,
+          2,
+          9,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "0702710290a56aa5bad89a4ca8efd724259b520907e4d2a3104ea4e5f15e537c"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 2,
+      "game_index": 382,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 4,
+          "first_move_current": 4,
+          "game_index": 382,
+          "game_within_opening": 0,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 191,
+          "opening_prefix_moves": [
+            5,
+            0,
+            4,
+            1,
+            3,
+            3,
+            4
+          ],
+          "opening_state_hash": "d9124b0ffa69379f332d65ef646e5ff3b1ad9fb386483e722e41709e738d7bab",
+          "trajectory": "10,4,11,2,6,4,3,4,8,0,11,7,4,5,11,10,3,5,4,11,7,1,9,2,5,4,5,0,11,8,11,10,9,3,4,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 4,
+          "first_move_current": 4,
+          "game_index": 382,
+          "game_within_opening": 0,
+          "margin": 0,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 191,
+          "opening_prefix_moves": [
+            5,
+            0,
+            4,
+            1,
+            3,
+            3,
+            4
+          ],
+          "opening_state_hash": "d9124b0ffa69379f332d65ef646e5ff3b1ad9fb386483e722e41709e738d7bab",
+          "trajectory": "10,4,11,1,8,4,0,11,9,2,11,6,11,10,4,1,11,9,3,8,11,10,11,9,5,10,6,1,9,2,11,5,4,5,0,7,1,10,11,9,3,8,5,4,10,11,9,5,2,10,4,11",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 191,
+      "ply": 3,
+      "ss_action_384": 1,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          7,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          8,
+          7,
+          2,
+          1,
+          5
+        ],
+        "player_store": 3
+      },
+      "state_hash": "58106a26f2975e2fecf206fe408569007a59ec114c79c58b7dcab13f9510da29"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 5,
+      "game_index": 576,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 576,
+          "game_within_opening": 0,
+          "margin": -20,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 288,
+          "opening_prefix_moves": [
+            5,
+            2,
+            2,
+            1,
+            3,
+            3,
+            1
+          ],
+          "opening_state_hash": "cb3b6726220d76aaf25da770e5ea7c9302064804f5c40016ed0b0c69c9d10924",
+          "trajectory": "0,6,4,9,8,11,5,9,6,3,11,10,5,11,9,0,10,4,11,8,11,6,3,9,5,8,4,11,10,11,7,1,11,10,2,9,3,10,4,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 576,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 288,
+          "opening_prefix_moves": [
+            5,
+            2,
+            2,
+            1,
+            3,
+            3,
+            1
+          ],
+          "opening_state_hash": "cb3b6726220d76aaf25da770e5ea7c9302064804f5c40016ed0b0c69c9d10924",
+          "trajectory": "0,6,4,9,8,11,0,10,4,3,1,4,3,11,8,2,10,3,9,11,6,4,5,11,10,3,11,8,4,5,2,9,11,10,3",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 288,
+      "ply": 6,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          3,
+          1,
+          2,
+          11,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          3,
+          3,
+          2,
+          1,
+          6
+        ],
+        "player_store": 5
+      },
+      "state_hash": "350e33f27bf189d193e046153a375cf5992edf551ddc8d8c3040ba74e59082b2"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 3,
+      "game_index": 581,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 0,
+          "game_index": 581,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 290,
+          "opening_prefix_moves": [
+            5,
+            5,
+            2,
+            1,
+            0,
+            2,
+            3,
+            1
+          ],
+          "opening_state_hash": "70205457ae1f17407dc4ddd91465141198012fa032ed83eb299ec41ac9b2c2a0",
+          "trajectory": "0,1,9,3,2,5,11,3,8,0,6,4,11,9,5,1,11,10,5,4,5,0,11,8,3,5,4,7,8,1,11,9,2,11,10,11",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 0,
+          "game_index": 581,
+          "game_within_opening": 1,
+          "margin": -4,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 290,
+          "opening_prefix_moves": [
+            5,
+            5,
+            2,
+            1,
+            0,
+            2,
+            3,
+            1
+          ],
+          "opening_state_hash": "70205457ae1f17407dc4ddd91465141198012fa032ed83eb299ec41ac9b2c2a0",
+          "trajectory": "0,1,11,3,9,2,4,7,1,10,4,5,8,10,9,6,2,10,9,3,6,5,4,7,5,0,8,5,4,11,2,9,4,6,3,1,10,4,11,7,2",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 290,
+      "ply": 2,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          1,
+          8,
+          7,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          0,
+          3,
+          2,
+          8,
+          4
+        ],
+        "player_store": 5
+      },
+      "state_hash": "01b6d2da13ed7d44deba1764168a4db0c322ea6aa799a0e12fde0ca52c8116d9"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 0,
+      "game_index": 184,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 4,
+          "game_index": 184,
+          "game_within_opening": 0,
+          "margin": -2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 92,
+          "opening_prefix_moves": [
+            4,
+            1,
+            5,
+            5,
+            2,
+            2,
+            3,
+            4
+          ],
+          "opening_state_hash": "5ef3cc922738261d97a8f76a105e9ae696d17a10c30e91b1087f3a79d8bb36a0",
+          "trajectory": "10,5,6,0,11,5,0,6,4,5,2,5,4,10,5,1,7,11,10,11,9,11,8,11,10,11,6,2,9,5,3,11,10,11,6,0,8,5,1,9,2,10,4,11,7,5,3,9,5,4,10,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 4,
+          "game_index": 184,
+          "game_within_opening": 0,
+          "margin": 2,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 92,
+          "opening_prefix_moves": [
+            4,
+            1,
+            5,
+            5,
+            2,
+            2,
+            3,
+            4
+          ],
+          "opening_state_hash": "5ef3cc922738261d97a8f76a105e9ae696d17a10c30e91b1087f3a79d8bb36a0",
+          "trajectory": "10,5,6,0,11,5,4,5,3,11,10,11,7,5,2,5,4,5,1,11,10,11,8,5,4,11,7,0,9,0,11,10,1,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_index": 92,
+      "ply": 6,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          3,
+          2,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          11,
+          4,
+          9,
+          2,
+          0
+        ],
+        "player_store": 6
+      },
+      "state_hash": "371dab0a55fb6ce4f01dbcb221c4520f42a143cc5088f29e8b406e2a950419bd"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 3,
+      "game_index": 255,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 255,
+          "game_within_opening": 1,
+          "margin": -8,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 127,
+          "opening_prefix_moves": [
+            2,
+            3,
+            2,
+            1,
+            3,
+            4,
+            1,
+            1
+          ],
+          "opening_state_hash": "dd00f5ce297922f43c776245d8ba0cda6f428a2c00379b8cf2832da1513f7739",
+          "trajectory": "5,6,0,9,10,3,2,5,8,0,7,1,8,3,10,11,11,9,11,10,8,0,11,7,5,6,1,7,2",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 255,
+          "game_within_opening": 1,
+          "margin": 16,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 127,
+          "opening_prefix_moves": [
+            2,
+            3,
+            2,
+            1,
+            3,
+            4,
+            1,
+            1
+          ],
+          "opening_state_hash": "dd00f5ce297922f43c776245d8ba0cda6f428a2c00379b8cf2832da1513f7739",
+          "trajectory": "5,6,0,10,2,5,9,8,4,10,9,5,3,6,5,4,8,5,0,7,9,1,8",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 127,
+      "ply": 3,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          5,
+          3,
+          9,
+          9
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          1,
+          3,
+          2,
+          2,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_hash": "86029a0c934bf7ccafbd4a02f4fe8299dd370c188c0d9acc9b4a8ed42799787d"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 99,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 2,
+          "first_move_current": 5,
+          "game_index": 99,
+          "game_within_opening": 1,
+          "margin": -8,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 49,
+          "opening_prefix_moves": [
+            0,
+            3,
+            0,
+            1,
+            5,
+            4,
+            4,
+            1
+          ],
+          "opening_state_hash": "5349edcb20095965b4293713309744d21e4112f4d1908d88183fee0e0b09b63b",
+          "trajectory": "5,2,8,5,4,7,0,11,4,10,3,9,11,10,2,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 5,
+          "game_index": 99,
+          "game_within_opening": 1,
+          "margin": -4,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 49,
+          "opening_prefix_moves": [
+            0,
+            3,
+            0,
+            1,
+            5,
+            4,
+            4,
+            1
+          ],
+          "opening_state_hash": "5349edcb20095965b4293713309744d21e4112f4d1908d88183fee0e0b09b63b",
+          "trajectory": "5,2,11,5,9,4,5,1,6,5,3,8,4,9,10,3,11,5,6,0,9,2,6,5,4,7,5,3,5,4,9,5",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_index": 49,
+      "ply": 2,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          1,
+          8,
+          2,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          7,
+          0,
+          7,
+          1,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_hash": "3e85c14c56e5fa0a2a6e1fa49a83618d3b5ef17232762e81828c8ca461806949"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 2,
+      "game_index": 448,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 2,
+          "first_move_current": 5,
+          "game_index": 448,
+          "game_within_opening": 0,
+          "margin": -6,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 224,
+          "opening_prefix_moves": [
+            2,
+            1,
+            4,
+            5,
+            1,
+            3,
+            1,
+            2
+          ],
+          "opening_state_hash": "fa675737408deb45d39f6e498603cb5c0d91091bbec38d8d6c17380ebd4be236",
+          "trajectory": "2,11,2,10,1,11,9,3,11,8,0,9,7,5,11,10,4,8,5,1,10,7,2,6,0,7,3,9,4,8,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 0,
+          "game_index": 448,
+          "game_within_opening": 0,
+          "margin": -12,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 224,
+          "opening_prefix_moves": [
+            2,
+            1,
+            4,
+            5,
+            1,
+            3,
+            1,
+            2
+          ],
+          "opening_state_hash": "fa675737408deb45d39f6e498603cb5c0d91091bbec38d8d6c17380ebd4be236",
+          "trajectory": "0,6,10,2,11,4,11,10,3,9,5,11,10,9,4,11,8,0,11,7,11,10,11,8,1,9,11,10,2,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_index": 224,
+      "ply": 0,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          0,
+          1,
+          4,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          1,
+          3,
+          7,
+          6,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "fa675737408deb45d39f6e498603cb5c0d91091bbec38d8d6c17380ebd4be236"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 1,
+      "game_index": 534,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 4,
+          "game_index": 534,
+          "game_within_opening": 0,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 267,
+          "opening_prefix_moves": [
+            3,
+            4,
+            5,
+            0,
+            1,
+            2,
+            3
+          ],
+          "opening_state_hash": "92d02124d59f8abce418ecb39d99bd39269d83b0e10ab19b7e9b3ac4eeafacc4",
+          "trajectory": "10,8,5,4,10,11,1,9,3,2,0,11,10,5,8,10,7,9,10,6,4,8,5,3,10,9,10,2,11,5,4,5,3,9,2,10,4,7,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 4,
+          "game_index": 534,
+          "game_within_opening": 0,
+          "margin": -8,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 267,
+          "opening_prefix_moves": [
+            3,
+            4,
+            5,
+            0,
+            1,
+            2,
+            3
+          ],
+          "opening_state_hash": "92d02124d59f8abce418ecb39d99bd39269d83b0e10ab19b7e9b3ac4eeafacc4",
+          "trajectory": "10,8,5,4,10,11,5,8,0,6,4,5,6,3,8,5,4,9,2,4,3,11,10,5,6,1,7",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 267,
+      "ply": 6,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          2,
+          9,
+          0,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          8,
+          7,
+          2,
+          1,
+          1,
+          2
+        ],
+        "player_store": 5
+      },
+      "state_hash": "49b4972b8988a7f59043c06f27c95d566e1f68dfc6c1c24f1a74697e50b62e42"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 5,
+      "game_index": 562,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 5,
+          "first_move_current": 1,
+          "game_index": 562,
+          "game_within_opening": 0,
+          "margin": -12,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 281,
+          "opening_prefix_moves": [
+            0,
+            2,
+            0,
+            5,
+            0,
+            3,
+            4
+          ],
+          "opening_state_hash": "535c8d6e4103e355f8168691e16904a00398c32ab599efebead8f59ffb4f9bea",
+          "trajectory": "5,4,7,5,2,11,4,5,8,1,11,10,11,6,5,4,9,4,11,10,8,5,3,11,7,11,10,5,2,9,4,3,8,5,4,9,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 1,
+          "game_index": 562,
+          "game_within_opening": 0,
+          "margin": -18,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 281,
+          "opening_prefix_moves": [
+            0,
+            2,
+            0,
+            5,
+            0,
+            3,
+            4
+          ],
+          "opening_state_hash": "535c8d6e4103e355f8168691e16904a00398c32ab599efebead8f59ffb4f9bea",
+          "trajectory": "1,7,2,8,10,9,5,8,3,11,0,6,11,10,11,9,2,8,5,6,3,9,5,4,11,10,9,5,11,7,4,11,10,3,8,4,9,2,11,10,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 281,
+      "ply": 0,
+      "ss_action_384": 1,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          8,
+          2,
+          6,
+          0,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          6,
+          6,
+          1,
+          6,
+          1
+        ],
+        "player_store": 2
+      },
+      "state_hash": "535c8d6e4103e355f8168691e16904a00398c32ab599efebead8f59ffb4f9bea"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 0,
+      "game_index": 950,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 0,
+          "first_move_current": 1,
+          "game_index": 950,
+          "game_within_opening": 0,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 475,
+          "opening_prefix_moves": [
+            5,
+            4,
+            4,
+            3,
+            3,
+            5,
+            5
+          ],
+          "opening_state_hash": "1bbff803e042dda0de82251413893346bbd8a40c23191201f00e9c019ae0fcb8",
+          "trajectory": "7,0,11,10,11,6,5,1,11,10,5,3,5,4,9,5,2,11,6,5,4,10,3,9,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 4,
+          "first_move_current": 1,
+          "game_index": 950,
+          "game_within_opening": 0,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 475,
+          "opening_prefix_moves": [
+            5,
+            4,
+            4,
+            3,
+            3,
+            5,
+            5
+          ],
+          "opening_state_hash": "1bbff803e042dda0de82251413893346bbd8a40c23191201f00e9c019ae0fcb8",
+          "trajectory": "7,4,5,2,11,10,11,6,5,0,11,8,5,4,5,3,11,10,11,9,7,5,4,11,10,1,6,5,4,7,5,3,8,2,11,10,4,11,9,11,10,5,3,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_index": 475,
+      "ply": 1,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          8,
+          0,
+          6,
+          1,
+          2,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          6,
+          5,
+          1,
+          2,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "1591c6aba1c8acc5f2c30815c3bed0d884d6aebc0aa90cc7d8112dabf439ca14"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 2,
+      "game_index": 925,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 925,
+          "game_within_opening": 1,
+          "margin": 6,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 462,
+          "opening_prefix_moves": [
+            5,
+            1,
+            5,
+            4,
+            3,
+            3,
+            4
+          ],
+          "opening_state_hash": "e4b2abdc8c3e21719b96c5bcedacfe8bbfe2bc37d0fac2900ab7188510fa0999",
+          "trajectory": "5,6,0,8,5,4,5,3,10,9,4,10,5,1,7,10,6,5,3,11,5,0,8,2,6,5,4,10,5,3,7,5,4,8,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 0,
+          "first_move_current": 5,
+          "game_index": 925,
+          "game_within_opening": 1,
+          "margin": 12,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 462,
+          "opening_prefix_moves": [
+            5,
+            1,
+            5,
+            4,
+            3,
+            3,
+            4
+          ],
+          "opening_state_hash": "e4b2abdc8c3e21719b96c5bcedacfe8bbfe2bc37d0fac2900ab7188510fa0999",
+          "trajectory": "5,6,0,10,5,1,7,9,10,11,1,8,0,6,1,7,4,11,9,2,11,10,5,11,6,0,8,11,10,1,11,9,4,7,5,3,11,10,11,8,4,9,2,11,10,5,6,3,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 462,
+      "ply": 3,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          7,
+          1,
+          1,
+          3
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          0,
+          9,
+          7,
+          2,
+          2,
+          1
+        ],
+        "player_store": 5
+      },
+      "state_hash": "ba3137e6d3cee09ce5f4d005f1b76c384a7fd27f4cb41ad85541261153a101e9"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 333,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 5,
+          "game_index": 333,
+          "game_within_opening": 1,
+          "margin": 24,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 166,
+          "opening_prefix_moves": [
+            2,
+            3,
+            1,
+            4,
+            4,
+            5,
+            4,
+            2
+          ],
+          "opening_state_hash": "83e7d3e37516b9cf720e6a14615489ded816eff8cb0bcfca6bfb378e66851f05",
+          "trajectory": "5,10,7,0,6,5,1,8,10,9,1,11,0,7,1,11,10,11,9,3,2,10,11,7,5,8,9,7,4,8,5",
+          "treatment": "FF",
+          "winner": "challenger"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 5,
+          "first_move_current": 5,
+          "game_index": 333,
+          "game_within_opening": 1,
+          "margin": 4,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 166,
+          "opening_prefix_moves": [
+            2,
+            3,
+            1,
+            4,
+            4,
+            5,
+            4,
+            2
+          ],
+          "opening_state_hash": "83e7d3e37516b9cf720e6a14615489ded816eff8cb0bcfca6bfb378e66851f05",
+          "trajectory": "5,11,2,6,0,11,9,5,11,6,4,5,1,10,5,4,11,8,0,11,7,3,11,10,11,9,11,8,5,4,10,9,2,11",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 166,
+      "ply": 1,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          2,
+          1,
+          8,
+          2,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          8,
+          7,
+          2,
+          1,
+          0,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "1ed88a1ead0b1f93aacd7f52eda7237b0a701cb5070a2978367ce31798de0ecc"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 3,
+      "game_index": 435,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 2,
+          "game_index": 435,
+          "game_within_opening": 1,
+          "margin": -2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 217,
+          "opening_prefix_moves": [
+            5,
+            4,
+            3,
+            1,
+            2,
+            0,
+            1
+          ],
+          "opening_state_hash": "ba323a13006880072097479a3f530f2359c2652b983e9771c36c3e7d66f321a2",
+          "trajectory": "10,9,2,11,0,8,3,6,4,7,11,5,11,8,11,6,2,7,0,10,3,5,2,9,3,8,0,11,0,10,2,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 5,
+          "game_index": 435,
+          "game_within_opening": 1,
+          "margin": 2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 217,
+          "opening_prefix_moves": [
+            5,
+            4,
+            3,
+            1,
+            2,
+            0,
+            1
+          ],
+          "opening_state_hash": "ba323a13006880072097479a3f530f2359c2652b983e9771c36c3e7d66f321a2",
+          "trajectory": "10,7,5,6,2,9,5,4,10,5,3,8,2,9,0,7,4,10,11,3,4,0,11,9,1,11,10,11,6,3,8,5,6,2,5,4,7,5,3,9,4,10,11,5,0,8",
+          "treatment": "SS",
+          "winner": "challenger"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "opening_index": 217,
+      "ply": 1,
+      "ss_action_384": 1,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          1,
+          0,
+          6,
+          0,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          0,
+          6,
+          2,
+          7,
+          3
+        ],
+        "player_store": 4
+      },
+      "state_hash": "b606e4701dd8abc7d9a858bce8f133dbfb36bc40e5c0ecc2e93bb685877d39e1"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 765,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 5,
+          "game_index": 765,
+          "game_within_opening": 1,
+          "margin": -12,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 382,
+          "opening_prefix_moves": [
+            4,
+            5,
+            0,
+            3,
+            5,
+            2,
+            2,
+            1
+          ],
+          "opening_state_hash": "07b04d0cb6a34955db67c380b1e8e4f73b62939e7d9a63696ded0da0e7c50f9e",
+          "trajectory": "5,4,5,1,10,5,9,8,4,5,3,6,5,4,11,5,0,5,4,5,3,5,1,7,5,4,5,2,5,4,9,11,10,5,2,11,8,1,10,3,5,4,11",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 5,
+          "game_index": 765,
+          "game_within_opening": 1,
+          "margin": -10,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 382,
+          "opening_prefix_moves": [
+            4,
+            5,
+            0,
+            3,
+            5,
+            2,
+            2,
+            1
+          ],
+          "opening_state_hash": "07b04d0cb6a34955db67c380b1e8e4f73b62939e7d9a63696ded0da0e7c50f9e",
+          "trajectory": "5,4,5,1,9,6,5,3,10,5,6,4,9,8,11,0,4,3,2,5,7,4,5,1,11,10,3,8,5,4,5,0,11,9,0,11,10,1,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 382,
+      "ply": 4,
+      "ss_action_384": 3,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          1,
+          1,
+          3,
+          8,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          3,
+          0,
+          1,
+          7,
+          1,
+          1
+        ],
+        "player_store": 7
+      },
+      "state_hash": "37acc2bcb0040cd6e3b2c97095b4eb5be020fc6cd265f1a2b201ac09abe4e28c"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 3,
+      "game_index": 541,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 3,
+          "game_index": 541,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 270,
+          "opening_prefix_moves": [
+            1,
+            4,
+            2,
+            2,
+            0,
+            4,
+            0,
+            0
+          ],
+          "opening_state_hash": "c73f3a73a6e234875f2f34f215381abd477b88e7a8a42326512426874389f49f",
+          "trajectory": "10,9,3,10,7,4,1,8,10,11,4,2,9,3,4,5,10,5,4,7,3,11,0,8,4,5,1,11,10,3,11,9,11,10,5,4,11",
+          "treatment": "FF",
+          "winner": "draw"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 4,
+          "first_move_current": 4,
+          "game_index": 541,
+          "game_within_opening": 1,
+          "margin": 0,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 270,
+          "opening_prefix_moves": [
+            1,
+            4,
+            2,
+            2,
+            0,
+            4,
+            0,
+            0
+          ],
+          "opening_state_hash": "c73f3a73a6e234875f2f34f215381abd477b88e7a8a42326512426874389f49f",
+          "trajectory": "10,11,4,1,9,5,0,11,8,3,10,5,4,11,9,2,6,5,4,7,5,3,8,1,10,11,9,4,11,10,5,3,11",
+          "treatment": "SS",
+          "winner": "draw"
+        }
+      },
+      "legal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_index": 270,
+      "ply": 1,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          2,
+          7,
+          0,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          2,
+          1,
+          7,
+          1,
+          8
+        ],
+        "player_store": 2
+      },
+      "state_hash": "2e4f566155abfd605a40ee00307ad8b48b80a1acd058291413f2a37aaaf6b2bb"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 863,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 1,
+          "first_move_current": 0,
+          "game_index": 863,
+          "game_within_opening": 1,
+          "margin": -8,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 431,
+          "opening_prefix_moves": [
+            0,
+            0,
+            1,
+            3,
+            1,
+            2,
+            0
+          ],
+          "opening_state_hash": "c5f6fb539b95b7122a666d582f1a8e6d7c4ceec3828598496ec04ce4ea27652f",
+          "trajectory": "0,7,3,8,3,10,4,9,5,6,4,10,3,9,2,11,4,5,8,0,11,6,5,3,5,4,5,1,7,2,10,11,9,8,3,9,4,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 1,
+          "first_move_current": 0,
+          "game_index": 863,
+          "game_within_opening": 1,
+          "margin": -4,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 431,
+          "opening_prefix_moves": [
+            0,
+            0,
+            1,
+            3,
+            1,
+            2,
+            0
+          ],
+          "opening_state_hash": "c5f6fb539b95b7122a666d582f1a8e6d7c4ceec3828598496ec04ce4ea27652f",
+          "trajectory": "0,7,3,8,3,10,4,9,5,6,4,11,5,8,11,9,4,10,1,11,7,5,4,9,2,10,11,7,5,3,8,5,4,5",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 431,
+      "ply": 11,
+      "ss_action_384": 5,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          3,
+          1,
+          3,
+          10
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          4,
+          4,
+          3,
+          1,
+          0,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_hash": "0cfb7fae432227e49712e41c25021ae41377ec3f9d3663b073e58b1b7a22b7a1"
+    },
+    {
+      "challenger_player": 1,
+      "ff_action_384": 4,
+      "game_index": 163,
+      "game_within_opening": 1,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 1,
+          "game_index": 163,
+          "game_within_opening": 1,
+          "margin": -12,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 81,
+          "opening_prefix_moves": [
+            2,
+            0,
+            4,
+            3,
+            0,
+            0,
+            5
+          ],
+          "opening_state_hash": "4630b8eaf622ba60dc690b0dd95a1908e3fe0617d575212921be6b4ebfcfde05",
+          "trajectory": "1,9,4,10,0,8,2,11,3,10,4,5,10,1,5,4,9,7,3,8,0,9,4,10,5",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 1,
+          "first_move_challenger": 3,
+          "first_move_current": 1,
+          "game_index": 163,
+          "game_within_opening": 1,
+          "margin": -2,
+          "opening_applied_prefix_length": 7,
+          "opening_index": 81,
+          "opening_prefix_moves": [
+            2,
+            0,
+            4,
+            3,
+            0,
+            0,
+            5
+          ],
+          "opening_state_hash": "4630b8eaf622ba60dc690b0dd95a1908e3fe0617d575212921be6b4ebfcfde05",
+          "trajectory": "1,9,4,6,2,7,3,8,4,11,2,10,1,4,3,0,11,9,11,6,4,3,10,5,11,5,4,10,3,8,1,11,10,2,11,9,11,10,4,11",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 81,
+      "ply": 3,
+      "ss_action_384": 0,
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          8,
+          8,
+          1,
+          3,
+          2
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          3,
+          1,
+          3,
+          2,
+          0,
+          8
+        ],
+        "player_store": 4
+      },
+      "state_hash": "1e841d5c6a6dac539c4b73f64c1aab5923c2eccedd8723867650a0806d3a28b9"
+    },
+    {
+      "challenger_player": 0,
+      "ff_action_384": 0,
+      "game_index": 572,
+      "game_within_opening": 0,
+      "ledger_provenance": {
+        "FF": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 4,
+          "game_index": 572,
+          "game_within_opening": 0,
+          "margin": -20,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 286,
+          "opening_prefix_moves": [
+            3,
+            0,
+            2,
+            5,
+            2,
+            0,
+            3,
+            4
+          ],
+          "opening_state_hash": "da04fc99a8d399dc0fa20757fd94dbcbbed9c601b535a448ab04091a8abdea02",
+          "trajectory": "10,1,11,3,7,0,11,8,11,10,11,9,11,6,1,11,10,11,8,3,2,9,11,6,4,11,9,5,7,8,6",
+          "treatment": "FF",
+          "winner": "current"
+        },
+        "SS": {
+          "challenger_player": 0,
+          "first_move_challenger": 1,
+          "first_move_current": 4,
+          "game_index": 572,
+          "game_within_opening": 0,
+          "margin": -10,
+          "opening_applied_prefix_length": 8,
+          "opening_index": 286,
+          "opening_prefix_moves": [
+            3,
+            0,
+            2,
+            5,
+            2,
+            0,
+            3,
+            4
+          ],
+          "opening_state_hash": "da04fc99a8d399dc0fa20757fd94dbcbbed9c601b535a448ab04091a8abdea02",
+          "trajectory": "10,1,11,3,7,4,11,10,5,9,7,3,11,10,11,6,1,11,10,4,9,5,2,7",
+          "treatment": "SS",
+          "winner": "current"
+        }
+      },
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_index": 286,
+      "ply": 5,
+      "ss_action_384": 4,
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          4,
+          2,
+          1,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          4,
+          2,
+          6,
+          1,
+          4,
+          5
+        ],
+        "player_store": 8
+      },
+      "state_hash": "7b2c03e7dcb1c5cfaba7afc3a6bf5241a0850f63e5fc56c114c5662a10f0c02b"
+    }
+  ]
+}
