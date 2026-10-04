@@ -1,0 +1,12 @@
+{
+  "schema": "seed398-ff1536-confirmation-verification-correction-v1",
+  "original_publication_binding_sha256": "6a5cc5870b2fd8b73999e8527f1218b7fb2758f58d9a4e92b35c39410d4ea003",
+  "historical_verifier_sha256": "d900e3867943ffa0603bc52278bb255583428f86614db7dd889e07f9d5638040",
+  "current_verifier_sha256": "96c04932d1337e396443df66857cd8e1b088dd74043af26214861dc539b58d6e",
+  "verification_helpers": {
+    "analysis_module_sha256": "5a117989aaa07dd38814ac46e67dab8a22e2f0c100af6b991e861c411e0f3a34",
+    "evaluation_seed_contract_sha256": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "pure_rules_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036"
+  },
+  "correction": "Public verification validates source identities by reading bytes only, verifies recorded runtime identities against parent registrations, checks trajectories with pure rules and stable_hash(game.to_state()), and reproduces report and provenance matrix through the hash-bound pure analysis module. Execution preflight retains actual runtime-file validation."
+}
