@@ -1,0 +1,12 @@
+{
+  "analysis_sha256": "5a117989aaa07dd38814ac46e67dab8a22e2f0c100af6b991e861c411e0f3a34",
+  "hashes": {
+    "analysis": "f6b4dbc3507e7cbd2238b5c9cdeaf86effb98c57fb033314c090fc7ace103768",
+    "matrix": "0d9e7ee0fc4a9c2baa971d4a5a6cced358986489fe478f1e5f46ba4bf25fcdf2",
+    "new_outcomes": "ef9916611d3c7185bc55719023c4271bf10108d96728825832332dd48179b3d1",
+    "registration": "0d002e3dfc784aa1ab7ebcf6403b2fc5882629e9e7a0c562d67e63b2c223908f",
+    "results": "1b73900c0ca2b0aa155f3c96108c0a568bf42858abe4383c546e9ec918b987eb"
+  },
+  "schema": "seed398-ff1536-confirmation-publication-binding-v1",
+  "verifier_sha256": "d900e3867943ffa0603bc52278bb255583428f86614db7dd889e07f9d5638040"
+}
