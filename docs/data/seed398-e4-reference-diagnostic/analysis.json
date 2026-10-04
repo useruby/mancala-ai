@@ -1,0 +1,1179 @@
+{
+  "decision": "Reference robustness unresolved",
+  "interaction_E4_minus_seed455": {
+    "interpretation": "descriptive",
+    "mean_delta": 0.0078125,
+    "paired_bootstrap_95_interval": [
+      -0.1328125,
+      0.140625
+    ]
+  },
+  "interpretation": "Retrospective first-action comparison; does not establish minimax quality, overall strength, or promotion eligibility.",
+  "paired_matrix": [
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -20,
+        "ff_score": 0.0,
+        "ss_margin": -34,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -30,
+        "ff_score": 0.0,
+        "ss_margin": -34,
+        "ss_score": 0.0
+      },
+      "opening_index": 167,
+      "state_hash": "af058a4c0f13fbd79442a3dfa01a6ac784897646e8bba4cb24d3e789619f1f24"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 8,
+        "ff_score": 1.0,
+        "ss_margin": 10,
+        "ss_score": 1.0
+      },
+      "opening_index": 505,
+      "state_hash": "2724b8b6c7303cc275d254495379362b0a2ede24363f52c1076f83a518a0c599"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 1.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": -4,
+        "ss_score": 0.0
+      },
+      "opening_index": 355,
+      "state_hash": "91a3efb31992a82e4df444e93615c41b93aaf036123c4ce918c3f6b3501f3224"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 12,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "opening_index": 271,
+      "state_hash": "3f9f44d09c3dd360fbd2ee8c0438c68660229df4a8c17d2b25881c7d92922e2d"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -18,
+        "ff_score": 0.0,
+        "ss_margin": -4,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": -18,
+        "ss_score": 0.0
+      },
+      "opening_index": 479,
+      "state_hash": "8a7738dd1deb3c6d1bc68f0a309fcbce6603b2291cba265a7ae1fdcdc6a38e99"
+    },
+    {
+      "1536": {
+        "delta": 0.5,
+        "ff_margin": 30,
+        "ff_score": 1.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "384": {
+        "delta": 0.5,
+        "ff_margin": 26,
+        "ff_score": 1.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "opening_index": 372,
+      "state_hash": "b376c183520d176139b5143844747539a387394ecc6ff6fb69347716a88af1fd"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -20,
+        "ff_score": 0.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "opening_index": 202,
+      "state_hash": "47ec6ff5cee95d45cedbd73ec19704cbce1b532c0250c2a3026ac50e7bc63039"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 14,
+        "ff_score": 1.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "opening_index": 346,
+      "state_hash": "b8b8e9a85e1428af39ae8a16b251d2c85305e383b7acfa54699abefcc8c13f26"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "opening_index": 279,
+      "state_hash": "1bbcc7b47141627713a7589a52a01c8929187a78cbcb720fd588a6ac8a91bd68"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": -8,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": -8,
+        "ss_score": 0.0
+      },
+      "opening_index": 283,
+      "state_hash": "ad2f298ea5a1cddfdf893a484f2f5cb47a7be8534c195453354a427a88a6245e"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "opening_index": 83,
+      "state_hash": "1f1533778c44752a68ba40cf8ce903da77d945bc31f98ee74821c5b92713993b"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": -6,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "opening_index": 238,
+      "state_hash": "cc1693e2cf87b641a189750173ba99541975781ebca023c29974f6373cb82319"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -12,
+        "ff_score": 0.0,
+        "ss_margin": -12,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 1.0,
+        "ff_margin": 8,
+        "ff_score": 1.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "opening_index": 460,
+      "state_hash": "6bfb5331468703261e88ad9d52e60e861a83740a2bc3abbb2549fd8249862cea"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -14,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -18,
+        "ff_score": 0.0,
+        "ss_margin": -12,
+        "ss_score": 0.0
+      },
+      "opening_index": 405,
+      "state_hash": "0d3a12177fa8c99fbd0fb866b407fdfea396d9ac15c8cd5731b8cd6ca89de80e"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": 8,
+        "ss_score": 1.0
+      },
+      "opening_index": 506,
+      "state_hash": "23c27165eb4a046128d3f7803016074f29a8c0144bdc3b4242238526617078d0"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -14,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "opening_index": 9,
+      "state_hash": "7eaea4cdaaddb115fccd411d4bcc512034a1a097552c5e45dd7948042bc6260e"
+    },
+    {
+      "1536": {
+        "delta": 1.0,
+        "ff_margin": 10,
+        "ff_score": 1.0,
+        "ss_margin": -12,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "opening_index": 316,
+      "state_hash": "e8468113a8a2413e7340b0144043b9db0259443940c7ab3ec1e96121fc7e5ab1"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 6,
+        "ff_score": 1.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "opening_index": 59,
+      "state_hash": "6a94a229ab1c54baa45b30d3bc91403f56d2a6c088ff335a7f1bae4264d57bae"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 8,
+        "ff_score": 1.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "opening_index": 11,
+      "state_hash": "f68178330976adf5f82ee935f54580bd305916f3582e2a34e7452a61f1dbd027"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 22,
+        "ff_score": 1.0,
+        "ss_margin": 18,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 10,
+        "ff_score": 1.0,
+        "ss_margin": 20,
+        "ss_score": 1.0
+      },
+      "opening_index": 174,
+      "state_hash": "d4a99b18a968ec00e27bf783a86b57a6b6a4571cfc0a129fa77ee42f175c0bac"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "opening_index": 494,
+      "state_hash": "67fa4b1d45c40fc8fb0c86687a0bf2f4c87c8c493d43a78f7a00cd5cb3662f4e"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 12,
+        "ff_score": 1.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.5,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "opening_index": 333,
+      "state_hash": "c7b0accac76260ab691f1033cb94429c8d8458e3fed64c835542e33d4aaf8e27"
+    },
+    {
+      "1536": {
+        "delta": -0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": 12,
+        "ss_score": 1.0
+      },
+      "opening_index": 56,
+      "state_hash": "7be29358e5ec357872a9a2c6f82cb47468bc8c28ebba490b51051919e2fb047f"
+    },
+    {
+      "1536": {
+        "delta": -0.5,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": 10,
+        "ss_score": 1.0
+      },
+      "opening_index": 313,
+      "state_hash": "510e4548161cb819709659b3143dff18c0e465f99181b6ea79356d79e400346a"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -16,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -18,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "opening_index": 350,
+      "state_hash": "a1b7a00eab8926a14bee1da8035773505058481486df0d7ce40d94025467eb7b"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -14,
+        "ff_score": 0.0,
+        "ss_margin": -30,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -16,
+        "ff_score": 0.0,
+        "ss_margin": -28,
+        "ss_score": 0.0
+      },
+      "opening_index": 260,
+      "state_hash": "298558acfc678a81470149746e06581bb916ce1a22b7406b581ded35199c7466"
+    },
+    {
+      "1536": {
+        "delta": 1.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "opening_index": 146,
+      "state_hash": "611a4330e90e1ba24baabcd3732315b95e81673cb39a7e0a4d95d5ef6006c33a"
+    },
+    {
+      "1536": {
+        "delta": 0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": -8,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -14,
+        "ff_score": 0.0,
+        "ss_margin": 12,
+        "ss_score": 1.0
+      },
+      "opening_index": 41,
+      "state_hash": "2857e7730c8f0aeda37139a84c15f5aaa398ae6dffe49515ddb554bcdb1de510"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -16,
+        "ff_score": 0.0,
+        "ss_margin": -14,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": -8,
+        "ss_score": 0.0
+      },
+      "opening_index": 507,
+      "state_hash": "0303a02575aa41907c1c45a72ce11b8425b94020cc353ed03228cf71add73170"
+    },
+    {
+      "1536": {
+        "delta": 0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 1.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": -4,
+        "ss_score": 0.0
+      },
+      "opening_index": 498,
+      "state_hash": "4bdd1d9faab5ca1e5b98876b3bf245a1e7dc183611f96f64e87cc5602f10b2d8"
+    },
+    {
+      "1536": {
+        "delta": 1.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": -16,
+        "ss_score": 0.0
+      },
+      "opening_index": 461,
+      "state_hash": "3e52edea93583d59561ea722ab441979e0fa6cfa7fb4b5bfaeb97e2b4b0126f9"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 14,
+        "ff_score": 1.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "opening_index": 443,
+      "state_hash": "aaef7b9cb2a7250cb33da41a8ebf6b35bdb0750915c5a5dd907650498bf2c847"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 6,
+        "ff_score": 1.0,
+        "ss_margin": 8,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 6,
+        "ff_score": 1.0,
+        "ss_margin": 8,
+        "ss_score": 1.0
+      },
+      "opening_index": 188,
+      "state_hash": "ca5cb0dc89fb88f8db87da2e9ba7ffc17a49f3ff641794928faa303edfae7580"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 8,
+        "ff_score": 1.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "opening_index": 503,
+      "state_hash": "1e86602b78db112f46bf066fbdf54021a2a32f7cac3430b79f4f4132a4c26551"
+    },
+    {
+      "1536": {
+        "delta": -0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": 18,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": 18,
+        "ss_score": 1.0
+      },
+      "opening_index": 295,
+      "state_hash": "baa7c6a6a382e2f638309754947dd64e9b0ad064099d0533ff1426488bda20f5"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 8,
+        "ff_score": 1.0,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 22,
+        "ff_score": 1.0,
+        "ss_margin": 12,
+        "ss_score": 1.0
+      },
+      "opening_index": 172,
+      "state_hash": "3c39a880a607516bdf35a64e65039729b7ffe238a982b04595dd0b19f1710aaf"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 14,
+        "ff_score": 1.0,
+        "ss_margin": 12,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "opening_index": 186,
+      "state_hash": "50ea0c1162027959f3664dda84b434011026cdece56a6d84a2444c9d0c0b01d4"
+    },
+    {
+      "1536": {
+        "delta": 1.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": -8,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": -4,
+        "ss_score": 0.0
+      },
+      "opening_index": 444,
+      "state_hash": "be712e0fc7e80ff04a16b3ff168bba48c2ba8c6da8e030016110e460a3c0122e"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -10,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -14,
+        "ff_score": 0.0,
+        "ss_margin": -6,
+        "ss_score": 0.0
+      },
+      "opening_index": 306,
+      "state_hash": "0278b645de868540b831d2e3e6a4fa608cb572d21eafbce2b59a5d106c2430b5"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -20,
+        "ff_score": 0.0,
+        "ss_margin": -30,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -26,
+        "ff_score": 0.0,
+        "ss_margin": -20,
+        "ss_score": 0.0
+      },
+      "opening_index": 5,
+      "state_hash": "c36342855bc30b5ef2fdc106a3aaf8ec1097f161381cae4938d993cf7f6f5b5d"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 6,
+        "ff_score": 1.0,
+        "ss_margin": 10,
+        "ss_score": 1.0
+      },
+      "opening_index": 136,
+      "state_hash": "353022f3739af4268a63e3fb3dd9b13263c981377c5ec5392b9e748e0ab75a11"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "opening_index": 356,
+      "state_hash": "2b8406ae5174460b060136e548851878a9f31b4c5bbf0709d8f54ef12729996b"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 16,
+        "ff_score": 1.0,
+        "ss_margin": 10,
+        "ss_score": 1.0
+      },
+      "opening_index": 147,
+      "state_hash": "b874faaa1d742565e05ba6648c2ec64759cc7cdb13d0b13cd5f2eeb7c3e54bcd"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -22,
+        "ff_score": 0.0,
+        "ss_margin": -6,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "opening_index": 304,
+      "state_hash": "4b45a36d2fc8d008125a6af3bb38e775d86274b4393ff7eb607c1c962aa02f2e"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -10,
+        "ff_score": 0.0,
+        "ss_margin": -16,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -30,
+        "ss_score": 0.0
+      },
+      "opening_index": 17,
+      "state_hash": "a04492ed2f4ec9fd9d4abb54ec59c59c8548dfc64d2770805da082d35c6f36b3"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -22,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "opening_index": 164,
+      "state_hash": "0702710290a56aa5bad89a4ca8efd724259b520907e4d2a3104ea4e5f15e537c"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 2,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "opening_index": 191,
+      "state_hash": "58106a26f2975e2fecf206fe408569007a59ec114c79c58b7dcab13f9510da29"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "opening_index": 288,
+      "state_hash": "350e33f27bf189d193e046153a375cf5992edf551ddc8d8c3040ba74e59082b2"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": -6,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -12,
+        "ss_score": 0.0
+      },
+      "opening_index": 290,
+      "state_hash": "01b6d2da13ed7d44deba1764168a4db0c322ea6aa799a0e12fde0ca52c8116d9"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -4,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -2,
+        "ff_score": 0.0,
+        "ss_margin": 6,
+        "ss_score": 1.0
+      },
+      "opening_index": 92,
+      "state_hash": "371dab0a55fb6ce4f01dbcb221c4520f42a143cc5088f29e8b406e2a950419bd"
+    },
+    {
+      "1536": {
+        "delta": -1.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": -1.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": 8,
+        "ss_score": 1.0
+      },
+      "opening_index": 127,
+      "state_hash": "86029a0c934bf7ccafbd4a02f4fe8299dd370c188c0d9acc9b4a8ed42799787d"
+    },
+    {
+      "1536": {
+        "delta": 1.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": -6,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 1.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": -20,
+        "ss_score": 0.0
+      },
+      "opening_index": 49,
+      "state_hash": "3e85c14c56e5fa0a2a6e1fa49a83618d3b5ef17232762e81828c8ca461806949"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": -8,
+        "ss_score": 0.0
+      },
+      "opening_index": 224,
+      "state_hash": "fa675737408deb45d39f6e498603cb5c0d91091bbec38d8d6c17380ebd4be236"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -10,
+        "ff_score": 0.0,
+        "ss_margin": -22,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": -16,
+        "ss_score": 0.0
+      },
+      "opening_index": 267,
+      "state_hash": "49b4972b8988a7f59043c06f27c95d566e1f68dfc6c1c24f1a74697e50b62e42"
+    },
+    {
+      "1536": {
+        "delta": -0.5,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -12,
+        "ff_score": 0.0,
+        "ss_margin": -20,
+        "ss_score": 0.0
+      },
+      "opening_index": 281,
+      "state_hash": "535c8d6e4103e355f8168691e16904a00398c32ab599efebead8f59ffb4f9bea"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": -12,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": 0,
+        "ff_score": 0.5,
+        "ss_margin": 8,
+        "ss_score": 1.0
+      },
+      "opening_index": 475,
+      "state_hash": "1591c6aba1c8acc5f2c30815c3bed0d884d6aebc0aa90cc7d8112dabf439ca14"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 4,
+        "ff_score": 1.0,
+        "ss_margin": 4,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 12,
+        "ss_score": 1.0
+      },
+      "opening_index": 462,
+      "state_hash": "ba3137e6d3cee09ce5f4d005f1b76c384a7fd27f4cb41ad85541261153a101e9"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 22,
+        "ff_score": 1.0,
+        "ss_margin": 20,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 22,
+        "ff_score": 1.0,
+        "ss_margin": 8,
+        "ss_score": 1.0
+      },
+      "opening_index": 166,
+      "state_hash": "1ed88a1ead0b1f93aacd7f52eda7237b0a701cb5070a2978367ce31798de0ecc"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": 2,
+        "ff_score": 1.0,
+        "ss_margin": 12,
+        "ss_score": 1.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": 6,
+        "ff_score": 1.0,
+        "ss_margin": 8,
+        "ss_score": 1.0
+      },
+      "opening_index": 217,
+      "state_hash": "b606e4701dd8abc7d9a858bce8f133dbfb36bc40e5c0ecc2e93bb685877d39e1"
+    },
+    {
+      "1536": {
+        "delta": -0.5,
+        "ff_margin": -6,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "384": {
+        "delta": -0.5,
+        "ff_margin": -22,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "opening_index": 382,
+      "state_hash": "37acc2bcb0040cd6e3b2c97095b4eb5be020fc6cd265f1a2b201ac09abe4e28c"
+    },
+    {
+      "1536": {
+        "delta": -0.5,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "384": {
+        "delta": 0.5,
+        "ff_margin": 18,
+        "ff_score": 1.0,
+        "ss_margin": 0,
+        "ss_score": 0.5
+      },
+      "opening_index": 270,
+      "state_hash": "2e4f566155abfd605a40ee00307ad8b48b80a1acd058291413f2a37aaaf6b2bb"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -4,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "opening_index": 431,
+      "state_hash": "0cfb7fae432227e49712e41c25021ae41377ec3f9d3663b073e58b1b7a22b7a1"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -10,
+        "ff_score": 0.0,
+        "ss_margin": -26,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -12,
+        "ff_score": 0.0,
+        "ss_margin": -16,
+        "ss_score": 0.0
+      },
+      "opening_index": 81,
+      "state_hash": "1e841d5c6a6dac539c4b73f64c1aab5923c2eccedd8723867650a0806d3a28b9"
+    },
+    {
+      "1536": {
+        "delta": 0.0,
+        "ff_margin": -8,
+        "ff_score": 0.0,
+        "ss_margin": -10,
+        "ss_score": 0.0
+      },
+      "384": {
+        "delta": 0.0,
+        "ff_margin": -20,
+        "ff_score": 0.0,
+        "ss_margin": -2,
+        "ss_score": 0.0
+      },
+      "opening_index": 286,
+      "state_hash": "7b2c03e7dcb1c5cfaba7afc3a6bf5241a0850f63e5fc56c114c5662a10f0c02b"
+    }
+  ],
+  "primary": {
+    "budget": 1536,
+    "mean_delta": -0.1015625,
+    "paired_bootstrap_95_interval": [
+      -0.2265625,
+      0.0234375
+    ]
+  },
+  "schema": "seed398-e4-reference-diagnostic-analysis-v1",
+  "secondary": {
+    "budget": 384,
+    "mean_delta": -0.1015625
+  }
+}

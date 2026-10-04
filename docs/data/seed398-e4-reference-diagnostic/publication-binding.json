@@ -1,0 +1,14 @@
+{
+  "analysis_sha256": "857a7b08a2c2f04c68315e485ef51d0c6e98e5ffbfb5cd3b2adca9a86d8208a4",
+  "outcomes_sha256": "2c5c028f61039216b3f1b4aae03376820a63785449c260744a17568c1189aae8",
+  "published_files": [
+    "registration.json",
+    "outcomes.jsonl",
+    "analysis.json",
+    "results.md"
+  ],
+  "registration_sha256": "432450d886ff9fb8eedc4f078caf8625c1c04c0d417c4b471a290f2ed6ea153b",
+  "schema": "seed398-e4-reference-diagnostic-publication-binding-v1",
+  "verification_command": "PYTHONPATH=. python -m ml.alphazero_lite.verify_seed398_e4_reference_diagnostic",
+  "verifier_sha256": "55975a8dce0cc8d1d039df4bd485fe17d5bf534597153ae0dd85e9d64ab5597c"
+}
