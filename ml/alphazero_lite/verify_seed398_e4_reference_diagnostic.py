@@ -92,35 +92,61 @@ def verify() -> dict[str, Any]:
         binding["analysis_sha256"] == sha(analysis_path), "publication_analysis_binding"
     )
     correction_path = DATA / "verifier-correction-receipt.json"
-    if correction_path.exists():
-        receipt = json.loads(correction_path.read_bytes())
+    successor_path = DATA / "verifier-correction-receipt-v2.json"
+    require(correction_path.is_file(), "correction_receipt_missing")
+    require(successor_path.is_file(), "correction_successor_receipt_missing")
+    receipt = json.loads(correction_path.read_bytes())
+    successor = json.loads(successor_path.read_bytes())
+    helper_sha256 = sha(Path(seed398_e4_report.__file__))
+    current_verifier_sha256 = sha(Path(__file__))
+    evidence = {
+        "analysis_sha256": hashlib.sha256(analysis_bytes).hexdigest(),
+        "registration_sha256": sha(reg_path),
+        "outcomes_sha256": hashlib.sha256(ledger_bytes).hexdigest(),
+    }
+    require(
+        receipt["original_publication_binding_sha256"] == sha(binding_path),
+        "correction_binding_identity",
+    )
+    require(
+        receipt["old_verifier_sha256"] == binding["verifier_sha256"],
+        "correction_old_verifier_identity",
+    )
+    require(
+        receipt["helper_sha256"] == helper_sha256,
+        "correction_helper_identity",
+    )
+    for name, digest in evidence.items():
+        require(receipt[name] == digest, f"correction_{name}_identity")
+    require(
+        successor["schema"] == "seed398-e4-reference-diagnostic-verifier-correction-v2",
+        "correction_successor_schema",
+    )
+    require(
+        successor["predecessor_receipt_sha256"] == sha(correction_path),
+        "correction_predecessor_hash",
+    )
+    require(
+        successor["previous_verifier_sha256"] == receipt["new_verifier_sha256"],
+        "correction_previous_verifier_identity",
+    )
+    require(
+        successor["current_verifier_sha256"] == current_verifier_sha256,
+        "correction_current_verifier_identity",
+    )
+    require(
+        successor["helper_sha256"] == receipt["helper_sha256"] == helper_sha256,
+        "correction_successor_helper_identity",
+    )
+    require(
+        successor["original_publication_binding_sha256"]
+        == receipt["original_publication_binding_sha256"]
+        == sha(binding_path),
+        "correction_successor_binding_identity",
+    )
+    for name, digest in evidence.items():
         require(
-            receipt["original_publication_binding_sha256"] == sha(binding_path),
-            "correction_binding_identity",
-        )
-        require(
-            receipt["old_verifier_sha256"] == binding["verifier_sha256"],
-            "correction_old_verifier_identity",
-        )
-        require(
-            receipt["new_verifier_sha256"] == sha(Path(__file__)),
-            "correction_new_verifier_identity",
-        )
-        require(
-            receipt["analysis_sha256"] == hashlib.sha256(analysis_bytes).hexdigest(),
-            "correction_analysis_identity",
-        )
-        require(
-            receipt["registration_sha256"] == sha(reg_path),
-            "correction_registration_identity",
-        )
-        require(
-            receipt["outcomes_sha256"] == hashlib.sha256(ledger_bytes).hexdigest(),
-            "correction_ledger_identity",
-        )
-        require(
-            receipt["helper_sha256"] == sha(Path(seed398_e4_report.__file__)),
-            "correction_helper_identity",
+            successor[name] == digest == receipt[name], f"successor_{name}_identity"
         )
     require(
         reg_path.read_bytes() == reg_bytes,

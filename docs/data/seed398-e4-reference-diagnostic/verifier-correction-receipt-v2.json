@@ -1,0 +1,11 @@
+{
+  "analysis_sha256": "857a7b08a2c2f04c68315e485ef51d0c6e98e5ffbfb5cd3b2adca9a86d8208a4",
+  "current_verifier_sha256": "cd781d068d3fec1e190d3c9064988eae09d29a582f95c8955b1c4d56da4b3cbf",
+  "helper_sha256": "7745741648d446c3f3e4ab68a0b93c0430cec0b464e07af47b776c7eaebd10c7",
+  "original_publication_binding_sha256": "3278bcd02da6bed7cd7239d5d023a7e074f25076c1d903508e0d9103b16b7647",
+  "outcomes_sha256": "2c5c028f61039216b3f1b4aae03376820a63785449c260744a17568c1189aae8",
+  "predecessor_receipt_sha256": "558909ac282bed7291eed90335e3e782014cbd4bb8e3c712bb07a9d8a297ca85",
+  "previous_verifier_sha256": "9fb42c60d8ef824677a8143fd2aae23e45ca7f5b8a165c0e6106d45c9f0af5ef",
+  "registration_sha256": "432450d886ff9fb8eedc4f078caf8625c1c04c0d417c4b471a290f2ed6ea153b",
+  "schema": "seed398-e4-reference-diagnostic-verifier-correction-v2"
+}

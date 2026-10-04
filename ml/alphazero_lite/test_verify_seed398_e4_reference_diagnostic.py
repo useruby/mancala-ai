@@ -3,11 +3,101 @@
 from __future__ import annotations
 
 import json
+import shutil
 
 import pytest
 
 from ml.alphazero_lite import verify_seed398_e4_reference_diagnostic as verifier
 from ml.alphazero_lite.seed398_e4_report import calculate_report
+
+
+@pytest.fixture
+def isolated_publication(tmp_path, monkeypatch):
+    data = tmp_path / "publication"
+    shutil.copytree(verifier.DATA, data)
+    monkeypatch.setattr(verifier, "DATA", data)
+    return data
+
+
+def _all_bytes(data):
+    return {path.name: path.read_bytes() for path in data.iterdir() if path.is_file()}
+
+
+def test_receipt_chain_required_and_read_only(isolated_publication) -> None:
+    before = _all_bytes(isolated_publication)
+    assert verifier.verify()["status"] == "verified"
+    assert _all_bytes(isolated_publication) == before
+
+
+@pytest.mark.parametrize(
+    ("receipt_name", "error"),
+    [
+        ("verifier-correction-receipt.json", "correction_receipt_missing"),
+        ("verifier-correction-receipt-v2.json", "correction_successor_receipt_missing"),
+    ],
+)
+def test_missing_receipt_fails_read_only(
+    isolated_publication, receipt_name, error
+) -> None:
+    (isolated_publication / receipt_name).unlink()
+    before = _all_bytes(isolated_publication)
+    with pytest.raises(ValueError, match=error):
+        verifier.verify()
+    assert _all_bytes(isolated_publication) == before
+
+
+@pytest.mark.parametrize(
+    ("receipt_name", "field", "value", "error"),
+    [
+        (
+            "verifier-correction-receipt.json",
+            "new_verifier_sha256",
+            "0" * 64,
+            "correction_predecessor_hash",
+        ),
+        (
+            "verifier-correction-receipt.json",
+            "helper_sha256",
+            "0" * 64,
+            "correction_helper_identity",
+        ),
+        (
+            "verifier-correction-receipt-v2.json",
+            "previous_verifier_sha256",
+            "0" * 64,
+            "correction_previous_verifier_identity",
+        ),
+        (
+            "verifier-correction-receipt-v2.json",
+            "current_verifier_sha256",
+            "0" * 64,
+            "correction_current_verifier_identity",
+        ),
+        (
+            "verifier-correction-receipt-v2.json",
+            "helper_sha256",
+            "0" * 64,
+            "correction_successor_helper_identity",
+        ),
+        (
+            "verifier-correction-receipt-v2.json",
+            "predecessor_receipt_sha256",
+            "0" * 64,
+            "correction_predecessor_hash",
+        ),
+    ],
+)
+def test_altered_receipt_identity_fails_read_only(
+    isolated_publication, receipt_name, field, value, error
+) -> None:
+    path = isolated_publication / receipt_name
+    record = json.loads(path.read_bytes())
+    record[field] = value
+    path.write_text(json.dumps(record))
+    before = _all_bytes(isolated_publication)
+    with pytest.raises(ValueError, match=error):
+        verifier.verify()
+    assert _all_bytes(isolated_publication) == before
 
 
 def _published_bytes() -> dict[str, bytes]:
