@@ -32,6 +32,7 @@ EXECUTION_AMENDMENT = OUT / "execution-amendment-v1.json"
 PREVIOUS_AMENDMENT = OUT / "execution-amendment-v3.json"
 FALLBACK_LEDGER = OUT / "outcomes.jsonl"
 FALLBACK_ARCHIVE = OUT / "fallback-archive/outcomes.python-fallback.jsonl"
+ANALYSIS_CORRECTION = OUT / "analysis-correction-receipt.json"
 BUDGETS = (1536, 384)
 OPTIONS = {
     "fpu_mode": "zero",
@@ -146,10 +147,14 @@ def verify_frozen(reg: dict[str, Any]) -> None:
         != run_amendment["corrected_source_sha256"]
     ):
         raise ValueError("postrun_amendment_chain_mismatch")
-    corrected = amendment["corrected_source_sha256"]
     current = source_hashes()
-    if current != corrected:
-        raise ValueError("corrected_execution_source_changed")
+    receipt = json.loads(ANALYSIS_CORRECTION.read_text())
+    if receipt["executed_source_sha256"] != amendment["executed_source_sha256"]:
+        raise ValueError("analysis_correction_execution_identity_mismatch")
+    if receipt["post_execution_source_sha256"] != amendment["corrected_source_sha256"]:
+        raise ValueError("analysis_correction_post_execution_identity_mismatch")
+    if receipt["current_source_sha256"] != current:
+        raise ValueError("analysis_correction_source_identity_mismatch")
     policy = load_runtime_search_policy(ARTIFACT)
     runtime = reg["reference"]
     if policy is None or policy["exact_root_threshold"] != 16:
@@ -430,12 +435,19 @@ def analyze(
 ) -> dict[str, Any]:
     reg = reg or json.loads((OUT / "registration.json").read_text())
     if rows is None:
-        rows = [
-            json.loads(x)
-            for x in (OUT / "outcomes.jsonl").read_text().splitlines()
-            if x
-        ]
-    grouped = {(r["opening_index"], r["action"], r["budget"]): r for r in rows}
+        rows = [json.loads(x) for x in NATIVE_LEDGER.read_text().splitlines() if x]
+    states = {state["opening_index"]: state for state in reg["states"]}
+    grouped = {}
+    for row in rows:
+        try:
+            state = states[row["opening_index"]]
+        except (KeyError, TypeError) as exc:
+            raise ValueError("outcome_ledger_state_invalid") from exc
+        validate_outcome(row, state)
+        key = (row["opening_index"], row["action"], row["budget"])
+        if key in grouped:
+            raise ValueError("duplicate_outcome")
+        grouped[key] = row
     expected_keys = {
         (s["opening_index"], a, b)
         for s in reg["states"]

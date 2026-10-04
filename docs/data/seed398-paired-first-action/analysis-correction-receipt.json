@@ -1,0 +1,42 @@
+{
+  "schema": "seed398-paired-first-action-analysis-correction-v1",
+  "reason": "Standalone analyze selected the retired ten-row Python fallback ledger and did not validate trajectories before statistics. Reanalysis now selects and validates the complete native ledger.",
+  "prior_execution_amendment_sha256": "d732c7dccce13df0d73f7565d39865a11b9e25aa85540512e053020727169f0b",
+  "executed_source_sha256": {
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "diagnostic": "ca5b86cf49122048b0a445416641b6ed3b7558ddbe0f04adff026e4c5e711153",
+    "exact_root_decision": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+  },
+  "post_execution_source_sha256": {
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "diagnostic": "c7c3380d0fec814d83b59aa78b58355ab0f8f29e173e8ad72eb02d391e0d4dad",
+    "exact_root_decision": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+  },
+  "current_source_sha256": {
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "diagnostic": "830d88db4708fc77cb3498ae61b94cde6394543219e2385cb82447d552b07ba8",
+    "exact_root_decision": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+  },
+  "registration_sha256": "1acaa4a74c3abc1bc4469b65e4c523dc8722bd56da47863796c5da2ff53993a6",
+  "native_ledger_sha256": "5fc9b465be41b32f5a79c9dd4d0f14207358b565c0d2431549c6163e238c2e7d",
+  "fallback_ledger_sha256": "4539285c6859099149d9892f4a384c4bfcb475ba3d141ae5e8bc22ae075828b0",
+  "analysis_sha256": "401cc07120196e91e7aaecedee4cfe4bbbe2727feebe991ad2ae0ad35dc181e7",
+  "outcomes_replayed": 256,
+  "games_run": 0,
+  "classification": "SS-action advantage",
+  "primary_mean_delta": -0.109375,
+  "primary_interval": [-0.2109375, -0.015625],
+  "secondary_mean_delta": -0.046875
+}

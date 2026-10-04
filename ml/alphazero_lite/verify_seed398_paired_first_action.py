@@ -155,6 +155,7 @@ def verify() -> dict[str, Any]:
     previous_amendment_path = DATA / "execution-amendment-v3.json"
     intermediate_amendment_path = DATA / "execution-amendment-v2.json"
     final_amendment_path = DATA / "execution-amendment-v4.json"
+    correction_receipt_path = DATA / "analysis-correction-receipt.json"
     original_path = DATA / "outcomes.jsonl"
     archive_path = DATA / "fallback-archive/outcomes.python-fallback.jsonl"
     native_path = DATA / "native-outcomes.jsonl"
@@ -194,10 +195,35 @@ def verify() -> dict[str, Any]:
         == amendment["corrected_source_sha256"],
         "amendment_chain_mismatch",
     )
+    correction_receipt = json.loads(correction_receipt_path.read_text())
     require(
-        final_amendment["corrected_source_sha256"]["diagnostic"]
-        == sha256(ROOT / "ml/alphazero_lite/seed398_paired_first_action.py"),
-        "corrected_source_hash_mismatch",
+        correction_receipt["executed_source_sha256"]
+        == final_amendment["executed_source_sha256"]
+        and correction_receipt["post_execution_source_sha256"]
+        == final_amendment["corrected_source_sha256"]
+        and correction_receipt["prior_execution_amendment_sha256"]
+        == sha256(final_amendment_path),
+        "analysis_correction_executed_source_mismatch",
+    )
+    source_paths = {
+        "diagnostic": ROOT / "ml/alphazero_lite/seed398_paired_first_action.py",
+        "arena": ROOT / "ml/alphazero_lite/arena.py",
+        "rules": ROOT / "ml/alphazero_lite/kalah_rules.py",
+        "seed_contract": ROOT / "ml/alphazero_lite/evaluation_seed_contract.py",
+        "native_adapter": ROOT / "ml/alphazero_lite/native_exact_root_tablebase.py",
+        "exact_root_decision": ROOT / "ml/alphazero_lite/exact_root_decision.py",
+        "runtime_search_policy": ROOT / "ml/alphazero_lite/runtime_search_policy.py",
+    }
+    require(
+        correction_receipt["current_source_sha256"]
+        == {name: sha256(path) for name, path in source_paths.items()},
+        "analysis_correction_source_hash_mismatch",
+    )
+    require(
+        correction_receipt["registration_sha256"] == sha256(reg_path)
+        and correction_receipt["native_ledger_sha256"] == sha256(native_path)
+        and correction_receipt["fallback_ledger_sha256"] == sha256(original_path),
+        "analysis_correction_evidence_identity_mismatch",
     )
     require(
         reg["source_registration_sha256"] == sha256(SOURCE / "registration.json"),
@@ -230,6 +256,10 @@ def verify() -> dict[str, Any]:
     report = json.loads(analysis_path.read_text())
     for field, value in summary.items():
         require(report[field] == value, f"analysis_mismatch:{field}")
+    require(
+        correction_receipt["analysis_sha256"] == sha256(analysis_path),
+        "analysis_correction_analysis_hash_mismatch",
+    )
     require(
         report["seed398_groups_descriptive"]
         == {
