@@ -1,0 +1,65 @@
+{
+  "corrected_ledger": "native-outcomes.jsonl",
+  "corrected_source_sha256": {
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "diagnostic": "f8be6f71b6e11bbc34afe4d0c41f329fdf015b7408717269c3b32def9cecfa06",
+    "exact_root_decision": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+  },
+  "created_before_corrected_run": false,
+  "execution_run_completed_before_amendment": true,
+  "executed_source_sha256": {
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "diagnostic": "ca5b86cf49122048b0a445416641b6ed3b7558ddbe0f04adff026e4c5e711153",
+    "exact_root_decision": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+  },
+  "fallback_archive_sha256": "4539285c6859099149d9892f4a384c4bfcb475ba3d141ae5e8bc22ae075828b0",
+  "fallback_outcomes_count": 10,
+  "fallback_outcomes_sha256": "4539285c6859099149d9892f4a384c4bfcb475ba3d141ae5e8bc22ae075828b0",
+  "original_registration_sha256": "1acaa4a74c3abc1bc4469b65e4c523dc8722bd56da47863796c5da2ff53993a6",
+  "original_source_sha256": {
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "diagnostic": "c0d8a69d8d3ad166abc6cb111e20b091bc154a9ff721bbdfd12c14fb0f55e3e3",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+  },
+  "post_run_source_note": "After the durable 256-game run completed, Ruff formatting/check cleanup changed formatting only; the executed source hash is retained above and the final source hash below. Experiment logic and all outcomes are unchanged.",
+  "prior_amendment_sha256": "45ac3670975cb4087d256302a2dac5b9929df2e8bd97a06a0c356b16db3dd189",
+  "reason": "evaluate_artifact_position skips sidecar loading when an explicit exact_root_solve_threshold is supplied. With no endgame_tablebase argument, eligible roots used the Python EndgameTablebase fallback. Corrected runner supplies one registered NativeExactRootTablebase adapter for its lifetime, hash-verifies the native probe/tablebase/runtime sidecar, requires exact native handoff at every <=16-stone continuation decision, and closes the adapter in finally.",
+  "schema": "seed398-paired-first-action-execution-amendment-v2",
+  "scope_preserved": {
+    "actions": [
+      "SS",
+      "FF"
+    ],
+    "analysis": {
+      "decision_rule": {
+        "FF": "mean >= 0.03, lower CI > 0, secondary mean >= 0",
+        "SS": "mean <= -0.03, upper CI < 0, secondary mean <= 0",
+        "otherwise": "no clear action advantage",
+        "reference-dependent": "significant primary direction reverses at secondary budget"
+      },
+      "interval": [
+        0.025,
+        0.975
+      ],
+      "paired_bootstrap_samples": 10000,
+      "paired_bootstrap_seed": 406,
+      "primary_budget": 1536
+    },
+    "budgets": [
+      1536,
+      384
+    ],
+    "games": 256,
+    "seed_contract": "For each opening, budget, decision ply, canonical state hash, and acting player, derive azlite_eval_seed_v2 seed from SHA256 context. Branch/action identity is deliberately absent; identical contexts get identical seeds.",
+    "states": 64
+  }
+}
